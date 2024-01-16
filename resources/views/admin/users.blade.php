@@ -198,7 +198,7 @@
                                                     </li>
                                                 </ul>
                                             </td>
-                                            <td class="opportunities d-none"></td>
+                                            <td class="vacancies d-none"></td>
                                         </tr>
                                     @endif
                                 </tbody>
