@@ -63,13 +63,13 @@
                             <div class="p-3">
                                 <div class="row align-items-center">
                                     <div class="col">
-                                        <h6 class="m-0 fs-16 fw-semibold text-white"> 
-                                            Notifications 
+                                        <h6 class="m-0 fs-16 fw-semibold text-white">
+                                            Notifications
                                         </h6>
                                     </div>
                                     <div class="col-auto dropdown-tabs">
-                                        <span class="badge bg-light-subtle text-body fs-13  notificationNewBadge"> 
-                                            {{ $notifications->where('read', 'No')->count() }} 
+                                        <span class="badge bg-light-subtle text-body fs-13  notificationNewBadge">
+                                            {{ $notifications->where('read', 'No')->count() }}
                                             New
                                         </span>
                                     </div>
@@ -86,7 +86,7 @@
                                     <li class="nav-item waves-effect waves-light">
                                         <a class="nav-link" data-bs-toggle="tab" href="#messages-tab" role="tab" aria-selected="false">
                                             Messages
-                                        </a>                                        
+                                        </a>
                                     </li>
                                     <li class="nav-item waves-effect waves-light">
                                         <a class="nav-link" data-bs-toggle="tab" href="#alerts-tab" role="tab" aria-selected="false">
@@ -115,17 +115,17 @@
                                                                 Unread Notification
                                                             </span>
                                                         </span>
-                                                    @endif                                                                                   
-                                                    <div class="d-flex">                                                        
+                                                    @endif
+                                                    <div class="d-flex">
                                                         <img src="{{ URL::asset('images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
-                                                        <div class="flex-grow-1">                                                                                                                       
+                                                        <div class="flex-grow-1">
                                                             <h6 class="mt-0 mb-1 fs-13 fw-semibold">
                                                                 {{ $notification->causer->firstname }} {{ $notification->causer->lastname }}
                                                             </h6>
                                                             @if ($notification->subject)
                                                                 <div class="fs-13 text-muted">
                                                                     <p class="mb-1">
-                                                                        {{ $notification->notification }} on 
+                                                                        {{ $notification->notification }} on
                                                                         <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString(optional($notification->subject)->vacancy->id)]) }}">
                                                                             <b class="text-{{ optional($notification->subject)->vacancy->position->color ?? 'primary'; }}">
                                                                                 {{ optional($notification->subject)->vacancy->position->name ?? 'N/A'; }}
@@ -135,7 +135,7 @@
                                                                 </div>
                                                                 <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
                                                                     <span>
-                                                                        <i class="mdi mdi-clock-outline"></i> 
+                                                                        <i class="mdi mdi-clock-outline"></i>
                                                                         {{ $notification->created_at->diffForHumans() }}
                                                                     </span>
                                                                 </p>
@@ -176,7 +176,7 @@
                                                                 Unread Notification
                                                             </span>
                                                         </span>
-                                                    @endif 
+                                                    @endif
                                                     <div class="d-flex">
                                                         <img src="{{ URL::asset('images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                         <div class="flex-grow-1">
@@ -191,7 +191,7 @@
                                                                 </div>
                                                                 <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
                                                                     <span>
-                                                                        <i class="mdi mdi-clock-outline"></i> 
+                                                                        <i class="mdi mdi-clock-outline"></i>
                                                                         {{ $notification->created_at->diffForHumans() }}
                                                                     </span>
                                                                 </p>
@@ -235,7 +235,7 @@
                                                                 </div>
                                                                 <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
                                                                     <span>
-                                                                        <i class="mdi mdi-clock-outline"></i> 
+                                                                        <i class="mdi mdi-clock-outline"></i>
                                                                         {{ $notification->created_at->diffForHumans() }}
                                                                     </span>
                                                                 </p>
@@ -267,7 +267,7 @@
                                                                 </div>
                                                                 <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
                                                                     <span>
-                                                                        <i class="mdi mdi-clock-outline"></i> 
+                                                                        <i class="mdi mdi-clock-outline"></i>
                                                                         {{ $notification->created_at->diffForHumans() }}
                                                                     </span>
                                                                 </p>
@@ -303,7 +303,7 @@
                                                                 </div>
                                                                 <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
                                                                     <span>
-                                                                        <i class="mdi mdi-clock-outline"></i> 
+                                                                        <i class="mdi mdi-clock-outline"></i>
                                                                         {{ $notification->created_at->diffForHumans() }}
                                                                     </span>
                                                                 </p>
@@ -319,7 +319,7 @@
                                                 @endif
                                             @endif
                                         @endif
-                                    @endforeach 
+                                    @endforeach
                                 </div>
                             </div>
 
@@ -338,7 +338,7 @@
                                                             Unread Notification
                                                         </span>
                                                     </span>
-                                                @endif 
+                                                @endif
                                                 <div class="d-flex">
                                                     <img src="{{ URL::asset('images/' . $message->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                     <div class="flex-grow-1">
@@ -353,7 +353,7 @@
                                                             </div>
                                                             <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
                                                                 <span>
-                                                                    <i class="mdi mdi-clock-outline"></i> 
+                                                                    <i class="mdi mdi-clock-outline"></i>
                                                                     {{ $message->created_at->diffForHumans() }}
                                                                 </span>
                                                             </p>
@@ -377,10 +377,10 @@
                                             </div>
                                         @endif
                                     @endforeach
-                                    
+
                                     <div class="my-3 text-center view-all">
                                         <a href="{{ route('messages.index') }}" class="btn btn-soft-secondary waves-effect waves-light">
-                                            View All Messages 
+                                            View All Messages
                                             <i class="ri-arrow-right-line align-middle"></i>
                                         </a>
                                     </div>
@@ -402,7 +402,7 @@
                                                             Unread Notification
                                                         </span>
                                                     </span>
-                                                @endif 
+                                                @endif
                                                 <div class="d-flex">
                                                     <img src="{{ URL::asset('images/' . $alert->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                     <div class="flex-grow-1">
@@ -412,7 +412,7 @@
                                                         @if ($alert->subject)
                                                             <div class="fs-13 text-muted">
                                                                 <p class="mb-1">
-                                                                    {{ $alert->notification }} on 
+                                                                    {{ $alert->notification }} on
                                                                     <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString(optional($alert->subject)->vacancy->id)]) }}">
                                                                         <b class="text-{{ optional($alert->subject)->vacancy->position->color ?? 'primary'; }}">
                                                                             {{ optional($alert->subject)->vacancy->position->name ?? 'N/A'; }}
@@ -422,7 +422,7 @@
                                                             </div>
                                                             <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
                                                                 <span>
-                                                                    <i class="mdi mdi-clock-outline"></i> 
+                                                                    <i class="mdi mdi-clock-outline"></i>
                                                                     {{ $alert->created_at->diffForHumans() }}
                                                                 </span>
                                                             </p>
@@ -477,7 +477,7 @@
                                                             </div>
                                                             <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
                                                                 <span>
-                                                                    <i class="mdi mdi-clock-outline"></i> 
+                                                                    <i class="mdi mdi-clock-outline"></i>
                                                                     {{ $alert->created_at->diffForHumans() }}
                                                                 </span>
                                                             </p>
@@ -509,7 +509,7 @@
                                                             </div>
                                                             <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
                                                                 <span>
-                                                                    <i class="mdi mdi-clock-outline"></i> 
+                                                                    <i class="mdi mdi-clock-outline"></i>
                                                                     {{ $notification->created_at->diffForHumans() }}
                                                                 </span>
                                                             </p>
@@ -560,7 +560,7 @@
                         <!-- item-->
                         <h6 class="dropdown-header">Welcome {{Auth::user()->firstname}}!</h6>
                         <a class="dropdown-item" href="profile">
-                            <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i> 
+                            <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Profile</span>
                         </a>
                         <a class="dropdown-item" href="/messages">
@@ -569,11 +569,11 @@
                                     {{$messages->count()}}
                                 </span>
                             @endif
-                            <i class="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i> 
+                            <i class="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Messages</span>
                         </a>
                         <a class="dropdown-item" href="faqs">
-                            <i class="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i> 
+                            <i class="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Help</span>
                         </a>
                         <div class="dropdown-divider"></div>
@@ -581,14 +581,14 @@
                             <span class="badge bg-success-subtle text-success mt-1 float-end">
                                 New
                             </span>
-                            <i class="mdi mdi-cog-outline text-muted fs-16 align-middle me-1"></i> 
+                            <i class="mdi mdi-cog-outline text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Settings</span></a>
                         <a class="dropdown-item" href="lockscreen">
-                            <i class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i> 
+                            <i class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Lock screen</span>
                         </a>
                         <a class="dropdown-item " href="javascript:void();" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                            <i class="bx bx-power-off font-size-16 align-middle me-1"></i> 
+                            <i class="bx bx-power-off font-size-16 align-middle me-1"></i>
                             <span key="t-logout">@lang('translation.logout')</span>
                         </a>
                         <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
