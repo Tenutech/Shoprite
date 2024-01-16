@@ -35,7 +35,7 @@ var options = {
         "position",
         "role",
         "status",
-        "opportunities"
+        "vacancies"
     ],
     page: perPage,
     pagination: true,
@@ -548,7 +548,7 @@ function refreshCallbacks() {
                                         </tr>
                                         <tr>
                                             <td class="fw-medium" scope="row">Position</td>
-                                            <td>${x._values.opportunities}</td>
+                                            <td>${x._values.vacancies}</td>
                                         </tr>
                                     </tbody>
                                 </table>
