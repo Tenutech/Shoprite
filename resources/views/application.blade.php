@@ -141,20 +141,20 @@
                                                     Welcome to the Shoprite Employment Application Procedure!
                                                 </h5>
                                                 <p class="text-muted">
-                                                    You are on this Shoprite Recruitment platform, because you are applying for an 
-                                                    employment position at the Shoprite Group. Therefore, your answering of these 
+                                                    You are on this Shoprite Recruitment platform, because you are applying for an
+                                                    employment position at the Shoprite Group. Therefore, your answering of these
                                                     questions replace the need to hand in a physical CV document in store.
                                                 </p>
                                                 <p class="text-muted">
-                                                    Please read each question carefully, and answer to the best of your ability. 
+                                                    Please read each question carefully, and answer to the best of your ability.
                                                     Your information will only be submitted once you have completed ALL of the questions.
                                                 </p>
                                                 <p class="text-muted">
-                                                    Once you have started the process, you cannot exit and start over, so please set 
+                                                    Once you have started the process, you cannot exit and start over, so please set
                                                     out 30 minutes to complete the process.
                                                 </p>
                                                 <button type="button" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill nexttab nexttab" data-nexttab="v-pills-personal-tab">
-                                                    <i class="ri-play-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                    <i class="ri-play-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                     Start !
                                                 </button>
                                             </div>
@@ -194,7 +194,7 @@
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>                                                    
+                                                        </div>
                                                     </div>
 
                                                     <!-- Fistname -->
@@ -210,7 +210,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <!-- Lastname -->
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
@@ -243,7 +243,7 @@
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
                                                             <label for="phone" class="form-label">
-                                                                Phone Number 
+                                                                Phone Number
                                                                 <span class="text-danger">*</span>
                                                             </label>
                                                             <div class="input-group" data-input-flag>
@@ -293,7 +293,7 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select your gender</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Ethnicity -->
@@ -310,7 +310,7 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select your ethnicity</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Email -->
@@ -323,7 +323,7 @@
                                                                 </span>
                                                             </label>
                                                             <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address" value="{{ $user->applicant ? $user->applicant->email : '' }}" />
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Tax Number -->
@@ -336,7 +336,7 @@
                                                                 </span>
                                                             </label>
                                                             <input type="text" class="form-control" id="taxNumber" name="tax_number" placeholder="Enter tax number" value="{{ $user->applicant ? $user->applicant->tax_number : '' }}" />
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Citizenship -->
@@ -352,7 +352,7 @@
                                                                 <option value="Yes" {{ ($user->applicant && $user->applicant->citizen == 'Yes') ? 'selected' : '' }}>Yes</option>
                                                             </select>
                                                             <div class="invalid-feedback">Please select an option</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Criminal Record -->
@@ -368,7 +368,7 @@
                                                                 <option value="Yes" {{ ($user->applicant && $user->applicant->criminal == 'Yes') ? 'selected' : '' }}>Yes</option>
                                                             </select>
                                                             <div class="invalid-feedback">Please select an option</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Position -->
@@ -385,7 +385,7 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select the position you are applying for</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Specify Position -->
@@ -448,7 +448,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <!-- Education -->
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
@@ -463,7 +463,7 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select your ethnicity</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Training -->
@@ -479,7 +479,7 @@
                                                                 <option value="Yes" {{ ($user->applicant && $user->applicant->training == 'Yes') ? 'selected' : '' }}>Yes</option>
                                                             </select>
                                                             <div class="invalid-feedback">Please select an option</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Other Achievements -->
@@ -512,7 +512,7 @@
                                                                 <option value="C" {{ ($user->applicant && $user->applicant->drivers_license_code == 'C') ? 'selected' : '' }}>C</option>
                                                                 <option value="EB, EC1, EC" {{ ($user->applicant && $user->applicant->drivers_license_code == 'EB, EC1, EC') ? 'selected' : '' }}>EB, EC1, EC</option>
                                                             </select>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Read -->
@@ -529,7 +529,7 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select a language</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Speak -->
@@ -546,7 +546,7 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select a language</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                 </div>
@@ -596,7 +596,7 @@
                                                                 <option value="Yes" {{ ($user->applicant && $user->applicant->job_previous == 'Yes') ? 'selected' : '' }}>Yes</option>
                                                             </select>
                                                             <div class="invalid-feedback">Please select an option</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Job Previous Column -->
@@ -612,12 +612,12 @@
                                                                     </label>
                                                                     <select class="form-control" id="reason" name="reason_id" data-choices data-choices-search-true>
                                                                         <option value="">Select reason</option>
-                                                                        @foreach ($reasons as $reason)                                                                            
+                                                                        @foreach ($reasons as $reason)
                                                                             <option value="{{ $reason->id }}" {{ ($user->applicant && $user->applicant->reason_id == $reason->id) ? 'selected' : '' }}>{{ $reason->name }}</option>
                                                                         @endforeach
                                                                     </select>
                                                                     <div class="invalid-feedback">Please select a reason</div>
-                                                                </div>                                                        
+                                                                </div>
                                                             </div>
 
                                                             <!-- Specify Position -->
@@ -676,7 +676,7 @@
                                                                         @endforeach
                                                                     </select>
                                                                     <div class="invalid-feedback">Please select a reason</div>
-                                                                </div>                                                        
+                                                                </div>
                                                             </div>
 
                                                             <!-- Job Previous Salary -->
@@ -713,7 +713,7 @@
                                                             <div class="col-md-6">
                                                                 <div class="mb-3">
                                                                     <label for="jobReferencePhone" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Please provide the contact number of the reference person mentioned">
-                                                                        Phone Number 
+                                                                        Phone Number
                                                                         <span class="badge bg-secondary-subtle text-secondary badge-border">
                                                                             Optional
                                                                         </span>
@@ -749,12 +749,12 @@
                                                             </label>
                                                             <select class="form-control" id="retrenchment" name="retrenchment_id" data-choices data-choices-search-false required>
                                                                 <option value="">Select option</option>
-                                                                @foreach ($retrenchments as $retrenchment)                                                                    
+                                                                @foreach ($retrenchments as $retrenchment)
                                                                     <option value="{{ $retrenchment->id }}" {{ ($user->applicant && $user->applicant->retrenchment_id == $retrenchment->id) ? 'selected' : '' }}>{{ $retrenchment->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select an option</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Job Retrenched Specify -->
@@ -787,7 +787,7 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select a company</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <div class="col-md-12" id="jobPreviousShopriteColumn">
@@ -807,7 +807,7 @@
                                                                         @endforeach
                                                                     </select>
                                                                     <div class="invalid-feedback">Please select the position you are applying for</div>
-                                                                </div>                                                        
+                                                                </div>
                                                             </div>
 
                                                             <!-- Job Shoprite Position Specify -->
@@ -883,12 +883,12 @@
                                                             </label>
                                                             <select class="form-control" id="transport" name="transport_id" data-choices data-choices-search-true required>
                                                                 <option value="">Select transport</option>
-                                                                @foreach ($transports as $transport)                                                                            
+                                                                @foreach ($transports as $transport)
                                                                     <option value="{{ $transport->id }}" {{ ($user->applicant && $user->applicant->transport_id == $transport->id) ? 'selected' : '' }}>{{ $transport->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select a reason</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Transport Specify -->
@@ -914,12 +914,12 @@
                                                             </label>
                                                             <select class="form-control" id="disability" name="disability_id" data-choices data-choices-search-true required>
                                                                 <option value="">Select disability</option>
-                                                                @foreach ($disabilities as $disability)                                                                            
+                                                                @foreach ($disabilities as $disability)
                                                                     <option value="{{ $disability->id }}" {{ ($user->applicant && $user->applicant->disability_id == $disability->id) ? 'selected' : '' }}>{{ $disability->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select a reason</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Illness Specify -->
@@ -993,12 +993,12 @@
                                                             </label>
                                                             <select class="form-control" id="type" name="type_id" data-choices data-choices-search-true required>
                                                                 <option value="">Select job type</option>
-                                                                @foreach ($types as $type)                                                                            
+                                                                @foreach ($types as $type)
                                                                     <option value="{{ $type->id }}" {{ ($user->applicant && $user->applicant->type_id == $type->id) ? 'selected' : '' }}>{{ $type->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select a reason</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Application Reason Specify -->
@@ -1028,7 +1028,7 @@
                                                                 <option value="Yes" {{ ($user->applicant && $user->applicant->relocate == 'Yes') ? 'selected' : '' }}>Yes</option>
                                                             </select>
                                                             <div class="invalid-feedback">Please select an option</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Relocate Town -->
@@ -1060,7 +1060,7 @@
                                                                 <option value="Yes" {{ ($user->applicant && $user->applicant->vacancy == 'Yes') ? 'selected' : '' }}>Yes</option>
                                                             </select>
                                                             <div class="invalid-feedback">Please select an option</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Shift -->
@@ -1076,7 +1076,7 @@
                                                                 <option value="Yes" {{ ($user->applicant && $user->applicant->shift == 'Yes') ? 'selected' : '' }}>Yes</option>
                                                             </select>
                                                             <div class="invalid-feedback">Please select an option</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Bank -->
@@ -1090,12 +1090,12 @@
                                                             </label>
                                                             <select class="form-control" id="bank" name="bank_id" data-choices data-choices-search-true>
                                                                 <option value="">Select bank</option>
-                                                                @foreach ($banks as $bank)                                                                            
+                                                                @foreach ($banks as $bank)
                                                                     <option value="{{ $bank->id }}" {{ ($user->applicant && $user->applicant->bank_id == $bank->id) ? 'selected' : '' }}>{{ $bank->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select a bank</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Bank Specify -->
@@ -1206,7 +1206,7 @@
                                                                     <option value="d">d</option>
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select an option</div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
                                                         @php $literacyQuestionNumber++; @endphp <!-- Increment the literacy question number for the next iteration -->
                                                     @endforeach
@@ -1250,19 +1250,19 @@
                                                             // Find the position of the first question mark or line break
                                                             $firstQuestionMarkPos = strpos($question->message, '?');
                                                             $firstLineBreakPos = strpos($question->message, "\n");
-                                                    
+
                                                             // Determine where to insert the <span> based on your preference
                                                             $insertPos = $firstQuestionMarkPos !== false ? $firstQuestionMarkPos + 1 : $firstLineBreakPos;
-                                                    
+
                                                             // Insert the <span> tag
                                                             if ($insertPos !== false) {
                                                                 $question->message = substr_replace($question->message, ' <span class="text-danger">*</span>', $insertPos, 0);
                                                             }
-                                                    
+
                                                             // Convert line breaks to <br> tags without escaping the message
                                                             $formattedMessage = nl2br($question->message);
                                                         @endphp
-                                                    
+
                                                         <div class="col-md-12">
                                                             <div class="mb-3">
                                                                 <label for="numeracyQuestion-{{ $question->id }}" class="form-label">
@@ -1276,7 +1276,7 @@
                                                                     <option value="d">d</option>
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select an option</div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
                                                         @php $numeracyQuestionNumber++; @endphp <!-- Increment the numeracy question number for the next iteration -->
                                                     @endforeach
@@ -1315,19 +1315,19 @@
                                                         You are about to update your application with new information.
                                                     </p>
                                                     <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
-                                                        <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         Edit
                                                     </button>
                                                     <button type="submit" id="updateBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         Yes, Update !
                                                     </button>
                                                     <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         View Application
                                                     </a>
                                                     <a type="button" href="{{ route('vacancies.index') }}" id="view-vacancies" class="btn btn-info btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-briefcase-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-briefcase-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         View Vacancies
                                                     </a>
                                                 </div>
@@ -1349,14 +1349,14 @@
                                                         You will receive an email confirmation with details of your application.
                                                     </p>
                                                     <button type="button" id="cancelBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
-                                                        <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         No, Cancel
                                                     </button>
                                                     <button type="submit" id="submitBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         Yes, Submit !
                                                     </button>
-                                                </div>                                            
+                                                </div>
 
                                                 <!-- Loading -->
                                                 <div class="text-center pt-4 pb-2 d-none" id="loading">
@@ -1375,15 +1375,15 @@
                                                         You will receive an confirmation email with details of your application.
                                                     </p>
                                                     <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
-                                                        <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         Edit
                                                     </button>
                                                     <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         View Application
                                                     </a>
                                                     <a type="button" href="{{ route('vacancies.index') }}" id="view-vacancies" class="btn btn-info btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-briefcase-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-briefcase-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         View Vacancies
                                                     </a>
                                                 </div>
