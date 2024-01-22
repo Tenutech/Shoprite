@@ -172,7 +172,9 @@
     </div>
 </div>
 
-<div class="row gy-2 mb-2" id="candidate-list"></div>
+<div class="row gy-2 mb-2" id="candidate-list">
+
+</div>
 <!-- end row -->
 
 <div class="noresult" style="display: none">
