@@ -340,8 +340,9 @@ function loadCandidateListData(datas, page) {
                 : '<img src="/images/avatar.jpg" alt="" class="member-img img-fluid d-block rounded" />';
 
                 var checksHtml = '<div class="card-footer"><div class="d-flex flex-wrap gap-2">';
-                for (var j = 0; j < datas[i].checks.length; j++) {
-                    var check = datas[i].checks[j];
+                for (var j = 0; j < datas[i].latest_checks.length; j++) {
+                    var check = datas[i].latest_checks[j];
+                    var checkID = check.id;
                     var checkName = check.name; // Get the name of the check
                     var checkIcon = check.icon; // Get the icon from the check data
                     var statusResult = check.pivot.result; // Get the result of the check to determine the status class
@@ -364,7 +365,7 @@ function loadCandidateListData(datas, page) {
                     }
                 
                     // Append each check as a column in the footer row
-                    checksHtml += '<a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) + '#checks-tab" class="avatar-sm flex-shrink-0" data-bs-toggle="tooltip" data-bs-placement="top" title="' + checkName + '">' +
+                    checksHtml += '<a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) + '#checks-tab" class="avatar-sm flex-shrink-0" id="check-' + checkID + '" data-bs-toggle="tooltip" data-bs-placement="top" title="' + checkName + '">' +
                                     '<span class="avatar-title bg-' + status + '-subtle text-' + status + ' rounded-circle fs-4">' +
                                         '<i class="' + checkIcon + '"></i>' +
                                     '</span>' +
@@ -509,6 +510,19 @@ function loadCandidateListData(datas, page) {
     selectedPage();
     currentPage == 1 ? prevButton.parentNode.classList.add('disabled') : prevButton.parentNode.classList.remove('disabled');
     currentPage == pages ? nextButton.parentNode.classList.add('disabled') : nextButton.parentNode.classList.remove('disabled');
+}
+
+function getStatusClass(statusResult) {
+    switch (statusResult) {
+        case 'Passed':
+            return 'success';
+        case 'Discrepancy':
+            return 'warning';
+        case 'Failed':
+            return 'danger';
+        default:
+            return 'danger';
+    }
 }
 
 var checkAll = document.getElementById("checkAll");

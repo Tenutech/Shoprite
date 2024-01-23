@@ -228,7 +228,15 @@ class Applicant extends Model
 
     //Checks
     public function checks() {
-        return $this->belongsToMany(Check::class, 'applicant_checks')->withTimestamps()->withPivot('result', 'reason', 'file');
+        return $this->belongsToMany(Check::class, 'applicant_checks')->withTimestamps()->withPivot('result', 'reason', 'file', 'updated_at');
+    }
+
+    //Latest Checks
+    public function latestChecks() {
+        return $this->belongsToMany(Check::class, 'applicant_checks')
+                    ->withTimestamps()
+                    ->withPivot('result', 'reason', 'file', 'updated_at')
+                    ->whereRaw('applicant_checks.updated_at IN (select MAX(ac2.updated_at) from applicant_checks as ac2 where ac2.applicant_id = applicant_checks.applicant_id and ac2.check_id = applicant_checks.check_id group by ac2.check_id)');
     }
 
     //Interviews

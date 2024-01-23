@@ -1410,7 +1410,7 @@
                                     </h5>
                                 </div>
                                 <div class="row">
-                                    <?php $__currentLoopData = $applicant->checks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $check): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    <?php $__currentLoopData = $applicant->latestChecks; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $check): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                         <?php
                                             $statusColor;
                                             // Convert the result into a status class

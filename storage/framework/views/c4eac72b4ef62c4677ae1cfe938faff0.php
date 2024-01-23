@@ -306,22 +306,24 @@
                                                                                     <div class="d-lg-flex align-items-center">
                                                                                         <div class="flex-shrink-0 col-auto">
                                                                                             <div class="avatar-sm rounded overflow-hidden">
-                                                                                                <img src="<?php echo e($user->applicant->avatar); ?>" alt="" class="member-img img-fluid d-block rounded">
+                                                                                                
+                                                                                                <img src="<?php echo e($user->applicant->avatar ?? URL::asset('images/avatar.jpg')); ?>" alt="" class="member-img img-fluid d-block rounded">
                                                                                             </div>
                                                                                         </div>
                                                                                         <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">
-                                                                                            <a href="<?php echo e(route('applicant-profile.index', ['id' => Crypt::encryptString($user->applicant->id)])); ?>">
+                                                                                            <a href="<?php echo e(route('applicant-profile.index', ['id' => Crypt::encryptString($user->applicant->id ?? '')])); ?>">
                                                                                                 <h5 class="fs-16 mb-2">
-                                                                                                    <?php echo e($user->applicant->firstname); ?> <?php echo e($user->applicant->lastname); ?>
+                                                                                                    
+                                                                                                    <?php echo e(optional($user->applicant)->firstname); ?> <?php echo e(optional($user->applicant)->lastname); ?>
 
                                                                                                 </h5>
                                                                                             </a>
                                                                                             <p class="text-muted mb-0">
-                                                                                                <?php if($user->applicant->position->name == 'Other'): ?>
-                                                                                                    <?php echo e($user->applicant->position_specify); ?>
+                                                                                                <?php if(optional(optional($user->applicant)->position)->name == 'Other'): ?>
+                                                                                                    <?php echo e(optional($user->applicant)->position_specify ?? 'N/A'); ?>
 
                                                                                                 <?php else: ?>
-                                                                                                    <?php echo e($user->applicant->position->name); ?>
+                                                                                                    <?php echo e(optional(optional($user->applicant)->position)->name ?? 'N/A'); ?>
 
                                                                                                 <?php endif; ?>
                                                                                             </p>
@@ -329,27 +331,31 @@
                                                                                         <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">
                                                                                             <div>
                                                                                                 <i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>
-                                                                                                <?php echo e($user->applicant->town->name); ?> 
+                                                                                                
+                                                                                                <?php echo e(optional(optional($user->applicant)->town)->name ?? 'N/A'); ?>
+
                                                                                             </div>
                                                                                         </div>
                                                                                         <div class="col-2">
                                                                                             <i class="ri-briefcase-line text-primary me-1 align-bottom"></i>
-                                                                                            <?php if($user->applicant->type->name == 'Other'): ?>
-                                                                                                <?php echo e($user->applicant->application_reason_specify); ?>
+                                                                                            
+                                                                                            <?php if(optional(optional($user->applicant)->type)->name == 'Other'): ?>
+                                                                                                <?php echo e(optional($user->applicant)->application_reason_specify ?? 'N/A'); ?>
 
                                                                                             <?php else: ?>
-                                                                                                <?php echo e($user->applicant->type->name); ?>
+                                                                                                <?php echo e(optional(optional($user->applicant)->type)->name ?? 'N/A'); ?>
 
                                                                                             <?php endif; ?>
-                                                                                        </div>
+                                                                                        </div>                                                                                        
                                                                                         <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">
                                                                                             <div class="badge text-bg-success">
                                                                                                 <i class="mdi mdi-star me-1"></i>
-                                                                                                <?php echo e($user->applicant->score); ?>                                                                                            
+                                                                                                
+                                                                                                <?php echo e($user->applicant->score ?? 'N/A'); ?>                                                                                            
                                                                                             </div>
                                                                                         </div>
                                                                                         <div class="col-2 text-end">
-                                                                                            <a href="<?php echo e(route('applicant-profile.index', ['id' => Crypt::encryptString($user->applicant->id)])); ?>" class="btn btn-soft-primary">
+                                                                                            <a href="<?php echo e(route('applicant-profile.index', ['id' => Crypt::encryptString($user->applicant->id ?? '')])); ?>" class="btn btn-soft-primary">
                                                                                                 View Details
                                                                                             </a>
                                                                                         </div>

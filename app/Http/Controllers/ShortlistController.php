@@ -212,6 +212,7 @@ class ShortlistController extends Controller
                 'role',
                 'state',
                 'checks',
+                'latestChecks',
                 'contracts',
                 'vacanciesFilled' => function ($query) use ($vacancyID) {
                     $query->where('vacancy_id', $vacancyID);
@@ -292,7 +293,7 @@ class ShortlistController extends Controller
             // Map the results to include encrypted IDs and load checks relation
             $applicantsCollection = $applicantsCollection->map(function ($applicant) use ($userID) {
                 $applicant->encrypted_id = Crypt::encryptString($applicant->id);
-                $applicant->load('checks'); // Ensure the 'checks' relation is loaded after performing checks
+                $applicant->load('latestChecks'); // Load the 'latestChecks' relation
                 return $applicant;
             });
 
@@ -420,6 +421,8 @@ class ShortlistController extends Controller
                     'role',
                     'state',
                     'checks',
+                    'latestChecks',
+                    'contracts',
                     'contracts',
                     'vacanciesFilled' => function ($query) use ($vacancyID) {
                         $query->where('vacancy_id', $vacancyID);

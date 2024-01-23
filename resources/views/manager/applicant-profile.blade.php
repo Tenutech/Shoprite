@@ -1349,7 +1349,7 @@
                                     </h5>
                                 </div>
                                 <div class="row">
-                                    @foreach ($applicant->checks as $check)
+                                    @foreach ($applicant->latestChecks as $check)
                                         @php
                                             $statusColor;
                                             // Convert the result into a status class

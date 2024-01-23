@@ -76,6 +76,7 @@ class ApplicantProfileController extends Controller
                 'chats.applicant',
                 'chats.type',
                 'checks',
+                'latestChecks',
                 'vacanciesFilled',
                 'interviews' => function ($query) {
                     $query->latest('scheduled_date')->take(1); // Get the latest interview based on scheduled date

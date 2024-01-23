@@ -215,7 +215,7 @@ if (document.querySelectorAll(".form-steps")) {
                     form.classList.add('was-validated');
 
                     // Get all required fields within the active tab
-                    let requiredFields = Array.from(form.querySelectorAll(".tab-pane.show .form-control:not([data-exclude-validation]), .tab-pane.show .form-check-input"));
+                    let requiredFields = Array.from(form.querySelectorAll(".tab-pane.show .form-control:required:not([data-exclude-validation]), .tab-pane.show .form-check-input:required"));
 
                     // First reset custom validity for all inputs
                     requiredFields.forEach(input => {
@@ -246,7 +246,6 @@ if (document.querySelectorAll(".form-steps")) {
                             default:
                                 isValid = input.checkValidity();
                         }
-
                         return isValid;
                     });
         
