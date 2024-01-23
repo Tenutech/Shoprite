@@ -62,7 +62,7 @@ class HomeController extends Controller
         if (view()->exists($request->path())) {
             return view($request->path());
         }
-        return abort(404);
+        return view('404');
     }
 
     /*
@@ -395,7 +395,7 @@ class HomeController extends Controller
                 'numeracyQuestions' => $numeracyQuestions
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*
@@ -457,7 +457,7 @@ class HomeController extends Controller
                 'positions' => $positions
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*
@@ -520,7 +520,7 @@ class HomeController extends Controller
         if (view()->exists('privacy-policy')) {
             return view('privacy-policy');
         }
-        return abort(404);
+        return view('404');
     }
 
     /*
@@ -534,7 +534,7 @@ class HomeController extends Controller
         if (view()->exists('terms-of-service')) {
             return view('terms-of-service');
         }
-        return abort(404);
+        return view('404');
     }
 
     /*
@@ -548,6 +548,6 @@ class HomeController extends Controller
         if (view()->exists('security')) {
             return view('security');
         }
-        return abort(404);
+        return view('404');
     }
 }

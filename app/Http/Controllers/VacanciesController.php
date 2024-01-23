@@ -96,7 +96,7 @@ class VacanciesController extends Controller
                 'selectedProvinceId' => $selectedProvinceId,
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

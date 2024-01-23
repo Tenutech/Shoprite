@@ -258,7 +258,7 @@ class AdminController extends Controller
                 'positions' => $positions
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
 

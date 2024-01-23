@@ -113,6 +113,15 @@ return [
         'emergency' => [
             'path' => storage_path('logs/laravel.log'),
         ],
+
+        'email' => [
+            'driver' => 'monolog',
+            'level' => 'error',
+            'handler' => \App\Logging\EmailHandler::class,
+            'formatter' => Monolog\Formatter\HtmlFormatter::class,
+            'to' => 'admin@tenutech.com',
+            'subject' => 'Shoprite Error',
+        ],
     ],
 
 ];

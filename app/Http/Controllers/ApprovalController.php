@@ -127,7 +127,7 @@ class ApprovalController extends Controller
                 'movementAmend' => $movementAmend
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

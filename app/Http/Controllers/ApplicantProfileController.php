@@ -150,7 +150,7 @@ class ApplicantProfileController extends Controller
                 'progressBarWidth' => $progressBarWidth
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

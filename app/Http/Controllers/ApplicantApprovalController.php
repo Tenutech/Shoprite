@@ -109,7 +109,7 @@ class ApplicantApprovalController extends Controller
                 'provinces' => $provinces,
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

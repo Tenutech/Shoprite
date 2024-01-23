@@ -53,7 +53,7 @@ class ChatsController extends Controller
                 'categories' => $categories
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

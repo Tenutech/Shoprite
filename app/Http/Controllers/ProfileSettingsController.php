@@ -82,7 +82,7 @@ class ProfileSettingsController extends Controller
                 'completionPercentage' => $completionPercentage
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

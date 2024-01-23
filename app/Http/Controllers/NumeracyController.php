@@ -40,7 +40,7 @@ class NumeracyController extends Controller
                 'messages' => $messages
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

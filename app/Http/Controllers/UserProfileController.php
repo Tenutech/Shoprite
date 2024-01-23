@@ -352,7 +352,7 @@ class UserProfileController extends Controller
                 'topVacancies' => $topVacancies,
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

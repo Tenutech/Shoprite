@@ -85,7 +85,7 @@ class VacancyController extends Controller
                 'types' => $types
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

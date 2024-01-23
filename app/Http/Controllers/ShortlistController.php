@@ -173,7 +173,7 @@ class ShortlistController extends Controller
                 'checks' => $checks
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

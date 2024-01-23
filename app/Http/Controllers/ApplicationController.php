@@ -150,7 +150,7 @@ class ApplicationController extends Controller
                 'numeracyQuestions' => $numeracyQuestions
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

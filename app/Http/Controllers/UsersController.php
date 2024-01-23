@@ -78,7 +78,7 @@ class UsersController extends Controller
                 'roles' => $roles
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

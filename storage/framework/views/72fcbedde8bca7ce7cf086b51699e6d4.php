@@ -13,34 +13,36 @@
                                         <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                             <td class="content-block" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
                                                 <div style="margin-bottom: 15px;">
-                                                    <img src="{{URL::asset('build/images/logo-dark.png')}}" alt="" height="23">
+                                                    <img src="<?php echo e(URL::asset('build/images/logo-dark.png')); ?>" alt="" height="23">
                                                 </div>
                                             </td>
                                         </tr>
                                         <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                             <td class="content-block" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 20px; line-height: 1.5; font-weight: 500; vertical-align: top; margin: 0; padding: 0 0 10px;" valign="top">
-                                                @if (!empty($greeting))
-                                                    {{ $greeting }}
-                                                @else
-                                                    @if ($level === 'error')
-                                                        @lang('Whoops!')
-                                                    @else
-                                                        @lang('Hello!')
-                                                    @endif
-                                                @endif
+                                                <?php if(!empty($greeting)): ?>
+                                                    <?php echo e($greeting); ?>
+
+                                                <?php else: ?>
+                                                    <?php if($level === 'error'): ?>
+                                                        <?php echo app('translator')->get('Whoops!'); ?>
+                                                    <?php else: ?>
+                                                        <?php echo app('translator')->get('Hello!'); ?>
+                                                    <?php endif; ?>
+                                                <?php endif; ?>
                                             </td>
                                         </tr>
-                                        @foreach($introLines as $line)
+                                        <?php $__currentLoopData = $introLines; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $line): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                                             <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                 <td class="content-block" style="font-family: 'Roboto', sans-serif; color: #878a99; box-sizing: border-box; line-height: 1.5; font-size: 15px; vertical-align: top; margin: 0; padding: 0 0 10px;" valign="top">
-                                                    {{ $line }}
+                                                    <?php echo e($line); ?>
+
                                                 </td>
                                             </tr>
-                                        @endforeach
+                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                         <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                             <td class="content-block" itemprop="handler" itemscope itemtype="http://schema.org/HttpActionHandler" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0 0 24px;" valign="top">
-                                                <a href="{{ $actionUrl }}" itemprop="url" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: .8125rem;font-weight: 400; color: #FFF; text-decoration: none; text-align: center; cursor: pointer; display: inline-block; border-radius: .25rem; text-transform: capitalize; background-color: #0ab39c; margin: 0; border-color: #0ab39c; border-style: solid; border-width: 1px; padding: .5rem .9rem;" onMouseOver="this.style.background='#099885'" onMouseOut="this.style.background='#0ab39c'">
-                                                    {{ $actionText }} &#8594;
+                                                <a href="<?php echo e($actionUrl); ?>" itemprop="url" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: .8125rem;font-weight: 400; color: #FFF; text-decoration: none; text-align: center; cursor: pointer; display: inline-block; border-radius: .25rem; text-transform: capitalize; background-color: #0ab39c; margin: 0; border-color: #0ab39c; border-style: solid; border-width: 1px; padding: .5rem .9rem;" onMouseOver="this.style.background='#099885'" onMouseOut="this.style.background='#0ab39c'">
+                                                    <?php echo e($actionText); ?> &#8594;
                                                 </a>
                                             </td>
                                         </tr>
@@ -48,11 +50,12 @@
                                         <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; border-top: 1px solid #e9ebec;">
                                             <td class="content-block" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0; padding-top: 15px" valign="top">
                                                 <div style="display: flex; align-items: center;">
-                                                    <img src="{{URL::asset('images/shoops.png')}}" alt="" height="35" width="35" style="border-radius: 50px;">
+                                                    <img src="<?php echo e(URL::asset('images/shoops.png')); ?>" alt="" height="35" width="35" style="border-radius: 50px;">
                                                     <div style="margin-left: 8px;">
-                                                        <span style="font-weight: 600;">{{ $userName }}</span>
+                                                        <span style="font-weight: 600;"><?php echo e($userName); ?></span>
                                                         <p style="font-size: 13px; margin-bottom: 0px; margin-top: 3px; color: #878a99;">
-                                                            {{ $company }}
+                                                            <?php echo e($company); ?>
+
                                                         </p>
                                                     </div>
                                                 </div>
@@ -73,7 +76,7 @@
                                 </a>
                             </p>
                             <p style="font-family: 'Roboto', sans-serif; font-size: 14px;color: #98a6ad; margin: 0px;">
-                                2023 {{ config('app.name') }}. Design & Develop by OTB Group
+                                2023 <?php echo e(config('app.name')); ?>. Design & Develop by OTB Group
                             </p>
                         </div>
                     </div>
@@ -83,4 +86,4 @@
         <!-- end table -->
     </div>
     <!--end col-->
-</div><!-- end row -->
+</div><!-- end row --><?php /**PATH C:\xampp\htdocs\Recruitment\resources\views/vendor/notifications/notification.blade.php ENDPATH**/ ?>

@@ -134,7 +134,7 @@ class ApplicantsController extends Controller
                 'states' => $states
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*

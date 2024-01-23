@@ -144,7 +144,7 @@ class JobOverviewController extends Controller
                 'mailShareUrl' => $mailShareUrl,
             ]);
         }
-        return abort(404);
+        return view('404');
     }
 
     /*
