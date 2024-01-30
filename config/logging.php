@@ -50,7 +50,7 @@ return [
     'channels' => [
         'stack' => [
             'driver' => 'stack',
-            'channels' => ['single'],
+            'channels' => ['single', 'email'],
             'ignore_exceptions' => false,
         ],
 
@@ -119,7 +119,7 @@ return [
             'level' => 'error',
             'handler' => \App\Logging\EmailHandler::class,
             'formatter' => Monolog\Formatter\HtmlFormatter::class,
-            'to' => 'admin@tenutech.com',
+            'to' => 'burgerhanno@gmail.com',
             'subject' => 'Shoprite Error',
         ],
     ],
