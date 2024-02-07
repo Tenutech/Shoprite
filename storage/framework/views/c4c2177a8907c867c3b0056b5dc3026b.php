@@ -476,7 +476,7 @@
                                                                                         $applicationUser = $activity->subject->user ?? null;
                                                                                         $applicationUserName = $applicationUser ? $applicationUser->firstname . ' ' . $applicationUser->lastname : 'N/A';
                                                                                         $applicationUserAvatar = $applicationUser ? URL::asset('images/' . $applicationUser->avatar) : URL::asset('images/avatar.jpg');
-                                                                                        $vacancyUser = $activity->subject->vacancy->user ?? null;
+                                                                                        $vacancyUser = $activity->subject->user ?? null;
                                                                                         $vacancyUserName = $vacancyUser ? $vacancyUser->firstname . ' ' . $vacancyUser->lastname : 'N/A';
                                                                                         $vacancyUserAvatar = $vacancyUser ? URL::asset('images/' . $vacancyUser->avatar) : URL::asset('images/avatar.jpg');
                                                                                     ?>
@@ -1979,6 +1979,10 @@
                                 </div>
                                 <div class="row">
                                     <?php $__currentLoopData = $user->appliedVacancies; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $vacancy): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                        <?php
+                                            $statusInfo = $user->getApplicationStatusAndColor($vacancy->pivot->approved);
+                                        ?>
+
                                         <div class="col-xxl-3 col-sm-6">
                                             <div class="card profile-project-card shadow-none profile-project-<?php echo e($vacancy->position->color); ?>">
                                                 <div class="card-body p-4">
@@ -2012,28 +2016,9 @@
                                                             </p>
                                                         </div>
                                                         <div class="flex-shrink-0 ms-2">
-                                                            <div class="badge bg-<?php echo e($vacancy->status->color); ?>-subtle text-<?php echo e($vacancy->status->color); ?> fs-12">
-                                                                <?php echo e($vacancy->status->name); ?>
+                                                            <div class="badge bg-<?php echo e($statusInfo['color']); ?>-subtle text-<?php echo e($statusInfo['color']); ?> fs-12">
+                                                                <?php echo e($statusInfo['name']); ?>
 
-                                                            </div>
-                                                        </div>
-                                                    </div>
-
-                                                    <div class="d-flex mt-4">
-                                                        <div class="flex-grow-1">
-                                                            <div class="d-flex align-items-center gap-2">
-                                                                <div>
-                                                                    <h5 class="fs-13 text-muted mb-0">Applicants :</h5>
-                                                                </div>
-                                                                <div class="avatar-group">
-                                                                    <?php $__currentLoopData = $vacancy->applicants; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $applicant): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                                        <div class="avatar-group-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="<?php echo e($applicant->firstname); ?> <?php echo e($applicant->lastname); ?>">
-                                                                            <div class="avatar-xs">
-                                                                                <img src="<?php echo e(URL::asset('images/' . $applicant->avatar)); ?>" class="rounded-circle img-fluid" />
-                                                                            </div>
-                                                                        </div>
-                                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>                                                                   
-                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>

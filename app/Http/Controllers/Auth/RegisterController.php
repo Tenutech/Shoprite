@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\NotificationSetting;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
@@ -81,7 +82,7 @@ class RegisterController extends Controller
             $avatarName = 'avatar.jpg';
         }
 
-        return User::create([
+        $user = User::create([
             'firstname' => ucwords($data['firstname']),
             'lastname' => ucwords($data['lastname']),
             'email' => $data['email'],
@@ -92,6 +93,13 @@ class RegisterController extends Controller
             'role_id' => 4,
             'ststus_id' => 1
         ]);
+
+        // Create default notification settings for the user
+        NotificationSetting::create([
+            'user_id' => $user->id,
+        ]);
+
+        return $user;
     }
 
     /**

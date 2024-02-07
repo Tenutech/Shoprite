@@ -71,7 +71,11 @@ class Notification extends Model
     {
         static::created(function ($notification) {
             $user = $notification->user;
-            $user->notify((new NotifyEmail($notification))->onQueue('default'));
+
+            // Check if the user has an email address
+            if (!is_null($user->email)) {
+                $user->notify((new NotifyEmail($notification))->onQueue('default'));
+            }
         });
     }
 }

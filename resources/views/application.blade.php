@@ -146,6 +146,16 @@
                                                     questions replace the need to hand in a physical CV document in store.
                                                 </p>
                                                 <p class="text-muted">
+                                                    You will be asked a series of questions gathering personal information, and you 
+                                                    hereby grant the OTB Group (Operator) on behalf of the Shoprite Group of Companies 
+                                                    (Responsible Party) permission to process the information. By selecting "Start", you 
+                                                    confirm that you have read, understood and accept the POPIA T's&C's available at 
+                                                    this link: 
+                                                    <a href="{{ route('terms') }}" class="text-primary text-decoration-underline fst-normal fw-medium">
+                                                        Terms of Use
+                                                    </a>
+                                                </p>
+                                                <p class="text-muted">
                                                     Please read each question carefully, and answer to the best of your ability.
                                                     Your information will only be submitted once you have completed ALL of the questions.
                                                 </p>
@@ -887,7 +897,9 @@
                                                                     <option value="{{ $transport->id }}" {{ ($user->applicant && $user->applicant->transport_id == $transport->id) ? 'selected' : '' }}>{{ $transport->name }}</option>
                                                                 @endforeach
                                                             </select>
-                                                            <div class="invalid-feedback">Please select a reason</div>
+                                                            <div class="invalid-feedback">
+                                                                Please select a transport
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -1084,11 +1096,9 @@
                                                         <div class="mb-3">
                                                             <label for="bank" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="If you have a bank account, at which bank is your account?">
                                                                 Bank
-                                                                <span class="badge bg-secondary-subtle text-secondary badge-border">
-                                                                    Optional
-                                                                </span>
+                                                                <span class="text-danger">*</span>
                                                             </label>
-                                                            <select class="form-control" id="bank" name="bank_id" data-choices data-choices-search-true>
+                                                            <select class="form-control" id="bank" name="bank_id" data-choices data-choices-search-true required>
                                                                 <option value="">Select bank</option>
                                                                 @foreach ($banks as $bank)
                                                                     <option value="{{ $bank->id }}" {{ ($user->applicant && $user->applicant->bank_id == $bank->id) ? 'selected' : '' }}>{{ $bank->name }}</option>
@@ -1346,7 +1356,7 @@
                                                     </div>
                                                     <h5>Would you like to submit your application ?</h5>
                                                     <p class="text-muted">
-                                                        You will receive an email confirmation with details of your application.
+                                                        After successful submission you will be notified should you qualify fo an interview.
                                                     </p>
                                                     <button type="button" id="cancelBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
                                                         <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i>
@@ -1372,7 +1382,8 @@
                                                     </div>
                                                     <h5 id="completeHeading">Application Submitted !</h5>
                                                     <p class="text-muted" id="completeText">
-                                                        You will receive an confirmation email with details of your application.
+                                                        Your application has been submitted, you will be notified should you qualify 
+                                                        for an interview
                                                     </p>
                                                     <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
                                                         <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i>

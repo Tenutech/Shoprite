@@ -580,7 +580,7 @@
                             <div class="invalid-feedback">Please select a vacancy</div>
                         </div>
                         <div class="hstack gap-2 justify-content-center remove">
-                            <button class="btn btn-danger" data-bs-dismiss="modal" id="vacancy-close">
+                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="vacancy-close">
                                 <i class="ri-close-line me-1 align-middle"></i>
                                 Cancel
                             </button>

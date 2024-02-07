@@ -81,7 +81,7 @@ class HomeController extends Controller
             $user = User::with([
                 'applicant.readLanguages',
                 'applicant.speakLanguages',
-            ])->findOrFail($userI);
+            ])->findOrFail($userID);
 
             //Vacancies
             $vacancies = Vacancy::with([

@@ -206,7 +206,7 @@
                                         <div class="mb-4">
                                             <p class="mb-0 fs-12 text-muted fst-italic">
                                                 By registering you agree to the Orient
-                                                <a href="#" class="text-primary text-decoration-underline fst-normal fw-medium">
+                                                <a href="{{ route('terms') }}" class="text-primary text-decoration-underline fst-normal fw-medium">
                                                     Terms of Use
                                                 </a>
                                             </p>

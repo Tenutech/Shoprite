@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Position;
+use App\Models\NotificationSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
@@ -77,9 +78,13 @@ class ProfileSettingsController extends Controller
             
             $completionPercentage = ($filledFieldsCount / count($fields)) * 100;
 
+            //User Settings
+            $userSettings = NotificationSetting::where('user_id', $userID)->first();
+
             return view('profile-settings',[
                 'user' => $user,
-                'completionPercentage' => $completionPercentage
+                'completionPercentage' => $completionPercentage,
+                'userSettings' => $userSettings
             ]);
         }
         return view('404');
@@ -222,4 +227,61 @@ class ProfileSettingsController extends Controller
             'message' => 'Password Updated Successfully!'
         ]);
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Profile Settings Update Notifications
+    |--------------------------------------------------------------------------
+    */
+
+    public function notificationSettings(Request $request) {
+        $userId = Auth::id();
+    
+        try {    
+            // Retrieve or create notification settings for the user
+            $notificationSettings = NotificationSetting::firstOrCreate(
+                ['user_id' => $userId]
+            );
+        
+            // Prepare data for updating
+            $data = $request->all();
+            $checkboxFields = [
+                'receive_email_notifications',
+                'receive_whatsapp_notifications',
+                'notify_application_submitted',
+                'notify_application_status',
+                'notify_shortlisted',
+                'notify_interview_scheduled',
+                'notify_vacancy_status',
+                'notify_new_application',
+            ];
+
+            foreach ($checkboxFields as $field) {
+                // Check if the field is present in the request
+                if (isset($data[$field])) {
+                    // Convert 'on' to true, absence to false
+                    $data[$field] = $data[$field] === 'on';
+                } else {
+                    // If the checkbox was not sent in the request, set to false
+                    $data[$field] = false;
+                }
+            }
+    
+            // Update the notification settings with the prepared data
+            $notificationSettings->fill($data);
+            $notificationSettings->save();
+    
+            // Return a success response
+            return response()->json([
+                'success' => true,
+                'message' => 'Settings Updated Successfully.'
+            ]);
+        } catch (Exception $e) {            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed To Update Settings!',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }    
 }

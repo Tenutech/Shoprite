@@ -222,10 +222,22 @@ if (document.querySelectorAll(".form-steps")) {
                         input.setCustomValidity('');
                     })
 
+                    // Function to check if an element is visible
+                    function isVisible(element) {
+                        if (element.classList.contains('choices__input')) {
+                            // For fields enhanced by choices.js, check if the closest parent with 'd-none' is not present
+                            return !element.closest('.d-none');
+                        } else {
+                            // For other fields, use offsetParent
+                            return !!element.offsetParent;
+                        }
+                    }
+
                     // Check if all required fields have been filled
                     let valid = requiredFields.every(input => {
-                        if (!input.offsetParent) {
-                            return true;
+                        // Check visibility
+                        if (!isVisible(input)) {
+                            return true; // Skip validation for hidden fields
                         }
 
                         let isValid;

@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Email;
 use App\Models\EmailTemplate;
+use App\Models\NotificationSetting;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -31,19 +32,23 @@ class NotifyEmail extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['mail'];
+        // Check user's settings to determine if they've opted in for email notifications
+        $userSettings = NotificationSetting::where('user_id', $notifiable->id)->first();
+        if ($userSettings && $userSettings->receive_email_notifications) {
+            return ['mail'];
+        }
+        
+        return [];
     }
-
-    protected $userName;
-    protected $company;
-    protected $opportunity;
-    protected $category;
 
     /**
      * Get the mail representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail(object $notifiable): MailMessage
-    {
+    {         
         $this->prepareMailData();
 
         return (new MailMessage)

@@ -70,6 +70,12 @@
                                 Change Password
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-bs-toggle="tab" href="#notifications" role="tab">
+                                <i class="far fa-user"></i>
+                                Notifications
+                            </a>
+                        </li>
                     </ul>
                 </div>
                 <div class="card-body p-4">
@@ -206,7 +212,9 @@
                                     
                                     <div class="col-lg-12">
                                         <div class="hstack gap-2 justify-content-end">
-                                            <button type="submit" class="btn btn-primary">Update</button>
+                                            <button type="submit" class="btn btn-primary">
+                                                Update
+                                            </button>
                                         </div>
                                     </div>
                                     <!--end col-->
@@ -304,6 +312,149 @@
                                 </div>
                                 <!--end row-->
                             </form>                            
+                        </div>
+                        <!--end tab-pane-->
+                        <div class="tab-pane" id="notifications" role="tabpanel">
+                            <form id="formNotifications" action="post" enctype="multipart/form-data">
+                                @csrf
+                                <div class="mb-3">
+                                    <h5 class="card-title text-decoration-underline mb-3">
+                                        Application Notifications:
+                                    </h5>
+                                    <ul class="list-unstyled mb-0">
+                                        <li class="d-flex">
+                                            <div class="flex-grow-1">
+                                                <label for="receiveEmailNotifications" class="form-check-label fs-15">
+                                                    Receive Email Notifications
+                                                </label>
+                                                <p class="text-muted">
+                                                    Choose this option to receive notifications via email. Adjust this setting based on your preference for email alerts.
+                                                </p>
+                                            </div>
+                                            <div class="flex-shrink-0">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="receiveEmailNotifications" name="receive_email_notifications" {{ $userSettings ? ($userSettings->receive_email_notifications ? 'checked' : '') : 'checked' }} />
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li class="d-flex">
+                                            <div class="flex-grow-1">
+                                                <label for="receiveWhatsappNotifications" class="form-check-label fs-15">
+                                                    Receive WhatsApp Notifications
+                                                </label>
+                                                <p class="text-muted">
+                                                    Enable this to get notifications on WhatsApp. This is useful for immediate updates and alerts.
+                                                </p>
+                                            </div>
+                                            <div class="flex-shrink-0">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="receiveWhatsappNotifications" name="receive_whatsapp_notifications" {{ $userSettings ? ($userSettings->receive_whatsapp_notifications ? 'checked' : '') : 'checked' }} />
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li class="d-flex">
+                                            <div class="flex-grow-1">
+                                                <label for="notifyApplicationSubmitted" class="form-check-label fs-15">
+                                                    Notify When Application Submitted
+                                                </label>
+                                                <p class="text-muted">
+                                                    Get notified when your application is successfully submitted. Keep track of your application status from submission to decision.
+                                                </p>
+                                            </div>
+                                            <div class="flex-shrink-0">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="notifyApplicationSubmitted" name="notify_application_submitted" {{ $userSettings ? ($userSettings->notify_application_submitted ? 'checked' : '') : 'checked' }} />
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li class="d-flex">
+                                            <div class="flex-grow-1">
+                                                <label for="notifyApplicationStatus" class="form-check-label fs-15">
+                                                    Notify on Application Status Change
+                                                </label>
+                                                <p class="text-muted">
+                                                    Stay informed about your application’s progress, including updates on review status, acceptance, or rejection.
+                                                </p>
+                                            </div>
+                                            <div class="flex-shrink-0">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="notifyApplicationStatus" name="notify_application_status" {{ $userSettings ? ($userSettings->notify_application_status ? 'checked' : '') : 'checked' }} />
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li class="d-flex">
+                                            <div class="flex-grow-1">
+                                                <label for="notifyShortlisted" class="form-check-label fs-15">
+                                                    Notify When Shortlisted
+                                                </label>
+                                                <p class="text-muted">
+                                                    Receive alerts if you are shortlisted for an opportunity, keeping you promptly informed about your application’s status.
+                                                </p>
+                                            </div>
+                                            <div class="flex-shrink-0">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="notifyShortlisted" name="notify_shortlisted" {{ $userSettings ? ($userSettings->notify_shortlisted ? 'checked' : '') : 'checked' }} />
+                                                </div>
+                                            </div>
+                                        </li>
+                                        <li class="d-flex">
+                                            <div class="flex-grow-1">
+                                                <label for="notifyInterviewScheduled" class="form-check-label fs-15">
+                                                    Notify When Interview is Scheduled
+                                                </label>
+                                                <p class="text-muted">
+                                                    Be promptly informed about the scheduling of interviews, including time and location details.
+                                                </p>
+                                            </div>
+                                            <div class="flex-shrink-0">
+                                                <div class="form-check form-switch">
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="notifyInterviewScheduled" name="notify_interview_scheduled" {{ $userSettings ? ($userSettings->notify_interview_scheduled ? 'checked' : '') : 'checked' }} />
+                                                </div>
+                                            </div>
+                                        </li>
+                                        @if ($user->role_id < 4)
+                                            <li class="d-flex">
+                                                <div class="flex-grow-1">
+                                                    <label for="notifyVacancyStatus" class="form-check-label fs-15">
+                                                        Notify on Vacancy Status Change (Managers)
+                                                    </label>
+                                                    <p class="text-muted">
+                                                        Managers are notified about status updates of the vacancies they posted, including approvals, updates, or rejections.
+                                                    </p>
+                                                </div>
+                                                <div class="flex-shrink-0">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" role="switch" id="notifyVacancyStatus" name="notify_vacancy_status" {{ $userSettings ? ($userSettings->notify_vacancy_status ? 'checked' : '') : 'checked' }} />
+                                                    </div>
+                                                </div>
+                                            </li>
+                                            <li class="d-flex">
+                                                <div class="flex-grow-1">
+                                                    <label for="notifyNewApplication" class="form-check-label fs-15">
+                                                        Notify When New Application is Received (Managers)
+                                                    </label>
+                                                    <p class="text-muted">
+                                                        Get alerted when a new application is received for a vacancy. This helps managers to keep track of applicant interest.
+                                                    </p>
+                                                </div>
+                                                <div class="flex-shrink-0">
+                                                    <div class="form-check form-switch">
+                                                        <input class="form-check-input" type="checkbox" role="switch" id="notifyNewApplication" name="notify_new_application" {{ $userSettings ? ($userSettings->notify_new_application ? 'checked' : '') : 'checked' }} />
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        @endif                                                                  
+                                    </ul>
+                                </div>
+                                <div class="col-lg-12">
+                                    <div class="hstack gap-2 justify-content-end">
+                                        <button type="submit" class="btn btn-primary">
+                                            Save Settings
+                                        </button>
+                                    </div>
+                                </div>
+                                <!--end col-->
+                            </form>                    
                         </div>
                         <!--end tab-pane-->
                     </div>

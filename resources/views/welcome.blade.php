@@ -58,16 +58,7 @@
                                         $url = 'admin/';
                                         break;
                                     case 3:
-                                        $url = 'seller/';
-                                        break;
-                                    case 4:
-                                        $url = 'buyer/';
-                                        break;
-                                    case 5:
-                                        $url = 'advisor/';
-                                        break;
-                                    case 6:
-                                        $url = 'trader/';
+                                        $url = 'manager/';
                                         break;
                                     default:
                                         $url = '/home';
@@ -135,7 +126,10 @@
                                     <!--end col-->
                                     <div class="col-md-4">
                                         <div class="h-100">
-                                            <button class="btn btn-primary submit-btn w-100 h-100" type="submit"><i class="ri-search-2-line align-bottom me-1"></i> Find Job</button>
+                                            <a href="{{ route('register') }}" class="btn btn-primary submit-btn w-100 h-100">
+                                                <i class="ri-search-2-line align-bottom me-1"></i> 
+                                                Find Job
+                                            </a>
                                         </div>
                                     </div>
                                     <!--end col-->

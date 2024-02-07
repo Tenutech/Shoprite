@@ -42,16 +42,7 @@
                                     $url = 'admin/';
                                     break;
                                 case 3:
-                                    $url = 'seller/';
-                                    break;
-                                case 4:
-                                    $url = 'buyer/';
-                                    break;
-                                case 5:
-                                    $url = 'advisor/';
-                                    break;
-                                case 6:
-                                    $url = 'trader/';
+                                    $url = 'manager/';
                                     break;
                                 default:
                                     $url = '/home';

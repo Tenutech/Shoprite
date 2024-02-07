@@ -9,7 +9,7 @@
 
 
 <div class="row">
-    @if ($user->applicant)
+    @if (!$user->applicant)
         <div class="col">
             <div class="h-100">
                 <div class="row mb-3 pb-1">
@@ -324,9 +324,9 @@
                 </h4>
             </div><!-- end card header -->
             <div class="card-body form-steps">
-                <form class="vertical-navs-step" id="{{ $user->applicant ? 'formApplicationUpdate' : 'formApplication' }}"  enctype="multipart/form-data" novalidate>
+                <form class="vertical-navs-step" id="{{ !$user->applicant ? 'formApplicationUpdate' : 'formApplication' }}"  enctype="multipart/form-data" novalidate>
                     @csrf
-                    <input type="hidden" id="id" name="id" value="{{ $user->applicant ? Crypt::encryptString($user->applicant->id) : '' }}"/>
+                    <input type="hidden" id="id" name="id" value="{{ !$user->applicant ? Crypt::encryptString($user->applicant->id) : '' }}"/>
                     <div class="row gy-5">
 
                         <!-------------------------------------------------------------------------------------
@@ -435,6 +435,16 @@
                                                 You are on this Shoprite Recruitment platform, because you are applying for an 
                                                 employment position at the Shoprite Group. Therefore, your answering of these 
                                                 questions replace the need to hand in a physical CV document in store.
+                                            </p>
+                                            <p class="text-muted">
+                                                You will be asked a series of questions gathering personal information, and you 
+                                                hereby grant the OTB Group (Operator) on behalf of the Shoprite Group of Companies 
+                                                (Responsible Party) permission to process the information. By selecting "Start", you 
+                                                confirm that you have read, understood and accept the POPIA T's&C's available at 
+                                                this link: 
+                                                <a href="{{ route('terms') }}" class="text-primary text-decoration-underline fst-normal fw-medium">
+                                                    Terms of Use
+                                                </a>
                                             </p>
                                             <p class="text-muted">
                                                 Please read each question carefully, and answer to the best of your ability. 
@@ -827,7 +837,7 @@
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="speak" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Which of the following languages can you speak?">
-                                                            Languages speak:
+                                                            Languages spoken:
                                                             <span class="text-danger">*</span>
                                                         </label>
                                                         <select class="form-control" id="speak" name="speak[]" data-choices multiple data-choices-search-true data-choices-removeItem required>
@@ -1178,7 +1188,9 @@
                                                                 <option value="{{ $transport->id }}" {{ ($user->applicant && $user->applicant->transport_id == $transport->id) ? 'selected' : '' }}>{{ $transport->name }}</option>
                                                             @endforeach
                                                         </select>
-                                                        <div class="invalid-feedback">Please select a reason</div>
+                                                        <div class="invalid-feedback">
+                                                            Please select a trasnport
+                                                        </div>
                                                     </div>                                                        
                                                 </div>
 
@@ -1375,11 +1387,9 @@
                                                     <div class="mb-3">
                                                         <label for="bank" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="If you have a bank account, at which bank is your account?">
                                                             Bank
-                                                            <span class="badge bg-secondary-subtle text-secondary badge-border">
-                                                                Optional
-                                                            </span>
+                                                            <span class="text-danger">*</span>
                                                         </label>
-                                                        <select class="form-control" id="bank" name="bank_id" data-choices data-choices-search-true>
+                                                        <select class="form-control" id="bank" name="bank_id" data-choices data-choices-search-true required>
                                                             <option value="">Select bank</option>
                                                             @foreach ($banks as $bank)                                                                            
                                                                 <option value="{{ $bank->id }}" {{ ($user->applicant && $user->applicant->bank_id == $bank->id) ? 'selected' : '' }}>{{ $bank->name }}</option>
@@ -1595,7 +1605,7 @@
                                     -------------------------------------------------------------------------------------->
 
                                     <div class="tab-pane fade d-flex align-items-center justify-content-center flex-column" id="v-pills-finish" role="tabpanel" aria-labelledby="v-pills-finish-tab">
-                                        @if ($user->applicant)
+                                        @if (!$user->applicant)
                                             <!-- Update -->
                                             <div class="text-center pt-4 pb-2" id="complete">
                                                 <div class="mb-4">
@@ -1631,13 +1641,13 @@
                                             </div>
                                         @else
                                             <!-- Confirm -->
-                                            <div class="text-center pt-4 pb-2 {{ $user->applicant ? 'd-none' : '' }}" id="confirm">
+                                            <div class="text-center pt-4 pb-2 {{ !$user->applicant ? 'd-none' : '' }}" id="confirm">
                                                 <div class="mb-4">
                                                     <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="loop" state="hover-2" colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
                                                 </div>
                                                 <h5>Would you like to submit your application ?</h5>
                                                 <p class="text-muted">
-                                                    You will receive an email confirmation with details of your application.
+                                                    After successful submission you will be notified should you qualify fo an interview.
                                                 </p>
                                                 <button type="button" id="cancelBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
                                                     <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
@@ -1663,7 +1673,8 @@
                                                 </div>
                                                 <h5 id="completeHeading">Application Submitted !</h5>
                                                 <p class="text-muted" id="completeText">
-                                                    You will receive an confirmation email with details of your application.
+                                                    Your application has been submitted successfully, you will be notified should you qualify 
+                                                    for an interview
                                                 </p>
                                                 <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
                                                     <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
@@ -1707,7 +1718,7 @@
         Side Bar
     -------------------------------------------------------------------------------------->
 
-    @if ($user->applicant)
+    @if (!$user->applicant)
         <div class="col-auto layout-rightside-col">
             <div class="overlay"></div>
             <div class="layout-rightside">
@@ -2208,7 +2219,7 @@
 <script src="{{ URL::asset('build/libs/jsvectormap/maps/world-merc.js') }}"></script>
 <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js')}}"></script>
 <!-- home init -->
-@if ($user->applicant)
+@if (!$user->applicant)
     <script src="{{URL::asset('build/js/pages/home.init.js')}}"></script>
 @else
     <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>

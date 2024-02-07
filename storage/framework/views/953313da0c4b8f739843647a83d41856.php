@@ -592,7 +592,7 @@
                             <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Profile</span>
                         </a>
-                        <a class="dropdown-item" href="/messages">
+                        <a class="dropdown-item" href="/chat">
                             <?php if($messages && $messages->count() > 0): ?>
                                 <span class="badge rounded-pill bg-danger mt-1 float-end">
                                     <?php echo e($messages->count()); ?>
@@ -613,10 +613,6 @@
                             </span>
                             <i class="mdi mdi-cog-outline text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Settings</span></a>
-                        <a class="dropdown-item" href="lockscreen">
-                            <i class="mdi mdi-lock text-muted fs-16 align-middle me-1"></i>
-                            <span class="align-middle">Lock screen</span>
-                        </a>
                         <a class="dropdown-item " href="javascript:void();" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             <i class="bx bx-power-off font-size-16 align-middle me-1"></i>
                             <span key="t-logout"><?php echo app('translator')->get('translation.logout'); ?></span>

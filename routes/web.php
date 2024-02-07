@@ -228,6 +228,8 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::post('/update-password', [App\Http\Controllers\ProfileSettingsController::class, 'updatePassword'])->name('profile-settings.updatePassword');
 
+    Route::post('/update-notifications', [App\Http\Controllers\ProfileSettingsController::class, 'notificationSettings'])->name('profile-settings.notifications');
+
     //Save
     Route::put('/applicant-save/{id}', [App\Http\Controllers\SaveController::class, 'applicantSave'])->name('applicant.save');
 

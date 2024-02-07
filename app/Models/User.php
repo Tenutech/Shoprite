@@ -144,6 +144,27 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(Shortlist::class);
     }
 
+    public function getApplicationStatusAndColor($approved)
+    {
+        switch ($approved) {
+            case 'Yes':
+                return ['name' => 'Approved', 'color' => 'success'];
+            case 'Pending':
+                return ['name' => 'Pending', 'color' => 'warning'];
+            case 'No':
+                return ['name' => 'Declined', 'color' => 'danger'];
+            default:
+                return ['name' => 'Unknown', 'color' => 'secondary'];
+        }
+    }
+
+    //Notification Settings
+
+    public function notificationSettings()
+    {
+        return $this->hasOne(NotificationSetting::class);
+    }
+
     /**
      * The attributes that should be logged.
      * @var bool
