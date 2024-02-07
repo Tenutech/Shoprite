@@ -50,11 +50,11 @@
                                         <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0; border-top: 1px solid #e9ebec;">
                                             <td class="content-block" style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; vertical-align: top; margin: 0; padding: 0; padding-top: 15px" valign="top">
                                                 <div style="display: flex; align-items: center;">
-                                                    <img src="<?php echo e(URL::asset('images/shoops.png')); ?>" alt="" height="35" width="35" style="border-radius: 50px;">
+                                                    <img src="<?php echo e($icon); ?>" alt="" height="35" width="35" style="border-radius: 50px;">
                                                     <div style="margin-left: 8px;">
                                                         <span style="font-weight: 600;"><?php echo e($userName); ?></span>
                                                         <p style="font-size: 13px; margin-bottom: 0px; margin-top: 3px; color: #878a99;">
-                                                            <?php echo e($company); ?>
+                                                            <?php echo e($outroText); ?>
 
                                                         </p>
                                                     </div>

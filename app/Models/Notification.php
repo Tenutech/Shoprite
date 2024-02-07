@@ -69,12 +69,16 @@ class Notification extends Model
 
     protected static function booted()
     {
-        static::created(function ($notification) {
-            $user = $notification->user;
+        static::created(function ($notificationModelInstance) {
+            $user = $notificationModelInstance->user;
 
-            // Check if the user has an email address
+            // Determine the type of notification; you might need to adjust this based on your application's logic
+            $notificationType = $notificationModelInstance->notification; // Adjust as necessary
+
+            // Check if the user has an email address and use the new method for sending notifications
             if (!is_null($user->email)) {
-                $user->notify((new NotifyEmail($notification))->onQueue('default'));
+                // Use the custom method for sending notifications with a check for user preferences
+                $user->sendCustomNotification(new NotifyEmail($notificationModelInstance), $notificationType);
             }
         });
     }

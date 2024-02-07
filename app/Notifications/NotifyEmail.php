@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Log;
 
 class NotifyEmail extends Notification implements ShouldQueue
 {
@@ -54,14 +55,12 @@ class NotifyEmail extends Notification implements ShouldQueue
         return (new MailMessage)
             ->subject($this->subject)
             ->view('vendor.notifications.notification', [
-                'greeting' => 'Hey, ' . $this->notification->user->firstname . ' ' . $this->notification->user->lastname,
+                'greeting' => 'Dear ' . $this->notification->user->firstname . ' ' . $this->notification->user->lastname,
                 'introLines' => $this->introLines,
                 'actionText' => $this->actionText,
                 'actionUrl' => $this->actionUrl,
                 'userName' => $this->userName,
-                'company' => $this->company,
-                'opportunity' => $this->opportunity,
-                'category' => $this->category,
+                'outroText' => $this->outroText,
                 'icon' => $this->icon,
                 'displayableActionUrl' => url('/'),
             ]);
@@ -72,80 +71,140 @@ class NotifyEmail extends Notification implements ShouldQueue
      */
     private function prepareMailData()
     {
-        if ($this->notification->subject_type == 'App\Models\Connection') {
-            $this->setConnectionData();
-
-            $template = EmailTemplate::findorfail($this->templateID); // Handle if not found.
-            $this->subject = $template->subject;
-            $this->introLines = explode(';;', $template->intro);
-
-            // Insert $userName into the second position
-            array_splice($this->introLines, 1, 0, $this->userName);
-
-            // Replace any occurrences of [Sender Name] with $userName
-            $this->introLines = array_map(function ($line) {
-                return str_replace('[Sender Name]', $this->userName, $line);
-            }, $this->introLines);
-        } elseif ($this->notification->subject_type == 'App\Models\Opportunity') {
-            $this->setOpportunityData();
-
-            $template = EmailTemplate::findorfail($this->templateID);  // Handle if not found.
-            $this->subject = $template->subject;
-            $this->introLines = explode(';;', $template->intro);
-
-            if ($this->templateID == 3) {
-                $this->introLines[2] = str_replace('[Title]', $this->opportunity, $this->introLines[2]);
-                $this->introLines[3] = str_replace('[Category]', $this->category, $this->introLines[3]);
-            } else if ($this->templateID == 7) {
-                $amendments = $this->notification->subject->amendments->last()?->description;
-                if ($this->templateID && $amendments) {
-                    array_splice($this->introLines, 2, 0, $amendments);
-                }
-            }
-        }
-    }
-    
-    /**
-     * Set the connection data.
-     */
-    private function setConnectionData()
-    {
-        $this->actionText = 'Send Message';
-        $this->actionUrl = route('messages.index', ['id' => Crypt::encryptString($this->notification->subject->user_id)]);
-        $this->userName = $this->notification->causer->firstname.' '.$this->notification->causer->lastname;
-        $this->company = $this->notification->causer->company->name;
-        $this->icon = $this->notification->causer->avatar;
-        $this->templateID = 4;
-    }
-
-    /**
-     * Set the opportunity data.
-     */
-    private function setOpportunityData()
-    {
         switch ($this->notification->notification) {
-            case 'Has been approved ✅':
-                $this->templateID = 5;
+            case 'Submitted application 🔔':
+                $this->submittedApplicationData();
+
+                // Check if $templateID is set
+                if (isset($this->templateID)) {
+                    $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                    $this->subject = $template->subject;
+                    $this->introLines = explode(';;', $template->intro);
+                }
                 break;
-            case 'Needs amendment 📝':
-                $this->templateID = 6;
+            case 'Approved your application request ✅':
+                $this->approvedApplicationData();
+
+                // Check if $templateID is set
+                if (isset($this->templateID)) {
+                    $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                    $this->subject = $template->subject;
+                    $this->introLines = explode(';;', $template->intro);
+
+                    // Iterate through each line and replace placeholders as needed
+                    foreach ($this->introLines as &$line) {
+                        if (isset($this->vacancy)) {
+                            $line = str_replace('[Position]', $this->vacancy, $line);
+                        }
+                    }
+                    unset($line);
+                }
                 break;
-            case 'Has been declined 🚫':
-                $this->templateID = 7;
+            case 'Declined your application request 🚫':
+                $this->declinedApplicationData();
+
+                // Check if $templateID is set
+                if (isset($this->templateID)) {
+                    $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                    $this->subject = $template->subject;
+                    $this->introLines = explode(';;', $template->intro);
+
+                    // Iterate through each line and replace placeholders as needed
+                    foreach ($this->introLines as &$line) {
+                        if (isset($this->vacancy)) {
+                            $line = str_replace('[Position]', $this->vacancy, $line);
+                        }
+                    }
+                    unset($line);
+                }
                 break;
-            case 'Created New Opportunity 🔔':
-                $this->templateID = 3;
+            case 'Has applied for vacancy 🔔':
+                $this->appliedForVacancyData();
+
+                // Check if $templateID is set
+                if (isset($this->templateID)) {
+                    $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                    $this->subject = $template->subject;
+                    $this->introLines = explode(';;', $template->intro);
+
+                    // Iterate through each line and replace placeholders as needed
+                    foreach ($this->introLines as &$line) {
+                        if (isset($this->vacancy)) {
+                            $line = str_replace('[Position]', $this->vacancy, $line);
+                        }
+                        if (isset($this->userName)) {
+                            $line = str_replace('[Applicant Name]', $this->userName, $line);
+                        }
+                        if (isset($this->userName)) {
+                            $line = str_replace('[Date]', $this->applyDate, $line);
+                        }
+                    }
+                    unset($line);
+                }
                 break;
             default:
-                $this->templateID = 1;
-                break;
-                
+                return false;
         }
+    }
 
-        $this->actionText = 'View Opportunity';
-        $this->actionUrl = route('opportunity-overview.index', ['id' => Crypt::encryptString($this->notification->subject_id)]);
-        $this->opportunity = $this->notification->subject->name;
-        $this->category = $this->notification->subject->category->name;
-        $this->icon = $this->notification->subject->sectors[0]->image;
+    /**
+    * Set application submit data.
+    */
+    private function submittedApplicationData()
+    {
+        // Proceed with setting up the notification details
+        $this->templateID = 3;
+        $this->actionText = 'View Application';
+        $this->actionUrl = route('profile.index');
+        $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
+        $this->outroText = optional(optional($this->notification->causer->applicant)->position)->name ?? 'N/A';
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+    }
+
+    /**
+    * Set application approved data.
+    */
+    private function approvedApplicationData()
+    {
+        // Proceed with setting up the notification details
+        $this->templateID = 4;
+        $this->actionText = 'View Application';
+        $this->actionUrl = route('profile.index');
+        $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
+        $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
+        $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
+    }
+
+    /**
+    * Set application declined data.
+    */
+    private function declinedApplicationData()
+    {
+        // Proceed with setting up the notification details
+        $this->templateID = 5;
+        $this->actionText = 'View Application';
+        $this->actionUrl = route('profile.index');
+        $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
+        $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
+        $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
+    }
+
+    /**
+    * Set applied for vacancy data.
+    */
+    private function appliedForVacancyData()
+    {
+        // Proceed with setting up the notification details
+        $this->templateID = 13;
+        $this->actionText = 'View Applicat';
+        $this->actionUrl = route('applicant-profile.index', ['id' => Crypt::encryptString($this->notification->causer->applicant->id)]);
+        $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
+        $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
+        $created_at = strtotime($this->notification->subject->created_at);
+        $this->applyDate = $created_at ? date('d M Y', $created_at) : 'N/A';
     }
 }

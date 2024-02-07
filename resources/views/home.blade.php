@@ -1065,7 +1065,7 @@
                                                             Specify the reason
                                                             <span class="text-danger">*</span>
                                                         </label>
-                                                        <input type="text" class="form-control" id="jobRetrenchedSpecify" name="job_retrenched_specify" placeholder="Please specify the reaon" value="{{ $user->applicant ? $user->applicant->job_leave_specify : '' }}" />
+                                                        <input type="text" class="form-control" id="jobRetrenchedSpecify" name="job_retrenched_specify" placeholder="Please specify the reaon" value="{{ $user->applicant ? $user->applicant->job_retrenched_specify : '' }}" />
                                                         <div class="invalid-feedback">
                                                             Please enter a reason
                                                         </div>

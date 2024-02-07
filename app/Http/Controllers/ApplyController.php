@@ -70,7 +70,7 @@ class ApplyController extends Controller
                 $notification->causer_id = $userID;
                 $notification->subject()->associate($application); // Assuming you want to associate the notification with the vacancy
                 $notification->type_id = 1;
-                $notification->notification = "Has applied for vacancy 🔔.";
+                $notification->notification = "Has applied for vacancy 🔔";
                 $notification->read = "No";
                 $notification->save();
             }
@@ -126,7 +126,7 @@ class ApplyController extends Controller
                 $notification->causer_id = $userID;
                 $notification->subject()->associate($application);
                 $notification->type_id = 1;
-                $notification->notification = "Approved your application request.";
+                $notification->notification = "Approved your application request ✅";
                 $notification->read = "No";
                 $notification->save();
             }
@@ -176,7 +176,7 @@ class ApplyController extends Controller
                 $notification->causer_id = $userID;
                 $notification->subject()->associate($application);
                 $notification->type_id = 1;
-                $notification->notification = "Declined your application request.";
+                $notification->notification = "Declined your application request 🚫";
                 $notification->read = "No";
                 $notification->save();
             }

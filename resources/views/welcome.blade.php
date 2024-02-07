@@ -61,7 +61,7 @@
                                         $url = 'manager/';
                                         break;
                                     default:
-                                        $url = '/home';
+                                        $url = '/';
                                         break;
                                 }
                             @endphp

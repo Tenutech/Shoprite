@@ -10,6 +10,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -163,6 +164,58 @@ class User extends Authenticatable implements MustVerifyEmail
     public function notificationSettings()
     {
         return $this->hasOne(NotificationSetting::class);
+    }
+
+    /**
+     * Determine if the user can receive a specific type of notification.
+     *
+     * @param string $notificationType The type of notification to check.
+     * @return bool
+     */
+    public function canReceiveNotificationType(string $notificationType): bool
+    {
+        $settings = $this->notificationSettings;
+
+        if (!$settings) {
+            return false; // Assume opt-out if settings are not found
+        }
+
+        // Example for checking a specific notification type
+        switch ($notificationType) {
+            case 'Submitted application 🔔':
+                return $settings->notify_application_submitted ?? false;
+            case 'Approved your application request ✅':
+                return $settings->notify_application_status ?? false;
+            case 'Declined your application request 🚫':
+                return $settings->notify_application_status ?? false;
+            case 'You have been Shortlisted ✨':
+                return $settings->notify_shortlisted ?? false;
+            case 'Interview Scheduled 📅':
+                return $settings->notify_interview_scheduled ?? false;
+            case 'You have been Appointed 🎉':
+                return $settings->receive_email_notifications ?? false;
+            case 'Has applied for vacancy 🔔':
+                return $settings->notify_application_submitted ?? false;
+            default:
+                return false;
+        }
+    }
+
+    /**
+     * Send a notification to the user, if they have opted in for that type.
+     *
+     * @param Notification $notification The notification instance to send.
+     * @param string $notificationType The type of notification being sent.
+     * @return void
+     */
+    public function sendCustomNotification($notification, string $notificationType)
+    {
+        if ($this->canReceiveNotificationType($notificationType)) {
+            $this->notify($notification);
+        } else {
+            // Optionally log or handle cases where the user has opted out
+            Log::info("User ({$this->id}) has opted out of {$notificationType} notifications.");
+        }
     }
 
     /**
