@@ -228,7 +228,7 @@ class InterviewController extends Controller
                 $notification->causer_id = $userID;
                 $notification->subject()->associate($interview);
                 $notification->type_id = 1;
-                $notification->notification = "Approved your interview request ✅";
+                $notification->notification = "Confirmed your interview request ✅";
                 $notification->read = "No";
                 $notification->save();
             }
@@ -311,6 +311,9 @@ class InterviewController extends Controller
         ]);
 
         try {
+            // User ID
+            $userID = Auth::id();
+
             // Decrypt and find the interview by ID
             $interviewID = Crypt::decryptString($request->input('interview_id'));
             $interview = Interview::findOrFail($interviewID);
@@ -331,6 +334,22 @@ class InterviewController extends Controller
             // Save the average score to the interview
             $interview->score = $averageScore;
             $interview->save();
+
+            //User
+            $user = User::where('applicant_id', $interview->applicant_id)->first();
+
+            // If a new interview was updated, then create a notification
+            if ($user && $interview->wasChanged()) {
+                // Create Notification
+                $notification = new Notification();
+                $notification->user_id = $user->id;
+                $notification->causer_id = $userID;
+                $notification->subject()->associate($interview);
+                $notification->type_id = 1;
+                $notification->notification = "Completed your interview 🚀";
+                $notification->read = "No";
+                $notification->save();
+            }
 
             return response()->json([
                 'success' => true,

@@ -20,7 +20,7 @@ class NotificationSetting extends Model
         'notify_application_submitted',
         'notify_application_status',
         'notify_shortlisted',
-        'notify_interview_scheduled',
+        'notify_interview',
         'notify_vacancy_status',
         'notify_new_application',
     ];

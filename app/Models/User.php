@@ -191,8 +191,16 @@ class User extends Authenticatable implements MustVerifyEmail
             case 'You have been Shortlisted ✨':
                 return $settings->notify_shortlisted ?? false;
             case 'Interview Scheduled 📅':
-                return $settings->notify_interview_scheduled ?? false;
+                return $settings->notify_interview ?? false;
+            case 'Confirmed your interview request ✅':
+                return $settings->notify_interview ?? false;
+            case 'Declined your application request 🚫':
+                return $settings->notify_interview ?? false;
+            case 'Completed your interview 🚀':
+                return $settings->notify_interview ?? false;
             case 'You have been Appointed 🎉':
+                return $settings->receive_email_notifications ?? false;
+            case 'Has been declined 🚫':
                 return $settings->receive_email_notifications ?? false;
             case 'Has applied for vacancy 🔔':
                 return $settings->notify_application_submitted ?? false;

@@ -21,6 +21,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Log;
 
 class VacancyController extends Controller
 {
@@ -245,6 +246,9 @@ class VacancyController extends Controller
             $vacancyID = Crypt::decryptString($request->input('vacancy_id'));
             $selectedApplicants = $request->input('applicants_vacancy');
 
+            // Extract user IDs from the selected applicants
+            $selectedUserIds = User::whereIn('applicant_id', $selectedApplicants)->pluck('id')->filter()->toArray();
+
             DB::beginTransaction();
 
             // Find the vacancy
@@ -270,6 +274,15 @@ class VacancyController extends Controller
             foreach ($selectedApplicants as $applicantId) {
                 $applicant = Applicant::find($applicantId);
 
+                $application = Application::where('user_id', $applicant->id)
+                                          ->where('vacancy_id', $vacancy->id)
+                                          ->first();
+
+                if ($application) {
+                    $application->approved = 'Yes';
+                    $application->save();
+                }
+
                 if (!$vacancy->appointed->contains($applicantId)) {
                     $vacancyFill = VacancyFill::create([
                         'vacancy_id' => $vacancy->id,
@@ -287,7 +300,7 @@ class VacancyController extends Controller
                         $notification->causer_id = Auth::id();
                         $notification->subject()->associate($vacancyFill); // Assuming you want to associate the notification with the vacancy
                         $notification->type_id = 1;
-                        $notification->notification = "You have been appointed ✅";
+                        $notification->notification = "You have been Appointed 🎉";
                         $notification->read = "No";
                         $notification->save();
                     }
@@ -303,26 +316,30 @@ class VacancyController extends Controller
                 }
             }
 
-            //Create notification for all applicants that where not appointed
-            foreach ($vacancy->applicants as $applicant) {
-                if (!in_array($applicant->id, $selectedApplicants)) {
-                    $application = Application::where('user_id', $applicant->id)
-                                              ->where('vacancy_id', $vacancy->id)
-                                              ->first();
-            
-                    if ($application) {
-                        $application->approved = 'No';
-                        $application->save();
-            
-                        // Create Notification
-                        $notification = new Notification();
-                        $notification->user_id = $applicant->id;
-                        $notification->causer_id = Auth::id();
-                        $notification->subject()->associate($application); // Associate notification with the application
-                        $notification->type_id = 1;
-                        $notification->notification = "Has been declined 🚫";
-                        $notification->read = "No";
-                        $notification->save();
+            if ($vacancy->open_positions == 0) {
+                //Create notification for all applicants that where not appointed
+                foreach ($vacancy->applicants as $applicant) {
+                    if (!in_array($applicant->id, $selectedUserIds)) {
+                        $application = Application::where('user_id', $applicant->id)
+                                                  ->where('vacancy_id', $vacancy->id)
+                                                  ->first();
+                
+                        if ($application) {
+                            $application->approved = 'No';
+                            $application->save();
+                
+                            if ($application->wasChanged()) {
+                                // Create Notification
+                                $notification = new Notification();
+                                $notification->user_id = $applicant->id;
+                                $notification->causer_id = Auth::id();
+                                $notification->subject()->associate($application); // Associate notification with the application
+                                $notification->type_id = 1;
+                                $notification->notification = "Has been declined 🚫";
+                                $notification->read = "No";
+                                $notification->save();
+                            }
+                        }
                     }
                 }
             }

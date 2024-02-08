@@ -408,7 +408,7 @@
                                             </div>
                                             <div class="flex-shrink-0">
                                                 <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" role="switch" id="notifyInterviewScheduled" name="notify_interview_scheduled" {{ $userSettings ? ($userSettings->notify_interview_scheduled ? 'checked' : '') : 'checked' }} />
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="notifyInterviewScheduled" name="notify_interview" {{ $userSettings ? ($userSettings->notify_interview ? 'checked' : '') : 'checked' }} />
                                                 </div>
                                             </div>
                                         </li>

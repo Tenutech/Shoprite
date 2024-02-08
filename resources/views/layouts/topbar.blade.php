@@ -353,7 +353,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                @elseif ($notification->notification == "Approved your interview request ✅")
+                                                @elseif ($notification->notification == "Confirmed your interview request ✅")
                                                     <div class="text-reset notification-item d-block dropdown-item position-relative">
                                                         @if ($notification->read == 'No')
                                                             <span class="position-absolute top-0 start-100 translate-middle badge border border-light rounded-circle bg-danger p-1 newNotification">
