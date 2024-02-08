@@ -75,6 +75,12 @@ class Vacancy extends Model
         return $this->belongsToMany(Applicant::class, 'vacancy_fills', 'vacancy_id', 'applicant_id')->withTimestamps();
     }
 
+    //Amendments
+    public function amendments()
+    {
+        return $this->hasMany(Amendment::class);
+    }
+
     /**
      * The attributes that should be logged.
      * @var bool

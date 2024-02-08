@@ -156,7 +156,7 @@ class ApprovalController extends Controller
                 $notification->causer_id = Auth::id();
                 $notification->subject()->associate($vacancy);
                 $notification->type_id = 1;
-                $notification->notification = "Has been approved ✅";
+                $notification->notification = "Has been approved 🎉";
                 $notification->read = "No";
                 $notification->save();
             }
@@ -262,7 +262,7 @@ class ApprovalController extends Controller
                 $notification->causer_id = Auth::id();
                 $notification->subject()->associate($vacancy);
                 $notification->type_id = 1;
-                $notification->notification = "Has been declined 🚫";
+                $notification->notification = "Has been declined ❌";
                 $notification->read = "No";
                 $notification->save();
             }

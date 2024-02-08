@@ -25,11 +25,11 @@ class Amendment extends Model
         return $this->belongsTo(User::class);
     }
 
-    //Opportunity
+    //Vacancy
 
-    public function opportunity()
+    public function vacancy()
     {
-        return $this->belongsTo(Opportunity::class);
+        return $this->belongsTo(Vacancy::class);
     }
 
     //Causer

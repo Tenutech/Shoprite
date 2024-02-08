@@ -277,6 +277,105 @@ class NotifyEmail extends Notification implements ShouldQueue
                     unset($line);
                 }
                 break;
+            case 'Created new vacancy 🔔':
+                $this->vacancySubmittedData();
+
+                // Check if $templateID is set
+                if (isset($this->templateID)) {
+                    $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                    $this->subject = $template->subject;
+                    $this->introLines = explode(';;', $template->intro);
+
+                    // Iterate through each line and replace placeholders as needed
+                    foreach ($this->introLines as &$line) {
+                        if (isset($this->vacancy)) {
+                            $line = str_replace('[Position]', $this->vacancy, $line);
+                        }
+                        if (isset($this->open)) {
+                            $line = str_replace('[Open]', $this->open, $line);
+                        }
+                        if (isset($this->store)) {
+                            $line = str_replace('[Store]', $this->store, $line);
+                        }
+                        if (isset($this->type)) {
+                            $line = str_replace('[Type]', $this->type, $line);
+                        }
+                    }
+                    unset($line);
+                }
+                break;
+            case 'Has been approved 🎉':
+                $this->vacancyApprovedData();
+
+                // Check if $templateID is set
+                if (isset($this->templateID)) {
+                    $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                    $this->subject = $template->subject;
+                    $this->introLines = explode(';;', $template->intro);
+
+                    // Iterate through each line and replace placeholders as needed
+                    foreach ($this->introLines as &$line) {
+                        if (isset($this->vacancy)) {
+                            $line = str_replace('[Position]', $this->vacancy, $line);
+                        }
+                        if (isset($this->open)) {
+                            $line = str_replace('[Open]', $this->open, $line);
+                        }
+                        if (isset($this->store)) {
+                            $line = str_replace('[Store]', $this->store, $line);
+                        }
+                        if (isset($this->type)) {
+                            $line = str_replace('[Type]', $this->type, $line);
+                        }
+                    }
+                    unset($line);
+                }
+                break;
+            case 'Needs amendment 📝':
+                $this->vacancyAmendData();
+
+                // Check if $templateID is set
+                if (isset($this->templateID)) {
+                    $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                    $this->subject = $template->subject;
+                    $this->introLines = explode(';;', $template->intro);
+
+                    // Iterate through each line and replace placeholders as needed
+                    foreach ($this->introLines as &$line) {
+                        if (isset($this->vacancy)) {
+                            $line = str_replace('[Position]', $this->vacancy, $line);
+                        }
+                        if (isset($this->store)) {
+                            $line = str_replace('[Store]', $this->store, $line);
+                        }
+                        if (isset($this->amend)) {
+                            $line = str_replace('[Amend]', $this->amend, $line);
+                        }
+                    }
+                    unset($line);
+                }
+                break;
+            case 'Has been declined ❌':
+                    $this->vacancyDeclineData();
+    
+                    // Check if $templateID is set
+                    if (isset($this->templateID)) {
+                        $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                        $this->subject = $template->subject;
+                        $this->introLines = explode(';;', $template->intro);
+    
+                        // Iterate through each line and replace placeholders as needed
+                        foreach ($this->introLines as &$line) {
+                            if (isset($this->vacancy)) {
+                                $line = str_replace('[Position]', $this->vacancy, $line);
+                            }
+                            if (isset($this->store)) {
+                                $line = str_replace('[Store]', $this->store, $line);
+                            }
+                        }
+                        unset($line);
+                    }
+                    break;
             case 'Has applied for vacancy 🔔':
                 $this->appliedForVacancyData();
 
@@ -521,6 +620,79 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
         $this->store = (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->town)->name ?? 'N/A') . ')';
+    }
+
+    /**
+    * Set vacancy submitted data.
+    */
+    private function vacancySubmittedData()
+    {
+        // Proceed with setting up the notification details
+        $this->templateID = 15;
+        $this->actionText = 'View Vacancy';
+        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->vacancy->id)]);
+        $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
+        $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->vacancy = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
+        $this->open = optional($this->notification->subject)->open_positions ?? 'N/A';
+        $this->store = (optional(optional(optional($this->notification->subject)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional($this->notification->subject)->store)->town)->name ?? 'N/A') . ')';
+        $this->type = optional(optional($this->notification->subject)->type)->name ?? 'N/A';
+    }
+
+    /**
+    * Set vacancy approved data.
+    */
+    private function vacancyApprovedData()
+    {
+        // Proceed with setting up the notification details
+        $this->templateID = 15;
+        $this->actionText = 'View Vacancy';
+        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->vacancy->id)]);
+        $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
+        $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->vacancy = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
+        $this->open = optional($this->notification->subject)->open_positions ?? 'N/A';
+        $this->store = (optional(optional(optional($this->notification->subject)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional($this->notification->subject)->store)->town)->name ?? 'N/A') . ')';
+        $this->type = optional(optional($this->notification->subject)->type)->name ?? 'N/A';
+    }
+
+    /**
+    * Set vacancy amend data.
+    */
+    private function vacancyAmendData()
+    {
+        // Proceed with setting up the notification details
+        $this->templateID = 15;
+        $this->actionText = 'View Vacancy';
+        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->vacancy->id)]);
+        $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
+        $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->vacancy = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
+        $this->open = optional($this->notification->subject)->open_positions ?? 'N/A';
+        $this->store = (optional(optional(optional($this->notification->subject)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional($this->notification->subject)->store)->town)->name ?? 'N/A') . ')';
+        $this->type = optional(optional($this->notification->subject)->type)->name ?? 'N/A';
+        $this->amend = optional($this->notification->subject->amendments->sortByDesc('created_at')->first())->description ?? 'N/A';
+    }
+
+     /**
+    * Set vacancy decline data.
+    */
+    private function vacancyDeclineData()
+    {
+        // Proceed with setting up the notification details
+        $this->templateID = 15;
+        $this->actionText = 'View Vacancy';
+        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->vacancy->id)]);
+        $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
+        $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->vacancy = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
+        $this->open = optional($this->notification->subject)->open_positions ?? 'N/A';
+        $this->store = (optional(optional(optional($this->notification->subject)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional($this->notification->subject)->store)->town)->name ?? 'N/A') . ')';
+        $this->type = optional(optional($this->notification->subject)->type)->name ?? 'N/A';
     }
 
     /**

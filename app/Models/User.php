@@ -202,6 +202,14 @@ class User extends Authenticatable implements MustVerifyEmail
                 return $settings->receive_email_notifications ?? false;
             case 'Has been declined 🚫':
                 return $settings->receive_email_notifications ?? false;
+            case 'Created new vacancy 🔔':
+                return $settings->notify_vacancy_status ?? false;
+            case 'Has been approved 🎉':
+                return $settings->notify_vacancy_status ?? false;
+            case 'Needs amendment 📝':
+                return $settings->notify_vacancy_status ?? false;
+            case 'Has been declined ❌':
+                return $settings->notify_vacancy_status ?? false;
             case 'Has applied for vacancy 🔔':
                 return $settings->notify_application_submitted ?? false;
             default:
