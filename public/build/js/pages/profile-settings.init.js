@@ -373,7 +373,7 @@ $("#formNotifications").submit(function(e) {
         error: function(jqXHR, textStatus, errorThrown) {
             let message = ''; // Initialize the message variable
         
-            if (jqXHR.status === 400) {
+            if (jqXHR.status === 400 || jqXHR.status === 422) {
                 message = jqXHR.responseJSON.message;
             } else if (textStatus === 'timeout') {
                 message = 'The request timed out. Please try again later.';

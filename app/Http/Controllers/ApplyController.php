@@ -183,7 +183,7 @@ class ApplyController extends Controller
             
             return response()->json([
                 'success' => true,
-                'message' => 'Application Declined!',
+                'message' => 'Application declined!',
             ], 201);
         } catch (\Exception $e) {
             return response()->json([

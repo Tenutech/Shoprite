@@ -242,6 +242,11 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::put('/apply-decline', [App\Http\Controllers\ApplyController::class, 'decline'])->name('application.decline');
 
+    //Interviews
+    Route::put('/interview-confirm', [App\Http\Controllers\InterviewController::class, 'confirm'])->name('interview.approve');
+
+    Route::put('/interview-decline', [App\Http\Controllers\InterviewController::class, 'decline'])->name('interview.decline');
+
     //Notifications
     Route::put('/notification-read', [App\Http\Controllers\NotificationController::class, 'notificationRead'])->name('notification.read');
 

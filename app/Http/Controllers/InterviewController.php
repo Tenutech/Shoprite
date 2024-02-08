@@ -10,6 +10,7 @@ use App\Models\Contract;
 use App\Models\Applicant;
 use App\Models\Interview;
 use App\Models\ChatTemplate;
+use App\Models\Notification;
 use App\Jobs\SendWhatsAppMessage;
 use App\Jobs\SendWhatsAppFile;
 use Carbon\Carbon;
@@ -76,7 +77,9 @@ class InterviewController extends Controller
             // Loop through each applicant and create an interview
             foreach ($validatedData['applicants'] as $applicantID) {
                 $this->scheduleInterviewForApplicant($applicantID, $validatedData, $scheduledStateId);
-                $this->sendWhatsAppMessages($applicantID, $messages);
+                //$this->sendWhatsAppMessages($applicantID, $messages);
+
+
             }
 
             // Commit the transaction
@@ -109,10 +112,13 @@ class InterviewController extends Controller
 
     private function scheduleInterviewForApplicant($applicantID, $validatedData, $scheduledStateId)
     {
+        //User ID
+        $userID = Auth::id();
+
         // Assuming your Interview model has the appropriate fillable attributes set
-        Interview::create([
+        $interview = Interview::create([
             'applicant_id' => $applicantID,
-            'interviewer_id' => Auth::id(),
+            'interviewer_id' => $userID,
             'vacancy_id' => $validatedData['vacancy_id'],                    
             'scheduled_date' => $validatedData['date'],
             'start_time' => $validatedData['start_time'],
@@ -123,11 +129,26 @@ class InterviewController extends Controller
 
         // Assuming your Applicant model has the state_id fillable or uses property accessors
         Applicant::where('id', $applicantID)->update(['state_id' => $scheduledStateId]);
+
+        $user = User::where('applicant_id', $applicantID)->first();
+
+        // If a new interview was updated, then create a notification
+        if ($user && $interview->wasRecentlyCreated) {
+            // Create Notification
+            $notification = new Notification();
+            $notification->user_id = $user->id;
+            $notification->causer_id = $userID;
+            $notification->subject()->associate($interview);
+            $notification->type_id = 1;
+            $notification->notification = "Interview Scheduled 📅";
+            $notification->read = "No";
+            $notification->save();
+        }
     }
 
     /*
     |--------------------------------------------------------------------------
-    | Send Wharsapp
+    | Send Whatsapp
     |--------------------------------------------------------------------------
     */
 
@@ -176,6 +197,103 @@ class InterviewController extends Controller
         }
 
         return $template;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Interview Confirm
+    |--------------------------------------------------------------------------
+    */
+
+    public function confirm(Request $request)
+    {
+        try {
+            // User ID
+            $userID = Auth::id();
+
+            //Interview
+            $interviewID = Crypt::decryptString($request->id);
+            $interview = Interview::findOrFail($interviewID);
+            
+            //Application Update
+            $interview->update([
+                'status' => 'Confirmed'
+            ]);
+
+            // If a new interview was updated, then create a notification
+            if ($interview->wasChanged()) {
+                // Create Notification
+                $notification = new Notification();
+                $notification->user_id = $interview->interviewer_id;
+                $notification->causer_id = $userID;
+                $notification->subject()->associate($interview);
+                $notification->type_id = 1;
+                $notification->notification = "Approved your interview request ✅";
+                $notification->read = "No";
+                $notification->save();
+            }
+
+            $encryptedID = Crypt::encryptString($interviewID);
+            
+            return response()->json([
+                'success' => true,
+                'encryptedID' => $encryptedID,
+                'message' => 'Interview confirmed!',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to confirm interview.',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Interview Decline
+    |--------------------------------------------------------------------------
+    */
+
+    public function decline(Request $request)
+    {
+        try {
+            // User ID
+            $userID = Auth::id();
+
+            //Interview
+            $interviewID = Crypt::decryptString($request->id);
+            $interview = Interview::findOrFail($interviewID);
+            
+            //Application Update
+            $interview->update([
+                'status' => 'Declined'
+            ]);
+
+            // If a new interview was updated, then create a notification
+            if ($interview->wasChanged()) {
+                // Create Notification
+                $notification = new Notification();
+                $notification->user_id = $interview->interviewer_id;
+                $notification->causer_id = $userID;
+                $notification->subject()->associate($interview);
+                $notification->type_id = 1;
+                $notification->notification = "Declined your application request 🚫";
+                $notification->read = "No";
+                $notification->save();
+            }
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Interview declined!',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to decline interview.',
+                'error' => $e->getMessage()
+            ], 400);
+        }
     }
 
     /*
