@@ -630,7 +630,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         // Proceed with setting up the notification details
         $this->templateID = 15;
         $this->actionText = 'View Vacancy';
-        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->vacancy->id)]);
+        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->id)]);
         $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
         $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
         $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
@@ -646,12 +646,12 @@ class NotifyEmail extends Notification implements ShouldQueue
     private function vacancyApprovedData()
     {
         // Proceed with setting up the notification details
-        $this->templateID = 15;
+        $this->templateID = 16;
         $this->actionText = 'View Vacancy';
-        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->vacancy->id)]);
-        $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
+        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->id)]);
+        $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
         $this->open = optional($this->notification->subject)->open_positions ?? 'N/A';
         $this->store = (optional(optional(optional($this->notification->subject)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional($this->notification->subject)->store)->town)->name ?? 'N/A') . ')';
@@ -664,12 +664,12 @@ class NotifyEmail extends Notification implements ShouldQueue
     private function vacancyAmendData()
     {
         // Proceed with setting up the notification details
-        $this->templateID = 15;
+        $this->templateID = 17;
         $this->actionText = 'View Vacancy';
-        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->vacancy->id)]);
-        $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
+        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->id)]);
+        $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
         $this->open = optional($this->notification->subject)->open_positions ?? 'N/A';
         $this->store = (optional(optional(optional($this->notification->subject)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional($this->notification->subject)->store)->town)->name ?? 'N/A') . ')';
@@ -683,12 +683,12 @@ class NotifyEmail extends Notification implements ShouldQueue
     private function vacancyDeclineData()
     {
         // Proceed with setting up the notification details
-        $this->templateID = 15;
+        $this->templateID = 18;
         $this->actionText = 'View Vacancy';
-        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->vacancy->id)]);
-        $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
+        $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->id)]);
+        $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
         $this->open = optional($this->notification->subject)->open_positions ?? 'N/A';
         $this->store = (optional(optional(optional($this->notification->subject)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional($this->notification->subject)->store)->town)->name ?? 'N/A') . ')';

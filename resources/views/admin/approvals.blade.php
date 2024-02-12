@@ -437,7 +437,7 @@
                             <i class="ri-close-line me-1 align-middle"></i> 
                             Close
                         </button>
-                        <button class="btn btn-warning" id="amend-vacancy" data-action="ammend">
+                        <button class="btn btn-warning" id="amend-vacancy" data-action="amend">
                             Yes, Amend It
                         </button>
                         <div class="spinner-border text-warning d-none" role="status" id="loading-amend">

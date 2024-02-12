@@ -204,31 +204,27 @@ function ischeckboxcheck() {
 }
 
 function refreshCallbacks() {
-    if (approveBtns || amendBtns || declineBtns) {
-        //Approve
-        Array.from(approveBtns).forEach(function (btn) {
-            btn.onclick = function (e) {
-                var itemId = e.target.closest("tr").children[1].innerText.trim();
-                document.getElementById("approve-vacancy").setAttribute('data-id-to-approve', itemId);
-            };
-        });
+    // Attach a single event listener to the table or another persistent parent element
+    document.getElementById('vacanciesTable').addEventListener('click', function(e) {
+        // Using event.target, determine if an approve, amend, or decline button was clicked.
+        var target = e.target;
 
-        //Amend
-        Array.from(amendBtns).forEach(function (btn) {
-            btn.onclick = function (e) {
-                var itemId = e.target.closest("tr").children[1].innerText.trim();
-                document.getElementById("amend-vacancy").setAttribute('data-id-to-amend', itemId);
-            };
-        });
-
-        //Decline
-        Array.from(declineBtns).forEach(function (btn) {
-            btn.onclick = function (e) {
-                var itemId = e.target.closest("tr").children[1].innerText.trim();
-                document.getElementById("decline-vacancy").setAttribute('data-id-to-decline', itemId);
-            };
-        });
-    }
+        // Check if the clicked element or any of its ancestors is an approve button.
+        if (target.closest('.approve-item-btn')) {
+            var itemId = target.closest('tr').children[1].innerText.trim();
+            document.getElementById('approve-vacancy').setAttribute('data-id-to-approve', itemId);
+        }
+        // Check if the clicked element or any of its ancestors is an amend button.
+        else if (target.closest('.amend-item-btn')) {
+            var itemId = target.closest('tr').children[1].innerText.trim();
+            document.getElementById('amend-vacancy').setAttribute('data-id-to-amend', itemId);
+        }
+        // Check if the clicked element or any of its ancestors is a decline button.
+        else if (target.closest('.decline-item-btn')) {
+            var itemId = target.closest('tr').children[1].innerText.trim();
+            document.getElementById('decline-vacancy').setAttribute('data-id-to-decline', itemId);
+        }
+    });
 
     function handlevacancyAction() {
         currentAction = this.getAttribute('data-action');

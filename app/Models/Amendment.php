@@ -13,7 +13,7 @@ class Amendment extends Model
 
     protected $fillable = [
         'user_id',
-        'opportunity_id',
+        'vacancy_id',
         'causer_id',
         'description'
     ];

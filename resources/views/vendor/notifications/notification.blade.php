@@ -33,7 +33,7 @@
                                         @foreach($introLines as $line)
                                             <tr style="font-family: 'Roboto', sans-serif; box-sizing: border-box; font-size: 14px; margin: 0;">
                                                 <td class="content-block" style="font-family: 'Roboto', sans-serif; color: #878a99; box-sizing: border-box; line-height: 1.5; font-size: 15px; vertical-align: top; margin: 0; padding: 0 0 10px;" valign="top">
-                                                    {{ $line }}
+                                                    {!! $line !!}
                                                 </td>
                                             </tr>
                                         @endforeach

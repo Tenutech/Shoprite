@@ -10,6 +10,7 @@ use App\Models\Brand;
 use App\Models\Vacancy;
 use App\Models\Position;
 use App\Models\Province;
+use App\Models\Amendment;
 use App\Models\Notification;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
