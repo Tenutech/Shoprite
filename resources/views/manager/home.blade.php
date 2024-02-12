@@ -3,6 +3,11 @@
 @section('css')
 <link href="{{ URL::asset('build/libs/jsvectormap/css/jsvectormap.min.css')}}" rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('build/libs/swiper/swiper-bundle.min.css')}}" rel="stylesheet" type="text/css" />
+<style>
+.applicantsView:hover {
+    cursor: pointer;
+}
+</style>
 @endsection
 @section('content')
 
@@ -269,7 +274,7 @@
                                                         <td class="action">
                                                             <ul class="list-inline hstack gap-2 mb-0">
                                                                 <li class="list-inline-item">
-                                                                    <a data-bs-toggle="collapse" data-bs-target="#accordion-{{ $vacancy->id }}" aria-expanded="false" aria-controls="accordion-{{ $vacancy->id }}">
+                                                                    <a class="applicantsView" data-bs-toggle="collapse" data-bs-target="#accordion-{{ $vacancy->id }}" aria-expanded="false" aria-controls="accordion-{{ $vacancy->id }}">
                                                                         <i class="ri-group-fill align-bottom text-muted"></i>
                                                                     </a>
                                                                 </li>
@@ -297,65 +302,67 @@
                                                         <td colspan="100%" class="hiddenRow">
                                                             <div class="accordion-body">
                                                                 <div class="row gy-2 mb-2">
-                                                                    @foreach ($vacancy->applicants as $user)
-                                                                        <div class="col-md-6 col-lg-12">
-                                                                            <div class="card mb-0">
-                                                                                <div class="card-body">
-                                                                                    <div class="d-lg-flex align-items-center">
-                                                                                        <div class="flex-shrink-0 col-auto">
-                                                                                            <div class="avatar-sm rounded overflow-hidden">
-                                                                                                {{-- Check if avatar is null, if so use a default image --}}
-                                                                                                <img src="{{ $user->applicant->avatar ?? URL::asset('images/avatar.jpg') }}" alt="" class="member-img img-fluid d-block rounded">
+                                                                    <div data-simplebar style="max-height: 250px;" class="px-3">
+                                                                        @foreach ($vacancy->applicants as $user)
+                                                                            <div class="col-md-6 col-lg-12">
+                                                                                <div class="card mb-0">
+                                                                                    <div class="card-body">
+                                                                                        <div class="d-lg-flex align-items-center">
+                                                                                            <div class="flex-shrink-0 col-auto">
+                                                                                                <div class="avatar-sm rounded overflow-hidden">
+                                                                                                    {{-- Check if avatar is null, if so use a default image --}}
+                                                                                                    <img src="{{ $user->applicant->avatar ?? URL::asset('images/avatar.jpg') }}" alt="" class="member-img img-fluid d-block rounded">
+                                                                                                </div>
                                                                                             </div>
-                                                                                        </div>
-                                                                                        <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">
-                                                                                            <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($user->applicant->id ?? '')]) }}">
-                                                                                                <h5 class="fs-16 mb-2">
-                                                                                                    {{-- Check if firstname or lastname is null --}}
-                                                                                                    {{ optional($user->applicant)->firstname }} {{ optional($user->applicant)->lastname }}
-                                                                                                </h5>
-                                                                                            </a>
-                                                                                            <p class="text-muted mb-0">
-                                                                                                @if (optional(optional($user->applicant)->position)->name == 'Other')
-                                                                                                    {{ optional($user->applicant)->position_specify ?? 'N/A' }}
+                                                                                            <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">
+                                                                                                <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($user->applicant->id ?? '')]) }}">
+                                                                                                    <h5 class="fs-16 mb-2">
+                                                                                                        {{-- Check if firstname or lastname is null --}}
+                                                                                                        {{ optional($user->applicant)->firstname }} {{ optional($user->applicant)->lastname }}
+                                                                                                    </h5>
+                                                                                                </a>
+                                                                                                <p class="text-muted mb-0">
+                                                                                                    @if (optional(optional($user->applicant)->position)->name == 'Other')
+                                                                                                        {{ optional($user->applicant)->position_specify ?? 'N/A' }}
+                                                                                                    @else
+                                                                                                        {{ optional(optional($user->applicant)->position)->name ?? 'N/A' }}
+                                                                                                    @endif
+                                                                                                </p>
+                                                                                            </div>
+                                                                                            <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">
+                                                                                                <div>
+                                                                                                    <i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>
+                                                                                                    {{-- Safely check if town name is null --}}
+                                                                                                    {{ optional(optional($user->applicant)->town)->name ?? 'N/A' }}
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="col-2">
+                                                                                                <i class="ri-briefcase-line text-primary me-1 align-bottom"></i>
+                                                                                                {{-- Safely check the type and handle 'Other' case --}}
+                                                                                                @if (optional(optional($user->applicant)->type)->name == 'Other')
+                                                                                                    {{ optional($user->applicant)->application_reason_specify ?? 'N/A' }}
                                                                                                 @else
-                                                                                                    {{ optional(optional($user->applicant)->position)->name ?? 'N/A' }}
+                                                                                                    {{ optional(optional($user->applicant)->type)->name ?? 'N/A' }}
                                                                                                 @endif
-                                                                                            </p>
-                                                                                        </div>
-                                                                                        <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">
-                                                                                            <div>
-                                                                                                <i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>
-                                                                                                {{-- Safely check if town name is null --}}
-                                                                                                {{ optional(optional($user->applicant)->town)->name ?? 'N/A' }}
+                                                                                            </div>                                                                                        
+                                                                                            <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">
+                                                                                                <div class="badge text-bg-success">
+                                                                                                    <i class="mdi mdi-star me-1"></i>
+                                                                                                    {{-- Check if score is null --}}
+                                                                                                    {{ $user->applicant->score ?? 'N/A' }}                                                                                            
+                                                                                                </div>
                                                                                             </div>
-                                                                                        </div>
-                                                                                        <div class="col-2">
-                                                                                            <i class="ri-briefcase-line text-primary me-1 align-bottom"></i>
-                                                                                            {{-- Safely check the type and handle 'Other' case --}}
-                                                                                            @if (optional(optional($user->applicant)->type)->name == 'Other')
-                                                                                                {{ optional($user->applicant)->application_reason_specify ?? 'N/A' }}
-                                                                                            @else
-                                                                                                {{ optional(optional($user->applicant)->type)->name ?? 'N/A' }}
-                                                                                            @endif
-                                                                                        </div>                                                                                        
-                                                                                        <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">
-                                                                                            <div class="badge text-bg-success">
-                                                                                                <i class="mdi mdi-star me-1"></i>
-                                                                                                {{-- Check if score is null --}}
-                                                                                                {{ $user->applicant->score ?? 'N/A' }}                                                                                            
+                                                                                            <div class="col-2 text-end">
+                                                                                                <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($user->applicant->id ?? '')]) }}" class="btn btn-soft-primary">
+                                                                                                    View Details
+                                                                                                </a>
                                                                                             </div>
-                                                                                        </div>
-                                                                                        <div class="col-2 text-end">
-                                                                                            <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($user->applicant->id ?? '')]) }}" class="btn btn-soft-primary">
-                                                                                                View Details
-                                                                                            </a>
                                                                                         </div>
                                                                                     </div>
                                                                                 </div>
                                                                             </div>
-                                                                        </div>
-                                                                    @endforeach
+                                                                        @endforeach
+                                                                    </div>
                                                                 </div>
                                                             </div>
                                                         </td>

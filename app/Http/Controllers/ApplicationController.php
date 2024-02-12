@@ -831,7 +831,7 @@ class ApplicationController extends Controller
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => true, 
+                'success' => false, 
                 'message' => 'Application deletion failed', 
                 'error' => $e->getMessage()
             ], 400);

@@ -264,7 +264,7 @@ class JobOverviewController extends Controller
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => true, 
+                'success' => false, 
                 'message' => 'File deletion failed', 
                 'error' => $e->getMessage()
             ], 400);

@@ -227,7 +227,7 @@ class VacancyController extends Controller
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => true, 
+                'success' => false, 
                 'message' => 'Vacancy deletion failed', 
                 'error' => $e->getMessage()
             ], 400);
@@ -244,6 +244,7 @@ class VacancyController extends Controller
     {
         try {
             $vacancyID = Crypt::decryptString($request->input('vacancy_id'));
+            Log::info($vacancyID);
             $selectedApplicants = $request->input('applicants_vacancy');
 
             // Extract user IDs from the selected applicants
@@ -260,84 +261,103 @@ class VacancyController extends Controller
             ])->find($vacancyID);
 
             if (!$vacancy) {
-                throw new \Exception("Vacancy not found.");
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Vacancy not found'
+                ], 400);
+            }
+
+            if ($vacancy->open_positions == 0) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'No open positiions available'
+                ], 400);
             }
 
             $numSelectedApplicants = count($selectedApplicants);
 
-            // Update open_positions and filled_positions
-            $vacancy->filled_positions = $vacancy->filled_positions + $numSelectedApplicants;
-            $vacancy->open_positions = max($vacancy->open_positions - $numSelectedApplicants, 0); // Ensure it doesn't go below 0
-            $vacancy->save();
-
-            // Attach applicants to the vacancy without duplicating
-            foreach ($selectedApplicants as $applicantId) {
-                $applicant = Applicant::find($applicantId);
-
-                $application = Application::where('user_id', $applicant->id)
-                                          ->where('vacancy_id', $vacancy->id)
-                                          ->first();
-
-                if ($application) {
-                    $application->approved = 'Yes';
-                    $application->save();
-                }
-
-                if (!$vacancy->appointed->contains($applicantId)) {
-                    $vacancyFill = VacancyFill::create([
-                        'vacancy_id' => $vacancy->id,
-                        'applicant_id' => $applicantId,
-                        'approved' => 'Pending'
-                    ]);
-
-                    // Get user ID if the applicant has a user, else null
-                    $userId = $applicant->user ? $applicant->user->id : null;
-
-                    if($userId) {
-                        // Create Notification
-                        $notification = new Notification();
-                        $notification->user_id = $userId;
-                        $notification->causer_id = Auth::id();
-                        $notification->subject()->associate($vacancyFill); // Assuming you want to associate the notification with the vacancy
-                        $notification->type_id = 1;
-                        $notification->notification = "You have been Appointed 🎉";
-                        $notification->read = "No";
-                        $notification->save();
-                    }
-
-                    // Constructing the WhatsApp message
-                    $whatsappMessage = "Congratulations {$applicant->firstname}! You have been appointed for the position of " . 
-                    "{$vacancy->position->name} at " . 
-                    "{$vacancy->store->brand->name} ({$vacancy->store->town->name}). " .
-                    "We are excited to have you join our team!";
-
-                    // Dispatch WhatsApp message
-                    SendWhatsAppMessage::dispatch($applicant, $whatsappMessage);
-                }
+            if ($vacancy->open_positions < $numSelectedApplicants) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Only '. $vacancy->open_positions .' positiions available'
+                ], 400);
             }
 
-            if ($vacancy->open_positions == 0) {
-                //Create notification for all applicants that where not appointed
-                foreach ($vacancy->applicants as $applicant) {
-                    if (!in_array($applicant->id, $selectedUserIds)) {
-                        $application = Application::where('user_id', $applicant->id)
-                                                  ->where('vacancy_id', $vacancy->id)
-                                                  ->first();
-                
-                        if ($application) {
-                            $application->approved = 'No';
-                            $application->save();
-                
-                            if ($application->wasChanged()) {
-                                // Create Notification
-                                $notification = new Notification();
-                                $notification->user_id = $applicant->id;
-                                $notification->causer_id = Auth::id();
-                                $notification->subject()->associate($application); // Associate notification with the application
-                                $notification->type_id = 1;
-                                $notification->notification = "Has been declined 🚫";
-                                $notification->read = "No";
-                                $notification->save();
+            if ($vacancy->open_positions !== 0) {
+                // Update open_positions and filled_positions
+                $vacancy->filled_positions = $vacancy->filled_positions + $numSelectedApplicants;
+                $vacancy->open_positions = max($vacancy->open_positions - $numSelectedApplicants, 0); // Ensure it doesn't go below 0
+                $vacancy->save();
+
+                // Attach applicants to the vacancy without duplicating
+                foreach ($selectedApplicants as $applicantId) {
+                    $applicant = Applicant::find($applicantId);
+
+                    $application = Application::where('user_id', $applicant->id)
+                                            ->where('vacancy_id', $vacancy->id)
+                                            ->first();
+
+                    if ($application) {
+                        $application->approved = 'Yes';
+                        $application->save();
+                    }
+
+                    if (!$vacancy->appointed->contains($applicantId)) {
+                        $vacancyFill = VacancyFill::create([
+                            'vacancy_id' => $vacancy->id,
+                            'applicant_id' => $applicantId,
+                            'approved' => 'Pending'
+                        ]);
+
+                        // Get user ID if the applicant has a user, else null
+                        $userId = $applicant->user ? $applicant->user->id : null;
+
+                        if($userId) {
+                            // Create Notification
+                            $notification = new Notification();
+                            $notification->user_id = $userId;
+                            $notification->causer_id = Auth::id();
+                            $notification->subject()->associate($vacancyFill); // Assuming you want to associate the notification with the vacancy
+                            $notification->type_id = 1;
+                            $notification->notification = "You have been Appointed 🎉";
+                            $notification->read = "No";
+                            $notification->save();
+                        }
+
+                        // Constructing the WhatsApp message
+                        $whatsappMessage = "Congratulations {$applicant->firstname}! You have been appointed for the position of " . 
+                        "{$vacancy->position->name} at " . 
+                        "{$vacancy->store->brand->name} ({$vacancy->store->town->name}). " .
+                        "We are excited to have you join our team!";
+
+                        // Dispatch WhatsApp message
+                        SendWhatsAppMessage::dispatch($applicant, $whatsappMessage);
+                    }
+                }
+
+                if ($vacancy->open_positions == 0) {
+                    //Create notification for all applicants that where not appointed
+                    foreach ($vacancy->applicants as $applicant) {
+                        if (!in_array($applicant->id, $selectedUserIds)) {
+                            $application = Application::where('user_id', $applicant->id)
+                                                    ->where('vacancy_id', $vacancy->id)
+                                                    ->first();
+                    
+                            if ($application) {
+                                $application->approved = 'No';
+                                $application->save();
+                    
+                                if ($application->wasChanged()) {
+                                    // Create Notification
+                                    $notification = new Notification();
+                                    $notification->user_id = $applicant->id;
+                                    $notification->causer_id = Auth::id();
+                                    $notification->subject()->associate($application); // Associate notification with the application
+                                    $notification->type_id = 1;
+                                    $notification->notification = "Has been declined 🚫";
+                                    $notification->read = "No";
+                                    $notification->save();
+                                }
                             }
                         }
                     }
@@ -354,7 +374,7 @@ class VacancyController extends Controller
             DB::rollBack();
 
             return response()->json([
-                'success' => true, 
+                'success' => false, 
                 'message' => 'Failed to fill vacancy', 
                 'error' => $e->getMessage()
             ], 400);

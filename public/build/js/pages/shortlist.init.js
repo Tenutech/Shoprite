@@ -109,39 +109,26 @@ function fetchShortlistedApplicants() {
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+        
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: jqXHR.responseJSON.message,
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
                 } else {
-                    if(textStatus === 'timeout') {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'The request timed out. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    } else {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'An error occurred while processing your request. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    }
+                    message = 'An error occurred while processing your request. Please try again later.';
                 }
+            
+                // Trigger the Swal notification with the dynamic message
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
             },
         });
     }
@@ -284,39 +271,26 @@ function fetchData() {
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
+            let message = ''; // Initialize the message variable
+        
             if (jqXHR.status === 400 || jqXHR.status === 422) {
-                Swal.fire({
-                    position: 'top-end',
-                    icon: 'error',
-                    title: jqXHR.responseJSON.message,
-                    showConfirmButton: false,
-                    timer: 5000,
-                    showCloseButton: true,
-                    toast: true
-                });
+                message = jqXHR.responseJSON.message;
+            } else if (textStatus === 'timeout') {
+                message = 'The request timed out. Please try again later.';
             } else {
-                if(textStatus === 'timeout') {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'The request timed out. Please try again later.',
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
-                } else {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'An error occurred while processing your request. Please try again later.',
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
-                }
+                message = 'An error occurred while processing your request. Please try again later.';
             }
+        
+            // Trigger the Swal notification with the dynamic message
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: message,
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+                toast: true
+            });
         },
         complete: function() {
             // Re-enable the button and restore its original text after the operation is complete
@@ -335,6 +309,7 @@ function loadCandidateListData(datas, page) {
     for (var i = (page - 1) * itemsPerPage; i < (page * itemsPerPage) && i < datas.length; i++) {
         if (datas[i]) {
             var bookmark = datas[i].saved_by.length > 0 ? "active" : "";
+            var interviewScore = '';
 
             var isUserProfile = datas[i].avatar ? '<img src="' + datas[i].avatar + '" alt="" class="member-img img-fluid d-block rounded" />'
                 : '<img src="/images/avatar.jpg" alt="" class="member-img img-fluid d-block rounded" />';
@@ -377,7 +352,7 @@ function loadCandidateListData(datas, page) {
 
                 // Check if there are interviews and set the alert based on the status
                 if (datas[i].interviews && datas[i].interviews.length > 0) {
-                    var interview = datas[i].interviews[0]; // Assuming we're only interested in the first interview
+                    var interview = datas[i].interviews[datas[i].interviews.length - 1]; // Assuming we're only interested in the last interview
 
                     var interviewDate = new Date(interview.scheduled_date);
                     var day = ("0" + interviewDate.getDate()).slice(-2); // Ensure two digits
@@ -399,11 +374,10 @@ function loadCandidateListData(datas, page) {
                                         '</div>';
                     }
 
-                    var interviewScore = ''
                     if (interview.score) {
                         var interviewScore = '<div class="badge text-bg-primary">\
                                                 <i class="mdi mdi-star me-1"></i>\
-                                                '+ (interview.score ? interview.score + '0' : 'N/A') + '\
+                                                '+ (interview.score ? interview.score : 'N/A') + '\
                                             </div>';         
                     }
                 }
@@ -754,39 +728,26 @@ function removeCandidate(candidateId) {
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
+            let message = ''; // Initialize the message variable
+        
             if (jqXHR.status === 400 || jqXHR.status === 422) {
-                Swal.fire({
-                    position: 'top-end',
-                    icon: 'error',
-                    title: jqXHR.responseJSON.message,
-                    showConfirmButton: false,
-                    timer: 5000,
-                    showCloseButton: true,
-                    toast: true
-                });
+                message = jqXHR.responseJSON.message;
+            } else if (textStatus === 'timeout') {
+                message = 'The request timed out. Please try again later.';
             } else {
-                if(textStatus === 'timeout') {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'The request timed out. Please try again later.',
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
-                } else {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'An error occurred while processing your request. Please try again later.',
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
-                }
+                message = 'An error occurred while processing your request. Please try again later.';
             }
+        
+            // Trigger the Swal notification with the dynamic message
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: message,
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+                toast: true
+            });
         },
     });
 }
@@ -1173,7 +1134,13 @@ $('#formInterview').on('submit', function(e) {
                         var candidateCard = document.querySelector('.candidate-card[data-candidate-id="' + applicantID + '"]');
                         if (candidateCard) {
                             // Check if the alert div already exists
-                            if (!candidateCard.querySelector('.alert')) {
+                            var existingAlert = candidateCard.querySelector('.alert');
+
+                            if (existingAlert) {
+                                // Update existing alert with new information
+                                existingAlert.innerHTML = '<i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>' + data.date + ' at ' + data.time;
+                            } else {
+                                // Create and append a new alert div
                                 var alertHtml = '<div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">' +
                                                 '<i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>' + data.date + ' at ' + data.time + 
                                                 '</div>';
@@ -1200,39 +1167,26 @@ $('#formInterview').on('submit', function(e) {
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+        
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: jqXHR.responseJSON.message,
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
                 } else {
-                    if(textStatus === 'timeout') {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'The request timed out. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    } else {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'An error occurred while processing your request. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    }
+                    message = 'An error occurred while processing your request. Please try again later.';
                 }
+            
+                // Trigger the Swal notification with the dynamic message
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
             }
         });
     } else {
@@ -1325,39 +1279,26 @@ $('#formContract').on('submit', function(e) {
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+        
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: jqXHR.responseJSON.message,
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
                 } else {
-                    if(textStatus === 'timeout') {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'The request timed out. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    } else {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'An error occurred while processing your request. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    }
+                    message = 'An error occurred while processing your request. Please try again later.';
                 }
+            
+                // Trigger the Swal notification with the dynamic message
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
             }
         });
     } else {
@@ -1479,39 +1420,26 @@ $('#formVacancy').on('submit', function(e) {
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+        
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: jqXHR.responseJSON.message,
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
                 } else {
-                    if(textStatus === 'timeout') {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'The request timed out. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    } else {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'An error occurred while processing your request. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    }
+                    message = 'An error occurred while processing your request. Please try again later.';
                 }
+            
+                // Trigger the Swal notification with the dynamic message
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
 
                 $('#loading-vacancy').addClass('d-none');
                 $('#vacancy-fill').show();

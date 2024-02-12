@@ -195,27 +195,26 @@ $("#formUser").submit(function(e) {
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                if(textStatus === 'timeout') {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'The request timed out. Please try again later.',
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                let message = ''; // Initialize the message variable
+        
+                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
                 } else {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'An error occurred while processing your request. Please try again later.',
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                    message = 'An error occurred while processing your request. Please try again later.';
                 }
+            
+                // Trigger the Swal notification with the dynamic message
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
             }
         });
     } else {

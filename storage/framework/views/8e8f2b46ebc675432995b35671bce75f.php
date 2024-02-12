@@ -431,7 +431,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-hidden="true"></button>
             </div>
             <div class="modal-body p-4">
-                <form name="interviwForm" id="formInterview" enctype="multipart/form-data">
+                <form id="formInterview" enctype="multipart/form-data">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" id="UserID" name="user_id" value="<?php echo e(Crypt::encryptstring(Auth::id())); ?>"/>
                     <input type="hidden" id="vacancyID" name="vacancy_id" value="<?php echo e($vacancyID ? $vacancyID : ''); ?>"/>
@@ -557,16 +557,16 @@
 
 <!-- Vacancy Fill -->
 <div class="modal fade zoomIn" id="vacancyModal" tabindex="-1" role="dialog" aria-labelledby="contractModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="btn-close" id="vacancy-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
             </div>
             <div class="modal-body p-5 text-center">
-                <lord-icon src="https://cdn.lordicon.com/wzwygmng.json" trigger="loop" style="width:120px;height:120px"></lord-icon>
+                <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" style="width:120px;height:120px"></lord-icon>
                 <div class="mt-4 text-center">
-                    <h4 class="fs-semibold">You are about to send a contract to these applicants !</h4>
-                    <p class="text-muted fs-14 mb-4 pt-1">Send contract for signing ?</p>
+                    <h4 class="fs-semibold">You are about to appoint these applicants !</h4>
+                    <p class="text-muted fs-14 mb-4 pt-1">Send appointment confirmation ?</p>
                     <form id="formVacancy" enctype="multipart/form-data">
                         <?php echo csrf_field(); ?>
                         <div class="mb-3" id="applicantsVacancyDiv">
