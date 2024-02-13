@@ -83,9 +83,7 @@ class Applicant extends Model
         'role_id',
         'applicant_type_id',
         'state_id',
-        'checkpoint',
-        'created_at',
-        'updated_at',
+        'checkpoint'
     ];
 
     //Applicant Town

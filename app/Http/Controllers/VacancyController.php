@@ -244,7 +244,6 @@ class VacancyController extends Controller
     {
         try {
             $vacancyID = Crypt::decryptString($request->input('vacancy_id'));
-            Log::info($vacancyID);
             $selectedApplicants = $request->input('applicants_vacancy');
 
             // Extract user IDs from the selected applicants

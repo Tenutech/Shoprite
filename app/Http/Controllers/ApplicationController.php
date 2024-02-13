@@ -21,6 +21,7 @@ use App\Models\Disability;
 use App\Models\Retrenchment;
 use App\Models\Notification;
 use App\Models\ChatTemplate;
+use App\Models\ScoreWeighting;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -161,35 +162,32 @@ class ApplicationController extends Controller
 
     protected function calculateScore($applicant) {
         $totalScore = 0;
+        $totalWeight = 0;
+        $weightings = ScoreWeighting::all(); // Fetch all weightings
     
-        // Calculate literacy score
-        if ($applicant->literacy_questions != 0) {
-            $literacyPercentage = ($applicant->literacy_score / $applicant->literacy_questions) * 30;
-            $totalScore += $literacyPercentage;
-        }
-    
-        // Calculate numeracy score
-        if ($applicant->numeracy_questions != 0) {
-            $numeracyPercentage = ($applicant->numeracy_score / $applicant->numeracy_questions) * 30;
-            $totalScore += $numeracyPercentage;
-        }
-    
-        // Calculate education score
-        if ($applicant->education_id) {
-            $educationPercentage = ($applicant->education_id / 6) * 15;
-            $totalScore += $educationPercentage;
-        }
-    
-        // Calculate duration score
-        if ($applicant->duration_id) {
-            $durationPercentage = ($applicant->duration_id / 6) * 25;
-            $totalScore += $durationPercentage;
+        foreach ($weightings as $weighting) {
+            // Check if this weighting involves a condition
+            if (!empty($weighting->condition_field)) {
+                // Handle conditional logic
+                $scoreValue = $applicant->{$weighting->condition_field} == $weighting->condition_value ? $weighting->weight : $weighting->fallback_value;
+                $totalScore += $scoreValue;
+            } else {
+                // Handle numeric scoring as before
+                $scoreValue = $applicant->{$weighting->score_type} ?? 0;
+                $maxValue = $weighting->max_value;
+                if ($maxValue > 0) {
+                    $percentage = ($scoreValue / $maxValue) * $weighting->weight;
+                    $totalScore += $percentage;
+                }
+            }
+
+            $totalWeight += $weighting->weight;
         }
     
         // Normalize the score to a scale of 0 to 5
-        $normalizedScore = ($totalScore / 100) * 5;
+        $normalizedScore = $totalWeight > 0 ? ($totalScore / $totalWeight) * 5 : ($totalScore / 100) * 5;
     
-        return round($normalizedScore, 2);  // Round to 2 decimal places
+        return round($normalizedScore, 2); // Round to 2 decimal places
     }
 
     /*

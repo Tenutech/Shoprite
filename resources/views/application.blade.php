@@ -149,8 +149,7 @@
                                                     You will be asked a series of questions gathering personal information, and you 
                                                     hereby grant the OTB Group (Operator) on behalf of the Shoprite Group of Companies 
                                                     (Responsible Party) permission to process the information. By selecting "Start", you 
-                                                    confirm that you have read, understood and accept the POPIA T's&C's available at 
-                                                    this link: 
+                                                    confirm that you have read, understood and accept the POPIA Ts&Cs available at: 
                                                     <a href="{{ route('terms') }}" class="text-primary text-decoration-underline fst-normal fw-medium">
                                                         Terms of Use
                                                     </a>

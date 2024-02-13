@@ -84,6 +84,20 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::get('/numeracy/details/{id}', [App\Http\Controllers\NumeracyController::class, 'details'])->name('numeracy.details');
 
     Route::delete('/numeracy/destroy/{id}', [App\Http\Controllers\NumeracyController::class, 'destroy'])->name('numeracy.destroy');
+
+    //Weighting
+
+    Route::get('/weighting', [App\Http\Controllers\WeightingController::class, 'index'])->name('weighting.index');
+
+    Route::post('/weighting/add', [App\Http\Controllers\WeightingController::class, 'store'])->name('weighting.store');
+
+    Route::post('/weighting/update', [App\Http\Controllers\WeightingController::class, 'update'])->name('weighting.update');
+
+    Route::get('/weighting/details/{id}', [App\Http\Controllers\WeightingController::class, 'details'])->name('weighting.details');
+
+    Route::delete('/weighting/destroy/{id}', [App\Http\Controllers\WeightingController::class, 'destroy'])->name('weighting.destroy');
+
+    Route::post('/weighting/destroy-multiple', [App\Http\Controllers\WeightingController::class, 'destroyMultiple'])->name('weighting.destroyMultiple');
 });
 
 /*

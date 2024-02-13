@@ -167,6 +167,12 @@
                         </div>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link menu-link" href="{{ route('weighting.index') }}">
+                            <i class="ri-medal-line"></i> 
+                            <span>Weightings</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a href="#sidebarjobs" class="nav-link" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarjobs">
                             <i class="ri-briefcase-line"></i> 
                             <span>Jobs</span>
