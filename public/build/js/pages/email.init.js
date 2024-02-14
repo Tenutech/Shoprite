@@ -6,6 +6,56 @@ Contact: Themesbrand@gmail.com
 File: CRM-contact Js File
 */
 
+// Snow Editor
+var snowEditor = document.querySelectorAll(".snow-editor");
+if (snowEditor) {
+    Array.from(snowEditor).forEach(function (item) {
+        var snowEditorData = {};
+        var issnowEditorVal = item.classList.contains("snow-editor");
+        if (issnowEditorVal == true) {
+            snowEditorData.theme = 'snow',
+                snowEditorData.modules = {
+                    'toolbar': [
+                        [{
+                            'font': []
+                        }, {
+                            'size': []
+                        }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{
+                            'color': []
+                        }, {
+                            'background': []
+                        }],
+                        [{
+                            'script': 'super'
+                        }, {
+                            'script': 'sub'
+                        }],
+                        [{
+                            'header': [false, 1, 2, 3, 4, 5, 6]
+                        }, 'blockquote', 'code-block'],
+                        [{
+                            'list': 'ordered'
+                        }, {
+                            'list': 'bullet'
+                        }, {
+                            'indent': '-1'
+                        }, {
+                            'indent': '+1'
+                        }],
+                        ['direction', {
+                            'align': []
+                        }],
+                        ['link', 'image', 'video'],
+                        ['clean']
+                    ]
+                }
+        }
+        new Quill(item, snowEditorData);
+    });
+}
+
 // list js
 var checkAll = document.getElementById("checkAll");
 if (checkAll) {
@@ -28,12 +78,13 @@ var perPage = 10;
 var options = {
     valueNames: [
         "id",
-        "score_type",
-        "weight",
-        "max_value",
-        "condition_field",
-        "condition_value",
-        "fallback_value",
+        "name",
+        "subject",
+        "greeting",
+        "intro",
+        "outro",
+        "icon",
+        "color",
     ],
     page: perPage,
     pagination: true,
@@ -45,7 +96,7 @@ var options = {
     ]
 };
 // Init list
-var weightingList = new List("weightingList", options).on("updated", function (list) {
+var emailList = new List("emailList", options).on("updated", function (list) {
     list.matchingItems.length == 0 ?
         (document.getElementsByClassName("noresult")[0].style.display = "block") :
         (document.getElementsByClassName("noresult")[0].style.display = "none");
@@ -76,85 +127,75 @@ var weightingList = new List("weightingList", options).on("updated", function (l
 var perPageSelect = document.getElementById("per-page-select");
 perPageSelect.addEventListener("change", function() {
     perPage = parseInt(this.value);
-    weightingList.page = perPage;
-    weightingList.update();
+    emailList.page = perPage;
+    emailList.update();
 });
 
 isCount = new DOMParser().parseFromString(
-    weightingList.items.slice(-1)[0]._values.id,
+    emailList.items.slice(-1)[0]._values.id,
     "text/html"
 );
 
 var idField = document.getElementById("field-id"),
-    scoreType = document.getElementById("scoreType"),
-    weight = document.getElementById("weight"),
-    maxValue = document.getElementById("maxValue"),
-    conditionField = document.getElementById("conditionField"),
-    conditionValue = document.getElementById("conditionValue"),
-    fallbackValue = document.getElementById("fallbackValue"),
+    emailName = document.getElementById("emailName"),
+    subject = document.getElementById("subject"),
+    intro = document.getElementById("intro"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
     editBtns = document.getElementsByClassName("edit-item-btn");
 refreshCallbacks();
 
-document.getElementById("weightingModal").addEventListener("show.bs.modal", function (e) {
+document.getElementById("emailModal").addEventListener("show.bs.modal", function (e) {
     if (e.relatedTarget.classList.contains("edit-item-btn")) {
-        document.getElementById("exampleModalLabel").innerHTML = "Edit Weighting";
-        document.getElementById("weightingModal").querySelector(".modal-footer").style.display = "block";
+        document.getElementById("exampleModalLabel").innerHTML = "Edit Email";
+        document.getElementById("emailModal").querySelector(".modal-footer").style.display = "block";
         document.getElementById("add-btn").style.display = "none";
         document.getElementById("edit-btn").style.display = "block";
     } else if (e.relatedTarget.classList.contains("add-btn")) {
-        document.getElementById("exampleModalLabel").innerHTML = "Add Weighting";
-        document.getElementById("weightingModal").querySelector(".modal-footer").style.display = "block";
+        document.getElementById("exampleModalLabel").innerHTML = "Add Email";
+        document.getElementById("emailModal").querySelector(".modal-footer").style.display = "block";
         document.getElementById("edit-btn").style.display = "none";
         document.getElementById("add-btn").style.display = "block";
     } else {
-        document.getElementById("exampleModalLabel").innerHTML = "List Weighting";
-        document.getElementById("weightingModal").querySelector(".modal-footer").style.display = "none";
+        document.getElementById("exampleModalLabel").innerHTML = "List Email";
+        document.getElementById("emailModal").querySelector(".modal-footer").style.display = "none";
     }
 });
 ischeckboxcheck();
 
-document.getElementById("weightingModal").addEventListener("hidden.bs.modal", function (e) {
+document.getElementById("emailModal").addEventListener("hidden.bs.modal", function (e) {
     clearFields();
 });
 
-document.querySelector("#weightingList").addEventListener("click", function () {
+document.querySelector("#emailList").addEventListener("click", function () {
     refreshCallbacks();
     ischeckboxcheck();
 });
 
-var table = document.getElementById("weightingTable");
+var table = document.getElementById("emailTable");
 // save all tr
 var tr = table.getElementsByTagName("tr");
 var trlist = table.querySelectorAll(".list tr");
 
 var count = 11;
 
-var scoreTypeVal = new Choices(scoreType, {
-    searchEnabled: true,
-    shouldSort: false
-});
-
-var conditionFieldVal = new Choices(conditionField, {
-    searchEnabled: true,
-    shouldSort: false
-});
-
 /*
 |--------------------------------------------------------------------------
-| Add Weighting
+| Add Email
 |--------------------------------------------------------------------------
 */
 
 addBtn.addEventListener("click", function (e) {
     e.preventDefault();
-    var form = document.getElementById("formWeighting");
+    var form = document.getElementById("formEmail");
     if (form.checkValidity()) {
-        var formData = new FormData($('#formWeighting')[0]);
+        var formData = new FormData($('#formEmail')[0]);
+        var intro = $("#intro .ql-editor").html();
+        formData.set('intro', intro);
+
         $.ajax({
-            url: route('weighting.store'),
+            url: route('email.store'),
             type: 'POST',
             data: formData,
             async: false,
@@ -165,29 +206,12 @@ addBtn.addEventListener("click", function (e) {
             },
             success:function(data) {
                 if(data.success == true) {
-                    if (scoreType.value) {
-                        scoreTypeValue = scoreType.options[scoreType.selectedIndex].text;
-                    } else {
-                        scoreTypeValue = '';
-                    }
-
-                    if (conditionField.value) {
-                        conditionFieldValue = conditionField.options[conditionField.selectedIndex].text;
-                    } else {
-                        conditionFieldValue = '';
-                    }
-
-                    weightingList.add({
+                    emailList.add({
                         id: data.encID,
-                        score_type: scoreTypeValue,
-                        weight: weight.value,
-                        max_value: maxValue.value,
-                        condition_field: conditionFieldValue,
-                        condition_value: conditionValue.value,
-                        fallback_value: fallbackValue.value               
+                        name: emailName.value,
+                        subject: subject.value,
+                        intro: $("#intro .ql-editor").html()              
                     });
-
-                    document.getElementById('totalWeight').textContent = data.totalWeight;
 
                     Swal.fire({
                         position: 'top-end',
@@ -236,21 +260,23 @@ addBtn.addEventListener("click", function (e) {
 
 /*
 |--------------------------------------------------------------------------
-| Update Weighting
+| Update Email
 |--------------------------------------------------------------------------
 */
 
 editBtn.addEventListener("click", function (e) {
-    document.getElementById("exampleModalLabel").innerHTML = "Edit Weighting";
-    var editValues = weightingList.get({
+    document.getElementById("exampleModalLabel").innerHTML = "Edit Email";
+    var editValues = emailList.get({
         id: idField.value,
     });
-    var form = document.getElementById("formWeighting");
+    var form = document.getElementById("formEmail");
     if (form.checkValidity()) {
-        var formData = new FormData($('#formWeighting')[0]);
+        var formData = new FormData($('#formEmail')[0]);
+        var intro = $("#intro .ql-editor").html();
+        formData.set('intro', intro);
 
         $.ajax({
-            url: route('weighting.update'),
+            url: route('email.update'),
             type: 'POST',
             data: formData,
             async: false,
@@ -264,32 +290,15 @@ editBtn.addEventListener("click", function (e) {
                     Array.from(editValues).forEach(function (x) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
-                        if (selectedid == itemId) {    
-                            if (scoreType.value) {
-                                scoreTypeValue = scoreType.options[scoreType.selectedIndex].text;
-                            } else {
-                                scoreTypeValue = '';
-                            }
-
-                            if (conditionField.value) {
-                                conditionFieldValue = conditionField.options[conditionField.selectedIndex].text;
-                            } else {
-                                conditionFieldValue = '';
-                            }
-        
+                        if (selectedid == itemId) {         
                             x.values({
                                 id: idField.value,
-                                score_type: scoreTypeValue,
-                                weight: weight.value,
-                                max_value: maxValue.value,
-                                condition_field: conditionFieldValue,
-                                condition_value: conditionValue.value,
-                                fallback_value: fallbackValue.value
+                                name: emailName.value,
+                                subject: subject.value,
+                                intro: $("#intro .ql-editor").html() 
                             });
                         }
                     });
-
-                    document.getElementById('totalWeight').textContent = data.totalWeight;
 
                     Swal.fire({
                         position: 'top-end',
@@ -358,7 +367,7 @@ function refreshCallbacks() {
         btn.onclick = function (e) {
             e.target.closest("tr").children[1].innerText;
             itemId = e.target.closest("tr").children[1].innerText;
-            var itemValues = weightingList.get({
+            var itemValues = emailList.get({
                 id: itemId,
             });
 
@@ -368,16 +377,16 @@ function refreshCallbacks() {
                 var isdeleteid = deleteid.body.innerHTML;
 
                 if (isdeleteid == itemId) {
-                    document.getElementById("delete-weighting").onclick = function () {                        
+                    document.getElementById("delete-email").onclick = function () {                        
                         $.ajax({
-                            url: route('weighting.destroy', {id: isdeleteid}),
+                            url: route('email.destroy', {id: isdeleteid}),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
                             success:function(data) {            
                                 if(data.success === true) {
-                                    weightingList.remove("id", isdeleteid);
+                                    emailList.remove("id", isdeleteid);
                                     document.getElementById("deleteRecord-close").click();
                                     document.querySelector(".pagination-wrap").style.display = "flex";
                                     Swal.fire({
@@ -426,7 +435,7 @@ function refreshCallbacks() {
             itemId = e.target.closest("tr").children[1].innerText;
            
             $.ajax({
-                url: route('weighting.details', {id: itemId}),
+                url: route('email.details', {id: itemId}),
                 type: 'GET',
                 data: {
                     "id": itemId
@@ -438,40 +447,24 @@ function refreshCallbacks() {
             }).done(function(data) {
                 idField.value = data.encID;
 
-                if(data.weighting.score_type) {
-                    scoreTypeVal.setChoiceByValue(data.weighting.score_type.toString());
-                }
+                emailName.value = data.email.name;
 
-                weight.value = data.weighting.weight;
+                subject.value = data.email.subject;
 
-                maxValue.value = data.weighting.max_value;
+                var cleanedIntro = data.email.intro.replace(/;;/g, '');
 
-                if(data.weighting.condition_field) {
-                    conditionFieldVal.setChoiceByValue(data.weighting.condition_field.toString());
-                }
-
-                conditionValue.value = data.weighting.condition_value;
-
-                fallbackValue.value = data.weighting.fallback_value;
+                $("#intro .ql-editor").html(cleanedIntro);
             });
         }
     });
 }
 
 function clearFields() {
-    scoreTypeVal.removeActiveItems();
-    scoreTypeVal.setChoiceByValue("");
+    emailName.value = "";
 
-    weight.value = "";
+    subject.value = "";
 
-    maxValue.value = "";
-
-    conditionFieldVal.removeActiveItems();
-    conditionFieldVal.setChoiceByValue("");
-
-    conditionValue.value = "";
-
-    fallbackValue.value = "0.00";
+    $("#intro .ql-editor").html('');
 }
 
 // Delete Multiple Records
@@ -488,7 +481,7 @@ function deleteMultiple(){
 
     if(typeof ids_array !== 'undefined' && ids_array.length > 0){
         Swal.fire({
-            html: '<div class="mt-3">' + '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' + '<div class="mt-4 pt-2 fs-15 mx-5">' + '<h4>You are about to delete these weightings ?</h4>' + '<p class="text-muted mx-4 mb-0">Deleting these weightings will remove all of their information from the database.</p>' + '</div>' + '</div>',
+            html: '<div class="mt-3">' + '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' + '<div class="mt-4 pt-2 fs-15 mx-5">' + '<h4>You are about to delete these email templates ?</h4>' + '<p class="text-muted mx-4 mb-0">Deleting these templates will remove all of their information from the database.</p>' + '</div>' + '</div>',
             showCancelButton: true,
             confirmButtonClass: 'btn btn-primary w-xs me-2 mt-2',
             cancelButtonClass: 'btn btn-danger w-xs mt-2',
@@ -498,11 +491,11 @@ function deleteMultiple(){
         }).then(function (result) {
             if (result.value) {
                 for (i = 0; i < ids_array.length; i++) {
-                    weightingList.remove("id", `${ids_array[i]}`);
+                    emailList.remove("id", `${ids_array[i]}`);
                 }
     
                 $.ajax({
-                    url: route('weighting.destroyMultiple'),
+                    url: route('email.destroyMultiple'),
                     type: 'post',
                     data: {
                         ids: ids_array
@@ -552,7 +545,7 @@ function deleteMultiple(){
         });
     }else{
         Swal.fire({
-            title: 'Please select at least one weighting',
+            title: 'Please select at least one email',
             confirmButtonClass: 'btn btn-info',
             buttonsStyling: false,
             showCloseButton: true

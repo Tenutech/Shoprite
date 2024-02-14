@@ -140,12 +140,24 @@
                             </ul>
                         </div>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link menu-link" href="{{ route('chats.index') }}">
-                            <i class="ri-whatsapp-line"></i> 
-                            <span>Shoops</span>
-                        </a>
-                    </li>
+                    <a class="nav-link menu-link" href="#sidebarTemplates" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarTemplates">
+                        <i class="ri-slideshow-line"></i> 
+                        <span>Templates</span>
+                    </a>
+                    <div class="collapse menu-dropdown" id="sidebarTemplates">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('chats.index') }}">
+                                    Shoops
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('email.index') }}">
+                                    Email
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarAssessments" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAssessments">
                             <i class="ri-survey-line"></i> 

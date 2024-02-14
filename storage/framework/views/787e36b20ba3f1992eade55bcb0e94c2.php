@@ -202,8 +202,7 @@
                             <div class="modal-content border-0">
                                 <div class="modal-header bg-light p-3">
                                     <h5 class="modal-title" id="exampleModalLabel"></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"
-                                        id="close-modal"></button>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
                                 </div>
                                 <form id="formWeighting" enctype="multipart/form-data">
                                     <?php echo csrf_field(); ?>
@@ -225,41 +224,46 @@
                                             <label for="sort" class="form-label">
                                                 Weight
                                             </label>
-                                            <input type="number" class="form-control" id="weight" name="weight" step="0.01" required/>
+                                            <input type="number" class="form-control" id="weight" name="weight" step="0.01" value="0.00" required/>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="sort" class="form-label">
                                                 Max Value
                                             </label>
-                                            <input type="number" class="form-control" id="max_value" name="max_value" step="0.01"/>
+                                            <input type="number" class="form-control" id="maxValue" name="max_value" value="0.00" step="0.01"/>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="sort" class="form-label">
                                                 Condition Field
                                             </label>
-                                            <input type="number" class="form-control" id="condition_field" name="condition_field" step="0.01"/>
+                                            <select id="conditionField" name="condition_field" class="form-control">
+                                                <option value="" selected>Select Condition Field</option>
+                                                <?php $__currentLoopData = $scoreTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                    <option value="<?php echo e($type); ?>"><?php echo e($type); ?></option>
+                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                            </select>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="sort" class="form-label">
                                                 Condition Value
                                             </label>
-                                            <input type="number" class="form-control" id="condition_value" name="condition_value" step="0.01"/>
+                                            <input type="text" class="form-control" id="conditionValue" name="condition_value"/>
                                         </div>
 
                                         <div class="mb-3">
                                             <label for="sort" class="form-label">
                                                 Fallback Value
                                             </label>
-                                            <input type="number" class="form-control" id="fallback_value" name="fallback_value" step="0.01"/>
+                                            <input type="number" class="form-control" id="fallbackValue" name="fallback_value" value="0.00" step="0.01"/>
                                         </div>
                                     </div>
                                     <div class="modal-footer">                                        
                                         <div class="hstack gap-2 justify-content-end">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success" id="add-btn">Add Message</button>
+                                            <button type="submit" class="btn btn-success" id="add-btn">Add Weighting</button>
                                             <button type="button" class="btn btn-success" id="edit-btn">Update</button>
                                         </div>
                                     </div>
@@ -280,17 +284,17 @@
                                     <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px"></lord-icon>
                                     <div class="mt-4 text-center">
                                         <h4 class="fs-semibold">
-                                            You are about to delete this message ?
+                                            You are about to delete this weighting ?
                                         </h4>
                                         <p class="text-muted fs-14 mb-4 pt-1">
-                                            Deleting this message will remove all of the information from the database.
+                                            Deleting this weighting will remove all of the information from the database.
                                         </p>
                                         <div class="hstack gap-2 justify-content-center remove">
                                             <button class="btn btn-danger" data-bs-dismiss="modal" id="deleteRecord-close">
                                                 <i class="ri-close-line me-1 align-middle"></i>
                                                 Close
                                             </button>
-                                            <button class="btn btn-primary" id="delete-message">
+                                            <button class="btn btn-primary" id="delete-weighting">
                                                 Yes, Delete!!
                                             </button>
                                         </div>

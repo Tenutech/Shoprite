@@ -56,33 +56,44 @@ class WeightingController extends Controller
     {
         //Validate
         $request->validate([
-            'message' => ['required', 'string'],
-            'state' => ['required', 'integer'],
-            'category' => ['required', 'integer'],
-            'sort' => ['required', 'integer']
+            'score_type' => 'required|string|max:191',
+            'weight' => 'required|numeric|between:0,999999.99',
+            'max_value' => 'nullable|numeric|between:0,999999.99',
+            'condition_field' => 'nullable|string|max:191',
+            'condition_value' => 'nullable|string|max:191',
+            'fallback_value' => 'nullable|numeric|between:0,999999.99'
         ]);
 
         try {            
-            //Message Create
-            $message = ChatTemplate::create([                
-                'message' => $request->message,
-                'state_id' => $request->state,
-                'category_id' => $request->category,
-                'sort' => $request->sort
+            //Weighting Create
+            $weighting = ScoreWeighting::create([                
+                'score_type' => $request->score_type,
+                'weight' => $request->weight,
+                'max_value' => $request->max_value ?: null,
+                'condition_field' => $request->condition_field ?: null,
+                'condition_value' => $request->condition_value ?: null,
+                'fallback_value' => $request->fallback_value
             ]);
 
-            $encID = Crypt::encryptString($message->id);
+            $encID = Crypt::encryptString($weighting->id);
+
+            //Weightings
+            $weightings = ScoreWeighting::all();
+
+            // Calculate total weight
+            $totalWeight = $weightings->sum('weight');
 
             return response()->json([
                 'success' => true,
-                'chat' => $message,
+                'weighting' => $weighting,
                 'encID' => $encID,
-                'message' => 'Message created successfully!',
+                'totalWeight' => $totalWeight,
+                'message' => 'Weighting created successfully!',
             ], 200);
         } catch (Exception $e) {            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create message!',
+                'message' => 'Failed to create weighting!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -97,15 +108,12 @@ class WeightingController extends Controller
     public function details($id)
     {
         try {
-            $messageID = Crypt::decryptString($id);
+            $weightingID = Crypt::decryptString($id);
 
-            $message = ChatTemplate::with([
-                'state', 
-                'category'
-            ])->findOrFail($messageID);
+            $weighting = ScoreWeighting::findOrFail($weightingID);
 
             return response()->json([
-                'chat' => $message,
+                'weighting' => $weighting,
                 'encID' => $id
             ], 200);
         } catch (Exception $e) {
@@ -123,36 +131,47 @@ class WeightingController extends Controller
 
     public function update(Request $request)
     {
-        //Message ID
-        $messageID = Crypt::decryptString($request->field_id);
+        //Weighting ID
+        $weightingID = Crypt::decryptString($request->field_id);
 
         //Validate
         $request->validate([
-            'message' => ['required', 'string'],
-            'state' => ['required', 'integer'],
-            'category' => ['required', 'integer'],
-            'sort' => ['required', 'integer']
+            'score_type' => 'required|string|max:191',
+            'weight' => 'required|numeric|between:0,999999.99',
+            'max_value' => 'nullable|numeric|between:0,999999.99',
+            'condition_field' => 'nullable|string|max:191',
+            'condition_value' => 'nullable|string|max:191',
+            'fallback_value' => 'nullable|numeric|between:0,999999.99'
         ]);
 
         try {
-            //Message
-            $message = ChatTemplate::findorfail($messageID);
+            //Weighting
+            $weighting = ScoreWeighting::findorfail($weightingID);
 
-            //Messsage Update
-            $message->message = $request->message;
-            $message->state_id = $request->state;
-            $message->category_id = $request->category;
-            $message->sort = $request->sort;
-            $message->save();
+            //Weighting Update
+            $weighting->score_type = $request->score_type;
+            $weighting->weight = $request->weight;
+            $weighting->max_value = $request->max_value ?: null;
+            $weighting->condition_field = $request->condition_field ?: null;
+            $weighting->condition_value = $request->condition_value ?: null;
+            $weighting->fallback_value = $request->fallback_value;
+            $weighting->save();
+
+            //Weightings
+            $weightings = ScoreWeighting::all();
+
+            // Calculate total weight
+            $totalWeight = $weightings->sum('weight');
 
             return response()->json([
                 'success' => true,
-                'message' => 'Message updated successfully!'
+                'totalWeight' => $totalWeight,
+                'message' => 'Weighting updated successfully!'
             ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update message!',
+                'message' => 'Failed to update weighting!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -167,19 +186,19 @@ class WeightingController extends Controller
     public function destroy($id)
     {
         try {
-            $messageID = Crypt::decryptString($id);
+            $weightingID = Crypt::decryptString($id);
 
-            $message = ChatTemplate::findOrFail($messageID);
-            $message->delete();
+            $weighting = ScoreWeighting::findOrFail($weightingID);
+            $weighting->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Message deleted successfully!',
+                'message' => 'Weighting deleted successfully!',
             ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete message!',
+                'message' => 'Failed to delete weighting!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -211,20 +230,20 @@ class WeightingController extends Controller
     
             DB::beginTransaction();
     
-            ChatTemplate::destroy($decryptedIds);
+            ScoreWeighting::destroy($decryptedIds);
     
             DB::commit();
     
             return response()->json([
                 'success' => true,
-                'message' => 'Messages deleted successfully!'
+                'message' => 'Weighting deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
     
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete messages!',
+                'message' => 'Failed to delete weightings!',
                 'error' => $e->getMessage()
             ], 500);
         }

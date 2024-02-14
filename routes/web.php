@@ -61,6 +61,20 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/users/destroy-multiple', [App\Http\Controllers\UsersController::class, 'destroyMultiple'])->name('users.destroyMultiple');
 
+    //Email
+
+    Route::get('/email', [App\Http\Controllers\EmailController::class, 'index'])->name('email.index');
+
+    Route::post('/email/add', [App\Http\Controllers\EmailController::class, 'store'])->name('email.store');
+
+    Route::post('/email/update', [App\Http\Controllers\EmailController::class, 'update'])->name('email.update');
+
+    Route::get('/email/details/{id}', [App\Http\Controllers\EmailController::class, 'details'])->name('email.details');
+
+    Route::delete('/email/destroy/{id}', [App\Http\Controllers\EmailController::class, 'destroy'])->name('email.destroy');
+
+    Route::post('/email/destroy-multiple', [App\Http\Controllers\EmailController::class, 'destroyMultiple'])->name('email.destroyMultiple');
+
     //Literacy
 
     Route::get('/literacy', [App\Http\Controllers\LiteracyController::class, 'index'])->name('literacy.index');

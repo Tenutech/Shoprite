@@ -2,13 +2,16 @@
 @section('title')
     @lang('translation.contacts')
 @endsection
+@section('css')
+    <link href="{{ URL::asset('build/libs/quill/quill.snow.css') }}" rel="stylesheet" type="text/css" />
+@endsection
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1')
             Pages
         @endslot
         @slot('title')
-            Weighting
+            Email Templates
         @endslot
     @endcomponent
     <div class="row">
@@ -17,9 +20,9 @@
                 <div class="card-header">
                     <div class="d-flex align-items-center flex-wrap gap-2">
                         <div class="flex-grow-1">
-                            <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#weightingModal">
+                            <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#emailModal">
                                 <i class="ri-add-fill me-1 align-bottom"></i> 
-                                Add Weighting
+                                Add Email
                             </button>
                         </div>
                         <div class="flex-shrink-0">
@@ -35,12 +38,12 @@
         </div>
         <!--end col-->
         <div class="col-xxl-12">
-            <div class="card" id="weightingList">
+            <div class="card" id="emailList">
                 <div class="card-header">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="search-box">
-                                <input type="text" class="form-control search" placeholder="Search for weighting...">
+                                <input type="text" class="form-control search" placeholder="Search for email...">
                                 <i class="ri-search-line search-icon"></i>
                             </div>
                         </div>                        
@@ -51,7 +54,7 @@
                                     <option value="10" selected>10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
-                                    <option value="{{count($weightings)}}">All</option>
+                                    <option value="{{count($emails)}}">All</option>
                                 </select>
                             </div>
                         </div>
@@ -60,7 +63,7 @@
                 <div class="card-body">
                     <div>
                         <div class="table-responsive table-card mb-3">
-                            <table class="table align-middle table-nowrap mb-0" id="weightingTable">
+                            <table class="table align-middle table-nowrap mb-0" id="emailTable">
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col" style="width: 50px;">
@@ -69,31 +72,33 @@
                                             </div>
                                         </th>
                                         <th class="sort d-none" data-sort="id" scope="col">ID</th>
-                                        <th class="sort" data-sort="score_type" scope="col">Score Type</th>
-                                        <th class="sort" data-sort="weight" scope="col">Weight</th>
-                                        <th class="sort" data-sort="max_value" scope="col">Max Value</th>
-                                        <th class="sort" data-sort="condition_field" scope="col">Condition Field</th>
-                                        <th class="sort" data-sort="condition_value" scope="col">Condition Value</th> 
-                                        <th class="sort" data-sort="fallback_value" scope="col">Fallback Value</th>                   
+                                        <th class="sort" data-sort="name" scope="col">Name</th>
+                                        <th class="sort" data-sort="subject" scope="col">Subject</th>
+                                        <th class="sort d-none" data-sort="greeting" scope="col">Greeting</th>
+                                        <th class="sort" data-sort="intro" scope="col">Body</th>
+                                        <th class="sort d-none" data-sort="outro" scope="col">Outro</th> 
+                                        <th class="sort d-none" data-sort="icon" scope="col">Icon</th>
+                                        <th class="sort d-none" data-sort="color" scope="col">Color</th>                 
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="list form-check-all" style="height:200px;">
-                                    @if($weightings && count($weightings) > 0)
-                                        @foreach ($weightings as $weighting)
+                                    @if($emails && count($emails) > 0)
+                                        @foreach ($emails as $email)
                                             <tr style="vertical-align:top;">
                                                 <th scope="row">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
                                                     </div>
                                                 </th>
-                                                <td class="id d-none">{{ Crypt::encryptstring($weighting->id) }}</td>
-                                                <td class="score_type">{{ $weighting->score_type }}</td>
-                                                <td class="weight">{{ $weighting->weight }}</td>
-                                                <td class="max_value">{{ $weighting->max_value }}</td>
-                                                <td class="condition_field">{{ $weighting->condition_field }}</td>
-                                                <td class="condition_value">{{ $weighting->condition_value }}</td>
-                                                <td class="fallback_value">{{ $weighting->fallback_value }}</td>
+                                                <td class="id d-none">{{ Crypt::encryptstring($email->id) }}</td>
+                                                <td class="name">{{ $email->name }}</td>
+                                                <td class="subject">{{ $email->subject }}</td>
+                                                <td class="greeting d-none">{{ $email->greeting }}</td>
+                                                <td class="intro" style="white-space: pre-wrap;">{{ str_replace(';;', '', $email->intro) }}</td>
+                                                <td class="outro d-none">{{ $email->outro }}</td>
+                                                <td class="icon d-none">{{ $email->icon }}</td>
+                                                <td class="color d-none">{{ $email->color }}</td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
                                                         <li class="list-inline-item">
@@ -103,7 +108,7 @@
                                                                 </button>
                                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                                     <li>
-                                                                        <a class="dropdown-item edit-item-btn" href="#weightingModal" data-bs-toggle="modal">
+                                                                        <a class="dropdown-item edit-item-btn" href="#emailModal" data-bs-toggle="modal">
                                                                             <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                             Edit
                                                                         </a>
@@ -129,12 +134,13 @@
                                                 </div>
                                             </th>
                                             <td class="id d-none"></td>
-                                            <td class="score_type"></td>
-                                            <td class="weight"></td>
-                                            <td class="max_value"></td>
-                                            <td class="condition_field"></td>
-                                            <td class="condition_value"></td>
-                                            <td class="fallback_value"></td>
+                                            <td class="name"></td>
+                                            <td class="subject"></td>
+                                            <td class="greeting d-none"></td>
+                                            <td class="intro"></td>
+                                            <td class="outro d-none"></td>
+                                            <td class="icon d-none"></td>
+                                            <td class="color d-none"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -144,7 +150,7 @@
                                                             </button>
                                                             <ul class="dropdown-menu dropdown-menu-end">
                                                                 <li>
-                                                                    <a class="dropdown-item edit-item-btn" href="#weightingModal" data-bs-toggle="modal">
+                                                                    <a class="dropdown-item edit-item-btn" href="#emailModal" data-bs-toggle="modal">
                                                                         <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                         Edit
                                                                     </a>
@@ -174,101 +180,63 @@
                                         Sorry! No Result Found
                                     </h5>
                                     <p class="text-muted mb-0">
-                                        We've searched all the weightings. We did not find any weightings for you search.
+                                        We've searched all the email templates. We did not find any templates for you search.
                                     </p>
                                 </div>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-between mt-3 align-items-center">
-                            <div class="col-md-auto">
-                                <!-- Display Total Weight -->
-                                <div class="d-flex align-items-center gap-2">
-                                    <span class="text-muted">Total Weight:</span>
-                                    <span class="badge bg-primary" id="totalWeight">{{ $totalWeight }}</span>
-                                </div>
-                            </div>
+                        <div class="d-flex justify-content-end mt-3">
                             <div class="pagination-wrap hstack gap-2">
-                                <a class="page-item pagination-prev disabled">
+                                <a class="page-item pagination-prev disabled" href="#">
                                     Previous
                                 </a>
                                 <ul class="pagination listjs-pagination mb-0"></ul>
-                                <a class="page-item pagination-next">
+                                <a class="page-item pagination-next" href="#">
                                     Next
                                 </a>
-                            </div>                            
+                            </div>
                         </div>
                     </div>
 
                     <!-- Modal Message -->
-                    <div class="modal fade zoomIn" id="weightingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
+                    <div class="modal fade zoomIn" id="emailModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-xl">
                             <div class="modal-content border-0">
                                 <div class="modal-header bg-light p-3">
                                     <h5 class="modal-title" id="exampleModalLabel"></h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
                                 </div>
-                                <form id="formWeighting" enctype="multipart/form-data">
+                                <form id="formEmail" enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" id="field-id" name="field_id"/>
                                     <div class="modal-body">
                                         <div class="col-lg-12 mb-3">
                                             <div class="mb-3">
-                                                <label for="scoreType" class="form-label">
-                                                    Score Type
+                                                <label for="emailName" class="form-label">
+                                                    Name
                                                 </label>
-                                                <select id="scoreType" name="score_type" class="form-control" required>
-                                                    <option value="" selected>Select Message State</option>
-                                                    @foreach ($scoreTypes as $type)
-                                                        <option value="{{ $type }}">{{ $type }}</option>
-                                                    @endforeach
-                                                </select>
+                                                <input type="text" class="form-control" id="emailName" name="email_name"/>
                                             </div>
 
                                             <div class="mb-3">
-                                                <label for="weight" class="form-label">
-                                                    Weight
+                                                <label for="subject" class="form-label">
+                                                    Subject
                                                 </label>
-                                                <input type="number" class="form-control" id="weight" name="weight" step="0.01" value="0.00" required/>
+                                                <input type="text" class="form-control" id="subject" name="subject"/>
                                             </div>
-    
+
                                             <div class="mb-3">
-                                                <label for="maxValue" class="form-label">
-                                                    Max Value
+                                                <label for="intro" class="form-label">
+                                                    Body
                                                 </label>
-                                                <input type="number" class="form-control" id="maxValue" name="max_value" value="0.00" step="0.01"/>
+                                                <div class="snow-editor" id="intro" style="height: 500px;"></div>
                                             </div>
-    
-                                            <div class="mb-3">
-                                                <label for="conditionField" class="form-label">
-                                                    Condition Field
-                                                </label>
-                                                <select id="conditionField" name="condition_field" class="form-control">
-                                                    <option value="" selected>Select Condition Field</option>
-                                                    @foreach ($scoreTypes as $type)
-                                                        <option value="{{ $type }}">{{ $type }}</option>
-                                                    @endforeach
-                                                </select>
-                                            </div>
-    
-                                            <div class="mb-3">
-                                                <label for="conditionValue" class="form-label">
-                                                    Condition Value
-                                                </label>
-                                                <input type="text" class="form-control" id="conditionValue" name="condition_value"/>
-                                            </div>
-    
-                                            <div class="mb-3">
-                                                <label for="fallbackValue" class="form-label">
-                                                    Fallback Value
-                                                </label>
-                                                <input type="number" class="form-control" id="fallbackValue" name="fallback_value" value="0.00" step="0.01"/>
-                                            </div>
-                                        </div>                                        
+                                        </div>
                                     </div>
                                     <div class="modal-footer">                                        
                                         <div class="hstack gap-2 justify-content-end">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success" id="add-btn">Add Weighting</button>
+                                            <button type="submit" class="btn btn-success" id="add-btn">Add Email</button>
                                             <button type="button" class="btn btn-success" id="edit-btn">Update</button>
                                         </div>
                                     </div>
@@ -289,17 +257,17 @@
                                     <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px"></lord-icon>
                                     <div class="mt-4 text-center">
                                         <h4 class="fs-semibold">
-                                            You are about to delete this weighting ?
+                                            You are about to delete this email ?
                                         </h4>
                                         <p class="text-muted fs-14 mb-4 pt-1">
-                                            Deleting this weighting will remove all of the information from the database.
+                                            Deleting this email will remove all of the information from the database.
                                         </p>
                                         <div class="hstack gap-2 justify-content-center remove">
                                             <button class="btn btn-danger" data-bs-dismiss="modal" id="deleteRecord-close">
                                                 <i class="ri-close-line me-1 align-middle"></i>
                                                 Close
                                             </button>
-                                            <button class="btn btn-primary" id="delete-weighting">
+                                            <button class="btn btn-primary" id="delete-email">
                                                 Yes, Delete!!
                                             </button>
                                         </div>
@@ -319,9 +287,10 @@
     <!--end row-->
 @endsection
 @section('script')
+    <script src="{{ URL::asset('build/libs/quill/quill.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/weighting.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/email.init.js') }}"></script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection
