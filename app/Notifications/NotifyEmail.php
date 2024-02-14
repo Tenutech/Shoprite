@@ -217,6 +217,42 @@ class NotifyEmail extends Notification implements ShouldQueue
                     unset($line);
                 }
                 break;
+            case 'Requested to reschedule 📅':
+                    $this->interviewRescheduleData();
+    
+                    // Check if $templateID is set
+                    if (isset($this->templateID)) {
+                        $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                        $this->subject = $template->subject;
+                        $this->introLines = explode(';;', $template->intro);
+    
+                        // Iterate through each line and replace placeholders as needed
+                        foreach ($this->introLines as &$line) {
+                            if (isset($this->userName)) {
+                                $line = str_replace('[Applicant Name]', $this->userName, $line);
+                            }
+                            if (isset($this->vacancy)) {
+                                $line = str_replace('[Position]', $this->vacancy, $line);
+                            }
+                            if (isset($this->date)) {
+                                $line = str_replace('[Date]', $this->date, $line);
+                            }
+                            if (isset($this->start)) {
+                                $line = str_replace('[Start Time]', $this->start, $line);
+                            }
+                            if (isset($this->store)) {
+                                $line = str_replace('[Store]', $this->store, $line);
+                            }
+                            if (isset($this->location)) {
+                                $line = str_replace('[Location]', $this->location, $line);
+                            }
+                            if (isset($this->reschedule)) {
+                                $line = str_replace('[Suggested Date]', $this->reschedule, $line);
+                            }
+                        }
+                        unset($line);
+                    }
+                    break;
             case 'Completed your interview 🚀':
                 $this->interviewCompletedData();
 
@@ -552,6 +588,51 @@ class NotifyEmail extends Notification implements ShouldQueue
             $this->start = $timeObject->format('ha');
         } else {
             $this->start = 'N/A';
+        }
+    }
+
+    /**
+    * Set interview reschedule data.
+    */
+    private function interviewRescheduleData()
+    {
+        // Proceed with setting up the notification details
+        $this->templateID = 10;
+        $this->actionText = 'View Interview';
+        $this->actionUrl = route('profile.index');
+        $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
+        $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
+        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
+        $this->store = (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->town)->name ?? 'N/A') . ')';
+        $this->location = optional($this->notification->subject)->location ?? 'N/A';
+
+        // Format the date
+        $scheduledDate = optional($this->notification->subject)->scheduled_date;
+        if ($scheduledDate) {
+            $dateObject = new \DateTime($scheduledDate);
+            $this->date = $dateObject->format('d M Y');
+        } else {
+            $this->date = 'N/A';
+        }
+
+        // Format the start time
+        $startTime = optional($this->notification->subject)->start_time;
+        if ($startTime) {
+            $timeObject = new \DateTime($startTime);
+            $this->start = $timeObject->format('ha');
+        } else {
+            $this->start = 'N/A';
+        }
+
+        // Format the reschedule date and time
+        $reschedule = optional($this->notification->subject)->reschedule_date;
+        if ($reschedule) {
+            $rescheduleObject = new \DateTime($reschedule);
+            // Assuming you want the format "12 Feb 2024 at 14:00"
+            $this->reschedule = $rescheduleObject->format('d M Y \a\t H:i');
+        } else {
+            $this->reschedule = 'N/A';
         }
     }
 

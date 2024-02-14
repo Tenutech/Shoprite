@@ -343,9 +343,12 @@
                                                                             <?php if($notification->subject->status == "Scheduled"): ?>
                                                                                 <button type="button" data-bs-interview="<?php echo e(Crypt::encryptString(optional($notification->subject)->id)); ?>" class="btn btn-sm rounded-pill btn-success waves-effect waves-light interviewConfirm">
                                                                                     Confirm
-                                                                                </button>
+                                                                                </button>                                                                                
                                                                                 <button type="button" data-bs-interview="<?php echo e(Crypt::encryptString(optional($notification->subject)->id)); ?>" class="btn btn-sm rounded-pill btn-danger waves-effect waves-light interviewDecline">
                                                                                     Decline
+                                                                                </button>
+                                                                                <button type="button" data-bs-interview="<?php echo e(Crypt::encryptString(optional($notification->subject)->id)); ?>" class="btn btn-sm rounded-pill btn-info waves-effect waves-light mt-2 interviewReschedule">
+                                                                                    Reschedule
                                                                                 </button>
                                                                             <?php elseif($notification->subject->status == "Confirmed"): ?>
                                                                                 <span class="text-success">Confirmed!</span>
@@ -354,8 +357,15 @@
                                                                                 </button>
                                                                             <?php elseif($notification->subject->status == "Declined"): ?>
                                                                                 <span class="text-danger">Declined!</span>
+                                                                            <?php elseif($notification->subject->status == "Reschedule"): ?>
+                                                                                <span class="text-info">Reschedule for <?php echo e(!empty($notification->subject->reschedule_date) ? \Carbon\Carbon::parse($notification->subject->reschedule_date)->format('d M H:i') : 'N/A'); ?></span><br>
+                                                                                <button type="button" data-bs-interview="<?php echo e(Crypt::encryptString(optional($notification->subject)->id)); ?>" class="btn btn-sm rounded-pill btn-danger waves-effect waves-light mt-2 interviewDecline">
+                                                                                    Decline
+                                                                                </button>
                                                                             <?php elseif($notification->subject->status == "Completed"): ?>
                                                                                 <span class="text-success">Completed!</span>
+                                                                            <?php elseif($notification->subject->status == "Canceled"): ?>
+                                                                                <span class="text-danger">Canceled!</span>
                                                                             <?php elseif($notification->subject->status == "No Show"): ?>
                                                                                 <span class="text-danger">No Show!</span>
                                                                             <?php endif; ?>
@@ -420,8 +430,12 @@
                                                                                 <span class="text-success">Confirmed!</span>
                                                                             <?php elseif($notification->subject->status == "Declined"): ?>
                                                                                 <span class="text-danger">Declined!</span>
+                                                                            <?php elseif($notification->subject->status == "Reschedule"): ?>
+                                                                                <span class="text-info">Reschedule for <?php echo e(!empty($notification->subject->reschedule_date) ? \Carbon\Carbon::parse($notification->subject->reschedule_date)->format('d M H:i') : 'N/A'); ?></span>
                                                                             <?php elseif($notification->subject->status == "Completed"): ?>
                                                                                 <span class="text-success">Completed!</span>
+                                                                            <?php elseif($notification->subject->status == "Canceled"): ?>
+                                                                                <span class="text-danger">Canceled!</span>
                                                                             <?php elseif($notification->subject->status == "No Show"): ?>
                                                                                 <span class="text-danger">No Show!</span>
                                                                             <?php endif; ?>
@@ -486,8 +500,82 @@
                                                                                 <span class="text-success">Confirmed!</span>
                                                                             <?php elseif($notification->subject->status == "Declined"): ?>
                                                                                 <span class="text-danger">Declined!</span>
+                                                                            <?php elseif($notification->subject->status == "Reschedule"): ?>
+                                                                                <span class="text-info">Reschedule for <?php echo e(!empty($notification->subject->reschedule_date) ? \Carbon\Carbon::parse($notification->subject->reschedule_date)->format('d M H:i') : 'N/A'); ?></span>
                                                                             <?php elseif($notification->subject->status == "Completed"): ?>
                                                                                 <span class="text-success">Completed!</span>
+                                                                            <?php elseif($notification->subject->status == "Canceled"): ?>
+                                                                                <span class="text-danger">Canceled!</span>
+                                                                            <?php elseif($notification->subject->status == "No Show"): ?>
+                                                                                <span class="text-danger">No Show!</span>
+                                                                            <?php endif; ?>
+                                                                        </div>
+                                                                    </div>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                            <div class="px-2 fs-15">
+                                                                <div class="form-check notification-check">
+                                                                    <input class="form-check-input" type="checkbox" value="<?php echo e(Crypt::encryptString($notification->id)); ?>" id="all-notification-check-<?php echo e($notification->id); ?>">
+                                                                    <label class="form-check-label" for="all-notification-check-<?php echo e($notification->id); ?>"></label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                <?php elseif($notification->notification == "Requested to reschedule 📅"): ?>
+                                                    <div class="text-reset notification-item d-block dropdown-item position-relative">
+                                                        <?php if($notification->read == 'No'): ?>
+                                                            <span class="position-absolute top-0 start-100 translate-middle badge border border-light rounded-circle bg-danger p-1 newNotification">
+                                                                <span class="visually-hidden">
+                                                                    Unread Notification
+                                                                </span>
+                                                            </span>
+                                                        <?php endif; ?>
+                                                        <div class="d-flex">
+                                                            <img src="<?php echo e(URL::asset('images/' . $notification->causer->avatar)); ?>" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                                            <div class="flex-grow-1">
+                                                                <h6 class="mt-0 mb-1 fs-13 fw-semibold">
+                                                                    <?php echo e($notification->causer->firstname); ?> <?php echo e($notification->causer->lastname); ?>
+
+                                                                </h6>
+                                                                <?php if($notification->subject): ?>
+                                                                    <div class="fs-13 text-muted">
+                                                                        <p class="mb-1">
+                                                                            <?php echo e($notification->notification); ?> on
+                                                                            <?php
+                                                                                $scheduledDate = optional($notification->subject->scheduled_date) ? date('d M Y', strtotime($notification->subject->scheduled_date)) : 'N/A';
+                                                                                $startTime = optional($notification->subject->start_time) ? date('h:i A', strtotime($notification->subject->start_time)) : 'N/A';
+                                                                            ?>
+                                                                            <?php echo e($scheduledDate); ?> at <?php echo e($startTime); ?>
+
+                                                                        </p>
+                                                                    </div>
+                                                                    <p class="mb-0 fs-11 fw-medium text-uppercase text-muted">
+                                                                        <span>
+                                                                            <i class="mdi mdi-clock-outline"></i>
+                                                                            <?php echo e($notification->created_at->diffForHumans()); ?>
+
+                                                                        </span>
+                                                                    </p>
+
+                                                                    <div class="d-flex flex-wrap gap-2 mt-3">
+                                                                        <div class="btn-container">
+                                                                            <?php if($notification->subject->status == "Scheduled"): ?>
+                                                                                <button type="button" data-bs-interview="<?php echo e(Crypt::encryptString(optional($notification->subject)->id)); ?>" class="btn btn-sm rounded-pill btn-success waves-effect waves-light interviewConfirm">
+                                                                                    Confirm
+                                                                                </button>
+                                                                                <button type="button" data-bs-interview="<?php echo e(Crypt::encryptString(optional($notification->subject)->id)); ?>" class="btn btn-sm rounded-pill btn-danger waves-effect waves-light interviewDecline">
+                                                                                    Decline
+                                                                                </button>
+                                                                            <?php elseif($notification->subject->status == "Confirmed"): ?>
+                                                                                <span class="text-success">Confirmed!</span>
+                                                                            <?php elseif($notification->subject->status == "Declined"): ?>
+                                                                                <span class="text-danger">Declined!</span>
+                                                                            <?php elseif($notification->subject->status == "Reschedule"): ?>
+                                                                                <span class="text-info">Reschedule for <?php echo e(!empty($notification->subject->reschedule_date) ? \Carbon\Carbon::parse($notification->subject->reschedule_date)->format('d M H:i') : 'N/A'); ?></span>
+                                                                            <?php elseif($notification->subject->status == "Completed"): ?>
+                                                                                <span class="text-success">Completed!</span>
+                                                                            <?php elseif($notification->subject->status == "Canceled"): ?>
+                                                                                <span class="text-danger">Canceled!</span>
                                                                             <?php elseif($notification->subject->status == "No Show"): ?>
                                                                                 <span class="text-danger">No Show!</span>
                                                                             <?php endif; ?>

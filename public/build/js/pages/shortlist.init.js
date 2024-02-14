@@ -352,26 +352,102 @@ function loadCandidateListData(datas, page) {
 
                 // Check if there are interviews and set the alert based on the status
                 if (datas[i].interviews && datas[i].interviews.length > 0) {
+                    //Covert Time Function
+                    function formatTimeTo24Hour(dateTimeString) {
+                        const dateTimeParts = dateTimeString.split(" ");
+                        const timePart = dateTimeParts[1] ? dateTimeParts[1] : dateTimeParts[0];
+                        const date = new Date(dateTimeString);
+                    
+                        // Assuming the server's time zone is consistent with South Africa (UTC+2)
+                        const offsetInHours = 2;
+                        date.setUTCHours(date.getUTCHours() + offsetInHours);
+                    
+                        const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits
+                        const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits
+                    
+                        return `${hours}:${minutes}`;
+                    }
+                    
+                    // A function to format full date-time strings for the reschedule scenario
+                    function formatFullDateTime(dateTimeString) {
+                        const date = new Date(dateTimeString);
+
+                        // Adjust for the time zone, similar to the formatTimeTo24Hour function
+                        const offsetInHours = 2; // Adjust for South Africa's time zone
+                        date.setUTCHours(date.getUTCHours() + offsetInHours);
+
+                        const day = ("0" + date.getDate()).slice(-2); // Ensure two digits
+                        const month = date.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
+                        const year = date.getFullYear();
+                        const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits
+                        const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits
+
+                        return `${day} ${month} at ${hours}:${minutes}`;
+                    }
+
                     var interview = datas[i].interviews[datas[i].interviews.length - 1]; // Assuming we're only interested in the last interview
 
                     var interviewDate = new Date(interview.scheduled_date);
                     var day = ("0" + interviewDate.getDate()).slice(-2); // Ensure two digits
                     var month = interviewDate.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
                     var formattedDate = `${day} ${month}`;
-                    var formattedTime = interview.start_time.slice(0, 5);
+                    var formattedTime = formatTimeTo24Hour(interview.start_time);
 
-                    if (interview.status === 'Scheduled') {
-                        interviewAlert = '<div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">' +
-                                            '<i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>' + formattedDate + ' at ' + formattedTime +
-                                        '</div>';
-                    } else if (interview.status === 'Confirmed') {
-                        interviewAlert = '<div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">' +
-                                            '<i class="ri-calendar-check-fill label-icon"></i><strong>Confirmed: </strong>' + formattedDate + ' at ' + formattedTime +
-                                        '</div>';
-                    } else if (interview.status === 'Declined') {
-                        interviewAlert = '<div class="alert alert-danger alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">' +
-                                            '<i class="ri-calendar-check-fill label-icon"></i><strong>Declined: </strong>' + formattedDate + ' at ' + formattedTime +
-                                        '</div>';
+                    const statusMapping = {
+                        'Scheduled': {
+                            class: 'alert-warning',
+                            icon: 'ri-calendar-todo-fill',
+                            text: 'Scheduled'
+                        },
+                        'Confirmed': {
+                            class: 'alert-success',
+                            icon: 'ri-calendar-check-fill',
+                            text: 'Confirmed'
+                        },
+                        'Declined': {
+                            class: 'alert-danger',
+                            icon: 'ri-calendar-2-fill',
+                            text: 'Declined'
+                        },
+                        'Reschedule': {
+                            class: 'alert-info',
+                            icon: 'ri-calendar-event-fill',
+                            text: 'Reschedule'
+                        },
+                        'Completed': {
+                            class: 'alert-success',
+                            icon: 'ri-calendar-check-fill',
+                            text: 'Completed'
+                        },
+                        'Cancelled': {
+                            class: 'alert-dark',
+                            icon: 'ri-calendar-2-fill',
+                            text: 'Cancelled'
+                        },
+                        'No Show': {
+                            class: 'alert-danger',
+                            icon: 'ri-user-unfollow-fill',
+                            text: 'No Show'
+                        }
+                    };
+
+                    // Build the interviewAlert based on the interview status
+                    if (statusMapping[interview.status]) {
+                        const statusInfo = statusMapping[interview.status];
+                        let additionalText = '';
+                    
+                        if (interview.status === 'Reschedule' && interview.reschedule) {
+                            const rescheduledDateTime = formatFullDateTime(interview.reschedule);
+                            additionalText = `<br><strong>Suggested:</strong> ${rescheduledDateTime}`;
+                        }
+                    
+                        interviewAlert = `<div class="alert ${statusInfo.class} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
+                                            <i class="${statusInfo.icon} label-icon"></i><strong>${statusInfo.text}: </strong>${formattedDate} at ${formattedTime}${additionalText}
+                                          </div>`;
+                    } else {
+                        interviewAlert = `<div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
+                                            <i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>${formattedDate} at ${formattedTime}
+                                          </div>`;
                     }
 
                     if (interview.score) {
@@ -1137,6 +1213,11 @@ $('#formInterview').on('submit', function(e) {
                             var existingAlert = candidateCard.querySelector('.alert');
 
                             if (existingAlert) {
+                                // Remove existing status classes
+                                existingAlert.classList.remove('alert-danger', 'alert-success', 'alert-info');
+                                // Add new status class
+                                existingAlert.classList.add('alert-warning');
+
                                 // Update existing alert with new information
                                 existingAlert.innerHTML = '<i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>' + data.date + ' at ' + data.time;
                             } else {

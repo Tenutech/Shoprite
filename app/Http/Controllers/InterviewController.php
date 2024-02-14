@@ -64,7 +64,7 @@ class InterviewController extends Controller
         ]);
 
         // Get the state_id for 'scheduled'
-        $scheduledStateId = State::where('code', 'schedule')->value('id');
+        $scheduledStateId = State::where('code', 'schedule_start')->value('id');
 
         $messages = ChatTemplate::where('state_id', $scheduledStateId)
                                 ->orderBy('sort')
@@ -77,9 +77,7 @@ class InterviewController extends Controller
             // Loop through each applicant and create an interview
             foreach ($validatedData['applicants'] as $applicantID) {
                 $this->scheduleInterviewForApplicant($applicantID, $validatedData, $scheduledStateId);
-                //$this->sendWhatsAppMessages($applicantID, $messages);
-
-
+                $this->sendWhatsAppMessages($applicantID, $messages);
             }
 
             // Commit the transaction
@@ -163,7 +161,7 @@ class InterviewController extends Controller
         // Reload the model to ensure all relationships are up to date.
         $applicant->load('interviews');
 
-        $latestInterview = $applicant->interviews->sortByDesc('scheduled_date')->first();
+        $latestInterview = $applicant->interviews->sortByDesc('created_at')->first();
 
         $dataToReplace = [
             "Applicant Name" => $applicant->firstname.' '.$applicant->lastname,
@@ -278,7 +276,7 @@ class InterviewController extends Controller
                 $notification->causer_id = $userID;
                 $notification->subject()->associate($interview);
                 $notification->type_id = 1;
-                $notification->notification = "Declined your application request 🚫";
+                $notification->notification = "Declined your interview request 🚫";
                 $notification->read = "No";
                 $notification->save();
             }
@@ -291,6 +289,59 @@ class InterviewController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to decline interview.',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Interview Reschedule
+    |--------------------------------------------------------------------------
+    */
+
+    public function reschedule(Request $request)
+    {
+        try {
+            // User ID
+            $userID = Auth::id();
+
+            //Interview
+            $interviewID = Crypt::decryptString($request->id);
+            $interview = Interview::findOrFail($interviewID);
+
+            $dateTime = Carbon::parse($request->reschedule_time);
+            
+            //Application Update
+            $interview->update([
+                'status' => 'Reschedule',
+                'reschedule_date' => $dateTime
+            ]);
+
+            // If a new interview was updated, then create a notification
+            if ($interview->wasChanged()) {
+                // Create Notification
+                $notification = new Notification();
+                $notification->user_id = $interview->interviewer_id;
+                $notification->causer_id = $userID;
+                $notification->subject()->associate($interview);
+                $notification->type_id = 1;
+                $notification->notification = "Requested to reschedule 📅";
+                $notification->read = "No";
+                $notification->save();
+            }
+
+            $encryptedID = Crypt::encryptString($interviewID);
+            
+            return response()->json([
+                'success' => true,
+                'encryptedID' => $encryptedID,
+                'message' => 'Request for reschedule successful!',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reschedule interview.',
                 'error' => $e->getMessage()
             ], 400);
         }

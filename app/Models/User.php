@@ -194,7 +194,9 @@ class User extends Authenticatable implements MustVerifyEmail
                 return $settings->notify_interview ?? false;
             case 'Confirmed your interview request ✅':
                 return $settings->notify_interview ?? false;
-            case 'Declined your application request 🚫':
+            case 'Declined your interview request 🚫':
+                return $settings->notify_interview ?? false;
+            case 'Requested to reschedule 📅':
                 return $settings->notify_interview ?? false;
             case 'Completed your interview 🚀':
                 return $settings->notify_interview ?? false;

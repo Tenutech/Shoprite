@@ -21,7 +21,8 @@ class Interview extends Model
         'location',
         'notes',
         'status',
-        'score'
+        'score',
+        'reschedule_date'
     ];
 
     protected $casts = [

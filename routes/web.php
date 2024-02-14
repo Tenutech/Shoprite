@@ -275,6 +275,8 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::put('/interview-decline', [App\Http\Controllers\InterviewController::class, 'decline'])->name('interview.decline');
 
+    Route::put('/interview-reschedule', [App\Http\Controllers\InterviewController::class, 'reschedule'])->name('interview.reschedule');
+
     //Notifications
     Route::put('/notification-read', [App\Http\Controllers\NotificationController::class, 'notificationRead'])->name('notification.read');
 

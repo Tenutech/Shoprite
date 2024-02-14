@@ -5,10 +5,12 @@ namespace App\Services;
 use Log;
 use DateTime;
 use Exception;
+use Carbon\Carbon;
 use App\Models\Chat;
 use App\Models\State;
 use App\Models\Language;
 use App\Models\Applicant;
+use App\Models\Notification;
 use App\Models\ChatTemplate;
 use App\Models\ScoreWeighting;
 use Twilio\Rest\Client;
@@ -79,9 +81,16 @@ class ChatService
     {
         try {
             // Query for the applicant based on the phone number and preload certain related data
-            $applicant = Applicant::with(['gender', 'race', 'transport', 'role', 'interviews.vacancy.position'])
-                ->where('phone', $phone)
-                ->first();
+            $applicant = Applicant::with([
+                'user', 
+                'gender', 
+                'race', 
+                'transport', 
+                'role', 
+                'interviews.vacancy.position'
+            ])
+            ->where('phone', $phone)
+            ->first();
 
             // If the applicant doesn't exist, create a new entry
             if (!$applicant) {
@@ -496,9 +505,17 @@ class ChatService
                 $this->handleCompleteState($applicant, $body, $twilio, $to, $from);
                 break;
 
+            case 'schedule_start':
+                    $this->handleScheduleStartState($applicant, $body, $twilio, $to, $from);
+                    break;
+
             case 'schedule':
                 $this->handleScheduleState($applicant, $body, $twilio, $to, $from);
                 break;
+
+            case 'reschedule':
+                $this->handleRescheduleState($applicant, $body, $twilio, $to, $from);
+                 break;
         }
     }
 
@@ -3984,13 +4001,100 @@ class ChatService
 
     /*
     |--------------------------------------------------------------------------
+    | Shedule Start
+    |--------------------------------------------------------------------------
+    */
+
+    protected function handleScheduleStartState($applicant, $body, $twilio, $to, $from) {
+        try {
+            $latestInterview = $applicant->interviews()->latest('created_at')->first();
+
+            if ($latestInterview) {
+                // Handle the 'yes' keyword
+                if (strtolower($body) == 'yes') {
+                    //Data to replace
+                    $dataToReplace = [
+                        "Applicant Name" => $applicant->firstname.' '.$applicant->lastname,
+                        "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A',
+                        "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' ' . ($latestInterview->vacancy->store->town->name ?? 'Our Office'),
+                        "Interview Location" => $latestInterview->location ?? 'N/A',
+                        "Interview Date" => $latestInterview->scheduled_date->format('d M Y'),
+                        "Interview Time" => $latestInterview->start_time->format('H:i'),
+                        "Notes" => $latestInterview->notes ?? 'N/A',
+                    ];
+
+                    $messages = $this->fetchStateMessages('schedule');
+
+                    foreach ($messages as &$message) {
+                        foreach ($dataToReplace as $key => $value) {
+                            $message = str_replace("[$key]", $value, $message);
+                        }
+                    }
+
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+
+                    $stateID = State::where('code', 'schedule')->value('id');
+                    $applicant->update(['state_id' => $stateID]);
+                } else if (strtolower($body) == 'no') {
+                    // Update the status of the interview
+                    $latestInterview->status = 'Declined';
+                    $latestInterview->save();
+
+                    // If a new interview was updated, then create a notification
+                    if ($latestInterview->wasChanged() && $applicant->user) {
+                        // Create Notification
+                        $notification = new Notification();
+                        $notification->user_id = $latestInterview->interviewer_id;
+                        $notification->causer_id = $applicant->user->id;
+                        $notification->subject()->associate($latestInterview);
+                        $notification->type_id = 1;
+                        $notification->notification = "Declined your interview request 🚫";
+                        $notification->read = "No";
+                        $notification->save();
+                    }
+
+                    $messages = [
+                        "We have received your response and your interview for the position of " .
+                        $latestInterview->vacancy->position->name .
+                        " is now declined. If this was a mistake, please contact us immediately."
+                    ];
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+
+                    $stateID = State::where('code', 'complete')->value('id');
+                    $applicant->update(['state_id' => $stateID]);
+                } else {
+                    $messages = $this->fetchStateMessages('schedule_start');
+                    $lastMessage = end($messages);
+                    $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from);
+                }
+            } else {
+                $messages = ["No interviews found, have a wonderful day."];
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+
+                $stateID = State::where('code', 'complete')->value('id');
+                $applicant->update(['state_id' => $stateID]);
+            }
+        } catch (Exception $e) {
+            // Log the error for debugging purposes
+            Log::error('Error in handleScheduleState: ' . $e->getMessage());
+    
+            // Get the error message from the method
+            $errorMessage = $this->getErrorMessage();
+    
+            // Send the error message to the user
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Shedule
     |--------------------------------------------------------------------------
     */
 
     protected function handleScheduleState($applicant, $body, $twilio, $to, $from) {
         try {
-            $latestInterview = $applicant->interviews()->latest('scheduled_date')->first();
+            $latestInterview = $applicant->interviews()->latest('created_at')->first();
 
             if ($latestInterview) {
                 // Handle the 'confirm' keyword
@@ -3998,6 +4102,19 @@ class ChatService
                     // Update the status of the interview
                     $latestInterview->status = 'Confirmed';
                     $latestInterview->save();
+
+                    // If a new interview was updated, then create a notification
+                    if ($latestInterview->wasChanged() && $applicant->user) {
+                        // Create Notification
+                        $notification = new Notification();
+                        $notification->user_id = $latestInterview->interviewer_id;
+                        $notification->causer_id = $applicant->user->id;
+                        $notification->subject()->associate($latestInterview);
+                        $notification->type_id = 1;
+                        $notification->notification = "Confirmed your interview request ✅";
+                        $notification->read = "No";
+                        $notification->save();
+                    }
 
                     $messages = [
                         "Thank you, your interview for the position of " .
@@ -4010,14 +4127,52 @@ class ChatService
 
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
+                } else if (strtolower($body) == 'reschedule') {
+                    // Update the status of the interview
+                    $latestInterview->status = 'Reschedule';
+                    $latestInterview->save();
+
+                    // If a new interview was updated, then create a notification
+                    if ($interview->wasChanged()) {
+                        // Create Notification
+                        $notification = new Notification();
+                        $notification->user_id = $interview->interviewer_id;
+                        $notification->causer_id = $userID;
+                        $notification->subject()->associate($interview);
+                        $notification->type_id = 1;
+                        $notification->notification = "Requested to reschedule 📅";
+                        $notification->read = "No";
+                        $notification->save();
+                    }
+
+                    $messages = [
+                        "Please suggest a new date and time for your interview. We will do our best to accommodate your schedule. For example, '2024-02-20 14:00'."
+                    ];
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+
+                    $stateID = State::where('code', 'reschedule')->value('id');
+                    $applicant->update(['state_id' => $stateID]);
                 } else if (strtolower($body) == 'decline') {
                     // Update the status of the interview
                     $latestInterview->status = 'Declined';
                     $latestInterview->save();
 
+                    // If a new interview was updated, then create a notification
+                    if ($latestInterview->wasChanged() && $applicant->user) {
+                        // Create Notification
+                        $notification = new Notification();
+                        $notification->user_id = $latestInterview->interviewer_id;
+                        $notification->causer_id = $applicant->user->id;
+                        $notification->subject()->associate($latestInterview);
+                        $notification->type_id = 1;
+                        $notification->notification = "Declined your interview request 🚫";
+                        $notification->read = "No";
+                        $notification->save();
+                    }
+
                     $messages = [
                         "We have received your response and your interview for the position of " .
-                        $interview->vacancy->position->name .
+                        $latestInterview->vacancy->position->name .
                         " is now declined. If this was a mistake, please contact us immediately."
                     ];
                     $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
@@ -4029,6 +4184,58 @@ class ChatService
                     $lastMessage = end($messages);
                     $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from);
                 }
+            } else {
+                $messages = ["No interviews found, have a wonderful day."];
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+
+                $stateID = State::where('code', 'complete')->value('id');
+                $applicant->update(['state_id' => $stateID]);
+            }
+        } catch (Exception $e) {
+            // Log the error for debugging purposes
+            Log::error('Error in handleScheduleState: ' . $e->getMessage());
+    
+            // Get the error message from the method
+            $errorMessage = $this->getErrorMessage();
+    
+            // Send the error message to the user
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reshedule
+    |--------------------------------------------------------------------------
+    */
+
+    protected function handleRescheduleState($applicant, $body, $twilio, $to, $from) {
+        try {
+            $latestInterview = $applicant->interviews()->latest('created_at')->first();
+
+            if ($latestInterview) {
+                try {
+                    // Attempt to parse the provided date and time
+                    $newDateTime = Carbon::parse($body);
+        
+                    // If parsing was successful, update the interview's reschedule field
+                    $latestInterview->reschedule_date = $newDateTime;
+                    $latestInterview->save();
+        
+                    // Send a confirmation message
+                    $messages = [
+                        "Thank you, we have noted the date and time. We will get back to you with a newly scheduled interview."
+                    ];
+
+                    $stateID = State::where('code', 'complete')->value('id');
+                    $applicant->update(['state_id' => $stateID]);
+                } catch (\Exception $e) {
+                    // If the date and time couldn't be parsed, ask for a valid format
+                    $messages = [
+                        "Please provide a valid date and time for your interview. For example, '2024-02-20 14:00'."
+                    ];
+                }
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
             } else {
                 $messages = ["No interviews found, have a wonderful day."];
                 $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
