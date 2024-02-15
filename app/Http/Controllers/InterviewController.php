@@ -24,6 +24,60 @@ use Illuminate\Support\Facades\Response;
 
 class InterviewController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware(['auth', 'verified']);
+    }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Interview Index
+    |--------------------------------------------------------------------------
+    */
+
+    public function index()
+    {
+        if (view()->exists('interviews')) {
+            //UserID
+            $userID = Auth::id();
+
+            //User
+            $user = User::findorfail($userID);
+
+            //Interviews
+            $interviews = Interview::with([
+                'applicant', 
+                'interviewer', 
+                'vacancy'
+            ])
+            ->where(function($query) use ($user, $userID) {
+                // Check for interviews where the current user is the applicant
+                if ($user->applicant_id) {
+                    $query->where('applicant_id', $user->applicant_id);
+                }
+                // Or where the current user is the interviewer
+                $query->orWhere('interviewer_id', $userID);
+            })
+            ->get();
+
+            return view('interviews', [
+                'user' => $user,
+                'interviews' => $interviews
+            ]);
+        }
+        return view('404');
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -235,6 +289,7 @@ class InterviewController extends Controller
             
             return response()->json([
                 'success' => true,
+                'interview' => $interview,
                 'encryptedID' => $encryptedID,
                 'message' => 'Interview confirmed!',
             ], 201);
@@ -283,6 +338,7 @@ class InterviewController extends Controller
             
             return response()->json([
                 'success' => true,
+                'interview' => $interview,
                 'message' => 'Interview declined!',
             ], 201);
         } catch (\Exception $e) {
@@ -335,6 +391,7 @@ class InterviewController extends Controller
             
             return response()->json([
                 'success' => true,
+                'interview' => $interview,
                 'encryptedID' => $encryptedID,
                 'message' => 'Request for reschedule successful!',
             ], 201);
@@ -342,6 +399,137 @@ class InterviewController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reschedule interview.',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Interview Complete
+    |--------------------------------------------------------------------------
+    */
+
+    public function complete(Request $request)
+    {
+        try {
+            // User ID
+            $userID = Auth::id();
+
+            //Interview
+            $interviewID = Crypt::decryptString($request->id);
+            $interview = Interview::findOrFail($interviewID);
+            
+            //Application Update
+            $interview->update([
+                'status' => 'Completed'
+            ]);
+
+            // If a new interview was updated, then create a notification
+            if ($interview->applicant->user && $interview->wasChanged()) {
+                // Create Notification
+                $notification = new Notification();
+                $notification->user_id = $interview->applicant->user->id;
+                $notification->causer_id = $userID;
+                $notification->subject()->associate($interview);
+                $notification->type_id = 1;
+                $notification->notification = "Completed your interview 🚀";
+                $notification->read = "No";
+                $notification->save();
+            }
+            
+            return response()->json([
+                'success' => true,
+                'interview' => $interview,
+                'message' => 'Interview cancelled!',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to cancel interview.',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Interview Cancel
+    |--------------------------------------------------------------------------
+    */
+
+    public function cancel(Request $request)
+    {
+        try {
+            // User ID
+            $userID = Auth::id();
+
+            //Interview
+            $interviewID = Crypt::decryptString($request->id);
+            $interview = Interview::findOrFail($interviewID);
+            
+            //Application Update
+            $interview->update([
+                'status' => 'Cancelled'
+            ]);
+
+            // If a new interview was updated, then create a notification
+            if ($interview->applicant->user && $interview->wasChanged()) {
+                // Create Notification
+                $notification = new Notification();
+                $notification->user_id = $interview->applicant->user->id;
+                $notification->causer_id = $userID;
+                $notification->subject()->associate($interview);
+                $notification->type_id = 1;
+                $notification->notification = "Interview Cancelled 📅";
+                $notification->read = "No";
+                $notification->save();
+            }
+            
+            return response()->json([
+                'success' => true,
+                'interview' => $interview,
+                'message' => 'Interview cancelled!',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to cancel interview.',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Interview No Show
+    |--------------------------------------------------------------------------
+    */
+
+    public function noShow(Request $request)
+    {
+        try {
+            // User ID
+            $userID = Auth::id();
+
+            //Interview
+            $interviewID = Crypt::decryptString($request->id);
+            $interview = Interview::findOrFail($interviewID);
+            
+            //Application Update
+            $interview->update([
+                'status' => 'No Show'
+            ]);
+            
+            return response()->json([
+                'success' => true,
+                'interview' => $interview,
+                'message' => 'Interview cancelled!',
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to cancel interview.',
                 'error' => $e->getMessage()
             ], 400);
         }

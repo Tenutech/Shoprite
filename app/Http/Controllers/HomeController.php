@@ -42,7 +42,7 @@ class HomeController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth')->except(['root', 'policy', 'terms', 'security', 'subscribe']);
+        $this->middleware(['auth', 'verified'])->except(['root', 'policy', 'terms', 'security', 'subscribe']);
     }
 
     /**

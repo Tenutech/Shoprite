@@ -71,6 +71,12 @@
                                 <span>Vacancies</span>
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
+                                <i class="ri-briefcase-line"></i> 
+                                <span>Interviews</span>
+                            </a>
+                        </li>
                     @endif
                 @endif
                 @if ($user->role_id == 1 || $user->role_id == 2 || $user->role_id == 3)
@@ -104,6 +110,12 @@
                         <a class="nav-link menu-link" href="{{ route('shortlist.index') }}">
                             <i class="ri-list-check-2"></i> 
                             <span>Shortlist</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
+                            <i class="ri-briefcase-line"></i> 
+                            <span>Interviews</span>
                         </a>
                     </li>
                     <li class="nav-item">

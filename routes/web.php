@@ -232,7 +232,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
     Route::delete('/message-delete/{id}', [App\Http\Controllers\MessageController::class, 'destroy'])->name('message.destroy');
 
     //Vacancies
-    Route::get('/vacancies', [App\Http\Controllers\VacanciesController::class, 'index'])->name('vacancies.index');
+    Route::get('/vacancies', [App\Http\Controllers\VacanciesController::class, 'index'])->middleware('check.user.applicant')->name('vacancies.index');
 
     Route::get('/vacancy/jobs', [App\Http\Controllers\VacanciesController::class, 'vacancies']);
 
@@ -271,11 +271,19 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
     Route::put('/apply-decline', [App\Http\Controllers\ApplyController::class, 'decline'])->name('application.decline');
 
     //Interviews
-    Route::put('/interview-confirm', [App\Http\Controllers\InterviewController::class, 'confirm'])->name('interview.approve');
+    Route::get('/interviews', [App\Http\Controllers\InterviewController::class, 'index'])->middleware('check.user.applicant')->name('interviews.index');
 
-    Route::put('/interview-decline', [App\Http\Controllers\InterviewController::class, 'decline'])->name('interview.decline');
+    Route::post('/interview-confirm', [App\Http\Controllers\InterviewController::class, 'confirm'])->name('interview.approve');
 
-    Route::put('/interview-reschedule', [App\Http\Controllers\InterviewController::class, 'reschedule'])->name('interview.reschedule');
+    Route::post('/interview-decline', [App\Http\Controllers\InterviewController::class, 'decline'])->name('interview.decline');
+
+    Route::post('/interview-reschedule', [App\Http\Controllers\InterviewController::class, 'reschedule'])->name('interview.reschedule');
+
+    Route::post('/interview-complete', [App\Http\Controllers\InterviewController::class, 'complete'])->name('interview.complete');
+
+    Route::post('/interview-cancel', [App\Http\Controllers\InterviewController::class, 'cancel'])->name('interview.cancel');
+
+    Route::post('/interview-noShow', [App\Http\Controllers\InterviewController::class, 'noShow'])->name('interview.noShow');
 
     //Notifications
     Route::put('/notification-read', [App\Http\Controllers\NotificationController::class, 'notificationRead'])->name('notification.read');

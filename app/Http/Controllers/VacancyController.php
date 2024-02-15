@@ -32,7 +32,7 @@ class VacancyController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth')->except('root');
+        $this->middleware(['auth', 'verified']);
     }
 
     /**

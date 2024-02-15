@@ -147,7 +147,7 @@ $(document).ready(function() {
                 // Proceed to submit the reschedule time along with the interview ID
                 $.ajax({
                     url: route('interview.reschedule'),
-                    type: 'PUT',
+                    type: 'POST',
                     data: {
                         id: interviewID,
                         reschedule_time: rescheduleTime
@@ -222,7 +222,7 @@ $(document).ready(function() {
 
             $.ajax({
                 url: url,
-                type: 'PUT',
+                type: 'POST',
                 data: {
                     id: interviewID
                 },

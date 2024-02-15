@@ -40,19 +40,13 @@ class Interview extends Model
     //Interviewer
     public function interviewer()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'interviewer_id');
     }
 
     //Vacancies
     public function vacancy()
     {
         return $this->belongsTo(Vacancy::class);
-    }
-
-    //Interviews
-    public function interviews()
-    {
-        return $this->hasMany(Interview::class);
     }
 
     /**

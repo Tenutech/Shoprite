@@ -29,7 +29,7 @@ class MessageController extends Controller
 
     public function __construct(ChatService $chatService)
     {
-        $this->middleware('auth')->except('root');
+        $this->middleware(['auth', 'verified']);
         $this->chatService = $chatService;
     }    
 
