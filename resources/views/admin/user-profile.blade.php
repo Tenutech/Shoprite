@@ -49,31 +49,31 @@
                     <!-- Nav tabs -->
                     <ul class="nav nav-pills animation-nav profile-nav gap-2 gap-lg-3 flex-grow-1" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link fs-14 active" data-bs-toggle="tab" href="#overview-tab" role="tab">
+                            <a class="nav-link fs-14 user-tab active" data-bs-toggle="tab" href="#overview-tab" role="tab">
                                 <i class="ri-airplay-fill d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">Overview</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#application-tab" role="tab">
+                            <a class="nav-link fs-14 user-tab" data-bs-toggle="tab" href="#application-tab" role="tab">
                                 <i class="ri-price-tag-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">My Application</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#assessments-tab" role="tab">
+                            <a class="nav-link fs-14 user-tab" data-bs-toggle="tab" href="#assessments-tab" role="tab">
                                 <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">My Assessments</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#applications-tab" role="tab">
+                            <a class="nav-link fs-14 user-tab" data-bs-toggle="tab" href="#applications-tab" role="tab">
                                 <i class="ri-price-tag-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">My Job Applications</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#documents-tab" role="tab">
+                            <a class="nav-link fs-14 user-tab" data-bs-toggle="tab" href="#documents-tab" role="tab">
                                 <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">My Documents</span>
                             </a>

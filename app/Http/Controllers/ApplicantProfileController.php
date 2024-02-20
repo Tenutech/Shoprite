@@ -115,26 +115,22 @@ class ApplicantProfileController extends Controller
 
             // Check each step in sequence, ensuring previous steps are completed
             if ($completion >= 100) {
-                $progressBarWidth = 14; // First step
+                $progressBarWidth = 20; // First step
 
                 if ($applicant->user && $applicant->user->appliedVacancies->count() > 0) {
-                    $progressBarWidth = 28; // Second step
+                    $progressBarWidth = 40; // Second step
 
                     if (Shortlist::whereJsonContains('applicant_ids', $applicant->id)->exists()) {
-                        $progressBarWidth = 42; // Third step
+                        $progressBarWidth = 60; // Third step
 
                         if ($applicant->interviews && $applicant->interviews->count() > 0) {
-                            $progressBarWidth = 57; // Fourth step
+                            $progressBarWidth = 80; // Fourth step
 
-                            if ($applicant->checks && $applicant->checks->count() > 0) {
-                                $progressBarWidth = 72; // Fifth step
+                            if ($applicant->interviews->count() > 0 && $applicant->interviews[0]->score) {
+                                $progressBarWidth = 100; // Sixth step
 
-                                if ($applicant->interviews->count() > 0 && $applicant->interviews[0]->score) {
-                                    $progressBarWidth = 86; // Sixth step
-
-                                    if ($applicant->vacanciesFilled && $applicant->vacanciesFilled->count() > 0) {
-                                        $progressBarWidth = 100; // Final step
-                                    }
+                                if ($applicant->vacanciesFilled && $applicant->vacanciesFilled->count() > 0) {
+                                    $progressBarWidth = 100; // Final step
                                 }
                             }
                         }

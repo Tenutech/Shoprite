@@ -5,11 +5,13 @@ Website: https://Themesbrand.com/
 Contact: Themesbrand@gmail.com
 File: Profile init js
 */
+
 /*
 |--------------------------------------------------------------------------
 | Tab Open
 |--------------------------------------------------------------------------
 */
+
 $(document).ready(function() {
     // First priority to the hash in the URL
     var activeTab = window.location.hash;
@@ -21,14 +23,14 @@ $(document).ready(function() {
 
     // If an activeTab has been determined, show it
     if (activeTab) {
-        $('.nav-link[href="' + activeTab + '"]').tab('show');
+        $('.applicant-tab[href="' + activeTab + '"]').tab('show');
     } else {
         // Show default tab if no specific tab is required
-        $('.nav-link:first').tab('show');
+        $('.applicant-tab:first').tab('show');
     }
 
     // Save the tab on click to local storage
-    $('.nav-link').on('click', function() {
+    $('.applicant-tab').on('click', function() {
         var tabId = $(this).attr('href');
         localStorage.setItem('activeTab', tabId);
 

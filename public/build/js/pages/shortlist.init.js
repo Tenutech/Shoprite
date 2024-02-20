@@ -45,12 +45,6 @@ var applicantChoices = new Choices('#applicants', {
     itemSelectText: '',
 });
 
-var contractChoices = new Choices('#applicantsContract', {
-    removeItemButton: true,
-    searchEnabled: true,
-    itemSelectText: '',
-});
-
 var vacancyChoices = new Choices('#applicantsVacancy', {
     removeItemButton: true,
     searchEnabled: true,
@@ -686,25 +680,6 @@ if (contractBtn) {
     });
 }
 
-// Event listener for when the modal is shown
-$('#contractModal').on('shown.bs.modal', function () {
-    // Clear current choices
-    contractChoices.clearChoices();
-  
-    // Add the selected applicants as choices
-    selectedApplicants.forEach(function(applicant) {
-        contractChoices.setChoices([
-            { value: applicant.id, label: applicant.name, selected: true },
-        ], 'value', 'label', false);
-    });
-});
-
-$('#contractModal').on('hidden.bs.modal', function () {
-    // Clear all selected choices when the modal is closed
-    contractChoices.clearStore();
-    clearFields();
-});
-
 // Select the Vacancy button
 var vacancyBtn = document.querySelector('#vacancyBtn');
 
@@ -1310,8 +1285,6 @@ $('#formContract').on('submit', function(e) {
     if (!isValid) {
         return;
     }
-
-    var selectedChoices = contractChoices.getValue(true);
 
     if (this.checkValidity()) {
         $.ajax({

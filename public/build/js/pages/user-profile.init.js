@@ -8,6 +8,39 @@ File: Profile init js
 
 /*
 |--------------------------------------------------------------------------
+| Tab Open
+|--------------------------------------------------------------------------
+*/
+
+$(document).ready(function() {
+    // First priority to the hash in the URL
+    var activeTab = window.location.hash;
+
+    // If there's no hash, check if there's a saved tab in local storage
+    if (!activeTab) {
+        activeTab = localStorage.getItem('activeTab');
+    }
+
+    // If an activeTab has been determined, show it
+    if (activeTab) {
+        $('.user-tab[href="' + activeTab + '"]').tab('show');
+    } else {
+        // Show default tab if no specific tab is required
+        $('.user-tab:first').tab('show');
+    }
+
+    // Save the tab on click to local storage
+    $('.user-tab').on('click', function() {
+        var tabId = $(this).attr('href');
+        localStorage.setItem('activeTab', tabId);
+
+        // Update the URL hash when a tab is clicked
+        window.location.hash = tabId;
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
 | Swiper
 |--------------------------------------------------------------------------
 */

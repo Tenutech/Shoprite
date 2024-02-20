@@ -60,37 +60,37 @@
                     <!-- Nav tabs -->
                     <ul class="nav nav-pills animation-nav profile-nav gap-2 gap-lg-3 flex-grow-1" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link fs-14 active" data-bs-toggle="tab" href="#overview-tab" role="tab">
+                            <a class="nav-link fs-14 applicant-tab active" data-bs-toggle="tab" href="#overview-tab" role="tab">
                                 <i class="ri-airplay-fill d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">Overview</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#messaging-tab" role="tab">
+                            <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#messaging-tab" role="tab">
                                 <i class="ri-price-tag-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">Messaging</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#assessments-tab" role="tab">
+                            <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#assessments-tab" role="tab">
                                 <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">Assessments</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#documents-tab" role="tab">
+                            <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#documents-tab" role="tab">
                                 <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">Documents</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#checks-tab" role="tab">
+                            <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#checks-tab" role="tab">
                                 <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">Checks</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#interview-tab" role="tab">
+                            <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#interview-tab" role="tab">
                                 <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">Interview</span>
                             </a>
@@ -110,6 +110,9 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <h5 class="card-title mb-4">Applicant Tracker</h5>
+                                        @php
+                                            $progressBarWidth = 100;
+                                        @endphp
                                         <div id="custom-progress-bar" class="progress-nav">
                                             <div class="progress" style="height: 1px;">
                                                 <div class="progress-bar" role="progressbar" style="width: {{ $progressBarWidth }}%;" aria-valuenow="{{ $progressBarWidth }}" aria-valuemin="0" aria-valuemax="100"></div>
@@ -117,42 +120,32 @@
                 
                                             <ul class="nav nav-pills progress-bar-tab custom-nav" role="tablist">
                                                 <li class="nav-item">
-                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 14 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Application Submitted">
+                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 20 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Application Submitted">
                                                         <i class="ri-profile-line align-bottom"></i>
                                                     </button>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 28 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Applied for Job">
+                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 40 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Applied for Job">
                                                         <i class="ri-briefcase-5-line align-bottom"></i>
                                                     </button>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 42 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Shortlisted">
+                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 60 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Shortlisted">
                                                         <i class="ri-list-check-2 align-bottom"></i>
                                                     </button>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 57 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Interview Scheduled">
+                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 80 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Interview Scheduled">
                                                         <i class="ri-calendar-check-line align-bottom"></i>
                                                     </button>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 72 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Verification Checks">
-                                                        <i class="ri-shield-check-line align-bottom"></i>
-                                                    </button>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 86 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Interview Complete">
+                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 100 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Interview Complete">
                                                         <i class="ri-group-line align-bottom"></i>
                                                     </button>
                                                 </li>
                                                 <li class="nav-item">
-                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 100 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Contract Signed">
-                                                        <i class="ri-edit-line align-bottom"></i>
-                                                    </button>
-                                                </li>
-                                                <li class="nav-item">
-                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 100 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Appointed">
+                                                    <button class="nav-link rounded-pill {{ $progressBarWidth >= 100 && $applicant->vacanciesFilled && $applicant->vacanciesFilled->count() > 0 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Appointed">
                                                         <i class="ri-open-arm-line align-bottom"></i>
                                                     </button>
                                                 </li>

@@ -268,7 +268,7 @@
     </div>
 </div>
 
-<div class="row g-4 mb-4">
+<div class="row g-4 mb-4 d-none">
     <div class="col-md-12">
         <label class="form-label">
             Verification Checks
@@ -335,10 +335,6 @@
                     <button class="btn btn-secondary" id="interviewBtn">
                         <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
                         Interview
-                    </button>
-                    <button class="btn btn-danger" id="contractBtn">
-                        <i class="ri-edit-2-fill align-bottom me-1"></i> 
-                        Contract
                     </button>
                     <button class="btn btn-success" id="vacancyBtn">
                         <i class="ri-open-arm-fill align-bottom me-1"></i> 
@@ -508,49 +504,8 @@
     </div> <!-- end modal dialog-->
 </div>
 
-<!-- Contract Modal -->
-<div class="modal fade zoomIn" id="contractModal" tabindex="-1" role="dialog" aria-labelledby="contractModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="btn-close" id="contract-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
-            </div>
-            <div class="modal-body p-5 text-center">
-                <lord-icon src="https://cdn.lordicon.com/wzwygmng.json" trigger="loop" style="width:120px;height:120px"></lord-icon>
-                <div class="mt-4 text-center">
-                    <h4 class="fs-semibold">You are about to send a contract to these applicants !</h4>
-                    <p class="text-muted fs-14 mb-4 pt-1">Send contract for signing ?</p>
-                    <form id="formContract" enctype="multipart/form-data">
-                        @csrf
-                        <div class="mb-3" id="applicantsContractDiv">
-                            <label class="form-label" for="applicantsContract">Applicants</label>
-                            <select class="form-control" id="applicantsContract" name="applicants_contracts[]" multiple required></select>
-                        </div>
-                        <div class="mb-3">
-                            <input class="form-control" name="contract_file" type="file" multiple="multiple" accept=".pdf,.doc,.docx,.xls,.xlsx" required>
-                        </div>
-                        <div class="hstack gap-2 justify-content-center remove">
-                            <button class="btn btn-danger" data-bs-dismiss="modal" id="contract-close">
-                                <i class="ri-close-line me-1 align-middle"></i>
-                                Cancel
-                            </button>
-                            <button type="submit" class="btn btn-primary contract-send" id="contract-send">
-                                Send Contract !
-                            </button>
-                            <div class="spinner-border text-primary d-none" role="status" id="loading-contract">
-                                <span class="sr-only">Loading...</span>
-                            </div>
-                        </div>
-                    </form>                    
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<!--end contract modal -->
-
 <!-- Vacancy Fill -->
-<div class="modal fade zoomIn" id="vacancyModal" tabindex="-1" role="dialog" aria-labelledby="contractModalLabel" aria-hidden="true">
+<div class="modal fade zoomIn" id="vacancyModal" tabindex="-1" role="dialog" aria-labelledby="vacancyModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
             <div class="modal-header">
@@ -597,7 +552,7 @@
         </div>
     </div>
 </div>
-<!--end contract modal -->
+<!--end vacancy modal -->
 @endsection
 @section('script')
 <script type="text/javascript">
