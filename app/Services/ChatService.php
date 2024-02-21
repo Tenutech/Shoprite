@@ -13,6 +13,7 @@ use App\Models\Applicant;
 use App\Models\Notification;
 use App\Models\ChatTemplate;
 use App\Models\ScoreWeighting;
+use App\Models\ChatTotalData;
 use Twilio\Rest\Client;
 use App\Services\GoogleMapsService;
 use Illuminate\Support\Facades\File;
@@ -133,6 +134,22 @@ class ChatService
                 'type_id' => $type,
             ]);
             $chat->save();
+
+            $currentYear = Carbon::now()->year;
+            $currentMonth = strtolower(Carbon::now()->format('M'));
+
+            // Determine the fields to update based on the message type
+            $totalField = $type == 1 ? 'total_incoming' : 'total_outgoing';
+            $monthField = $type == 1 ? $currentMonth.'_incoming' : $currentMonth.'_outgoing';
+
+            $yearlyData = ChatTotalData::firstOrCreate(
+                ['year' => $currentYear]
+            );
+
+            // Increment the total and monthly counters
+            $yearlyData->increment($totalField);
+            $yearlyData->increment($monthField);
+    
         } catch (Exception $e) {
             Log::error("Error in logMessage: {$e->getMessage()}");
             throw new Exception('There was an error logging the message. Please try again later.');

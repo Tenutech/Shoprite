@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Support\Facades\Log;
+use App\Jobs\UpdateApplicantData;
 
 class Applicant extends Model
 {
@@ -89,7 +91,7 @@ class Applicant extends Model
     //Applicant Town
     public function town()
     {
-        return $this->belongsTo(Town::class);
+        return $this->belongsTo(Town::class, 'town_id');
     }
 
     //Applicant Gender
@@ -247,6 +249,93 @@ class Applicant extends Model
     public function vacanciesFilled()
     {
         return $this->belongsToMany(Vacancy::class, 'vacancy_fills', 'applicant_id', 'vacancy_id')->withTimestamps();
+    }
+
+    //Applicant Total Data
+    protected static function booted()
+    {
+        //Create Applicant
+        static::created(function ($applicant) {
+            // Dispatch the job when an applicant is created
+            UpdateApplicantData::dispatch($applicant->id, 'created');
+        });
+
+        //Update Appliant
+        static::updated(function ($applicant) {
+            // Dispatch the job when an applicant is updated
+            UpdateApplicantData::dispatch($applicant->id, 'updated');
+        });
+    }
+
+    //Applicant Monthly Data
+    protected static function updateMonthlyData($yearlyDataId, $categoryType, $categoryId)
+    {
+        if ($categoryId) {
+            $monthlyData = ApplicantMonthlyData::firstOrCreate([
+                'applicant_total_data_id' => $yearlyDataId,
+                'category_id' => $categoryId,
+                'category_type' => $categoryType,
+                'month' => now()->format('M')
+            ], [
+                'count' => 0 // default count
+            ]);
+
+            // Increment the count for the existing or newly created record
+            $monthlyData->increment('count');
+        }
+    }
+
+    //Handle Attribute Update 
+    protected static function handleAttributeUpdate($yearlyDataId, $attributeType, $applicant)
+    {
+        $attributeId = strtolower($attributeType) . "_id";
+        if ($applicant->wasChanged($attributeId)) {
+            $oldAttributeId = $applicant->getOriginal($attributeId);
+            $newAttributeId = $applicant->$attributeId;
+
+            if (!is_null($oldAttributeId)) {
+                self::adjustMonthlyData($yearlyDataId, $attributeType, $oldAttributeId, false);
+            }
+
+            if (!is_null($newAttributeId)) {
+                self::adjustMonthlyData($yearlyDataId, $attributeType, $newAttributeId, true);
+            }
+        }
+    }
+
+    //Handle Attribute Update For Province
+    protected static function handleAttributeUpdateForProvince($yearlyDataId, $applicant)
+    {
+        // This assumes province_id is determined via the town relationship
+        // Modify as necessary based on your actual data structure
+        if ($applicant->wasChanged('town_id')) {
+            $applicant->load('town');
+            $oldProvinceId = optional($applicant->getOriginal('town'))->province_id;
+            $newProvinceId = optional($applicant->town)->province_id;
+
+            if (!is_null($oldProvinceId)) {
+                self::adjustMonthlyData($yearlyDataId, 'Province', $oldProvinceId, false);
+            }
+
+            if (!is_null($newProvinceId)) {
+                self::adjustMonthlyData($yearlyDataId, 'Province', $newProvinceId, true);
+            }
+        }
+    }
+
+    //Adjust Monthly Data
+    protected static function adjustMonthlyData($yearlyDataId, $categoryType, $categoryId, $isIncrement)
+    {
+        $monthlyData = ApplicantMonthlyData::where([
+            'applicant_total_data_id' => $yearlyDataId,
+            'category_id' => $categoryId,
+            'category_type' => $categoryType,
+            'month' => now()->format('M')
+        ])->first();
+
+        if ($monthlyData) {
+            $isIncrement ? $monthlyData->increment('count') : $monthlyData->decrement('count', 1, ['count' => 0]);
+        }
     }
 
     /**

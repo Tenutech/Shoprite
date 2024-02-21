@@ -70,6 +70,10 @@ class LoginController extends Controller
 
     public function logout(Request $request)
     {
+        if (!Auth::check()) {
+            return redirect('/');
+        }
+
         $user = Auth::user();
         
         if ($user) {

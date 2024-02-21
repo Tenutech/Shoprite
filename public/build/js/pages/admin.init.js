@@ -8,6 +8,54 @@ File: job-statistics init js
 
 /*
 |--------------------------------------------------------------------------
+| Right Sidebar
+|--------------------------------------------------------------------------
+*/
+
+var layoutRightSideBtn = document.querySelector('.layout-rightside-btn');
+if (layoutRightSideBtn) {
+    Array.from(document.querySelectorAll(".layout-rightside-btn")).forEach(function (item) {
+        var userProfileSidebar = document.querySelector(".layout-rightside-col");
+        item.addEventListener("click", function () {
+            if (userProfileSidebar.classList.contains("d-block")) {
+                userProfileSidebar.classList.remove("d-block");
+                userProfileSidebar.classList.add("d-none");
+            } else {
+                userProfileSidebar.classList.remove("d-none");
+                userProfileSidebar.classList.add("d-block");
+            }
+        });
+    });
+    window.addEventListener("resize", function () {
+        var userProfileSidebar = document.querySelector(".layout-rightside-col");
+        if (userProfileSidebar) {
+            Array.from(document.querySelectorAll(".layout-rightside-btn")).forEach(function () {
+                if (window.outerWidth < 1699 || window.outerWidth > 3440) {
+                    userProfileSidebar.classList.remove("d-block");
+                } else if (window.outerWidth > 1699) {
+                    userProfileSidebar.classList.add("d-block");
+                }
+            });
+        }
+
+        var htmlAttr = document.documentElement;
+        if (htmlAttr.getAttribute("data-layout") == "semibox") {
+            userProfileSidebar.classList.remove("d-block");
+            userProfileSidebar.classList.add("d-none");
+        }
+    });
+    var overlay = document.querySelector('.overlay');
+    if (overlay) {
+        document.querySelector(".overlay").addEventListener("click", function () {
+            if (document.querySelector(".layout-rightside-col").classList.contains('d-block') == true) {
+                document.querySelector(".layout-rightside-col").classList.remove("d-block");
+            }
+        });
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
 | Colors Array
 |--------------------------------------------------------------------------
 */
@@ -226,25 +274,6 @@ if (areachartbitcoinColors) {
 |--------------------------------------------------------------------------
 */
 
-const saProvinces = [
-    "Eastern Cape",
-    "Free State",
-    "Gauteng",
-    "KwaZulu-Natal",
-    "Limpopo",
-    "Mpumalanga",
-    "North West",
-    "Northern Cape",
-    "Western Cape"
-];
-
-const saProvinceData = saProvinces.map(province => {
-    return {
-        x: province,
-        y: Math.floor(Math.random() * (5000 - 100 + 1)) + 100
-    };
-});
-
 function getLast12Months() {
     const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const currentDate = new Date();
@@ -270,7 +299,7 @@ function generateRandomData(length, min, max) {
 
 /*
 |--------------------------------------------------------------------------
-| Applicants Tree Map
+| Applicants Province Tree Map
 |--------------------------------------------------------------------------
 */
 
@@ -278,7 +307,7 @@ var chartTreemapDistributedColors = getChartColorsArray("applicants_treemap");
 if (chartTreemapDistributedColors) {
     var options = {
         series: [{
-            data: saProvinceData
+            data: applicantsPerProvince
         }],
         legend: {
             show: false
@@ -288,13 +317,6 @@ if (chartTreemapDistributedColors) {
             type: 'treemap',
             toolbar: {
                 show: false
-            }
-        },
-        title: {
-            text: 'Applicants Location',
-            align: 'center',
-            style: {
-                fontWeight: 500,
             }
         },
         colors: chartTreemapDistributedColors,
@@ -320,22 +342,7 @@ var applicantRaceChartsColors = getChartColorsArray("applicant_race");
 
 if (applicantRaceChartsColors) {
     var options = {
-        series: [{
-            name: 'African',
-            data: generateRandomData(12, 0, 300)
-        }, {
-            name: 'Coloured',
-            data: generateRandomData(12, 0, 220)
-        }, {
-            name: 'Indian',
-            data: generateRandomData(12, 0, 150)
-        }, {
-            name: 'White',
-            data: generateRandomData(12, 0, 160)
-        }, {
-            name: 'Asian',
-            data: generateRandomData(12, 0, 120)
-        }],
+        series: applicantsByRace,
         chart: {
             height: 341,
             type: 'radar',
@@ -394,7 +401,7 @@ if (linechartZoomColors) {
     var options = {
         series: [{
             name: 'Number',
-            data: generateRandomData(12, 15, 570)
+            data: totalApplicantsPerMonth
         }],
         chart: {
             type: 'area',
@@ -439,8 +446,7 @@ if (linechartZoomColors) {
             title: {
                 text: 'Number'
             },
-            min: 0,
-            max: 600
+            min: 0
         },
         tooltip: {
             shared: false,
@@ -480,10 +486,10 @@ if (totalCostColors) {
         },
         series: [{
             name: "Incoming",
-            data: generateRandomData(12, 542, 1900)
+            data: incomingMessages
         }, {
             name: "Outgoing",
-            data: generateRandomData(12, 612, 2347)
+            data: outgoingMessages
         }],
         title: {
             text: 'Messaging Traffic',
@@ -514,8 +520,7 @@ if (totalCostColors) {
             title: {
                 text: 'Number'
             },
-            min: 500,
-            max: 2500
+            min: 0,
         },
         legend: {
             position: 'top',
@@ -552,37 +557,7 @@ var areachartSalesColors = getChartColorsArray("applicant_positions");
 
 if (areachartSalesColors) {
     var options = {
-        series: [{
-            name: 'Packer',
-            data: generateRandomData(1, 0, 570)
-        }, {
-            name: 'Cashier',
-            data: generateRandomData(1, 0, 570)
-        }, {
-            name: 'Assistant',
-            data: generateRandomData(1, 0, 570)
-        }, {
-            name: 'Baker',
-            data: generateRandomData(1, 0, 570)
-        }, {
-            name: 'Butcher/Meat',
-            data: generateRandomData(1, 0, 570)
-        }, {
-            name: 'Technician',
-            data: generateRandomData(1, 0, 570)
-        }, {
-            name: 'General Assistant',
-            data: generateRandomData(1, 0, 570)
-        }, {
-            name: 'Deli, Bakery or Butchery Assistant',
-            data: generateRandomData(1, 0, 570)
-        }, {
-            name: 'Clerk',
-            data: generateRandomData(1, 0, 570)
-        }, {
-            name: 'Other',
-            data: generateRandomData(1, 0, 570)
-        }],
+        series: applicantsByPosition,
         chart: {
             type: 'bar',
             height: 341,
@@ -856,52 +831,4 @@ if (dountchartUserDeviceColors) {
     };
     var chart = new ApexCharts(document.querySelector("#applicant_device"), options);
     chart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Right Sidebar
-|--------------------------------------------------------------------------
-*/
-
-var layoutRightSideBtn = document.querySelector('.layout-rightside-btn');
-if (layoutRightSideBtn) {
-    Array.from(document.querySelectorAll(".layout-rightside-btn")).forEach(function (item) {
-        var userProfileSidebar = document.querySelector(".layout-rightside-col");
-        item.addEventListener("click", function () {
-            if (userProfileSidebar.classList.contains("d-block")) {
-                userProfileSidebar.classList.remove("d-block");
-                userProfileSidebar.classList.add("d-none");
-            } else {
-                userProfileSidebar.classList.remove("d-none");
-                userProfileSidebar.classList.add("d-block");
-            }
-        });
-    });
-    window.addEventListener("resize", function () {
-        var userProfileSidebar = document.querySelector(".layout-rightside-col");
-        if (userProfileSidebar) {
-            Array.from(document.querySelectorAll(".layout-rightside-btn")).forEach(function () {
-                if (window.outerWidth < 1699 || window.outerWidth > 3440) {
-                    userProfileSidebar.classList.remove("d-block");
-                } else if (window.outerWidth > 1699) {
-                    userProfileSidebar.classList.add("d-block");
-                }
-            });
-        }
-
-        var htmlAttr = document.documentElement;
-        if (htmlAttr.getAttribute("data-layout") == "semibox") {
-            userProfileSidebar.classList.remove("d-block");
-            userProfileSidebar.classList.add("d-none");
-        }
-    });
-    var overlay = document.querySelector('.overlay');
-    if (overlay) {
-        document.querySelector(".overlay").addEventListener("click", function () {
-            if (document.querySelector(".layout-rightside-col").classList.contains('d-block') == true) {
-                document.querySelector(".layout-rightside-col").classList.remove("d-block");
-            }
-        });
-    }
 }

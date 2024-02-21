@@ -192,39 +192,26 @@
                     </div>
                 </div>
                 <!--end col-->
+
                 <div class="col-xl-6">
                     <div class="card card-height-100">
                         <div class="card-header align-items-center d-flex">
                             <h4 class="card-title mb-0 flex-grow-1">
                                 Total Messages
-                            </h4>
-                            <div>
-                                <button type="button" class="btn btn-soft-secondary btn-sm">
-                                    ALL
-                                </button>
-                                <button type="button" class="btn btn-soft-secondary btn-sm">
-                                    1M
-                                </button>
-                                <button type="button" class="btn btn-soft-secondary btn-sm">
-                                    6M
-                                </button>
-                                <button type="button" class="btn btn-soft-primary btn-sm">
-                                    1Y
-                                </button>
-                            </div>                            
+                            </h4>                            
                         </div><!-- end card header -->
                         <div class="card-header p-0 border-0 bg-soft-light">
                             <div class="row g-0 text-center">
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
-                                        <h5 class="mb-1"><span class="counter-value" data-target="1675">0</span></h5>
+                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $totalIncomingMessages }}">0</span></h5>
                                         <p class="text-muted mb-0">Incoming</p>
                                     </div>
                                 </div>
                                 <!--end col-->
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
-                                        <h5 class="mb-1"><span class="counter-value" data-target="1821">0</span></h5>
+                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $totalOutgoingMessages }}">0</span></h5>
                                         <p class="text-muted mb-0">Outgoing</p>
                                     </div>
                                 </div>
@@ -252,7 +239,7 @@
                             </h4>
                         </div><!-- end card header -->
                         <div class="card-body pb-0">
-                            <div id="applicant_positions" data-colors='["#1abc9c", "#3498db", "#9b59b6", "#34495e", "#f1c40f", "#e67e22", "#e74c3c", "#ecf0f1", "#2ecc71", "#95a5a6"]' class="apex-charts" dir="ltr"></div>
+                            <div id="applicant_positions" data-colors='["#f5b041", "#1abc9c", "#3498db", "#9b59b6", "#34495e", "#f1c40f", "#e67e22", "#e74c3c", "#ecf0f1", "#2ecc71", "#95a5a6"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div><!-- end col -->
@@ -287,7 +274,7 @@
             -------------------------------------------------------------------------------------->
 
             <div class="row">
-                <div class="col-xxl-8">
+                <div class="col-xxl-12">
                     <!-- card -->
                     <div class="card card-height-100">
                         <div class="card-header align-items-center d-flex">
@@ -301,35 +288,42 @@
             
                             <div id="applicants-by-locations" data-colors='["#E5E8E8", "--vz-primary", "--vz-success"]' style="height: 269px" dir="ltr"></div>
             
+                            @php
+                                // Convert $applicantsPerProvince to a collection for easier manipulation
+                                $applicantsPerProvinceCollection = collect($applicantsPerProvince);
+                                $totalApplicants = $applicantsPerProvinceCollection->sum('y');
+                                $sortedProvinces = $applicantsPerProvinceCollection->sortByDesc('y')->take(3);
+                            @endphp
+
                             <div class="px-2 py-2 mt-4">
-                                <p class="mb-1">
-                                    Eastern Cape 
-                                    <span class="float-end">34%</span>
-                                </p>
-                                <div class="progress mt-1 mb-3" style="height: 6px;">
-                                    <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: 34%" aria-valuenow="34" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <p class="mb-1">
-                                    Guateng 
-                                    <span class="float-end">25%</span>
-                                </p>
-                                <div class="progress mt-1 mb-3" style="height: 6px;">
-                                    <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: 25%" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
-                                <p class="mb-1">
-                                    Western Cape 
-                                    <span class="float-end">15%</span>
-                                </p>
-                                <div class="progress mt-1 mb-3" style="height: 6px;">
-                                    <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" style="width: 15%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>
-                                </div>
+                                @foreach($sortedProvinces as $province)
+                                    @php
+                                    // Calculate the percentage of total applicants for each province
+                                    $percentage = number_format(($province['y'] / $totalApplicants) * 100, 2);
+                                    @endphp
+
+                                    <p class="mb-1">
+                                        {{ $province['x'] }}
+                                        <span class="float-end">{{ $percentage }}%</span>
+                                    </p>
+                                    <div class="progress mt-1 mb-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
+                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                @endforeach
                             </div>
+                            
                         </div>
                         <!-- end card body -->
                     </div>
                     <!-- end card -->
                 </div>
-                <div class="col-xl-4">
+
+                <!-------------------------------------------------------------------------------------
+                    Users by Device
+                -------------------------------------------------------------------------------------->
+
+                <div class="col-xl-4 d-none">
                     <div class="card card-height-100">
                         <div class="card-header align-items-center d-flex">
                             <h4 class="card-title mb-0 flex-grow-1">
@@ -853,10 +847,10 @@
                                 <li class="py-1">
                                     <a class="text-muted">
                                         <div class="row">
-                                            <div class="col-10">
+                                            <div class="col-9">
                                                 {{ $position->name }}
                                             </div>
-                                            <div class="col-2 text-end">
+                                            <div class="col-3 text-end">
                                                 ({{ $position->users_count }})
                                             </div>
                                         </div>
@@ -911,17 +905,24 @@
 @endsection
 @section('script')
 <script>
-    var applicantData = {
-        "Eastern Cape": 85000,
-        "Free State": 14250,
-        "Gauteng": 62500,
-        "KwaZulu-Natal": 12600,
-        "Limpopo": 14350,
-        "Mpumalanga": 10200,
-        "Northern Cape": 3000,
-        "North West": 12600,
-        "Western Cape": 37500
-    }
+    var applicantsPerProvince = @json($applicantsPerProvince);
+
+    var applicantsByRace = @json($applicantsByRace);
+    applicantsByRace.forEach(race => {
+        race.data = race.data.reverse();
+    });
+
+    var totalApplicantsPerMonth = @json($totalApplicantsPerMonth);
+
+    var incomingMessages = @json($incomingMessages);
+    var outgoingMessages = @json($outgoingMessages);
+
+    var applicantsByPosition = @json($applicantsByPosition);
+
+    var applicantData = applicantsPerProvince.reduce((accumulator, currentValue) => {
+        accumulator[currentValue.x] = currentValue.y;
+        return accumulator;
+    }, {});
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

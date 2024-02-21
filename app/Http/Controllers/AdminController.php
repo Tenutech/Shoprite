@@ -3,11 +3,15 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\Race;
 use App\Models\Message;
 use App\Models\Vacancy;
 use App\Models\Position;
 use App\Models\Applicant;
 use App\Models\Application;
+use App\Models\ChatTotalData;
+use App\Models\ApplicantTotalData;
+use App\Models\ApplicantMonthlyData;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -19,6 +23,7 @@ use Illuminate\Support\Facades\Session;
 use Spatie\Activitylog\Models\Activity;
 use App\Models\Language;
 use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class AdminController extends Controller
 {
@@ -253,9 +258,147 @@ class AdminController extends Controller
                 ->take(10)
                 ->get();
 
+            //Current Year
+            $currentYear = now()->year;
+            $currentMonth = now()->month - 1;
+            $previousYear = $currentYear - 1;
+
+            $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            // Determine months to query for the current year
+            $queryMonthsCurrentYear = array_slice($months, 0, $currentMonth + 1);
+            // Determine months to query for the previous year, excluding months overlapping with the current year
+            $queryMonthsPreviousYear = array_slice($months, $currentMonth + 1);
+
+            $currentYearData = ApplicantTotalData::where('year', $currentYear)->first();
+            $previousYearData = ApplicantTotalData::where('year', $currentYear - 1)->first();
+            $currentYearId = $currentYearData->id;
+            $previousYearId = $previousYearData->id;
+
+            $applicantsPerProvince = [];
+            $applicantsByRace = [];
+            $totalApplicantsPerMonth = [];
+
+            if ($currentYearData) {
+                // Fetch total applicants per province for the current year using the relation
+                $applicantsPerProvince = $currentYearData->monthlyData()
+                ->where('category_type', 'Province')
+                ->join('provinces', 'applicant_monthly_data.category_id', '=', 'provinces.id')
+                ->select('provinces.name', DB::raw('SUM(applicant_monthly_data.count) as total_applicants'))
+                ->groupBy('provinces.name')
+                ->get()
+                ->map(function ($item) {
+                    // Format for the chart
+                    return ['x' => $item->name, 'y' => (int) $item->total_applicants];
+                })
+                ->toArray();
+
+                // Fetch applicants by race for the current year
+                $applicantsByRaceCurrentYear = ApplicantMonthlyData::join('races', 'applicant_monthly_data.category_id', '=', 'races.id')
+                ->where('applicant_total_data_id', $currentYearId)
+                ->whereIn('month', $queryMonthsCurrentYear)
+                ->where('category_type', 'Race')
+                ->get(['races.name as race_name', 'applicant_monthly_data.month', 'applicant_monthly_data.count']);
+
+                // Fetch applicants by race for the previous year
+                $applicantsByRacePreviousYear = ApplicantMonthlyData::join('races', 'applicant_monthly_data.category_id', '=', 'races.id')
+                ->where('applicant_total_data_id', $previousYearId)
+                ->whereIn('month', $queryMonthsPreviousYear)
+                ->where('category_type', 'Race')
+                ->get(['races.name as race_name', 'applicant_monthly_data.month', 'applicant_monthly_data.count']);
+
+                // Combine both year's data
+                $combinedApplicantsByRace = $applicantsByRacePreviousYear->concat($applicantsByRaceCurrentYear);
+
+                // Initialize the series array for the chart                
+                $combinedApplicantsByRace->groupBy('race_name')->each(function ($items, $raceName) use (&$applicantsByRace, $months, $currentMonth) {
+                    $dataPoints = array_fill(0, count($months), 0); // Initialize with zeros for all months
+
+                    foreach ($items as $item) {
+                        $index = array_search($item->month, $months);
+                        if ($index !== false) {
+                            $dataPoints[$index] = (int) $item->count;
+                        }
+                    }
+
+                    // Adjust for the current year by slicing and rearranging months to start from the current month backwards
+                    $dataPoints = array_merge(array_slice($dataPoints, $currentMonth + 1), array_slice($dataPoints, 0, $currentMonth + 1));
+
+                    $applicantsByRace[] = [
+                        'name' => $raceName,
+                        'data' => array_reverse($dataPoints), // Reverse to start with the most recent month
+                    ];
+                });                
+
+                // Handle the previous year's data
+                if ($currentMonth < 11) {
+                    foreach (array_slice($months, $currentMonth + 1) as $month) {
+                        $monthKey = strtolower($month); // Convert month to the key format (e.g., 'jan', 'feb')
+                        $totalApplicantsPerMonth[] = $previousYearData->$monthKey ?? 0;
+                    }
+                }
+
+                // Add data for the current year up to the current month
+                foreach (array_slice($months, 0, $currentMonth + 1) as $month) {
+                    $monthKey = strtolower($month);
+                    $totalApplicantsPerMonth[] = $currentYearData->$monthKey ?? 0;
+                }
+            }
+
+            $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
+            ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
+            ->where('applicant_monthly_data.category_type', 'Position')
+            ->groupBy('positions.name')
+            ->get();
+
+            $applicantsByPosition = $positionsTotals->map(function ($item) {
+                return [
+                    'name' => $item->positionName,
+                    'data' => [$item->total]
+                ];
+            })->all();
+
+            //Message Data
+            $currentYearChatData = ChatTotalData::where('year', $currentYear)->first();
+            $previousYearChatData = ChatTotalData::where('year', $previousYear)->first();
+
+            $totalIncomingMessages = $currentYearChatData->total_incoming + $previousYearChatData->total_incoming;
+            $totalOutgoingMessages = $currentYearChatData->total_outgoing + $previousYearChatData->total_outgoing;
+
+            $incomingMessages = [];
+            $outgoingMessages = [];
+
+            if ($currentYearData) {
+                // Handle data from the previous year, if current month is not January
+                if ($currentMonth < 11) {
+                    foreach (array_slice($months, $currentMonth + 1) as $month) {
+                        $monthIncoming = strtolower($month) . '_incoming';
+                        $monthOutgoing = strtolower($month) . '_outgoing';
+                        $incomingMessages[] = $previousYearChatData->$monthIncoming ?? 0;
+                        $outgoingMessages[] = $previousYearChatData->$monthOutgoing ?? 0;
+                    }
+                }
+
+                // Add data for the current year, including the current month
+                foreach (array_slice($months, 0, $currentMonth + 1) as $month) {
+                    $monthIncoming = strtolower($month) . '_incoming';
+                    $monthOutgoing = strtolower($month) . '_outgoing';
+                    $incomingMessages[] = $currentYearChatData->$monthIncoming ?? 0;
+                    $outgoingMessages[] = $currentYearChatData->$monthOutgoing ?? 0;
+                }
+            }
+
             return view('admin/home',[
                 'activities' => $activities,
-                'positions' => $positions
+                'positions' => $positions,
+                'applicantsPerProvince' => $applicantsPerProvince,
+                'applicantsByRace' => $applicantsByRace,
+                'totalApplicantsPerMonth' => $totalApplicantsPerMonth,
+                'totalIncomingMessages' => $totalIncomingMessages,
+                'totalOutgoingMessages' => $totalOutgoingMessages,
+                'incomingMessages' => $incomingMessages,
+                'outgoingMessages' => $outgoingMessages,
+                'applicantsByPosition' => $applicantsByPosition,
             ]);
         }
         return view('404');
