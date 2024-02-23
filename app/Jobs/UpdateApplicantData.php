@@ -20,17 +20,20 @@ class UpdateApplicantData implements ShouldQueue
 
     protected $applicantId;
     protected $action;
+    protected $status;
 
     /**
      * Create a new job instance.
      *
      * @param int $applicantId
-     * @param string $action 'created' or 'updated'
+     * @param string $action 'created', 'updated', etc.
+     * @param string|null $status 'Application', 'Interviewed', 'Appointed', 'Rejected'
      */
-    public function __construct($applicantId, $action)
+    public function __construct($applicantId, $action, $status = null)
     {
         $this->applicantId = $applicantId;
         $this->action = $action;
+        $this->status = $status;
     }
 
     /*
@@ -56,7 +59,11 @@ class UpdateApplicantData implements ShouldQueue
         if ($this->action === 'created') {
             $this->handleCreation($applicant, $yearlyData);
         } elseif ($this->action === 'updated') {
-            $this->handleUpdate($applicant, $yearlyData);
+            if ($this->status) {
+                $this->handleStatusUpdate($yearlyData->id, $this->status);
+            } else {
+                $this->handleUpdate($applicant, $yearlyData);
+            }
         }
     }
 
@@ -131,5 +138,19 @@ class UpdateApplicantData implements ShouldQueue
         } else {
             $monthlyData->decrement('count');
         }
+    }
+
+    protected function handleStatusUpdate($yearlyDataId, $categoryType)
+    {
+        $monthlyData = ApplicantMonthlyData::firstOrCreate([
+            'applicant_total_data_id' => $yearlyDataId,
+            'category_id' => null,
+            'category_type' => $categoryType,
+            'month' => Carbon::now()->format('M'),
+        ], [
+            'count' => 0 // Ensures a default count is set if a new record is created
+        ]);
+
+        $monthlyData->increment('count');
     }
 }

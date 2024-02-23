@@ -13,6 +13,7 @@ use App\Models\ChatTemplate;
 use App\Models\Notification;
 use App\Jobs\SendWhatsAppMessage;
 use App\Jobs\SendWhatsAppFile;
+use App\Jobs\UpdateApplicantData;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -437,6 +438,9 @@ class InterviewController extends Controller
                 $notification->read = "No";
                 $notification->save();
             }
+
+            //Update Applicant Monthly Data
+            UpdateApplicantData::dispatch($interview->applicant->id, 'updated', 'Interviewed')->onQueue('default');
             
             return response()->json([
                 'success' => true,

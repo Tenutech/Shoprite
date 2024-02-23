@@ -59,14 +59,14 @@
                                     Applications
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-success mb-0"> 
-                                        <i class="ri-arrow-up-line align-middle"></i> 
-                                        16.24 % 
-                                    </span> vs. previous month
+                                    <span class="badge bg-light text-<?php echo e($percentMovementApplicationsPerMonth > 0 ? 'success' : 'danger'); ?> mb-0"> 
+                                        <i class="ri-arrow-<?php echo e($percentMovementApplicationsPerMonth > 0 ? 'up' : 'down'); ?>-line align-middle"></i> 
+                                        <?php echo e(abs($percentMovementApplicationsPerMonth)); ?> % 
+                                    </span>vs. previous month
                                 </p>
                             </div>
                             <div>
-                                <div class="apex-charts" data-colors='["--vz-success" , "--vz-transparent"]' dir="ltr" id="applications_sparkline_chart"></div>
+                                <div class="apex-charts" data-colors='["--vz-<?php echo e($percentMovementApplicationsPerMonth > 0 ? 'success' : 'danger'); ?>" , "--vz-transparent"]' dir="ltr" id="applications_sparkline_chart"></div>
                             </div>
                         </div>
                     </div>
@@ -80,14 +80,14 @@
                                     Interviewed
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-success mb-0"> 
-                                        <i class="ri-arrow-up-line align-middle"></i> 
-                                        34.24 % 
-                                    </span> vs. previous month
+                                    <span class="badge bg-light text-<?php echo e($percentMovementInterviewedPerMonth > 0 ? 'success' : 'danger'); ?> mb-0"> 
+                                        <i class="ri-arrow-<?php echo e($percentMovementInterviewedPerMonth > 0 ? 'up' : 'down'); ?>-line align-middle"></i> 
+                                        <?php echo e(abs($percentMovementInterviewedPerMonth)); ?> % 
+                                    </span>vs. previous month
                                 </p>
                             </div>
                             <div>
-                                <div class="apex-charts" data-colors='["--vz-success" , "--vz-transparent"]' dir="ltr" id="interviewed_sparkline_chart"></div>
+                                <div class="apex-charts" data-colors='["--vz-<?php echo e($percentMovementInterviewedPerMonth > 0 ? 'success' : 'danger'); ?>" , "--vz-transparent"]' dir="ltr" id="interviewed_sparkline_chart"></div>
                             </div>
                         </div>
                     </div>
@@ -101,15 +101,14 @@
                                     Hired
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-success mb-0"> 
-                                        <i class="ri-arrow-up-line align-middle"></i> 
-                                        6.67 % 
-                                    </span> 
-                                    vs. previous month
+                                    <span class="badge bg-light text-<?php echo e($percentMovementAppointedPerMonth > 0 ? 'success' : 'danger'); ?> mb-0"> 
+                                        <i class="ri-arrow-<?php echo e($percentMovementAppointedPerMonth > 0 ? 'up' : 'down'); ?>-line align-middle"></i> 
+                                        <?php echo e(abs($percentMovementAppointedPerMonth)); ?> % 
+                                    </span>vs. previous month
                                 </p>
                             </div>
                             <div>
-                                <div class="apex-charts" data-colors='["--vz-success" , "--vz-transparent"]' dir="ltr" id="hired_sparkline_chart"></div>
+                                <div class="apex-charts" data-colors='["--vz-<?php echo e($percentMovementAppointedPerMonth > 0 ? 'success' : 'danger'); ?>" , "--vz-transparent"]' dir="ltr" id="hired_sparkline_chart"></div>
                             </div>
                         </div>
                     </div>
@@ -123,14 +122,14 @@
                                     Rejected
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-danger mb-0"> 
-                                        <i class="ri-arrow-down-line align-middle"></i> 
-                                        3.24 % 
-                                    </span> vs. previous month
+                                    <span class="badge bg-light text-<?php echo e($percentMovementRejectedPerMonth > 0 ? 'success' : 'danger'); ?> mb-0"> 
+                                        <i class="ri-arrow-<?php echo e($percentMovementRejectedPerMonth > 0 ? 'up' : 'down'); ?>-line align-middle"></i> 
+                                        <?php echo e(abs($percentMovementRejectedPerMonth)); ?> % 
+                                    </span>vs. previous month
                                 </p>
                             </div>
                             <div>
-                                <div class="apex-charts" data-colors='["--vz-danger", "--vz-transparent"]' dir="ltr" id="rejected_sparkline_chart"></div>
+                                <div class="apex-charts" data-colors='["--vz-<?php echo e($percentMovementRejectedPerMonth > 0 ? 'success' : 'danger'); ?>", "--vz-transparent"]' dir="ltr" id="rejected_sparkline_chart"></div>
                             </div>
                         </div>
                     </div>
@@ -226,24 +225,11 @@
             <!--end row-->
 
             <!-------------------------------------------------------------------------------------
-                Positions
+                Jobs Summary
             -------------------------------------------------------------------------------------->
 
             <div class="row">
-                <div class="col-xxl-4 col-md-6">
-                    <div class="card card-height-100">
-                        <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">
-                                Applicant Positions
-                            </h4>
-                        </div><!-- end card header -->
-                        <div class="card-body pb-0">
-                            <div id="applicant_positions" data-colors='["#f5b041", "#1abc9c", "#3498db", "#9b59b6", "#34495e", "#f1c40f", "#e67e22", "#e74c3c", "#ecf0f1", "#2ecc71", "#95a5a6"]' class="apex-charts" dir="ltr"></div>
-                        </div><!-- end card body -->
-                    </div><!-- end card -->
-                </div><!-- end col -->
-            
-                <div class="col-xxl-8 col-md-6">
+                <div class="col-xxl-12 col-md-12">
                     <div class="card card-height-100">
                         <div class="card-header align-items-center d-flex">
                             <h4 class="card-title mb-0 flex-grow-1">Jobs Summary</h4>
@@ -273,7 +259,7 @@
             -------------------------------------------------------------------------------------->
 
             <div class="row">
-                <div class="col-xxl-12">
+                <div class="col-xl-8">
                     <!-- card -->
                     <div class="card card-height-100">
                         <div class="card-header align-items-center d-flex">
@@ -320,86 +306,18 @@
                 </div>
 
                 <!-------------------------------------------------------------------------------------
-                    Users by Device
+                    Applicant Positions
                 -------------------------------------------------------------------------------------->
 
-                <div class="col-xl-4 d-none">
+                <div class="col-xl-4">
                     <div class="card card-height-100">
                         <div class="card-header align-items-center d-flex">
                             <h4 class="card-title mb-0 flex-grow-1">
-                                Users by Device
+                                Applicant Positions
                             </h4>
                         </div><!-- end card header -->
                         <div class="card-body">
-                            <div id="applicant_device" data-colors='["--vz-primary", "--vz-warning", "--vz-info"]'
-                                class="apex-charts" dir="ltr"></div>
-        
-                            <div class="table-responsive mt-3">
-                                <table class="table table-borderless table-sm table-centered align-middle table-nowrap mb-0">
-                                    <tbody class="border-0">
-                                        <tr>
-                                            <td>
-                                                <h4 class="text-truncate fs-14 mb-0">
-                                                    <i class="ri-stop-fill align-middle fs-18 text-primary me-2"></i>Desktop
-                                                    Users
-                                                </h4>
-                                            </td>
-                                            <td>
-                                                <p class="text-muted mb-0">
-                                                    <i data-feather="users" class="me-2 icon-sm"></i>
-                                                    78.56k
-                                                </p>
-                                            </td>
-                                            <td class="text-end">
-                                                <p class="text-success fw-medium fs-13 mb-0">
-                                                    <i class="ri-arrow-up-s-fill fs-5 align-middle"></i>
-                                                    2.08%
-                                                </p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <h4 class="text-truncate fs-14 mb-0">
-                                                    <i class="ri-stop-fill align-middle fs-18 text-warning me-2"></i>Mobile
-                                                    Users
-                                                </h4>
-                                            </td>
-                                            <td>
-                                                <p class="text-muted mb-0">
-                                                    <i data-feather="users" class="me-2 icon-sm"></i>
-                                                    105.02k
-                                                </p>
-                                            </td>
-                                            <td class="text-end">
-                                                <p class="text-danger fw-medium fs-13 mb-0">
-                                                    <i class="ri-arrow-down-s-fill fs-5 align-middle"></i>
-                                                    10.52%
-                                                </p>
-                                            </td>
-                                        </tr>
-                                        <tr>
-                                            <td>
-                                                <h4 class="text-truncate fs-14 mb-0">
-                                                    <i class="ri-stop-fill align-middle fs-18 text-info me-2"></i>
-                                                    Tablet Users
-                                                </h4>
-                                            </td>
-                                            <td>
-                                                <p class="text-muted mb-0">
-                                                    <i data-feather="users" class="me-2 icon-sm"></i>
-                                                    42.89k
-                                                </p>
-                                            </td>
-                                            <td class="text-end">
-                                                <p class="text-danger fw-medium fs-13 mb-0">
-                                                    <i class="ri-arrow-down-s-fill fs-5 align-middle"></i>
-                                                    7.36%
-                                                </p>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            <div id="applicant_positions" data-colors='["#f5b041", "#1abc9c", "#3498db", "#9b59b6", "#34495e", "#f1c40f", "#e67e22", "#e74c3c", "#ecf0f1", "#2ecc71", "#95a5a6"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div><!-- end col -->
@@ -944,6 +862,11 @@
         accumulator[currentValue.x] = currentValue.y;
         return accumulator;
     }, {});
+
+    var applicationsPerMonth = <?php echo json_encode($applicationsPerMonth, 15, 512) ?>;
+    var interviewedPerMonth = <?php echo json_encode($interviewedPerMonth, 15, 512) ?>;
+    var appointedPerMonth = <?php echo json_encode($appointedPerMonth, 15, 512) ?>;
+    var rejectedPerMonth = <?php echo json_encode($rejectedPerMonth, 15, 512) ?>;
 </script>
 <!-- sweet alert -->
 <script src="<?php echo e(URL::asset('build/libs/sweetalert2/sweetalert2.min.js')); ?>"></script>

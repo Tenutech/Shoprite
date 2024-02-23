@@ -278,6 +278,10 @@ class AdminController extends Controller
             $applicantsPerProvince = [];
             $applicantsByRace = [];
             $totalApplicantsPerMonth = [];
+            $applicationsPerMonth = [];
+            $interviewedPerMonth = [];
+            $appointedPerMonth = [];
+            $rejectedPerMonth = [];
 
             if ($currentYearData) {
                 // Fetch total applicants per province for the current year using the relation
@@ -328,7 +332,7 @@ class AdminController extends Controller
                         'name' => $raceName,
                         'data' => array_reverse($dataPoints), // Reverse to start with the most recent month
                     ];
-                });                
+                });           
 
                 // Handle the previous year's data
                 if ($currentMonth < 11) {
@@ -343,20 +347,171 @@ class AdminController extends Controller
                     $monthKey = strtolower($month);
                     $totalApplicantsPerMonth[] = $currentYearData->$monthKey ?? 0;
                 }
+
+                // Fetch application data for the current year
+                $applicationsCurrentYear = ApplicantMonthlyData::where('category_type', 'Application')
+                ->where('applicant_total_data_id', $currentYearId)
+                ->whereIn('month', $queryMonthsCurrentYear)
+                ->get(['month', 'count']);
+
+                // Fetch application data for the previous year
+                $applicationsPreviousYear = ApplicantMonthlyData::where('category_type', 'Application')
+                ->where('applicant_total_data_id', $previousYearId)
+                ->whereIn('month', $queryMonthsPreviousYear)
+                ->get(['month', 'count']);
+
+                // Combine both year's data
+                $combinedApplications = $applicationsPreviousYear->concat($applicationsCurrentYear);
+
+                // Process the combined data for visualization
+                $combinedApplications->groupBy('month')->each(function ($items, $month) use (&$applicationsPerMonth, $months) {
+                    $totalApplications = $items->sum('count'); // Sum up applications for the month
+
+                    $index = array_search($month, $months);
+                    if ($index !== false) {
+                        $applicationsPerMonth[] = $totalApplications;
+                    }
+                });
+
+                //Percent movement from last month
+                $sumOfApplications = array_sum($applicationsPerMonth);
+
+                if(count($applicationsPerMonth) >= 2) {
+                    $lastMonthApplications = end($applicationsPerMonth);
+                    $penultimateMonthApplications = $applicationsPerMonth[count($applicationsPerMonth) - 2];
+                
+                    if($sumOfApplications > 0) {
+                        $percentMovementApplicationsPerMonth = round((($lastMonthApplications - $penultimateMonthApplications) / $sumOfApplications) * 100, 2);
+                    } else {
+                        $percentMovementApplicationsPerMonth = 0;
+                    }
+                } else {
+                    $percentMovementApplicationsPerMonth = 0;
+                }
+
+                // Fetch interview data for the current year
+                $interviewsCurrentYear = ApplicantMonthlyData::where('category_type', 'Interviewed')
+                ->where('applicant_total_data_id', $currentYearId)
+                ->whereIn('month', $queryMonthsCurrentYear)
+                ->get(['month', 'count']);
+
+                // Fetch interview data for the previous year
+                $interviewsPreviousYear = ApplicantMonthlyData::where('category_type', 'Interviewed')
+                ->where('applicant_total_data_id', $previousYearId)
+                ->whereIn('month', $queryMonthsPreviousYear)
+                ->get(['month', 'count']);
+
+                // Combine both year's data
+                $combinedInterviews = $interviewsPreviousYear->concat($interviewsCurrentYear);
+
+                // Process the combined data for visualization
+                $combinedInterviews->groupBy('month')->each(function ($items, $month) use (&$interviewedPerMonth, $months) {
+                $totalInterviews = $items->sum('count'); // Sum up interviews for the month
+
+                $index = array_search($month, $months);
+                    if ($index !== false) {
+                        $interviewedPerMonth[] = $totalInterviews;
+                    }
+                });
+
+                //Percent movement from last month
+                $sumOfInterviewed = array_sum($interviewedPerMonth);
+
+                if(count($interviewedPerMonth) >= 2) {
+                    $lastMonthInterviewed = end($interviewedPerMonth);
+                    $penultimateMonthInterviewed = $interviewedPerMonth[count($interviewedPerMonth) - 2];
+                
+                    if($sumOfInterviewed > 0) {
+                        $percentMovementInterviewedPerMonth = round((($lastMonthInterviewed - $penultimateMonthInterviewed) / $sumOfInterviewed) * 100, 2);
+                    } else {
+                        $percentMovementInterviewedPerMonth = 0;
+                    }
+                } else {
+                    $percentMovementInterviewedPerMonth = 0;
+                }
+
+                // Fetch appointed data for the current year
+                $appointedCurrentYear = ApplicantMonthlyData::where('category_type', 'Appointed')
+                ->where('applicant_total_data_id', $currentYearId)
+                ->whereIn('month', $queryMonthsCurrentYear)
+                ->get(['month', 'count']);
+
+                // Fetch appointed data for the previous year
+                $appointedPreviousYear = ApplicantMonthlyData::where('category_type', 'Appointed')
+                ->where('applicant_total_data_id', $previousYearId)
+                ->whereIn('month', $queryMonthsPreviousYear)
+                ->get(['month', 'count']);
+
+                // Combine both year's data
+                $combinedAppointed = $appointedPreviousYear->concat($appointedCurrentYear);
+
+                // Process the combined data for visualization
+                $combinedAppointed->groupBy('month')->each(function ($items, $month) use (&$appointedPerMonth, $months) {
+                $totalAppointed = $items->sum('count'); // Sum up appointed for the month
+
+                $index = array_search($month, $months);
+                    if ($index !== false) {
+                        $appointedPerMonth[] = $totalAppointed;
+                    }
+                });
+
+                //Percent movement from last month
+                $sumOfAppointed = array_sum($appointedPerMonth);
+
+                if(count($appointedPerMonth) >= 2) {
+                    $lastMonthAppointed = end($appointedPerMonth);
+                    $penultimateMonthAppointed = $appointedPerMonth[count($appointedPerMonth) - 2];
+                
+                    if($sumOfAppointed > 0) {
+                        $percentMovementAppointedPerMonth = round((($lastMonthAppointed - $penultimateMonthAppointed) / $sumOfAppointed) * 100, 2);
+                    } else {
+                        $percentMovementAppointedPerMonth = 0;
+                    }
+                } else {
+                    $percentMovementAppointedPerMonth = 0;
+                }
+
+                // Fetch rejected data for the current year
+                $rejectedCurrentYear = ApplicantMonthlyData::where('category_type', 'Rejected')
+                ->where('applicant_total_data_id', $currentYearId)
+                ->whereIn('month', $queryMonthsCurrentYear)
+                ->get(['month', 'count']);
+
+                // Fetch rejected data for the previous year
+                $rejectedPreviousYear = ApplicantMonthlyData::where('category_type', 'Rejected')
+                ->where('applicant_total_data_id', $previousYearId)
+                ->whereIn('month', $queryMonthsPreviousYear)
+                ->get(['month', 'count']);
+
+                // Combine both year's data
+                $combinedRejected = $rejectedPreviousYear->concat($rejectedCurrentYear);
+
+                // Process the combined data for visualization
+                $combinedRejected->groupBy('month')->each(function ($items, $month) use (&$rejectedPerMonth, $months) {
+                $totalRejected = $items->sum('count'); // Sum up rejected for the month
+
+                $index = array_search($month, $months);
+                    if ($index !== false) {
+                        $rejectedPerMonth[] = $totalRejected;
+                    }
+                });
+
+                //Percent movement from last month
+                $sumOfRejected = array_sum($rejectedPerMonth);
+
+                if(count($rejectedPerMonth) >= 2) {
+                    $lastMonthRejected = end($rejectedPerMonth);
+                    $penultimateMonthRejected = $rejectedPerMonth[count($rejectedPerMonth) - 2];
+                
+                    if($sumOfRejected > 0) {
+                        $percentMovementRejectedPerMonth = round((($lastMonthRejected - $penultimateMonthRejected) / $sumOfRejected) * 100, 2);
+                    } else {
+                        $percentMovementRejectedPerMonth = 0;
+                    }
+                } else {
+                    $percentMovementRejectedPerMonth = 0;
+                }
             }
-
-            $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
-            ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
-            ->where('applicant_monthly_data.category_type', 'Position')
-            ->groupBy('positions.name')
-            ->get();
-
-            $applicantsByPosition = $positionsTotals->map(function ($item) {
-                return [
-                    'name' => $item->positionName,
-                    'data' => [$item->total]
-                ];
-            })->all();
 
             //Message Data
             $currentYearChatData = ChatTotalData::where('year', $currentYear)->first();
@@ -388,6 +543,20 @@ class AdminController extends Controller
                 }
             }
 
+            // Fetch applicants positions
+            $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
+            ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
+            ->where('applicant_monthly_data.category_type', 'Position')
+            ->groupBy('positions.name')
+            ->get();
+
+            $applicantsByPosition = $positionsTotals->map(function ($item) {
+                return [
+                    'name' => $item->positionName,
+                    'data' => [$item->total]
+                ];
+            })->all();
+
             return view('admin/home',[
                 'activities' => $activities,
                 'positions' => $positions,
@@ -399,6 +568,14 @@ class AdminController extends Controller
                 'incomingMessages' => $incomingMessages,
                 'outgoingMessages' => $outgoingMessages,
                 'applicantsByPosition' => $applicantsByPosition,
+                'applicationsPerMonth' => $applicationsPerMonth,
+                'interviewedPerMonth' => $interviewedPerMonth,
+                'appointedPerMonth' => $appointedPerMonth,
+                'rejectedPerMonth' => $rejectedPerMonth,
+                'percentMovementApplicationsPerMonth' => $percentMovementApplicationsPerMonth,
+                'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
+                'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
+                'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
             ]);
         }
         return view('404');

@@ -86,7 +86,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#checks-tab" role="tab">
+                            <a class="nav-link fs-14 applicant-tab d-none" data-bs-toggle="tab" href="#checks-tab" role="tab">
                                 <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">Checks</span>
                             </a>
@@ -1394,7 +1394,7 @@
                         Checks Tab
                     -------------------------------------------------------------------------------------->
 
-                    <div class="tab-pane fade" id="checks-tab" role="tabpanel">
+                    <div class="tab-pane fade d-none" id="checks-tab" role="tabpanel">
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-4">

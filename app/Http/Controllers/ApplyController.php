@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Models\Vacancy;
 use App\Models\Application;
 use App\Models\Notification;
+use App\Jobs\UpdateApplicantData;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
@@ -50,6 +51,9 @@ class ApplyController extends Controller
             //User
             $user = User::findOrFail($userID);
 
+            //Applicant ID
+            $applicatId = $user->applicant_id;
+
             //Vacancy
             $vacancy = Vacancy::findOrFail($vacancyID);
 
@@ -64,15 +68,20 @@ class ApplyController extends Controller
                     'approved' => 'Pending'
                 ]);
 
-                // Create Notification
-                $notification = new Notification();
-                $notification->user_id = $vacancy->user_id;
-                $notification->causer_id = $userID;
-                $notification->subject()->associate($application); // Assuming you want to associate the notification with the vacancy
-                $notification->type_id = 1;
-                $notification->notification = "Has applied for vacancy 🔔";
-                $notification->read = "No";
-                $notification->save();
+                if ($application->wasRecentlyCreated) {
+                    // Create Notification
+                    $notification = new Notification();
+                    $notification->user_id = $vacancy->user_id;
+                    $notification->causer_id = $userID;
+                    $notification->subject()->associate($application); // Assuming you want to associate the notification with the vacancy
+                    $notification->type_id = 1;
+                    $notification->notification = "Has applied for vacancy 🔔";
+                    $notification->read = "No";
+                    $notification->save();
+
+                    //Update Applicant Monthly Data
+                    UpdateApplicantData::dispatch($applicatId, 'updated', 'Application')->onQueue('default');
+                }
             }
 
             // Retrieve the application record

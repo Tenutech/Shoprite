@@ -323,6 +323,9 @@ class VacancyController extends Controller
                             $notification->save();
                         }
 
+                        //Update Applicant Monthly Data
+                        UpdateApplicantData::dispatch($applicant->id, 'updated', 'Appointed')->onQueue('default');
+
                         // Constructing the WhatsApp message
                         $whatsappMessage = "Congratulations {$applicant->firstname}! You have been appointed for the position of " . 
                         "{$vacancy->position->name} at " . 
@@ -357,6 +360,9 @@ class VacancyController extends Controller
                                     $notification->read = "No";
                                     $notification->save();
                                 }
+
+                                //Update Applicant Monthly Data
+                                UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected')->onQueue('default');
                             }
                         }
                     }

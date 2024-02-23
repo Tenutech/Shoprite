@@ -8,54 +8,6 @@ File: job-statistics init js
 
 /*
 |--------------------------------------------------------------------------
-| Right Sidebar
-|--------------------------------------------------------------------------
-*/
-
-var layoutRightSideBtn = document.querySelector('.layout-rightside-btn');
-if (layoutRightSideBtn) {
-    Array.from(document.querySelectorAll(".layout-rightside-btn")).forEach(function (item) {
-        var userProfileSidebar = document.querySelector(".layout-rightside-col");
-        item.addEventListener("click", function () {
-            if (userProfileSidebar.classList.contains("d-block")) {
-                userProfileSidebar.classList.remove("d-block");
-                userProfileSidebar.classList.add("d-none");
-            } else {
-                userProfileSidebar.classList.remove("d-none");
-                userProfileSidebar.classList.add("d-block");
-            }
-        });
-    });
-    window.addEventListener("resize", function () {
-        var userProfileSidebar = document.querySelector(".layout-rightside-col");
-        if (userProfileSidebar) {
-            Array.from(document.querySelectorAll(".layout-rightside-btn")).forEach(function () {
-                if (window.outerWidth < 1699 || window.outerWidth > 3440) {
-                    userProfileSidebar.classList.remove("d-block");
-                } else if (window.outerWidth > 1699) {
-                    userProfileSidebar.classList.add("d-block");
-                }
-            });
-        }
-
-        var htmlAttr = document.documentElement;
-        if (htmlAttr.getAttribute("data-layout") == "semibox") {
-            userProfileSidebar.classList.remove("d-block");
-            userProfileSidebar.classList.add("d-none");
-        }
-    });
-    var overlay = document.querySelector('.overlay');
-    if (overlay) {
-        document.querySelector(".overlay").addEventListener("click", function () {
-            if (document.querySelector(".layout-rightside-col").classList.contains('d-block') == true) {
-                document.querySelector(".layout-rightside-col").classList.remove("d-block");
-            }
-        });
-    }
-}
-
-/*
-|--------------------------------------------------------------------------
 | Colors Array
 |--------------------------------------------------------------------------
 */
@@ -86,6 +38,27 @@ function getChartColorsArray(chartId) {
 
 /*
 |--------------------------------------------------------------------------
+| Get Last 5 Months
+|--------------------------------------------------------------------------
+*/
+
+function getLast5Months() {
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    
+    let months = [];
+    for (let i = 4; i >= 0; i--) {
+        let monthIndex = (currentMonth - i + 12) % 12;
+        let year = currentYear - (currentMonth < i ? 1 : 0);
+        months.push(`${monthNames[monthIndex]} '${year.toString().slice(-2)}`);
+    }    
+    return months;
+}
+
+/*
+|--------------------------------------------------------------------------
 | Applications Sparkline Chart
 |--------------------------------------------------------------------------
 */
@@ -94,8 +67,8 @@ var areachartbitcoinColors = getChartColorsArray("applications_sparkline_chart")
 if (areachartbitcoinColors) {
     var options = {
         series: [{
-            name: "Results",
-            data: [0, 110, 95, 75, 120],
+            name: "Applications",
+            data: applicationsPerMonth.slice(-5),
         },],
         chart: {
             width: 140,
@@ -125,6 +98,9 @@ if (areachartbitcoinColors) {
             },
         },
         colors: areachartbitcoinColors,
+        xaxis: {
+            categories: getLast5Months(),
+        }
     };
     var chart = new ApexCharts(document.querySelector("#applications_sparkline_chart"), options);
     chart.render();
@@ -140,8 +116,8 @@ var areachartbitcoinColors = getChartColorsArray("interviewed_sparkline_chart");
 if (areachartbitcoinColors) {
     var options = {
         series: [{
-            name: "Results",
-            data: [0, 68, 35, 90, 99],
+            name: "Interviewed",
+            data: interviewedPerMonth.slice(-5),
         },],
         chart: {
             width: 140,
@@ -171,6 +147,9 @@ if (areachartbitcoinColors) {
             },
         },
         colors: areachartbitcoinColors,
+        xaxis: {
+            categories: getLast5Months(),
+        }
     };
     var chart = new ApexCharts(document.querySelector("#interviewed_sparkline_chart"), options);
     chart.render();
@@ -186,8 +165,8 @@ var areachartbitcoinColors = getChartColorsArray("hired_sparkline_chart");
 if (areachartbitcoinColors) {
     var options = {
         series: [{
-            name: "Results",
-            data: [0, 36, 110, 95, 130],
+            name: "Appointed",
+            data: appointedPerMonth.slice(-5),
         },],
         chart: {
             width: 140,
@@ -217,6 +196,9 @@ if (areachartbitcoinColors) {
             },
         },
         colors: areachartbitcoinColors,
+        xaxis: {
+            categories: getLast5Months(),
+        }
     };
     var chart = new ApexCharts(document.querySelector("#hired_sparkline_chart"), options);
     chart.render();
@@ -232,8 +214,8 @@ var areachartbitcoinColors = getChartColorsArray("rejected_sparkline_chart");
 if (areachartbitcoinColors) {
     var options = {
         series: [{
-            name: "Results",
-            data: [0, 98, 85, 90, 67],
+            name: "Rejected",
+            data: rejectedPerMonth.slice(-5),
         },],
         chart: {
             width: 140,
@@ -263,6 +245,9 @@ if (areachartbitcoinColors) {
             },
         },
         colors: areachartbitcoinColors,
+        xaxis: {
+            categories: getLast5Months(),
+        }
     };
     var chart = new ApexCharts(document.querySelector("#rejected_sparkline_chart"), options);
     chart.render();
@@ -640,19 +625,19 @@ var revenueExpensesChartsColors = getChartColorsArray("jobs_chart");
 if (revenueExpensesChartsColors) {
     var options = {
         series: [{
-            name: 'Application Sent  ',
-            data: generateRandomData(12, 40000, 50000)
+            name: 'Applications',
+            data: applicationsPerMonth
         }, {
-            name: ' Interviews',
-            data: generateRandomData(12, 0, 40000)
+            name: 'Interviews',
+            data: interviewedPerMonth
         },
         {
-            name: ' Hired',
-            data: generateRandomData(12, 0, 20000)
+            name: 'Hired',
+            data: appointedPerMonth
         },
         {
-            name: ' Rejected',
-            data: generateRandomData(12, 0, 10000)
+            name: 'Rejected',
+            data: rejectedPerMonth
         }],
         chart: {
             height: 320,
@@ -831,4 +816,52 @@ if (dountchartUserDeviceColors) {
     };
     var chart = new ApexCharts(document.querySelector("#applicant_device"), options);
     chart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Right Sidebar
+|--------------------------------------------------------------------------
+*/
+
+var layoutRightSideBtn = document.querySelector('.layout-rightside-btn');
+if (layoutRightSideBtn) {
+    Array.from(document.querySelectorAll(".layout-rightside-btn")).forEach(function (item) {
+        var userProfileSidebar = document.querySelector(".layout-rightside-col");
+        item.addEventListener("click", function () {
+            if (userProfileSidebar.classList.contains("d-block")) {
+                userProfileSidebar.classList.remove("d-block");
+                userProfileSidebar.classList.add("d-none");
+            } else {
+                userProfileSidebar.classList.remove("d-none");
+                userProfileSidebar.classList.add("d-block");
+            }
+        });
+    });
+    window.addEventListener("resize", function () {
+        var userProfileSidebar = document.querySelector(".layout-rightside-col");
+        if (userProfileSidebar) {
+            Array.from(document.querySelectorAll(".layout-rightside-btn")).forEach(function () {
+                if (window.outerWidth < 1699 || window.outerWidth > 3440) {
+                    userProfileSidebar.classList.remove("d-block");
+                } else if (window.outerWidth > 1699) {
+                    userProfileSidebar.classList.add("d-block");
+                }
+            });
+        }
+
+        var htmlAttr = document.documentElement;
+        if (htmlAttr.getAttribute("data-layout") == "semibox") {
+            userProfileSidebar.classList.remove("d-block");
+            userProfileSidebar.classList.add("d-none");
+        }
+    });
+    var overlay = document.querySelector('.overlay');
+    if (overlay) {
+        document.querySelector(".overlay").addEventListener("click", function () {
+            if (document.querySelector(".layout-rightside-col").classList.contains('d-block') == true) {
+                document.querySelector(".layout-rightside-col").classList.remove("d-block");
+            }
+        });
+    }
 }
