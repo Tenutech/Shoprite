@@ -9,6 +9,7 @@ use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Position;
+use App\Models\Applicant;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -82,6 +83,9 @@ class RegisterController extends Controller
             $avatarName = 'avatar.jpg';
         }
 
+        // Check if an applicant exists with the given id_number
+        $applicant = Applicant::where('id_number', $data['id_number'])->first();
+
         $user = User::create([
             'firstname' => ucwords($data['firstname']),
             'lastname' => ucwords($data['lastname']),
@@ -91,6 +95,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
             'avatar' =>  $avatarName,
             'role_id' => 4,
+            'applicant_id' => $applicant ? $applicant->id : null,
             'ststus_id' => 1
         ]);
 
