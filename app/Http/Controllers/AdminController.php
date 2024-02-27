@@ -560,6 +560,8 @@ class AdminController extends Controller
             return view('admin/home',[
                 'activities' => $activities,
                 'positions' => $positions,
+                'currentYearData' => $currentYearData,
+                'previousYearData' => $previousYearData,
                 'applicantsPerProvince' => $applicantsPerProvince,
                 'applicantsByRace' => $applicantsByRace,
                 'totalApplicantsPerMonth' => $totalApplicantsPerMonth,

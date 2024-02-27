@@ -194,7 +194,7 @@ class ShortlistController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Applicants
+    | Applicants (Generate Shortlist)
     |--------------------------------------------------------------------------
     */
 
@@ -206,6 +206,21 @@ class ShortlistController extends Controller
 
             // Vacancy ID
             $vacancyID = $request->input('vacancy_id');
+
+            // Check for existing shortlist and update applicants if needed
+            $existingShortlist = Shortlist::where('user_id', $userID)->where('vacancy_id', $vacancyID)->first();
+
+            if ($existingShortlist) {
+                // Identify applicants to be updated
+                $applicantsToUpdate = Applicant::where('shortlist_id', $existingShortlist->id)
+                                                ->whereNull('appointed_id')
+                                                ->get();
+    
+                // Set shortlist_id to null for applicants with non-null appointed_id
+                foreach ($applicantsToUpdate as $applicant) {
+                    $applicant->update(['shortlist_id' => null]);
+                }
+            }
 
             //Applicants
             $query = Applicant::with([
@@ -240,6 +255,8 @@ class ShortlistController extends Controller
                     $query->where('user_id', $userID);
                 }
             ])
+            ->whereNull('shortlist_id')
+            ->whereNull('appointed_id')
             ->orderBy('score', 'desc');
 
             // Check if shortlist_type_id is 1 and vacancy_id is provided
@@ -324,7 +341,10 @@ class ShortlistController extends Controller
                 'vacancy_id' => $vacancyID,
                 'applicant_ids' => json_encode($applicantIds)
             ];
-            Shortlist::updateOrCreate(['user_id' => $userID, 'vacancy_id' => $vacancyID], $shortlistData);
+            $shortlist = Shortlist::updateOrCreate(['user_id' => $userID, 'vacancy_id' => $vacancyID], $shortlistData);
+
+            // Update all the applicants with the shortlist_id
+            Applicant::whereIn('id', $applicantIds)->update(['shortlist_id' => $shortlist->id]);
 
             return response()->json([
                 'success' => true,
@@ -505,6 +525,9 @@ class ShortlistController extends Controller
             // Update the shortlist
             $shortlist->applicant_ids = $updatedApplicantIDs->toJson();
             $shortlist->save();
+
+            //Update the Applicant
+            Applicant::find($applicantIDToRemove)->update(['shortlist_id' => null]);
 
             return response()->json([
                 'success' => true,

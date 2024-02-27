@@ -576,6 +576,7 @@ class InterviewController extends Controller
 
             // Save the average score to the interview
             $interview->score = $averageScore;
+            $interview->status = 'Completed';
             $interview->save();
 
             //User
@@ -593,6 +594,9 @@ class InterviewController extends Controller
                 $notification->read = "No";
                 $notification->save();
             }
+
+            //Update Applicant Monthly Data
+            UpdateApplicantData::dispatch($interview->applicant->id, 'updated', 'Interviewed')->onQueue('default');
 
             return response()->json([
                 'success' => true,

@@ -16,6 +16,9 @@ class ApplicantTotalData extends Model
     protected $fillable = [
         'year',
         'total_applicants',
+        'total_interviewd',
+        'total_appointed',
+        'total_time_to_appointed',
         'jan',
         'feb',
         'mar',

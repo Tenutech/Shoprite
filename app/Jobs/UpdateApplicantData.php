@@ -56,6 +56,16 @@ class UpdateApplicantData implements ShouldQueue
             ['total_applicants' => 0]
         );
 
+        if ($this->status == 'Interviewed') {
+            $yearlyData->increment('total_interviewd');
+        } elseif ($this->status == 'Appointed') {
+            $yearlyData->increment('total_appointed');
+
+            // Calculate the difference in minutes and update total_time_to_appointed
+            $timeToAppoint = $applicant->created_at->diffInMinutes($applicant->updated_at);
+            $yearlyData->increment('total_time_to_appointed', $timeToAppoint);
+        }
+
         if ($this->action === 'created') {
             $this->handleCreation($applicant, $yearlyData);
         } elseif ($this->action === 'updated') {

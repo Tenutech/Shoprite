@@ -84,8 +84,10 @@ class Applicant extends Model
         'score',
         'role_id',
         'applicant_type_id',
+        'shortlist_id',
+        'appointed_id',
         'state_id',
-        'checkpoint'
+        'checkpoint',
     ];
 
     //Applicant Town
@@ -188,6 +190,18 @@ class Applicant extends Model
     public function role()
     {
         return $this->belongsTo(Role::class);
+    }
+
+    //Applicant Shortlist
+    public function shortlist()
+    {
+        return $this->belongsTo(Shortlist::class);
+    }
+
+    //Applicant Vacancy Fill
+    public function vacancyFill()
+    {
+        return $this->belongsTo(VacancyFill::class, 'appointed_id');
     }
 
     //Applicant State

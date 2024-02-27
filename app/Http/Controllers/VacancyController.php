@@ -13,6 +13,7 @@ use App\Models\Application;
 use App\Models\VacancyFill;
 use App\Models\Notification;
 use App\Jobs\SendWhatsAppMessage;
+use App\Jobs\UpdateApplicantData;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -307,6 +308,12 @@ class VacancyController extends Controller
                             'applicant_id' => $applicantId,
                             'approved' => 'Pending'
                         ]);
+
+                        //Update applicant appointed_id
+                        if ($applicant) {
+                            $applicant->appointed_id = $vacancyFill->id;
+                            $applicant->save();
+                        }
 
                         // Get user ID if the applicant has a user, else null
                         $userId = $applicant->user ? $applicant->user->id : null;
