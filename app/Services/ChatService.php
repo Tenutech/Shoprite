@@ -183,7 +183,7 @@ class ChatService
 
             // If the elapsed time exceeds the delay or if the applicant's state has a '_checkpoint' suffix, 
             // update the state of the applicant
-            if ($applicant->state_id > 1 && ($timeDifference > 15 || $applicant->checkpoint == 'Yes')) {
+            if ($applicant->state_id > 2 && ($timeDifference > 15 || $applicant->checkpoint == 'Yes')) {
                 // Set applicant checkpoint to 'Yes'
                 $applicant->update(['checkpoint' => 'Yes']);
                 $checkpointTriggered = true;

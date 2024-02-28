@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Models\NotificationSetting;
+use App\Jobs\ProcessUserIdNumber;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
@@ -57,7 +58,7 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'id_number' => ['required', 'string', 'max:191'],
+            'id_number' => ['required', 'string',  'digits:13', 'unique:users'],
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
@@ -103,6 +104,9 @@ class RegisterController extends Controller
         NotificationSetting::create([
             'user_id' => $user->id,
         ]);
+
+        // Dispatch the job
+        ProcessUserIdNumber::dispatch($user->id);
 
         return $user;
     }

@@ -27,8 +27,13 @@ class User extends Authenticatable implements MustVerifyEmail
         'email',
         'phone',
         'id_number',
+        'id_verified',
         'password',
         'avatar',
+        'birth_date',
+        'age',
+        'gender_id',
+        'citizen',
         'company_id',
         'position_id',
         'role_id',
@@ -71,6 +76,12 @@ class User extends Authenticatable implements MustVerifyEmail
     public function status()
     {
         return $this->belongsTo(Status::class, 'status_id');
+    }
+
+    //User Store
+    public function store()
+    {
+        return $this->belongsTo(Store::class, 'store_id');
     }
 
     //User State

@@ -92,10 +92,18 @@ class HomeController extends Controller
                 'type',
                 'status',
                 'applicants',
+                'applications',
                 'savedBy' => function ($query) use ($userID) {
                     $query->where('user_id', $userID);
                 }
             ])
+            ->withCount(['applications as total_applications'])
+            ->withCount(['applications as applications_approved' => function ($query) {
+                $query->where('approved', 'Yes');
+            }])
+            ->withCount(['applications as applications_rejected' => function ($query) {
+                $query->where('approved', 'No');
+            }])
             ->where('status_id', 2)
             ->orderBy('created_at', 'desc')
             ->get()
@@ -421,10 +429,18 @@ class HomeController extends Controller
             'type',
             'status',
             'applicants',
+            'applications',
             'savedBy' => function ($query) use ($userID) {
                 $query->where('user_id', $userID);
             }
         ])
+        ->withCount(['applications as total_applications'])
+        ->withCount(['applications as applications_approved' => function ($query) {
+            $query->where('approved', 'Yes');
+        }])
+        ->withCount(['applications as applications_rejected' => function ($query) {
+            $query->where('approved', 'No');
+        }])
         ->where('status_id', 2)
         ->orderBy('created_at', 'desc')
         ->get()

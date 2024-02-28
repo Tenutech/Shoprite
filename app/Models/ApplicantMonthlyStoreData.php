@@ -7,30 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class ApplicantMonthlyData extends Model
+class ApplicantMonthlyStoreData extends Model
 {
     use HasFactory, LogsActivity;
 
-    protected $table = 'applicant_monthly_data';
+    protected $table = 'applicant_monthly_store_data';
     
     protected $fillable = [
-        'applicant_total_data_id',
-        'category_id',
-        'category_type',
-        'month',
+        'store_id',
+        'applicant_monthly_data_id',
         'count',
     ];
 
-    // Applicant Total Data
-    public function totalData()
+    // Store
+    public function store()
     {
-        return $this->belongsTo(ApplicantTotalData::class, 'applicant_total_data_id');
+        return $this->belongsTo(Store::class);
     }
 
-    // Applicant Monthly Store Data
-    public function monthlyStoreData()
+    // Monthly Data
+    public function monthlyData()
     {
-        return $this->hasMany(ApplicantMonthlyStoreData::class, 'applicant_monthly_data_id');
+        return $this->belongsTo(ApplicantMonthlyData::class, 'applicant_monthly_data_id');
     }
 
     /**

@@ -46,7 +46,7 @@ class ApplyController extends Controller
             $userID = Auth::id();
 
             //Vacancy ID
-            $vacancyID = Crypt::decryptString($id);
+            $vacancyId = Crypt::decryptString($id);
 
             //User
             $user = User::findOrFail($userID);
@@ -55,16 +55,16 @@ class ApplyController extends Controller
             $applicatId = $user->applicant_id;
 
             //Vacancy
-            $vacancy = Vacancy::findOrFail($vacancyID);
+            $vacancy = Vacancy::findOrFail($vacancyId);
 
             DB::beginTransaction();
 
             // Check if the user has already applied for the vacancy
-            if (!$user->appliedVacancies->contains($vacancyID)) {
+            if (!$user->appliedVacancies->contains($vacancyId)) {
                 // Attach the vacancy to the user's applied vacancies
                 $application = Application::create([
                     'user_id' => $userID,
-                    'vacancy_id' => $vacancyID,
+                    'vacancy_id' => $vacancyId,
                     'approved' => 'Pending'
                 ]);
 
@@ -80,12 +80,12 @@ class ApplyController extends Controller
                     $notification->save();
 
                     //Update Applicant Monthly Data
-                    UpdateApplicantData::dispatch($applicatId, 'updated', 'Application')->onQueue('default');
+                    UpdateApplicantData::dispatch($applicatId, 'updated', 'Application', $vacancyId)->onQueue('default');
                 }
             }
 
             // Retrieve the application record
-            $application = DB::table('applications')->where('user_id', $userID)->where('vacancy_id', $vacancyID)->first();
+            $application = DB::table('applications')->where('user_id', $userID)->where('vacancy_id', $vacancyId)->first();
 
             DB::commit();
 

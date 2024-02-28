@@ -310,7 +310,7 @@ unset($__errorArgs, $__bag); ?>
                                         <div class="mb-4">
                                             <p class="mb-0 fs-12 text-muted fst-italic">
                                                 By registering you agree to the Orient
-                                                <a href="#" class="text-primary text-decoration-underline fst-normal fw-medium">
+                                                <a href="<?php echo e(route('terms')); ?>" class="text-primary text-decoration-underline fst-normal fw-medium">
                                                     Terms of Use
                                                 </a>
                                             </p>
@@ -345,10 +345,11 @@ unset($__errorArgs, $__bag); ?>
                 <div class="row">
                     <div class="col-lg-12">
                         <div class="text-center">
-                            <script>
-                                document.write(new Date().getFullYear())
-                            </script> Orient. Crafted with <i
-                                    class="mdi mdi-heart text-danger"></i> by OTB Group</p>
+                            <p class="mb-0 text-muted">
+                                &copy; 
+                                <script>document.write(new Date().getFullYear())</script> 
+                                Orient. Crafted by OTB Group
+                            </p>
                         </div>
                     </div>
                 </div>

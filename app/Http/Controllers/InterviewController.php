@@ -420,6 +420,9 @@ class InterviewController extends Controller
             //Interview
             $interviewID = Crypt::decryptString($request->id);
             $interview = Interview::findOrFail($interviewID);
+
+            // Vacancy ID
+            $vacancyId = $interview->vacancy_id;
             
             //Application Update
             $interview->update([
@@ -440,7 +443,7 @@ class InterviewController extends Controller
             }
 
             //Update Applicant Monthly Data
-            UpdateApplicantData::dispatch($interview->applicant->id, 'updated', 'Interviewed')->onQueue('default');
+            UpdateApplicantData::dispatch($interview->applicant->id, 'updated', 'Interviewed', $vacancyId)->onQueue('default');
             
             return response()->json([
                 'success' => true,
@@ -561,6 +564,9 @@ class InterviewController extends Controller
             $interviewID = Crypt::decryptString($request->input('interview_id'));
             $interview = Interview::findOrFail($interviewID);
 
+            // Vacancy ID
+            $vacancyId = $interview->vacancy_id;
+
             // Initialize score sum
             $scoreSum = 0;
 
@@ -596,7 +602,7 @@ class InterviewController extends Controller
             }
 
             //Update Applicant Monthly Data
-            UpdateApplicantData::dispatch($interview->applicant->id, 'updated', 'Interviewed')->onQueue('default');
+            UpdateApplicantData::dispatch($interview->applicant->id, 'updated', 'Interviewed', $vacancyId)->onQueue('default');
 
             return response()->json([
                 'success' => true,

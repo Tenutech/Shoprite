@@ -282,6 +282,10 @@ class AdminController extends Controller
             $interviewedPerMonth = [];
             $appointedPerMonth = [];
             $rejectedPerMonth = [];
+            $percentMovementApplicationsPerMonth = 0;
+            $percentMovementInterviewedPerMonth = 0;
+            $percentMovementAppointedPerMonth = 0;
+            $percentMovementRejectedPerMonth = 0;
 
             if ($currentYearData) {
                 // Fetch total applicants per province for the current year using the relation

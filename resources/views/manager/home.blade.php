@@ -65,19 +65,20 @@
                                     Applications
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-success mb-0"> 
-                                        <i class="ri-arrow-up-line align-middle"></i> 
-                                        16.24 % 
-                                    </span> vs. previous month
+                                    <span class="badge bg-light text-{{ $percentMovementApplicationsPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
+                                        <i class="ri-arrow-{{ $percentMovementApplicationsPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
+                                        {{ abs($percentMovementApplicationsPerMonth) }} % 
+                                    </span>vs. previous month
                                 </p>
                             </div>
                             <div>
-                                <div class="apex-charts" data-colors='["--vz-success" , "--vz-transparent"]' dir="ltr" id="applications_sparkline_chart"></div>
+                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementApplicationsPerMonth > 0 ? 'success' : 'danger' }}" , "--vz-transparent"]' dir="ltr" id="applications_sparkline_chart"></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!--end col-->
+
                 <div class="col-xl-3 col-md-6">
                     <div class="card card-height-100">
                         <div class="d-flex">
@@ -86,19 +87,20 @@
                                     Interviewed
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-success mb-0"> 
-                                        <i class="ri-arrow-up-line align-middle"></i> 
-                                        34.24 % 
-                                    </span> vs. previous month
+                                    <span class="badge bg-light text-{{ $percentMovementInterviewedPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
+                                        <i class="ri-arrow-{{ $percentMovementInterviewedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
+                                        {{ abs($percentMovementInterviewedPerMonth) }} % 
+                                    </span>vs. previous month
                                 </p>
                             </div>
                             <div>
-                                <div class="apex-charts" data-colors='["--vz-success" , "--vz-transparent"]' dir="ltr" id="interviewed_sparkline_chart"></div>
+                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementInterviewedPerMonth > 0 ? 'success' : 'danger' }}" , "--vz-transparent"]' dir="ltr" id="interviewed_sparkline_chart"></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!--end col-->
+
                 <div class="col-xl-3 col-md-6">
                     <div class="card card-height-100">
                         <div class="d-flex">
@@ -107,20 +109,20 @@
                                     Hired
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-success mb-0"> 
-                                        <i class="ri-arrow-up-line align-middle"></i> 
-                                        6.67 % 
-                                    </span> 
-                                    vs. previous month
+                                    <span class="badge bg-light text-{{ $percentMovementAppointedPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
+                                        <i class="ri-arrow-{{ $percentMovementAppointedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
+                                        {{ abs($percentMovementAppointedPerMonth) }} % 
+                                    </span>vs. previous month
                                 </p>
                             </div>
                             <div>
-                                <div class="apex-charts" data-colors='["--vz-success" , "--vz-transparent"]' dir="ltr" id="hired_sparkline_chart"></div>
+                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementAppointedPerMonth > 0 ? 'success' : 'danger' }}" , "--vz-transparent"]' dir="ltr" id="hired_sparkline_chart"></div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <!--end col-->
+
                 <div class="col-xl-3 col-md-6">
                     <div class="card card-height-100">
                         <div class="d-flex">
@@ -129,14 +131,14 @@
                                     Rejected
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-danger mb-0"> 
-                                        <i class="ri-arrow-down-line align-middle"></i> 
-                                        3.24 % 
-                                    </span> vs. previous month
+                                    <span class="badge bg-light text-{{ $percentMovementRejectedPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
+                                        <i class="ri-arrow-{{ $percentMovementRejectedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
+                                        {{ abs($percentMovementRejectedPerMonth) }} % 
+                                    </span>vs. previous month
                                 </p>
                             </div>
                             <div>
-                                <div class="apex-charts" data-colors='["--vz-danger", "--vz-transparent"]' dir="ltr" id="rejected_sparkline_chart"></div>
+                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementRejectedPerMonth > 0 ? 'success' : 'danger' }}", "--vz-transparent"]' dir="ltr" id="rejected_sparkline_chart"></div>
                             </div>
                         </div>
                     </div>
@@ -716,37 +718,32 @@
             <!--end row-->
 
             <!-------------------------------------------------------------------------------------
-                Applicants Graph
+                Jobs Summary
             -------------------------------------------------------------------------------------->
-            
+
             <div class="row">
-                <div class="col-xl-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex">
-                                <h5 class="card-title mb-0 flex-grow-1">
-                                    Total Applicants
-                                </h5>
-                            </div>
-                        </div>                        
-                        <div class="card-body">
-                            <div id="total_applicants" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
-                        </div>
-                    </div>
-                </div>
-                <!--end col-->
-                <div class="col-xl-6">
+                <div class="col-xxl-12 col-md-12">
                     <div class="card card-height-100">
                         <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">Applicant Ethnicity</h4>                            
+                            <h4 class="card-title mb-0 flex-grow-1">Jobs Summary</h4>
+                            <div class="flex-shrink-0">
+                                <div class="dropdown card-header-dropdown">
+                                    <a class="text-reset dropdown-btn">
+                                        <span class="fw-bold text-uppercase fs-12">Absorption Rate: </span>
+                                        <span class="text-muted">
+                                            {{ $totalApplications > 0 ? round($totalAppointed / $totalApplications * 100) : 0 }}%
+                                            <i class="mdi mdi-briefcase ms-1"></i>
+                                        </span>
+                                    </a>
+                                </div>
+                            </div>
                         </div><!-- end card header -->
-                        <div class="card-body">
-                            <div id="applicant_race" data-colors='["--vz-warning", "--vz-info", "--vz-primary", "--vz-secondary", "--vz-danger"]' class="apex-charts" dir="ltr"></div>
-                        </div><!-- end card body -->
+                        <div class="card-body px-0">
+                            <div id="jobs_chart" data-colors='["--vz-success","--vz-primary", "--vz-info", "--vz-danger"]' class="apex-charts" dir="ltr"></div>
+                        </div>
                     </div><!-- end card -->
-                </div>
+                </div><!-- end col -->
             </div>
-            <!--end row-->
 
             <!-------------------------------------------------------------------------------------
                 Vacancies
@@ -819,29 +816,29 @@
                 </div>
                 <!--end col-->
 
-                @if ($vacancies->count() > 0)
+                @if ($allVacancies->count() > 0)
                     <div class="col-xxl-3">
                         <div class="card job-list-view-card overflow-hidden" id="job-overview">
-                            <img src="{{URL::asset($vacancies[0]->position->image)}}" alt="" id="cover-img" class="img-fluid background object-fit-cover">
+                            <img src="{{URL::asset($allVacancies[0]->position->image)}}" alt="" id="cover-img" class="img-fluid background object-fit-cover">
                             <div class="card-body">
                                 <div class="avatar-md mt-n5">
                                     <div class="avatar-title bg-light rounded-circle view-opportunity-icon">
-                                        <i class="{{ $vacancies[0]->position->icon }} text-{{ $vacancies[0]->position->color }} fs-1"></i>
+                                        <i class="{{ $allVacancies[0]->position->icon }} text-{{ $allVacancies[0]->position->color }} fs-1"></i>
                                     </div>
                                 </div>
                                 <div class="mt-3">
-                                    <h5 class="view-title fw-bold">{{ $vacancies[0]->position->name }}</h5>
+                                    <h5 class="view-title fw-bold">{{ $allVacancies[0]->position->name }}</h5>
                                     <div class="hstack gap-3 mb-3">
                                         <span class="text-muted">
                                             <i class="ri-building-line me-1 align-bottom"></i> 
-                                            <span class="view-companyname">{{ $vacancies[0]->store->brand->name }}</span>
+                                            <span class="view-companyname">{{ $allVacancies[0]->store->brand->name }}</span>
                                         </span>
                                         <span class="text-muted">
                                             <i class="ri-map-pin-2-line me-1 align-bottom"></i> 
-                                            <span class="view-location">{{ $vacancies[0]->store->town->name }}</span>
+                                            <span class="view-location">{{ $allVacancies[0]->store->town->name }}</span>
                                         </span>
                                     </div>
-                                    <p class="text-muted view-desc truncated-text-6-lines">{!! $vacancies[0]->position->description !!}</p>
+                                    <p class="text-muted view-desc truncated-text-6-lines">{!! $allVacancies[0]->position->description !!}</p>
                                     <div class="py-3 border border-dashed border-start-0 border-end-0 mt-4">
                                         <div class="row">
                                             <div class="col-lg-4 col-sm-6">
@@ -850,7 +847,7 @@
                                                         Job Type
                                                     </p>
                                                     <h5 class="fs-14 mb-0 view-type">
-                                                        {{ $vacancies[0]->type->name }}
+                                                        {{ $allVacancies[0]->type->name }}
                                                     </h5>
                                                 </div>
                                             </div>
@@ -860,7 +857,7 @@
                                                         Post Date
                                                     </p>
                                                     <h5 class="fs-14 mb-0 view-postdate">
-                                                        {{ date("d M", strtotime($vacancies[0]->created_at)) }}
+                                                        {{ date("d M", strtotime($allVacancies[0]->created_at)) }}
                                                     </h5>
                                                 </div>
                                             </div>
@@ -887,7 +884,7 @@
                                 </div>
                 
                                 <div class="mt-4">
-                                    <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString($vacancies[0]->id)]) }}" type="button" class="btn btn-info w-100">
+                                    <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString($allVacancies[0]->id)]) }}" type="button" class="btn btn-info w-100">
                                         Apply Now
                                     </a>
                                 </div>
@@ -1397,17 +1394,14 @@
 @endsection
 @section('script')
 <script>
-    var applicantData = {
-        "Eastern Cape": 85000,
-        "Free State": 14250,
-        "Gauteng": 62500,
-        "KwaZulu-Natal": 12600,
-        "Limpopo": 14350,
-        "Mpumalanga": 10200,
-        "Northern Cape": 3000,
-        "North West": 12600,
-        "Western Cape": 37500
-    }
+    var applicationsPerMonth = @json($applicationsPerMonth);
+    var interviewedPerMonth = @json($interviewedPerMonth);
+    var appointedPerMonth = @json($appointedPerMonth);
+    var rejectedPerMonth = @json($rejectedPerMonth);
+
+    var totalApplications = @json(count($allVacancies) > 0 ? $allVacancies[0]->total_applications : 0);
+    var totalApplicationsApproved = @json(count($allVacancies) > 0 ? $allVacancies[0]->applications_approved : 0);
+    var totalApplicationsRejected = @json(count($allVacancies) > 0 ? $allVacancies[0]->applications_rejected : 0);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

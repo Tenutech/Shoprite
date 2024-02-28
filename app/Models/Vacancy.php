@@ -57,6 +57,12 @@ class Vacancy extends Model
         return $this->belongsToMany(User::class, 'applications', 'vacancy_id', 'user_id')->withTimestamps()->withPivot('approved');
     }
 
+    //Applications
+    public function applications()
+    {
+        return $this->hasMany(Application::class);
+    }
+
     //Saved By
     public function savedBy()
     {

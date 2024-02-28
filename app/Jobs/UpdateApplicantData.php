@@ -2,9 +2,11 @@
 
 namespace App\Jobs;
 
+use App\Models\Vacancy;
 use App\Models\Applicant;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
+use App\Models\ApplicantMonthlyStoreData;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -21,6 +23,7 @@ class UpdateApplicantData implements ShouldQueue
     protected $applicantId;
     protected $action;
     protected $status;
+    protected $vacancyId;
 
     /**
      * Create a new job instance.
@@ -29,11 +32,12 @@ class UpdateApplicantData implements ShouldQueue
      * @param string $action 'created', 'updated', etc.
      * @param string|null $status 'Application', 'Interviewed', 'Appointed', 'Rejected'
      */
-    public function __construct($applicantId, $action, $status = null)
+    public function __construct($applicantId, $action, $status = null, $vacancyId = null)
     {
         $this->applicantId = $applicantId;
         $this->action = $action;
         $this->status = $status;
+        $this->vacancyId = $vacancyId;
     }
 
     /*
@@ -70,9 +74,9 @@ class UpdateApplicantData implements ShouldQueue
             $this->handleCreation($applicant, $yearlyData);
         } elseif ($this->action === 'updated') {
             if ($this->status) {
-                $this->handleStatusUpdate($yearlyData->id, $this->status);
+                $this->handleStatusUpdate($yearlyData->id, $this->status, $this->vacancyId);
             } else {
-                $this->handleUpdate($applicant, $yearlyData);
+                $this->handleUpdate($applicant, $yearlyData, $this->vacancyId);
             }
         }
     }
@@ -98,9 +102,9 @@ class UpdateApplicantData implements ShouldQueue
     |--------------------------------------------------------------------------
     */
 
-    protected function handleUpdate($applicant, $yearlyData)
+    protected function handleUpdate($applicant, $yearlyData, $vacancyId)
     {
-        $this->updateMonthlyData($applicant, $yearlyData->id, false);
+        $this->updateMonthlyData($applicant, $yearlyData->id, false, $vacancyId);
     }
 
     /*
@@ -109,7 +113,7 @@ class UpdateApplicantData implements ShouldQueue
     |--------------------------------------------------------------------------
     */
 
-    protected function updateMonthlyData($applicant, $yearlyDataId, $isNew)
+    protected function updateMonthlyData($applicant, $yearlyDataId, $isNew, $vacancyId)
     {
         $attributes = [
             'Gender' => $applicant->gender_id,
@@ -121,18 +125,18 @@ class UpdateApplicantData implements ShouldQueue
         foreach ($attributes as $type => $id) {
             if (!is_null($id)) {
                 if ($isNew || $applicant->wasChanged(strtolower($type) . "_id")) {
-                    $this->adjustMonthlyData($yearlyDataId, $type, $id, true);
+                    $this->adjustMonthlyData($yearlyDataId, $type, $id, true, $vacancyId);
                 }
             }
         }
     }
 
-    protected function adjustMonthlyData($yearlyDataId, $categoryType, $categoryId, $isIncrement)
+    protected function adjustMonthlyData($yearlyDataId, $categoryType, $categoryId, $isIncrement, $vacancyId)
     {
-        $this->updateCategoryCount($yearlyDataId, $categoryType, $categoryId, $isIncrement);
+        $this->updateCategoryCount($yearlyDataId, $categoryType, $categoryId, $isIncrement, $vacancyId);
     }
 
-    protected function updateCategoryCount($yearlyDataId, $categoryType, $categoryId, $isIncrement)
+    protected function updateCategoryCount($yearlyDataId, $categoryType, $categoryId, $isIncrement, $vacancyId)
     {
         $monthlyData = ApplicantMonthlyData::firstOrCreate([
             'applicant_total_data_id' => $yearlyDataId,
@@ -148,9 +152,22 @@ class UpdateApplicantData implements ShouldQueue
         } else {
             $monthlyData->decrement('count');
         }
+
+        if ($vacancyId) {
+            $vacancy = Vacancy::find($this->vacancyId);
+
+            if ($vacancy) {
+                $storeMonthlyData = ApplicantMonthlyStoreData::firstOrCreate([
+                    'store_id' => $vacancy->store_id,
+                    'applicant_monthly_data_id' => $monthlyData->id
+                ]);
+
+                $storeMonthlyData->increment('count');
+            }
+        }
     }
 
-    protected function handleStatusUpdate($yearlyDataId, $categoryType)
+    protected function handleStatusUpdate($yearlyDataId, $categoryType, $vacancyId)
     {
         $monthlyData = ApplicantMonthlyData::firstOrCreate([
             'applicant_total_data_id' => $yearlyDataId,
@@ -162,5 +179,18 @@ class UpdateApplicantData implements ShouldQueue
         ]);
 
         $monthlyData->increment('count');
+
+        if ($vacancyId) {
+            $vacancy = Vacancy::find($this->vacancyId);
+
+            if ($vacancy) {
+                $storeMonthlyData = ApplicantMonthlyStoreData::firstOrCreate([
+                    'store_id' => $vacancy->store_id,
+                    'applicant_monthly_data_id' => $monthlyData->id
+                ]);
+
+                $storeMonthlyData->increment('count');
+            }
+        }
     }
 }

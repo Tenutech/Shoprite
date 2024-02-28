@@ -55,7 +55,7 @@ class VacancyController extends Controller
             $vacancy = null;
 
             if ($request->id) {
-                $vacancyID = Crypt::decryptString($request->id);
+                $vacancyId = Crypt::decryptString($request->id);
 
                 $vacancy = Vacancy::with([
                     'user', 
@@ -64,7 +64,7 @@ class VacancyController extends Controller
                     'type', 
                     'status'
                 ])
-                ->findOrFail($vacancyID);
+                ->findOrFail($vacancyId);
             }
 
             //Positions
@@ -217,10 +217,10 @@ class VacancyController extends Controller
     public function destroy($id)
     {
         try {
-            $vacancyID = Crypt::decryptString($id);
+            $vacancyId = Crypt::decryptString($id);
 
             //Delete Vacancy
-            Vacancy::destroy($vacancyID);
+            Vacancy::destroy($vacancyId);
 
             return response()->json([
                 'success' => true, 
@@ -244,7 +244,7 @@ class VacancyController extends Controller
     public function vacancyFill(Request $request)
     {
         try {
-            $vacancyID = Crypt::decryptString($request->input('vacancy_id'));
+            $vacancyId = Crypt::decryptString($request->input('vacancy_id'));
             $selectedApplicants = $request->input('applicants_vacancy');
 
             // Extract user IDs from the selected applicants
@@ -258,7 +258,7 @@ class VacancyController extends Controller
                 'store.brand', 
                 'store.town',
                 'applicants' 
-            ])->find($vacancyID);
+            ])->find($vacancyId);
 
             if (!$vacancy) {
                 return response()->json([
@@ -331,7 +331,7 @@ class VacancyController extends Controller
                         }
 
                         //Update Applicant Monthly Data
-                        UpdateApplicantData::dispatch($applicant->id, 'updated', 'Appointed')->onQueue('default');
+                        UpdateApplicantData::dispatch($applicant->id, 'updated', 'Appointed', $vacancyId)->onQueue('default');
 
                         // Constructing the WhatsApp message
                         $whatsappMessage = "Congratulations {$applicant->firstname}! You have been appointed for the position of " . 
@@ -369,7 +369,7 @@ class VacancyController extends Controller
                                 }
 
                                 //Update Applicant Monthly Data
-                                UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected')->onQueue('default');
+                                UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
                             }
                         }
                     }
