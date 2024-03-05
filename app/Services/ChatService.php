@@ -14,6 +14,7 @@ use App\Models\Notification;
 use App\Models\ChatTemplate;
 use App\Models\ScoreWeighting;
 use App\Models\ChatTotalData;
+use App\Jobs\ProcessUserIdNumber;
 use Twilio\Rest\Client;
 use App\Services\GoogleMapsService;
 use Illuminate\Support\Facades\File;
@@ -683,6 +684,8 @@ class ChatService
 
                 $messages = $this->fetchStateMessages('location');
                 $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+
+                ProcessUserIdNumber::dispatch(null, $applicant->id);
             } else {
                 // Send a message prompting for a valid ID number
                 $message = "Please enter a valid ID number:";

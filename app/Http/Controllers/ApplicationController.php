@@ -22,6 +22,7 @@ use App\Models\Retrenchment;
 use App\Models\Notification;
 use App\Models\ChatTemplate;
 use App\Models\ScoreWeighting;
+use App\Jobs\ProcessUserIdNumber;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -213,8 +214,8 @@ class ApplicationController extends Controller
             'location' => ['required', 'string'],
             'gender_id' => ['required', 'integer'],
             'race_id' => ['required', 'integer'],
-            'email' => ['sometimes', 'string', 'email', 'max:191', 'unique:applicants'],
-            'tax_number' => ['sometimes', 'string', 'max:191'],
+            'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
+            'tax_number' => ['sometimes', 'nullable', 'string', 'max:191'],
             'citizen' => ['sometimes', 'required', 'in:Yes,No'],
             'criminal' => ['sometimes', 'required', 'in:Yes,No'],
             'position_id' => ['required', 'integer'],
@@ -222,19 +223,19 @@ class ApplicationController extends Controller
             'school' => ['required', 'string', 'max:191'],
             'education_id' => ['required', 'integer'],
             'training' => ['sometimes', 'required', 'in:Yes,No'],
-            'other_training' => ['sometimes', 'string', 'max:191'],
-            'drivers_license_code' => ['sometimes', 'string', 'max:10'],
+            'other_training' => ['sometimes', 'nullable', 'string', 'max:191'],
+            'drivers_license_code' => ['sometimes', 'nullable', 'string', 'max:10'],
             'read' => ['required', 'array'],
             'speak' => ['required', 'array'],
             'job_previous' => ['sometimes', 'required', 'in:Yes,No'],
             'reason_id' => ['sometimes', 'integer'],
             'job_leave_specify' => ['sometimes', 'nullable', 'string'],
-            'job_business' => ['sometimes', 'string', 'max:191'],
-            'job_position' => ['sometimes', 'string'],
+            'job_business' => ['sometimes', 'nullable', 'string', 'max:191'],
+            'job_position' => ['sometimes', 'nullable', 'string'],
             'duration_id' => ['sometimes', 'integer'],
-            'job_salary' => ['sometimes', 'string', 'max:191'],
-            'job_reference_name' => ['sometimes', 'string', 'max:191'],
-            'job_reference_phone' => ['sometimes', 'string', 'max:191'],
+            'job_salary' => ['sometimes', 'nullable', 'string', 'max:191'],
+            'job_reference_name' => ['sometimes', 'nullable', 'string', 'max:191'],
+            'job_reference_phone' => ['sometimes', 'nullable', 'string', 'max:191'],
             'retrenchment_id' => ['required', 'integer'],
             'job_retrenched_specify' => ['sometimes', 'nullable', 'string'],
             'brand_id' => ['sometimes', 'nullable', 'integer'],
@@ -249,18 +250,21 @@ class ApplicationController extends Controller
             'type_id' => ['required', 'integer'],
             'application_reason_specify' => ['sometimes', 'nullable', 'string'],
             'relocate' => ['sometimes', 'required', 'in:Yes,No'],
-            'relocate_town' => ['sometimes', 'string'],
+            'relocate_town' => ['sometimes', 'nullable', 'string'],
             'vacancy' => ['sometimes', 'required', 'in:Yes,No'],
             'shift' => ['sometimes', 'required', 'in:Yes,No'],
             'bank_id' => ['required', 'integer'],
             'bank_specify' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'bank_number' => ['sometimes', 'string', 'max:20'],
+            'bank_number' => ['sometimes', 'nullable', 'string', 'max:20'],
             'expected_salary' => ['required', 'numeric', 'min:0']
         ]);
 
         try {
             //User ID
             $userID = Auth::id();
+
+            //User
+            $user = User::find($userID);
 
             //Form Fields
             if ($request->avatar) {                
@@ -269,7 +273,11 @@ class ApplicationController extends Controller
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
-                $avatarName = '/images/avatar.jpg';
+                if ($user && $user->avatar) {
+                    $avatarName = $user->avatar;
+                } else {
+                    $avatarName = '/images/avatar.jpg';
+                }
             }
             $firstname = $request->firstname;
             $lastname = $request->lastname;
@@ -461,6 +469,9 @@ class ApplicationController extends Controller
                 $user->save();
             }
 
+            // Dispatch the job for the applicant, with no need to update a user
+            ProcessUserIdNumber::dispatch(null, $applicant->id);
+
             // If a new applicant was created, then create a notification
             if ($applicant->wasRecentlyCreated) {
                 // Create Notification
@@ -520,60 +531,58 @@ class ApplicationController extends Controller
             'location' => ['required', 'string'],
             'gender_id' => ['required', 'integer'],
             'race_id' => ['required', 'integer'],
-            'email' => [
-                'sometimes',
-                'string',
-                'email',
-                'max:191',
-                Rule::unique('applicants')->ignore($applicantID),
-            ],
-            'tax_number' => ['sometimes', 'string', 'max:191'],
+            'email' => ['sometimes','string','email','max:191',Rule::unique('applicants')->ignore($applicantID)],
+            'tax_number' => ['sometimes', 'nullable', 'string', 'max:191'],
             'citizen' => ['sometimes', 'required', 'in:Yes,No'],
             'criminal' => ['sometimes', 'required', 'in:Yes,No'],
             'position_id' => ['required', 'integer'],
-            'position_specify' => ['sometimes', 'string'],
+            'position_specify' => ['sometimes', 'nullable', 'string'],
             'school' => ['required', 'string', 'max:191'],
             'education_id' => ['required', 'integer'],
             'training' => ['sometimes', 'required', 'in:Yes,No'],
-            'other_training' => ['sometimes', 'string', 'max:191'],
-            'drivers_license_code' => ['sometimes', 'string', 'max:10'],
+            'other_training' => ['sometimes', 'nullable', 'string', 'max:191'],
+            'drivers_license_code' => ['sometimes', 'nullable', 'string', 'max:10'],
             'read' => ['required', 'array'],
             'speak' => ['required', 'array'],
             'job_previous' => ['sometimes', 'required', 'in:Yes,No'],
             'reason_id' => ['sometimes', 'integer'],
-            'job_leave_specify' => ['sometimes', 'string'],
-            'job_business' => ['sometimes', 'string', 'max:191'],
-            'job_position' => ['sometimes', 'string'],
+            'job_leave_specify' => ['sometimes', 'nullable', 'string'],
+            'job_business' => ['sometimes', 'nullable', 'string', 'max:191'],
+            'job_position' => ['sometimes', 'nullable', 'string'],
             'duration_id' => ['sometimes', 'integer'],
-            'job_salary' => ['sometimes', 'string', 'max:191'],
-            'job_reference_name' => ['sometimes', 'string', 'max:191'],
-            'job_reference_phone' => ['sometimes', 'string', 'max:191'],
-            'retrenchment_id' => ['required', 'integer'],
-            'job_retrenched_specify' => ['sometimes', 'string'],
+            'job_salary' => ['sometimes', 'nullable', 'string', 'max:191'],
+            'job_reference_name' => ['sometimes', 'nullable', 'string', 'max:191'],
+            'job_reference_phone' => ['sometimes', 'nullable', 'string', 'max:191'],
+            'job_retrenched_specify' => ['sometimes', 'nullable', 'string'],
             'brand_id' => ['sometimes', 'nullable', 'integer'],
             'previous_job_position_id' => ['sometimes', 'nullable', 'integer'],
-            'job_shoprite_position_specify' => ['sometimes', 'string'],
+            'job_shoprite_position_specify' => ['sometimes', 'nullable', 'string'],
             'job_shoprite_leave' => ['sometimes', 'nullable', 'string'],
             'transport_id' => ['required', 'integer'],
-            'transport_specify' => ['sometimes', 'string'],
+            'transport_specify' => ['sometimes', 'nullable', 'string'],
             'disability_id' => ['required', 'integer'],
-            'illness_specify' => ['sometimes', 'string'],
+            'illness_specify' => ['sometimes', 'nullable', 'string'],
             'commencement' => ['required', 'date', 'date_format:Y-m-d'],
             'type_id' => ['required', 'integer'],
-            'application_reason_specify' => ['sometimes', 'string'],
+            'application_reason_specify' => ['sometimes', 'nullable', 'string'],
             'relocate' => ['sometimes', 'required', 'in:Yes,No'],
-            'relocate_town' => ['sometimes', 'string'],
+            'relocate_town' => ['sometimes', 'nullable', 'string'],
             'vacancy' => ['sometimes', 'required', 'in:Yes,No'],
             'shift' => ['sometimes', 'required', 'in:Yes,No'],
             'bank_id' => ['required', 'integer'],
-            'bank_specify' => ['sometimes', 'string', 'max:191'],
-            'bank_number' => ['sometimes', 'string', 'max:20'],
+            'bank_specify' => ['sometimes', 'nullable', 'string', 'max:191'],
+            'bank_number' => ['sometimes', 'nullable', 'string', 'max:20'],
             'expected_salary' => ['required', 'numeric', 'min:0']
         ]);
 
         try {
             //User ID
             $userID = Auth::id();
+
+            //User
+            $user = User::find($userID);
+
+            //Applicant
             $applicant = Applicant::findOrFail($applicantID);
 
             //Form Fields
@@ -583,7 +592,11 @@ class ApplicationController extends Controller
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
-                $avatarName = $applicant->avatar != '/images/avatar.jpg' ? $applicant->avatar : '/images/avatar.jpg';
+                if ($user && $user->avatar) {
+                    $avatarName = $user->avatar;
+                } else {
+                    $avatarName = '/images/avatar.jpg';
+                }
             }
             $firstname = $request->firstname;
             $lastname = $request->lastname;

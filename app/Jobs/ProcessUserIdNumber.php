@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\User;
+use App\Models\Applicant;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
 use Illuminate\Contracts\Queue\ShouldQueue;
@@ -16,16 +17,19 @@ class ProcessUserIdNumber implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     protected $userId;
+    protected $applicantId;
 
     /**
      * Create a new job instance.
      *
-     * @param int $userId The ID of the user to process.
+     * @param int|null $userId The ID of the user to process.
+     * @param int|null $applicantId The ID of the applicant to process.
      * @return void
      */
-    public function __construct($userId)
+    public function __construct($userId = null, $applicantId = null)
     {
         $this->userId = $userId;
+        $this->applicantId = $applicantId;
     }
 
     /**
@@ -35,13 +39,20 @@ class ProcessUserIdNumber implements ShouldQueue
      */
     public function handle(): void
     {
-        $user = User::find($this->userId);
+        // Determine which model to update based on provided ID
+        if ($this->userId) {
+            $person = User::find($this->userId);
+        } elseif ($this->applicantId) {
+            $person = Applicant::find($this->applicantId);
+        } else {
+            return;
+        }
         
-        if ($user) {
+        if ($person) {
             // Extract birth date
-            $year = substr($user->id_number, 0, 2);
-            $month = substr($user->id_number, 2, 2);
-            $day = substr($user->id_number, 4, 2);
+            $year = substr($person->id_number, 0, 2);
+            $month = substr($person->id_number, 2, 2);
+            $day = substr($person->id_number, 4, 2);
             // Correct for century ambiguity
             $century = $year >= date('y') ? '19' : '20';
             $birthdate = $century . $year . '-' . $month . '-' . $day;
@@ -50,25 +61,25 @@ class ProcessUserIdNumber implements ShouldQueue
             $age = \Carbon\Carbon::parse($birthdate)->age;
 
             // Determine gender (SSSS)
-            $genderCode = substr($user->id_number, 6, 4);
+            $genderCode = substr($person->id_number, 6, 4);
             $genderId = $genderCode < 5000 ? 2 : 1; // Female: 2, Male: 1
 
             // Citizenship status (C)
-            $citizen = substr($user->id_number, 10, 1);
+            $resident = substr($person->id_number, 10, 1);
 
-            if ($this->isValidSAIdNumber($user->id_number)) {
+            if ($this->isValidSAIdNumber($person->id_number)) {
                 $verified = 'Yes';
             } else {
                 $verified = 'No';
             }
 
             // Update user
-            $user->birth_date = $birthdate;
-            $user->age = $age;
-            $user->gender_id = $genderId;
-            $user->citizen = $citizen;
-            $user->id_verified = $verified;
-            $user->save();
+            $person->birth_date = $birthdate;
+            $person->age = $age;
+            $person->gender_id = $genderId;
+            $person->resident = $resident;
+            $person->id_verified = $verified;
+            $person->save();
         }
     }
 

@@ -59,9 +59,6 @@
                                                             <strong>{{ $message }}</strong>
                                                         </span>
                                                     @enderror
-                                                    <div class="invalid-feedback">
-                                                        Please enter first name
-                                                    </div>
                                                 </div>
 
                                                 <!-- ID Number -->
@@ -70,14 +67,11 @@
                                                         ID Number <span class="text-danger">*</span>
                                                     </label>
                                                     <input type="text" class="form-control @error('id_number') is-invalid @enderror" name="id_number" value="{{ old('id_number') }}" id="idNumber" placeholder="Enter id number" required>
-                                                    @error('firstname')
+                                                    @error('id_number')
                                                         <span class="invalid-feedback" role="alert">
                                                             <strong>{{ $message }}</strong>
                                                         </span>
                                                     @enderror
-                                                    <div class="invalid-feedback">
-                                                        Please enter id number
-                                                    </div>
                                                 </div>
                                             </div>
 
@@ -93,9 +87,6 @@
                                                             <strong>{{ $message }}</strong>
                                                         </span>
                                                     @enderror
-                                                    <div class="invalid-feedback">
-                                                        Please enter last name
-                                                    </div>
                                                 </div>
 
                                                 <!-- Phone Number -->
@@ -114,9 +105,6 @@
                                                                 <strong>{{ $message }}</strong>
                                                             </span>
                                                         @enderror
-                                                        <div class="invalid-feedback">
-                                                            Please enter phone number
-                                                        </div>
                                                         <div class="dropdown-menu w-100">
                                                             <div class="p-2 px-3 pt-1 searchlist-input">
                                                                 <input type="text" class="form-control form-control-sm border search-countryList" placeholder="Search country name or country code..." />
@@ -139,9 +127,6 @@
                                                             <strong>{{ $message }}</strong>
                                                         </span>
                                                     @enderror
-                                                    <div class="invalid-feedback">
-                                                        Please enter email
-                                                    </div>
                                                 </div>
                                             </div>
 
@@ -161,9 +146,6 @@
                                                                 <strong>{{ $message }}</strong>
                                                             </span>
                                                         @enderror
-                                                        <div class="invalid-feedback">
-                                                            Please enter password
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

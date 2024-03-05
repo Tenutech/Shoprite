@@ -199,7 +199,7 @@
                                                                 </div>
                                                                 <div class="avatar-xg p-1">
                                                                     <div class="avatar-title bg-light rounded-circle">
-                                                                        <img src="{{ URL::asset($user->applicant ? $user->applicant->avatar : 'images/avatar.jpg') }}" alt="" id="preview" class="avatar-lg rounded-circle object-cover" >
+                                                                        <img src="{{ URL::asset($user->applicant ? ($user->applicant->avatar ? $user->applicant->avatar : 'images/avatar.jpg') : ($user->avatar ? 'images/'.$user->avatar : 'images/avatar.jpg')) }}" alt="" id="preview" class="avatar-lg rounded-circle object-cover" >
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -213,7 +213,7 @@
                                                                 First name(s) as per your ID document:
                                                                 <span class="text-danger">*</span>
                                                             </label>
-                                                            <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Enter first name(s)" value="{{ $user->applicant ? $user->applicant->firstname : '' }}" required />
+                                                            <input type="text" class="form-control" id="firstname" name="firstname" placeholder="Enter first name(s)" value="{{ $user->applicant ? $user->applicant->firstname : ($user->firstname ? $user->firstname : '') }}" required />
                                                             <div class="invalid-feedback">
                                                                 Please enter your firstname(s)
                                                             </div>
@@ -227,7 +227,7 @@
                                                                 Last name(s) as per your ID document:
                                                                 <span class="text-danger">*</span>
                                                             </label>
-                                                            <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Enter last name(s)" value="{{ $user->applicant ? $user->applicant->lastname : '' }}" required />
+                                                            <input type="text" class="form-control" id="lastname" name="lastname" placeholder="Enter last name(s)" value="{{ $user->applicant ? $user->applicant->lastname : ($user->lastname ? $user->lastname : '') }}" required />
                                                             <div class="invalid-feedback">
                                                                 Please enter your lastname(s)
                                                             </div>
@@ -241,7 +241,7 @@
                                                                 ID number
                                                                 <span class="text-danger">*</span>
                                                             </label>
-                                                            <input type="text" class="form-control" id="idNumber" name="id_number" placeholder="Enter ID number" value="{{ $user->applicant ? $user->applicant->id_number : '' }}" required />
+                                                            <input type="text" class="form-control" id="idNumber" name="id_number" placeholder="Enter ID number" value="{{ $user->applicant ? $user->applicant->id_number : ($user->id_number ? $user->id_number : '') }}" required />
                                                             <div class="invalid-feedback">
                                                                 Please enter your ID number
                                                             </div>
@@ -260,7 +260,7 @@
                                                                     <img src="{{URL::asset('build/images/flags/za.svg')}}" alt="flag img" height="20" class="country-flagimg rounded">
                                                                     <span class="ms-2 country-codeno" id="phoneCountry">+ 27</span>
                                                                 </button>
-                                                                <input type="text" class="form-control rounded-end flag-input" id="phone" name="phone" placeholder="Enter phone number" value="{{ $user->applicant ? ltrim(str_replace('+27', '', $user->applicant->phone), '0') : '' }}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0+/, '').replace(/(\..*?)\..*/g, '$1');" required/>
+                                                                <input type="text" class="form-control rounded-end flag-input" id="phone" name="phone" placeholder="Enter phone number" value="{{ $user->applicant ? ltrim(str_replace('+27', '', $user->applicant->phone), '0') : ($user->phone ? ltrim(str_replace('+27', '', $user->phone), '0') : '') }}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0+/, '').replace(/(\..*?)\..*/g, '$1');" required/>
                                                                 <div class="invalid-feedback">
                                                                     Please enter your phone number
                                                                 </div>
@@ -298,7 +298,7 @@
                                                             <select class="form-control" id="gender" name="gender_id" data-choices data-choices-search-false required>
                                                                 <option value="">Select gender</option>
                                                                 @foreach ($genders as $gender)
-                                                                    <option value="{{ $gender->id }}" {{ ($user->applicant && $user->applicant->gender_id == $gender->id) ? 'selected' : '' }}>{{ $gender->name }}</option>
+                                                                    <option value="{{ $gender->id }}" {{ ($user->applicant ? $user->applicant->gender_id == $gender->id : $user->gender_id == $gender->id) ? 'selected' : '' }}>{{ $gender->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select your gender</div>
@@ -331,7 +331,7 @@
                                                                     Optional
                                                                 </span>
                                                             </label>
-                                                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address" value="{{ $user->applicant ? $user->applicant->email : '' }}" />
+                                                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address" value="{{ $user->applicant ? $user->applicant->email : ($user->email ? $user->email : '') }}" />
                                                         </div>
                                                     </div>
 
@@ -357,8 +357,8 @@
                                                             </label>
                                                             <select class="form-control" id="citizen" name="citizen" data-choices data-choices-search-false required>
                                                                 <option value="">Select option</option>
-                                                                <option value="No" {{ ($user->applicant && $user->applicant->citizen == 'No') ? 'selected' : '' }}>No</option>
-                                                                <option value="Yes" {{ ($user->applicant && $user->applicant->citizen == 'Yes') ? 'selected' : '' }}>Yes</option>
+                                                                <option value="No" {{ ($user->applicant ? ($user->applicant->citizen == 'No') : ($user->resident == null || $user->resident == '0')) ? 'selected' : '' }}>No</option>
+                                                                <option value="Yes" {{ ($user->applicant ? ($user->applicant->citizen == 'Yes') : ($user->resident == 1)) ? 'selected' : '' }}>Yes</option>
                                                             </select>
                                                             <div class="invalid-feedback">Please select an option</div>
                                                         </div>
