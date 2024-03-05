@@ -18,11 +18,17 @@ class Gender extends Model
     ];
 
     //Applicants
-
     public function applicants()
     {
         return $this->hasMany(Applicant::class);
     }
+    
+    //Users
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
 
     /**
      * The attributes that should be logged.
@@ -31,7 +37,6 @@ class Gender extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

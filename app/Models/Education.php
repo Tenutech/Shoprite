@@ -20,7 +20,6 @@ class Education extends Model
     ];
 
     //Applicants
-
     public function applicants()
     {
         return $this->hasMany(Applicant::class);
@@ -33,7 +32,6 @@ class Education extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

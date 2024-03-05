@@ -19,21 +19,18 @@ class Amendment extends Model
     ];
 
     //User
-
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
     //Vacancy
-
     public function vacancy()
     {
         return $this->belongsTo(Vacancy::class);
     }
 
     //Causer
-
     public function causer()
     {
         return $this->belongsTo(User::class);
@@ -46,7 +43,6 @@ class Amendment extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

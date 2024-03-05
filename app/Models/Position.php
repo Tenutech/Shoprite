@@ -20,28 +20,24 @@ class Position extends Model
     ];
 
     //User Position
-
     public function users()
     {
         return $this->hasMany(User::class);
     }
 
     //Applicants
-
     public function applicants()
     {
         return $this->hasMany(Applicant::class);
     }
 
     //Applicants Previous Job Position
-
     public function previousApplicants()
     {
         return $this->hasMany(Applicant::class, 'previous_job_position_id');
     }
 
     //Vacancy
-
     public function vacancies()
     {
         return $this->hasMany(Vacancy::class);
@@ -107,7 +103,6 @@ class Position extends Model
         return $this->hasMany(File::class);
     }
 
-
     /**
      * The attributes that should be logged.
      * @var bool
@@ -115,7 +110,6 @@ class Position extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

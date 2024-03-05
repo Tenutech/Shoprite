@@ -18,7 +18,6 @@ class Type extends Model
     ];
 
     //Applicants
-
     public function applicants()
     {
         return $this->hasMany(Applicant::class);
@@ -31,7 +30,6 @@ class Type extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

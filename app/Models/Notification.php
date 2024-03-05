@@ -24,28 +24,24 @@ class Notification extends Model
     ];
 
     //User
-
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
     //Causer
-
     public function causer()
     {
         return $this->belongsTo(User::class);
     }
 
     //Notification Type
-
     public function type()
     {
         return $this->belongsTo(NotificationType::class, 'type_id');
     }
 
     //Subject
-
     public function subject()
     {
         return $this->morphTo();
@@ -58,7 +54,6 @@ class Notification extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
@@ -66,7 +61,6 @@ class Notification extends Model
     }
 
     //Emial Notification
-
     protected static function booted()
     {
         static::created(function ($notificationModelInstance) {

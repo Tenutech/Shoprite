@@ -18,14 +18,12 @@ class Language extends Model
     ];
 
     //Applicants Read
-
     public function applicantsRead()
     {
         return $this->belongsToMany(Applicant::class, 'applicant_read_languages', 'language_id', 'applicant_id');
     }
 
     //Applicants Speak
-
     public function applicantsSpeak()
     {
         return $this->belongsToMany(Applicant::class, 'applicant_speak_languages', 'language_id', 'applicant_id');
@@ -39,7 +37,6 @@ class Language extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

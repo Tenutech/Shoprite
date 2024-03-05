@@ -20,7 +20,6 @@ class Status extends Model
     ];
 
     //User Status
-
     public function users()
     {
         return $this->hasMany(User::class, 'status_id');
@@ -33,7 +32,6 @@ class Status extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

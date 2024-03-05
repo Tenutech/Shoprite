@@ -16,7 +16,6 @@ class Province extends Model
     ];
 
     //Towns
-
     public function towns()
     {
         return $this->hasMany(Town::class);
@@ -29,7 +28,6 @@ class Province extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

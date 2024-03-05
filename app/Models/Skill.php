@@ -20,7 +20,6 @@ class Skill extends Model
     ];
 
     //Position
-
     public function position()
     {
         return $this->belongsTo(Position::class);
@@ -33,7 +32,6 @@ class Skill extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

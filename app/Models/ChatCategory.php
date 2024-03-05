@@ -17,12 +17,11 @@ class ChatCategory extends Model
         'name'
     ];
 
-     //Messages
-
-     public function chatTemplates()
-     {
-         return $this->hasMany(ChatTemplate::class, 'category_id');
-     }
+    //Messages
+    public function chatTemplates()
+    {
+        return $this->hasMany(ChatTemplate::class, 'category_id');
+    }
 
     /**
      * The attributes that should be logged.
@@ -31,7 +30,6 @@ class ChatCategory extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

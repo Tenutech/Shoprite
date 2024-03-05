@@ -21,21 +21,18 @@ class Town extends Model
     ];
 
     //Province
-
     public function province()
     {
         return $this->belongsTo(Province::class);
     }
 
     //Applicants
-
     public function applicants()
     {
         return $this->hasMany(Applicant::class);
     }
 
     //Stores
-
     public function stores()
     {
         return $this->hasMany(Store::class);
@@ -49,7 +46,6 @@ class Town extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

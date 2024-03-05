@@ -19,21 +19,18 @@ class Email extends Model
     ];
 
     //User
-
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
     //Email Template
-
     public function template()
     {
         return $this->belongsTo(EmailTemplate::class, 'template_id');
     }
 
     //Subject
-
     public function subject()
     {
         return $this->morphTo();
@@ -46,7 +43,6 @@ class Email extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

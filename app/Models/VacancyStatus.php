@@ -20,7 +20,6 @@ class VacancyStatus extends Model
     ];
 
     //Vacancies
-
     public function vacancies()
     {
         return $this->hasMany(Opportunity::class, 'status_id');
@@ -33,7 +32,6 @@ class VacancyStatus extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

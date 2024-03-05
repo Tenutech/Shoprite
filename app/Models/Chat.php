@@ -18,14 +18,12 @@ class Chat extends Model
     ];
 
     //User
-
     public function applicant()
     {
         return $this->belongsTo(Applicant::class);
     }
 
     //Chat Type
-
     public function type()
     {
         return $this->belongsTo(ChatType::class, 'type_id');
@@ -38,7 +36,6 @@ class Chat extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

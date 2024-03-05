@@ -24,7 +24,6 @@ class EmailTemplate extends Model
     ];
 
     //Notifications
-
     public function emails()
     {
         return $this->hasMany(Email::class, 'type_id');
@@ -37,7 +36,6 @@ class EmailTemplate extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

@@ -26,7 +26,6 @@ class NotificationSetting extends Model
     ];
 
     //User
-
     public function user()
     {
         return $this->belongsTo(User::class);
@@ -39,7 +38,6 @@ class NotificationSetting extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

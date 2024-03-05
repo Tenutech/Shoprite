@@ -20,7 +20,6 @@ class ChatType extends Model
     ];
 
     //Chats
-
     public function chats()
     {
         return $this->hasMany(Chats::class, 'type_id');
@@ -33,7 +32,6 @@ class ChatType extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

@@ -20,7 +20,6 @@ class NotificationType extends Model
     ];
 
     //Notifications
-
     public function notifications()
     {
         return $this->hasMany(Notification::class, 'type_id');
@@ -33,7 +32,6 @@ class NotificationType extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

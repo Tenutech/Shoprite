@@ -19,7 +19,6 @@ class PhysicalRequirement extends Model
     ];
 
     //Position
-
     public function position()
     {
         return $this->belongsTo(Position::class);
@@ -32,7 +31,6 @@ class PhysicalRequirement extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

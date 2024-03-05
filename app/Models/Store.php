@@ -17,21 +17,18 @@ class Store extends Model
     ];
 
     //Brand
-
     public function brand()
     {
         return $this->belongsTo(Brand::class);
     }
 
     //Town
-
     public function town()
     {
         return $this->belongsTo(Town::class);
     }
 
     //Vacancy
-
     public function vacancies()
     {
         return $this->hasMany(Vacancy::class);
@@ -44,7 +41,6 @@ class Store extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

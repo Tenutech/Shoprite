@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Brand extends Model
+class Setting extends Model
 {
     use HasFactory, LogsActivity;
     
@@ -28,6 +28,7 @@ class Brand extends Model
     {
         return $this->hasMany(Store::class);
     }
+
 
     /**
      * The attributes that should be logged.

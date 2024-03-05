@@ -18,14 +18,12 @@ class State extends Model
     ];
 
     //Applicants
-
     public function applicants()
     {
         return $this->hasMany(Applicant::class);
     }
 
     //Chat Templates
-
     public function chatTemplates()
     {
         return $this->hasMany(ChatTemplate::class);
@@ -38,7 +36,6 @@ class State extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

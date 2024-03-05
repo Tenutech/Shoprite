@@ -22,14 +22,12 @@ class ChatTemplate extends Model
     ];
 
     //Chat State
-
     public function state()
     {
         return $this->belongsTo(State::class);
     }
 
     //Chat Type
-
     public function category()
     {
         return $this->belongsTo(ChatCategory::class, 'category_id');
@@ -42,7 +40,6 @@ class ChatTemplate extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

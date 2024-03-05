@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -171,7 +171,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     //Notification Settings
-
     public function notificationSettings()
     {
         return $this->hasOne(NotificationSetting::class);
@@ -248,12 +247,6 @@ class User extends Authenticatable implements MustVerifyEmail
     }
 
     /**
-     * The attributes that should be logged.
-     * @var bool
-     */
-    protected static $logAttributes = ['*'];
-
-    /**
      * The attributes that should be hidden for serialization.
      *
      * @var array
@@ -292,5 +285,18 @@ class User extends Authenticatable implements MustVerifyEmail
         } catch (\Exception $e) {
             Log::error('Error: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * The attributes that should be logged.
+     * @var bool
+     */
+    protected static $logAttributes = ['*'];
+
+    //Activity Log
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->logFillable();
     }
 }

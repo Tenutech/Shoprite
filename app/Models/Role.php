@@ -17,14 +17,12 @@ class Role extends Model
     ];
 
     //User Role
-
     public function users()
     {
         return $this->hasMany(User::class, 'role_id');
     }
 
     //Applicant Role
-
     public function applicants()
     {
         return $this->hasMany(Applicant::class);
@@ -37,7 +35,6 @@ class Role extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

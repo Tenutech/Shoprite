@@ -18,7 +18,6 @@ class Company extends Model
     ];
 
     //User Company
-
     public function users()
     {
         return $this->hasMany(User::class, 'company_id');
@@ -31,7 +30,6 @@ class Company extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

@@ -7,26 +7,28 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Brand extends Model
+class Reminder extends Model
 {
     use HasFactory, LogsActivity;
     
     protected $fillable = [
-        'name',
-        'icon',
-        'color'
+        'reminder_type',
+        'role_id',
+        'reminder_delay',
+        'email_template_id',
+        'is_active',
     ];
 
-    //Applicants
-    public function applicants()
+    //Role
+    public function role()
     {
-        return $this->hasMany(Applicant::class);
+        return $this->belongsTo(Role::class);
     }
 
-    //Stores
-    public function stores()
+    //Email Template
+    public function emailTemplate()
     {
-        return $this->hasMany(Store::class);
+        return $this->belongsTo(EmailTemplate::class, 'email_template_id');
     }
 
     /**
@@ -36,6 +38,7 @@ class Brand extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
+
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

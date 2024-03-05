@@ -19,14 +19,12 @@ class Message extends Model
     ];
 
     //User From
-
     public function from()
     {
         return $this->belongsTo(User::class, 'from_id');
     }
 
     //User To
-
     public function to()
     {
         return $this->belongsTo(User::class, 'to_id');
@@ -39,7 +37,6 @@ class Message extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
