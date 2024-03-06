@@ -81,6 +81,11 @@
                 </div>
                 <div class="card-body p-4">
                     <div class="tab-content">
+
+                        <!-------------------------------------------------------------------------------------
+                            Personal Details
+                        -------------------------------------------------------------------------------------->
+
                         <div class="tab-pane active" id="personalDetails" role="tabpanel">
                             <form id="formUser" enctype="multipart/form-data">
                                 <?php echo csrf_field(); ?>
@@ -212,102 +217,6 @@ unset($__errorArgs, $__bag); ?>
                                         </div>
                                     </div>
                                     <!--end col-->
-
-                                    <div class="col-lg-6">
-                                        <div class="mb-3">
-                                            <label for="company" class="form-label">
-                                                Company <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control <?php $__errorArgs = ['company'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" name="company" id="company" placeholder="Enter the name of your company" value="<?php echo e($user->company ? $user->company->name : ''); ?>" required/>
-                                            <?php $__errorArgs = ['company'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong><?php echo e($message); ?></strong>
-                                                </span>
-                                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                            <div class="invalid-feedback">
-                                                Please enter company name
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
-
-                                    <div class="col-lg-6">
-                                        <div class="mb-3">
-                                            <label for="position" class="form-label">
-                                                Position <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control <?php $__errorArgs = ['position'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" name="position" id="position" placeholder="Enter your current position" value="<?php echo e($user->position ? $user->position->name : ''); ?>" required/>
-                                            <?php $__errorArgs = ['position'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong><?php echo e($message); ?></strong>
-                                                </span>
-                                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                            <div class="invalid-feedback">
-                                                Please enter current position
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
-
-                                    <div class="col-lg-12">
-                                        <div class="mb-3">
-                                            <label for="website" class="form-label">
-                                                Website
-                                            </label>
-                                            <input type="text" class="form-control <?php $__errorArgs = ['website'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?> is-invalid <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>" name="website" id="website" placeholder="www.example.com" value="<?php echo e($user->website ? $user->website : ''); ?>" />
-                                            <?php $__errorArgs = ['website'];
-$__bag = $errors->getBag($__errorArgs[1] ?? 'default');
-if ($__bag->has($__errorArgs[0])) :
-if (isset($message)) { $__messageOriginal = $message; }
-$message = $__bag->first($__errorArgs[0]); ?>
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong><?php echo e($message); ?></strong>
-                                                </span>
-                                            <?php unset($message);
-if (isset($__messageOriginal)) { $message = $__messageOriginal; }
-endif;
-unset($__errorArgs, $__bag); ?>
-                                            <div class="invalid-feedback">
-                                                Please enter a valid URL
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
                                     
                                     <div class="col-lg-12">
                                         <div class="hstack gap-2 justify-content-end">
@@ -322,6 +231,11 @@ unset($__errorArgs, $__bag); ?>
                             </form>
                         </div>
                         <!--end tab-pane-->
+
+                        <!-------------------------------------------------------------------------------------
+                            Password
+                        -------------------------------------------------------------------------------------->
+
                         <div class="tab-pane" id="changePassword" role="tabpanel">
                             <form id="formPassword" action="post" enctype="multipart/form-data">
                                 <?php echo csrf_field(); ?>
@@ -455,6 +369,11 @@ unset($__errorArgs, $__bag); ?>
                             </form>                            
                         </div>
                         <!--end tab-pane-->
+
+                        <!-------------------------------------------------------------------------------------
+                            Notifications
+                        -------------------------------------------------------------------------------------->
+
                         <div class="tab-pane" id="notifications" role="tabpanel">
                             <form id="formNotifications" action="post" enctype="multipart/form-data">
                                 <?php echo csrf_field(); ?>
@@ -549,7 +468,7 @@ unset($__errorArgs, $__bag); ?>
                                             </div>
                                             <div class="flex-shrink-0">
                                                 <div class="form-check form-switch">
-                                                    <input class="form-check-input" type="checkbox" role="switch" id="notifyInterviewScheduled" name="notify_interview_scheduled" <?php echo e($userSettings ? ($userSettings->notify_interview_scheduled ? 'checked' : '') : 'checked'); ?> />
+                                                    <input class="form-check-input" type="checkbox" role="switch" id="notifyInterviewScheduled" name="notify_interview" <?php echo e($userSettings ? ($userSettings->notify_interview ? 'checked' : '') : 'checked'); ?> />
                                                 </div>
                                             </div>
                                         </li>

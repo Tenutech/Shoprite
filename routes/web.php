@@ -112,6 +112,14 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::delete('/weighting/destroy/{id}', [App\Http\Controllers\WeightingController::class, 'destroy'])->name('weighting.destroy');
 
     Route::post('/weighting/destroy-multiple', [App\Http\Controllers\WeightingController::class, 'destroyMultiple'])->name('weighting.destroyMultiple');
+
+    //Settings
+
+    Route::get('/settings', [App\Http\Controllers\SettingsController::class, 'index'])->name('settings.index');
+
+    Route::post('/settings/update', [App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update');
+
+    Route::post('/settings/reminders', [App\Http\Controllers\SettingsController::class, 'reminderSettings'])->name('settings.reminder-settings');
 });
 
 /*

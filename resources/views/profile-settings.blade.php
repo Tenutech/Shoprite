@@ -80,6 +80,11 @@
                 </div>
                 <div class="card-body p-4">
                     <div class="tab-content">
+
+                        <!-------------------------------------------------------------------------------------
+                            Personal Details
+                        -------------------------------------------------------------------------------------->
+
                         <div class="tab-pane active" id="personalDetails" role="tabpanel">
                             <form id="formUser" enctype="multipart/form-data">
                                 @csrf
@@ -155,60 +160,6 @@
                                         </div>
                                     </div>
                                     <!--end col-->
-
-                                    <div class="col-lg-6">
-                                        <div class="mb-3">
-                                            <label for="company" class="form-label">
-                                                Company <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control @error('company') is-invalid @enderror" name="company" id="company" placeholder="Enter the name of your company" value="{{ $user->company ? $user->company->name : '' }}" required/>
-                                            @error('company')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                            <div class="invalid-feedback">
-                                                Please enter company name
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
-
-                                    <div class="col-lg-6">
-                                        <div class="mb-3">
-                                            <label for="position" class="form-label">
-                                                Position <span class="text-danger">*</span>
-                                            </label>
-                                            <input type="text" class="form-control @error('position') is-invalid @enderror" name="position" id="position" placeholder="Enter your current position" value="{{ $user->position ? $user->position->name : '' }}" required/>
-                                            @error('position')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                            <div class="invalid-feedback">
-                                                Please enter current position
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
-
-                                    <div class="col-lg-12">
-                                        <div class="mb-3">
-                                            <label for="website" class="form-label">
-                                                Website
-                                            </label>
-                                            <input type="text" class="form-control @error('website') is-invalid @enderror" name="website" id="website" placeholder="www.example.com" value="{{ $user->website ? $user->website : '' }}" />
-                                            @error('website')
-                                                <span class="invalid-feedback" role="alert">
-                                                    <strong>{{ $message }}</strong>
-                                                </span>
-                                            @enderror
-                                            <div class="invalid-feedback">
-                                                Please enter a valid URL
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
                                     
                                     <div class="col-lg-12">
                                         <div class="hstack gap-2 justify-content-end">
@@ -223,6 +174,11 @@
                             </form>
                         </div>
                         <!--end tab-pane-->
+
+                        <!-------------------------------------------------------------------------------------
+                            Password
+                        -------------------------------------------------------------------------------------->
+
                         <div class="tab-pane" id="changePassword" role="tabpanel">
                             <form id="formPassword" action="post" enctype="multipart/form-data">
                                 @csrf
@@ -314,6 +270,11 @@
                             </form>                            
                         </div>
                         <!--end tab-pane-->
+
+                        <!-------------------------------------------------------------------------------------
+                            Notifications
+                        -------------------------------------------------------------------------------------->
+
                         <div class="tab-pane" id="notifications" role="tabpanel">
                             <form id="formNotifications" action="post" enctype="multipart/form-data">
                                 @csrf

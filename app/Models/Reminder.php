@@ -12,17 +12,21 @@ class Reminder extends Model
     use HasFactory, LogsActivity;
     
     protected $fillable = [
-        'reminder_type',
-        'role_id',
-        'reminder_delay',
-        'email_template_id',
-        'is_active',
+        'user_id',
+        'reminder_setting_id',
+        'email_template_id'
     ];
 
-    //Role
-    public function role()
+    //User
+    public function user()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(User::class);
+    }
+
+    //Reminder Setting
+    public function reminderSetting()
+    {
+        return $this->belongsTo(ReminderSetting::class, 'reminder_setting_id');
     }
 
     //Email Template
@@ -38,7 +42,6 @@ class Reminder extends Model
     protected static $logAttributes = ['*'];
 
     //Activity Log
-
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

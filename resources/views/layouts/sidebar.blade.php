@@ -202,6 +202,12 @@
                             <span>Users</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="{{ route('settings.index') }}">
+                            <i class="ri-settings-5-line"></i> 
+                            <span>Settings</span>
+                        </a>
+                    </li>
                 @endif
             </ul>
         </div>

@@ -63,9 +63,6 @@ class ProfileSettingsController extends Controller
                 'email',
                 'phone',
                 'avatar',
-                'company_id',
-                'position_id',
-                'website'
             ];
             
             $filledFieldsCount = 0;
@@ -108,8 +105,6 @@ class ProfileSettingsController extends Controller
             'lastname' => ['required', 'string', 'max:191'],
             'email' => ['required', 'string', 'email', 'max:191', 'unique:users,email,' . $userID],
             'phone' => ['required', 'string', 'max:191', 'unique:users,phone,' . $userID],
-            'company' => ['required', 'string', 'max:191'],
-            'position' => ['required', 'string', 'max:191'],
         ]);
 
         try {
@@ -138,42 +133,12 @@ class ProfileSettingsController extends Controller
 
             DB::beginTransaction();
 
-            // Check if the company exists or create a new one
-            $inputCompanyName = strtolower($request->company);
-            $company = Company::whereRaw('LOWER(name) = ?', [$inputCompanyName])->first();
-
-            if (!$company) {
-                $formattedCompanyName = ucwords($request->company);
-                
-                $company = Company::create([
-                    'name' => $formattedCompanyName,
-                    'icon' => 'ri-building-line',
-                    'color' => 'secondary'
-                ]);
-            }
-
-            // Check if the position exists or create a new one
-            $inputPositionName = strtolower($request->position);
-            $position = Position::whereRaw('LOWER(name) = ?', [$inputPositionName])->first();
-
-            if (!$position) {
-                $formattedPositionName = ucwords($request->position);
-                $position = Position::create([
-                    'name' => $formattedPositionName,
-                    'icon' => 'ri-user-fill',
-                    'color' => 'info'
-                ]);
-            }
-
             //User Update
             $user->firstname = ucwords($request->firstname);
             $user->lastname = ucwords($request->lastname);
             $user->email = $request->email;
             $user->phone = $request->phone;
             $user->avatar = $avatarName;
-            $user->company_id = $company->id;
-            $user->position_id = $position->id;
-            $user->website = $request->website;
             $user->save();
 
             DB::commit();

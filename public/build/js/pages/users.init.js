@@ -677,11 +677,38 @@ function deleteMultiple(){
     }
 }
 
-document.querySelector(".pagination-next").addEventListener("click", function () {
-    (document.querySelector(".pagination.listjs-pagination")) ? (document.querySelector(".pagination.listjs-pagination").querySelector(".active")) ?
-    document.querySelector(".pagination.listjs-pagination").querySelector(".active").nextElementSibling.children[0].click(): '': '';
+// Prevent default behavior for all pagination links created by List.js
+document.querySelectorAll(".listjs-pagination a").forEach(function(anchor) {
+    anchor.addEventListener("click", function(event) {
+        event.preventDefault();
+    });
 });
-document.querySelector(".pagination-prev").addEventListener("click", function () {
-    (document.querySelector(".pagination.listjs-pagination")) ? (document.querySelector(".pagination.listjs-pagination").querySelector(".active")) ?
-    document.querySelector(".pagination.listjs-pagination").querySelector(".active").previousSibling.children[0].click(): '': '';
+
+document.querySelector(".pagination-wrap").addEventListener("click", function(event) {
+    // If the clicked element or its parent has the class .pagination-prev
+    if (event.target.classList.contains("pagination-prev") || (event.target.parentElement && event.target.parentElement.classList.contains("pagination-prev"))) {
+        event.preventDefault();
+        const activeElement = document.querySelector(".pagination.listjs-pagination")?.querySelector(".active");
+        if (activeElement) {
+            const previousElement = activeElement.previousElementSibling;
+            if (previousElement && previousElement.children[0]) {
+                previousElement.children[0].click();
+            }
+        }
+    }
+    
+    // If the clicked element or its parent is in the .listjs-pagination
+    if (event.target.closest(".listjs-pagination")) {
+        event.preventDefault();
+        event.target.click();
+    }
+    
+    // If the clicked element or its parent has the class .pagination-next
+    if (event.target.classList.contains("pagination-next") || (event.target.parentElement && event.target.parentElement.classList.contains("pagination-next"))) {
+        event.preventDefault();
+        const activeElement = document.querySelector(".pagination.listjs-pagination")?.querySelector(".active");
+        if (activeElement && activeElement.nextElementSibling && activeElement.nextElementSibling.children[0]) {
+            activeElement.nextElementSibling.children[0].click();
+        }
+    }
 });
