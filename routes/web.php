@@ -120,6 +120,20 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::post('/settings/update', [App\Http\Controllers\SettingsController::class, 'update'])->name('settings.update');
 
     Route::post('/settings/reminders', [App\Http\Controllers\SettingsController::class, 'reminderSettings'])->name('settings.reminder-settings');
+
+    //Positions
+
+    Route::get('/positions', [App\Http\Controllers\PositionsController::class, 'index'])->name('positions.index');
+
+    Route::post('/position/add', [App\Http\Controllers\PositionsController::class, 'store'])->name('position.store');
+
+    Route::post('/position/update', [App\Http\Controllers\PositionsController::class, 'update'])->name('position.update');
+
+    Route::get('/position/details/{id}', [App\Http\Controllers\PositionsController::class, 'details'])->name('position.details');
+
+    Route::delete('/position/destroy/{id}', [App\Http\Controllers\PositionsController::class, 'destroy'])->name('position.destroy');
+
+    Route::post('/position/destroy-multiple', [App\Http\Controllers\PositionsController::class, 'destroyMultiple'])->name('position.destroyMultiple');
 });
 
 /*

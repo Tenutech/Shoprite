@@ -12,4 +12,6 @@
 <link href="<?php echo e(URL::asset('build/css/custom.css')); ?>" id="app-style" rel="stylesheet" type="text/css" />
 <!-- Sweet Alert CSS-->
 <link href="<?php echo e(URL::asset('build/libs/sweetalert2/sweetalert2.min.css')); ?>" rel="stylesheet" type="text/css" />
+<!-- Quill CSS-->
+<link href="<?php echo e(URL::asset('build/libs/quill/quill.snow.css')); ?>" rel="stylesheet" type="text/css" />
 <?php /**PATH C:\xampp\htdocs\Recruitment\resources\views/layouts/head-css.blade.php ENDPATH**/ ?>

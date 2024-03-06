@@ -12,3 +12,5 @@
 <link href="{{ URL::asset('build/css/custom.css') }}" id="app-style" rel="stylesheet" type="text/css" />
 <!-- Sweet Alert CSS-->
 <link href="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+<!-- Quill CSS-->
+<link href="{{ URL::asset('build/libs/quill/quill.snow.css') }}" rel="stylesheet" type="text/css" />

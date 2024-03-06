@@ -203,10 +203,24 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link menu-link" href="<?php echo e(route('settings.index')); ?>">
+                        <a class="nav-link menu-link" href="#sidebarSettings" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarSettings">
                             <i class="ri-settings-5-line"></i> 
                             <span>Settings</span>
                         </a>
+                        <div class="collapse menu-dropdown" id="sidebarSettings">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('settings.index')); ?>">
+                                        Application
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('positions.index')); ?>">
+                                        Positions
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </li>
                 <?php endif; ?>
             </ul>

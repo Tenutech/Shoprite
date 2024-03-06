@@ -39,7 +39,7 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="search-box">
-                                <input type="text" class="form-control search" placeholder="Search for message...">
+                                <input type="text" class="form-control search" placeholder="Search for weighting...">
                                 <i class="ri-search-line search-icon"></i>
                             </div>
                         </div>                        
@@ -128,10 +128,12 @@
                                                 </div>
                                             </th>
                                             <td class="id d-none"></td>
-                                            <td class="message"></td>
-                                            <td class="state"></td>
-                                            <td class="category"></td>
-                                            <td class="sort"></td>
+                                            <td class="score_type"></td>
+                                            <td class="weight"></td>
+                                            <td class="max_value"></td>
+                                            <td class="condition_field"></td>
+                                            <td class="condition_value"></td>
+                                            <td class="fallback_value"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -171,7 +173,7 @@
                                         Sorry! No Result Found
                                     </h5>
                                     <p class="text-muted mb-0">
-                                        We've searched all the messages. We did not find any messages for you search.
+                                        We've searched all the weightings. We did not find any weightings for you search.
                                     </p>
                                 </div>
                             </div>
@@ -196,7 +198,7 @@
                         </div>
                     </div>
 
-                    <!-- Modal Message -->
+                    <!-- Modal Weighting -->
                     <div class="modal fade zoomIn" id="weightingModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg">
                             <div class="modal-content border-0">
@@ -209,56 +211,58 @@
                                     <input type="hidden" id="field-id" name="field_id"/>
                                     <div class="modal-body">
                                         <div class="col-lg-12 mb-3">
-                                            <label for="score_type" class="form-label">
-                                                Score Type
-                                            </label>
-                                            <select id="scoreType" name="score_type" class="form-control" required>
-                                                <option value="" selected>Select Message State</option>
-                                                <?php $__currentLoopData = $scoreTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                    <option value="<?php echo e($type); ?>"><?php echo e($type); ?></option>
-                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                            </select>
-                                        </div>
+                                            <div class="mb-3">
+                                                <label for="scoreType" class="form-label">
+                                                    Score Type
+                                                </label>
+                                                <select id="scoreType" name="score_type" class="form-control" required>
+                                                    <option value="" selected>Select Message State</option>
+                                                    <?php $__currentLoopData = $scoreTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                        <option value="<?php echo e($type); ?>"><?php echo e($type); ?></option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                </select>
+                                            </div>
 
-                                        <div class="mb-3">
-                                            <label for="sort" class="form-label">
-                                                Weight
-                                            </label>
-                                            <input type="number" class="form-control" id="weight" name="weight" step="0.01" value="0.00" required/>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="sort" class="form-label">
-                                                Max Value
-                                            </label>
-                                            <input type="number" class="form-control" id="maxValue" name="max_value" value="0.00" step="0.01"/>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="sort" class="form-label">
-                                                Condition Field
-                                            </label>
-                                            <select id="conditionField" name="condition_field" class="form-control">
-                                                <option value="" selected>Select Condition Field</option>
-                                                <?php $__currentLoopData = $scoreTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                    <option value="<?php echo e($type); ?>"><?php echo e($type); ?></option>
-                                                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                            </select>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="sort" class="form-label">
-                                                Condition Value
-                                            </label>
-                                            <input type="text" class="form-control" id="conditionValue" name="condition_value"/>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="sort" class="form-label">
-                                                Fallback Value
-                                            </label>
-                                            <input type="number" class="form-control" id="fallbackValue" name="fallback_value" value="0.00" step="0.01"/>
-                                        </div>
+                                            <div class="mb-3">
+                                                <label for="weight" class="form-label">
+                                                    Weight
+                                                </label>
+                                                <input type="number" class="form-control" id="weight" name="weight" step="0.01" value="0.00" required/>
+                                            </div>
+    
+                                            <div class="mb-3">
+                                                <label for="maxValue" class="form-label">
+                                                    Max Value
+                                                </label>
+                                                <input type="number" class="form-control" id="maxValue" name="max_value" value="0.00" step="0.01"/>
+                                            </div>
+    
+                                            <div class="mb-3">
+                                                <label for="conditionField" class="form-label">
+                                                    Condition Field
+                                                </label>
+                                                <select id="conditionField" name="condition_field" class="form-control">
+                                                    <option value="" selected>Select Condition Field</option>
+                                                    <?php $__currentLoopData = $scoreTypes; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $type): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                                        <option value="<?php echo e($type); ?>"><?php echo e($type); ?></option>
+                                                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
+                                                </select>
+                                            </div>
+    
+                                            <div class="mb-3">
+                                                <label for="conditionValue" class="form-label">
+                                                    Condition Value
+                                                </label>
+                                                <input type="text" class="form-control" id="conditionValue" name="condition_value"/>
+                                            </div>
+    
+                                            <div class="mb-3">
+                                                <label for="fallbackValue" class="form-label">
+                                                    Fallback Value
+                                                </label>
+                                                <input type="number" class="form-control" id="fallbackValue" name="fallback_value" value="0.00" step="0.01"/>
+                                            </div>
+                                        </div>                                        
                                     </div>
                                     <div class="modal-footer">                                        
                                         <div class="hstack gap-2 justify-content-end">
