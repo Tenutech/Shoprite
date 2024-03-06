@@ -16,7 +16,7 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule)
     {
         $schedule->command('shortlist:expiry')->dailyAt('02:00');
-        $schedule->command('reminders:send')->everyMinute();
+        $schedule->command('reminders:send')->dailyAt('05:00');
     }
 
     /**
