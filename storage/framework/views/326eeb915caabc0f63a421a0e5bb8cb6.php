@@ -70,11 +70,19 @@
                                         </span>
                                         Job Type
                                     </button>
+                                    <button class="nav-link" id="v-pills-advertisement-tab" data-bs-toggle="pill"
+                                        data-bs-target="#v-pills-advertisement" type="button" role="tab"
+                                        aria-controls="v-pills-advertisement" aria-selected="false">
+                                        <span class="step-title me-2">
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 4:
+                                        </span>
+                                        Advertisement
+                                    </button>
                                     <button class="nav-link" id="v-pills-finish-tab" data-bs-toggle="pill"
                                         data-bs-target="#v-pills-finish" type="button" role="tab"
                                         aria-controls="v-pills-finish" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 4:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 5:
                                         </span>
                                         Finish
                                     </button>
@@ -162,7 +170,14 @@
                                                             <select class="form-control" id="store" name="store_id" data-choices data-choices-search-true required>
                                                                 <option value="">Select Store</option>
                                                                 <?php $__currentLoopData = $stores; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $store): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                                                                    <option value="<?php echo e($store->id); ?>" <?php echo e(($vacancy && $vacancy->store_id == $store->id) ? 'selected' : ''); ?>><?php echo e($store->brand->name); ?> (<?php echo e($store->town->name); ?>)</option>
+                                                                    <option value="<?php echo e($store->id); ?>"
+                                                                            <?php echo e(($vacancy && $vacancy->store_id == $store->id) 
+                                                                                ? 'selected'
+                                                                                : ((!$vacancy && $user && $user->store_id == $store->id) ? 'selected' : '')); ?>
+
+                                                                            <?php echo e(($user && $user->store_id == $store->id) ? '' : 'disabled'); ?>>
+                                                                        <?php echo e($store->brand->name); ?> (<?php echo e($store->town->name); ?>)
+                                                                    </option>
                                                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                                                             </select>
                                                             <div class="invalid-feedback">Please select a store</div>
@@ -235,6 +250,114 @@
                                             <div class="d-flex align-items-start gap-3 mt-4">
                                                 <button type="button" class="btn btn-light btn-label previestab"
                                                     data-previous="v-pills-store-tab">
+                                                    <i class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
+                                                    Back
+                                                </button>
+                                                <button type="button"
+                                                    class="btn btn-secondary btn-label right ms-auto nexttab nexttab"
+                                                    data-nexttab="v-pills-advertisement-tab">
+                                                    <i class="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>
+                                                    Continue
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- end tab pane -->
+
+                                        <!-------------------------------------------------------------------------------------
+                                            Advertisement
+                                        -------------------------------------------------------------------------------------->
+
+                                        <div class="tab-pane fade" id="v-pills-advertisement" role="tabpanel"
+                                            aria-labelledby="v-pills-advertisement-tab">
+                                            <div>
+                                                <h5>Advertisement</h5>
+                                                <p class="text-muted">
+                                                    Choose to whom you would like to advertisement this job.
+                                                </p>
+                                            </div>
+
+                                            <div>
+                                                <div class="row g-3">
+                                                    <div class="col-xl-3 col-md-6 d-flex align-items-stretch">
+                                                        <div class="form-check card-radio h-100 w-100">
+                                                            <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">                                                                
+                                                                <input id="advertisement-1" name="advertisement" type="radio" class="form-check-input" value="Any" <?php echo e((empty($vacancy) || !$vacancy->advertisement || $vacancy->advertisement == 'Any') ? 'checked' : ''); ?> required />
+                                                                <label class="form-check-label d-flex flex-column h-100" for="advertisement-1" style="white-space: normal;">
+                                                                    <div class="card-body text-center d-flex flex-column justify-content-between">
+                                                                        <div class="mb-4 pb-2">
+                                                                            <lord-icon
+                                                                                src="https://cdn.lordicon.com/pbbsmkso.json"
+                                                                                trigger="loop"
+                                                                                colors="primary:#121331,secondary:#08a88a"
+                                                                                style="width:100px;height:100px">
+                                                                            </lord-icon>
+                                                                        </div>
+                                                                        <a>
+                                                                            <h6 class="fs-15 fw-bold">
+                                                                                Any Applicants
+                                                                            </h6>
+                                                                        </a>
+                                                                    </div>                                                                        
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    
+                                                    <div class="col-xl-3 col-md-6 d-flex align-items-stretch">
+                                                        <div class="form-check card-radio h-100 w-100">
+                                                            <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">                                                                
+                                                                <input id="advertisement-2" name="advertisement" type="radio" class="form-check-input" value="External" <?php echo e(($vacancy && $vacancy->advertisement == 'External') ? 'checked' : ''); ?> required />
+                                                                <label class="form-check-label d-flex flex-column h-100" for="advertisement-2" style="white-space: normal;">
+                                                                    <div class="card-body text-center d-flex flex-column justify-content-between">
+                                                                        <div class="mb-4 pb-2">
+                                                                            <lord-icon
+                                                                                src="https://cdn.lordicon.com/rmjnvgsm.json"
+                                                                                trigger="loop"
+                                                                                colors="primary:#121331,secondary:#08a88a"
+                                                                                style="width:100px;height:100px">
+                                                                            </lord-icon>
+                                                                        </div>
+                                                                        <a>
+                                                                            <h6 class="fs-15 fw-bold">
+                                                                                External Applicants
+                                                                            </h6>
+                                                                        </a>
+                                                                    </div>                                                                        
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <div class="col-xl-3 col-md-6 d-flex align-items-stretch">
+                                                        <div class="form-check card-radio h-100 w-100">
+                                                            <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">                                                                
+                                                                <input id="advertisement-3" name="advertisement" type="radio" class="form-check-input" value="Internal" <?php echo e(($vacancy && $vacancy->advertisement == 'Internal') ? 'checked' : ''); ?> required />
+                                                                <label class="form-check-label d-flex flex-column h-100" for="advertisement-3" style="white-space: normal;">
+                                                                    <div class="card-body text-center d-flex flex-column justify-content-between">
+                                                                        <div class="mb-4 pb-2">
+                                                                            <lord-icon
+                                                                                src="https://cdn.lordicon.com/xzalkbkz.json"
+                                                                                trigger="loop"
+                                                                                colors="primary:#121331,secondary:#08a88a"
+                                                                                style="width:100px;height:100px">
+                                                                            </lord-icon>
+                                                                        </div>
+                                                                        <a>
+                                                                            <h6 class="fs-15 fw-bold">
+                                                                                Internal Applicants
+                                                                            </h6>
+                                                                        </a>
+                                                                    </div>                                                                        
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="d-flex align-items-start gap-3 mt-4">
+                                                <button type="button" class="btn btn-light btn-label previestab"
+                                                    data-previous="v-pills-type-tab">
                                                     <i class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
                                                     Back
                                                 </button>

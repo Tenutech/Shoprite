@@ -113,6 +113,9 @@ class VacanciesController extends Controller
         //User
         $user = User::with('vacancies')->findOrFail($userID);
 
+        // Determine advertisement scope conditions based on the user's internal flag
+        $advertisement = $user->internal == 1 ? ['Any', 'Internal'] : ['Any', 'External'];
+
         //Vacancies
         $vacancies = Vacancy::with([
             'user',
@@ -126,6 +129,7 @@ class VacanciesController extends Controller
                 $query->where('user_id', $userID);
             }
         ])
+        ->whereIn('advertisement', $advertisement)
         ->where('status_id', 2)
         ->orderBy('created_at', 'desc')
         ->get()

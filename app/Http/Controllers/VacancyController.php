@@ -52,6 +52,10 @@ class VacancyController extends Controller
     public function index(Request $request)
     {
         if (view()->exists('manager/vacancy')) {
+            $userId = Auth::id();
+
+            $user = User::findorfail($userId);
+
             $vacancy = null;
 
             if ($request->id) {
@@ -81,6 +85,7 @@ class VacancyController extends Controller
             $types = Type::whereNotIn('id', [6])->get();
 
             return view('manager/vacancy',[
+                'user' => $user,
                 'vacancy' => $vacancy,
                 'positions' => $positions,
                 'stores' => $stores,
@@ -103,7 +108,8 @@ class VacancyController extends Controller
             'position_id' => 'required|integer',
             'open_positions' => 'required|integer',
             'store_id' => 'required|integer',
-            'type_id' => 'required|integer'
+            'type_id' => 'required|integer',
+            'advertisement' => 'required|string'
         ]);
 
         try {
@@ -120,7 +126,8 @@ class VacancyController extends Controller
                 'filled_positions' => 0,
                 'store_id' => $request->store_id,
                 'type_id' => $request->type_id,
-                'status_id' => 1
+                'status_id' => 1,
+                'advertisement' => $request->advertisement
             ]);
 
             // If a new vacancy was created, then create a notification
@@ -170,7 +177,8 @@ class VacancyController extends Controller
             'position_id' => 'required|integer',
             'open_positions' => 'required|integer',
             'store_id' => 'required|integer',
-            'type_id' => 'required|integer'
+            'type_id' => 'required|integer',
+            'advertisement' => 'required|string'
         ]);
 
         try {            
@@ -185,6 +193,7 @@ class VacancyController extends Controller
             $vacancy->store_id = $request->store_id;
             $vacancy->type_id = $request->type_id;
             $vacancy->status_id = 1;
+            $vacancy->advertisement = $request->advertisement;
             $vacancy->save();
 
             DB::commit();

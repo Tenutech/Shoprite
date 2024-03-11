@@ -59,15 +59,18 @@
                                     </div>
                                     <div class="flex-shrink-0">
                                         <h5 class="text-white fs-14 mb-0">
-                                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                                            +16.24 %
+                                            <i class="ri-arrow-right-{{ $percentageVacancies >= 0 ? 'up' : 'down' }}-line fs-13 align-middle"></i>
+                                            {{ sprintf("%+0.2f", $percentageVacancies) }} %
                                         </h5>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-end justify-content-between mt-4">
                                     <div>
                                         <h4 class="fs-22 fw-bold ff-secondary text-white mb-4">
-                                            <span class="counter-value" data-target="2">0</span>k
+                                            <span class="counter-value" data-target="{{ $totalVacancies >= 1000 ? $totalVacancies / 1000 : $totalVacancies }}">
+                                                {{ $totalVacancies >= 1000 ? number_format($totalVacancies / 1000, 1) : $totalVacancies }}
+                                            </span>
+                                            {{ $totalVacancies >= 1000 ? 'k' : '' }}
                                         </h4>
                                         <a href="{{ route('vacancies.index') }}" class="text-decoration-underline text-white-50">
                                             View Vacancies
@@ -90,22 +93,16 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1 overflow-hidden">
                                         <p class="text-uppercase fw-bold text-white-50 text-truncate mb-0">
-                                            Applications
+                                            My Applications
                                         </p>
-                                    </div>
-                                    <div class="flex-shrink-0">
-                                        <h5 class="text-white fs-14 mb-0">
-                                            <i class="ri-arrow-right-down-line fs-13 align-middle"></i>
-                                            -3.57 %
-                                        </h5>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-end justify-content-between mt-4">
                                     <div>
                                         <h4 class="fs-22 fw-bold ff-secondary text-white mb-4">
-                                            <span class="counter-value" data-target="567">0</span>
+                                            <span class="counter-value" data-target="{{ $totalAppliedVacancies }}">0</span>
                                         </h4>
-                                        <a href="{{ route('vacancies.index') }}" class="text-decoration-underline text-white-50">
+                                        <a href="{{ route('profile.index') }}#applications-tab" class="text-decoration-underline text-white-50">
                                             View Applications
                                         </a>
                                     </div>
@@ -129,25 +126,18 @@
                                             My Messages
                                         </p>
                                     </div>
-                                    <div class="flex-shrink-0">
-                                        <h5 class="text-white fs-14 mb-0">
-                                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                                            +29.08 %
-                                        </h5>
-                                    </div>
                                 </div>
                                 <div class="d-flex align-items-end justify-content-between mt-4">
                                     <div>
                                         <h4 class="fs-22 fw-bold ff-secondary text-white mb-4">
-                                            <span class="counter-value" data-target="183">0</span>
+                                            <span class="counter-value" data-target="{{ $totalChats }}">0</span>
                                         </h4>
-                                        <a href="" class="text-decoration-underline text-white-50">
+                                        <a href="/chat" class="text-decoration-underline text-white-50">
                                             View Messages
                                         </a>
                                     </div>
                                     <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-white bg-opacity-10 rounded fs-3">
-                                            
+                                        <span class="avatar-title bg-white bg-opacity-10 rounded fs-3">                                            
                                             <i class="bx bx-message-rounded text-white"></i>
                                         </span>
                                     </div>

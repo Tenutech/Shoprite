@@ -73,12 +73,27 @@ class ProcessUserIdNumber implements ShouldQueue
                 $verified = 'No';
             }
 
-            // Update user
-            $person->birth_date = $birthdate;
-            $person->age = $age;
-            $person->gender_id = $genderId;
-            $person->resident = $resident;
-            $person->id_verified = $verified;
+            // Update Person
+            if (empty($person->birth_date)) {
+                $person->birth_date = $birthdate;
+            }
+            
+            if (is_null($person->age) || $person->age === '') {
+                $person->age = $age;
+            }
+            
+            if (empty($person->gender_id)) {
+                $person->gender_id = $genderId;
+            }
+            
+            if (empty($person->resident)) {
+                $person->resident = $resident;
+            }
+            
+            if (empty($person->id_verified)) {
+                $person->id_verified = $verified;
+            }
+            
             $person->save();
         }
     }

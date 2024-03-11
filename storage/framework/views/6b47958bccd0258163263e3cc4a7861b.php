@@ -58,15 +58,20 @@
                                     </div>
                                     <div class="flex-shrink-0">
                                         <h5 class="text-white fs-14 mb-0">
-                                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                                            +16.24 %
+                                            <i class="ri-arrow-right-<?php echo e($percentageVacancies >= 0 ? 'up' : 'down'); ?>-line fs-13 align-middle"></i>
+                                            <?php echo e(sprintf("%+0.2f", $percentageVacancies)); ?> %
                                         </h5>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-end justify-content-between mt-4">
                                     <div>
                                         <h4 class="fs-22 fw-bold ff-secondary text-white mb-4">
-                                            <span class="counter-value" data-target="2">0</span>k
+                                            <span class="counter-value" data-target="<?php echo e($totalVacancies >= 1000 ? $totalVacancies / 1000 : $totalVacancies); ?>">
+                                                <?php echo e($totalVacancies >= 1000 ? number_format($totalVacancies / 1000, 1) : $totalVacancies); ?>
+
+                                            </span>
+                                            <?php echo e($totalVacancies >= 1000 ? 'k' : ''); ?>
+
                                         </h4>
                                         <a href="<?php echo e(route('vacancies.index')); ?>" class="text-decoration-underline text-white-50">
                                             View Vacancies
@@ -89,22 +94,16 @@
                                 <div class="d-flex align-items-center">
                                     <div class="flex-grow-1 overflow-hidden">
                                         <p class="text-uppercase fw-bold text-white-50 text-truncate mb-0">
-                                            Applications
+                                            My Applications
                                         </p>
-                                    </div>
-                                    <div class="flex-shrink-0">
-                                        <h5 class="text-white fs-14 mb-0">
-                                            <i class="ri-arrow-right-down-line fs-13 align-middle"></i>
-                                            -3.57 %
-                                        </h5>
                                     </div>
                                 </div>
                                 <div class="d-flex align-items-end justify-content-between mt-4">
                                     <div>
                                         <h4 class="fs-22 fw-bold ff-secondary text-white mb-4">
-                                            <span class="counter-value" data-target="567">0</span>
+                                            <span class="counter-value" data-target="<?php echo e($totalAppliedVacancies); ?>">0</span>
                                         </h4>
-                                        <a href="<?php echo e(route('vacancies.index')); ?>" class="text-decoration-underline text-white-50">
+                                        <a href="<?php echo e(route('profile.index')); ?>#applications-tab" class="text-decoration-underline text-white-50">
                                             View Applications
                                         </a>
                                     </div>
@@ -128,25 +127,18 @@
                                             My Messages
                                         </p>
                                     </div>
-                                    <div class="flex-shrink-0">
-                                        <h5 class="text-white fs-14 mb-0">
-                                            <i class="ri-arrow-right-up-line fs-13 align-middle"></i>
-                                            +29.08 %
-                                        </h5>
-                                    </div>
                                 </div>
                                 <div class="d-flex align-items-end justify-content-between mt-4">
                                     <div>
                                         <h4 class="fs-22 fw-bold ff-secondary text-white mb-4">
-                                            <span class="counter-value" data-target="183">0</span>
+                                            <span class="counter-value" data-target="<?php echo e($totalChats); ?>">0</span>
                                         </h4>
-                                        <a href="" class="text-decoration-underline text-white-50">
+                                        <a href="/chat" class="text-decoration-underline text-white-50">
                                             View Messages
                                         </a>
                                     </div>
                                     <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-white bg-opacity-10 rounded fs-3">
-                                            
+                                        <span class="avatar-title bg-white bg-opacity-10 rounded fs-3">                                            
                                             <i class="bx bx-message-rounded text-white"></i>
                                         </span>
                                     </div>
@@ -2186,6 +2178,24 @@
                                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                             </ol>
                         </div>
+
+                        <div class="card sidebar-alert bg-light border-0 text-center mx-4 mb-0 mt-3">
+                            <div class="card-body">
+                                <img src="<?php echo e(URL::asset('build/images/shoops-qr.png')); ?>" width="150px" alt="">
+                                <div class="mt-4">
+                                    <h5>
+                                        WhatsApp
+                                    </h5>
+                                    <p class="text-muted lh-base">
+                                        Want to apply using WhatsApp? Scan the code now!
+                                    </p>
+                                    <a href="https://wa.me/message/7SVFD36YM766G1" class="btn btn-success btn-label rounded-pill" target="_blank">
+                                        <i class="ri-whatsapp-line label-icon align-middle rounded-pill fs-16 me-2"></i>
+                                        Shoops
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
                         
                         <div class="card sidebar-alert bg-light border-0 text-center mx-4 mb-0 mt-3">
                             <div class="card-body">
@@ -2197,7 +2207,7 @@
                                     <p class="text-muted lh-base">
                                         Need help? Watch the tutorial video now!
                                     </p>
-                                    <a href="https://www.youtube.com/watch?v=glhWGAV5zJI&t=58s" class="btn btn-primary btn-label rounded-pill" target="_blank">
+                                    <a href="https://www.youtube.com/watch?v=-LFTggnuzZc" class="btn btn-primary btn-label rounded-pill" target="_blank">
                                         <i class="ri-video-chat-fill label-icon align-middle rounded-pill fs-16 me-2"></i>
                                         Tutorial
                                     </a>

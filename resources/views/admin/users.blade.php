@@ -82,11 +82,17 @@
                                         <th class="sort" data-sort="name" scope="col">Name</th>
                                         <th class="sort" data-sort="email" scope="col">Email</th>
                                         <th class="sort" data-sort="phone" scope="col">Phone</th>
-                                        <th class="sort" data-sort="company" scope="col">Company</th>
-                                        <th class="sort" data-sort="position" scope="col">Position</th>
+                                        <th class="sort" data-sort="id_number" scope="col">ID Number</th>
+                                        <th class="sort d-none" data-sort="id_verified" scope="col">Verified</th>
+                                        <th class="sort d-none" data-sort="birth_date" scope="col">Birth Date</th>
+                                        <th class="sort" data-sort="age" scope="col">Age</th>
+                                        <th class="sort" data-sort="gender" scope="col">Gender</th>
+                                        <th class="sort d-none" data-sort="resident" scope="col">Citizen Status</th>
+                                        <th class="sort d-none" data-sort="position" scope="col">Position</th>
                                         <th class="sort" data-sort="role" scope="col">Role</th>
-                                        <th class="sort" data-sort="status" scope="col">Status</th>
-                                        <th class="sort d-none" data-sort="vacancies" scope="col">Vacancies</th>                            
+                                        <th class="sort d-none" data-sort="store" scope="col">Store</th>
+                                        <th class="sort" data-sort="internal" scope="col">Inernal</th>
+                                        <th class="sort" data-sort="status" scope="col">Status</th>                          
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -110,9 +116,16 @@
                                                 </td>
                                                 <td class="email">{{ $user->email }}</td>
                                                 <td class="phone">{{ $user->phone }}</td>
-                                                <td class="company">{{ $user->company ? $user->company->name : '' }}</td>
-                                                <td class="position">{{ $user->position ? $user->position->name : '' }}</td>
+                                                <td class="id_number">{{ $user->id_number }}</td>
+                                                <td class="id_verified d-none">{{ $user->id_verified }}</td>
+                                                <td class="birth_date d-none">{{ $user->birth_date ? date('d M, Y', strtotime($user->birth_date)) : '' }}</td>
+                                                <td class="age">{{ $user->age }}</td>
+                                                <td class="gender">{{ $user->gender ? $user->gender->name : '' }}</td>
+                                                <td class="resident d-none">{{ $user->resident == 1 ? 'Born a Citizen' : 'Permanent Resident' }}</td>
+                                                <td class="position d-none">{{ $user->position ? $user->position->name : '' }}</td>
                                                 <td class="role">{{ $user->role ? $user->role->name : '' }}</td>
+                                                <td class="store d-none">{{ $user->store ? optional($user->store->brand)->name.' ('.optional($user->store->town)->name.')' : '' }}</td>
+                                                <td class="internal">{{ $user->internal == 1 ? 'Yes' : 'No' }}</td>
                                                 <td class="status">
                                                     <span class="badge bg-{{ $user->status->color }}-subtle text-{{ $user->status->color }} text-uppercase">
                                                         {{ $user->status->name }}
@@ -149,7 +162,6 @@
                                                         </li>
                                                     </ul>
                                                 </td>
-                                                <td class="vacancies d-none">{{ $user->vacancies->count() }}</td>
                                             </tr>
                                         @endforeach
                                     @else
@@ -163,9 +175,16 @@
                                             <td class="name"></td>
                                             <td class="email"></td>
                                             <td class="phone"></td>
-                                            <td class="company"></td>
-                                            <td class="position"></td>
+                                            <td class="id_number"></td>
+                                            <td class="id_verified d-none"></td>
+                                            <td class="birth_date d-none"></td>
+                                            <td class="age"></td>
+                                            <td class="gender"></td>
+                                            <td class="resident d-none"></td>
+                                            <td class="position d-none"></td>
                                             <td class="role"></td>
+                                            <td class="store d-none"></td>
+                                            <td class="internal"></td>
                                             <td class="status"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
@@ -198,7 +217,6 @@
                                                     </li>
                                                 </ul>
                                             </td>
-                                            <td class="vacancies d-none"></td>
                                         </tr>
                                     @endif
                                 </tbody>
@@ -237,7 +255,7 @@
                             <div class="modal-content border-0">
                                 <div class="modal-header p-3 bg-soft-primary-rainbow">
                                     <h5 class="modal-title" id="exampleModalLabel">
-                                        Create User
+                                        Add User
                                     </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
                                 </div>
@@ -283,14 +301,57 @@
                                                     </label>
                                                     <input type="email" id="email" name="email" class="form-control" placeholder="Enter email address" required/>
                                                 </div>
-                                                <!--end col-->                                                
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="company" class="form-label">
-                                                        Company
+                                                    <label for="idNumber" class="form-label">
+                                                        ID Number
                                                     </label>
-                                                    <input type="text" id="company" name="company" class="form-control" placeholder="Enter company" required/>
+                                                    <input type="text" id="idNumber" name="id_number" class="form-control" placeholder="Enter id number" required/>
                                                 </div>
-                                                <!--end col-->                                          
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="birthDate" class="form-label">
+                                                        Birth Date
+                                                    </label>
+                                                    <input type="date" id="birthDate" name="birth_date" class="form-control" placeholder="Enter date of birth"/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="gender" class="form-label">
+                                                        Gender
+                                                    </label>
+                                                    <select id="gender" name="gender_id" class="form-control">
+                                                        <option value="" selected>Select Gender</option>
+                                                        @foreach ($genders as $gender)
+                                                            <option value="{{ $gender->id }}">{{ $gender->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="position" class="form-label">
+                                                        Position
+                                                    </label>
+                                                    <select id="position" name="position_id" class="form-control">
+                                                        <option value="" selected>Select Position</option>
+                                                        @foreach ($positions as $position)
+                                                            <option value="{{ $position->id }}">{{ $position->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="store" class="form-label">
+                                                        Store
+                                                    </label>
+                                                    <select id="store" name="store_id" class="form-control">
+                                                        <option value="" selected>Select Store</option>
+                                                        @foreach ($stores as $store)
+                                                            <option value="{{ $store->id }}">{{ optional($store->brand)->name }} ({{ optional($store->town)->name }})</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->                             
                                             </div>
                                             <!--end col-->
 
@@ -310,25 +371,57 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="position" class="form-label">
-                                                        Position
+                                                    <label for="idVerified" class="form-label">
+                                                        ID Verified
                                                     </label>
-                                                    <input type="text" id="position" name="position" class="form-control" placeholder="Enter position" required/>
-                                                </div>                                                
+                                                    <select id="idVerified" name="id_verified" class="form-control">
+                                                        <option value="" selected>Select Option</option>
+                                                        <option value="No">No</option>
+                                                        <option value="Yes">Yes</option>
+                                                    </select>
+                                                </div>
                                                 <!--end col-->
-                                            </div>
-                                            <!--end col-->
-
-                                            <div class="col-lg-12 mb-3">
-                                                <label for="role" class="form-label">
-                                                    Role
-                                                </label>
-                                                <select id="role" name="role" class="form-control" required>
-                                                    <option value="" selected>Select User Role</option>
-                                                    @foreach ($roles as $role)
-                                                        <option value="{{$role->id}}">{{$role->name}}</option>
-                                                    @endforeach
-                                                </select>
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="age" class="form-label">
+                                                        Age
+                                                    </label>
+                                                    <input type="number" id="age" name="age" class="form-control" placeholder="Enter age" max="100" min="16"/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="resident" class="form-label">
+                                                        Citizen Status
+                                                    </label>
+                                                    <select id="resident" name="resident" class="form-control">
+                                                        <option value="" selected>Select Option</option>
+                                                        <option value="0">Born a Citizen</option>
+                                                        <option value="1">Permanent Resident</option>
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="role" class="form-label">
+                                                        Role
+                                                    </label>
+                                                    <select id="role" name="role_id" class="form-control" required>
+                                                        <option value="" selected>Select User Role</option>
+                                                        @foreach ($roles as $role)
+                                                            <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="internal" class="form-label">
+                                                        Internal
+                                                    </label>
+                                                    <select id="internal" name="internal" class="form-control">
+                                                        <option value="" selected>Select Option</option>
+                                                        <option value="0">No</option>
+                                                        <option value="1">Yes</option>
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
                                             </div>
                                             <!--end col-->
                                         </div>
@@ -410,7 +503,27 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">Company</td>
+                                    <td class="fw-medium" scope="row">ID Number</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">ID Verified</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Birth Date</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Age</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Gender</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Citizen Status</td>
                                     <td></td>
                                 </tr>
                                 <tr>
@@ -418,7 +531,15 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">Opportunities</td>
+                                    <td class="fw-medium" scope="row">Role</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Store</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Internal</td>
                                     <td></td>
                                 </tr>
                             </tbody>

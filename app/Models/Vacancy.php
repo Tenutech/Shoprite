@@ -18,7 +18,8 @@ class Vacancy extends Model
         'type_id',
         'status_id',
         'open_positions',
-        'filled_positions'
+        'filled_positions',
+        'advertisement'
     ];
 
     //User

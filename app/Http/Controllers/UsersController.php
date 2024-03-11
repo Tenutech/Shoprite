@@ -5,9 +5,13 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Gender;
 use App\Models\Company;
 use App\Models\Position;
+use App\Models\Store;
+use App\Jobs\ProcessUserIdNumber;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
@@ -51,6 +55,8 @@ class UsersController extends Controller
                 'status',
                 'company',
                 'position',
+                'gender',
+                'store',
                 'applicant',
                 'amendments',
                 'state',
@@ -68,6 +74,21 @@ class UsersController extends Controller
             ->orderby('lastname')
             ->get();
 
+            //Genders
+            $genders = Gender::all();
+
+            //Companies
+            $companies = Company::all();
+
+            //Positions
+            $positions = Position::all();
+
+            //Stores
+            $stores = Store::with([
+                'brand',
+                'town'
+            ])->get();
+
             //Roles
             $roles = Role::where('id', '>', 1)
                          ->orderby('name')
@@ -75,6 +96,10 @@ class UsersController extends Controller
 
             return view('admin/users',[
                 'users' => $users,
+                'genders' => $genders,
+                'companies' => $companies,
+                'positions' => $positions,
+                'stores' => $stores,
                 'roles' => $roles
             ]);
         }
@@ -96,8 +121,16 @@ class UsersController extends Controller
             'lastname' => ['required', 'string', 'max:191'],
             'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
-            'company' => ['required', 'string', 'max:191'],
-            'position' => ['required', 'string', 'max:191'],
+            'id_number' => ['required', 'string',  'digits:13', 'unique:users'],
+            'id_verified' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
+            'birth_date' => ['sometimes', 'nullable', 'date'],
+            'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
+            'gender_id' => ['sometimes', 'nullable', 'integer', 'in:1,2'],
+            'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
+            'position_id' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:10'],
+            'role_id' => ['required', 'integer', 'min:1', 'max:5'],
+            'store_id' => ['sometimes', 'nullable', 'integer'],
+            'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);
 
         try {            
@@ -112,33 +145,6 @@ class UsersController extends Controller
             }
 
             DB::beginTransaction();
-
-            // Check if the company exists or create a new one
-            $inputCompanyName = strtolower($request->company);
-            $company = Company::whereRaw('LOWER(name) = ?', [$inputCompanyName])->first();
-
-            if (!$company) {
-                $formattedCompanyName = ucwords($request->company);
-                
-                $company = Company::create([
-                    'name' => $formattedCompanyName,
-                    'icon' => 'ri-building-line',
-                    'color' => 'secondary'
-                ]);
-            }
-
-            // Check if the position exists or create a new one
-            $inputPositionName = strtolower($request->position);
-            $position = Position::whereRaw('LOWER(name) = ?', [$inputPositionName])->first();
-
-            if (!$position) {
-                $formattedPositionName = ucwords($request->position);
-                $position = Position::create([
-                    'name' => $formattedPositionName,
-                    'icon' => 'ri-user-fill',
-                    'color' => 'info'
-                ]);
-            }
             
             //User Create
             $user = User::create([                
@@ -146,17 +152,27 @@ class UsersController extends Controller
                 'lastname' => ucwords($request->lastname),
                 'email' => $request->email,
                 'phone' => $request->phone,
+                'id_number' => $request->id_number,
+                'id_verified' => $request->id_verified,
                 'password' => Hash::make("F4!pT9@gL2#dR0wZ"),
                 'avatar' => $avatarName,
-                'company_id' => $company->id,
-                'position_id' => $position->id,
-                'role_id' => $request->role,
+                'birth_date' => date('Y-m-d', strtotime($request->birth_date)),
+                'age' => $request->age,
+                'gender_id' => $request->gender_id,
+                'resident' => $request->resident,
+                'position_id' => $request->position_id,
+                'role_id' => $request->role_id,
+                'store_id' => $request->store_id,
+                'internal' => $request->internal,
                 'status_id' => 2,
             ]);
 
             DB::commit();
 
             $encID = Crypt::encryptString($user->id);
+
+            // Dispatch the job
+            ProcessUserIdNumber::dispatch($user->id);
 
             return response()->json([
                 'success' => true,
@@ -186,7 +202,14 @@ class UsersController extends Controller
         try {
             $userID = Crypt::decryptString($id);
 
-            $user = User::with(['company', 'position'])->findOrFail($userID);
+            $user = User::with([
+                'role',
+                'status',
+                'company',
+                'position',
+                'gender',
+                'store',
+            ])->findOrFail($userID);
 
             return response()->json([
                 'user' => $user,
@@ -215,10 +238,18 @@ class UsersController extends Controller
             'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'email' => ['required', 'string', 'email', 'max:191', 'unique:users,email,' . $userID],
-            'phone' => ['required', 'string', 'max:191', 'unique:users,phone,' . $userID],
-            'company' => ['required', 'string', 'max:191'],
-            'position' => ['required', 'string', 'max:191'],
+            'email' => ['required', 'string', 'email', 'max:191', Rule::unique('users')->ignore($userID)],
+            'phone' => ['required', 'string', 'max:191', Rule::unique('users')->ignore($userID)],
+            'id_number' => ['required', 'string',  'digits:13', Rule::unique('users')->ignore($userID)],
+            'id_verified' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
+            'birth_date' => ['sometimes', 'nullable', 'date'],
+            'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
+            'gender_id' => ['sometimes', 'nullable', 'integer', 'in:1,2'],
+            'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
+            'position_id' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:10'],
+            'role_id' => ['required', 'integer', 'min:1', 'max:5'],
+            'store_id' => ['sometimes', 'nullable', 'integer'],
+            'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);
 
         try {
@@ -251,41 +282,28 @@ class UsersController extends Controller
             $inputCompanyName = strtolower($request->company);
             $company = Company::whereRaw('LOWER(name) = ?', [$inputCompanyName])->first();
 
-            if (!$company) {
-                $formattedCompanyName = ucwords($request->company);
-                
-                $company = Company::create([
-                    'name' => $formattedCompanyName,
-                    'icon' => 'ri-building-line',
-                    'color' => 'secondary'
-                ]);
-            }
-
-            // Check if the position exists or create a new one
-            $inputPositionName = strtolower($request->position);
-            $position = Position::whereRaw('LOWER(name) = ?', [$inputPositionName])->first();
-
-            if (!$position) {
-                $formattedPositionName = ucwords($request->position);
-                $position = Position::create([
-                    'name' => $formattedPositionName,
-                    'icon' => 'ri-user-fill',
-                    'color' => 'info'
-                ]);
-            }
-
             //User Update
             $user->firstname = ucwords($request->firstname);
             $user->lastname = ucwords($request->lastname);
             $user->email = $request->email;
             $user->phone = $request->phone;
+            $user->id_number = $request->id_number;
+            $user->id_verified = $request->id_verified;
             $user->avatar = $avatarName;
-            $user->company_id = $company->id;
-            $user->position_id = $position->id;
-            $user->role_id = $request->role;
+            $user->birth_date = date('Y-m-d', strtotime($request->birth_date));
+            $user->age = $request->age;
+            $user->gender_id = $request->gender_id;
+            $user->resident = $request->resident;
+            $user->position_id = $request->position_id;
+            $user->role_id = $request->role_id;
+            $user->store_id = $request->store_id;
+            $user->internal = $request->internal;
             $user->save();
 
             DB::commit();
+
+            // Dispatch the job
+            ProcessUserIdNumber::dispatch($user->id);
 
             return response()->json([
                 'success' => true,

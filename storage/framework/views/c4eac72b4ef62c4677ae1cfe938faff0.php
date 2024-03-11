@@ -1379,6 +1379,24 @@
                             <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
                         </ol>
                     </div>
+
+                    <div class="card sidebar-alert bg-light border-0 text-center mx-4 mb-0 mt-3">
+                        <div class="card-body">
+                            <img src="<?php echo e(URL::asset('build/images/shoops-qr.png')); ?>" width="150px" alt="">
+                            <div class="mt-4">
+                                <h5>
+                                    WhatsApp
+                                </h5>
+                                <p class="text-muted lh-base">
+                                    Want to apply using WhatsApp? Scan the code now!
+                                </p>
+                                <a href="https://wa.me/message/7SVFD36YM766G1" class="btn btn-success btn-label rounded-pill" target="_blank">
+                                    <i class="ri-whatsapp-line label-icon align-middle rounded-pill fs-16 me-2"></i>
+                                    Shoops
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                     
                     <div class="card sidebar-alert bg-light border-0 text-center mx-4 mb-0 mt-3">
                         <div class="card-body">
@@ -1390,7 +1408,7 @@
                                 <p class="text-muted lh-base">
                                     Need help? Watch the tutorial video now!
                                 </p>
-                                <a href="https://www.youtube.com/watch?v=glhWGAV5zJI&t=58s" class="btn btn-primary btn-label rounded-pill" target="_blank">
+                                <a href="https://www.youtube.com/watch?v=-LFTggnuzZc" class="btn btn-primary btn-label rounded-pill" target="_blank">
                                     <i class="ri-video-chat-fill label-icon align-middle rounded-pill fs-16 me-2"></i>
                                     Tutorial
                                 </a>

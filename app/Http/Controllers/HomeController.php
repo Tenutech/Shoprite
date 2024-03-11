@@ -81,7 +81,13 @@ class HomeController extends Controller
             $user = User::with([
                 'applicant.readLanguages',
                 'applicant.speakLanguages',
-            ])->findOrFail($userID);
+                'appliedVacancies'
+            ])
+            ->withCount('appliedVacancies')
+            ->findOrFail($userID);
+
+            // Determine advertisement scope conditions based on the user's internal flag
+            $advertisement = $user->internal == 1 ? ['Any', 'Internal'] : ['Any', 'External'];
 
             //Vacancies
             $vacancies = Vacancy::with([
@@ -104,6 +110,7 @@ class HomeController extends Controller
             ->withCount(['applications as applications_rejected' => function ($query) {
                 $query->where('approved', 'No');
             }])
+            ->whereIn('advertisement', $advertisement)
             ->where('status_id', 2)
             ->orderBy('created_at', 'desc')
             ->get()
@@ -112,6 +119,30 @@ class HomeController extends Controller
                 $vacancy->encrypted_user_id = Crypt::encryptString($vacancy->user_id);
                 return $vacancy;
             });
+
+            // Total count of vacancies
+            $totalVacancies = $vacancies->count();
+
+            // Vacancy counts for the current and previous months
+            $currentMonthVacancies = Vacancy::where('created_at', '>=', now()->startOfMonth())->count();
+            $previousMonthVacancies = Vacancy::whereBetween('created_at', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()])->count();
+
+            // Calculate the percentage increase or decrease
+            $percentageVacancies = 0;
+            if ($previousMonthVacancies > 0) {
+                $percentageVacancies = round((($currentMonthVacancies - $previousMonthVacancies) / $previousMonthVacancies) * 100, 2);
+            }
+
+            //Total applied vacancies
+            $totalAppliedVacancies = $user->applied_vacancies_count;
+
+            $totalChats = 0;
+
+            // Check if the applicant relationship exists and is not null
+            if ($user->applicant) {
+                // If the applicant exists, count their chats
+                $totalChats = $user->applicant->chats->count();
+            }
 
             // Define the models that are relevant for the activity log.
             $allowedModels = [
@@ -382,6 +413,10 @@ class HomeController extends Controller
                 'userID' => $userID,
                 'user' => $user,
                 'vacancies' => $vacancies,
+                'totalVacancies' => $totalVacancies,
+                'percentageVacancies' => $percentageVacancies,
+                'totalAppliedVacancies' => $totalAppliedVacancies,
+                'totalChats' => $totalChats,
                 'activities' => $activities,
                 'positions' => $positions,
                 'types' => $types,
@@ -420,6 +455,9 @@ class HomeController extends Controller
         //User
         $user = User::with('vacancies')->findOrFail($userID);
 
+        // Determine advertisement scope conditions based on the user's internal flag
+        $advertisement = $user->internal == 1 ? ['Any', 'Internal'] : ['Any', 'External'];
+
         //Vacancies
         $vacancies = Vacancy::with([
             'user',
@@ -441,6 +479,7 @@ class HomeController extends Controller
         ->withCount(['applications as applications_rejected' => function ($query) {
             $query->where('approved', 'No');
         }])
+        ->whereIn('advertisement', $advertisement)
         ->where('status_id', 2)
         ->orderBy('created_at', 'desc')
         ->get()

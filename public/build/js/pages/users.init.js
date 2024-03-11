@@ -6,6 +6,17 @@ Contact: Themesbrand@gmail.com
 File: CRM-contact Js File
 */
 
+//Format Date
+function formatDate(dateStr) {
+    if (!dateStr) return ''; // Check for falsy input to avoid errors
+
+    const date = new Date(dateStr);
+    if (isNaN(date)) return ''; // Check if the date is invalid
+
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return new Intl.DateTimeFormat('en', options).format(date);
+}
+
 // list js
 var checkAll = document.getElementById("checkAll");
 if (checkAll) {
@@ -31,11 +42,17 @@ var options = {
         "name",
         "email",
         "phone",
-        "company",
+        "id_number",
+        "id_verified",
+        "birth_date",
+        "age",
+        "gender",
+        "resident",
         "position",
         "role",
-        "status",
-        "vacancies"
+        "store",
+        "internal",
+        "status"
     ],
     page: perPage,
     pagination: true,
@@ -108,9 +125,16 @@ var idField = document.getElementById("field-id"),
     lastname = document.getElementById("lastname"),
     email = document.getElementById("email"),
     phone = document.getElementById("phone"),
-    company = document.getElementById("company"),
+    idNumber = document.getElementById("idNumber"),
+    idVerified = document.getElementById("idVerified"),
+    birthDate = document.getElementById("birthDate"),
+    age = document.getElementById("age"),
+    gender = document.getElementById("gender"),
+    resident = document.getElementById("resident"),
     position = document.getElementById("position"),
     role = document.getElementById("role"),
+    store = document.getElementById("store"),
+    internal = document.getElementById("internal"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
@@ -130,7 +154,7 @@ document.getElementById("usersModal").addEventListener("show.bs.modal", function
         document.getElementById("edit-btn").style.display = "none";
         document.getElementById("add-btn").style.display = "block";
     } else {
-        document.getElementById("exampleModalLabel").innerHTML = "List Contact";
+        document.getElementById("exampleModalLabel").innerHTML = "List User";
         document.getElementById("usersModal").querySelector(".modal-footer").style.display = "none";
     }
 });
@@ -152,8 +176,37 @@ var trlist = table.querySelectorAll(".list tr");
 
 var count = 11;
 
+var idVerifiedVal = new Choices(idVerified, {
+    searchEnabled: false,
+    shouldSort: false
+});
+
+var genderVal = new Choices(gender, {
+    searchEnabled: false,
+    shouldSort: false
+});
+
+var residentVal = new Choices(resident, {
+    searchEnabled: false,
+    shouldSort: false
+});
+
+var positionVal = new Choices(position, {
+    searchEnabled: true,
+    shouldSort: false
+});
+
 var roleVal = new Choices(role, {
     searchEnabled: false
+});
+
+var storeVal = new Choices(store, {
+    searchEnabled: true
+});
+
+var internalVal = new Choices(internal, {
+    searchEnabled: false,
+    shouldSort: false
 });
 
 /*
@@ -179,10 +232,46 @@ addBtn.addEventListener("click", function (e) {
             },
             success:function(data) {
                 if(data.success == true) {
+                    if (idVerified.value) {
+                        idVerifiedValue = idVerified.options[idVerified.selectedIndex].text;
+                    } else {
+                        idVerifiedValue = '';
+                    }
+
+                    if (gender.value) {
+                        genderValue = gender.options[gender.selectedIndex].text;
+                    } else {
+                        genderValue = '';
+                    }
+
+                    if (resident.value) {
+                        residentValue = resident.options[resident.selectedIndex].text;
+                    } else {
+                        residentValue = '';
+                    }
+
+                    if (position.value) {
+                        positionValue = position.options[position.selectedIndex].text;
+                    } else {
+                        positionValue = '';
+                    }
+
                     if (role.value) {
                         roleValue = role.options[role.selectedIndex].text;
                     } else {
                         roleValue = '';
+                    }
+
+                    if (store.value) {
+                        storeValue = store.options[store.selectedIndex].text;
+                    } else {
+                        storeValue = '';
+                    }
+
+                    if (internal.value) {
+                        internalValue = internal.options[internal.selectedIndex].text;
+                    } else {
+                        internalValue = '';
                     }
 
                     userList.add({
@@ -193,12 +282,19 @@ addBtn.addEventListener("click", function (e) {
                                 </div>',
                         email: email.value,
                         phone: phone.value,
-                        company: company.value,
-                        position: position.value,
+                        id_number: idNumber.value,
+                        id_verified: idVerifiedValue,
+                        birth_date: formatDate(birthDate.value),
+                        age: age.value,
+                        gender: genderValue,
+                        resident: residentValue,
+                        position: positionValue,
                         role: roleValue,
+                        store: storeValue,
+                        internal: internalValue,
                         status: '<span class="badge bg-danger-subtle text-danger text-uppercase">\
                                     Offline\
-                                </span>',                     
+                                </span>'                     
                     });
                     userList.sort('name', { order: "asc" });
                     Swal.fire({
@@ -218,39 +314,26 @@ addBtn.addEventListener("click", function (e) {
                 } 
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+        
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: jqXHR.responseJSON.message,
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
                 } else {
-                    if(textStatus === 'timeout') {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'The request timed out. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    } else {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'An error occurred while processing your request. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    }
+                    message = 'An error occurred while processing your request. Please try again later.';
                 }
+            
+                // Trigger the Swal notification with the dynamic message
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
             }
         })
     } else {
@@ -289,10 +372,46 @@ editBtn.addEventListener("click", function (e) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
                         if (selectedid == itemId) {    
+                            if (idVerified.value) {
+                                idVerifiedValue = idVerified.options[idVerified.selectedIndex].text;
+                            } else {
+                                idVerifiedValue = '';
+                            }
+        
+                            if (gender.value) {
+                                genderValue = gender.options[gender.selectedIndex].text;
+                            } else {
+                                genderValue = '';
+                            }
+        
+                            if (resident.value) {
+                                residentValue = resident.options[resident.selectedIndex].text;
+                            } else {
+                                residentValue = '';
+                            }
+        
+                            if (position.value) {
+                                positionValue = position.options[position.selectedIndex].text;
+                            } else {
+                                positionValue = '';
+                            }
+        
                             if (role.value) {
                                 roleValue = role.options[role.selectedIndex].text;
                             } else {
                                 roleValue = '';
+                            }
+        
+                            if (store.value) {
+                                storeValue = store.options[store.selectedIndex].text;
+                            } else {
+                                storeValue = '';
+                            }
+        
+                            if (internal.value) {
+                                internalValue = internal.options[internal.selectedIndex].text;
+                            } else {
+                                internalValue = '';
                             }
         
                             x.values({
@@ -303,9 +422,16 @@ editBtn.addEventListener("click", function (e) {
                                         </div>',
                                 email: email.value,
                                 phone: phone.value,
-                                company: company.value,
-                                position: position.value,
+                                id_number: idNumber.value,
+                                id_verified: idVerifiedValue,
+                                birth_date: formatDate(birthDate.value),
+                                age: age.value,
+                                gender: genderValue,
+                                resident: residentValue,
+                                position: positionValue,
                                 role: roleValue,
+                                store: storeValue,
+                                internal: internalValue
                             });
                         }
                     });
@@ -327,39 +453,26 @@ editBtn.addEventListener("click", function (e) {
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+        
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: jqXHR.responseJSON.message,
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
                 } else {
-                    if(textStatus === 'timeout') {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'The request timed out. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    } else {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'An error occurred while processing your request. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    }
+                    message = 'An error occurred while processing your request. Please try again later.';
                 }
+            
+                // Trigger the Swal notification with the dynamic message
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
             }
         })
     } else {
@@ -423,39 +536,26 @@ function refreshCallbacks() {
                                 }
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
+                                let message = ''; // Initialize the message variable
+                        
                                 if (jqXHR.status === 400 || jqXHR.status === 422) {
-                                    Swal.fire({
-                                        position: 'top-end',
-                                        icon: 'error',
-                                        title: jqXHR.responseJSON.message,
-                                        showConfirmButton: false,
-                                        timer: 5000,
-                                        showCloseButton: true,
-                                        toast: true
-                                    });
+                                    message = jqXHR.responseJSON.message;
+                                } else if (textStatus === 'timeout') {
+                                    message = 'The request timed out. Please try again later.';
                                 } else {
-                                    if(textStatus === 'timeout') {
-                                        Swal.fire({
-                                            position: 'top-end',
-                                            icon: 'error',
-                                            title: 'The request timed out. Please try again later.',
-                                            showConfirmButton: false,
-                                            timer: 5000,
-                                            showCloseButton: true,
-                                            toast: true
-                                        });
-                                    } else {
-                                        Swal.fire({
-                                            position: 'top-end',
-                                            icon: 'error',
-                                            title: 'An error occurred while processing your request. Please try again later.',
-                                            showConfirmButton: false,
-                                            timer: 5000,
-                                            showCloseButton: true,
-                                            toast: true
-                                        });
-                                    }
+                                    message = 'An error occurred while processing your request. Please try again later.';
                                 }
+                            
+                                // Trigger the Swal notification with the dynamic message
+                                Swal.fire({
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: message,
+                                    showConfirmButton: false,
+                                    timer: 5000,
+                                    showCloseButton: true,
+                                    toast: true
+                                });
                             }
                         });
                     }
@@ -492,12 +592,38 @@ function refreshCallbacks() {
 
                 phone.value = data.user.phone;
 
-                company.value = data.user.company.name;
+                idNumber.value = data.user.id_number;
 
-                position.value = data.user.position.name;
+                if(data.user.id_verified) {
+                    idVerifiedVal.setChoiceByValue(data.user.id_verified.toString());
+                }
+
+                birthDate.value = data.user.birth_date;
+
+                age.value = data.user.age;
+
+                if(data.user.gender_id) {
+                    genderVal.setChoiceByValue(data.user.gender_id.toString());
+                }
+
+                if(data.user.resident) {
+                    residentVal.setChoiceByValue(data.user.resident.toString());
+                }
+
+                if(data.user.position_id) {
+                    positionVal.setChoiceByValue(data.user.position_id.toString());
+                }
 
                 if(data.user.role_id) {
                     roleVal.setChoiceByValue(data.user.role_id.toString());
+                }
+
+                if(data.user.store_id) {
+                    storeVal.setChoiceByValue(data.user.store_id.toString());
+                }
+
+                if(data.user.internal) {
+                    internalVal.setChoiceByValue(data.user.internal.toString());
                 }
             });
         }
@@ -538,18 +664,46 @@ function refreshCallbacks() {
                                         <tr>
                                             <td class="fw-medium" scope="row">Phone</td>
                                             <td>${x._values.phone}</td>
-                                        </tr>                                        
+                                        </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Company</td>
-                                            <td>${x._values.company}</td>
+                                            <td class="fw-medium" scope="row">ID Number</td>
+                                            <td>${x._values.id_number}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">ID Verified</td>
+                                            <td>${x._values.id_verified}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Birth Date</td>
+                                            <td>${x._values.birth_date}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Age</td>
+                                            <td>${x._values.age}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Gender</td>
+                                            <td>${x._values.gender}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Citizen Status</td>
+                                            <td>${x._values.resident}</td>
                                         </tr>
                                         <tr>
                                             <td class="fw-medium" scope="row">Position</td>
                                             <td>${x._values.position}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Position</td>
-                                            <td>${x._values.vacancies}</td>
+                                            <td class="fw-medium" scope="row">Role</td>
+                                            <td>${x._values.role}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Store</td>
+                                            <td>${x._values.store}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Internal</td>
+                                            <td>${x._values.internal}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -567,15 +721,41 @@ function refreshCallbacks() {
 
 function clearFields() {
     profileImg.src = "build/images/users/user-dummy-img.jpg";
+
     firstname.value = "";
+
     lastname.value = "";
+
     email.value = "";
+
     phone.value = "";
-    company.value = "";
-    position.value = "";
+
+    idNumber.value = "";
+
+    idVerifiedVal.removeActiveItems();
+    idVerifiedVal.setChoiceByValue("");
+
+    birthDate.value = "";
+
+    age.value = "";
+
+    genderVal.removeActiveItems();
+    genderVal.setChoiceByValue("");
+
+    residentVal.removeActiveItems();
+    residentVal.setChoiceByValue("");
+
+    positionVal.removeActiveItems();
+    positionVal.setChoiceByValue("");
 
     roleVal.removeActiveItems();
     roleVal.setChoiceByValue("");
+
+    storeVal.removeActiveItems();
+    storeVal.setChoiceByValue("");
+
+    internalVal.removeActiveItems();
+    internalVal.setChoiceByValue("");
 }
 
 // Delete All Records
@@ -630,39 +810,26 @@ function deleteMultiple(){
                         }
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
+                        let message = ''; // Initialize the message variable
+                
                         if (jqXHR.status === 400 || jqXHR.status === 422) {
-                            Swal.fire({
-                                position: 'top-end',
-                                icon: 'error',
-                                title: jqXHR.responseJSON.message,
-                                showConfirmButton: false,
-                                timer: 5000,
-                                showCloseButton: true,
-                                toast: true
-                            });
+                            message = jqXHR.responseJSON.message;
+                        } else if (textStatus === 'timeout') {
+                            message = 'The request timed out. Please try again later.';
                         } else {
-                            if(textStatus === 'timeout') {
-                                Swal.fire({
-                                    position: 'top-end',
-                                    icon: 'error',
-                                    title: 'The request timed out. Please try again later.',
-                                    showConfirmButton: false,
-                                    timer: 5000,
-                                    showCloseButton: true,
-                                    toast: true
-                                });
-                            } else {
-                                Swal.fire({
-                                    position: 'top-end',
-                                    icon: 'error',
-                                    title: 'An error occurred while processing your request. Please try again later.',
-                                    showConfirmButton: false,
-                                    timer: 5000,
-                                    showCloseButton: true,
-                                    toast: true
-                                });
-                            }
+                            message = 'An error occurred while processing your request. Please try again later.';
                         }
+                    
+                        // Trigger the Swal notification with the dynamic message
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: message,
+                            showConfirmButton: false,
+                            timer: 5000,
+                            showCloseButton: true,
+                            toast: true
+                        });
                     }
                 })
             }

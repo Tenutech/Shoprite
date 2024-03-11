@@ -39,6 +39,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'role_id',
         'applicant_id',
         'store_id',
+        'internal',
         'status_id'
     ];
 
@@ -46,6 +47,12 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getUpdatedAtHumanAttribute() {
         return $this->updated_at->diffForHumans();
+    }
+
+    //User Gender
+    public function gender()
+    {
+        return $this->belongsTo(Gender::class, 'gender_id');
     }
 
     //User Company

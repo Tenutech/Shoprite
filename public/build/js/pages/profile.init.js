@@ -13,11 +13,29 @@ File: Profile init js
 */
 
 $(document).ready(function() {
-    // Check if there's a saved tab in localStorage
+    var hash = window.location.hash;
     var activeTab = localStorage.getItem('activeTab');
-    if (activeTab) {
+
+    // Check if there's a hash in the URL to override the localStorage
+    if (hash) {
+        var tabElement = new bootstrap.Tab(document.querySelector('.nav-pills a[href="' + hash + '"]'));
+        if (tabElement) {
+            tabElement.show();
+            // Update localStorage with the new tab
+            localStorage.setItem('activeTab', hash);
+        } else if (activeTab) {
+            // Fallback to localStorage if hash is not valid
+            tabElement = new bootstrap.Tab(document.querySelector('.nav-pills a[href="' + activeTab + '"]'));
+            if (tabElement) {
+                tabElement.show();
+            }
+        }
+    } else if (activeTab) {
+        // Use localStorage if no hash is present
         var tabElement = new bootstrap.Tab(document.querySelector('.nav-pills a[href="' + activeTab + '"]'));
-        tabElement.show();
+        if (tabElement) {
+            tabElement.show();
+        }
     }
 
     // Save the clicked tab to localStorage
