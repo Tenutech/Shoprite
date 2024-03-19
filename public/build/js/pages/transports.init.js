@@ -89,7 +89,7 @@ isCount = new DOMParser().parseFromString(
 );
 
 var idField = document.getElementById("field-id"),
-    bankName = document.getElementById("name"),
+    transportName = document.getElementById("name"),
     icon = document.getElementById("icon"),
     color = document.getElementById("color"),
     addBtn = document.getElementById("add-btn"),
@@ -184,7 +184,7 @@ addBtn.addEventListener("click", function (e) {
                 if(data.success == true) {
                     transportList.add({
                         id: data.encID,
-                        name: bankName.value,
+                        name: transportName.value,
                         icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
                         color: '<span class="text-'+ color.value +'">'+ color.value +'</span>'
                     });
@@ -271,7 +271,7 @@ editBtn.addEventListener("click", function (e) {
                         if (selectedid == itemId) {
                             x.values({
                                 id: idField.value,
-                                name: bankName.value,
+                                name: transportName.value,
                                 icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
                                 color: '<span class="text-'+ color.value +'">'+ color.value +'</span>'
                             });
@@ -425,7 +425,7 @@ function refreshCallbacks() {
             }).done(function(data) {
                 idField.value = data.encID;
 
-                bankName.value = data.transport.name;
+                transportName.value = data.transport.name;
 
                 if (data.transport.icon) {
                     iconVal.setChoiceByValue(data.transport.icon.toString());
@@ -440,7 +440,7 @@ function refreshCallbacks() {
 }
 
 function clearFields() {
-    bankName.value = "";
+    transportName.value = "";
 
     iconVal.removeActiveItems();
     iconVal.setChoiceByValue("");
