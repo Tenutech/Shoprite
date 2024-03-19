@@ -13,7 +13,8 @@ class Role extends Model
     
     protected $fillable = [
         'name',
-        'icon'
+        'icon',
+        'color'
     ];
 
     //User Role

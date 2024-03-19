@@ -121,6 +121,20 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/settings/reminders', [App\Http\Controllers\SettingsController::class, 'reminderSettings'])->name('settings.reminder-settings');
 
+    //Roles
+
+    Route::get('/roles', [App\Http\Controllers\RolesController::class, 'index'])->name('roles.index');
+
+    Route::post('/role/add', [App\Http\Controllers\RolesController::class, 'store'])->name('role.store');
+
+    Route::post('/role/update', [App\Http\Controllers\RolesController::class, 'update'])->name('role.update');
+
+    Route::get('/role/details/{id}', [App\Http\Controllers\RolesController::class, 'details'])->name('role.details');
+
+    Route::delete('/role/destroy/{id}', [App\Http\Controllers\RolesController::class, 'destroy'])->name('role.destroy');
+
+    Route::post('/role/destroy-multiple', [App\Http\Controllers\RolesController::class, 'destroyMultiple'])->name('role.destroyMultiple');
+
     //Positions
 
     Route::get('/positions', [App\Http\Controllers\PositionsController::class, 'index'])->name('positions.index');
@@ -176,6 +190,146 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::delete('/store/destroy/{id}', [App\Http\Controllers\StoresController::class, 'destroy'])->name('store.destroy');
 
     Route::post('/store/destroy-multiple', [App\Http\Controllers\StoresController::class, 'destroyMultiple'])->name('store.destroyMultiple');
+
+    //Provinces
+
+    Route::get('/provinces', [App\Http\Controllers\ProvincesController::class, 'index'])->name('provinces.index');
+
+    Route::post('/province/add', [App\Http\Controllers\ProvincesController::class, 'store'])->name('province.store');
+
+    Route::post('/province/update', [App\Http\Controllers\ProvincesController::class, 'update'])->name('province.update');
+
+    Route::get('/province/details/{id}', [App\Http\Controllers\ProvincesController::class, 'details'])->name('province.details');
+
+    Route::delete('/province/destroy/{id}', [App\Http\Controllers\ProvincesController::class, 'destroy'])->name('province.destroy');
+
+    Route::post('/province/destroy-multiple', [App\Http\Controllers\ProvincesController::class, 'destroyMultiple'])->name('province.destroyMultiple');
+
+    //Banks
+
+    Route::get('/banks', [App\Http\Controllers\BanksController::class, 'index'])->name('banks.index');
+
+    Route::post('/bank/add', [App\Http\Controllers\BanksController::class, 'store'])->name('bank.store');
+
+    Route::post('/bank/update', [App\Http\Controllers\BanksController::class, 'update'])->name('bank.update');
+
+    Route::get('/bank/details/{id}', [App\Http\Controllers\BanksController::class, 'details'])->name('bank.details');
+
+    Route::delete('/bank/destroy/{id}', [App\Http\Controllers\BanksController::class, 'destroy'])->name('bank.destroy');
+
+    Route::post('/bank/destroy-multiple', [App\Http\Controllers\BanksController::class, 'destroyMultiple'])->name('bank.destroyMultiple');
+
+    //Disabilities
+
+    Route::get('/disabilities', [App\Http\Controllers\DisabilitiesController::class, 'index'])->name('disabilities.index');
+
+    Route::post('/disability/add', [App\Http\Controllers\DisabilitiesController::class, 'store'])->name('disability.store');
+
+    Route::post('/disability/update', [App\Http\Controllers\DisabilitiesController::class, 'update'])->name('disability.update');
+
+    Route::get('/disability/details/{id}', [App\Http\Controllers\DisabilitiesController::class, 'details'])->name('disability.details');
+
+    Route::delete('/disability/destroy/{id}', [App\Http\Controllers\DisabilitiesController::class, 'destroy'])->name('disability.destroy');
+
+    Route::post('/disability/destroy-multiple', [App\Http\Controllers\DisabilitiesController::class, 'destroyMultiple'])->name('disability.destroyMultiple');
+
+    //Genders
+
+    Route::get('/genders', [App\Http\Controllers\GendersController::class, 'index'])->name('genders.index');
+
+    Route::post('/gender/add', [App\Http\Controllers\GendersController::class, 'store'])->name('gender.store');
+
+    Route::post('/gender/update', [App\Http\Controllers\GendersController::class, 'update'])->name('gender.update');
+
+    Route::get('/gender/details/{id}', [App\Http\Controllers\GendersController::class, 'details'])->name('gender.details');
+
+    Route::delete('/gender/destroy/{id}', [App\Http\Controllers\GendersController::class, 'destroy'])->name('gender.destroy');
+
+    Route::post('/gender/destroy-multiple', [App\Http\Controllers\GendersController::class, 'destroyMultiple'])->name('gender.destroyMultiple');
+
+    //Races
+
+    Route::get('/races', [App\Http\Controllers\RacesController::class, 'index'])->name('races.index');
+
+    Route::post('/race/add', [App\Http\Controllers\RacesController::class, 'store'])->name('race.store');
+
+    Route::post('/race/update', [App\Http\Controllers\RacesController::class, 'update'])->name('race.update');
+
+    Route::get('/race/details/{id}', [App\Http\Controllers\RacesController::class, 'details'])->name('race.details');
+
+    Route::delete('/race/destroy/{id}', [App\Http\Controllers\RacesController::class, 'destroy'])->name('race.destroy');
+
+    Route::post('/race/destroy-multiple', [App\Http\Controllers\RacesController::class, 'destroyMultiple'])->name('race.destroyMultiple');
+
+    //Durations
+
+    Route::get('/durations', [App\Http\Controllers\DurationsController::class, 'index'])->name('durations.index');
+
+    Route::post('/duration/add', [App\Http\Controllers\DurationsController::class, 'store'])->name('duration.store');
+
+    Route::post('/duration/update', [App\Http\Controllers\DurationsController::class, 'update'])->name('duration.update');
+
+    Route::get('/duration/details/{id}', [App\Http\Controllers\DurationsController::class, 'details'])->name('duration.details');
+
+    Route::delete('/duration/destroy/{id}', [App\Http\Controllers\DurationsController::class, 'destroy'])->name('duration.destroy');
+
+    Route::post('/duration/destroy-multiple', [App\Http\Controllers\DurationsController::class, 'destroyMultiple'])->name('duration.destroyMultiple');
+
+    //Educations
+
+    Route::get('/educations', [App\Http\Controllers\EducationsController::class, 'index'])->name('educations.index');
+
+    Route::post('/education/add', [App\Http\Controllers\RacesController::class, 'store'])->name('education.store');
+
+    Route::post('/education/update', [App\Http\Controllers\RacesController::class, 'update'])->name('education.update');
+
+    Route::get('/education/details/{id}', [App\Http\Controllers\RacesController::class, 'details'])->name('education.details');
+
+    Route::delete('/education/destroy/{id}', [App\Http\Controllers\RacesController::class, 'destroy'])->name('education.destroy');
+
+    Route::post('/education/destroy-multiple', [App\Http\Controllers\RacesController::class, 'destroyMultiple'])->name('education.destroyMultiple');
+
+    //Languages
+
+    Route::get('/languages', [App\Http\Controllers\LanguagesController::class, 'index'])->name('languages.index');
+
+    Route::post('/language/add', [App\Http\Controllers\LanguagesController::class, 'store'])->name('language.store');
+
+    Route::post('/language/update', [App\Http\Controllers\LanguagesController::class, 'update'])->name('language.update');
+
+    Route::get('/language/details/{id}', [App\Http\Controllers\LanguagesController::class, 'details'])->name('language.details');
+
+    Route::delete('/language/destroy/{id}', [App\Http\Controllers\LanguagesController::class, 'destroy'])->name('language.destroy');
+
+    Route::post('/language/destroy-multiple', [App\Http\Controllers\LanguagesController::class, 'destroyMultiple'])->name('language.destroyMultiple');
+
+    //Reasons
+
+    Route::get('/reasons', [App\Http\Controllers\ReasonsController::class, 'index'])->name('reasons.index');
+
+    Route::post('/reason/add', [App\Http\Controllers\ReasonsController::class, 'store'])->name('reason.store');
+
+    Route::post('/reason/update', [App\Http\Controllers\ReasonsController::class, 'update'])->name('reason.update');
+
+    Route::get('/reason/details/{id}', [App\Http\Controllers\ReasonsController::class, 'details'])->name('reason.details');
+
+    Route::delete('/reason/destroy/{id}', [App\Http\Controllers\ReasonsController::class, 'destroy'])->name('reason.destroy');
+
+    Route::post('/reason/destroy-multiple', [App\Http\Controllers\ReasonsController::class, 'destroyMultiple'])->name('reason.destroyMultiple');
+
+    //Transports
+
+    Route::get('/transports', [App\Http\Controllers\TransportsController::class, 'index'])->name('transports.index');
+
+    Route::post('/transport/add', [App\Http\Controllers\TransportsController::class, 'store'])->name('transport.store');
+
+    Route::post('/transport/update', [App\Http\Controllers\TransportsController::class, 'update'])->name('transport.update');
+
+    Route::get('/transport/details/{id}', [App\Http\Controllers\TransportsController::class, 'details'])->name('transport.details');
+
+    Route::delete('/transport/destroy/{id}', [App\Http\Controllers\TransportsController::class, 'destroy'])->name('transport.destroy');
+
+    Route::post('/transport/destroy-multiple', [App\Http\Controllers\TransportsController::class, 'destroyMultiple'])->name('transport.destroyMultiple');
 });
 
 /*

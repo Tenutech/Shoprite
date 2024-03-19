@@ -215,6 +215,11 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('roles.index') }}">
+                                        Roles
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" href="{{ route('positions.index') }}">
                                         Positions
                                     </a>
@@ -232,6 +237,56 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('stores.index') }}">
                                         Stores
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('provinces.index') }}">
+                                        Provinces
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('banks.index') }}">
+                                        Banks
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('disabilities.index') }}">
+                                        Disabilities
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('genders.index') }}">
+                                        Genders
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('races.index') }}">
+                                        Races
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('durations.index') }}">
+                                        Duration
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('educations.index') }}">
+                                        Education
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('languages.index') }}">
+                                        Languages
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('reasons.index') }}">
+                                        Reasons
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('transports.index') }}">
+                                        Transport
                                     </a>
                                 </li>
                             </ul>

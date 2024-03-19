@@ -215,6 +215,11 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('roles.index')); ?>">
+                                        Roles
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" href="<?php echo e(route('positions.index')); ?>">
                                         Positions
                                     </a>
@@ -232,6 +237,56 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="<?php echo e(route('stores.index')); ?>">
                                         Stores
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('provinces.index')); ?>">
+                                        Provinces
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('banks.index')); ?>">
+                                        Banks
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('disabilities.index')); ?>">
+                                        Disabilities
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('genders.index')); ?>">
+                                        Genders
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('races.index')); ?>">
+                                        Races
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('durations.index')); ?>">
+                                        Duration
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('educations.index')); ?>">
+                                        Education
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('languages.index')); ?>">
+                                        Languages
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('reasons.index')); ?>">
+                                        Reasons
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('transports.index')); ?>">
+                                        Transport
                                     </a>
                                 </li>
                             </ul>
