@@ -219,6 +219,21 @@
                                         Positions
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('brands.index')); ?>">
+                                        Brands
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('towns.index')); ?>">
+                                        Towns
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('stores.index')); ?>">
+                                        Stores
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </li>

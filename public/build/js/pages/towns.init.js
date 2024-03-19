@@ -8,53 +8,6 @@ File: CRM-contact Js File
 
 /*
 |--------------------------------------------------------------------------
-| Snow Editor
-|--------------------------------------------------------------------------
-*/
-
-var snowEditor = document.querySelectorAll(".snow-editor");
-
-if (snowEditor) {
-    Array.from(snowEditor).forEach(function (item) {
-      var snowEditorData = {};
-      var issnowEditorVal = item.classList.contains("snow-editor");
-  
-      if (issnowEditorVal == true) {
-        snowEditorData.theme = 'snow', snowEditorData.modules = {
-          'toolbar': [[{
-            'font': []
-          }, {
-            'size': []
-          }], ['bold', 'italic', 'underline', 'strike'], [{
-            'color': []
-          }, {
-            'background': []
-          }], [{
-            'script': 'super'
-          }, {
-            'script': 'sub'
-          }], [{
-            'header': [false, 1, 2, 3, 4, 5, 6]
-          }, 'blockquote', 'code-block'], [{
-            'list': 'ordered'
-          }, {
-            'list': 'bullet'
-          }, {
-            'indent': '-1'
-          }, {
-            'indent': '+1'
-          }], ['direction', {
-            'align': []
-          }], ['link', 'image', 'video'], ['clean']]
-        };
-      }
-  
-      new Quill(item, snowEditorData);
-    });
-}
-
-/*
-|--------------------------------------------------------------------------
 | List Js
 |--------------------------------------------------------------------------
 */
@@ -82,10 +35,11 @@ var options = {
     valueNames: [
         "id",
         "name",
-        "description",
-        "icon",
-        "color",
-        "image",
+        "code",
+        "province",
+        "district",
+        "seat",
+        "class"
     ],
     page: perPage,
     pagination: true,
@@ -97,7 +51,7 @@ var options = {
     ]
 };
 // Init list
-var positionList = new List("positionList", options).on("updated", function (list) {
+var townList = new List("townList", options).on("updated", function (list) {
     list.matchingItems.length == 0 ?
         (document.getElementsByClassName("noresult")[0].style.display = "block") :
         (document.getElementsByClassName("noresult")[0].style.display = "none");
@@ -128,118 +82,81 @@ var positionList = new List("positionList", options).on("updated", function (lis
 var perPageSelect = document.getElementById("per-page-select");
 perPageSelect.addEventListener("change", function() {
     perPage = parseInt(this.value);
-    positionList.page = perPage;
-    positionList.update();
+    townList.page = perPage;
+    townList.update();
 });
 
 isCount = new DOMParser().parseFromString(
-    positionList.items.slice(-1)[0]._values.id,
+    townList.items.slice(-1)[0]._values.id,
     "text/html"
 );
 
-// position image
-document.querySelector("#avatar").addEventListener("change", function () {
-    var preview = document.querySelector("#position-img");
-    var file = document.querySelector("#avatar").files[0];
-    var reader = new FileReader();
-    reader.addEventListener("load",function () {
-        preview.src = reader.result;
-    },false);
-    if (file) {
-        reader.readAsDataURL(file);
-    }
-});
-
 var idField = document.getElementById("field-id"),
-    positionImg = document.getElementById("position-img"),
-    positionName = document.getElementById("name"),
-    description = document.getElementById("description"),
-    icon = document.getElementById("icon"),
-    color = document.getElementById("color"),
+    townName = document.getElementById("name"),
+    code = document.getElementById("code"),
+    province = document.getElementById("province"),
+    district = document.getElementById("district"),
+    seat = document.getElementById("seat"),
+    townClass = document.getElementById("class"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
     editBtns = document.getElementsByClassName("edit-item-btn");
 refreshCallbacks();
 
-document.getElementById("positionModal").addEventListener("show.bs.modal", function (e) {
+document.getElementById("townModal").addEventListener("show.bs.modal", function (e) {
     if (e.relatedTarget.classList.contains("edit-item-btn")) {
-        document.getElementById("exampleModalLabel").innerHTML = "Edit Position";
-        document.getElementById("positionModal").querySelector(".modal-footer").style.display = "block";
+        document.getElementById("exampleModalLabel").innerHTML = "Edit Town";
+        document.getElementById("townModal").querySelector(".modal-footer").style.display = "block";
         document.getElementById("add-btn").style.display = "none";
         document.getElementById("edit-btn").style.display = "block";
     } else if (e.relatedTarget.classList.contains("add-btn")) {
-        document.getElementById("exampleModalLabel").innerHTML = "Add Position";
-        document.getElementById("positionModal").querySelector(".modal-footer").style.display = "block";
+        document.getElementById("exampleModalLabel").innerHTML = "Add Town";
+        document.getElementById("townModal").querySelector(".modal-footer").style.display = "block";
         document.getElementById("edit-btn").style.display = "none";
         document.getElementById("add-btn").style.display = "block";
     } else {
-        document.getElementById("exampleModalLabel").innerHTML = "List Position";
-        document.getElementById("positionModal").querySelector(".modal-footer").style.display = "none";
+        document.getElementById("exampleModalLabel").innerHTML = "List Town";
+        document.getElementById("townModal").querySelector(".modal-footer").style.display = "none";
     }
 });
 ischeckboxcheck();
 
-document.getElementById("positionModal").addEventListener("hidden.bs.modal", function (e) {
+document.getElementById("townModal").addEventListener("hidden.bs.modal", function (e) {
     clearFields();
 });
 
-document.querySelector("#positionList").addEventListener("click", function () {
+document.querySelector("#townList").addEventListener("click", function () {
     refreshCallbacks();
     ischeckboxcheck();
 });
 
-var table = document.getElementById("positionTable");
+var table = document.getElementById("townTable");
 // save all tr
 var tr = table.getElementsByTagName("tr");
 var trlist = table.querySelectorAll(".list tr");
 
 var count = 11;
 
-var iconVal = new Choices(icon, {
-    searchEnabled: true
-});
-
-// Fetch the list of Remix Icons from the JSON file
-$.getJSON('/build/json/remixicons.json', function(icons) {
-    const iconChoices = icons.map(function(icon) {
-        return {
-            value: icon,
-            label: '<i class="' + icon + ' text-primary"></i> ' + icon,
-            selected: false,
-            disabled: false,
-            customProperties: {},
-            placeholder: false,
-        };
-    });
-  
-    // Set choices using the array of icon objects
-    iconVal.setChoices(iconChoices, 'value', 'label', true);
-});
-
-var colorVal = new Choices(color, {
-    searchEnabled: true,
+var provinceVal = new Choices(province, {
+    searchEnabled: false,
     shouldSort: false
 });
 
 /*
 |--------------------------------------------------------------------------
-| Add Position
+| Add Town
 |--------------------------------------------------------------------------
 */
 
 addBtn.addEventListener("click", function (e) {
     e.preventDefault();
-    var form = document.getElementById("formPosition");
+    var form = document.getElementById("formTown");
     if (form.checkValidity()) {
-        var formData = new FormData($('#formPosition')[0]);
-
-        var description = $("#description .ql-editor").html();
-
-        formData.set('description', description);
+        var formData = new FormData($('#formTown')[0]);
 
         $.ajax({
-            url: route('position.store'),
+            url: route('town.store'),
             type: 'POST',
             data: formData,
             async: false,
@@ -250,13 +167,20 @@ addBtn.addEventListener("click", function (e) {
             },
             success:function(data) {
                 if(data.success == true) {
-                    positionList.add({
+                    if (province.value) {
+                        provinceValue = province.options[province.selectedIndex].text;
+                    } else {
+                        provinceValue = '';
+                    }
+
+                    townList.add({
                         id: data.encID,
-                        name: positionName.value,
-                        description: $("#description .ql-editor").html(),
-                        icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
-                        color: '<span class="text-'+ color.value +'">'+ color.value +'</span>',
-                        image: '<img src="'+ positionImg.src + '" alt="" class="avatar-xs rounded-circle object-cover">'
+                        name: townName.value,
+                        code: code.value,
+                        province: provinceValue,
+                        district: district.value, 
+                        seat: seat.value, 
+                        class: townClass.value                   
                     });
 
                     Swal.fire({
@@ -306,25 +230,21 @@ addBtn.addEventListener("click", function (e) {
 
 /*
 |--------------------------------------------------------------------------
-| Update Position
+| Update Town
 |--------------------------------------------------------------------------
 */
 
 editBtn.addEventListener("click", function (e) {
-    document.getElementById("exampleModalLabel").innerHTML = "Edit Position";
-    var editValues = positionList.get({
+    document.getElementById("exampleModalLabel").innerHTML = "Edit Town";
+    var editValues = townList.get({
         id: idField.value,
     });
-    var form = document.getElementById("formPosition");
+    var form = document.getElementById("formTown");
     if (form.checkValidity()) {
-        var formData = new FormData($('#formPosition')[0]);
-
-        var description = $("#description .ql-editor").html();
-
-        formData.set('description', description);
+        var formData = new FormData($('#formTown')[0]);
 
         $.ajax({
-            url: route('position.update'),
+            url: route('town.update'),
             type: 'POST',
             data: formData,
             async: false,
@@ -339,13 +259,20 @@ editBtn.addEventListener("click", function (e) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
                         if (selectedid == itemId) {
+                            if (province.value) {
+                                provinceValue = province.options[province.selectedIndex].text;
+                            } else {
+                                provinceValue = '';
+                            }
+
                             x.values({
                                 id: idField.value,
-                                name: positionName.value,
-                                description: $("#description .ql-editor").html(),
-                                icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
-                                color: '<span class="text-'+ color.value +'">'+ color.value +'</span>',
-                                image: '<img src="'+ positionImg.src + '" alt="" class="avatar-xs rounded-circle object-cover">'
+                                name: townName.value,
+                                code: code.value,
+                                province: provinceValue,
+                                district: district.value, 
+                                seat: seat.value, 
+                                class: townClass.value
                             });
                         }
                     });
@@ -417,7 +344,7 @@ function refreshCallbacks() {
         btn.onclick = function (e) {
             e.target.closest("tr").children[1].innerText;
             itemId = e.target.closest("tr").children[1].innerText;
-            var itemValues = positionList.get({
+            var itemValues = townList.get({
                 id: itemId,
             });
 
@@ -429,14 +356,14 @@ function refreshCallbacks() {
                 if (isdeleteid == itemId) {
                     document.getElementById("delete-position").onclick = function () {                        
                         $.ajax({
-                            url: route('position.destroy', {id: isdeleteid}),
+                            url: route('town.destroy', {id: isdeleteid}),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
                             success:function(data) {            
                                 if(data.success === true) {
-                                    positionList.remove("id", isdeleteid);
+                                    townList.remove("id", isdeleteid);
                                     document.getElementById("deleteRecord-close").click();
                                     document.querySelector(".pagination-wrap").style.display = "flex";
                                     Swal.fire({
@@ -485,7 +412,7 @@ function refreshCallbacks() {
             itemId = e.target.closest("tr").children[1].innerText;
            
             $.ajax({
-                url: route('position.details', {id: itemId}),
+                url: route('town.details', {id: itemId}),
                 type: 'GET',
                 data: {
                     "id": itemId
@@ -497,36 +424,37 @@ function refreshCallbacks() {
             }).done(function(data) {
                 idField.value = data.encID;
 
-                positionImg.src = data.position.image;
+                townName.value = data.town.name;
 
-                positionName.value = data.position.name;
+                code.value = data.town.code;
 
-                $("#description .ql-editor").html(data.position.description);
-
-                if (data.position.icon) {
-                    iconVal.setChoiceByValue(data.position.icon.toString());
+                if (data.town.province_id) {
+                    provinceVal.setChoiceByValue(data.town.province_id.toString());
                 }
 
-                if (data.position.color) {
-                    colorVal.setChoiceByValue(data.position.color.toString());
-                }
+                district.value = data.town.district;
+
+                seat.value = data.town.seat;
+
+                townClass.value = data.town.class;
             });
         }
     });
 }
 
 function clearFields() {
-    positionImg.src = "build/images/position/assistant.jpg";
+    townName.value = "";
 
-    positionName.value = "";
+    code.value = "";
 
-    $("#description .ql-editor").html('');
+    provinceVal.removeActiveItems();
+    provinceVal.setChoiceByValue("");
 
-    iconVal.removeActiveItems();
-    iconVal.setChoiceByValue("");
+    district.value = "";
 
-    colorVal.removeActiveItems();
-    colorVal.setChoiceByValue("");
+    seat.value = "";
+
+    townClass.value = "";
 }
 
 // Delete Multiple Records
@@ -543,7 +471,7 @@ function deleteMultiple(){
 
     if(typeof ids_array !== 'undefined' && ids_array.length > 0){
         Swal.fire({
-            html: '<div class="mt-3">' + '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' + '<div class="mt-4 pt-2 fs-15 mx-5">' + '<h4>You are about to delete these positions ?</h4>' + '<p class="text-muted mx-4 mb-0">Deleting these positions will remove all of their information from the database.</p>' + '</div>' + '</div>',
+            html: '<div class="mt-3">' + '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' + '<div class="mt-4 pt-2 fs-15 mx-5">' + '<h4>You are about to delete these towns ?</h4>' + '<p class="text-muted mx-4 mb-0">Deleting these towns will remove all of their information from the database.</p>' + '</div>' + '</div>',
             showCancelButton: true,
             confirmButtonClass: 'btn btn-primary w-xs me-2 mt-2',
             cancelButtonClass: 'btn btn-danger w-xs mt-2',
@@ -553,11 +481,11 @@ function deleteMultiple(){
         }).then(function (result) {
             if (result.value) {
                 for (i = 0; i < ids_array.length; i++) {
-                    positionList.remove("id", `${ids_array[i]}`);
+                    townList.remove("id", `${ids_array[i]}`);
                 }
     
                 $.ajax({
-                    url: route('position.destroyMultiple'),
+                    url: route('town.destroyMultiple'),
                     type: 'post',
                     data: {
                         ids: ids_array

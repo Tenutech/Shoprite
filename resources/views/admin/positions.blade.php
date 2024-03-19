@@ -90,7 +90,7 @@
                                                 <td class="name">{{ $position->name }}</td>
                                                 <td class="description" style="white-space: pre-wrap;">{!! $position->description !!}</td>
                                                 <td class="icon"><i class="{{ $position->icon }} text-{{ $position->color }} fs-18"></i></td>
-                                                <td class="color">{{ $position->color }}</td>
+                                                <td class="color"><span class="text-{{ $position->color }}">{{ $position->color }}</span></td>
                                                 <td class="image"><img src="{{ URL::asset($position->image) }}" alt="" class="avatar-xs rounded-circle"></td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
@@ -248,7 +248,7 @@
     
                                             <div class="mb-3">
                                                 <label for="color" class="form-label">
-                                                    Condition Field
+                                                    Color
                                                 </label>
                                                 <select id="color" name="color" class="form-control">
                                                     <option value="" selected>Select Color</option>

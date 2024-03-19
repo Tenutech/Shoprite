@@ -13,7 +13,8 @@ class Store extends Model
     
     protected $fillable = [
         'brand_id',
-        'town_id'
+        'town_id',
+        'address'
     ];
 
     //Brand

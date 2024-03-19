@@ -3,7 +3,8 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\Position;
+use App\Models\Town;
+use App\Models\Province;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 
-class PositionsController extends Controller
+class TownsController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -35,18 +36,22 @@ class PositionsController extends Controller
     
     /*
     |--------------------------------------------------------------------------
-    | Positions Index
+    | Towns Index
     |--------------------------------------------------------------------------
     */
 
     public function index()
     {
-        if (view()->exists('admin/positions')) {
-            //Positions
-            $positions = Position::all();
+        if (view()->exists('admin/towns')) {
+            //Towns
+            $towns = Town::with('province')->get();
 
-            return view('admin/positions', [
-                'positions' => $positions
+            //Provinces
+            $provinces = Province::all();
+
+            return view('admin/towns', [
+                'towns' => $towns,
+                'provinces' => $provinces
             ]);
         }
         return view('404');
@@ -54,7 +59,7 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Add
+    | Town Add
     |--------------------------------------------------------------------------
     */
 
@@ -62,42 +67,37 @@ class PositionsController extends Controller
     {
         //Validate
         $request->validate([
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
-            'name' => 'required|string|max:191'
+            'name' => 'required|string|max:255',
+            'code' => 'sometimes|nullable|string|max:10',
+            'province' => 'required|integer|min:1|exists:provinces,id',
+            'district' => 'sometimes|nullable|string|max:100',
+            'seat' => 'sometimes|nullable|string|max:100',
+            'class' => 'sometimes|nullable|string|max:2',
         ]);
 
         try {
-            // Avatar
-            if ($request->avatar) {               
-                $avatar = request()->file('avatar');
-                $avatarName = 'build/images/position/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
-                $avatarPath = public_path('build/images/position/');
-                $avatar->move($avatarPath, $avatarName);
-            } else {
-                $avatarName = 'build/images/position/assistant.jpg';
-            }
-
-            //Position Create
-            $position = Position::create([                
+            //Town Create
+            $town = Town::create([                
                 'name' => $request->name,
-                'description' => $request->description && $request->description != '<p></p>'  && $request->description != '<p><br></p>' ? $request->description : null,
-                'icon' => $request->icon ?: null,
-                'color' => $request->color ?: null,
-                'image' => $avatarName
+                'code' => $request->code ?: null,
+                'province_id' => $request->province,
+                'district' => $request->district ?: null,
+                'seat' => $request->seat ?: null,
+                'class' => $request->class ?: null,
             ]);
 
-            $encID = Crypt::encryptString($position->id);
+            $encID = Crypt::encryptString($town->id);
 
             return response()->json([
                 'success' => true,
-                'position' => $position,
+                'town' => $town,
                 'encID' => $encID,
-                'message' => 'Position created successfully!',
+                'message' => 'Town created successfully!',
             ], 200);
         } catch (Exception $e) {            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create position!',
+                'message' => 'Failed to create town!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -105,24 +105,24 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Detail
+    | Town Detail
     |--------------------------------------------------------------------------
     */
 
     public function details($id)
     {
         try {
-            $positionID = Crypt::decryptString($id);
+            $townID = Crypt::decryptString($id);
 
-            $position = Position::findOrFail($positionID);
+            $town = Town::findOrFail($townID);
 
             return response()->json([
-                'position' => $position,
+                'town' => $town,
                 'encID' => $id
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Failed to get position!',
+                'message' => 'Failed to get town!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -130,62 +130,47 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Update
+    | Town Update
     |--------------------------------------------------------------------------
     */
 
     public function update(Request $request)
     {
-        //Position ID
-        $positionID = Crypt::decryptString($request->field_id);
+        //Town ID
+        $townID = Crypt::decryptString($request->field_id);
 
         //Validate
         $request->validate([
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
-            'name' => 'required|string|max:191'
+            'name' => 'required|string|max:255',
+            'code' => 'sometimes|nullable|string|max:10',
+            'province' => 'required|integer|min:1|exists:provinces,id',
+            'district' => 'sometimes|nullable|string|max:100',
+            'seat' => 'sometimes|nullable|string|max:100',
+            'class' => 'sometimes|nullable|string|max:2',
         ]);
 
         try {
-            //Position
-            $position = Position::findorfail($positionID);
+            //Town
+            $town = Town::findorfail($townID);
 
-            // Avatar
-            if ($request->avatar) {
-                // Check if a previous avatar exists and is not the default one
-                if ($position->image && $position->image !== 'build/images/position/assistant.jpg') {
-                    // Construct the path to the old avatar
-                    $oldAvatarPath = public_path($position->image);
-                    // Check if the file exists and delete it
-                    if (File::exists($oldAvatarPath)) {
-                        File::delete($oldAvatarPath);
-                    }
-                }
-                
-                $avatar = request()->file('avatar');
-                $avatarName = 'build/images/position/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
-                $avatarPath = public_path('build/images/position/');
-                $avatar->move($avatarPath, $avatarName);
-            } else {
-                $avatarName = 'build/images/position/assistant.jpg';
-            }
-
-            //Position Update
-            $position->name = $request->name;
-            $position->description = $request->description && $request->description != '<p></p>'  && $request->description != '<p><br></p>' ? $request->description : null;
-            $position->icon = $request->icon ?: null;
-            $position->color = $request->color ?: null;
-            $position->image = $avatarName;
-            $position->save();
+            //Town Update
+            $town->name = $request->name;
+            $town->code = $request->code ?: null;
+            $town->province_id = $request->province;
+            $town->district = $request->district ?: null;
+            $town->seat = $request->seat ?: null;
+            $town->class = $request->class ?: null;
+            $town->save();
 
             return response()->json([
                 'success' => true,
-                'position' => $position,
-                'message' => 'Position updated successfully!'
+                'town' => $town,
+                'message' => 'Town updated successfully!'
             ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update position!',
+                'message' => 'Failed to update town!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -193,26 +178,26 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Delete
+    | Town Delete
     |--------------------------------------------------------------------------
     */
 
     public function destroy($id)
     {
         try {
-            $positionID = Crypt::decryptString($id);
+            $townID = Crypt::decryptString($id);
 
-            $position = Position::findOrFail($positionID);
-            $position->delete();
+            $town = Town::findOrFail($townID);
+            $town->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Position deleted successfully!',
+                'message' => 'Town deleted successfully!',
             ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete position!',
+                'message' => 'Failed to delete town!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -220,7 +205,7 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Destroy Multiple
+    | Town Destroy Multiple
     |--------------------------------------------------------------------------
     */
 
@@ -244,20 +229,20 @@ class PositionsController extends Controller
     
             DB::beginTransaction();
     
-            Position::destroy($decryptedIds);
+            Town::destroy($decryptedIds);
     
             DB::commit();
     
             return response()->json([
                 'success' => true,
-                'message' => 'Positions deleted successfully!'
+                'message' => 'Towns deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
     
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete positions!',
+                'message' => 'Failed to delete towns!',
                 'error' => $e->getMessage()
             ], 500);
         }

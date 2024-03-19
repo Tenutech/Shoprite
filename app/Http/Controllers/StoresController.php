@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\Position;
+use App\Models\Town;
+use App\Models\Store;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
@@ -15,7 +17,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 
-class PositionsController extends Controller
+class StoresController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -35,18 +37,29 @@ class PositionsController extends Controller
     
     /*
     |--------------------------------------------------------------------------
-    | Positions Index
+    | Stores Index
     |--------------------------------------------------------------------------
     */
 
     public function index()
     {
-        if (view()->exists('admin/positions')) {
-            //Positions
-            $positions = Position::all();
+        if (view()->exists('admin/stores')) {
+            //Stores
+            $stores = Store::with([
+                'brand',
+                'town'
+            ])->get();
 
-            return view('admin/positions', [
-                'positions' => $positions
+            //Brands
+            $brands = Brand::all();
+
+            //Towns
+            $towns = Town::all();
+
+            return view('admin/stores', [
+                'stores' => $stores,
+                'brands' => $brands,
+                'towns' => $towns
             ]);
         }
         return view('404');
@@ -54,7 +67,7 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Add
+    | Store Add
     |--------------------------------------------------------------------------
     */
 
@@ -62,42 +75,31 @@ class PositionsController extends Controller
     {
         //Validate
         $request->validate([
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
-            'name' => 'required|string|max:191'
+            'brand' => 'required|integer|min:1|exists:brands,id',
+            'town' => 'required|integer|min:1|exists:towns,id',
+            'address' => 'sometimes|nullable|string|max:255'
         ]);
 
         try {
-            // Avatar
-            if ($request->avatar) {               
-                $avatar = request()->file('avatar');
-                $avatarName = 'build/images/position/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
-                $avatarPath = public_path('build/images/position/');
-                $avatar->move($avatarPath, $avatarName);
-            } else {
-                $avatarName = 'build/images/position/assistant.jpg';
-            }
-
-            //Position Create
-            $position = Position::create([                
-                'name' => $request->name,
-                'description' => $request->description && $request->description != '<p></p>'  && $request->description != '<p><br></p>' ? $request->description : null,
-                'icon' => $request->icon ?: null,
-                'color' => $request->color ?: null,
-                'image' => $avatarName
+            //Store Create
+            $store = Store::create([                
+                'brand_id' => $request->brand,
+                'town_id' => $request->town,
+                'address' => $request->address ?: null
             ]);
 
-            $encID = Crypt::encryptString($position->id);
+            $encID = Crypt::encryptString($store->id);
 
             return response()->json([
                 'success' => true,
-                'position' => $position,
+                'store' => $store,
                 'encID' => $encID,
-                'message' => 'Position created successfully!',
+                'message' => 'Store created successfully!',
             ], 200);
         } catch (Exception $e) {            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create position!',
+                'message' => 'Failed to create store!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -105,24 +107,24 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Detail
+    | Store Detail
     |--------------------------------------------------------------------------
     */
 
     public function details($id)
     {
         try {
-            $positionID = Crypt::decryptString($id);
+            $storeID = Crypt::decryptString($id);
 
-            $position = Position::findOrFail($positionID);
+            $store = Store::findOrFail($storeID);
 
             return response()->json([
-                'position' => $position,
+                'store' => $store,
                 'encID' => $id
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Failed to get position!',
+                'message' => 'Failed to get store!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -130,62 +132,42 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Update
+    | Store Update
     |--------------------------------------------------------------------------
     */
 
     public function update(Request $request)
     {
-        //Position ID
-        $positionID = Crypt::decryptString($request->field_id);
+        //Store ID
+        $storeID = Crypt::decryptString($request->field_id);
 
         //Validate
         $request->validate([
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
-            'name' => 'required|string|max:191'
+            'brand' => 'required|integer|min:1|exists:brands,id',
+            'town' => 'required|integer|min:1|exists:towns,id',
+            'address' => 'sometimes|nullable|string|max:255'
         ]);
 
+
         try {
-            //Position
-            $position = Position::findorfail($positionID);
+            //Store
+            $store = Store::findorfail($storeID);
 
-            // Avatar
-            if ($request->avatar) {
-                // Check if a previous avatar exists and is not the default one
-                if ($position->image && $position->image !== 'build/images/position/assistant.jpg') {
-                    // Construct the path to the old avatar
-                    $oldAvatarPath = public_path($position->image);
-                    // Check if the file exists and delete it
-                    if (File::exists($oldAvatarPath)) {
-                        File::delete($oldAvatarPath);
-                    }
-                }
-                
-                $avatar = request()->file('avatar');
-                $avatarName = 'build/images/position/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
-                $avatarPath = public_path('build/images/position/');
-                $avatar->move($avatarPath, $avatarName);
-            } else {
-                $avatarName = 'build/images/position/assistant.jpg';
-            }
-
-            //Position Update
-            $position->name = $request->name;
-            $position->description = $request->description && $request->description != '<p></p>'  && $request->description != '<p><br></p>' ? $request->description : null;
-            $position->icon = $request->icon ?: null;
-            $position->color = $request->color ?: null;
-            $position->image = $avatarName;
-            $position->save();
+            //Store Update
+            $store->brand_id = $request->brand;
+            $store->town_id = $request->town;
+            $store->address = $request->address ?: null;
+            $store->save();
 
             return response()->json([
                 'success' => true,
-                'position' => $position,
-                'message' => 'Position updated successfully!'
+                'store' => $store,
+                'message' => 'Store updated successfully!'
             ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update position!',
+                'message' => 'Failed to update store!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -193,26 +175,26 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Delete
+    | Store Delete
     |--------------------------------------------------------------------------
     */
 
     public function destroy($id)
     {
         try {
-            $positionID = Crypt::decryptString($id);
+            $storeID = Crypt::decryptString($id);
 
-            $position = Position::findOrFail($positionID);
-            $position->delete();
+            $store = Store::findOrFail($storeID);
+            $store->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Position deleted successfully!',
+                'message' => 'Store deleted successfully!',
             ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete position!',
+                'message' => 'Failed to delete store!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -220,7 +202,7 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Destroy Multiple
+    | Store Destroy Multiple
     |--------------------------------------------------------------------------
     */
 
@@ -244,20 +226,20 @@ class PositionsController extends Controller
     
             DB::beginTransaction();
     
-            Position::destroy($decryptedIds);
+            Store::destroy($decryptedIds);
     
             DB::commit();
     
             return response()->json([
                 'success' => true,
-                'message' => 'Positions deleted successfully!'
+                'message' => 'Stores deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
     
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete positions!',
+                'message' => 'Failed to delete stores!',
                 'error' => $e->getMessage()
             ], 500);
         }

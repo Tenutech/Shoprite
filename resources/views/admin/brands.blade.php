@@ -1,24 +1,25 @@
-<?php $__env->startSection('title'); ?>
-    <?php echo app('translator')->get('translation.contacts'); ?>
-<?php $__env->stopSection(); ?>
-<?php $__env->startSection('content'); ?>
-    <?php $__env->startComponent('components.breadcrumb'); ?>
-        <?php $__env->slot('li_1'); ?>
+@extends('layouts.master')
+@section('title')
+    @lang('translation.contacts')
+@endsection
+@section('content')
+    @component('components.breadcrumb')
+        @slot('li_1')
             Pages
-        <?php $__env->endSlot(); ?>
-        <?php $__env->slot('title'); ?>
-            Posistions
-        <?php $__env->endSlot(); ?>
-    <?php echo $__env->renderComponent(); ?>
+        @endslot
+        @slot('title')
+            Brands
+        @endslot
+    @endcomponent
     <div class="row">
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex align-items-center flex-wrap gap-2">
                         <div class="flex-grow-1">
-                            <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#positionModal">
+                            <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#brandModal">
                                 <i class="ri-add-fill me-1 align-bottom"></i> 
-                                Add Position
+                                Add Brand
                             </button>
                         </div>
                         <div class="flex-shrink-0">
@@ -34,12 +35,12 @@
         </div>
         <!--end col-->
         <div class="col-xxl-12">
-            <div class="card" id="positionList">
+            <div class="card" id="brandList">
                 <div class="card-header">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="search-box">
-                                <input type="text" class="form-control search" placeholder="Search for position...">
+                                <input type="text" class="form-control search" placeholder="Search for brand...">
                                 <i class="ri-search-line search-icon"></i>
                             </div>
                         </div>                        
@@ -50,7 +51,7 @@
                                     <option value="10" selected>10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
-                                    <option value="<?php echo e(count($positions)); ?>">All</option>
+                                    <option value="{{count($brands)}}">All</option>
                                 </select>
                             </div>
                         </div>
@@ -59,7 +60,7 @@
                 <div class="card-body">
                     <div>
                         <div class="table-responsive table-card mb-3">
-                            <table class="table align-middle table-nowrap mb-0" id="positionTable">
+                            <table class="table align-middle table-nowrap mb-0" id="brandTable">
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col" style="width: 50px;">
@@ -68,29 +69,25 @@
                                             </div>
                                         </th>
                                         <th class="sort d-none" data-sort="id" scope="col">ID</th>
-                                        <th class="sort" data-sort="name" scope="col">Name</th>
-                                        <th class="sort" data-sort="description" scope="col">Description</th>
-                                        <th class="sort" data-sort="icon" scope="col">Icon</th>
-                                        <th class="sort" data-sort="color" scope="col">Color</th>
-                                        <th class="sort" data-sort="image" scope="col">Image</th>                
+                                        <th class="sort" data-sort="icon" scope="col">Image</th>
+                                        <th class="sort" data-sort="name" scope="col">Name</th>                                        
+                                        <th class="sort" data-sort="color" scope="col">Color</th>               
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="list form-check-all" style="height:200px;">
-                                    <?php if($positions && count($positions) > 0): ?>
-                                        <?php $__currentLoopData = $positions; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $position): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                                    @if($brands && count($brands) > 0)
+                                        @foreach ($brands as $brand)
                                             <tr style="vertical-align:top;">
                                                 <th scope="row">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
                                                     </div>
                                                 </th>
-                                                <td class="id d-none"><?php echo e(Crypt::encryptstring($position->id)); ?></td>
-                                                <td class="name"><?php echo e($position->name); ?></td>
-                                                <td class="description" style="white-space: pre-wrap;"><?php echo $position->description; ?></td>
-                                                <td class="icon"><i class="<?php echo e($position->icon); ?> text-<?php echo e($position->color); ?> fs-18"></i></td>
-                                                <td class="color"><span class="text-<?php echo e($position->color); ?>"><?php echo e($position->color); ?></span></td>
-                                                <td class="image"><img src="<?php echo e(URL::asset($position->image)); ?>" alt="" class="avatar-xs rounded-circle"></td>
+                                                <td class="id d-none">{{ Crypt::encryptstring($brand->id) }}</td>
+                                                <td class="icon"><img src="{{ URL::asset($brand->icon) }}" alt="" class="avatar-lg object-cover"></td>
+                                                <td class="name">{{ $brand->name }}</td>                                                
+                                                <td class="color"><span class="text-{{ $brand->color }}">{{ $brand->color }}</span></td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
                                                         <li class="list-inline-item">
@@ -100,7 +97,7 @@
                                                                 </button>
                                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                                     <li>
-                                                                        <a class="dropdown-item edit-item-btn" href="#positionModal" data-bs-toggle="modal">
+                                                                        <a class="dropdown-item edit-item-btn" href="#brandModal" data-bs-toggle="modal">
                                                                             <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                             Edit
                                                                         </a>
@@ -117,8 +114,8 @@
                                                     </ul>
                                                 </td>
                                             </tr>
-                                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?>
-                                    <?php else: ?>
+                                        @endforeach
+                                    @else
                                         <tr style="vertical-align:top;">
                                             <th scope="row">
                                                 <div class="form-check">
@@ -126,11 +123,9 @@
                                                 </div>
                                             </th>
                                             <td class="id d-none"></td>
-                                            <td class="name"></td>
-                                            <td class="description" style="white-space: pre-wrap;"></td>
                                             <td class="icon"></td>
+                                            <td class="name"></td>
                                             <td class="color"></td>
-                                            <td class="image"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -140,7 +135,7 @@
                                                             </button>
                                                             <ul class="dropdown-menu dropdown-menu-end">
                                                                 <li>
-                                                                    <a class="dropdown-item edit-item-btn" href="#positionModal" data-bs-toggle="modal">
+                                                                    <a class="dropdown-item edit-item-btn" href="#brandModal" data-bs-toggle="modal">
                                                                         <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                         Edit
                                                                     </a>
@@ -157,7 +152,7 @@
                                                 </ul>
                                             </td>
                                         </tr>
-                                    <?php endif; ?>
+                                    @endif
                                 </tbody>
                             </table>
                             <div class="noresult" style="display: none">
@@ -170,7 +165,7 @@
                                         Sorry! No Result Found
                                     </h5>
                                     <p class="text-muted mb-0">
-                                        We've searched all the positions. We did not find any positions for you search.
+                                        We've searched all the brands. We did not find any brands for you search.
                                     </p>
                                 </div>
                             </div>
@@ -188,16 +183,16 @@
                         </div>
                     </div>
 
-                    <!-- Modal Position -->
-                    <div class="modal fade zoomIn" id="positionModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <!-- Modal Brand -->
+                    <div class="modal fade zoomIn" id="brandModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg">
                             <div class="modal-content border-0">
                                 <div class="modal-header bg-light p-3">
                                     <h5 class="modal-title" id="exampleModalLabel"></h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
                                 </div>
-                                <form id="formPosition" enctype="multipart/form-data">
-                                    <?php echo csrf_field(); ?>
+                                <form id="formBrand" enctype="multipart/form-data">
+                                    @csrf
                                     <input type="hidden" id="field-id" name="field_id"/>
                                     <div class="modal-body">
                                         <div class="col-lg-12 mb-3 d-flex align-items-center justify-content-center h-100">
@@ -215,7 +210,7 @@
                                                     </div>
                                                     <div class="avatar-xg p-1">
                                                         <div class="avatar-title bg-light rounded-circle">
-                                                            <img src="<?php echo e(URL::asset('build/images/position/assistant.jpg')); ?>" alt="" id="position-img" class="avatar-lg rounded-circle object-cover">
+                                                            <img src="{{ URL::asset('build/images/brands/shoprite-logo.svg') }}" alt="" id="brand-img" class="avatar-lg rounded-circle object-cover">
                                                         </div>
                                                     </div>
                                                 </div>
@@ -229,20 +224,6 @@
                                                     Name
                                                 </label>
                                                 <input type="text" class="form-control" id="name" name="name" required>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="description" class="form-label">
-                                                    Description
-                                                </label>
-                                                <div class="snow-editor" id="description" style="height: 300px;"></div>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="icon" class="form-label">Icon</label>
-                                                <select id="icon" name="icon" class="form-control">
-                                                    <option value="" selected>Select Icon</option>
-                                                </select>
                                             </div>
     
                                             <div class="mb-3">
@@ -265,7 +246,7 @@
                                     <div class="modal-footer">                                        
                                         <div class="hstack gap-2 justify-content-end">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success" id="add-btn">Add Position</button>
+                                            <button type="submit" class="btn btn-success" id="add-btn">Add Brand</button>
                                             <button type="button" class="btn btn-success" id="edit-btn">Update</button>
                                         </div>
                                     </div>
@@ -286,10 +267,10 @@
                                     <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px"></lord-icon>
                                     <div class="mt-4 text-center">
                                         <h4 class="fs-semibold">
-                                            You are about to delete this position ?
+                                            You are about to delete this brand ?
                                         </h4>
                                         <p class="text-muted fs-14 mb-4 pt-1">
-                                            Deleting this position will remove all of the information from the database.
+                                            Deleting this brand will remove all of the information from the database.
                                         </p>
                                         <div class="hstack gap-2 justify-content-center remove">
                                             <button class="btn btn-danger" data-bs-dismiss="modal" id="deleteRecord-close">
@@ -314,14 +295,12 @@
         <!--end col-->
     </div>
     <!--end row-->
-<?php $__env->stopSection(); ?>
-<?php $__env->startSection('script'); ?>
-    <script src="<?php echo e(URL::asset('build/libs/list.js/list.min.js')); ?>"></script>
-    <script src="<?php echo e(URL::asset('build/libs/list.pagination.js/list.pagination.min.js')); ?>"></script>
-    <script src="<?php echo e(URL::asset('build/libs/sweetalert2/sweetalert2.min.js')); ?>"></script>
-    <script src="<?php echo e(URL::asset('build/libs/quill/quill.min.js')); ?>"></script>
-    <script src="<?php echo e(URL::asset('build/js/pages/positions.init.js')); ?>"></script>
-    <script src="<?php echo e(URL::asset('build/js/app.js')); ?>"></script>
-<?php $__env->stopSection(); ?>
-
-<?php echo $__env->make('layouts.master', \Illuminate\Support\Arr::except(get_defined_vars(), ['__data', '__path']))->render(); ?><?php /**PATH C:\xampp\htdocs\Recruitment\resources\views/admin/positions.blade.php ENDPATH**/ ?>
+@endsection
+@section('script')
+    <script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
+    <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
+    <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+    <script src="{{ URL::asset('build/libs/quill/quill.min.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/brands.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/app.js') }}"></script>
+@endsection

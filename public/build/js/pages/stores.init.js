@@ -8,53 +8,6 @@ File: CRM-contact Js File
 
 /*
 |--------------------------------------------------------------------------
-| Snow Editor
-|--------------------------------------------------------------------------
-*/
-
-var snowEditor = document.querySelectorAll(".snow-editor");
-
-if (snowEditor) {
-    Array.from(snowEditor).forEach(function (item) {
-      var snowEditorData = {};
-      var issnowEditorVal = item.classList.contains("snow-editor");
-  
-      if (issnowEditorVal == true) {
-        snowEditorData.theme = 'snow', snowEditorData.modules = {
-          'toolbar': [[{
-            'font': []
-          }, {
-            'size': []
-          }], ['bold', 'italic', 'underline', 'strike'], [{
-            'color': []
-          }, {
-            'background': []
-          }], [{
-            'script': 'super'
-          }, {
-            'script': 'sub'
-          }], [{
-            'header': [false, 1, 2, 3, 4, 5, 6]
-          }, 'blockquote', 'code-block'], [{
-            'list': 'ordered'
-          }, {
-            'list': 'bullet'
-          }, {
-            'indent': '-1'
-          }, {
-            'indent': '+1'
-          }], ['direction', {
-            'align': []
-          }], ['link', 'image', 'video'], ['clean']]
-        };
-      }
-  
-      new Quill(item, snowEditorData);
-    });
-}
-
-/*
-|--------------------------------------------------------------------------
 | List Js
 |--------------------------------------------------------------------------
 */
@@ -81,11 +34,9 @@ var perPage = 10;
 var options = {
     valueNames: [
         "id",
-        "name",
-        "description",
-        "icon",
-        "color",
-        "image",
+        "brand",
+        "town",
+        "address"
     ],
     page: perPage,
     pagination: true,
@@ -97,7 +48,7 @@ var options = {
     ]
 };
 // Init list
-var positionList = new List("positionList", options).on("updated", function (list) {
+var storeList = new List("storeList", options).on("updated", function (list) {
     list.matchingItems.length == 0 ?
         (document.getElementsByClassName("noresult")[0].style.display = "block") :
         (document.getElementsByClassName("noresult")[0].style.display = "none");
@@ -128,118 +79,83 @@ var positionList = new List("positionList", options).on("updated", function (lis
 var perPageSelect = document.getElementById("per-page-select");
 perPageSelect.addEventListener("change", function() {
     perPage = parseInt(this.value);
-    positionList.page = perPage;
-    positionList.update();
+    storeList.page = perPage;
+    storeList.update();
 });
 
 isCount = new DOMParser().parseFromString(
-    positionList.items.slice(-1)[0]._values.id,
+    storeList.items.slice(-1)[0]._values.id,
     "text/html"
 );
 
-// position image
-document.querySelector("#avatar").addEventListener("change", function () {
-    var preview = document.querySelector("#position-img");
-    var file = document.querySelector("#avatar").files[0];
-    var reader = new FileReader();
-    reader.addEventListener("load",function () {
-        preview.src = reader.result;
-    },false);
-    if (file) {
-        reader.readAsDataURL(file);
-    }
-});
-
 var idField = document.getElementById("field-id"),
-    positionImg = document.getElementById("position-img"),
-    positionName = document.getElementById("name"),
-    description = document.getElementById("description"),
-    icon = document.getElementById("icon"),
-    color = document.getElementById("color"),
+    brand = document.getElementById("brand"),
+    town = document.getElementById("town"),
+    address = document.getElementById("address"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
     editBtns = document.getElementsByClassName("edit-item-btn");
 refreshCallbacks();
 
-document.getElementById("positionModal").addEventListener("show.bs.modal", function (e) {
+document.getElementById("storeModal").addEventListener("show.bs.modal", function (e) {
     if (e.relatedTarget.classList.contains("edit-item-btn")) {
-        document.getElementById("exampleModalLabel").innerHTML = "Edit Position";
-        document.getElementById("positionModal").querySelector(".modal-footer").style.display = "block";
+        document.getElementById("exampleModalLabel").innerHTML = "Edit Store";
+        document.getElementById("storeModal").querySelector(".modal-footer").style.display = "block";
         document.getElementById("add-btn").style.display = "none";
         document.getElementById("edit-btn").style.display = "block";
     } else if (e.relatedTarget.classList.contains("add-btn")) {
-        document.getElementById("exampleModalLabel").innerHTML = "Add Position";
-        document.getElementById("positionModal").querySelector(".modal-footer").style.display = "block";
+        document.getElementById("exampleModalLabel").innerHTML = "Add Store";
+        document.getElementById("storeModal").querySelector(".modal-footer").style.display = "block";
         document.getElementById("edit-btn").style.display = "none";
         document.getElementById("add-btn").style.display = "block";
     } else {
-        document.getElementById("exampleModalLabel").innerHTML = "List Position";
-        document.getElementById("positionModal").querySelector(".modal-footer").style.display = "none";
+        document.getElementById("exampleModalLabel").innerHTML = "List Store";
+        document.getElementById("storeModal").querySelector(".modal-footer").style.display = "none";
     }
 });
 ischeckboxcheck();
 
-document.getElementById("positionModal").addEventListener("hidden.bs.modal", function (e) {
+document.getElementById("storeModal").addEventListener("hidden.bs.modal", function (e) {
     clearFields();
 });
 
-document.querySelector("#positionList").addEventListener("click", function () {
+document.querySelector("#storeList").addEventListener("click", function () {
     refreshCallbacks();
     ischeckboxcheck();
 });
 
-var table = document.getElementById("positionTable");
+var table = document.getElementById("storeTable");
 // save all tr
 var tr = table.getElementsByTagName("tr");
 var trlist = table.querySelectorAll(".list tr");
 
 var count = 11;
 
-var iconVal = new Choices(icon, {
-    searchEnabled: true
+var brandVal = new Choices(brand, {
+    searchEnabled: true,
+    shouldSort: false
 });
 
-// Fetch the list of Remix Icons from the JSON file
-$.getJSON('/build/json/remixicons.json', function(icons) {
-    const iconChoices = icons.map(function(icon) {
-        return {
-            value: icon,
-            label: '<i class="' + icon + ' text-primary"></i> ' + icon,
-            selected: false,
-            disabled: false,
-            customProperties: {},
-            placeholder: false,
-        };
-    });
-  
-    // Set choices using the array of icon objects
-    iconVal.setChoices(iconChoices, 'value', 'label', true);
-});
-
-var colorVal = new Choices(color, {
+var townVal = new Choices(town, {
     searchEnabled: true,
     shouldSort: false
 });
 
 /*
 |--------------------------------------------------------------------------
-| Add Position
+| Add Store
 |--------------------------------------------------------------------------
 */
 
 addBtn.addEventListener("click", function (e) {
     e.preventDefault();
-    var form = document.getElementById("formPosition");
+    var form = document.getElementById("formStore");
     if (form.checkValidity()) {
-        var formData = new FormData($('#formPosition')[0]);
-
-        var description = $("#description .ql-editor").html();
-
-        formData.set('description', description);
+        var formData = new FormData($('#formStore')[0]);
 
         $.ajax({
-            url: route('position.store'),
+            url: route('store.store'),
             type: 'POST',
             data: formData,
             async: false,
@@ -250,13 +166,23 @@ addBtn.addEventListener("click", function (e) {
             },
             success:function(data) {
                 if(data.success == true) {
-                    positionList.add({
+                    if (brand.value) {
+                        brandValue = brand.options[brand.selectedIndex].text;
+                    } else {
+                        brandValue = '';
+                    }
+
+                    if (town.value) {
+                        townValue = town.options[town.selectedIndex].text;
+                    } else {
+                        townValue = '';
+                    }
+
+                    storeList.add({
                         id: data.encID,
-                        name: positionName.value,
-                        description: $("#description .ql-editor").html(),
-                        icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
-                        color: '<span class="text-'+ color.value +'">'+ color.value +'</span>',
-                        image: '<img src="'+ positionImg.src + '" alt="" class="avatar-xs rounded-circle object-cover">'
+                        brand: brandValue,
+                        town: townValue,
+                        address: address.value                 
                     });
 
                     Swal.fire({
@@ -306,25 +232,21 @@ addBtn.addEventListener("click", function (e) {
 
 /*
 |--------------------------------------------------------------------------
-| Update Position
+| Update Store
 |--------------------------------------------------------------------------
 */
 
 editBtn.addEventListener("click", function (e) {
-    document.getElementById("exampleModalLabel").innerHTML = "Edit Position";
-    var editValues = positionList.get({
+    document.getElementById("exampleModalLabel").innerHTML = "Edit Store";
+    var editValues = storeList.get({
         id: idField.value,
     });
-    var form = document.getElementById("formPosition");
+    var form = document.getElementById("formStore");
     if (form.checkValidity()) {
-        var formData = new FormData($('#formPosition')[0]);
-
-        var description = $("#description .ql-editor").html();
-
-        formData.set('description', description);
+        var formData = new FormData($('#formStore')[0]);
 
         $.ajax({
-            url: route('position.update'),
+            url: route('store.update'),
             type: 'POST',
             data: formData,
             async: false,
@@ -339,13 +261,23 @@ editBtn.addEventListener("click", function (e) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
                         if (selectedid == itemId) {
+                            if (brand.value) {
+                                brandValue = brand.options[brand.selectedIndex].text;
+                            } else {
+                                brandValue = '';
+                            }
+
+                            if (town.value) {
+                                townValue = town.options[town.selectedIndex].text;
+                            } else {
+                                townValue = '';
+                            }
+
                             x.values({
                                 id: idField.value,
-                                name: positionName.value,
-                                description: $("#description .ql-editor").html(),
-                                icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
-                                color: '<span class="text-'+ color.value +'">'+ color.value +'</span>',
-                                image: '<img src="'+ positionImg.src + '" alt="" class="avatar-xs rounded-circle object-cover">'
+                                brand: brandValue,
+                                town: townValue,
+                                address: address.value
                             });
                         }
                     });
@@ -417,7 +349,7 @@ function refreshCallbacks() {
         btn.onclick = function (e) {
             e.target.closest("tr").children[1].innerText;
             itemId = e.target.closest("tr").children[1].innerText;
-            var itemValues = positionList.get({
+            var itemValues = storeList.get({
                 id: itemId,
             });
 
@@ -429,14 +361,14 @@ function refreshCallbacks() {
                 if (isdeleteid == itemId) {
                     document.getElementById("delete-position").onclick = function () {                        
                         $.ajax({
-                            url: route('position.destroy', {id: isdeleteid}),
+                            url: route('store.destroy', {id: isdeleteid}),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
                             success:function(data) {            
                                 if(data.success === true) {
-                                    positionList.remove("id", isdeleteid);
+                                    storeList.remove("id", isdeleteid);
                                     document.getElementById("deleteRecord-close").click();
                                     document.querySelector(".pagination-wrap").style.display = "flex";
                                     Swal.fire({
@@ -485,7 +417,7 @@ function refreshCallbacks() {
             itemId = e.target.closest("tr").children[1].innerText;
            
             $.ajax({
-                url: route('position.details', {id: itemId}),
+                url: route('store.details', {id: itemId}),
                 type: 'GET',
                 data: {
                     "id": itemId
@@ -497,36 +429,28 @@ function refreshCallbacks() {
             }).done(function(data) {
                 idField.value = data.encID;
 
-                positionImg.src = data.position.image;
-
-                positionName.value = data.position.name;
-
-                $("#description .ql-editor").html(data.position.description);
-
-                if (data.position.icon) {
-                    iconVal.setChoiceByValue(data.position.icon.toString());
+                if (data.store.brand_id) {
+                    brandVal.setChoiceByValue(data.store.brand_id.toString());
                 }
 
-                if (data.position.color) {
-                    colorVal.setChoiceByValue(data.position.color.toString());
+                if (data.store.town_id) {
+                    townVal.setChoiceByValue(data.store.town_id.toString());
                 }
+
+                address.value = data.store.address;
             });
         }
     });
 }
 
 function clearFields() {
-    positionImg.src = "build/images/position/assistant.jpg";
+    brandVal.removeActiveItems();
+    brandVal.setChoiceByValue("");
 
-    positionName.value = "";
+    townVal.removeActiveItems();
+    townVal.setChoiceByValue("");
 
-    $("#description .ql-editor").html('');
-
-    iconVal.removeActiveItems();
-    iconVal.setChoiceByValue("");
-
-    colorVal.removeActiveItems();
-    colorVal.setChoiceByValue("");
+    address.value = "";
 }
 
 // Delete Multiple Records
@@ -543,7 +467,7 @@ function deleteMultiple(){
 
     if(typeof ids_array !== 'undefined' && ids_array.length > 0){
         Swal.fire({
-            html: '<div class="mt-3">' + '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' + '<div class="mt-4 pt-2 fs-15 mx-5">' + '<h4>You are about to delete these positions ?</h4>' + '<p class="text-muted mx-4 mb-0">Deleting these positions will remove all of their information from the database.</p>' + '</div>' + '</div>',
+            html: '<div class="mt-3">' + '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' + '<div class="mt-4 pt-2 fs-15 mx-5">' + '<h4>You are about to delete these stores ?</h4>' + '<p class="text-muted mx-4 mb-0">Deleting these stores will remove all of their information from the database.</p>' + '</div>' + '</div>',
             showCancelButton: true,
             confirmButtonClass: 'btn btn-primary w-xs me-2 mt-2',
             cancelButtonClass: 'btn btn-danger w-xs mt-2',
@@ -553,11 +477,11 @@ function deleteMultiple(){
         }).then(function (result) {
             if (result.value) {
                 for (i = 0; i < ids_array.length; i++) {
-                    positionList.remove("id", `${ids_array[i]}`);
+                    storeList.remove("id", `${ids_array[i]}`);
                 }
     
                 $.ajax({
-                    url: route('position.destroyMultiple'),
+                    url: route('store.destroyMultiple'),
                     type: 'post',
                     data: {
                         ids: ids_array

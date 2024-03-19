@@ -134,6 +134,48 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::delete('/position/destroy/{id}', [App\Http\Controllers\PositionsController::class, 'destroy'])->name('position.destroy');
 
     Route::post('/position/destroy-multiple', [App\Http\Controllers\PositionsController::class, 'destroyMultiple'])->name('position.destroyMultiple');
+
+    //Brands
+
+    Route::get('/brands', [App\Http\Controllers\BrandsController::class, 'index'])->name('brands.index');
+
+    Route::post('/brand/add', [App\Http\Controllers\BrandsController::class, 'store'])->name('brand.store');
+
+    Route::post('/brand/update', [App\Http\Controllers\BrandsController::class, 'update'])->name('brand.update');
+
+    Route::get('/brand/details/{id}', [App\Http\Controllers\BrandsController::class, 'details'])->name('brand.details');
+
+    Route::delete('/brand/destroy/{id}', [App\Http\Controllers\BrandsController::class, 'destroy'])->name('brand.destroy');
+
+    Route::post('/brand/destroy-multiple', [App\Http\Controllers\BrandsController::class, 'destroyMultiple'])->name('brand.destroyMultiple');
+
+    //Towns
+
+    Route::get('/towns', [App\Http\Controllers\TownsController::class, 'index'])->name('towns.index');
+
+    Route::post('/town/add', [App\Http\Controllers\TownsController::class, 'store'])->name('town.store');
+
+    Route::post('/town/update', [App\Http\Controllers\TownsController::class, 'update'])->name('town.update');
+
+    Route::get('/town/details/{id}', [App\Http\Controllers\TownsController::class, 'details'])->name('town.details');
+
+    Route::delete('/town/destroy/{id}', [App\Http\Controllers\TownsController::class, 'destroy'])->name('town.destroy');
+
+    Route::post('/town/destroy-multiple', [App\Http\Controllers\TownsController::class, 'destroyMultiple'])->name('town.destroyMultiple');
+
+    //Stores
+
+    Route::get('/stores', [App\Http\Controllers\StoresController::class, 'index'])->name('stores.index');
+
+    Route::post('/store/add', [App\Http\Controllers\StoresController::class, 'store'])->name('store.store');
+
+    Route::post('/store/update', [App\Http\Controllers\StoresController::class, 'update'])->name('store.update');
+
+    Route::get('/store/details/{id}', [App\Http\Controllers\StoresController::class, 'details'])->name('store.details');
+
+    Route::delete('/store/destroy/{id}', [App\Http\Controllers\StoresController::class, 'destroy'])->name('store.destroy');
+
+    Route::post('/store/destroy-multiple', [App\Http\Controllers\StoresController::class, 'destroyMultiple'])->name('store.destroyMultiple');
 });
 
 /*

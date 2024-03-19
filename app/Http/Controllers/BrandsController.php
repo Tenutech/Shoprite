@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\Position;
+use App\Models\Brand;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 
-class PositionsController extends Controller
+class BrandsController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -35,18 +35,18 @@ class PositionsController extends Controller
     
     /*
     |--------------------------------------------------------------------------
-    | Positions Index
+    | Brands Index
     |--------------------------------------------------------------------------
     */
 
     public function index()
     {
-        if (view()->exists('admin/positions')) {
-            //Positions
-            $positions = Position::all();
+        if (view()->exists('admin/brands')) {
+            //Brands
+            $brands = Brand::all();
 
-            return view('admin/positions', [
-                'positions' => $positions
+            return view('admin/brands', [
+                'brands' => $brands
             ]);
         }
         return view('404');
@@ -54,7 +54,7 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Add
+    | Brand Add
     |--------------------------------------------------------------------------
     */
 
@@ -62,7 +62,7 @@ class PositionsController extends Controller
     {
         //Validate
         $request->validate([
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
+            'avatar' => ['image' ,'mimes:jpg,jpeg,png,svg','max:1024'],
             'name' => 'required|string|max:191'
         ]);
 
@@ -70,34 +70,32 @@ class PositionsController extends Controller
             // Avatar
             if ($request->avatar) {               
                 $avatar = request()->file('avatar');
-                $avatarName = 'build/images/position/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
-                $avatarPath = public_path('build/images/position/');
+                $avatarName = 'build/images/brands/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
+                $avatarPath = public_path('build/images/brands/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
-                $avatarName = 'build/images/position/assistant.jpg';
+                $avatarName = 'build/images/brands/shoprite-logo.svg';
             }
 
-            //Position Create
-            $position = Position::create([                
+            //Brand Create
+            $brand = Brand::create([                
                 'name' => $request->name,
-                'description' => $request->description && $request->description != '<p></p>'  && $request->description != '<p><br></p>' ? $request->description : null,
-                'icon' => $request->icon ?: null,
-                'color' => $request->color ?: null,
-                'image' => $avatarName
+                'icon' => $avatarName,
+                'color' => $request->color ?: null
             ]);
 
-            $encID = Crypt::encryptString($position->id);
+            $encID = Crypt::encryptString($brand->id);
 
             return response()->json([
                 'success' => true,
-                'position' => $position,
+                'brand' => $brand,
                 'encID' => $encID,
-                'message' => 'Position created successfully!',
+                'message' => 'Brand created successfully!',
             ], 200);
         } catch (Exception $e) {            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create position!',
+                'message' => 'Failed to create brand!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -105,24 +103,24 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Detail
+    | Brand Detail
     |--------------------------------------------------------------------------
     */
 
     public function details($id)
     {
         try {
-            $positionID = Crypt::decryptString($id);
+            $brandID = Crypt::decryptString($id);
 
-            $position = Position::findOrFail($positionID);
+            $brand = Brand::findOrFail($brandID);
 
             return response()->json([
-                'position' => $position,
+                'brand' => $brand,
                 'encID' => $id
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Failed to get position!',
+                'message' => 'Failed to get brand!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -130,14 +128,14 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Update
+    | Brand Update
     |--------------------------------------------------------------------------
     */
 
     public function update(Request $request)
     {
-        //Position ID
-        $positionID = Crypt::decryptString($request->field_id);
+        //Brand ID
+        $brandID = Crypt::decryptString($request->field_id);
 
         //Validate
         $request->validate([
@@ -146,15 +144,15 @@ class PositionsController extends Controller
         ]);
 
         try {
-            //Position
-            $position = Position::findorfail($positionID);
+            //Brand
+            $brand = Brand::findorfail($brandID);
 
             // Avatar
             if ($request->avatar) {
                 // Check if a previous avatar exists and is not the default one
-                if ($position->image && $position->image !== 'build/images/position/assistant.jpg') {
+                if ($brand->image) {
                     // Construct the path to the old avatar
-                    $oldAvatarPath = public_path($position->image);
+                    $oldAvatarPath = public_path($brand->image);
                     // Check if the file exists and delete it
                     if (File::exists($oldAvatarPath)) {
                         File::delete($oldAvatarPath);
@@ -162,30 +160,28 @@ class PositionsController extends Controller
                 }
                 
                 $avatar = request()->file('avatar');
-                $avatarName = 'build/images/position/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
-                $avatarPath = public_path('build/images/position/');
+                $avatarName = 'build/images/brands/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
+                $avatarPath = public_path('build/images/brands/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
-                $avatarName = 'build/images/position/assistant.jpg';
+                $avatarName = 'build/images/brands/shoprite-logo.svg';
             }
 
-            //Position Update
-            $position->name = $request->name;
-            $position->description = $request->description && $request->description != '<p></p>'  && $request->description != '<p><br></p>' ? $request->description : null;
-            $position->icon = $request->icon ?: null;
-            $position->color = $request->color ?: null;
-            $position->image = $avatarName;
-            $position->save();
+            //Brand Update
+            $brand->name = $request->name;
+            $brand->icon = $avatarName;
+            $brand->color = $request->color ?: null;
+            $brand->save();
 
             return response()->json([
                 'success' => true,
-                'position' => $position,
-                'message' => 'Position updated successfully!'
+                'brand' => $brand,
+                'message' => 'Brand updated successfully!'
             ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update position!',
+                'message' => 'Failed to update brand!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -193,26 +189,26 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Delete
+    | Brand Delete
     |--------------------------------------------------------------------------
     */
 
     public function destroy($id)
     {
         try {
-            $positionID = Crypt::decryptString($id);
+            $brandID = Crypt::decryptString($id);
 
-            $position = Position::findOrFail($positionID);
-            $position->delete();
+            $brand = Brand::findOrFail($brandID);
+            $brand->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Position deleted successfully!',
+                'message' => 'Brand deleted successfully!',
             ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete position!',
+                'message' => 'Failed to delete brand!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -220,7 +216,7 @@ class PositionsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Position Destroy Multiple
+    | Brand Destroy Multiple
     |--------------------------------------------------------------------------
     */
 
@@ -244,20 +240,20 @@ class PositionsController extends Controller
     
             DB::beginTransaction();
     
-            Position::destroy($decryptedIds);
+            Brand::destroy($decryptedIds);
     
             DB::commit();
     
             return response()->json([
                 'success' => true,
-                'message' => 'Positions deleted successfully!'
+                'message' => 'Brands deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
     
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete positions!',
+                'message' => 'Failed to delete brands!',
                 'error' => $e->getMessage()
             ], 500);
         }

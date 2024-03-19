@@ -219,6 +219,21 @@
                                         Positions
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('brands.index') }}">
+                                        Brands
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('towns.index') }}">
+                                        Towns
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('stores.index') }}">
+                                        Stores
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </li>
