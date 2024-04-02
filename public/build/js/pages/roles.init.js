@@ -1,8 +1,8 @@
 /*
-Template Name: Velzon - Admin & Dashboard Template
-Author: Themesbrand
-Website: https://Themesbrand.com/
-Contact: Themesbrand@gmail.com
+Template Name: Orient - Admin & Dashboard Template
+Author: OTB Group
+Website: https://orient.tenutech.com/
+Contact: admin@tenutech.com
 File: CRM-contact Js File
 */
 
@@ -248,10 +248,6 @@ editBtn.addEventListener("click", function (e) {
     var form = document.getElementById("fromRole");
     if (form.checkValidity()) {
         var formData = new FormData($('#fromRole')[0]);
-
-        var description = $("#description .ql-editor").html();
-
-        formData.set('description', description);
 
         $.ajax({
             url: route('role.update'),

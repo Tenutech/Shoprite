@@ -330,6 +330,62 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::delete('/transport/destroy/{id}', [App\Http\Controllers\TransportsController::class, 'destroy'])->name('transport.destroy');
 
     Route::post('/transport/destroy-multiple', [App\Http\Controllers\TransportsController::class, 'destroyMultiple'])->name('transport.destroyMultiple');
+
+    //Experience
+
+    Route::get('/experience', [App\Http\Controllers\ExperienceController::class, 'index'])->name('experience.index');
+
+    Route::post('/experience/add', [App\Http\Controllers\ExperienceController::class, 'store'])->name('experience.store');
+
+    Route::post('/experience/update', [App\Http\Controllers\ExperienceController::class, 'update'])->name('experience.update');
+
+    Route::get('/experience/details/{id}', [App\Http\Controllers\ExperienceController::class, 'details'])->name('experience.details');
+
+    Route::delete('/experience/destroy/{id}', [App\Http\Controllers\ExperienceController::class, 'destroy'])->name('experience.destroy');
+
+    Route::post('/experience/destroy-multiple', [App\Http\Controllers\ExperienceController::class, 'destroyMultiple'])->name('experience.destroyMultiple');
+
+    //Physical
+
+    Route::get('/physical', [App\Http\Controllers\PhysicalController::class, 'index'])->name('physical.index');
+
+    Route::post('/physical/add', [App\Http\Controllers\PhysicalController::class, 'store'])->name('physical.store');
+
+    Route::post('/physical/update', [App\Http\Controllers\PhysicalController::class, 'update'])->name('physical.update');
+
+    Route::get('/physical/details/{id}', [App\Http\Controllers\PhysicalController::class, 'details'])->name('physical.details');
+
+    Route::delete('/physical/destroy/{id}', [App\Http\Controllers\PhysicalController::class, 'destroy'])->name('physical.destroy');
+
+    Route::post('/physical/destroy-multiple', [App\Http\Controllers\PhysicalController::class, 'destroyMultiple'])->name('physical.destroyMultiple');
+
+    //Qualifications
+
+    Route::get('/qualifications', [App\Http\Controllers\QualificationsController::class, 'index'])->name('qualifications.index');
+
+    Route::post('/qualification/add', [App\Http\Controllers\QualificationsController::class, 'store'])->name('qualification.store');
+
+    Route::post('/qualification/update', [App\Http\Controllers\QualificationsController::class, 'update'])->name('qualification.update');
+
+    Route::get('/qualification/details/{id}', [App\Http\Controllers\QualificationsController::class, 'details'])->name('qualification.details');
+
+    Route::delete('/qualification/destroy/{id}', [App\Http\Controllers\QualificationsController::class, 'destroy'])->name('qualification.destroy');
+
+    Route::post('/qualification/destroy-multiple', [App\Http\Controllers\QualificationsController::class, 'destroyMultiple'])->name('qualification.destroyMultiple');
+
+    //Responsibilities
+
+    Route::get('/responsibilities', [App\Http\Controllers\ResponsibilitiesController::class, 'index'])->name('responsibilities.index');
+
+    Route::post('/responsibility/add', [App\Http\Controllers\ResponsibilitiesController::class, 'store'])->name('responsibility.store');
+
+    Route::post('/responsibility/update', [App\Http\Controllers\ResponsibilitiesController::class, 'update'])->name('responsibility.update');
+
+    Route::get('/responsibility/details/{id}', [App\Http\Controllers\ResponsibilitiesController::class, 'details'])->name('responsibility.details');
+
+    Route::delete('/responsibility/destroy/{id}', [App\Http\Controllers\ResponsibilitiesController::class, 'destroy'])->name('responsibility.destroy');
+
+    Route::post('/responsibility/destroy-multiple', [App\Http\Controllers\ResponsibilitiesController::class, 'destroyMultiple'])->name('responsibility.destroyMultiple');
 });
 
 /*

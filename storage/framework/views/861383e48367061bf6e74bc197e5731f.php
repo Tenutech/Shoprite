@@ -203,6 +203,61 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarJobs" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarJobs">
+                            <i class="ri-briefcase-3-line"></i> 
+                            <span>Jobs</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarJobs">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('positions.index')); ?>">
+                                        Positions
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('experience.index')); ?>">
+                                        Experience
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('physical.index')); ?>">
+                                        Physical Requirements
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('qualifications.index')); ?>">
+                                        Qualifications
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('responsibilities.index')); ?>">
+                                        Responsibilities
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('provinces.index')); ?>">
+                                        Salary & Benefits
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('banks.index')); ?>">
+                                        Skills
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('disabilities.index')); ?>">
+                                        Success Factors
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="<?php echo e(route('genders.index')); ?>">
+                                        Working Hours
+                                    </a>
+                                </li>                                
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarSettings" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarSettings">
                             <i class="ri-settings-5-line"></i> 
                             <span>Settings</span>
@@ -217,11 +272,6 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="<?php echo e(route('roles.index')); ?>">
                                         Roles
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="<?php echo e(route('positions.index')); ?>">
-                                        Positions
                                     </a>
                                 </li>
                                 <li class="nav-item">

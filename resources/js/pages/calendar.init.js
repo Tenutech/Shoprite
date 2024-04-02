@@ -1,8 +1,8 @@
 /*
-Template Name: Velzon - Admin & Dashboard Template
-Author: Themesbrand
-Website: https://Themesbrand.com/
-Contact: Themesbrand@gmail.com
+Template Name: Orient - Admin & Dashboard Template
+Author: OTB Group
+Website: https://orient.tenutech.com/
+Contact: admin@tenutech.com
 File: Calendar init js
 */
 
@@ -208,7 +208,7 @@ document.addEventListener("DOMContentLoaded", function () {
         },
         {
             id: 456,
-            title: 'Velzon Project Discussion with Team',
+            title: 'Orient Project Discussion with Team',
             start: new Date(y, m, d + 23, 20, 0),
             end: new Date(y, m, d + 24, 16, 0),
             allDay: true,

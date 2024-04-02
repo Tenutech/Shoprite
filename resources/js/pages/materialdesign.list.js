@@ -1,6 +1,6 @@
 /*
-Template Name: Velzon - Admin & Dashboard Template
-Author: Themesbrand
+Template Name: Orient - Admin & Dashboard Template
+Author: OTB Group
 Website: https://themesbrand.com/
 Contact: themesbrand@gmail.com
 File: Material design Init Js File

@@ -2,7 +2,7 @@
     "private": true,
     "name": "velzon",
     "version": "3.0.0",
-    "author": "Themesbrand",
+    "author": "OTB Group",
     "scripts": {
         "dev": "vite",
         "build": "vite build",

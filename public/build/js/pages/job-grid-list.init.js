@@ -1,8 +1,8 @@
 /*
-Template Name: Velzon - Admin & Dashboard Template
-Author: Themesbrand
-Website: https://Themesbrand.com/
-Contact: Themesbrand@gmail.com
+Template Name: Orient - Admin & Dashboard Template
+Author: OTB Group
+Website: https://orient.tenutech.com/
+Contact: admin@tenutech.com
 File: job grid list Js File
 */
 
@@ -54,7 +54,7 @@ function loadJobListData(datas, page) {
         document.querySelector("#job-list").insertAdjacentHTML('afterbegin', '<div class="col-lg-3 col-md-6" id="job-widget">\
         <div class="card card-height-100 bg-info bg-job">\
             <div class="card-body p-5">\
-                <h2 class="lh-base text-white">Velzon invites young professionals for an intership!</h2>\
+                <h2 class="lh-base text-white">Orient invites young professionals for an intership!</h2>\
                 <p class="text-white text-opacity-75 mb-0 fs-14">Don\'t miss your opportunity to improve your skills!</p>\
                 <div class="mt-5 pt-2">\
                     <button type="button" class="btn btn-light w-100">View More <i class="ri-arrow-right-line align-bottom"></i></button>\

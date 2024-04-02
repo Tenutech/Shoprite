@@ -8,7 +8,7 @@
 
 
 <div class="row">
-    <?php if($user->applicant): ?>
+    <?php if(!$user->applicant): ?>
         <div class="col">
             <div class="h-100">
                 <div class="row mb-3 pb-1">
@@ -317,7 +317,7 @@
                 </h4>
             </div><!-- end card header -->
             <div class="card-body form-steps">
-                <form class="vertical-navs-step" id="<?php echo e($user->applicant ? 'formApplicationUpdate' : 'formApplication'); ?>"  enctype="multipart/form-data" novalidate>
+                <form class="vertical-navs-step" id="<?php echo e(!$user->applicant ? 'formApplicationUpdate' : 'formApplication'); ?>"  enctype="multipart/form-data" novalidate>
                     <?php echo csrf_field(); ?>
                     <input type="hidden" id="id" name="id" value="<?php echo e($user->applicant ? Crypt::encryptString($user->applicant->id) : ''); ?>"/>
                     <div class="row gy-5">
@@ -1597,7 +1597,7 @@
                                     -------------------------------------------------------------------------------------->
 
                                     <div class="tab-pane fade d-flex align-items-center justify-content-center flex-column" id="v-pills-finish" role="tabpanel" aria-labelledby="v-pills-finish-tab">
-                                        <?php if($user->applicant): ?>
+                                        <?php if(!$user->applicant): ?>
                                             <!-- Update -->
                                             <div class="text-center pt-4 pb-2" id="complete">
                                                 <div class="mb-4">
@@ -1633,7 +1633,7 @@
                                             </div>
                                         <?php else: ?>
                                             <!-- Confirm -->
-                                            <div class="text-center pt-4 pb-2 <?php echo e($user->applicant ? 'd-none' : ''); ?>" id="confirm">
+                                            <div class="text-center pt-4 pb-2 <?php echo e(!$user->applicant ? 'd-none' : ''); ?>" id="confirm">
                                                 <div class="mb-4">
                                                     <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="loop" state="hover-2" colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
                                                 </div>
@@ -2250,7 +2250,7 @@
 <script src="<?php echo e(URL::asset('build/libs/jsvectormap/maps/world-merc.js')); ?>"></script>
 <script src="<?php echo e(URL::asset('build/libs/swiper/swiper-bundle.min.js')); ?>"></script>
 <!-- home init -->
-<?php if($user->applicant): ?>
+<?php if(!$user->applicant): ?>
     <script src="<?php echo e(URL::asset('build/js/pages/home.init.js')); ?>"></script>
 <?php else: ?>
     <script src="<?php echo e(URL::asset('build/libs/@simonwep/pickr/pickr.min.js')); ?>"></script>

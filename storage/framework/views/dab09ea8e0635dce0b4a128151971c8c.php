@@ -7,7 +7,7 @@
             Pages
         <?php $__env->endSlot(); ?>
         <?php $__env->slot('title'); ?>
-            Posistions
+            Positions
         <?php $__env->endSlot(); ?>
     <?php echo $__env->renderComponent(); ?>
     <div class="row">

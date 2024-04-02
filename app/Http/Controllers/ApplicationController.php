@@ -269,7 +269,7 @@ class ApplicationController extends Controller
             //Form Fields
             if ($request->avatar) {                
                 $avatar = request()->file('avatar');
-                $avatarName = $request->firstname.' '.$request->lastname.'-'.time().'.'.$avatar->getClientOriginalExtension();
+                $avatarName = '/images/'.$request->firstname.' '.$request->lastname.'-'.time().'.'.$avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
@@ -588,7 +588,7 @@ class ApplicationController extends Controller
             //Form Fields
             if ($request->hasFile('avatar')) {
                 $avatar = request()->file('avatar');
-                $avatarName = $request->firstname.' '.$request->lastname.'-'.time().'.'.$avatar->getClientOriginalExtension();
+                $avatarName = '/images/'.$request->firstname.' '.$request->lastname.'-'.time().'.'.$avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {

@@ -1,8 +1,8 @@
 /*
-Template Name: Velzon - Admin & Dashboard Template
-Author: Themesbrand
-Website: https://Themesbrand.com/
-Contact: Themesbrand@gmail.com
+Template Name: Orient - Admin & Dashboard Template
+Author: OTB Group
+Website: https://orient.tenutech.com/
+Contact: admin@tenutech.com
 File: Heatmap Chart init js
 */
 

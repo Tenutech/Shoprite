@@ -1,8 +1,8 @@
 /*
-Template Name: Velzon - Admin & Dashboard Template
-Author: Themesbrand
-Website: https://Themesbrand.com/
-Contact: Themesbrand@gmail.comom
+Template Name: Orient - Admin & Dashboard Template
+Author: OTB Group
+Website: https://orient.tenutech.com/
+Contact: admin@tenutech.comom
 File: Coming soon Init Js File
 */
 
