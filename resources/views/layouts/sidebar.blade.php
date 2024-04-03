@@ -235,22 +235,22 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('provinces.index') }}">
+                                    <a class="nav-link" href="{{ route('salaries.index') }}">
                                         Salary & Benefits
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('banks.index') }}">
+                                    <a class="nav-link" href="{{ route('skills.index') }}">
                                         Skills
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('disabilities.index') }}">
+                                    <a class="nav-link" href="{{ route('success-factors.index') }}">
                                         Success Factors
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('genders.index') }}">
+                                    <a class="nav-link" href="{{ route('hours.index') }}">
                                         Working Hours
                                     </a>
                                 </li>                                

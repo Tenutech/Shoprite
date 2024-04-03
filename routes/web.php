@@ -386,6 +386,62 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::delete('/responsibility/destroy/{id}', [App\Http\Controllers\ResponsibilitiesController::class, 'destroy'])->name('responsibility.destroy');
 
     Route::post('/responsibility/destroy-multiple', [App\Http\Controllers\ResponsibilitiesController::class, 'destroyMultiple'])->name('responsibility.destroyMultiple');
+
+    //Salaries
+
+    Route::get('/salaries', [App\Http\Controllers\SalariesController::class, 'index'])->name('salaries.index');
+
+    Route::post('/salary/add', [App\Http\Controllers\SalariesController::class, 'store'])->name('salary.store');
+
+    Route::post('/salary/update', [App\Http\Controllers\SalariesController::class, 'update'])->name('salary.update');
+
+    Route::get('/salary/details/{id}', [App\Http\Controllers\SalariesController::class, 'details'])->name('salary.details');
+
+    Route::delete('/salary/destroy/{id}', [App\Http\Controllers\SalariesController::class, 'destroy'])->name('salary.destroy');
+
+    Route::post('/salary/destroy-multiple', [App\Http\Controllers\SalariesController::class, 'destroyMultiple'])->name('salary.destroyMultiple');
+
+    //Skills
+
+    Route::get('/skills', [App\Http\Controllers\SkillsController::class, 'index'])->name('skills.index');
+
+    Route::post('/skill/add', [App\Http\Controllers\SkillsController::class, 'store'])->name('skill.store');
+
+    Route::post('/skill/update', [App\Http\Controllers\SkillsController::class, 'update'])->name('skill.update');
+
+    Route::get('/skill/details/{id}', [App\Http\Controllers\SkillsController::class, 'details'])->name('skill.details');
+
+    Route::delete('/skill/destroy/{id}', [App\Http\Controllers\SkillsController::class, 'destroy'])->name('skill.destroy');
+
+    Route::post('/skill/destroy-multiple', [App\Http\Controllers\SkillsController::class, 'destroyMultiple'])->name('skill.destroyMultiple');
+
+    //Success Factors
+
+    Route::get('/success-factors', [App\Http\Controllers\SuccessFactorsController::class, 'index'])->name('success-factors.index');
+
+    Route::post('/success-factor/add', [App\Http\Controllers\SuccessFactorsController::class, 'store'])->name('success-factor.store');
+
+    Route::post('/success-factor/update', [App\Http\Controllers\SuccessFactorsController::class, 'update'])->name('success-factor.update');
+
+    Route::get('/success-factor/details/{id}', [App\Http\Controllers\SuccessFactorsController::class, 'details'])->name('success-factor.details');
+
+    Route::delete('/success-factor/destroy/{id}', [App\Http\Controllers\SuccessFactorsController::class, 'destroy'])->name('success-factor.destroy');
+
+    Route::post('/success-factor/destroy-multiple', [App\Http\Controllers\SuccessFactorsController::class, 'destroyMultiple'])->name('success-factor.destroyMultiple');
+
+    //Working Hours
+
+    Route::get('/hours', [App\Http\Controllers\HoursController::class, 'index'])->name('hours.index');
+
+    Route::post('/hour/add', [App\Http\Controllers\HoursController::class, 'store'])->name('hour.store');
+
+    Route::post('/hour/update', [App\Http\Controllers\HoursController::class, 'update'])->name('hour.update');
+
+    Route::get('/hour/details/{id}', [App\Http\Controllers\HoursController::class, 'details'])->name('hour.details');
+
+    Route::delete('/hour/destroy/{id}', [App\Http\Controllers\HoursController::class, 'destroy'])->name('hour.destroy');
+
+    Route::post('/hour/destroy-multiple', [App\Http\Controllers\HoursController::class, 'destroyMultiple'])->name('hour.destroyMultiple');
 });
 
 /*

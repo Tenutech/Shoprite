@@ -44,7 +44,7 @@ class ExperienceController extends Controller
     {
         if (view()->exists('admin/experience')) {
             //Experience
-            $experiences = ExperienceRequirement::all();
+            $experiences = ExperienceRequirement::orderBy('position_id')->get();
 
             //Positions
             $positions = Position::all();

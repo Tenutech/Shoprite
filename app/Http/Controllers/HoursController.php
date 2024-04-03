@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 
-class QualificationsController extends Controller
+class HoursController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -36,21 +36,21 @@ class QualificationsController extends Controller
     
     /*
     |--------------------------------------------------------------------------
-    | Qualifications Index
+    | Working Hours Index
     |--------------------------------------------------------------------------
     */
 
     public function index()
     {
-        if (view()->exists('admin/qualifications')) {
-            //Qualifications
-            $qualifications = Qualification::orderBy('position_id')->get();
+        if (view()->exists('admin/hours')) {
+            //Working Hours
+            $hours = Qualification::orderBy('position_id')->get();
             
             //Positions
             $positions = Position::all();
 
-            return view('admin/qualifications', [
-                'qualifications' => $qualifications,
+            return view('admin/hours', [
+                'hours' => $hours,
                 'positions' => $positions
             ]);
         }
@@ -59,7 +59,7 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Add
+    | Working Hour Add
     |--------------------------------------------------------------------------
     */
 
@@ -72,26 +72,26 @@ class QualificationsController extends Controller
         ]);
 
         try {
-            //Qualification Create
-            $qualification = Qualification::create([                
+            //Working Hour Create
+            $hour = Qualification::create([                
                 'position_id' => $request->position_id ?: null,
                 'description' => $request->description ?: null,
                 'icon' => $request->icon ?: null,
                 'color' => $request->color ?: null
             ]);
 
-            $encID = Crypt::encryptString($qualification->id);
+            $encID = Crypt::encryptString($hour->id);
 
             return response()->json([
                 'success' => true,
-                'qualification' => $qualification,
+                'hour' => $hour,
                 'encID' => $encID,
-                'message' => 'Qualification created successfully!',
+                'message' => 'Working hour created successfully!',
             ], 200);
         } catch (Exception $e) {            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create qualification!',
+                'message' => 'Failed to create working hour!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -99,24 +99,24 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Detail
+    | Working Hour Detail
     |--------------------------------------------------------------------------
     */
 
     public function details($id)
     {
         try {
-            $qualificationID = Crypt::decryptString($id);
+            $hourID = Crypt::decryptString($id);
 
-            $qualification = Qualification::findOrFail($qualificationID);
+            $hour = Qualification::findOrFail($hourID);
 
             return response()->json([
-                'qualification' => $qualification,
+                'hour' => $hour,
                 'encID' => $id
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Failed to get qualification!',
+                'message' => 'Failed to get working hour!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -124,14 +124,14 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Update
+    | Working Hour Update
     |--------------------------------------------------------------------------
     */
 
     public function update(Request $request)
     {
-        //Qualification ID
-        $qualificationID = Crypt::decryptString($request->field_id);
+        //Working Hour ID
+        $hourID = Crypt::decryptString($request->field_id);
 
         //Validate
         $request->validate([
@@ -140,25 +140,25 @@ class QualificationsController extends Controller
         ]);
 
         try {
-            //Qualification
-            $qualification = Qualification::findorfail($qualificationID);
+            //Working Hour
+            $hour = Qualification::findorfail($hourID);
 
-            //Qualification Update
-            $qualification->position_id = $request->position_id ?: null;
-            $qualification->description = $request->description ?: null;
-            $qualification->icon = $request->icon ?: null;
-            $qualification->color = $request->color ?: null;
-            $qualification->save();
+            //Working Hour Update
+            $hour->position_id = $request->position_id ?: null;
+            $hour->description = $request->description ?: null;
+            $hour->icon = $request->icon ?: null;
+            $hour->color = $request->color ?: null;
+            $hour->save();
 
             return response()->json([
                 'success' => true,
-                'qualification' => $qualification,
-                'message' => 'Qualification updated successfully!'
+                'hour' => $hour,
+                'message' => 'Working hour updated successfully!'
             ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update qualification!',
+                'message' => 'Failed to update working hour!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -166,26 +166,26 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Delete
+    | Working Hour Delete
     |--------------------------------------------------------------------------
     */
 
     public function destroy($id)
     {
         try {
-            $qualificationID = Crypt::decryptString($id);
+            $hourID = Crypt::decryptString($id);
 
-            $qualification = Qualification::findOrFail($qualificationID);
-            $qualification->delete();
+            $hour = Qualification::findOrFail($hourID);
+            $hour->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Qualification deleted successfully!',
+                'message' => 'Working hour deleted successfully!',
             ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete qualification!',
+                'message' => 'Failed to delete working hour!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -193,7 +193,7 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Destroy Multiple
+    | Working Hour Destroy Multiple
     |--------------------------------------------------------------------------
     */
 
@@ -223,14 +223,14 @@ class QualificationsController extends Controller
     
             return response()->json([
                 'success' => true,
-                'message' => 'Qualifications deleted successfully!'
+                'message' => 'Working hours deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
     
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete qualifications!',
+                'message' => 'Failed to delete working hours!',
                 'error' => $e->getMessage()
             ], 500);
         }

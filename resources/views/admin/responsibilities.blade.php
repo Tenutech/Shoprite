@@ -87,7 +87,7 @@
                                                 </th>
                                                 <td class="id d-none">{{ Crypt::encryptstring($responsibility->id) }}</td>
                                                 <td class="position">{{ optional($responsibility->position)->name }}</td>
-                                                <td class="description">{{ $responsibility->description }}</td>
+                                                <td class="description" style="white-space: pre-wrap;">{{ $responsibility->description }}</td>
                                                 <td class="icon"><i class="{{ $responsibility->icon }} text-{{ $responsibility->color }} fs-18"></i></td>
                                                 <td class="color"><span class="text-{{ $responsibility->color }}">{{ $responsibility->color }}</span></td>
                                                 <td>

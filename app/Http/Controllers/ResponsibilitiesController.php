@@ -44,7 +44,7 @@ class ResponsibilitiesController extends Controller
     {
         if (view()->exists('admin/responsibilities')) {
             //Responsibilities
-            $responsibilities = Responsibility::all();
+            $responsibilities = Responsibility::orderBy('position_id')->get();
 
             //Positions
             $positions = Position::all();

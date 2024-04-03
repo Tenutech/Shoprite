@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\Qualification;
+use App\Models\SalaryBenefit;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 
-class QualificationsController extends Controller
+class SalariesController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -36,21 +36,21 @@ class QualificationsController extends Controller
     
     /*
     |--------------------------------------------------------------------------
-    | Qualifications Index
+    | Salary & Benefits Index
     |--------------------------------------------------------------------------
     */
 
     public function index()
     {
-        if (view()->exists('admin/qualifications')) {
-            //Qualifications
-            $qualifications = Qualification::orderBy('position_id')->get();
-            
+        if (view()->exists('admin/salaries')) {
+            //Salary & Benefits
+            $salaries = SalaryBenefit::orderBy('position_id')->get();
+
             //Positions
             $positions = Position::all();
 
-            return view('admin/qualifications', [
-                'qualifications' => $qualifications,
+            return view('admin/salaries', [
+                'salaries' => $salaries,
                 'positions' => $positions
             ]);
         }
@@ -59,7 +59,7 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Add
+    | Salary & Benefit Add
     |--------------------------------------------------------------------------
     */
 
@@ -72,26 +72,26 @@ class QualificationsController extends Controller
         ]);
 
         try {
-            //Qualification Create
-            $qualification = Qualification::create([                
+            //Salary & Benefit Create
+            $salary = SalaryBenefit::create([                
                 'position_id' => $request->position_id ?: null,
                 'description' => $request->description ?: null,
                 'icon' => $request->icon ?: null,
                 'color' => $request->color ?: null
             ]);
 
-            $encID = Crypt::encryptString($qualification->id);
+            $encID = Crypt::encryptString($salary->id);
 
             return response()->json([
                 'success' => true,
-                'qualification' => $qualification,
+                'salary' => $salary,
                 'encID' => $encID,
-                'message' => 'Qualification created successfully!',
+                'message' => 'Salary created successfully!',
             ], 200);
         } catch (Exception $e) {            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create qualification!',
+                'message' => 'Failed to create salary!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -99,24 +99,24 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Detail
+    | Salary & Benefit Detail
     |--------------------------------------------------------------------------
     */
 
     public function details($id)
     {
         try {
-            $qualificationID = Crypt::decryptString($id);
+            $salaryID = Crypt::decryptString($id);
 
-            $qualification = Qualification::findOrFail($qualificationID);
+            $salary = SalaryBenefit::findOrFail($salaryID);
 
             return response()->json([
-                'qualification' => $qualification,
+                'salary' => $salary,
                 'encID' => $id
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Failed to get qualification!',
+                'message' => 'Failed to get salary!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -124,14 +124,14 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Update
+    | Salary & Benefit Update
     |--------------------------------------------------------------------------
     */
 
     public function update(Request $request)
     {
-        //Qualification ID
-        $qualificationID = Crypt::decryptString($request->field_id);
+        //Salary ID
+        $salaryID = Crypt::decryptString($request->field_id);
 
         //Validate
         $request->validate([
@@ -140,25 +140,25 @@ class QualificationsController extends Controller
         ]);
 
         try {
-            //Qualification
-            $qualification = Qualification::findorfail($qualificationID);
+            //Salary & Benefit
+            $salary = SalaryBenefit::findorfail($salaryID);
 
-            //Qualification Update
-            $qualification->position_id = $request->position_id ?: null;
-            $qualification->description = $request->description ?: null;
-            $qualification->icon = $request->icon ?: null;
-            $qualification->color = $request->color ?: null;
-            $qualification->save();
+            //Salary & Benefit Update
+            $salary->position_id = $request->position_id ?: null;
+            $salary->description = $request->description ?: null;
+            $salary->icon = $request->icon ?: null;
+            $salary->color = $request->color ?: null;
+            $salary->save();
 
             return response()->json([
                 'success' => true,
-                'qualification' => $qualification,
-                'message' => 'Qualification updated successfully!'
+                'salary' => $salary,
+                'message' => 'Salary updated successfully!'
             ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update qualification!',
+                'message' => 'Failed to update salary!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -166,26 +166,26 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Delete
+    | Salary & Benefit Delete
     |--------------------------------------------------------------------------
     */
 
     public function destroy($id)
     {
         try {
-            $qualificationID = Crypt::decryptString($id);
+            $salaryID = Crypt::decryptString($id);
 
-            $qualification = Qualification::findOrFail($qualificationID);
-            $qualification->delete();
+            $salary = SalaryBenefit::findOrFail($salaryID);
+            $salary->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Qualification deleted successfully!',
+                'message' => 'Salary deleted successfully!',
             ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete qualification!',
+                'message' => 'Failed to delete salary!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -193,7 +193,7 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Destroy Multiple
+    | Salary & Benefit Destroy Multiple
     |--------------------------------------------------------------------------
     */
 
@@ -217,20 +217,20 @@ class QualificationsController extends Controller
     
             DB::beginTransaction();
     
-            Qualification::destroy($decryptedIds);
+            SalaryBenefit::destroy($decryptedIds);
     
             DB::commit();
     
             return response()->json([
                 'success' => true,
-                'message' => 'Qualifications deleted successfully!'
+                'message' => 'Salaries deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
     
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete qualifications!',
+                'message' => 'Failed to delete salaries!',
                 'error' => $e->getMessage()
             ], 500);
         }

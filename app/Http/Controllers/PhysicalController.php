@@ -44,7 +44,7 @@ class PhysicalController extends Controller
     {
         if (view()->exists('admin/physical')) {
             //Physical
-            $physicals = PhysicalRequirement::all();
+            $physicals = PhysicalRequirement::orderBy('position_id')->get();
 
             //Positions
             $positions = Position::all();

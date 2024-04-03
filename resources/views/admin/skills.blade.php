@@ -8,7 +8,7 @@
             Pages
         @endslot
         @slot('title')
-            Qualifications
+            Skills
         @endslot
     @endcomponent
     <div class="row">
@@ -17,9 +17,9 @@
                 <div class="card-header">
                     <div class="d-flex align-items-center flex-wrap gap-2">
                         <div class="flex-grow-1">
-                            <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#qualificationModal">
+                            <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#skillModal">
                                 <i class="ri-add-fill me-1 align-bottom"></i> 
-                                Add Qualification
+                                Add Skill
                             </button>
                         </div>
                         <div class="flex-shrink-0">
@@ -35,12 +35,12 @@
         </div>
         <!--end col-->
         <div class="col-xxl-12">
-            <div class="card" id="qualificationList">
+            <div class="card" id="skillList">
                 <div class="card-header">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="search-box">
-                                <input type="text" class="form-control search" placeholder="Search for qualification...">
+                                <input type="text" class="form-control search" placeholder="Search for skill...">
                                 <i class="ri-search-line search-icon"></i>
                             </div>
                         </div>                        
@@ -51,7 +51,7 @@
                                     <option value="10" selected>10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
-                                    <option value="{{count($qualifications)}}">All</option>
+                                    <option value="{{count($skills)}}">All</option>
                                 </select>
                             </div>
                         </div>
@@ -60,7 +60,7 @@
                 <div class="card-body">
                     <div>
                         <div class="table-responsive table-card mb-3">
-                            <table class="table align-middle table-nowrap mb-0" id="qualificationTable">
+                            <table class="table align-middle table-nowrap mb-0" id="skillTable">
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col" style="width: 50px;">
@@ -77,19 +77,19 @@
                                     </tr>
                                 </thead>
                                 <tbody class="list form-check-all" style="height:200px;">
-                                    @if($qualifications && count($qualifications) > 0)
-                                        @foreach ($qualifications as $qualification)
+                                    @if($skills && count($skills) > 0)
+                                        @foreach ($skills as $skill)
                                             <tr style="vertical-align:top;">
                                                 <th scope="row">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
                                                     </div>
                                                 </th>
-                                                <td class="id d-none">{{ Crypt::encryptstring($qualification->id) }}</td>
-                                                <td class="position">{{ optional($qualification->position)->name }}</td>
-                                                <td class="description" style="white-space: pre-wrap;">{{ $qualification->description }}</td>
-                                                <td class="icon"><i class="{{ $qualification->icon }} text-{{ $qualification->color }} fs-18"></i></td>
-                                                <td class="color"><span class="text-{{ $qualification->color }}">{{ $qualification->color }}</span></td>
+                                                <td class="id d-none">{{ Crypt::encryptstring($skill->id) }}</td>
+                                                <td class="position">{{ optional($skill->position)->name }}</td>
+                                                <td class="description" style="white-space: pre-wrap;">{{ $skill->description }}</td>
+                                                <td class="icon"><i class="{{ $skill->icon }} text-{{ $skill->color }} fs-18"></i></td>
+                                                <td class="color"><span class="text-{{ $skill->color }}">{{ $skill->color }}</span></td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
                                                         <li class="list-inline-item">
@@ -99,7 +99,7 @@
                                                                 </button>
                                                                 <ul class="dropdown-menu dropdown-menu-end">
                                                                     <li>
-                                                                        <a class="dropdown-item edit-item-btn" href="#qualificationModal" data-bs-toggle="modal">
+                                                                        <a class="dropdown-item edit-item-btn" href="#skillModal" data-bs-toggle="modal">
                                                                             <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                             Edit
                                                                         </a>
@@ -138,7 +138,7 @@
                                                             </button>
                                                             <ul class="dropdown-menu dropdown-menu-end">
                                                                 <li>
-                                                                    <a class="dropdown-item edit-item-btn" href="#qualificationModal" data-bs-toggle="modal">
+                                                                    <a class="dropdown-item edit-item-btn" href="#skillModal" data-bs-toggle="modal">
                                                                         <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                         Edit
                                                                     </a>
@@ -168,7 +168,7 @@
                                         Sorry! No Result Found
                                     </h5>
                                     <p class="text-muted mb-0">
-                                        We've searched all the qualifications. We did not find any qualifications for you search.
+                                        We've searched all the skills. We did not find any skills for you search.
                                     </p>
                                 </div>
                             </div>
@@ -186,15 +186,15 @@
                         </div>
                     </div>
 
-                    <!-- Modal Qualification -->
-                    <div class="modal fade zoomIn" id="qualificationModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <!-- Modal Skill -->
+                    <div class="modal fade zoomIn" id="skillModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg">
                             <div class="modal-content border-0">
                                 <div class="modal-header bg-light p-3">
                                     <h5 class="modal-title" id="exampleModalLabel"></h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
                                 </div>
-                                <form id="formQualification" enctype="multipart/form-data">
+                                <form id="formSkill" enctype="multipart/form-data">
                                     @csrf
                                     <input type="hidden" id="field-id" name="field_id"/>
                                     <div class="modal-body">
@@ -245,7 +245,7 @@
                                     <div class="modal-footer">                                        
                                         <div class="hstack gap-2 justify-content-end">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success" id="add-btn">Add Qualification</button>
+                                            <button type="submit" class="btn btn-success" id="add-btn">Add Skill</button>
                                             <button type="button" class="btn btn-success" id="edit-btn">Update</button>
                                         </div>
                                     </div>
@@ -266,17 +266,17 @@
                                     <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px"></lord-icon>
                                     <div class="mt-4 text-center">
                                         <h4 class="fs-semibold">
-                                            You are about to delete this qualification ?
+                                            You are about to delete this skill ?
                                         </h4>
                                         <p class="text-muted fs-14 mb-4 pt-1">
-                                            Deleting this qualification will remove all of the information from the database.
+                                            Deleting this skill will remove all of the information from the database.
                                         </p>
                                         <div class="hstack gap-2 justify-content-center remove">
                                             <button class="btn btn-danger" data-bs-dismiss="modal" id="deleteRecord-close">
                                                 <i class="ri-close-line me-1 align-middle"></i>
                                                 Close
                                             </button>
-                                            <button class="btn btn-primary" id="delete-qualification">
+                                            <button class="btn btn-primary" id="delete-skill">
                                                 Yes, Delete!!
                                             </button>
                                         </div>
@@ -300,6 +300,6 @@
     <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/quill/quill.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/qualifications.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/skills.init.js') }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

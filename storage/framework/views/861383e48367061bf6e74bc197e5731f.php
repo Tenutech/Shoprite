@@ -235,22 +235,22 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="<?php echo e(route('provinces.index')); ?>">
+                                    <a class="nav-link" href="<?php echo e(route('salaries.index')); ?>">
                                         Salary & Benefits
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="<?php echo e(route('banks.index')); ?>">
+                                    <a class="nav-link" href="<?php echo e(route('skills.index')); ?>">
                                         Skills
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="<?php echo e(route('disabilities.index')); ?>">
+                                    <a class="nav-link" href="<?php echo e(route('success-factors.index')); ?>">
                                         Success Factors
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="<?php echo e(route('genders.index')); ?>">
+                                    <a class="nav-link" href="<?php echo e(route('hours.index')); ?>">
                                         Working Hours
                                     </a>
                                 </li>                                

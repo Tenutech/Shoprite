@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\Qualification;
+use App\Models\SuccessFactor;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 
-class QualificationsController extends Controller
+class SuccessFactorsController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -36,21 +36,21 @@ class QualificationsController extends Controller
     
     /*
     |--------------------------------------------------------------------------
-    | Qualifications Index
+    | Success Factors Index
     |--------------------------------------------------------------------------
     */
 
     public function index()
     {
-        if (view()->exists('admin/qualifications')) {
-            //Qualifications
-            $qualifications = Qualification::orderBy('position_id')->get();
+        if (view()->exists('admin/success-factors')) {
+            //Success Factors
+            $successFactors = SuccessFactor::orderBy('position_id')->get();
             
             //Positions
             $positions = Position::all();
 
-            return view('admin/qualifications', [
-                'qualifications' => $qualifications,
+            return view('admin/success-factors', [
+                'successFactors' => $successFactors,
                 'positions' => $positions
             ]);
         }
@@ -59,7 +59,7 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Add
+    | Success Factor Add
     |--------------------------------------------------------------------------
     */
 
@@ -72,26 +72,26 @@ class QualificationsController extends Controller
         ]);
 
         try {
-            //Qualification Create
-            $qualification = Qualification::create([                
+            //Success Factor Create
+            $successFactor = SuccessFactor::create([                
                 'position_id' => $request->position_id ?: null,
                 'description' => $request->description ?: null,
                 'icon' => $request->icon ?: null,
                 'color' => $request->color ?: null
             ]);
 
-            $encID = Crypt::encryptString($qualification->id);
+            $encID = Crypt::encryptString($successFactor->id);
 
             return response()->json([
                 'success' => true,
-                'qualification' => $qualification,
+                'successFactor' => $successFactor,
                 'encID' => $encID,
-                'message' => 'Qualification created successfully!',
+                'message' => 'Success factor created successfully!',
             ], 200);
         } catch (Exception $e) {            
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create qualification!',
+                'message' => 'Failed to create success factor!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -99,24 +99,24 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Detail
+    | Success Factor Detail
     |--------------------------------------------------------------------------
     */
 
     public function details($id)
     {
         try {
-            $qualificationID = Crypt::decryptString($id);
+            $successFactorID = Crypt::decryptString($id);
 
-            $qualification = Qualification::findOrFail($qualificationID);
+            $successFactor = SuccessFactor::findOrFail($successFactorID);
 
             return response()->json([
-                'qualification' => $qualification,
+                'successFactor' => $successFactor,
                 'encID' => $id
             ], 200);
         } catch (Exception $e) {
             return response()->json([
-                'message' => 'Failed to get qualification!',
+                'message' => 'Failed to get success factor!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -124,14 +124,14 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Update
+    | Success Factor Update
     |--------------------------------------------------------------------------
     */
 
     public function update(Request $request)
     {
-        //Qualification ID
-        $qualificationID = Crypt::decryptString($request->field_id);
+        //Success Factor ID
+        $successFactorID = Crypt::decryptString($request->field_id);
 
         //Validate
         $request->validate([
@@ -140,25 +140,25 @@ class QualificationsController extends Controller
         ]);
 
         try {
-            //Qualification
-            $qualification = Qualification::findorfail($qualificationID);
+            //Success Factor
+            $successFactor = SuccessFactor::findorfail($successFactorID);
 
-            //Qualification Update
-            $qualification->position_id = $request->position_id ?: null;
-            $qualification->description = $request->description ?: null;
-            $qualification->icon = $request->icon ?: null;
-            $qualification->color = $request->color ?: null;
-            $qualification->save();
+            //Success Factor Update
+            $successFactor->position_id = $request->position_id ?: null;
+            $successFactor->description = $request->description ?: null;
+            $successFactor->icon = $request->icon ?: null;
+            $successFactor->color = $request->color ?: null;
+            $successFactor->save();
 
             return response()->json([
                 'success' => true,
-                'qualification' => $qualification,
-                'message' => 'Qualification updated successfully!'
+                'successFactor' => $successFactor,
+                'message' => 'Success factor updated successfully!'
             ], 201);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update qualification!',
+                'message' => 'Failed to update success factor!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -166,26 +166,26 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Delete
+    | Success Factor Delete
     |--------------------------------------------------------------------------
     */
 
     public function destroy($id)
     {
         try {
-            $qualificationID = Crypt::decryptString($id);
+            $successFactorID = Crypt::decryptString($id);
 
-            $qualification = Qualification::findOrFail($qualificationID);
-            $qualification->delete();
+            $successFactor = SuccessFactor::findOrFail($successFactorID);
+            $successFactor->delete();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Qualification deleted successfully!',
+                'message' => 'Success factor deleted successfully!',
             ], 200);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete qualification!',
+                'message' => 'Failed to delete success factor!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -193,7 +193,7 @@ class QualificationsController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Qualification Destroy Multiple
+    | Success Factor Destroy Multiple
     |--------------------------------------------------------------------------
     */
 
@@ -217,20 +217,20 @@ class QualificationsController extends Controller
     
             DB::beginTransaction();
     
-            Qualification::destroy($decryptedIds);
+            SuccessFactor::destroy($decryptedIds);
     
             DB::commit();
     
             return response()->json([
                 'success' => true,
-                'message' => 'Qualifications deleted successfully!'
+                'message' => 'Success factors deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
     
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to delete qualifications!',
+                'message' => 'Failed to delete success factors!',
                 'error' => $e->getMessage()
             ], 500);
         }
