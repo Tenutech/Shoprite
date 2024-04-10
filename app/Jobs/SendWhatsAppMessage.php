@@ -29,8 +29,9 @@ class SendWhatsAppMessage implements ShouldQueue
         $twilio = new Client(config('services.twilio.sid'), config('services.twilio.token'));
         $to = 'whatsapp:' . $this->applicant->phone;
         $from = config('services.twilio.whatsapp_number');
+        $service = config('services.twilio.service_sid');
 
         $chatService = app(ChatService::class); // Resolve ChatService from the container
-        $chatService->sendAndLogMessages($this->applicant, [$this->message], $twilio, $to, $from);
+        $chatService->sendAndLogMessages($this->applicant, [$this->message], $twilio, $to, $from, $service);
     }
 }
