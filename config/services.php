@@ -34,6 +34,7 @@ return [
         'sid' => env('TWILIO_SID'),
         'token' => env('TWILIO_AUTH_TOKEN'),
         'whatsapp_number' => env('TWILIO_WHATSAPP_NUMBER'),
+        'service_sid' => env('TWILIO_SERVICE_SID'),
     ],
 
     'googlemaps' => [

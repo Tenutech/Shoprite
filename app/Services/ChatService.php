@@ -176,6 +176,7 @@ class ChatService
             $twilio = new Client(config('services.twilio.sid'), config('services.twilio.token'));
             $to = 'whatsapp:' . $applicant->phone;
             $from = config('services.twilio.whatsapp_number');
+            $service = config('services.twilio.service_sid');
 
             // Calculate the time since the last update of the applicant
             $timeDifference = now()->diffInMinutes($applicant->updated_at);
@@ -191,7 +192,7 @@ class ChatService
 
                 // Get the checkpoint message
                 $checkpointMessage = $this->fetchStateMessages('checkpoint');
-                $this->sendAndLogMessages($applicant, $checkpointMessage, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $checkpointMessage, $twilio, $to, $from, $service);
 
                 // Get the message of the state_id
                 $stateID = $applicant->state_id;
@@ -209,11 +210,11 @@ class ChatService
                     
                     if ($currentQuestion) {
                         $currentQuestionText = $currentQuestion->message;
-                        $this->sendAndLogMessages($applicant, [$currentQuestionText], $twilio, $to, $from);
+                        $this->sendAndLogMessages($applicant, [$currentQuestionText], $twilio, $to, $from, $service);
                     }
                 } else {
                     $messages = $this->fetchStateMessages($state);
-                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
                 }
             }
             return $checkpointTriggered;
@@ -240,6 +241,7 @@ class ChatService
         $twilio = new Client(config('services.twilio.sid'), config('services.twilio.token'));
         $to = 'whatsapp:' . $applicant->phone;
         $from = config('services.twilio.whatsapp_number');
+        $service = config('services.twilio.service_sid');
 
         // If checkpoint is set to 'Yes', do not process specific state actions
         if ($applicant->checkpoint == 'Yes') {
@@ -248,291 +250,291 @@ class ChatService
 
         switch ($applicant->state->code) {
             case 'welcome':
-                $this->handleWelcomeState($applicant, $twilio, $to, $from);
+                $this->handleWelcomeState($applicant, $twilio, $to, $from, $service);
                 break;
         
             case 'personal_information':
-                $this->handlePersonalInformationState($applicant, $body, $twilio, $to, $from);
+                $this->handlePersonalInformationState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'first_name':
-                $this->handleFirstNameState($applicant, $body, $twilio, $to, $from);
+                $this->handleFirstNameState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'last_name':
-                $this->handleLastNameState($applicant, $body, $twilio, $to, $from);
+                $this->handleLastNameState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'id_number':
-                $this->handleIdNumberState($applicant, $body, $twilio, $to, $from);
+                $this->handleIdNumberState($applicant, $body, $twilio, $to, $from, $service);
                 break;
 
             case 'location':
-                $this->handleLocationState($applicant, $body, $latitude, $longitude, $twilio, $to, $from);
+                $this->handleLocationState($applicant, $body, $latitude, $longitude, $twilio, $to, $from, $service);
                 break;
 
             case 'location_confirmation':
-                $this->handleLocationConfirmationState($applicant, $body, $twilio, $to, $from);
+                $this->handleLocationConfirmationState($applicant, $body, $twilio, $to, $from, $service);
                 break;
 
             case 'contact_number':
-                $this->handleContactNumberState($applicant, $body, $twilio, $to, $from);
+                $this->handleContactNumberState($applicant, $body, $twilio, $to, $from, $service);
                 break;
 
             case 'additional_contact_number':
-                $this->handleAdditionalContactNumberState($applicant, $body, $twilio, $to, $from);
+                $this->handleAdditionalContactNumberState($applicant, $body, $twilio, $to, $from, $service);
                 break;
 
             case 'gender':
-                $this->handleGenderState($applicant, $body, $twilio, $to, $from);
+                $this->handleGenderState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'race':
-                $this->handleRaceState($applicant, $body, $twilio, $to, $from);
+                $this->handleRaceState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'has_email':
-                $this->handleHasEmailState($applicant, $body, $twilio, $to, $from);
+                $this->handleHasEmailState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'email':
-                $this->handleEmailState($applicant, $body, $twilio, $to, $from);
+                $this->handleEmailState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'has_tax':
-                $this->handleHasTaxState($applicant, $body, $twilio, $to, $from);
+                $this->handleHasTaxState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'tax_number':
-                $this->handleTaxNumberState($applicant, $body, $twilio, $to, $from);
+                $this->handleTaxNumberState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'citizen':
-                $this->handleCitizenState($applicant, $body, $twilio, $to, $from);
+                $this->handleCitizenState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'foreign_national':
-                $this->handleForeignNationalState($applicant, $body, $twilio, $to, $from);
+                $this->handleForeignNationalState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'criminal':
-                $this->handleCriminalState($applicant, $body, $twilio, $to, $from);
+                $this->handleCriminalState($applicant, $body, $twilio, $to, $from, $service);
                 break;
 
             case 'avatar':
-                $this->handleAvatarState($applicant, $body, $twilio, $to, $from, $mediaUrl);
+                $this->handleAvatarState($applicant, $body, $twilio, $to, $from, $service, $mediaUrl);
                 break;
         
             case 'position':
-                $this->handlePositionState($applicant, $body, $twilio, $to, $from);
+                $this->handlePositionState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'position_specify':
-                $this->handlePositionSpecifyState($applicant, $body, $twilio, $to, $from);
+                $this->handlePositionSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'qualifications':
-                $this->handleQualificationsState($applicant, $body, $twilio, $to, $from);
+                $this->handleQualificationsState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'school':
-                $this->handleSchoolState($applicant, $body, $twilio, $to, $from);
+                $this->handleSchoolState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'highest_qualification':
-                $this->handleHighestQualificationState($applicant, $body, $twilio, $to, $from);
+                $this->handleHighestQualificationState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'training':
-                $this->handleTrainingState($applicant, $body, $twilio, $to, $from);
+                $this->handleTrainingState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'other_training':
-                $this->handleOtherTrainingState($applicant, $body, $twilio, $to, $from);
+                $this->handleOtherTrainingState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'drivers_license':
-                $this->handleDriversLicenseState($applicant, $body, $twilio, $to, $from);
+                $this->handleDriversLicenseState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'drivers_license_code':
-                $this->handleDriversLicenseCodeState($applicant, $body, $twilio, $to, $from);
+                $this->handleDriversLicenseCodeState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'read':
-                $this->handleReadState($applicant, $body, $twilio, $to, $from);
+                $this->handleReadState($applicant, $body, $twilio, $to, $from, $service);
                 break;
 
             case 'speak':
-                $this->handleSpeakState($applicant, $body, $twilio, $to, $from);
+                $this->handleSpeakState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'experience':
-                $this->handleExperienceState($applicant, $body, $twilio, $to, $from);
+                $this->handleExperienceState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_previous':
-                $this->handleJobPreviousState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobPreviousState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_leave':
-                $this->handleJobLeaveState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobLeaveState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_leave_specify':
-                $this->handleJobLeaveSpecifyState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobLeaveSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_business':
-                $this->handleJobBusinessState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobBusinessState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_position':
-                $this->handleJobPositionState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobPositionState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_term':
-                $this->handleJobTermState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobTermState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_salary':
-                $this->handleJobSalaryState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobSalaryState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_reference_name':
-                $this->handleJobReferenceNameState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobReferenceNameState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_reference_phone':
-                $this->handleJobReferencePhoneState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobReferencePhoneState($applicant, $body, $twilio, $to, $from, $service);
                 break;
                 
             case 'job_retrenched':
-                $this->handleJobRetrenchedState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobRetrenchedState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_retrenched_specify':
-                $this->handleJobRetrenchedSpecifyState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobRetrenchedSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_shoprite':
-                $this->handleJobShopriteState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobShopriteState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_shoprite_position':
-                $this->handleJobShopritePositionState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobShopritePositionState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_shoprite_position_specify':
-                $this->handleJobShopritePositionSpecifyState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobShopritePositionSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'job_shoprite_leave':
-                $this->handleJobShopriteLeaveState($applicant, $body, $twilio, $to, $from);
+                $this->handleJobShopriteLeaveState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'punctuality':
-                $this->handlePunctualityState($applicant, $body, $twilio, $to, $from);
+                $this->handlePunctualityState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'transport':
-                $this->handleTransportState($applicant, $body, $twilio, $to, $from);
+                $this->handleTransportState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'transport_specify':
-                $this->handleTransportSpecifyState($applicant, $body, $twilio, $to, $from);
+                $this->handleTransportSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'illness':
-                $this->handleIllnessState($applicant, $body, $twilio, $to, $from);
+                $this->handleIllnessState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'illness_specify':
-                $this->handleIllnessSpecifyState($applicant, $body, $twilio, $to, $from);
+                $this->handleIllnessSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'commencement':
-                $this->handleCommencementState($applicant, $body, $twilio, $to, $from);
+                $this->handleCommencementState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'reason':
-                $this->handleReasonState($applicant, $body, $twilio, $to, $from);
+                $this->handleReasonState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'application_reason':
-                $this->handleApplicationReasonState($applicant, $body, $twilio, $to, $from);
+                $this->handleApplicationReasonState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'application_reason_specify':
-                $this->handleApplicationReasonSpecifyState($applicant, $body, $twilio, $to, $from);
+                $this->handleApplicationReasonSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'relocate':
-                $this->handleRelocateState($applicant, $body, $twilio, $to, $from);
+                $this->handleRelocateState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'relocate_town':
-                $this->handleRelocateTownState($applicant, $body, $twilio, $to, $from);
+                $this->handleRelocateTownState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'vacancy':
-                $this->handleVacancyState($applicant, $body, $twilio, $to, $from);
+                $this->handleVacancyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'shift':
-                $this->handleShiftState($applicant, $body, $twilio, $to, $from);
+                $this->handleShiftState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'has_bank_account':
-                $this->handleHasBankAccountState($applicant, $body, $twilio, $to, $from);
+                $this->handleHasBankAccountState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'bank':
-                $this->handleBankState($applicant, $body, $twilio, $to, $from);
+                $this->handleBankState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'bank_specify':
-                $this->handleBankSpecifyState($applicant, $body, $twilio, $to, $from);
+                $this->handleBankSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'bank_number':
-                $this->handleBankNumberState($applicant, $body, $twilio, $to, $from);
+                $this->handleBankNumberState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'expected_salary':
-                $this->handleExpectedSalaryState($applicant, $body, $twilio, $to, $from);
+                $this->handleExpectedSalaryState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'literacy_start':
-                $this->handleLiteracyStartState($applicant, $body, $twilio, $to, $from);
+                $this->handleLiteracyStartState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'literacy':
-                $this->handleLiteracyState($applicant, $body, $twilio, $to, $from);
+                $this->handleLiteracyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'numeracy_start':
-                $this->handleNumeracyStartState($applicant, $body, $twilio, $to, $from);
+                $this->handleNumeracyStartState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'numeracy':
-                $this->handleNumeracyState($applicant, $body, $twilio, $to, $from);
+                $this->handleNumeracyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
         
             case 'complete':
-                $this->handleCompleteState($applicant, $body, $twilio, $to, $from);
+                $this->handleCompleteState($applicant, $body, $twilio, $to, $from, $service);
                 break;
 
             case 'schedule_start':
-                    $this->handleScheduleStartState($applicant, $body, $twilio, $to, $from);
+                    $this->handleScheduleStartState($applicant, $body, $twilio, $to, $from, $service);
                     break;
 
             case 'schedule':
-                $this->handleScheduleState($applicant, $body, $twilio, $to, $from);
+                $this->handleScheduleState($applicant, $body, $twilio, $to, $from, $service);
                 break;
 
             case 'reschedule':
-                $this->handleRescheduleState($applicant, $body, $twilio, $to, $from);
+                $this->handleRescheduleState($applicant, $body, $twilio, $to, $from, $service);
                  break;
         }
     }
@@ -543,10 +545,10 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleWelcomeState($applicant, $twilio, $to, $from) {
+    protected function handleWelcomeState($applicant, $twilio, $to, $from, $service) {
         try {
             $messages = $this->fetchStateMessages('welcome');
-            $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
             $stateID = State::where('sort', ($applicant->state->sort + 1))->value('id');
             $applicant->update(['state_id' => $stateID]);
@@ -558,7 +560,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
     
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -568,22 +570,22 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePersonalInformationState($applicant, $body, $twilio, $to, $from) {
+    protected function handlePersonalInformationState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
                 $messages = $this->fetchStateMessages('personal_information');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                 $stateID = State::where('code', 'first_name')->value('id');
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('first_name');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 $messages = $this->fetchStateMessages('welcome');
                 $lastMessage = end($messages);
-                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -593,7 +595,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
     
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -603,7 +605,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleFirstNameState($applicant, $body, $twilio, $to, $from) {
+    protected function handleFirstNameState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -614,11 +616,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('last_name');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid first name
                 $message = "Please enter a valid first name:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -628,7 +630,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
     
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -638,7 +640,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLastNameState($applicant, $body, $twilio, $to, $from) {
+    protected function handleLastNameState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -649,11 +651,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('id_number');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid last name
                 $message = "Please enter a valid last name:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -663,7 +665,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
     
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -673,7 +675,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleIdNumberState($applicant, $body, $twilio, $to, $from) {
+    protected function handleIdNumberState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             if (preg_match('/^\d{13}$/', $body)) {
                 // Update the applicant's id number
@@ -683,13 +685,13 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('location');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                 ProcessUserIdNumber::dispatch(null, $applicant->id);
             } else {
                 // Send a message prompting for a valid ID number
                 $message = "Please enter a valid ID number:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -699,7 +701,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -709,11 +711,11 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLocationState($applicant, $body, $latitude, $longitude, $twilio, $to, $from) {
+    protected function handleLocationState($applicant, $body, $latitude, $longitude, $twilio, $to, $from, $service) {
         try {
             // Send the "Please give a second to verify your address" message
             $message = "Please give me a second to verify your address...";
-            $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
             $googleMapsService = new GoogleMapsService();
 
@@ -731,7 +733,7 @@ class ChatService
         
                 // Send the formatted address with the buttons "This is correct" and "Re-enter address"
                 $templateMessage = "I have picked up the address as:\n\n*$formattedAddress*\n\nPlease confirm that this is correct.";
-                $this->sendAndLogMessages($applicant, [$templateMessage], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$templateMessage], $twilio, $to, $from, $service);
 
                 $latitude = $response['latitude'];
                 $longitude = $response['longitude'];
@@ -747,7 +749,7 @@ class ChatService
             } else {
                 // Send a message prompting for a valid address
                 $message = "Sorry, we couldn't verify your address. Please enter your address again.";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -757,7 +759,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -767,7 +769,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLocationConfirmationState($applicant, $body, $twilio, $to, $from) {
+    protected function handleLocationConfirmationState($applicant, $body, $twilio, $to, $from, $service) {
         try {            
             if (strtolower($body) === 'that is correct' || strtolower($body) === 'correct') {
                 // If the user confirms the address, move on to contact_number
@@ -775,21 +777,21 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $confirmMessage = "Thank you for confirming your address.";
-                $this->sendAndLogMessages($applicant, [$confirmMessage], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$confirmMessage], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('contact_number');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif (strtolower($body) === 're-enter address' || strtolower($body) === 'no' || strtolower($body) === 'incorrect') {
                 // If the user wants to re-enter the address, go back to location
                 $message = "Please re-enter your address.";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $stateID = State::where('code', 'location')->value('id');
                 $applicant->update(['state_id' => $stateID]);
             } else {
                 // If the user's response is not recognized, ask them to confirm their choice again
                 $message = "Please confirm your choice by replying with 'This is correct' or 'Re-enter address'.";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -799,7 +801,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -809,7 +811,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleContactNumberState($applicant, $body, $twilio, $to, $from) {
+    protected function handleContactNumberState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             if (preg_match('/^\d{10}$/', $body)) {
                 // Update the applicant's contact number
@@ -819,11 +821,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('additional_contact_number');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid contact number
                 $message = "Please enter a valid 10-digit contact number:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -833,7 +835,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -843,7 +845,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleAdditionalContactNumberState($applicant, $body, $twilio, $to, $from) {
+    protected function handleAdditionalContactNumberState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             if (preg_match('/^\d{10}$/', $body) || $body == '0' || strtolower($body) == 'no' || strtolower($body) == 'none') {
                 // Update the applicant's additional contact number
@@ -855,11 +857,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('gender');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                  // Send a message prompting for a valid additional contact number
                  $message = "Please enter a valid 10-digit contact number:";
-                 $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                 $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -869,7 +871,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -879,7 +881,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleGenderState($applicant, $body, $twilio, $to, $from) {
+    protected function handleGenderState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $gender = null;
 
@@ -903,14 +905,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('race');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid gender
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('gender');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -920,7 +922,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -930,7 +932,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRaceState($applicant, $body, $twilio, $to, $from) {
+    protected function handleRaceState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $race = null;
 
@@ -965,14 +967,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('has_email');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid race
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('race');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -982,7 +984,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -992,7 +994,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHasEmailState($applicant, $body, $twilio, $to, $from) {
+    protected function handleHasEmailState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $hasEmail = null;
 
@@ -1015,7 +1017,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('email');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
             } elseif ($hasEmail && $hasEmail == 'No') {
                 // Update the applicant's has email
@@ -1025,14 +1027,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('has_tax');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid has email
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('has_email');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1042,7 +1044,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1052,7 +1054,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleEmailState($applicant, $body, $twilio, $to, $from) {
+    protected function handleEmailState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             if (filter_var($body, FILTER_VALIDATE_EMAIL)) {
                 // Update the applicant's email
@@ -1062,11 +1064,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('has_tax');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid email
                 $message = "Please enter a valid email address:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }  
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1076,7 +1078,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1086,7 +1088,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHasTaxState($applicant, $body, $twilio, $to, $from) {
+    protected function handleHasTaxState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $hasTax = null;
 
@@ -1109,7 +1111,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('tax_number');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($hasTax && $hasTax == 'No') {
                 // Update the applicant's has tax
                 $applicant->update(['has_tax' => $hasTax]);
@@ -1118,14 +1120,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('citizen');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);                
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);                
             } else {
                 // Send a message prompting for a valid has tax
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('has_tax');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1135,7 +1137,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1145,7 +1147,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTaxNumberState($applicant, $body, $twilio, $to, $from) {
+    protected function handleTaxNumberState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             if (preg_match('/^\d{10}$/', $body)) {
                 // Update the applicant's has number
@@ -1155,11 +1157,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('citizen');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid tax number
                 $message = "Please enter a valid 10-digit tax number:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1169,7 +1171,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1179,7 +1181,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCitizenState($applicant, $body, $twilio, $to, $from) {
+    protected function handleCitizenState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $citizen = null;
 
@@ -1202,7 +1204,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('criminal');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($citizen == 'No') {
                 // Update the applicant's citizen
                 $applicant->update(['citizen' => $citizen]);
@@ -1211,14 +1213,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('foreign_national');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid citizen
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('citizen');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1228,7 +1230,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1238,7 +1240,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleForeignNationalState($applicant, $body, $twilio, $to, $from) {
+    protected function handleForeignNationalState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $foreignNational = null;
 
@@ -1261,14 +1263,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('criminal');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid citizen
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('foreign_national');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1278,7 +1280,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1288,7 +1290,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCriminalState($applicant, $body, $twilio, $to, $from) {
+    protected function handleCriminalState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $criminal = null;
 
@@ -1311,14 +1313,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('avatar');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid citizen
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('criminal');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1328,7 +1330,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1338,7 +1340,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleAvatarState($applicant, $body, $twilio, $to, $from, $mediaUrl) {
+    protected function handleAvatarState($applicant, $body, $twilio, $to, $from, $service, $mediaUrl) {
         try {
             if (isset($mediaUrl)) {
                 $opts = [
@@ -1380,21 +1382,21 @@ class ChatService
                         $applicant->update(['state_id' => $stateID]);
 
                         $messages = $this->fetchStateMessages('position');
-                        $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                        $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
                     } else {
                         // Send a message error uploading
                         $message = "There was an issue uploading your picture. Please try again.";
-                        $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                        $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
                     }
                 } else {
                     // Send a message prompting for a valid avatar
                     $message = "Invalid file type! Please provide a picture in .jpg, .jpeg, or .png format:";
-                    $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
                 }
             } else {
                 // Send a message prompting for a valid picture
                 $message = "Please provide a picture of yourself in .jpg, .jpeg, or .png format:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1404,7 +1406,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1414,7 +1416,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePositionState($applicant, $body, $twilio, $to, $from) {
+    protected function handlePositionState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $position = null;
 
@@ -1480,7 +1482,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('qualifications');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($position && $position == 10) {
                 // Update the applicant's position
                 $applicant->update(['position_id' => $position]);
@@ -1489,14 +1491,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('position_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('position');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1506,7 +1508,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1516,7 +1518,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePositionSpecifyState($applicant, $body, $twilio, $to, $from) {
+    protected function handlePositionSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digit and has more than two character
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -1527,11 +1529,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('qualifications');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid position specify
                 $message = "Please enter a valid position:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1541,7 +1543,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1551,19 +1553,19 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleQualificationsState($applicant, $body, $twilio, $to, $from) {
+    protected function handleQualificationsState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
                 $messages = $this->fetchStateMessages('school');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                 $stateID = State::where('code', 'school')->value('id');
                 $applicant->update(['state_id' => $stateID]);
             } else {
                 $messages = $this->fetchStateMessages('qualifications');
                 $lastMessage = end($messages);
-                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1573,7 +1575,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1583,7 +1585,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleSchoolState($applicant, $body, $twilio, $to, $from) {
+    protected function handleSchoolState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -1594,11 +1596,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('highest_qualification');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid school
                 $message = "Please enter a valid school:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1608,7 +1610,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1618,7 +1620,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHighestQualificationState($applicant, $body, $twilio, $to, $from) {
+    protected function handleHighestQualificationState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $education = null;
 
@@ -1659,14 +1661,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('training');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('highest_qualification');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1676,7 +1678,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1686,7 +1688,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTrainingState($applicant, $body, $twilio, $to, $from) {
+    protected function handleTrainingState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $training = null;
 
@@ -1709,14 +1711,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('other_training');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid training
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('training');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1726,7 +1728,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1736,7 +1738,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleOtherTrainingState($applicant, $body, $twilio, $to, $from) {
+    protected function handleOtherTrainingState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digits
             if (!preg_match('/\d/', $body)) {
@@ -1747,11 +1749,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('drivers_license');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid other training
                 $message = "Please enter a valid training course or school:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1761,7 +1763,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1771,7 +1773,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleDriversLicenseState($applicant, $body, $twilio, $to, $from) {
+    protected function handleDriversLicenseState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $driversLicense = null;
 
@@ -1794,7 +1796,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('drivers_license_code');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($driversLicense && $driversLicense == 'No') {
                 // Update the applicant's drivers license
                 $applicant->update(['drivers_license' => $driversLicense]);
@@ -1803,14 +1805,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('read');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid drivers license
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('drivers_license');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1820,7 +1822,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1830,7 +1832,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleDriversLicenseCodeState($applicant, $body, $twilio, $to, $from) {
+    protected function handleDriversLicenseCodeState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $licenseCode = null;
 
@@ -1868,14 +1870,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('read');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('drivers_license_code');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -1885,7 +1887,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1895,7 +1897,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleReadState($applicant, $body, $twilio, $to, $from) {
+    protected function handleReadState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Removing spaces and splitting the string by commas to get an array of selected language IDs
             $selectedLanguages = array_map('trim', explode(',', $body));
@@ -1905,7 +1907,7 @@ class ChatService
             foreach ($selectedLanguages as $id) {
                 if (!is_numeric($id) || !in_array($id, $validLanguageIds)) {
                     $message = "Invalid selection. Please provide valid language numbers separated by a comma.";
-                    $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
                     return;
                 }
             }
@@ -1924,7 +1926,7 @@ class ChatService
             $applicant->update(['state_id' => $stateID]);
     
             $messages = $this->fetchStateMessages('speak');
-            $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleReadState: ' . $e->getMessage());
@@ -1933,7 +1935,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1943,7 +1945,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleSpeakState($applicant, $body, $twilio, $to, $from) {
+    protected function handleSpeakState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Removing spaces and splitting the string by commas to get an array of selected language IDs
             $selectedLanguages = array_map('trim', explode(',', $body));
@@ -1953,7 +1955,7 @@ class ChatService
             foreach ($selectedLanguages as $id) {
                 if (!is_numeric($id) || !in_array($id, $validLanguageIds)) {
                     $message = "Invalid selection. Please provide valid language numbers separated by a comma.";
-                    $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
                     return;
                 }
             }
@@ -1972,7 +1974,7 @@ class ChatService
             $applicant->update(['state_id' => $stateID]);
     
             $messages = $this->fetchStateMessages('experience');
-            $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleSpeakState: ' . $e->getMessage());
@@ -1981,7 +1983,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -1991,20 +1993,20 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleExperienceState($applicant, $body, $twilio, $to, $from) {
+    protected function handleExperienceState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             try {
                 // Handle the 'start' keyword
                 if (strtolower($body) == 'start') {
                     $messages = $this->fetchStateMessages('job_previous');
-                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
     
                     $stateID = State::where('code', 'job_previous')->value('id');
                     $applicant->update(['state_id' => $stateID]);
                 } else {
                     $messages = $this->fetchStateMessages('experience');
                     $lastMessage = end($messages);
-                    $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from, $service);
                 }
             } catch (Exception $e) {
                 // Log the error for debugging purposes
@@ -2014,7 +2016,7 @@ class ChatService
                 $errorMessage = $this->getErrorMessage();
     
                 // Send the error message to the user
-                $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2024,7 +2026,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2034,7 +2036,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobPreviousState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobPreviousState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $jobPrevious = null;
 
@@ -2057,7 +2059,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_leave');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
             } elseif ($jobLeave && $jobPrevious == 'No') {
                 // Update the applicant's previous job
@@ -2067,14 +2069,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('punctuality');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid previous job
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('job_previous');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2084,7 +2086,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2094,7 +2096,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobLeaveState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobLeaveState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $jobLeave = null;
 
@@ -2143,7 +2145,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_business');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($jobLeave && $jobLeave == 9) {
                 // Update the applicant's job leave
                 $applicant->update(['reason_id' => $jobLeave]);
@@ -2152,14 +2154,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_leave_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
             } else {
                 // Send a message prompting for a valid job leave
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('job_leave');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2169,7 +2171,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2179,7 +2181,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobLeaveSpecifyState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobLeaveSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2190,11 +2192,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_business');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid reason
                 $message = "Please enter a valid reason:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2204,7 +2206,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2214,7 +2216,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobBusinessState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobBusinessState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -2225,11 +2227,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_position');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid business
                 $message = "Please enter a valid business:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2239,7 +2241,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2249,7 +2251,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobPositionState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobPositionState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2260,11 +2262,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_term');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid business
                 $message = "Please enter a valid position:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2274,7 +2276,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2284,7 +2286,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobTermState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobTermState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $jobTerm = null;
 
@@ -2323,14 +2325,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_salary');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid job term
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('job_term');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2340,7 +2342,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2350,7 +2352,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobSalaryState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobSalaryState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Strip spaces
             $body = preg_replace('/\s+/', '', $body);
@@ -2367,11 +2369,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_reference_name');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid salary
                 $message = "Please enter a valid salary:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2381,7 +2383,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2391,7 +2393,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobReferenceNameState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobReferenceNameState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -2402,11 +2404,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_reference_phone');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid job reference name
                 $message = "Please enter a valid name:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2416,7 +2418,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2426,7 +2428,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobReferencePhoneState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobReferencePhoneState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             if (preg_match('/^\d{10}$/', $body)) {
                 // Update the applicant's job reference contact number
@@ -2436,11 +2438,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_retrenched');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid contact number
                 $message = "Please enter a valid 10-digit contact number:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2450,7 +2452,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2460,7 +2462,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobRetrenchedState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobRetrenchedState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $jobRetrench = null;
 
@@ -2489,7 +2491,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_shoprite');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($jobRetrench && $jobRetrench == 1 || $jobRetrench == 2) {
                 // Update the applicant's retrenchment id 
                 $applicant->update(['retrenchment_id' => $jobRetrench]);
@@ -2498,14 +2500,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_retrenched_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid job retrenchment
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('job_retrenched');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2515,7 +2517,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2525,7 +2527,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobRetrenchedSpecifyState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobRetrenchedSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2536,11 +2538,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_shoprite');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid reason
                 $message = "Please enter a valid reason:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2550,7 +2552,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2560,7 +2562,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopriteState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobShopriteState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $jobShoprite = null;
 
@@ -2640,7 +2642,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('punctuality');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($jobShoprite && $jobShoprite !== 0) {
                 // Update the applicant's brand worked at
                 $applicant->update(['brand_id' => $jobShoprite]);
@@ -2649,14 +2651,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_shoprite_position');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
             } else {
                 // Send a message prompting for a valid brand worked at
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('job_shoprite');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2666,7 +2668,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2676,7 +2678,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopritePositionState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobShopritePositionState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $jobShopritePosition = null;
 
@@ -2738,7 +2740,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_shoprite_leave');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($jobShopritePosition && $jobShopritePosition == 10) {
                 // Update the applicant's position
                 $applicant->update(['previous_job_position_id' => $jobShopritePosition]);
@@ -2747,14 +2749,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_shoprite_position_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('job_shoprite_position');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2764,7 +2766,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2774,7 +2776,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopritePositionSpecifyState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobShopritePositionSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2785,11 +2787,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_shoprite_leave');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please enter a valid position:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2799,7 +2801,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2809,7 +2811,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopriteLeaveState($applicant, $body, $twilio, $to, $from) {
+    protected function handleJobShopriteLeaveState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2820,11 +2822,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('punctuality');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid reason
                 $message = "Please enter a valid position:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2834,7 +2836,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2844,19 +2846,19 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePunctualityState($applicant, $body, $twilio, $to, $from) {
+    protected function handlePunctualityState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
                 $messages = $this->fetchStateMessages('transport');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                 $stateID = State::where('code', 'transport')->value('id');
                 $applicant->update(['state_id' => $stateID]);
             } else {
                 $messages = $this->fetchStateMessages('punctuality');
                 $lastMessage = end($messages);
-                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2866,7 +2868,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2876,7 +2878,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTransportState($applicant, $body, $twilio, $to, $from) {
+    protected function handleTransportState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $transport = null;
 
@@ -2930,7 +2932,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('illness');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($transport && $transport == 9) {
                 // Update the applicant's transport
                 $applicant->update(['transport_id' => $transport]);
@@ -2939,14 +2941,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('transport_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('transport');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2956,7 +2958,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -2966,7 +2968,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTransportSpecifyState($applicant, $body, $twilio, $to, $from) {
+    protected function handleTransportSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2977,11 +2979,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('illness');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid transport
                 $message = "Please enter a valid transport:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -2991,7 +2993,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3001,7 +3003,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleIllnessState($applicant, $body, $twilio, $to, $from) {
+    protected function handleIllnessState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $illness = null;
 
@@ -3034,7 +3036,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('commencement');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($illness && $illness !== 4) {
                 // Update the applicant's ilness
                 $applicant->update(['disability_id' => $illness]);
@@ -3043,14 +3045,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('illness_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
             } else {
                 // Send a message prompting for a valid illness
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('illness');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3060,7 +3062,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3070,7 +3072,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleIllnessSpecifyState($applicant, $body, $twilio, $to, $from) {
+    protected function handleIllnessSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digits and has more than one characters
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -3081,11 +3083,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('commencement');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid illness
                 $message = "Please enter a valid illness:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3095,7 +3097,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3105,7 +3107,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCommencementState($applicant, $body, $twilio, $to, $from) {
+    protected function handleCommencementState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             try {
                 // Attempt to parse using DateTime constructor
@@ -3116,7 +3118,7 @@ class ChatService
 
                 // Send a message prompting for a valid date
                 $message = "Please enter a valid date:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
             
             $date = new DateTime($body);
@@ -3132,11 +3134,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('reason');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid date
                 $message = "Please enter a valid date:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3146,7 +3148,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3156,19 +3158,19 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleReasonState($applicant, $body, $twilio, $to, $from) {
+    protected function handleReasonState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
                 $messages = $this->fetchStateMessages('application_reason');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                 $stateID = State::where('code', 'application_reason')->value('id');
                 $applicant->update(['state_id' => $stateID]);
             } else {
                 $messages = $this->fetchStateMessages('reason');
                 $lastMessage = end($messages);
-                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3178,7 +3180,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3188,7 +3190,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleApplicationReasonState($applicant, $body, $twilio, $to, $from) {
+    protected function handleApplicationReasonState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $application = null;
 
@@ -3232,7 +3234,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('relocate');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($application && $application == 6) {
                 // Update the applicant's job type
                 $applicant->update(['type_id' => $application]);
@@ -3241,14 +3243,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('application_reason_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
             } else {
                 // Send a message prompting for a valid application reason
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('application_reason');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3258,7 +3260,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3268,7 +3270,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleApplicationReasonSpecifyState($applicant, $body, $twilio, $to, $from) {
+    protected function handleApplicationReasonSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -3279,11 +3281,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('relocate');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid reason
                 $message = "Please enter a valid reason:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3293,7 +3295,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3303,7 +3305,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRelocateState($applicant, $body, $twilio, $to, $from) {
+    protected function handleRelocateState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $relocate = null;
 
@@ -3326,7 +3328,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('relocate_town');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($relocate && $relocate == 'No') {
                 // Update the applicant's relocate
                 $applicant->update(['relocate' => $relocate]);
@@ -3335,14 +3337,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('vacancy');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid relocate
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('relocate');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3352,7 +3354,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3362,7 +3364,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRelocateTownState($applicant, $body, $twilio, $to, $from) {
+    protected function handleRelocateTownState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digits and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -3373,11 +3375,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('vacancy');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid relocate town
                 $message = "Please enter a valid town or city:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3387,7 +3389,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3397,7 +3399,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleVacancyState($applicant, $body, $twilio, $to, $from) {
+    protected function handleVacancyState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $vacancy = null;
 
@@ -3420,14 +3422,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('shift');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid vacancy
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('vacancy');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3437,7 +3439,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3447,7 +3449,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleShiftState($applicant, $body, $twilio, $to, $from) {
+    protected function handleShiftState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $shift = null;
 
@@ -3470,14 +3472,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('has_bank_account');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid shift
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('shift');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3487,7 +3489,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3497,7 +3499,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHasBankAccountState($applicant, $body, $twilio, $to, $from) {
+    protected function handleHasBankAccountState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $hasBankAccount = null;
 
@@ -3520,7 +3522,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('bank');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($hasBankAccount && $hasBankAccount == 'No') {
                 // Update the applicant's has bank account
                 $applicant->update(['has_bank_account' => $hasBankAccount]);
@@ -3529,14 +3531,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('expected_salary');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid has bank account
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('has_bank_account');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3546,7 +3548,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3556,7 +3558,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleBankState($applicant, $body, $twilio, $to, $from) {
+    protected function handleBankState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $bank = null;
 
@@ -3613,7 +3615,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('bank_number');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($bank && $bank == 9) {
                 // Update the applicant's bank
                 $applicant->update(['bank_id' => $bank]);
@@ -3622,14 +3624,14 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('bank_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
             } else {
                 // Send a message prompting for a valid bank
                 $message = "Please select a valid option!";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
 
                 $messages = $this->fetchStateMessages('bank');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3639,7 +3641,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3649,7 +3651,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleBankSpecifyState($applicant, $body, $twilio, $to, $from) {
+    protected function handleBankSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -3660,11 +3662,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('bank_number');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid relocate town
                 $message = "Please enter a valid bank:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3674,7 +3676,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3684,7 +3686,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleBankNumberState($applicant, $body, $twilio, $to, $from) {
+    protected function handleBankNumberState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (preg_match('/^\d{6,}$/', $body)) {
@@ -3695,11 +3697,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('expected_salary');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a bank number
                 $message = "Please enter a valid bank number:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3709,7 +3711,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3719,7 +3721,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleExpectedSalaryState($applicant, $body, $twilio, $to, $from) {
+    protected function handleExpectedSalaryState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Strip spaces
             $body = preg_replace('/\s+/', '', $body);
@@ -3736,11 +3738,11 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('literacy_start');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a expected salary
                 $message = "Please enter a valid salary amount:";
-                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3750,7 +3752,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3760,7 +3762,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLiteracyStartState($applicant, $body, $twilio, $to, $from) {
+    protected function handleLiteracyStartState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -3778,19 +3780,19 @@ class ChatService
                     $firstQuestionMessages = array_column($messages, 'message');
                     $firstQuestion = array_shift($firstQuestionMessages);
 
-                    $this->sendAndLogMessages($applicant, [$firstQuestion], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$firstQuestion], $twilio, $to, $from, $service);
 
                     $stateID = State::where('code', 'literacy')->value('id');
                     $applicant->update(['state_id' => $stateID]);
                 } else {
                     // Send a message prompting no questions found
                     $message = "Sorry, we could not find any questions. Please try again later.";
-                    $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
                 }
             } else {
                 $messages = $this->fetchStateMessages('literacy_start');
                 $lastMessage = end($messages);
-                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3800,7 +3802,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3810,7 +3812,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLiteracyState($applicant, $body, $twilio, $to, $from) {
+    protected function handleLiteracyState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Extract the order of the literacy questions from the applicant's data.
             $sortOrderPool = explode(',', $applicant->literacy_question_pool);
@@ -3842,7 +3844,7 @@ class ChatService
         
                     // Send the next question to the user.
                     $nextQuestionText = $nextQuestion->message;
-                    $this->sendAndLogMessages($applicant, [$nextQuestionText], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$nextQuestionText], $twilio, $to, $from, $service);
                 } else {
                     // If all the questions have been answered, calculate the final score.
                     $correctAnswers = $applicant->literacy_score;
@@ -3854,7 +3856,7 @@ class ChatService
                     $applicant->update(['state_id' => $stateID]);
     
                     $messages = $this->fetchStateMessages('numeracy_start');
-                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
                 }
             } else {
                 // If the user's response is not valid, prepend the current question back and inform the user.
@@ -3862,13 +3864,13 @@ class ChatService
                 $applicant->update(['literacy_question_pool' => implode(',', $sortOrderPool)]);
         
                 $invalidAnswerMessage = "Please choose a valid option (a, b, c or d).";
-                $this->sendAndLogMessages($applicant, [$invalidAnswerMessage], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$invalidAnswerMessage], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Handle exceptions by logging the error and informing the user.
             Log::error('Error in handleLiteracyState: ' . $e->getMessage());
             $errorMessage = $this->getErrorMessage();
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3878,7 +3880,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleNumeracyStartState($applicant, $body, $twilio, $to, $from) {
+    protected function handleNumeracyStartState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -3896,19 +3898,19 @@ class ChatService
                     $firstQuestionMessages = array_column($messages, 'message');
                     $firstQuestion = array_shift($firstQuestionMessages);
 
-                    $this->sendAndLogMessages($applicant, [$firstQuestion], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$firstQuestion], $twilio, $to, $from, $service);
 
                     $stateID = State::where('code', 'numeracy')->value('id');
                     $applicant->update(['state_id' => $stateID]);
                 } else {
                     // Send a message prompting no questions found
                     $message = "Sorry, we could not find any questions. Please try again later.";
-                    $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
                 }
             } else {
                 $messages = $this->fetchStateMessages('numeracy_start');
                 $lastMessage = end($messages);
-                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -3918,7 +3920,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3928,7 +3930,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleNumeracyState($applicant, $body, $twilio, $to, $from) {
+    protected function handleNumeracyState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Extract the order of the numeracy questions from the applicant's data.
             $sortOrderPool = explode(',', $applicant->numeracy_question_pool);
@@ -3961,7 +3963,7 @@ class ChatService
                     
                     // Send the next question to the user.
                     $nextQuestionText = $nextQuestion->message;
-                    $this->sendAndLogMessages($applicant, [$nextQuestionText], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$nextQuestionText], $twilio, $to, $from, $service);
                 } else {
                     // If all the questions have been answered, calculate the final score.
                     $correctAnswers = $applicant->numeracy_score;
@@ -3973,7 +3975,7 @@ class ChatService
                     $applicant->update(['state_id' => $stateID]);
     
                     $messages = $this->fetchStateMessages('complete');
-                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
                 }
             } else {
                 // If the user's response is not valid, prepend the current question back and inform the user.
@@ -3981,13 +3983,13 @@ class ChatService
                 $applicant->update(['numeracy_question_pool' => implode(',', $sortOrderPool)]);
                 
                 $invalidAnswerMessage = "Please choose a valid option (a, b, or c).";
-                $this->sendAndLogMessages($applicant, [$invalidAnswerMessage], $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, [$invalidAnswerMessage], $twilio, $to, $from, $service);
             }
         } catch (Exception $e) {
             // Handle exceptions by logging the error and informing the user.
             Log::error('Error in handleNumeracyState: ' . $e->getMessage());
             $errorMessage = $this->getErrorMessage();
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -3997,7 +3999,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCompleteState($applicant, $body, $twilio, $to, $from) {
+    protected function handleCompleteState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             // Check if the score is null and then set it
             if (is_null($applicant->score)) {
@@ -4006,7 +4008,7 @@ class ChatService
             }    
 
             $messages = $this->fetchStateMessages('complete');
-            $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleCompleteState: ' . $e->getMessage());
@@ -4015,7 +4017,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
 
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -4025,7 +4027,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleScheduleStartState($applicant, $body, $twilio, $to, $from) {
+    protected function handleScheduleStartState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
 
@@ -4051,7 +4053,7 @@ class ChatService
                         }
                     }
 
-                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                     $stateID = State::where('code', 'schedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
@@ -4078,18 +4080,18 @@ class ChatService
                         $latestInterview->vacancy->position->name .
                         " is now declined. If this was a mistake, please contact us immediately."
                     ];
-                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
                 } else {
                     $messages = $this->fetchStateMessages('schedule_start');
                     $lastMessage = end($messages);
-                    $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from, $service);
                 }
             } else {
                 $messages = ["No interviews found, have a wonderful day."];
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                 $stateID = State::where('code', 'complete')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -4102,7 +4104,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
     
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -4112,7 +4114,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleScheduleState($applicant, $body, $twilio, $to, $from) {
+    protected function handleScheduleState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
 
@@ -4143,7 +4145,7 @@ class ChatService
                         " at " . $latestInterview->start_time->format('H:i') .
                         " has been confirmed!"
                     ];
-                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
@@ -4168,7 +4170,7 @@ class ChatService
                     $messages = [
                         "Please suggest a new date and time for your interview. We will do our best to accommodate your schedule. For example, '2024-02-20 14:00'."
                     ];
-                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                     $stateID = State::where('code', 'reschedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
@@ -4195,18 +4197,18 @@ class ChatService
                         $latestInterview->vacancy->position->name .
                         " is now declined. If this was a mistake, please contact us immediately."
                     ];
-                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
                 } else {
                     $messages = $this->fetchStateMessages('schedule');
                     $lastMessage = end($messages);
-                    $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from);
+                    $this->sendAndLogMessages($applicant, [$lastMessage], $twilio, $to, $from, $service);
                 }
             } else {
                 $messages = ["No interviews found, have a wonderful day."];
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                 $stateID = State::where('code', 'complete')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -4219,7 +4221,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
     
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -4229,7 +4231,7 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRescheduleState($applicant, $body, $twilio, $to, $from) {
+    protected function handleRescheduleState($applicant, $body, $twilio, $to, $from, $service) {
         try {
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
 
@@ -4255,10 +4257,10 @@ class ChatService
                         "Please provide a valid date and time for your interview. For example, '2024-02-20 14:00'."
                     ];
                 }
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 $messages = ["No interviews found, have a wonderful day."];
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from);
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
 
                 $stateID = State::where('code', 'complete')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -4271,7 +4273,7 @@ class ChatService
             $errorMessage = $this->getErrorMessage();
     
             // Send the error message to the user
-            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from);
+            $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
     }
 
@@ -4341,11 +4343,11 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    public function sendAndLogMessages($applicant, $messages, $twilio, $to, $from) {
+    public function sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service) {
         foreach ($messages as $message) {
             $this->logMessage($applicant->id, $message, 2); // Assuming '2' is the type for outgoing
 
-            $twilio->messages->create($to, ['from' => $from, 'body' => $message]);
+            $twilio->messages->create($to, ['messagingServiceSid' => $service, 'body' => $message]);
         }
     }
 
