@@ -313,7 +313,7 @@
         <div class="card">
             <div class="card-header">
                 <h4 class="card-title mb-0">
-                    <?php echo e($user->applicant ? 'Update' : 'Post'); ?> Your Application
+                    <?php echo e(!$user->applicant ? 'Update' : 'Post'); ?> Your Application
                 </h4>
             </div><!-- end card header -->
             <div class="card-body form-steps">
@@ -1710,7 +1710,7 @@
         Side Bar
     -------------------------------------------------------------------------------------->
 
-    <?php if($user->applicant): ?>
+    <?php if(!$user->applicant): ?>
         <div class="col-auto layout-rightside-col">
             <div class="overlay"></div>
             <div class="layout-rightside">

@@ -430,8 +430,8 @@ function loadCandidateListData(datas, page) {
                         const statusInfo = statusMapping[interview.status];
                         let additionalText = '';
                     
-                        if (interview.status === 'Reschedule' && interview.reschedule) {
-                            const rescheduledDateTime = formatFullDateTime(interview.reschedule);
+                        if (interview.status === 'Reschedule' && interview.reschedule_date) {
+                            const rescheduledDateTime = formatFullDateTime(interview.reschedule_date);
                             additionalText = `<br><strong>Suggested:</strong> ${rescheduledDateTime}`;
                         }
                     

@@ -4155,12 +4155,12 @@ class ChatService
                     $latestInterview->save();
 
                     // If a new interview was updated, then create a notification
-                    if ($interview->wasChanged()) {
+                    if ($latestInterview->wasChanged()) {
                         // Create Notification
                         $notification = new Notification();
-                        $notification->user_id = $interview->interviewer_id;
+                        $notification->user_id = $latestInterview->interviewer_id;
                         $notification->causer_id = $userID;
-                        $notification->subject()->associate($interview);
+                        $notification->subject()->associate($latestInterview);
                         $notification->type_id = 1;
                         $notification->notification = "Requested to reschedule 📅";
                         $notification->read = "No";

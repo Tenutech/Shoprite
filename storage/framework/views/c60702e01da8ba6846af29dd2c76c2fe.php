@@ -72,9 +72,6 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                                    <div class="invalid-feedback">
-                                                        Please enter first name
-                                                    </div>
                                                 </div>
 
                                                 <!-- ID Number -->
@@ -102,9 +99,6 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                                    <div class="invalid-feedback">
-                                                        Please enter id number
-                                                    </div>
                                                 </div>
                                             </div>
 
@@ -134,9 +128,6 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                                    <div class="invalid-feedback">
-                                                        Please enter last name
-                                                    </div>
                                                 </div>
 
                                                 <!-- Phone Number -->
@@ -169,9 +160,6 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                                        <div class="invalid-feedback">
-                                                            Please enter phone number
-                                                        </div>
                                                         <div class="dropdown-menu w-100">
                                                             <div class="p-2 px-3 pt-1 searchlist-input">
                                                                 <input type="text" class="form-control form-control-sm border search-countryList" placeholder="Search country name or country code..." />
@@ -208,9 +196,6 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                                    <div class="invalid-feedback">
-                                                        Please enter email
-                                                    </div>
                                                 </div>
                                             </div>
 
@@ -244,9 +229,6 @@ $message = $__bag->first($__errorArgs[0]); ?>
 if (isset($__messageOriginal)) { $message = $__messageOriginal; }
 endif;
 unset($__errorArgs, $__bag); ?>
-                                                        <div class="invalid-feedback">
-                                                            Please enter password
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

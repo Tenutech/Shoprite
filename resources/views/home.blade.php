@@ -9,7 +9,7 @@
 
 
 <div class="row">
-    @if ($user->applicant)
+    @if (!$user->applicant)
         <div class="col">
             <div class="h-100">
                 <div class="row mb-3 pb-1">
@@ -310,11 +310,11 @@
         <div class="card">
             <div class="card-header">
                 <h4 class="card-title mb-0">
-                    {{ $user->applicant ? 'Update' : 'Post' }} Your Application
+                    {{ !$user->applicant ? 'Update' : 'Post' }} Your Application
                 </h4>
             </div><!-- end card header -->
             <div class="card-body form-steps">
-                <form class="vertical-navs-step" id="{{ $user->applicant ? 'formApplicationUpdate' : 'formApplication' }}"  enctype="multipart/form-data" novalidate>
+                <form class="vertical-navs-step" id="{{ !$user->applicant ? 'formApplicationUpdate' : 'formApplication' }}"  enctype="multipart/form-data" novalidate>
                     @csrf
                     <input type="hidden" id="id" name="id" value="{{ $user->applicant ? Crypt::encryptString($user->applicant->id) : '' }}"/>
                     <div class="row gy-5">
@@ -1594,7 +1594,7 @@
                                     -------------------------------------------------------------------------------------->
 
                                     <div class="tab-pane fade d-flex align-items-center justify-content-center flex-column" id="v-pills-finish" role="tabpanel" aria-labelledby="v-pills-finish-tab">
-                                        @if ($user->applicant)
+                                        @if (!$user->applicant)
                                             <!-- Update -->
                                             <div class="text-center pt-4 pb-2" id="complete">
                                                 <div class="mb-4">
@@ -1630,7 +1630,7 @@
                                             </div>
                                         @else
                                             <!-- Confirm -->
-                                            <div class="text-center pt-4 pb-2 {{ $user->applicant ? 'd-none' : '' }}" id="confirm">
+                                            <div class="text-center pt-4 pb-2 {{ !$user->applicant ? 'd-none' : '' }}" id="confirm">
                                                 <div class="mb-4">
                                                     <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="loop" state="hover-2" colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
                                                 </div>
@@ -1707,7 +1707,7 @@
         Side Bar
     -------------------------------------------------------------------------------------->
 
-    @if ($user->applicant)
+    @if (!$user->applicant)
         <div class="col-auto layout-rightside-col">
             <div class="overlay"></div>
             <div class="layout-rightside">
@@ -2226,7 +2226,7 @@
 <script src="{{ URL::asset('build/libs/jsvectormap/maps/world-merc.js') }}"></script>
 <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js')}}"></script>
 <!-- home init -->
-@if ($user->applicant)
+@if (!$user->applicant)
     <script src="{{URL::asset('build/js/pages/home.init.js')}}"></script>
 @else
     <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>
