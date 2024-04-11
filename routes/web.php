@@ -442,6 +442,20 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::delete('/hour/destroy/{id}', [App\Http\Controllers\HoursController::class, 'destroy'])->name('hour.destroy');
 
     Route::post('/hour/destroy-multiple', [App\Http\Controllers\HoursController::class, 'destroyMultiple'])->name('hour.destroyMultiple');
+
+    //Interview Guide
+
+    Route::get('/guide', [App\Http\Controllers\InterviewGuideController::class, 'index'])->name('guide.index');
+
+    Route::post('/guide/add', [App\Http\Controllers\InterviewGuideController::class, 'store'])->name('guide.store');
+
+    Route::post('/guide/update', [App\Http\Controllers\InterviewGuideController::class, 'update'])->name('guide.update');
+
+    Route::get('/guide/details/{id}', [App\Http\Controllers\InterviewGuideController::class, 'details'])->name('guide.details');
+
+    Route::delete('/guide/destroy/{id}', [App\Http\Controllers\InterviewGuideController::class, 'destroy'])->name('guide.destroy');
+
+    Route::post('/guide/destroy-multiple', [App\Http\Controllers\InterviewGuideController::class, 'destroyMultiple'])->name('guide.destroyMultiple');
 });
 
 /*

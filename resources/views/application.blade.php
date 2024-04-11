@@ -141,29 +141,41 @@
                                                     Welcome to the Shoprite Employment Application Procedure!
                                                 </h5>
                                                 <p class="text-muted">
-                                                    You are on this Shoprite Recruitment platform, because you are applying for an
-                                                    employment position at the Shoprite Group. Therefore, your answering of these
+                                                    You are on this Shoprite Recruitment platform, because you are applying for an 
+                                                    employment position at the Shoprite Group. Therefore, your answering of these 
                                                     questions replace the need to hand in a physical CV document in store.
                                                 </p>
                                                 <p class="text-muted">
-                                                    You will be asked a series of questions gathering personal information, and you 
-                                                    hereby grant the OTB Group (Operator) on behalf of the Shoprite Group of Companies 
-                                                    (Responsible Party) permission to process the information. By selecting "Start", you 
-                                                    confirm that you have read, understood and accept the POPIA Ts&Cs available at: 
+                                                    You will be asked a series of questions to obtain information defined as personal 
+                                                    information in the Protection of Personal Information Act 4 of 2013 (POPIA) from 
+                                                    you, and you hereby grant the OTB Group (Operator) permission to process such 
+                                                    personal information on behalf of the Shoprite Group of Companies (Responsible Party).
+                                                    By selecting "Start", you confirm that you have read, understood and accept the POPIA 
+                                                    Ts&Cs available at: 
                                                     <a href="{{ route('terms') }}" class="text-primary text-decoration-underline fst-normal fw-medium">
                                                         Terms of Use
                                                     </a>
                                                 </p>
                                                 <p class="text-muted">
-                                                    Please read each question carefully, and answer to the best of your ability.
+                                                    By typing "Start", you confirm that you have read, understood and accepted the 
+                                                    POPIA T's & C's available at:
+                                                    <a href="{{ route('terms') }}" class="text-primary text-decoration-underline fst-normal fw-medium">
+                                                        Terms of Use
+                                                    </a>
+                                                    and authorize OTB to conduct verification checks on behalf of the Shoprite Group of 
+                                                    Companies in respect of your Identification number, credit record, drivers license, 
+                                                    qualifications, fraud check, bank accounts & criminal record.
+                                                </p>
+                                                <p class="text-muted">
+                                                    Please read each question carefully, and answer to the best of your ability. 
                                                     Your information will only be submitted once you have completed ALL of the questions.
                                                 </p>
                                                 <p class="text-muted">
-                                                    Once you have started the process, you cannot exit and start over, so please set
+                                                    Once you have started the process, you cannot exit and start over, so please set 
                                                     out 30 minutes to complete the process.
                                                 </p>
                                                 <button type="button" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill nexttab nexttab" data-nexttab="v-pills-personal-tab">
-                                                    <i class="ri-play-line label-icon align-middle rounded-pill fs-16 me-2"></i>
+                                                    <i class="ri-play-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                                                     Start !
                                                 </button>
                                             </div>
