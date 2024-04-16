@@ -160,9 +160,9 @@
                                     <div class="card-body">
                                         <h5 class="card-title mb-4">Application Progress</h5>
                                         <div class="progress animated-progress custom-progress progress-label">
-                                            <div class="progress-bar bg-success" role="progressbar" style="width: {{ $completion }}%" aria-valuenow="{{ $completion }}" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="progress-bar bg-success" role="progressbar" style="width: 100%" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
                                                 <div class="label">
-                                                    {{ $completion }}%
+                                                    100%
                                                 </div>
                                             </div>
                                         </div>

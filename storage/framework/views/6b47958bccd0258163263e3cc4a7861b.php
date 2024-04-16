@@ -445,8 +445,8 @@
                                                 POPIA T's & C's available at:
                                                 <a href="<?php echo e(route('terms')); ?>" class="text-primary text-decoration-underline fst-normal fw-medium">
                                                     Terms of Use
-                                                </a>,
-                                                authorize OTB to conduct verification checks on behalf of the Shoprite Group of 
+                                                </a>
+                                                and authorize OTB to conduct verification checks on behalf of the Shoprite Group of 
                                                 Companies in respect of your Identification number, credit record, drivers license, 
                                                 qualifications, fraud check, bank accounts & criminal record.
                                             </p>
