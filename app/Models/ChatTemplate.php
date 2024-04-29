@@ -18,7 +18,8 @@ class ChatTemplate extends Model
         'state_id',
         'category_id',
         'answer',
-        'sort'
+        'sort',
+        'template'
     ];
 
     //Chat State
