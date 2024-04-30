@@ -422,7 +422,7 @@ if (linechartZoomColors) {
         }
         },
         xaxis: {
-            categories: getLast12Months(),
+            categories: months,
             title: {
                 text: 'Month'
             }
@@ -496,7 +496,7 @@ if (totalCostColors) {
             size: 6
         },
         xaxis: {
-            categories: getLast12Months(),
+            categories: months,
             title: {
                 text: 'Month'
             }

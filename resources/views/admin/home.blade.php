@@ -7,6 +7,67 @@
 @section('content')
 
 <div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body bg-light-subtle">
+                <form action="{{ route('admin.home') }}" method="post" id="filterForm">
+                    @csrf 
+                    <div class="row g-3 align-items-center">
+                        <div class="col-xl-1 col-sm-3">
+                            <label for="fromDateTime">Start:</label>
+                        </div>
+                        <div class="col-xxl-4 col-sm-4">
+                            <div class="input-light">
+                                <input type="datetime-local" class="form-control search bg-light border-light" id="fromDateTime" name="fromDateTime" autocomplete="off">
+                            </div>
+                        </div>
+                        <!--end col-->
+
+                        <div class="col-xxl-1 col-sm-4">
+                            <label for="fromDateTime">End:</label>
+                        </div>
+                        <div class="col-xxl-4 col-sm-4">
+                            <div class="input-light">
+                                <input type="datetime-local" class="form-control search bg-light border-light" id="toDateTime" name="toDateTime" autocomplete="off">
+                            </div>
+                        </div>
+                        <!--end col-->
+
+                        <div class="col-xxl-2 col-sm-4">
+                            <div class="d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary waves-effect waves-light me-2">
+                                    <i class="ri-equalizer-fill me-1 align-bottom"></i>
+                                    Filter
+                                </button>
+                                <button type="button" class="btn btn-danger waves-effect waves-light" id="removeFilters" onclick="resetFilters();">
+                                    <i class="ri-close-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <!--end col-->
+                    </div>
+                    <!--end row-->
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- end row -->
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body bg-light-subtle">
+            <h4 class="fs-16 mb-1">
+                Showing data for {{ $startOfYear }} to {{ $endOfYear }}
+            </h4>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
     <div class="col">
 
         <div class="h-100">
@@ -144,40 +205,6 @@
                                         Time to Hire
                                     </p>
                                     @php
-                                        $totalMinutes = $previousYearData->total_time_to_appointed;
-                                        $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
-                                        $formattedInterval = $interval->cascade()->format('%dD %HH %IM');
-                                    @endphp
-                                    <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span>{{ $formattedInterval }}</span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0">
-                                            {{ $previousYearData->year }}
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-
-                <div class="col-md-6">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Time to Hire
-                                    </p>
-                                    @php
                                         $totalMinutes = $currentYearData->total_time_to_appointed;
                                         $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
                                         $formattedInterval = $interval->cascade()->format('%dD %HH %IM');
@@ -202,44 +229,13 @@
                         </div><!-- end card body -->
                     </div> <!-- end card-->
                 </div> <!-- end col-->
-            </div> <!-- end row-->
+         
 
             <!-------------------------------------------------------------------------------------
                 Applicants Absorption Rate
             -------------------------------------------------------------------------------------->
 
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Absorption Rate
-                                    </p>
-                                    <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span class="counter-value" data-target="{{ $previousYearData->total_applicants > 0 ? round($previousYearData->total_appointed / $previousYearData->total_applicants * 100) : 0 }}">
-                                            0
-                                        </span>%
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0">
-                                            {{ $previousYearData->year }}
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
-                                            <i data-feather="briefcase" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-
+         
                 <div class="col-md-6">
                     <div class="card card-animate">
                         <div class="card-body">
@@ -983,21 +979,22 @@
     });
 
     var totalApplicantsPerMonth = @json($totalApplicantsPerMonth);
-
+  
     var incomingMessages = @json($incomingMessages);
     var outgoingMessages = @json($outgoingMessages);
-
+   
     var applicantsByPosition = @json($applicantsByPosition);
 
     var applicantData = applicantsPerProvince.reduce((accumulator, currentValue) => {
         accumulator[currentValue.x] = currentValue.y;
         return accumulator;
     }, {});
-
+    
     var applicationsPerMonth = @json($applicationsPerMonth);
     var interviewedPerMonth = @json($interviewedPerMonth);
     var appointedPerMonth = @json($appointedPerMonth);
     var rejectedPerMonth = @json($rejectedPerMonth);
+    var months = @json($months);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

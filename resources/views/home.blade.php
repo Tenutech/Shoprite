@@ -7,6 +7,86 @@
 @endsection
 @section('content')
 
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body bg-light-subtle">
+                <div class="row g-3">
+                    <div class="col-xxl-2 col-sm-12">
+                        <div class="search-box">
+                            <input type="text" class="form-control search bg-light border-light" id="searchJob" autocomplete="off" placeholder="Search for job opportunities...">
+                            <i class="ri-search-line search-icon"></i>
+                        </div>
+                    </div>
+                    <!--end col-->
+
+                    <div class="col-xxl-2 col-sm-4">
+                        <div class="input-light">
+                            <select class="form-control" name="position" id="positionFilter">
+                                <option value="all" selected>Select Position</option>
+                                @foreach ($positions as $position)
+                                    <option value="{{ $position->id }}" {{ $selectedPositionId == $position->id ? 'selected' : '' }}>{{ $position->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <!--end col-->
+
+                    <div class="col-xxl-2 col-sm-4">
+                        <div class="input-light">
+                            <select class="form-control" name="type" id="typeFilter">
+                                <option value="all" selected>Select Type</option>
+                                @foreach ($types as $type)
+                                    <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <!--end col-->
+
+                    <div class="col-xxl-2 col-sm-4">
+                        <div class="input-light">
+                            <select class="form-control" name="store" id="storeFilter">
+                                <option value="all" selected>Select Store</option>
+                                @foreach ($brands as $brand)
+                                    <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <!--end col-->
+
+                    <div class="col-xxl-2 col-sm-4">
+                        <div class="input-light">
+                            <select class="form-control" name="town" id="townFilter">
+                                <option value="all" selected>Select Town</option>
+                                @foreach ($towns as $town)
+                                    <option value="{{ $town->id }}">{{ $town->name }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    <!--end col-->
+
+                    <div class="col-xxl-2 col-sm-4 d-flex">
+                        <div class="d-flex flex-wrap gap-2">
+                            <button type="button" class="btn btn-primary waves-effect waves-light" id="filterData" onclick="filterData();">
+                                <i class="ri-equalizer-fill me-1 align-bottom"></i>
+                                Filter
+                            </button>
+                            <button type="button" class="btn btn-danger waves-effect waves-light" id="removeFilters" onclick="resetFilters();">
+                                <i class="ri-close-line"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <!--end col-->
+                </div>
+                <!--end row-->
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end row -->
 
 <div class="row">
     @if (!$user->applicant)

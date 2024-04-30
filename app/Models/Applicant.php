@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Jobs\UpdateApplicantData;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Log;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
-use Illuminate\Support\Facades\Log;
-use App\Jobs\UpdateApplicantData;
 
 class Applicant extends Model
 {
@@ -293,7 +294,8 @@ class Applicant extends Model
                 'applicant_total_data_id' => $yearlyDataId,
                 'category_id' => $categoryId,
                 'category_type' => $categoryType,
-                'month' => now()->format('M')
+                'month' => now()->format('M'),
+                'created_at' => Carbon::now()->startOfMonth(),
             ], [
                 'count' => 0 // default count
             ]);
@@ -348,7 +350,7 @@ class Applicant extends Model
             'applicant_total_data_id' => $yearlyDataId,
             'category_id' => $categoryId,
             'category_type' => $categoryType,
-            'month' => now()->format('M')
+            'month' => now()->format('M'),
         ])->first();
 
         if ($monthlyData) {

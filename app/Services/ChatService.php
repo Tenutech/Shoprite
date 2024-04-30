@@ -167,7 +167,8 @@ class ChatService
                 [
                     'chat_total_data_id' => $yearlyData->id,
                     'chat_type' => $type == 1 ? 'Incoming' : 'Outgoing',
-                    'month' => ucwords($currentMonth)
+                    'month' => ucwords($currentMonth),
+                    'created_at' => Carbon::now()->startOfMonth()
                 ],
                 ['count' => 1] // Initial count value
             );

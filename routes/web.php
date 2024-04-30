@@ -29,6 +29,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     //Home
     Route::get('/home', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.home');
 
+    Route::post('/home', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.filter');
+
     //Vacancy Approvals
     Route::get('/approvals', [App\Http\Controllers\ApprovalController::class, 'index'])->name('approvals.index');
 

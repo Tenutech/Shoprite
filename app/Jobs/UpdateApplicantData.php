@@ -143,6 +143,7 @@ class UpdateApplicantData implements ShouldQueue
             'category_id' => $categoryId,
             'category_type' => $categoryType,
             'month' => Carbon::now()->format('M'),
+            'created_at' => Carbon::now()->startOfMonth(),
         ], [
             'count' => 0 // Ensures a default count is set if a new record is created
         ]);

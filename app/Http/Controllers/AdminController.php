@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Language;
 use App\Models\User;
 use App\Models\Race;
 use App\Models\Message;
@@ -12,6 +13,11 @@ use App\Models\Application;
 use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
+
+use App\Services\ActivityLogService;
+use App\Services\DataService\ApplicantDataService;
+use App\Services\DataService\ChatDataService;
+
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -21,19 +27,29 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Spatie\Activitylog\Models\Activity;
-use App\Models\Language;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
 class AdminController extends Controller
 {
+    protected $activityLogService;
+    protected $applicantDataService;
+    protected $chatDataService;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(
+        ActivityLogService $activityLogService, 
+        ApplicantDataService $applicantDataService,
+        ChatDataService $chatDataService)
     {
+        $this->activityLogService = $activityLogService;
+        $this->applicantDataService = $applicantDataService;
+        $this->chatDataService = $chatDataService;
+
         $this->middleware(['auth', 'verified']);
     }
 
@@ -43,59 +59,37 @@ class AdminController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-    /*
-    |--------------------------------------------------------------------------
-    | Admin Index
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Display a listing of the resource.
+     *
+     * This method handles the GET request to list resources. It might use request parameters
+     * to filter or sort the returned resources based on specific criteria provided in the
+     * request. This could include pagination, filtering by specific attributes, or sorting.
+     *
+     * @param  \Illuminate\Http\Request  $request  The request object containing any request parameters.
+     * @return \Illuminate\Http\Response  Returns an HTTP response with the list of resources.
+     */
     public function index(Request $request)
     {
         if (view()->exists('admin/home')) {
+
             // Define the models that are relevant for the activity log.
             $allowedModels = [
-                'App\Models\Applicant', 
-                'App\Models\Application', 
-                'App\Models\Vacancy', 
-                'App\Models\Message', 
+                'App\Models\Applicant',
+                'App\Models\Application',
+                'App\Models\Vacancy',
+                'App\Models\Message',
                 'App\Models\User'
             ];
 
             // Retrieve the ID of the currently authenticated user.
             $authUserId = Auth::id();
+
             // Get a list of IDs for vacancies that are associated with the authenticated user.
             $authVacancyIds = Vacancy::where('user_id', $authUserId)->pluck('id')->toArray();
 
             // Query the activity log, filtering for activities related to the allowed models.
-            $activities = Activity::whereIn('subject_type', $allowedModels)
-                ->where(function($query) use ($authUserId, $authVacancyIds) {
-                    // Filter for activities where the 'causer' (the user who performed the action) is the authenticated user,
-                    // and the action is one of 'created', 'updated', or 'deleted'.
-                    $query->where('causer_id', $authUserId)
-                        ->whereIn('event', ['created', 'updated', 'deleted']);
-                })
-                ->orWhere(function($q) use ($authUserId) {
-                    // Include activities where the event is 'accessed' (e.g., a user viewed a vacancy or applicant profile),
-                    // specifically for the authenticated user.
-                    $q->where('event', 'accessed')
-                    ->whereIn('description', ['job-overview.index', 'applicant-profile.index'])
-                    ->where('causer_id', $authUserId);
-                })
-                ->orWhere(function($q) use ($authUserId) {
-                    // Include activities related to messages where the authenticated user is the recipient ('to_id').
-                    $q->where('subject_type', 'App\Models\Message')
-                    ->where('properties->attributes->to_id', $authUserId)
-                    ->where('event', 'created');
-                })
-                ->orWhere(function($q) use ($authVacancyIds) {
-                    // Include activities related to applications connected to any of the vacancies owned by the authenticated user.
-                    $q->where('subject_type', 'App\Models\Application')
-                    ->whereIn('properties->attributes->vacancy_id', $authVacancyIds);
-                })
-                ->latest() // Order the results by the most recent first.
-                ->limit(10) // Limit the results to the 10 most recent activities.
-                ->get(); // Execute the query and get the results
-
+            $activities = $this->activityLogService->getActivityLog($allowedModels, $authUserId, $authVacancyIds);
             // Filter activities to get only those related to vacancies.
             $vacancyActivities = $activities->where('subject_type', 'App\Models\Vacancy');
             // Extract the IDs of the affected vacancies from these activities.
@@ -103,8 +97,8 @@ class AdminController extends Controller
 
             // Retrieve the vacancies along with their related models like position, store's brand, store's town, and type.
             $vacanciesWithRelations = Vacancy::with(['position', 'store.brand', 'store.town', 'type'])
-                                            ->whereIn('id', $vacancyIds)
-                                            ->get();
+                ->whereIn('id', $vacancyIds)
+                ->get();
 
             // Associate each activity with its corresponding vacancy by setting a relation.
             foreach ($vacancyActivities as $activity) {
@@ -113,6 +107,7 @@ class AdminController extends Controller
 
             // Filter activities to get only those related to messages.
             $messageActivities = $activities->where('subject_type', 'App\Models\Message');
+
             // Extract the IDs of the messages from these activities.
             $ids = $messageActivities->pluck('subject_id');
 
@@ -126,6 +121,7 @@ class AdminController extends Controller
 
             // Filter activities to get only those related to applications.
             $applicationActivities = $activities->where('subject_type', 'App\Models\Application');
+
             // Extract the IDs of the applications from these activities.
             $connectionIds = $applicationActivities->pluck('subject_id');
 
@@ -139,12 +135,12 @@ class AdminController extends Controller
 
             // For activities where messages have been deleted, extract the 'to_id' from the old properties.
             $deletedMessageUserIds = $activities->where('subject_type', 'App\Models\Message')
-                                                ->where('event', 'deleted')
-                                                ->map(function ($activity) {
-                                                    return data_get($activity, 'properties.old.to_id');
-                                                })
-                                                ->filter()
-                                                ->unique();
+                ->where('event', 'deleted')
+                ->map(function ($activity) {
+                    return data_get($activity, 'properties.old.to_id');
+                })
+                ->filter()
+                ->unique();
 
             // Retrieve the users associated with the deleted messages.
             $usersForDeletedMessages = User::whereIn('id', $deletedMessageUserIds)->get();
@@ -156,32 +152,32 @@ class AdminController extends Controller
             foreach ($deletedMessageActivities as $activity) {
                 $toId = data_get($activity, 'properties.old.to_id');
                 $activity->setRelation('userForDeletedMessage', $usersForDeletedMessages->firstWhere('id', $toId));
-            }           
+            }
 
             // Extract the encrypted IDs from the URL of the 'accessed' activities for vacancies.
             $accessedVacancyEncryptedIds = $activities->where('event', 'accessed')
-            ->where('description', 'job-overview.index')
-            ->map(function ($activity) {
-                // Get the URL from the activity's properties.
-                return data_get($activity, 'properties.url');
-            })
-            ->map(function($url) {
-                // Split the URL into segments and get the last segment, which is the encrypted ID.
-                $segments = explode('/', $url);
-                $encryptedId = count($segments) > 1 ? last($segments) : null;
+                ->where('description', 'job-overview.index')
+                ->map(function ($activity) {
+                    // Get the URL from the activity's properties.
+                    return data_get($activity, 'properties.url');
+                })
+                ->map(function ($url) {
+                    // Split the URL into segments and get the last segment, which is the encrypted ID.
+                    $segments = explode('/', $url);
+                    $encryptedId = count($segments) > 1 ? last($segments) : null;
 
-                // Attempt to decrypt the encrypted ID.
-                if ($encryptedId) {
-                    try {
-                        return Crypt::decryptString($encryptedId);
-                    } catch (\Exception $e) {
-                        // If decryption fails, return null.
-                        return null;
+                    // Attempt to decrypt the encrypted ID.
+                    if ($encryptedId) {
+                        try {
+                            return Crypt::decryptString($encryptedId);
+                        } catch (\Exception $e) {
+                            // If decryption fails, return null.
+                            return null;
+                        }
                     }
-                }
-                return null;
-            })
-            ->filter(); // Remove any null values from the collection.
+                    return null;
+                })
+                ->filter(); // Remove any null values from the collection.
 
             // Retrieve the vacancies that have been accessed using the decrypted IDs.
             $accessedOpportunities = Vacancy::whereIn('id', $accessedVacancyEncryptedIds)->get();
@@ -206,25 +202,25 @@ class AdminController extends Controller
 
             // Extract the encrypted IDs from the URL of the 'accessed' activities for applicants.
             $accessedApplicantEncryptedIds = $activities->where('event', 'accessed')
-            ->where('description', 'applicant-profile.index')
-            ->map(function ($activity) {
-                // Parse the URL to get the query string, then extract the 'id' parameter.
-                parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
-                return $queryParams['id'] ?? null;
-            })
-            ->map(function($encryptedId) {
-                // Attempt to decrypt the encrypted ID.
-                if ($encryptedId) {
-                    try {
-                        return Crypt::decryptString($encryptedId);
-                    } catch (\Exception $e) {
-                        // If decryption fails, return null.
-                        return null;
+                ->where('description', 'applicant-profile.index')
+                ->map(function ($activity) {
+                    // Parse the URL to get the query string, then extract the 'id' parameter.
+                    parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
+                    return $queryParams['id'] ?? null;
+                })
+                ->map(function ($encryptedId) {
+                    // Attempt to decrypt the encrypted ID.
+                    if ($encryptedId) {
+                        try {
+                            return Crypt::decryptString($encryptedId);
+                        } catch (\Exception $e) {
+                            // If decryption fails, return null.
+                            return null;
+                        }
                     }
-                }
-                return null;
-            })
-            ->filter(); // Remove any null values from the collection.
+                    return null;
+                })
+                ->filter(); // Remove any null values from the collection.
 
             // Retrieve the applicants that have been accessed using the decrypted IDs.
             $accessedApplicants = Applicant::whereIn('id', $accessedApplicantEncryptedIds)->get();
@@ -251,29 +247,62 @@ class AdminController extends Controller
                 }
             }
 
-            //Positions
+            // Positions
             $positions = Position::withCount('users')
                 ->whereNotIn('id', [1, 10])
                 ->orderBy('users_count', 'desc')
                 ->take(10)
                 ->get();
 
-            //Current Year
+            /**
+             * This whole section is geared to get the current year and previous year
+             */
+            // Current Year
             $currentYear = now()->year;
             $currentMonth = now()->month - 1;
             $previousYear = $currentYear - 1;
+            $months = [];
 
-            $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            if (request()->isMethod('post')) {
+                if ($request->fromDateTime && $request->toDateTime) {
+                    
+                    $fromDateTime = $request->fromDateTime;
+                    $toDateTime = $request->toDateTime;
+                   
+                    $startOfYear = Carbon::createFromFormat('Y-m-d\TH:i', $fromDateTime);
+                    $endOfYear = Carbon::createFromFormat('Y-m-d\TH:i', $toDateTime);
+                    
+                    $start = clone $startOfYear;
+                    
+                    while ($start->lessThanOrEqualTo($endOfYear)) {
+                        // Add the current month to the array
+                        $months[] = $start->format('M');
+                        
+                        // Move to the next month
+                        $start->addMonthNoOverflow();
+                    }
+                    
+                    $months = array_values($months);
+                } else {
+                  
+                    $startOfYear = Carbon::now()->subYear()->startOfYear();
+                    $endOfYear = Carbon::now()->subYear()->endOfYear();
+
+                    $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                }
+               
+            } else {
+                $startOfYear = Carbon::now()->subYear()->startOfYear();
+                $endOfYear = Carbon::now()->subYear()->endOfYear();
+
+                $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            }
+       
+            // This query could be removed since it is being used to check if data is present for a given year
+            $currentYearData = $this->applicantDataService
+                ->getApplicantTotalDataForDateRange($startOfYear, $endOfYear)->first();
             
-            // Determine months to query for the current year
-            $queryMonthsCurrentYear = array_slice($months, 0, $currentMonth + 1);
-            // Determine months to query for the previous year, excluding months overlapping with the current year
-            $queryMonthsPreviousYear = array_slice($months, $currentMonth + 1);
-
-            $currentYearData = ApplicantTotalData::where('year', $currentYear)->first();
-            $previousYearData = ApplicantTotalData::where('year', $currentYear - 1)->first();
-            $currentYearId = $currentYearData->id;
-            $previousYearId = $previousYearData->id;
+            $previousYearData = [];
 
             $applicantsPerProvince = [];
             $applicantsByRace = [];
@@ -287,36 +316,18 @@ class AdminController extends Controller
             $percentMovementAppointedPerMonth = 0;
             $percentMovementRejectedPerMonth = 0;
 
+           
             if ($currentYearData) {
                 // Fetch total applicants per province for the current year using the relation
-                $applicantsPerProvince = $currentYearData->monthlyData()
-                ->where('category_type', 'Province')
-                ->join('provinces', 'applicant_monthly_data.category_id', '=', 'provinces.id')
-                ->select('provinces.name', DB::raw('SUM(applicant_monthly_data.count) as total_applicants'))
-                ->groupBy('provinces.name')
-                ->get()
-                ->map(function ($item) {
-                    // Format for the chart
-                    return ['x' => $item->name, 'y' => (int) $item->total_applicants];
-                })
-                ->toArray();
-
+                $applicantsPerProvince = $this->applicantDataService->getApplicantsPerProvince($startOfYear, $endOfYear);
+                  
                 // Fetch applicants by race for the current year
-                $applicantsByRaceCurrentYear = ApplicantMonthlyData::join('races', 'applicant_monthly_data.category_id', '=', 'races.id')
-                ->where('applicant_total_data_id', $currentYearId)
-                ->whereIn('month', $queryMonthsCurrentYear)
-                ->where('category_type', 'Race')
-                ->get(['races.name as race_name', 'applicant_monthly_data.month', 'applicant_monthly_data.count']);
-
-                // Fetch applicants by race for the previous year
-                $applicantsByRacePreviousYear = ApplicantMonthlyData::join('races', 'applicant_monthly_data.category_id', '=', 'races.id')
-                ->where('applicant_total_data_id', $previousYearId)
-                ->whereIn('month', $queryMonthsPreviousYear)
-                ->where('category_type', 'Race')
-                ->get(['races.name as race_name', 'applicant_monthly_data.month', 'applicant_monthly_data.count']);
+                $applicantsByRaceCount = $this->applicantDataService->getApplicantsByRace(
+                    $startOfYear, 
+                    $endOfYear);
 
                 // Combine both year's data
-                $combinedApplicantsByRace = $applicantsByRacePreviousYear->concat($applicantsByRaceCurrentYear);
+                $combinedApplicantsByRace = $applicantsByRaceCount;
 
                 // Initialize the series array for the chart                
                 $combinedApplicantsByRace->groupBy('race_name')->each(function ($items, $raceName) use (&$applicantsByRace, $months, $currentMonth) {
@@ -336,36 +347,21 @@ class AdminController extends Controller
                         'name' => $raceName,
                         'data' => array_reverse($dataPoints), // Reverse to start with the most recent month
                     ];
-                });           
+                });
 
-                // Handle the previous year's data
-                if ($currentMonth < 11) {
-                    foreach (array_slice($months, $currentMonth + 1) as $month) {
-                        $monthKey = strtolower($month); // Convert month to the key format (e.g., 'jan', 'feb')
-                        $totalApplicantsPerMonth[] = $previousYearData->$monthKey ?? 0;
-                    }
-                }
-
-                // Add data for the current year up to the current month
-                foreach (array_slice($months, 0, $currentMonth + 1) as $month) {
-                    $monthKey = strtolower($month);
-                    $totalApplicantsPerMonth[] = $currentYearData->$monthKey ?? 0;
-                }
-
+                $totalApplicantsPerMonth = $this->applicantDataService->getApplicationsPerMonth(
+                    $startOfYear, 
+                    $endOfYear
+                );
+               
                 // Fetch application data for the current year
-                $applicationsCurrentYear = ApplicantMonthlyData::where('category_type', 'Application')
-                ->where('applicant_total_data_id', $currentYearId)
-                ->whereIn('month', $queryMonthsCurrentYear)
-                ->get(['month', 'count']);
-
-                // Fetch application data for the previous year
-                $applicationsPreviousYear = ApplicantMonthlyData::where('category_type', 'Application')
-                ->where('applicant_total_data_id', $previousYearId)
-                ->whereIn('month', $queryMonthsPreviousYear)
-                ->get(['month', 'count']);
-
+                $applicationsCurrentYear = $this->applicantDataService->getApplicationsCountPerMonth(
+                    $startOfYear, 
+                    $endOfYear
+                );
+ 
                 // Combine both year's data
-                $combinedApplications = $applicationsPreviousYear->concat($applicationsCurrentYear);
+                $combinedApplications = $applicationsCurrentYear;
 
                 // Process the combined data for visualization
                 $combinedApplications->groupBy('month')->each(function ($items, $month) use (&$applicationsPerMonth, $months) {
@@ -380,11 +376,11 @@ class AdminController extends Controller
                 //Percent movement from last month
                 $sumOfApplications = array_sum($applicationsPerMonth);
 
-                if(count($applicationsPerMonth) >= 2) {
+                if (count($applicationsPerMonth) >= 2) {
                     $lastMonthApplications = end($applicationsPerMonth);
                     $penultimateMonthApplications = $applicationsPerMonth[count($applicationsPerMonth) - 2];
-                
-                    if($sumOfApplications > 0) {
+
+                    if ($sumOfApplications > 0) {
                         $percentMovementApplicationsPerMonth = round((($lastMonthApplications - $penultimateMonthApplications) / $sumOfApplications) * 100, 2);
                     } else {
                         $percentMovementApplicationsPerMonth = 0;
@@ -394,25 +390,19 @@ class AdminController extends Controller
                 }
 
                 // Fetch interview data for the current year
-                $interviewsCurrentYear = ApplicantMonthlyData::where('category_type', 'Interviewed')
-                ->where('applicant_total_data_id', $currentYearId)
-                ->whereIn('month', $queryMonthsCurrentYear)
-                ->get(['month', 'count']);
-
-                // Fetch interview data for the previous year
-                $interviewsPreviousYear = ApplicantMonthlyData::where('category_type', 'Interviewed')
-                ->where('applicant_total_data_id', $previousYearId)
-                ->whereIn('month', $queryMonthsPreviousYear)
-                ->get(['month', 'count']);
+                $interviewsCountsPerMonth = $this->applicantDataService->getInterviewsCountPerMonth(
+                    $startOfYear, 
+                    $endOfYear
+                );
 
                 // Combine both year's data
-                $combinedInterviews = $interviewsPreviousYear->concat($interviewsCurrentYear);
+                $combinedInterviews = $interviewsCountsPerMonth;
 
                 // Process the combined data for visualization
                 $combinedInterviews->groupBy('month')->each(function ($items, $month) use (&$interviewedPerMonth, $months) {
-                $totalInterviews = $items->sum('count'); // Sum up interviews for the month
+                    $totalInterviews = $items->sum('count'); // Sum up interviews for the month
 
-                $index = array_search($month, $months);
+                    $index = array_search($month, $months);
                     if ($index !== false) {
                         $interviewedPerMonth[] = $totalInterviews;
                     }
@@ -421,11 +411,11 @@ class AdminController extends Controller
                 //Percent movement from last month
                 $sumOfInterviewed = array_sum($interviewedPerMonth);
 
-                if(count($interviewedPerMonth) >= 2) {
+                if (count($interviewedPerMonth) >= 2) {
                     $lastMonthInterviewed = end($interviewedPerMonth);
                     $penultimateMonthInterviewed = $interviewedPerMonth[count($interviewedPerMonth) - 2];
-                
-                    if($sumOfInterviewed > 0) {
+
+                    if ($sumOfInterviewed > 0) {
                         $percentMovementInterviewedPerMonth = round((($lastMonthInterviewed - $penultimateMonthInterviewed) / $sumOfInterviewed) * 100, 2);
                     } else {
                         $percentMovementInterviewedPerMonth = 0;
@@ -435,25 +425,19 @@ class AdminController extends Controller
                 }
 
                 // Fetch appointed data for the current year
-                $appointedCurrentYear = ApplicantMonthlyData::where('category_type', 'Appointed')
-                ->where('applicant_total_data_id', $currentYearId)
-                ->whereIn('month', $queryMonthsCurrentYear)
-                ->get(['month', 'count']);
-
-                // Fetch appointed data for the previous year
-                $appointedPreviousYear = ApplicantMonthlyData::where('category_type', 'Appointed')
-                ->where('applicant_total_data_id', $previousYearId)
-                ->whereIn('month', $queryMonthsPreviousYear)
-                ->get(['month', 'count']);
+                $appointedCountPerMonth = $this->applicantDataService->getAppointedCountPerMonth(
+                    $startOfYear, 
+                    $endOfYear
+                );
 
                 // Combine both year's data
-                $combinedAppointed = $appointedPreviousYear->concat($appointedCurrentYear);
+                $combinedAppointed = $appointedCountPerMonth;
 
                 // Process the combined data for visualization
                 $combinedAppointed->groupBy('month')->each(function ($items, $month) use (&$appointedPerMonth, $months) {
-                $totalAppointed = $items->sum('count'); // Sum up appointed for the month
+                    $totalAppointed = $items->sum('count'); // Sum up appointed for the month
 
-                $index = array_search($month, $months);
+                    $index = array_search($month, $months);
                     if ($index !== false) {
                         $appointedPerMonth[] = $totalAppointed;
                     }
@@ -462,11 +446,11 @@ class AdminController extends Controller
                 //Percent movement from last month
                 $sumOfAppointed = array_sum($appointedPerMonth);
 
-                if(count($appointedPerMonth) >= 2) {
+                if (count($appointedPerMonth) >= 2) {
                     $lastMonthAppointed = end($appointedPerMonth);
                     $penultimateMonthAppointed = $appointedPerMonth[count($appointedPerMonth) - 2];
-                
-                    if($sumOfAppointed > 0) {
+
+                    if ($sumOfAppointed > 0) {
                         $percentMovementAppointedPerMonth = round((($lastMonthAppointed - $penultimateMonthAppointed) / $sumOfAppointed) * 100, 2);
                     } else {
                         $percentMovementAppointedPerMonth = 0;
@@ -476,25 +460,19 @@ class AdminController extends Controller
                 }
 
                 // Fetch rejected data for the current year
-                $rejectedCurrentYear = ApplicantMonthlyData::where('category_type', 'Rejected')
-                ->where('applicant_total_data_id', $currentYearId)
-                ->whereIn('month', $queryMonthsCurrentYear)
-                ->get(['month', 'count']);
-
-                // Fetch rejected data for the previous year
-                $rejectedPreviousYear = ApplicantMonthlyData::where('category_type', 'Rejected')
-                ->where('applicant_total_data_id', $previousYearId)
-                ->whereIn('month', $queryMonthsPreviousYear)
-                ->get(['month', 'count']);
-
+                $rejectedApplicantsPerMonth = $this->applicantDataService->getRejectedApplicants(
+                    $startOfYear, 
+                    $endOfYear
+                );
+                
                 // Combine both year's data
-                $combinedRejected = $rejectedPreviousYear->concat($rejectedCurrentYear);
+                $combinedRejected = $rejectedApplicantsPerMonth;
 
                 // Process the combined data for visualization
                 $combinedRejected->groupBy('month')->each(function ($items, $month) use (&$rejectedPerMonth, $months) {
-                $totalRejected = $items->sum('count'); // Sum up rejected for the month
+                    $totalRejected = $items->sum('count'); // Sum up rejected for the month
 
-                $index = array_search($month, $months);
+                    $index = array_search($month, $months);
                     if ($index !== false) {
                         $rejectedPerMonth[] = $totalRejected;
                     }
@@ -503,11 +481,11 @@ class AdminController extends Controller
                 //Percent movement from last month
                 $sumOfRejected = array_sum($rejectedPerMonth);
 
-                if(count($rejectedPerMonth) >= 2) {
+                if (count($rejectedPerMonth) >= 2) {
                     $lastMonthRejected = end($rejectedPerMonth);
                     $penultimateMonthRejected = $rejectedPerMonth[count($rejectedPerMonth) - 2];
-                
-                    if($sumOfRejected > 0) {
+
+                    if ($sumOfRejected > 0) {
                         $percentMovementRejectedPerMonth = round((($lastMonthRejected - $penultimateMonthRejected) / $sumOfRejected) * 100, 2);
                     } else {
                         $percentMovementRejectedPerMonth = 0;
@@ -517,42 +495,33 @@ class AdminController extends Controller
                 }
             }
 
-            //Message Data
-            $currentYearChatData = ChatTotalData::where('year', $currentYear)->first();
-            $previousYearChatData = ChatTotalData::where('year', $previousYear)->first();
+            // Message Data
+            $incomingData = $this->chatDataService->getIncomingChat($startOfYear, $endOfYear);
+            $outgoingData = $this->chatDataService->getOutgoingChat($startOfYear, $endOfYear);
 
-            $totalIncomingMessages = $currentYearChatData->total_incoming + $previousYearChatData->total_incoming;
-            $totalOutgoingMessages = $currentYearChatData->total_outgoing + $previousYearChatData->total_outgoing;
-
+            $totalIncomingMessages = 0;
+            $totalOutgoingMessages = 0;
             $incomingMessages = [];
             $outgoingMessages = [];
-
-            if ($currentYearData) {
-                // Handle data from the previous year, if current month is not January
-                if ($currentMonth < 11) {
-                    foreach (array_slice($months, $currentMonth + 1) as $month) {
-                        $monthIncoming = strtolower($month) . '_incoming';
-                        $monthOutgoing = strtolower($month) . '_outgoing';
-                        $incomingMessages[] = $previousYearChatData->$monthIncoming ?? 0;
-                        $outgoingMessages[] = $previousYearChatData->$monthOutgoing ?? 0;
-                    }
-                }
-
-                // Add data for the current year, including the current month
-                foreach (array_slice($months, 0, $currentMonth + 1) as $month) {
-                    $monthIncoming = strtolower($month) . '_incoming';
-                    $monthOutgoing = strtolower($month) . '_outgoing';
-                    $incomingMessages[] = $currentYearChatData->$monthIncoming ?? 0;
-                    $outgoingMessages[] = $currentYearChatData->$monthOutgoing ?? 0;
-                }
+            
+            foreach ($incomingData as $value) {
+                $monthNumber = Carbon::createFromFormat('F', $value->month)->month;
+                $incomingMessages[] = $value->count;
+                $totalIncomingMessages += $value->count;
+            }
+      
+            foreach ($outgoingData as $value) {
+                $monthNumber = Carbon::createFromFormat('F', $value->month)->month;
+                $outgoingMessages[] = $value->count;
+                $totalOutgoingMessages += $value->count;
             }
 
             // Fetch applicants positions
             $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
-            ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
-            ->where('applicant_monthly_data.category_type', 'Position')
-            ->groupBy('positions.name')
-            ->get();
+                ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
+                ->where('applicant_monthly_data.category_type', 'Position')
+                ->groupBy('positions.name')
+                ->get();
 
             $applicantsByPosition = $positionsTotals->map(function ($item) {
                 return [
@@ -560,8 +529,17 @@ class AdminController extends Controller
                     'data' => [$item->total]
                 ];
             })->all();
+            
+            // echo '<pre>';
+            // // print_r($this->chatDataService->getIncomingChat("2024-01-01", "2024-12-31"));
+            // print_r($incomingMessages);
+            // print_r($outgoingMessages);
+            // print_r($totalApplicantsPerMonth);
 
-            return view('admin/home',[
+            // print_r($months);
+            // exit;
+
+            return view('admin/home', [
                 'activities' => $activities,
                 'positions' => $positions,
                 'currentYearData' => $currentYearData,
@@ -578,14 +556,15 @@ class AdminController extends Controller
                 'interviewedPerMonth' => $interviewedPerMonth,
                 'appointedPerMonth' => $appointedPerMonth,
                 'rejectedPerMonth' => $rejectedPerMonth,
+                'months' => $months,
                 'percentMovementApplicationsPerMonth' => $percentMovementApplicationsPerMonth,
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                'startOfYear' => $startOfYear,
+                'endOfYear' => $endOfYear,
             ]);
         }
         return view('404');
     }
-
-
 }
