@@ -38,9 +38,12 @@ class SendWhatsAppMessage implements ShouldQueue
         $messageData = [
             [
                 'message' => $this->message,
-                'template' => $this->template
+                'template' => $this->template,
+                'variables' => $this->template === 'free_message' ? [$this->applicant->firstname, $this->message] : []
             ]
         ];
+
+        Log::info($messageData);
 
         $chatService = app(ChatService::class); // Resolve ChatService from the container
         $chatService->sendAndLogMessages($this->applicant, $messageData, $client, $to, $from, $token);

@@ -1364,8 +1364,6 @@ class ChatService
                     'headers' => ['Authorization' => "Bearer $token"]
                 ]);
 
-                Log::info($url);
-
                 if ($response->getStatusCode() == 200) {
                     $data = json_decode($response->getBody(), true);
                     $mediaUrl = $data['url'] ?? null;
@@ -1385,8 +1383,6 @@ class ChatService
                                 'jpg' => 'image/jpg',
                                 'png' => 'image/png'
                             ]) ?: 'jpg'; // Default to jpg if no match found
-
-                            Log::info($fileExtension);
     
                             $fileName = $applicant->firstname . ' ' . $applicant->lastname . '-' . time() . '.' . $fileExtension;
                             $filePath = public_path('/images/' . $fileName);
@@ -1492,7 +1488,6 @@ class ChatService
                 case 'other':
                     $position = 10;
                     break;
-                    
             }
 
             if ($position && $position !== 10) {
@@ -4369,6 +4364,8 @@ class ChatService
     */
 
     public function sendAndLogMessages($applicant, $messages, $client, $to, $from, $token) {
+        static $lastMessage = null; // Static variable to remember the last message se
+
         foreach ($messages as $messageData) { // Ensure $messageData is used to clarify it's an array from messages
                 try {
                     // Check if $messageData is a string and adjust accordingly
@@ -4379,6 +4376,11 @@ class ChatService
                     $body = $messageData['message'];
                     $template = $messageData['template'] ?? null;
                     $variables = $messageData['variables'] ?? [];
+                }
+
+                // Check if current message is the same as the last one
+                if ($lastMessage === $body) {
+                    continue; // Skip sending this message
                 }
     
                 // Prepare the API URL
@@ -4417,6 +4419,9 @@ class ChatService
                     ],
                     'body' => json_encode($payload)
                 ]);
+
+                // Update the last message sent
+                $lastMessage = $body;
     
                 // Log the outgoing message
                 $this->logMessage($applicant->id, $body, 2);
