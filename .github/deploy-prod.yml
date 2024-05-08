@@ -1,0 +1,18 @@
+name: Deploy to Prod
+
+on:
+  push:
+    branches:
+      - release
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      # Add steps to deploy to the prod environment
+      - name: Deploy to Prod Server
+        run: |
+          ssh tenutech@tenutech.asuscomm.com -p 2222 'echo "Deploying to Prod!"'

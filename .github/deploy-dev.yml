@@ -1,0 +1,19 @@
+name: Deploy to Dev
+
+on:
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Install SSH key
+        run: echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+
+      - name: Deploy to Dev
+        run: ssh -i ~/.ssh/id_rsa -p 2222 tenutech@tenutech.asuscomm.com 'echo "Deployment successful!"'
+
