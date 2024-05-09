@@ -1,4 +1,4 @@
-name: Deploy to Dev
+name: Deploy to Production
 
 on:
   push:
@@ -24,11 +24,6 @@ jobs:
         with:
           path: ~/.composer/cache/files
           key: dependencies-composer-${{ hashFiles('composer.json') }}
-
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '8.2.4'
 
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader
@@ -60,6 +55,4 @@ jobs:
             cd /var/www/orient
             git pull origin master
             composer install --no-dev --optimize-autoloader
-          # php artisan migrate --force
             php artisan optimize
-          # php artisan up
