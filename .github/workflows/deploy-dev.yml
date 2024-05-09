@@ -37,8 +37,8 @@ jobs:
       # - name: Execute tests
       #   run: vendor/bin/phpunit --verbose
 
-      - name: Generate optimized autoload files and clear cache
-        run: composer dump-autoload --optimize && php artisan optimize:clear
+      # - name: Install Composer dependencies
+      #   run: composer install --no-dev --optimize-autoloader
         
       - name: Executing remote SSH commands using SSH key
         uses: appleboy/ssh-action@v1.0.3
