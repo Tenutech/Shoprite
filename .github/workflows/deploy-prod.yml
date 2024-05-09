@@ -13,6 +13,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+        uses: php-actions/phpunit@v3
       
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
@@ -34,8 +35,8 @@ jobs:
       # - name: Compile assets
       #   run: npm run production
 
-      - name: Execute tests
-        run: vendor/bin/phpunit --verbose
+      # - name: Execute tests
+      #   run: vendor/bin/phpunit --verbose
 
       - name: Generate optimized autoload files and clear cache
         run: composer dump-autoload --optimize && php artisan optimize:clear
