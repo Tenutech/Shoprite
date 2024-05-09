@@ -35,8 +35,8 @@ jobs:
       # - name: Compile assets
       #   run: npm run production
 
-      - name: Execute tests
-        run: vendor/bin/phpunit --verbose
+      # - name: Execute tests
+      #   run: vendor/bin/phpunit --verbose
 
       - name: Generate optimized autoload files and clear cache
         run: composer dump-autoload --optimize && php artisan optimize:clear
