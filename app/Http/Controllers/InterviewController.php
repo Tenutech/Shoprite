@@ -148,6 +148,8 @@ class InterviewController extends Controller
             // An error occurred; cancel the transaction
             DB::rollBack();
 
+            Log::error($e);
+
             // Return an error response
             return response()->json([
                 'success' => false, 
@@ -233,7 +235,7 @@ class InterviewController extends Controller
             $personalizedMessage = $this->replacePlaceholders($message->message, $dataToReplace);
     
             // Dispatch the job to send WhatsApp messages
-            SendWhatsAppMessage::dispatch($applicant, $personalizedMessage);
+            SendWhatsAppMessage::dispatch($applicant, $personalizedMessage, $message->template);
         }
     }
 

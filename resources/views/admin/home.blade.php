@@ -7,48 +7,6 @@
 @section('content')
 
 <div class="row">
-    <div class="col-lg-12">
-        <div class="card">
-            <div class="card-body bg-light-subtle">
-                <div class="row g-3">
-
-                    <div class="col-xxl-2 col-sm-4">
-                        <div class="input-light">
-                            <label for="fromDateTime">From:</label>
-                            <input type="datetime-local" class="form-control search bg-light border-light" id="fromDateTime" autocomplete="off">
-                        </div>
-                    </div>
-                     <!--end col-->
-
-                    <div class="col-xxl-2 col-sm-4">
-                        <div class="input-light">
-                            <label for="toDateTime">To:</label>
-                            <input type="datetime-local" class="form-control search bg-light border-light" id="toDateTime" autocomplete="off">
-                        </div>
-                    </div>
-                    <!--end col-->
-
-                    <div class="col-xxl-2 col-sm-4 d-flex">
-                        <div class="d-flex flex-wrap gap-2">
-                            <button type="button" class="btn btn-primary waves-effect waves-light" id="filterData" onclick="filterData();">
-                                <i class="ri-equalizer-fill me-1 align-bottom"></i>
-                                Filter
-                            </button>
-                            <button type="button" class="btn btn-danger waves-effect waves-light" id="removeFilters" onclick="resetFilters();">
-                                <i class="ri-close-line"></i>
-                            </button>
-                        </div>
-                    </div>
-                    <!--end col-->
-                </div>
-                <!--end row-->
-            </div>
-        </div>
-    </div>
-</div>
-<!-- end row -->
-
-<div class="row">
     <div class="col">
 
         <div class="h-100">

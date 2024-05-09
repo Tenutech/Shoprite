@@ -1557,13 +1557,13 @@
         var numeracy = "{{ $applicant->numeracy }}";
     </script>
 
-    <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js') }}"></script>
-    <script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/applicant-profile.init.js') }}"></script>
-
     <script>
         var chatsData = @json($applicant->chats);
     </script>
+
+    <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js') }}"></script>
+    <script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/applicant-profile.init.js') }}"></script>
 
     <!-- Chat-->
     <script src="{{ URL::asset('build/libs/glightbox/js/glightbox.min.js') }}"></script>
