@@ -12,7 +12,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-        uses: php-actions/phpunit@v3
        
       - name: Set up PHP
         uses: shivammathur/setup-php@v2
