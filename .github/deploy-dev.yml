@@ -1,19 +1,77 @@
 name: Deploy to Dev
 
 on:
+  push:
+    branches:
+      - development
   workflow_dispatch:
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
+      
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2.4'
 
-      - name: Install SSH key
-        run: echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa && chmod 600 ~/.ssh/id_rsa
+<<<<<<< HEAD
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-composer-${{ hashFiles('composer.json') }}
 
-      - name: Deploy to Dev
-        run: ssh -i ~/.ssh/id_rsa -p 2222 tenutech@tenutech.asuscomm.com 'echo "Deployment successful!"'
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2.4'
 
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Install NPM dependencies
+        run: npm install
+
+      - name: Compile assets
+        run: npm run production
+
+      - name: Execute tests
+        run: vendor/bin/phpunit --verbose
+
+      - name: Generate optimized autoload files and clear cache
+        run: composer dump-autoload --optimize && php artisan optimize:clear
+
+=======
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Generate optimized autoload files and clear cache
+        run: composer dump-autoload --optimize && php artisan optimize:clear
+
+>>>>>>> c3daade (Updated worklows for dev)
+      - name: Executing remote SSH commands using SSH key
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: tenutech.asuscomm.com
+          username: tenutech
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 2222
+          script: |
+            cd /var/www/orient
+            git pull origin development
+<<<<<<< HEAD
+            composer install --no-dev --optimize-autoloader
+          # php artisan migrate --force
+            php artisan optimize
+=======
+
+          # composer install --no-dev --optimize-autoloader
+          # php artisan migrate --force
+          # php artisan optimize
+>>>>>>> c3daade (Updated worklows for dev)
+          # php artisan up
