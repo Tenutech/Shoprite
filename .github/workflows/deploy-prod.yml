@@ -3,11 +3,11 @@ name: Deploy to Production
 on:
   push:
     branches:
-      - development
+      - master
   workflow_dispatch:
 
 jobs:
-  Test:
+  Build and Deploy:
     runs-on: ubuntu-latest
     
     steps:
@@ -31,8 +31,8 @@ jobs:
       - name: Install NPM dependencies
         run: npm install
 
-      - name: Compile assets
-        run: npm run production
+      # - name: Compile assets
+      #   run: npm run production
 
       - name: Execute tests
         run: vendor/bin/phpunit --verbose
@@ -40,10 +40,6 @@ jobs:
       - name: Generate optimized autoload files and clear cache
         run: composer dump-autoload --optimize && php artisan optimize:clear
 
-  Deploy:
-    runs-on: ubuntu-latest
-    
-    steps:
       - name: Executing remote SSH commands using SSH key
         uses: appleboy/ssh-action@v1.0.3
         with:
