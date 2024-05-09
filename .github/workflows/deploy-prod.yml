@@ -1,25 +1,54 @@
-name: Deploy to Prod
+name: Deploy to Production
 
 on:
+  push:
+    branches:
+      - master
   workflow_dispatch:
 
 jobs:
-  deploy:
+  Build and Deploy:
     runs-on: ubuntu-latest
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh/
-          echo "${{ secrets.SSH_PRIV_KEY }}" > ~/.ssh/id_rsa
-          echo "${{ secrets.SSH_PUB_KEY }}" > ~/.ssh/id_rsa.pub
-          chmod 600 ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa.pub
-          ssh-keyscan -H tenutech@tenutech.asuscomm.com >> ~/.ssh/known_hosts
       
-      # Add steps to deploy to the production environment
-      - name: Deploy to Production Server
-        run: |
-          ssh tenutech@tenutech.asuscomm.com -p 2222 'echo "Deploying to Dev!"'
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2.4'
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-composer-${{ hashFiles('composer.json') }}
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Install NPM dependencies
+        run: npm install
+
+      # - name: Compile assets
+      #   run: npm run production
+
+      - name: Execute tests
+        run: vendor/bin/phpunit --verbose
+
+      - name: Generate optimized autoload files and clear cache
+        run: composer dump-autoload --optimize && php artisan optimize:clear
+
+      - name: Executing remote SSH commands using SSH key
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: tenutech.asuscomm.com
+          username: tenutech
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 2222
+          script: |
+            cd /var/www/orient
+            git pull origin master
+            composer install --no-dev --optimize-autoloader
+            php artisan optimize

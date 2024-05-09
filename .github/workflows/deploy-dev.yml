@@ -1,4 +1,4 @@
-name: Deploy to Dev
+name: Deploy to Development
 
 on:
   push:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  Build and Deploy:
     runs-on: ubuntu-latest
     
     steps:
@@ -19,12 +19,27 @@ jobs:
         with:
           php-version: '8.2.4'
 
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-composer-${{ hashFiles('composer.json') }}
+
       - name: Install Composer dependencies
         run: composer install --no-dev --optimize-autoloader
 
+      - name: Install NPM dependencies
+        run: npm install
+
+      # - name: Compile assets
+      #   run: npm run production
+
+      - name: Execute tests
+        run: vendor/bin/phpunit --verbose
+
       - name: Generate optimized autoload files and clear cache
         run: composer dump-autoload --optimize && php artisan optimize:clear
-
+        
       - name: Executing remote SSH commands using SSH key
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -35,8 +50,5 @@ jobs:
           script: |
             cd /var/www/orient
             git pull origin development
-
-          # composer install --no-dev --optimize-autoloader
-          # php artisan migrate --force
-          # php artisan optimize
-          # php artisan up
+            composer install --no-dev --optimize-autoloader
+            php artisan optimize
