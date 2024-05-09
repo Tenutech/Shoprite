@@ -19,7 +19,6 @@ jobs:
         with:
           php-version: '8.2.4'
 
-<<<<<<< HEAD
       - name: Cache dependencies
         uses: actions/cache@v1
         with:
@@ -46,14 +45,6 @@ jobs:
       - name: Generate optimized autoload files and clear cache
         run: composer dump-autoload --optimize && php artisan optimize:clear
 
-=======
-      - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader
-
-      - name: Generate optimized autoload files and clear cache
-        run: composer dump-autoload --optimize && php artisan optimize:clear
-
->>>>>>> c3daade (Updated worklows for dev)
       - name: Executing remote SSH commands using SSH key
         uses: appleboy/ssh-action@v1.0.3
         with:
@@ -64,14 +55,7 @@ jobs:
           script: |
             cd /var/www/orient
             git pull origin development
-<<<<<<< HEAD
             composer install --no-dev --optimize-autoloader
           # php artisan migrate --force
             php artisan optimize
-=======
-
-          # composer install --no-dev --optimize-autoloader
-          # php artisan migrate --force
-          # php artisan optimize
->>>>>>> c3daade (Updated worklows for dev)
           # php artisan up
