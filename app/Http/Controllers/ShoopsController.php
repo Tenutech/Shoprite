@@ -44,7 +44,7 @@ class ShoopsController extends Controller
     public function shoops(Request $request)
     {
         // Use the ChatService to process the incoming message.
-        $this->chatService->handleIncomingMessage($request->all());
+        $this->chatService->handleIncomingMessage($request->json()->all());
 
         // Respond to the request indicating the message has been received and processed.
         return response()->json(['message' => 'Received'], 200);

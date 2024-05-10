@@ -10,6 +10,8 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use GuzzleHttp\Client as GuzzleClient;
+use Illuminate\Support\Facades\Log;
 
 class SendWhatsAppMessage implements ShouldQueue
 {
@@ -17,21 +19,33 @@ class SendWhatsAppMessage implements ShouldQueue
 
     protected $applicant;
     protected $message;
+    protected $template;
 
-    public function __construct(Applicant $applicant, $message)
+    public function __construct(Applicant $applicant, $message, $template)
     {
         $this->applicant = $applicant;
         $this->message = $message;
+        $this->template = $template;
     }
 
     public function handle()
     {
-        $twilio = new Client(config('services.twilio.sid'), config('services.twilio.token'));
-        $to = 'whatsapp:' . $this->applicant->phone;
-        $from = config('services.twilio.whatsapp_number');
-        $service = config('services.twilio.service_sid');
+        $client = new GuzzleClient();
+        $to = $this->applicant->phone;
+        $from = config('services.meta.phone');
+        $token = config('services.meta.token');
+
+        $messageData = [
+            [
+                'message' => $this->message,
+                'template' => $this->template,
+                'variables' => $this->template === 'free_message' ? [$this->applicant->firstname, $this->message] : []
+            ]
+        ];
+
+        Log::info($messageData);
 
         $chatService = app(ChatService::class); // Resolve ChatService from the container
-        $chatService->sendAndLogMessages($this->applicant, [$this->message], $twilio, $to, $from, $service);
+        $chatService->sendAndLogMessages($this->applicant, $messageData, $client, $to, $from, $token);
     }
 }

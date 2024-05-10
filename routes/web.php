@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -657,6 +659,18 @@ Route::get('/terms-of-service', [App\Http\Controllers\HomeController::class, 'te
 Route::get('/security', [App\Http\Controllers\HomeController::class, 'security'])->name('security');
 
 Route::post('/shoops', [App\Http\Controllers\ShoopsController::class, 'shoops'])->name('shoops');
+
+Route::get('/shoops', function(Request $request) {
+    $hubVerifyToken = "RECRUITMENT";
+    $challenge = $request->query('hub_challenge');
+    $tokenSent = $request->query('hub_verify_token');
+
+    if ($tokenSent === $hubVerifyToken) {
+        return response($challenge);
+    } else {
+        return response()->json(['message' => 'Forbidden'], 403);
+    }
+});
 
 //Pages
 Route::get('{any}', [App\Http\Controllers\HomeController::class, 'index'])->name('index');

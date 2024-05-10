@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Chat;
 use App\Models\State;
@@ -58,7 +59,18 @@ class MessageController extends Controller
 
             // Send a WhatsApp message to the applicant
             $applicant = Applicant::find($applicantID);
-            SendWhatsAppMessage::dispatch($applicant, $request->message);
+
+            // Retrieve the last chat message for the applicant
+            $chat = Chat::where('applicant_id', $applicantID)->orderBy('created_at', 'desc')->first();
+
+            $template = null;
+
+            // Check if a chat record exists and if it's more than 24 hours old
+            if ($chat && $chat->created_at->lt(Carbon::now()->subDay(1))) {
+                $template = "free_message";
+            }
+
+            SendWhatsAppMessage::dispatch($applicant, $request->message, $template);
 
             // Retrieve the last chat message for the applicant
             $chat = Chat::where('applicant_id', $applicantID)->orderBy('created_at', 'desc')->first();

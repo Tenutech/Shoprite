@@ -15,8 +15,8 @@ public/hot
 public_html/storage
 public_html/hot
 
-storage/framework/views/*.php
 storage/*.key
+storage/framework/views/*.php
 .env
 Homestead.yaml
 Homestead.json

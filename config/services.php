@@ -30,6 +30,13 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'meta' => [
+        'token' => env('META_ACCESS_TOKEN'),
+        'phone' => env('META_PHONE_ID'),
+        'whatsapp_number' => env('META_WHATSAPP_NUMBER'),
+        'account' => env('META_WHATSAPP_BUSINESS_ACCOUNT_ID'),
+    ],
+
     'twilio' => [
         'sid' => env('TWILIO_SID'),
         'token' => env('TWILIO_AUTH_TOKEN'),
