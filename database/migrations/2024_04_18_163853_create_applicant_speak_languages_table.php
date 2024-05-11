@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('applicant_speak_languages', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('applicant_id')->index('applicant_read_languages_applicant_id_foreign');
-            $table->unsignedBigInteger('language_id')->index('applicant_read_languages_language_id_foreign');
+            $table->unsignedBigInteger('applicant_id');
+            $table->unsignedBigInteger('language_id');
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrent();
         });
