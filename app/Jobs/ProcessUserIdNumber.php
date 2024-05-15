@@ -67,7 +67,7 @@ class ProcessUserIdNumber implements ShouldQueue
             // Citizenship status (C)
             $resident = substr($person->id_number, 10, 1);
 
-            if ($this->isValidSAIdNumber($person->id_number)) {
+            if (ProcessUserIdNumber::isValidSAIdNumber($person->id_number)) {
                 $verified = 'Yes';
             } else {
                 $verified = 'No';
@@ -101,7 +101,7 @@ class ProcessUserIdNumber implements ShouldQueue
     /**
      * Check if the given ID number is a valid South African ID number.
      */
-    protected function isValidSAIdNumber($id): bool
+    public static function isValidSAIdNumber($id): bool
     {
         $id = preg_replace('/\D/', '', $id); // Ensure the ID is only digits
         if (strlen($id) != 13) {

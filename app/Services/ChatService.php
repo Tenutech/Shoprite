@@ -14,6 +14,7 @@ use App\Models\Notification;
 use App\Models\ChatTemplate;
 use App\Models\ScoreWeighting;
 use App\Models\ChatTotalData;
+use App\Models\ChatMonthlyData;
 use App\Jobs\ProcessUserIdNumber;
 use Twilio\Rest\Client;
 use App\Services\GoogleMapsService;
@@ -160,6 +161,22 @@ class ChatService
             // Increment the total and monthly counters
             $yearlyData->increment($totalField);
             $yearlyData->increment($monthField);
+
+            // Find or create ChatMonthlyData entry
+            $monthlyData = ChatMonthlyData::firstOrCreate(
+                [
+                    'chat_total_data_id' => $yearlyData->id,
+                    'chat_type' => $type == 1 ? 'Incoming' : 'Outgoing',
+                    'month' => ucwords($currentMonth)
+                ],
+                ['count' => 1] // Initial count value
+            );
+
+            // Increment the count
+            $monthlyData->increment('count');
+
+            // Save the ChatMonthlyData entry
+            $monthlyData->save();
     
         } catch (Exception $e) {
             Log::error("Error in logMessage: {$e->getMessage()}");
