@@ -260,6 +260,11 @@
                     Numeracy
                 </button>
 
+                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="is_available;Yes"> 
+                    <i class="ri-filter-3-line label-icon align-middle rounded-pill fs-16 me-2"></i>
+                    Available
+                </button>             
+
                 <div class="live-preview mt-4">
                     <div class="d-flex flex-wrap gap-2 align-items-center" id="filterBadges"></div>
                 </div>
@@ -348,7 +353,8 @@
     </div>
 </div>
 
-<div class="row gy-2 mb-2" id="candidate-list"></div>
+<div class="row gy-2 mb-2" id="candidate-list">
+</div>
 <!-- end row -->
 
 <div class="noresult" style="display: none">

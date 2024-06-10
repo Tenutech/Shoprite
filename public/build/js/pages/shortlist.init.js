@@ -240,7 +240,7 @@ function fetchData() {
         success: function(data) {
             if (data.success == true) {
                 allcandidateList = data.applicants;
-
+                console.log(allcandidateList);
                 if (allcandidateList.length === 0) {
                     // Hide the candidate list container and show the no result message
                     document.querySelector("#candidate-list").style.display = 'none';
@@ -438,6 +438,14 @@ function loadCandidateListData(datas, page) {
                         interviewAlert = `<div class="alert ${statusInfo.class} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
                                             <i class="${statusInfo.icon} label-icon"></i><strong>${statusInfo.text}: </strong>${formattedDate} at ${formattedTime}${additionalText}
                                           </div>`;
+
+                        if (interview.status === 'Declined' && interview.reason) {
+                            const reason = interview.reason ;
+                            interviewAlert = `<div class="alert ${statusInfo.class} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
+                                <i class="${statusInfo.icon} label-icon"></i><strong>${statusInfo.text}: </strong>${formattedDate} at ${formattedTime}${additionalText}
+                                Reason: <span>${reason}</span>
+                            </div>`;
+                        }
                     } else {
                         interviewAlert = `<div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
                                             <i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>${formattedDate} at ${formattedTime}
@@ -508,7 +516,7 @@ function loadCandidateListData(datas, page) {
                                         '+ (datas[i].town ? datas[i].town.name : 'N/A') + '\
                                     </div>\
                                 </div>\
-                                <div class="col-2">\
+                                <div class="col-1">\
                                     <i class="ri-time-line text-primary me-1 align-bottom"></i>'+ 
                                     (datas[i].type ? '<span class="badge bg-' + datas[i].type.color + '-subtle text-' + datas[i].type.color + '">' + datas[i].type.name + '</span>' : 'N/A') +
                                 '</div>\
@@ -519,7 +527,7 @@ function loadCandidateListData(datas, page) {
                                     </div>\
                                     '+ (interviewScore ? interviewScore : '') + '\
                                 </div>\
-                                <div class="col-2 text-end">\
+                                <div class="col-3 text-end">\
                                     <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'" class="btn btn-soft-primary">\
                                         View Details\
                                     </a>\

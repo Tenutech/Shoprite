@@ -282,6 +282,13 @@ class ShortlistController extends Controller
                         continue;
                     }
 
+                    if ($key === 'is_available') {
+                        $query->whereHas('interviews', function ($query) {
+                            $query->where('status', '!=', 'Declined'); // Add your specific where condition here
+                        });
+                        continue;
+                    }
+
                     if (is_array($values)) {
                         // If the filter is an array, use whereIn to filter for any of the values
                         $query->whereIn($key, $values);
@@ -316,10 +323,10 @@ class ShortlistController extends Controller
 
             // Get the selected checks from the request
             $selectedChecks = $request->input('checks', []);
-
+           
             // Execute the query and get the results
             $applicantsCollection = $query->get();
-
+       
             // Perform checks and assign statuses
             $this->performChecks($applicantsCollection, $selectedChecks);
 
