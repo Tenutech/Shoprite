@@ -291,11 +291,12 @@ class ShortlistController extends Controller
                     }
                 }
             }
-
+        
             if ($request->has('filters.coordinates')) {
                 $coordinatesFilter = $request->input('filters.coordinates');
                 // Extract the radius and coordinates from the filter
                 preg_match('/(\d+)km from: \((-?\d+\.\d+),\s*(-?\d+\.\d+)\)/', $coordinatesFilter, $matches);
+        
                 if ($matches) {
                     $radius = (int) $matches[1];
                     $latitude = (float) $matches[2];
@@ -307,7 +308,7 @@ class ShortlistController extends Controller
                     ]);
                 }
             }
-
+      
             // Apply the number limit if it is present in the request
             if ($request->has('number')) {
                 $number = (int) $request->input('number');

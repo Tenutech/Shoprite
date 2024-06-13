@@ -395,7 +395,7 @@
             <div class="modal-body">
                 <!-- Range Slider -->
                 <div id="rangeSlider" class="mb-3" data-rangeslider data-slider-color="primary"></div>
-                <span id="rangeValue" class="mb-3">Selected Range: 10km</span>
+                <span id="rangeValue" class="mb-3">Selected Range: 15km</span>
 
                 <!-- Google Maps -->
                 <div id="map" class="mt-3" style="height: 600px;"></div>
