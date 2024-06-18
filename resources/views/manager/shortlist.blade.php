@@ -59,7 +59,7 @@
 @slot('title') Shortlist @endslot
 @endcomponent
 
-<div class="row g-4 mb-4">
+<div class="row g-4 mb-4">    
     <div class="col-md-6">
         <div class="mb-3" id="applicantTypeChoice">
             <label for="vacancy" class="form-label">
@@ -556,6 +556,7 @@
 @endsection
 @section('script')
 <script type="text/javascript">
+    var storeSearchRadiusSetting = @json($storeSearchRadiusSetting);
     var shortlistedApplicants = @json($shortlistedApplicants);
     var vacancyID = @json($vacancyID);
 </script>

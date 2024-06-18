@@ -26,7 +26,7 @@ const filterTown = new Choices(selectTown, {
 
 var slider = document.getElementById('rangeSlider');
 noUiSlider.create(slider, {
-    start: 10,
+    start: storeSearchRadiusSetting,
     step: 1,
     connect: 'lower',
     range: {

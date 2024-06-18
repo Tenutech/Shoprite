@@ -19,6 +19,7 @@ use App\Models\Vacancy;
 use App\Models\Position;
 use App\Models\Duration;
 use App\Models\Language;
+use App\Models\Setting;
 use App\Models\Shortlist;
 use App\Models\Applicant;
 use App\Models\Education;
@@ -164,6 +165,10 @@ class ShortlistController extends Controller
             //Checks
             $checks = Check::get();
 
+            $storeSearchRadiusSetting = Setting::where('key', 'store_search_radius')->first();
+            $storeSearchRadiusSetting = $storeSearchRadiusSetting ? (int)$storeSearchRadiusSetting->value : 15;
+    
+
             return view('manager/shortlist', [
                 'applicants' => $applicants,
                 'vacancyID'  => $vacancyID,
@@ -186,7 +191,8 @@ class ShortlistController extends Controller
                 'banks' => $banks,
                 'roles' => $roles,
                 'states' => $states,
-                'checks' => $checks
+                'checks' => $checks,
+                'storeSearchRadiusSetting' => $storeSearchRadiusSetting
             ]);
         }
         return view('404');
