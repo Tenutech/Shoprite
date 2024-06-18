@@ -41,6 +41,7 @@
                                         $vacancyPostingDuration = $settings->firstWhere('key', 'vacancy_posting_duration');
                                         $shortlistExpiry = $settings->firstWhere('key', 'shortlist_expiry');
                                         $sessionTimeout = $settings->firstWhere('key', 'session_timeout');
+                                        $storeSearchRadius = $settings->firstWhere('key', 'store_search_radius');
                                     @endphp
                                     <div class="col-lg-6">
                                         <div class="mb-3">
@@ -106,6 +107,29 @@
                                             @enderror
                                             <div class="invalid-feedback">
                                                 Please enter the amount of days
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end col-->
+                                    
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="storeSearchRadius" class="form-label">
+                                                Store search radius <span class="text-danger">*</span>
+                                            </label>
+                                            @if ($storeSearchRadius && $storeSearchRadius->description)
+                                                <p class="text-muted">
+                                                    {{ $storeSearchRadius->description }}
+                                                </p>
+                                            @endif
+                                            <input type="number" class="form-control @error('store_search_radius') is-invalid @enderror" name="store_search_radius" id="storeSearchRadius" placeholder="Please enter the distance in kilometers" value="{{ $storeSearchRadius ? ($storeSearchRadius->value ? $storeSearchRadius->value : 1) : 1 }}" min="1" required/>
+                                            @error('store_search_radius')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            <div class="invalid-feedback">
+                                                Please enter the distance in kilometers
                                             </div>
                                         </div>
                                     </div>
