@@ -6,6 +6,7 @@ on:
       - development
   workflow_dispatch:
 
+
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -13,42 +14,36 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      
-      - name: Set up PHP
-        uses: shivammathur/setup-php@v2
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.3
         with:
-          php-version: '8.2.4'
+          ssh-private-key: ${{ secrets.SSH_DEPLOYER_PRIVATE_KEY }}
 
-      - name: Cache dependencies
-        uses: actions/cache@v1
-        with:
-          path: ~/.composer/cache/files
-          key: dependencies-composer-${{ hashFiles('composer.json') }}
-
-      - name: Install Composer dependencies
-        run: composer install --no-dev --optimize-autoloader
-
-      - name: Install NPM dependencies
-        run: npm install
-
-      # - name: Compile assets
-      #   run: npm run production
-
-      # - name: Execute tests
-      #   run: vendor/bin/phpunit --verbose
-
-      # - name: Install Composer dependencies
-      #   run: composer install --no-dev --optimize-autoloader
-        
-      - name: Executing remote SSH commands using SSH key
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: 41.76.109.198
-          username: ${{ secrets.SSH_DEPLOYER_USERNAME }}
-          key: ${{ secrets.SSH_DEPLOYER_PRIVATE_KEY }}
-          port: 2222
-          script: |
-            cd /var/www/dev-shoprite.tenutech.com
-            git pull origin development
-            composer install --no-dev --optimize-autoloader
-            php artisan optimize
+      - name: Deploy to Development Server
+        env:
+          SSH_USER: ${{ secrets.SSH_DEPLOYER_USERNAME }}
+          SERVER_IP: 41.76.109.198
+        run: |
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << ‘EOF’
+            TIMESTAMP=$(date +%Y%m%d%H%M%S)
+            RELEASE_DIR=“/var/www/dev-shoprite.tenutech.com/releases/$TIMESTAMP”
+            CURRENT_DIR=“/var/www/dev-shoprite.tenutech.com/current”
+            SHARED_DIR=“/var/www/dev-shoprite.tenutech.com/shared”
+            sudo -u www-data mkdir -p $RELEASE_DIR
+            sudo -u www-data git clone -b development git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
+            cd $RELEASE_DIR
+            sudo -u www-data ln -nfs $SHARED_DIR/.env
+            sudo -u www-data ln -nfs $SHARED_DIR/storage
+            sudo -u www-data ln -nfs $SHARED_DIR/auth.json
+            sudo -u www-data composer install --no-dev --optimize-autoloader
+            sudo chown www-data:www-data -R /var/www/dev-shoprite.tenutech.com/
+            sudo -u www-data npm i
+            sudo -u www-data npm run build
+            # php artisan migrate --force
+            sudo -u www-data php artisan config:cache
+            sudo -u www-data php artisan route:cache
+            sudo -u www-data php artisan view:cache
+            sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
+            ls -dt /var/www/dev-shoprite.tenutech.com/releases/* | tail -n +3 | xargs sudo rm -rf
+          EOF
