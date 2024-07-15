@@ -1,0 +1,50 @@
+<?php
+
+return [
+
+    /*
+    |--------------------------------------------------------------------------
+    | Third Party Services
+    |--------------------------------------------------------------------------
+    |
+    | This file is for storing the credentials for third party services such
+    | as Mailgun, Postmark, AWS and more. This file provides the de facto
+    | location for this type of information, allowing packages to have
+    | a conventional file to locate the various service credentials.
+    |
+    */
+
+    'mailgun' => [
+        'domain' => env('MAILGUN_DOMAIN'),
+        'secret' => env('MAILGUN_SECRET'),
+        'endpoint' => env('MAILGUN_ENDPOINT', 'api.mailgun.net'),
+    ],
+
+    'postmark' => [
+        'token' => env('POSTMARK_TOKEN'),
+    ],
+
+    'ses' => [
+        'key' => env('AWS_ACCESS_KEY_ID'),
+        'secret' => env('AWS_SECRET_ACCESS_KEY'),
+        'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
+    ],
+
+    'meta' => [
+        'token' => env('META_ACCESS_TOKEN'),
+        'phone' => env('META_PHONE_ID'),
+        'whatsapp_number' => env('META_WHATSAPP_NUMBER'),
+        'account' => env('META_WHATSAPP_BUSINESS_ACCOUNT_ID'),
+    ],
+
+    'twilio' => [
+        'sid' => env('TWILIO_SID'),
+        'token' => env('TWILIO_AUTH_TOKEN'),
+        'whatsapp_number' => env('TWILIO_WHATSAPP_NUMBER'),
+        'service_sid' => env('TWILIO_SERVICE_SID'),
+    ],
+
+    'googlemaps' => [
+        'key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+];

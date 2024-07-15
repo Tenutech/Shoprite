@@ -1,0 +1,180 @@
+/*--------------------------------------------------------------
+# Hero Section
+--------------------------------------------------------------*/
+#hero {
+    width: 100%;
+    height: 100vh;
+    min-height: 100vh;
+}
+  
+#hero .animated {
+    animation: up-down 2s ease-in-out infinite alternate-reverse both;
+}
+
+#hero .container {
+    max-width: 1400px; /* Adjust this value as per your requirements */
+}
+
+#hero .hero-img {
+    position: relative;  /* Make sure this container is positioned */
+}
+
+#hero .hero-image {
+    z-index: 1;
+    position: relative;
+}
+  
+@media (min-width: 1024px) {
+    #hero {
+        background-attachment: fixed;
+    }
+}
+  
+@media (max-width: 991px) {
+    #hero {
+            height: 100vh;
+    }
+    
+    #hero .animated {
+        -webkit-animation: none;
+        animation: none;
+    }
+    
+    #hero .hero-img {
+        text-align: center;
+    }
+    
+    #hero .hero-img img {
+        width: 50%;
+    }
+}
+  
+@media (max-width: 768px) {
+    #hero {
+        margin-top: 20px;
+    }
+  
+    #hero h1 {
+        font-size: 28px;
+        line-height: 36px;
+    }
+  
+    #hero h2 {
+        font-size: 18px;
+        line-height: 24px;
+        margin-bottom: 30px;
+    }
+  
+    #hero .hero-img img {
+        width: 70%;
+    }
+}
+  
+@media (max-width: 575px) {
+    #hero .hero-img img {
+        width: 80%;
+    }
+}
+  
+@-webkit-keyframes up-down {
+    0% {
+        transform: translateY(10px);
+    }
+  
+    100% {
+        transform: translateY(-10px);
+    }
+}
+  
+@keyframes up-down {
+    0% {
+        transform: translateY(10px);
+    }
+  
+    100% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Rainbow animation */
+@keyframes rainbow_animation {
+    0% {background-position: 0% 50%;}
+    100% {background-position: 100% 50%;}
+}
+
+.rainbow-text {
+    /* Rainbow gradient */
+    background: linear-gradient(90deg,#0f0,#09f,#0f0,#f39,#66f);
+    -webkit-background-clip: text;
+    background-size: 400% 100%;
+    color: transparent;
+    
+    /* Animation */
+    animation: rainbow_animation 6s ease-in-out infinite alternate;
+}
+
+.circle-effect {
+    position:absolute;
+    top:0;
+    z-index:0;
+    right:250px;
+    margin:0 auto
+}
+
+.circle-effect .circle {
+    border:1px solid var(--vz-border-color);
+    height:240px;
+    width:240px;
+    margin:0 auto;
+    border-radius:50%
+}
+
+.circle-effect .circle2 {
+    position:absolute;
+    top:-20px;
+    right:-20px;
+    border:1px solid var(--vz-border-color);
+    height:280px;
+    width:280px;
+    margin:0 auto;
+    border-radius:50%
+}
+
+.circle-effect .circle3 {
+    position:absolute;
+    top:-40px;
+    right:-40px;
+    border:1px solid var(--vz-border-color);
+    height:320px;
+    width:320px;
+    margin:0 auto;
+    border-radius:50%
+}
+
+.circle-effect .circle4 {
+    position:absolute;
+    top:-60px;
+    right:-60px;
+    border:1px solid var(--vz-border-color);
+    height:360px;
+    width:360px;
+    margin:0 auto;
+    border-radius:50%
+}
+
+@media (max-width: 991.98px){
+    .circle-effect {
+        display:none
+    }
+}
+
+#hero .inquiry-box {
+    left:-45px; top:45px !important;
+}
+
+@media (max-width: 990px) {
+    #hero .inquiry-box,
+    #hero .application-box {
+        display: none;
+    }
+}
