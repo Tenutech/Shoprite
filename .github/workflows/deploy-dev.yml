@@ -1,0 +1,54 @@
+name: Deploy to Development
+
+on:
+  push:
+    branches:
+      - development
+  workflow_dispatch:
+
+jobs:
+  Build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2.4'
+
+      - name: Cache dependencies
+        uses: actions/cache@v1
+        with:
+          path: ~/.composer/cache/files
+          key: dependencies-composer-${{ hashFiles('composer.json') }}
+
+      - name: Install Composer dependencies
+        run: composer install --no-dev --optimize-autoloader
+
+      - name: Install NPM dependencies
+        run: npm install
+
+      # - name: Compile assets
+      #   run: npm run production
+
+      # - name: Execute tests
+      #   run: vendor/bin/phpunit --verbose
+
+      # - name: Install Composer dependencies
+      #   run: composer install --no-dev --optimize-autoloader
+        
+      - name: Executing remote SSH commands using SSH key
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: 41.76.109.198
+          username: ${{ secrets.SSH_DEPLOYER_USERNAME }}
+          key: ${{ secrets.SSH_DEPLOYER_PRIVATE_KEY }}
+          port: 2222
+          script: |
+            cd /var/www/dev-shoprite.tenutech.com
+            git pull origin development
+            composer install --no-dev --optimize-autoloader
+            php artisan optimize
