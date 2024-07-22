@@ -6,7 +6,6 @@ on:
       - main
   workflow_dispatch:
 
-
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -23,13 +22,13 @@ jobs:
       - name: Deploy to Production Server 1
         env:
           SSH_USER: ${{ secrets.SSH_PROD_DEPLOYER_USERNAME }}
-          SERVER_IP: ${{ secrets.PROD_SERVER_IP }}
+          SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }} # Update this with Server 1 IP
         run: |
-          ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP << ‘EOF’
+          ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP_1 << 'EOF'
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
-            RELEASE_DIR=“/var/www/prod.shoprite.co.za/releases/$TIMESTAMP”
-            CURRENT_DIR=“/var/www/prod.shoprite.co.za/current”
-            SHARED_DIR=“/var/www/prod.shoprite.co.za/shared”
+            RELEASE_DIR="/var/www/prod.shoprite.co.za/releases/$TIMESTAMP"
+            CURRENT_DIR="/var/www/prod.shoprite.co.za/current"
+            SHARED_DIR="/var/www/prod.shoprite.co.za/shared"
             sudo -u www-data mkdir -p $RELEASE_DIR
             sudo -u www-data git clone -b development git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
             cd $RELEASE_DIR
@@ -50,6 +49,6 @@ jobs:
       - name: Rsync to Production Server 2
         env:
           SSH_USER: ${{ secrets.SSH_PROD_DEPLOYER_USERNAME }}
-          SERVER_IP: ${{ secrets.PROD_SERVER_IP }}
+          SERVER_IP_2: ${{ secrets.PROD_SERVER_IP }} # Update this with Server 2 IP
         run: |
-          rsync -avz --delete -e 'ssh -p 50001' $SSH_USER@$SERVER_IP:/var/www/prod.shoprite.co.za/releases/ $SSH_USER@$SERVER_IP:/var/www/prod.shoprite.co.za/releases/
+          rsync -avz --delete -e 'ssh -p 50001' $SSH_USER@$SERVER_IP_1:/var/www/prod.shoprite.co.za/releases/ $SSH_USER@$SERVER_IP_2:/var/www/prod.shoprite.co.za/
