@@ -22,9 +22,11 @@ jobs:
       - name: Deploy to Production Server 1
         env:
           SSH_USER: ${{ secrets.SSH_PROD_DEPLOYER_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
           SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP_1 << 'EOF'
+          sudo apt-get install -y sshpass
+          sshpass -p $SSH_PASSWORD ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP_1 << 'EOF'
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/apply.shoprite.jobs/releases/$TIMESTAMP"
             CURRENT_DIR="/var/www/apply.shoprite.jobs/current"
@@ -46,9 +48,11 @@ jobs:
             ls -dt /var/www/apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
           EOF
 
-      - name: Rsync to Production Server 2
-        env:
-          SSH_USER: ${{ secrets.SSH_PROD_DEPLOYER_USERNAME }}
-          SERVER_IP_2: ${{ secrets.PROD_SERVER_IP }} # Update this with Server 2 IP
-        run: |
-          rsync -avz --delete -e 'ssh -p 50001' $SSH_USER@$SERVER_IP_1:/var/www/apply.shoprite.jobs/releases/ $SSH_USER@$SERVER_IP_2:/var/www/apply.shoprite.jobs/
+      # - name: Rsync to Production Server 2
+      #   env:
+      #     SSH_USER: ${{ secrets.SSH_PROD_DEPLOYER_USERNAME }}
+      #     SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
+      #     SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
+      #   run: |
+      #     sudo apt-get install -y sshpass
+      #     sshpass -p $SSH_PASSWORD rsync -avz --delete -e 'ssh -p 50001' $SSH_USER@$SERVER_IP:/var/www/apply.shoprite.jobs/releases/ $SSH_USER@$SERVER_IP:/var/www/apply.shoprite.jobs/releases/
