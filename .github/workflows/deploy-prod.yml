@@ -22,7 +22,7 @@ jobs:
       - name: Deploy to Production Server 1
         env:
           SSH_USER: ${{ secrets.SSH_PROD_DEPLOYER_USERNAME }}
-          SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }} # Update this with Server 1 IP
+          SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
         run: |
           ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP_1 << 'EOF'
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
