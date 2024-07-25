@@ -25,14 +25,13 @@ jobs:
           SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
           SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
         run: |
-          sudo apt-get install -y sshpass
-          sshpass -p $SSH_PASSWORD ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP_1 << 'EOF'
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/apply.shoprite.jobs/releases/$TIMESTAMP"
             CURRENT_DIR="/var/www/apply.shoprite.jobs/current"
             SHARED_DIR="/var/www/apply.shoprite.jobs/shared"
             sudo -u www-data mkdir -p $RELEASE_DIR
-            sudo -u www-data git clone -b development git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
+            sudo -u www-data git clone -b main git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
             cd $RELEASE_DIR
             sudo -u www-data ln -nfs $SHARED_DIR/.env
             sudo -u www-data ln -nfs $SHARED_DIR/storage

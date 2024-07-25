@@ -6,7 +6,6 @@ on:
       - development
   workflow_dispatch:
 
-
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -18,23 +17,25 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.SSH_DEPLOYER_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.SSH_DEV_DEPLOYER_PRIVATE_KEY }}
 
       - name: Deploy to Development Server
         env:
-          SSH_USER: ${{ secrets.SSH_DEPLOYER_USERNAME }}
-          SERVER_IP: 102.213.7.217
+          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
+          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP << 'EOF'
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/dev.apply.shoprite.jobs/releases/$TIMESTAMP"
             CURRENT_DIR="/var/www/dev.apply.shoprite.jobs/current"
             SHARED_DIR="/var/www/dev.apply.shoprite.jobs/shared"
-            sudo -u www-data mkdir -p $RELEASE_DIR
+            sudo mkdir -p $RELEASE_DIR
+            sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
             sudo -u www-data git clone -b development git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
             cd $RELEASE_DIR
-            sudo -u www-data ln -nfs $SHARED_DIR/.env
-            sudo -u www-data ln -nfs $SHARED_DIR/storage
+            sudo rm -R $RELEASE_DIR/storage
+            sudo ln -nfs $SHARED_DIR/.env .env
+            sudo ln -nfs $SHARED_DIR/storage storage
             sudo -u www-data composer install --no-dev --optimize-autoloader
             sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
             sudo -u www-data npm i
