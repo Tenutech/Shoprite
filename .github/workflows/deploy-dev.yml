@@ -22,7 +22,6 @@ jobs:
       - name: Deploy to Development Server
         env:
           SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
-          SSH_PASSWORD: ${{ secrets.SSH_DEV_DEPLOYER_PASSWORD }}
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
