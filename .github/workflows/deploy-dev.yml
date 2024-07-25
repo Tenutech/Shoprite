@@ -31,11 +31,11 @@ jobs:
             CURRENT_DIR="/var/www/dev.apply.shoprite.jobs/current"
             SHARED_DIR="/var/www/dev.apply.shoprite.jobs/shared"
             sudo mkdir -p $RELEASE_DIR
+             sudo chown www-data:www-data -R $RELEASE_DIR
             sudo -u www-data git clone -b development git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
             cd $RELEASE_DIR
             sudo ln -nfs $SHARED_DIR/.env .env
             sudo ln -nfs $SHARED_DIR/storage storage
-            sudo -u www-data ln -nfs $SHARED_DIR/auth.json auth.json
             sudo -u www-data composer install --no-dev --optimize-autoloader
             sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
             sudo -u www-data npm i
