@@ -30,7 +30,7 @@ jobs:
             CURRENT_DIR="/var/www/dev.apply.shoprite.jobs/current"
             SHARED_DIR="/var/www/dev.apply.shoprite.jobs/shared"
             sudo mkdir -p $RELEASE_DIR
-            sudo chown www-data:www-data -R $RELEASE_DIR
+            sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
             sudo -u www-data git clone -b development git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
             cd $RELEASE_DIR
             sudo rm -R $RELEASE_DIR/storage
