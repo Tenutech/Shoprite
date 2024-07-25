@@ -41,7 +41,7 @@ jobs:
             sudo -u www-data npm run build
             # php artisan migrate --force
             sudo -u www-data php artisan config:cache
-            sudo -u www-data php artisan route:cache
+            # sudo -u www-data php artisan route:cache
             sudo -u www-data php artisan view:cache
             sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
             ls -dt /var/www/apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
@@ -54,5 +54,5 @@ jobs:
           SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP_1 << 'EOF'
-            rsync -avz --delete -e 'ssh' $SSH_USER@$SERVER_IP_1:/var/www/apply.shoprite.jobs/releases/ $SSH_USER@$172.22.0.11:/var/www/apply.shoprite.jobs/releases/
+            rsync -avz --delete -e 'ssh' /var/www/apply.shoprite.jobs/releases/ $SSH_USER@$172.22.0.11:/var/www/apply.shoprite.jobs/releases/
           EOF
