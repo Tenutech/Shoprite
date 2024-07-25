@@ -43,8 +43,13 @@ class ShoopsController extends Controller
     */
     public function shoops(Request $request)
     {
-        // Use the ChatService to process the incoming message.
-        $this->chatService->handleIncomingMessage($request->json()->all());
+        try {
+            // Use the ChatService to process the incoming message.
+            $this->chatService->handleIncomingMessage($request->json()->all());
+        } catch (Exception $e) {
+            // Log the error for debugging purposes
+            Log::error('Error in robert method: ' . $e->getMessage());
+        }
 
         // Respond to the request indicating the message has been received and processed.
         return response()->json(['message' => 'Received'], 200);

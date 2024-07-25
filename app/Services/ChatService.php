@@ -44,13 +44,33 @@ class ChatService
                 return; // Early exit if essential data is missing
             }
 
+            // Extract phone number ID from the webhook data
+            $phoneNumberId = $data['entry'][0]['changes'][0]['value']['metadata']['phone_number_id'] ?? null;
+            
+            // Get the configured phone number ID from the environment
+            $configuredPhoneNumberId = config('services.meta.phone');
+
+            // Check if the phone number ID matches the configured phone number ID for this environment
+            if ($phoneNumberId !== $configuredPhoneNumberId) {
+                return;
+            }
+
             // Extract message details from a deeply nested structure
             $messageData = $data['entry'][0]['changes'][0]['value']['messages'][0];
             $phone = '+' . $messageData['from'];
             $from = '+' . $messageData['from'];
 
             // Determine message type and extract content
-            $body = $messageData['text']['body'] ?? $messageData['button']['text'] ?? null;
+            // Determine message type and extract content
+            $body = null;
+            if (isset($messageData['text']['body'])) {
+                $body = $messageData['text']['body'];
+            } elseif (isset($messageData['button']['text'])) {
+                $body = $messageData['button']['text'];
+            } elseif (isset($messageData['interactive']['list_reply']['id'])) {
+                $body = $messageData['interactive']['list_reply']['id'];
+            }
+            
             $latitude = $messageData['location']['latitude'] ?? null;
             $longitude = $messageData['location']['longitude'] ?? null;
             $mediaUrl = $messageData['media'][0]['url'] ?? null;
