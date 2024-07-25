@@ -47,11 +47,12 @@ jobs:
             ls -dt /var/www/apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
           EOF
 
-      # - name: Rsync to Production Server 2
-      #   env:
-      #     SSH_USER: ${{ secrets.SSH_PROD_DEPLOYER_USERNAME }}
-      #     SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
-      #     SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
-      #   run: |
-      #     sudo apt-get install -y sshpass
-      #     sshpass -p $SSH_PASSWORD rsync -avz --delete -e 'ssh -p 50001' $SSH_USER@$SERVER_IP_1:/var/www/apply.shoprite.jobs/releases/ $SSH_USER@$SERVER_IP:/var/www/apply.shoprite.jobs/releases/
+      - name: Rsync to Production Server 2
+        env:
+          SSH_USER: ${{ secrets.SSH_PROD_DEPLOYER_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
+          SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP_1 << 'EOF'
+            rsync -avz --delete -e 'ssh' $SSH_USER@$SERVER_IP_1:/var/www/apply.shoprite.jobs/releases/ $SSH_USER@$172.22.0.11:/var/www/apply.shoprite.jobs/releases/
+          EOF
