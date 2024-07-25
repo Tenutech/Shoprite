@@ -25,7 +25,7 @@ jobs:
           SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
           SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP_1 << 'EOF'
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/apply.shoprite.jobs/releases/$TIMESTAMP"
             CURRENT_DIR="/var/www/apply.shoprite.jobs/current"
@@ -54,4 +54,4 @@ jobs:
       #     SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
       #   run: |
       #     sudo apt-get install -y sshpass
-      #     sshpass -p $SSH_PASSWORD rsync -avz --delete -e 'ssh -p 50001' $SSH_USER@$SERVER_IP:/var/www/apply.shoprite.jobs/releases/ $SSH_USER@$SERVER_IP:/var/www/apply.shoprite.jobs/releases/
+      #     sshpass -p $SSH_PASSWORD rsync -avz --delete -e 'ssh -p 50001' $SSH_USER@$SERVER_IP_1:/var/www/apply.shoprite.jobs/releases/ $SSH_USER@$SERVER_IP:/var/www/apply.shoprite.jobs/releases/
