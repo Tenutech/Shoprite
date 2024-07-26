@@ -53,7 +53,7 @@ jobs:
           SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
           SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
         run: |
-          ssh -o -p 50001 StrictHostKeyChecking=no $SSH_USER@$SERVER_IP_1 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -p 50001 $SSH_USER@$SERVER_IP_1 << 'EOF'
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/apply.shoprite.jobs/releases/$TIMESTAMP"
             CURRENT_DIR="/var/www/apply.shoprite.jobs/current"
