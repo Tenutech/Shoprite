@@ -48,7 +48,7 @@ jobs:
             ls -dt /var/www/apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
           EOF
 
-      - name: Rsync to Production Server 2
+      - name: Deploy to Production Server 2
         env:
           SSH_USER: ${{ secrets.SSH_PROD_DEPLOYER_USERNAME }}
           SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
