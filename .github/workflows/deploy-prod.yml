@@ -34,8 +34,7 @@ jobs:
             sudo -u www-data git clone -b main git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
             cd $RELEASE_DIR
             sudo -u www-data ln -nfs $SHARED_DIR/.env
-            sudo -u www-data rm -R storage
-            sudo -u www-data ln -nfs $SHARED_DIR/storage
+            sudo ln -nfs $SHARED_DIR/storage storag
             sudo -u www-data composer install --no-dev --optimize-autoloader
             sudo chown www-data:www-data -R /var/www/apply.shoprite.jobs
             sudo -u www-data npm i
@@ -63,8 +62,7 @@ jobs:
             sudo -u www-data git clone -b main git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
             cd $RELEASE_DIR
             sudo -u www-data ln -nfs $SHARED_DIR/.env
-            sudo -u www-data rm -R storage
-            sudo -u www-data ln -nfs $SHARED_DIR/storage
+            sudo ln -nfs $SHARED_DIR/storage storag
             sudo -u www-data composer install --no-dev --optimize-autoloader
             sudo chown www-data:www-data -R /var/www/apply.shoprite.jobs
             sudo -u www-data npm i
