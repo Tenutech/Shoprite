@@ -25,6 +25,7 @@ jobs:
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
+            export TZ="Africa/Johannesburg"
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/dev.apply.shoprite.jobs/releases/$TIMESTAMP"
             CURRENT_DIR="/var/www/dev.apply.shoprite.jobs/current"
