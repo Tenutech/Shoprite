@@ -52,6 +52,16 @@ jobs:
             # Change ownership to www-data
             sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
 
+            # Update the current symlink to the new release
+            sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
+          EOF
+
+      - name: Run Artisan commands
+        env:
+          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
+          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
             # Cache Laravel configurations and run optimizations
             sudo -u www-data php artisan config:cache
             sudo -u www-data php artisan route:cache
@@ -61,10 +71,30 @@ jobs:
             # Run migrations
             sudo -u www-data php artisan migrate --force
 
+            # Change ownership to www-data
+            sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
+          EOF
+
+      - name: Run NPM commands
+        env:
+          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
+          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
+            # Change ownership to www-data
+            sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
+
             # Install npm dependencies and build assets
             # sudo -u www-data npm install
             # sudo -u www-data npm run build
+          EOF
 
+      - name: Set new version
+        env:
+          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
+          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
             # Update the current symlink to the new release
             sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
 
