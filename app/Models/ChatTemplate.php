@@ -19,6 +19,7 @@ class ChatTemplate extends Model
         'category_id',
         'answer',
         'sort',
+        'type',
         'template'
     ];
 
@@ -32,6 +33,12 @@ class ChatTemplate extends Model
     public function category()
     {
         return $this->belongsTo(ChatCategory::class, 'category_id');
+    }
+
+    //Interactive Options
+    public function interactiveOptions()
+    {
+        return $this->hasMany(InteractiveOption::class, 'chat_template_id');
     }
 
     /**

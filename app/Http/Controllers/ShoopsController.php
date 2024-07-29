@@ -48,7 +48,7 @@ class ShoopsController extends Controller
             $this->chatService->handleIncomingMessage($request->json()->all());
         } catch (Exception $e) {
             // Log the error for debugging purposes
-            Log::error('Error in robert method: ' . $e->getMessage());
+            Log::error('Error in shoops method: ' . $e->getMessage());
         }
 
         // Respond to the request indicating the message has been received and processed.
