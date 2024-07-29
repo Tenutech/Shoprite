@@ -30,21 +30,44 @@ jobs:
             RELEASE_DIR="/var/www/apply.shoprite.jobs/releases/$TIMESTAMP"
             CURRENT_DIR="/var/www/apply.shoprite.jobs/current"
             SHARED_DIR="/var/www/apply.shoprite.jobs/shared"
+
+            # Create the release directory
             sudo -u www-data mkdir -p $RELEASE_DIR
+
+            # Clone the repository
             sudo -u www-data git clone -b main git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
+
+            # Change to the release directory
             cd $RELEASE_DIR
+
+            # Link the .env file and storage directory
             sudo -u www-data ln -nfs $SHARED_DIR/.env
             sudo -u www-data rm -R storage
             sudo -u www-data ln -nfs $SHARED_DIR/storage
+
+            # Install dependencies
             sudo -u www-data composer install --no-dev --optimize-autoloader
+
+            # Change ownership to www-data
             sudo chown www-data:www-data -R /var/www/apply.shoprite.jobs
-            # sudo -u www-data npm i
-            # sudo -u www-data npm run build
-            # php artisan migrate --force
+
+            # Cache Laravel configurations and run optimizations
             sudo -u www-data php artisan config:cache
             sudo -u www-data php artisan route:cache
             sudo -u www-data php artisan view:cache
+            sudo -u www-data php artisan optimize
+
+            # Run migrations
+            sudo -u www-data php artisan migrate --force
+
+            # Install npm dependencies and build assets
+            # sudo -u www-data npm install
+            # sudo -u www-data npm run build
+
+            # Update the current symlink to the new release
             sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
+
+            # Remove old releases, keeping only the last two
             ls -dt /var/www/apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
           EOF
 
@@ -59,20 +82,43 @@ jobs:
             RELEASE_DIR="/var/www/apply.shoprite.jobs/releases/$TIMESTAMP"
             CURRENT_DIR="/var/www/apply.shoprite.jobs/current"
             SHARED_DIR="/var/www/apply.shoprite.jobs/shared"
+
+            # Create the release directory
             sudo -u www-data mkdir -p $RELEASE_DIR
+
+            # Clone the repository
             sudo -u www-data git clone -b main git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
+
+            # Change to the release directory
             cd $RELEASE_DIR
+
+            # Link the .env file and storage directory
             sudo -u www-data ln -nfs $SHARED_DIR/.env
             sudo -u www-data rm -R storage
             sudo -u www-data ln -nfs $SHARED_DIR/storage
+
+            # Install dependencies
             sudo -u www-data composer install --no-dev --optimize-autoloader
+
+            # Change ownership to www-data
             sudo chown www-data:www-data -R /var/www/apply.shoprite.jobs
-            # sudo -u www-data npm i
-            # sudo -u www-data npm run build
-            # php artisan migrate --force
+
+            # Cache Laravel configurations and run optimizations
             sudo -u www-data php artisan config:cache
             sudo -u www-data php artisan route:cache
             sudo -u www-data php artisan view:cache
+            sudo -u www-data php artisan optimize
+
+            # Run migrations
+            sudo -u www-data php artisan migrate --force
+
+            # Install npm dependencies and build assets
+            # sudo -u www-data npm install
+            # sudo -u www-data npm run build
+
+            # Update the current symlink to the new release
             sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
+
+            # Remove old releases, keeping only the last two
             ls -dt /var/www/apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
           EOF

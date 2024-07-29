@@ -6,7 +6,6 @@ on:
       - development
   workflow_dispatch:
 
-
 jobs:
   Build:
     runs-on: ubuntu-latest
@@ -18,7 +17,6 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-
           ssh-private-key: ${{ secrets.SSH_DEV_DEPLOYER_PRIVATE_KEY }}
 
       - name: Deploy to Development Server
@@ -31,21 +29,44 @@ jobs:
             RELEASE_DIR="/var/www/dev.apply.shoprite.jobs/releases/$TIMESTAMP"
             CURRENT_DIR="/var/www/dev.apply.shoprite.jobs/current"
             SHARED_DIR="/var/www/dev.apply.shoprite.jobs/shared"
+
+            # Create the release directory
             sudo mkdir -p $RELEASE_DIR
             sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
+
+            # Clone the repository
             sudo -u www-data git clone -b development git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
+
+            # Change to the release directory
             cd $RELEASE_DIR
+
+            # Link the .env file and storage directory
             sudo rm -R $RELEASE_DIR/storage
             sudo ln -nfs $SHARED_DIR/.env .env
             sudo ln -nfs $SHARED_DIR/storage storage
+
+            # Install dependencies
             sudo -u www-data composer install --no-dev --optimize-autoloader
+
+            # Change ownership to www-data
             sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
-            # sudo -u www-data npm i
-            # sudo -u www-data npm run build
-            # php artisan migrate --force
+
+            # Cache Laravel configurations and run optimizations
             sudo -u www-data php artisan config:cache
             sudo -u www-data php artisan route:cache
             sudo -u www-data php artisan view:cache
+            sudo -u www-data php artisan optimize
+
+            # Run migrations
+            sudo -u www-data php artisan migrate --force
+
+            # Install npm dependencies and build assets
+            # sudo -u www-data npm install
+            # sudo -u www-data npm run build
+
+            # Update the current symlink to the new release
             sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
+
+            # Remove old releases, keeping only the last two
             ls -dt /var/www/dev.apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
           EOF
