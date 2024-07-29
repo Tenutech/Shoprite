@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('applicant_monthly_store_data', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('store_id')->nullable()->index('applicant_monthly_store_data_store_id_foreign');
-            $table->unsignedBigInteger('applicant_monthly_data_id')->nullable()->index('applicant_monthly_data_applicant_total_data_id_foreign');
+            $table->unsignedBigInteger('applicant_monthly_data_id')->nullable()->index('applicant_monthly_store_data_applicant_monthly_data_id_foreign');
             $table->integer('count')->nullable()->default(0);
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
