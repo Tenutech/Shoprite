@@ -72,11 +72,4 @@ jobs:
             ls -dt /var/www/dev.apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
           EOF
 
-      - name: Run Artisan commands
-        env:
-          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
-          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
-        run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
-
-          EOF
+          
