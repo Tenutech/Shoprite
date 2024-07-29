@@ -34,10 +34,10 @@ jobs:
             sudo -u www-data git clone -b main git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
             cd $RELEASE_DIR
             sudo -u www-data ln -nfs $SHARED_DIR/.env .env
-            sudo -u www-data rm -R storage
-            sudo -u www-data ln -nfs $SHARED_DIR/storage storage
+            sudo -u www-data rm -rf public/storage
+            sudo -u www-data ln -nfs $SHARED_DIR/storage public/storage
             sudo -u www-data composer install --no-dev --optimize-autoloader
-            sudo chown www-data:www-data -R /var/www/apply.shoprite.jobs
+            sudo chown -R www-data:www-data /var/www/apply.shoprite.jobs
             sudo -u www-data npm i
             sudo -u www-data npm run build
             sudo -u www-data php artisan migrate --force
@@ -64,10 +64,10 @@ jobs:
             sudo -u www-data git clone -b main git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
             cd $RELEASE_DIR
             sudo -u www-data ln -nfs $SHARED_DIR/.env .env
-            sudo -u www-data rm -R storage
-            sudo -u www-data ln -nfs $SHARED_DIR/storage storage
+            sudo -u www-data rm -rf public/storage
+            sudo -u www-data ln -nfs $SHARED_DIR/storage public/storage
             sudo -u www-data composer install --no-dev --optimize-autoloader
-            sudo chown www-data:www-data -R /var/www/apply.shoprite.jobs
+            sudo chown -R www-data:www-data /var/www/apply.shoprite.jobs
             sudo -u www-data npm i
             sudo -u www-data npm run build
             sudo -u www-data php artisan migrate --force
