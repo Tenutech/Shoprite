@@ -9,7 +9,7 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -24,7 +24,9 @@ jobs:
           SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
+          set -e
+          deploy_script=$(mktemp)
+          cat << 'EOF' > $deploy_script
             export TZ="Africa/Johannesburg"
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/dev.apply.shoprite.jobs/releases/$TIMESTAMP"
@@ -56,12 +58,16 @@ jobs:
             sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
           EOF
 
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "bash -s" < $deploy_script
+
       - name: Run Artisan commands
         env:
           SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
+          set -e
+          artisan_script=$(mktemp)
+          cat << 'EOF' > $artisan_script
             # Cache Laravel configurations and run optimizations
             sudo -u www-data php artisan config:cache
             sudo -u www-data php artisan route:cache
@@ -75,12 +81,16 @@ jobs:
             sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
           EOF
 
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "bash -s" < $artisan_script
+
       - name: Run NPM commands
         env:
           SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
+          set -e
+          npm_script=$(mktemp)
+          cat << 'EOF' > $npm_script
             # Change ownership to www-data
             sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
 
@@ -89,15 +99,27 @@ jobs:
             # sudo -u www-data npm run build
           EOF
 
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "bash -s" < $npm_script
+
       - name: Set new version
         env:
           SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
+          set -e
+          version_script=$(mktemp)
+          cat << 'EOF' > $version_script
             # Update the current symlink to the new release
             sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
 
             # Remove old releases, keeping only the last two
             ls -dt /var/www/dev.apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
           EOF
+
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "bash -s" < $version_script
+
+      - name: Notify on Failure
+        if: failure()
+        run: |
+          echo "Deployment failed. Please check the logs for details."
+          # Add any additional notification steps here (e.g., send a message to Slack)
