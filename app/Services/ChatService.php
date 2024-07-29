@@ -61,7 +61,6 @@ class ChatService
             $from = '+' . $messageData['from'];
 
             // Determine message type and extract content
-            // Determine message type and extract content
             $body = null;
             if (isset($messageData['text']['body'])) {
                 $body = $messageData['text']['body'];
@@ -4388,7 +4387,8 @@ class ChatService
         // Retrieve messages and optionally the template names
         $messages = ChatTemplate::where('state_id', $stateID)
         ->orderBy('sort')
-        ->get(['message', 'template'])
+        ->with('interactiveOptions')
+        ->get()
         ->toArray();
     
         return $messages;
@@ -4404,15 +4404,19 @@ class ChatService
         static $lastMessage = null; // Static variable to remember the last message se
 
         foreach ($messages as $messageData) { // Ensure $messageData is used to clarify it's an array from messages
-                try {
-                    // Check if $messageData is a string and adjust accordingly
+            try {
+                // Check if $messageData is a string and adjust accordingly
                 if (is_string($messageData)) {
                     $body = $messageData;
                     $template = null;
+                    $type = null;
+                    $interactiveOptions = [];
                 } else {  // Assume $messageData is an array
                     $body = $messageData['message'];
+                    $type = $messageData['type'];
                     $template = $messageData['template'] ?? null;
                     $variables = $messageData['variables'] ?? [];
+                    $interactiveOptions = $messageData['interactive_options'] ?? [];
                 }
 
                 // Check if current message is the same as the last one
@@ -4421,17 +4425,17 @@ class ChatService
                 }
     
                 // Prepare the API URL
-                $url = "https://graph.facebook.com/v19.0/$from/messages";
-    
+                $url = "https://graph.facebook.com/v20.0/$from/messages";
+
                 // Initialize the payload with common elements
                 $payload = [
                     'messaging_product' => 'whatsapp',
                     'to' => $to,
-                    'type' => $template ? 'template' : 'text'
+                    'type' => $type ? $type : 'text'
                 ];
-    
+
                 // Conditional structure based on the type
-                if ($template) {
+                if ($type == 'template') {
                     $payload['template'] = [
                         'name' => $template,
                         'language' => ['code' => 'en_US'],
@@ -4444,6 +4448,33 @@ class ChatService
                             ]
                         ]
                     ];
+                } else if ($type == 'interactive') {
+                    $interactivePayload = [
+                        'type' => 'list',
+                        'body' => [
+                            'text' => $body
+                        ],
+                        'footer' => [
+                            'text' => 'Please select one of the options below:'
+                        ],
+                        'action' => [
+                            'button' => 'Options',
+                            'sections' => [
+                                [
+                                    'title' => 'Options',
+                                    'rows' => array_map(function($option) {
+                                        return [
+                                            'id' => (string)$option['value'], // Ensure value is a string
+                                            'title' => $option['title'],
+                                            'description' => $option['description']
+                                        ];
+                                    }, $interactiveOptions)
+                                ]
+                            ]
+                        ]
+                    ];
+    
+                    $payload['interactive'] = $interactivePayload;
                 } else {
                     $payload['text'] = ['body' => $body];
                 }

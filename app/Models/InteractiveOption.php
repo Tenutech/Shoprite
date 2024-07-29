@@ -7,26 +7,23 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Gender extends Model
+class InteractiveOption extends Model
 {
     use HasFactory, LogsActivity;
-    
+
+    protected $table = 'interactive_options';
+
     protected $fillable = [
-        'name',
-        'icon',
-        'color'
+        'chat_template_id',
+        'title',
+        'description',
+        'value'
     ];
 
-    //Applicants
-    public function applicants()
+    //Chat Template
+    public function chatTemplate()
     {
-        return $this->hasMany(Applicant::class);
-    }
-    
-    //Users
-    public function users()
-    {
-        return $this->hasMany(User::class);
+        return $this->belongsTo(ChatTemplate::class, 'chat_template_id');
     }
 
     /**
