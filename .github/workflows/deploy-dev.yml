@@ -23,13 +23,16 @@ jobs:
         env:
           SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
+        id: deploy
         run: |
           set -e
+          TIMESTAMP=$(date +%Y%m%d%H%M%S)
+          RELEASE_DIR="/var/www/dev.apply.shoprite.jobs/releases/$TIMESTAMP"
+
           deploy_script=$(mktemp)
           cat << 'EOF' > $deploy_script
             export TZ="Africa/Johannesburg"
-            TIMESTAMP=$(date +%Y%m%d%H%M%S)
-            RELEASE_DIR="/var/www/dev.apply.shoprite.jobs/releases/$TIMESTAMP"
+            RELEASE_DIR="${RELEASE_DIR}"
             CURRENT_DIR="/var/www/dev.apply.shoprite.jobs/current"
             SHARED_DIR="/var/www/dev.apply.shoprite.jobs/shared"
 
@@ -60,14 +63,19 @@ jobs:
 
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "bash -s" < $deploy_script
 
+          echo "::set-output name=release_dir::$RELEASE_DIR"
+
       - name: Run Artisan commands
         env:
           SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
+          RELEASE_DIR: ${{ steps.deploy.outputs.release_dir }}
         run: |
           set -e
           artisan_script=$(mktemp)
           cat << 'EOF' > $artisan_script
+            RELEASE_DIR="${RELEASE_DIR}"
+
             # Cache Laravel configurations and run optimizations
             sudo -u www-data php artisan config:cache
             sudo -u www-data php artisan route:cache
@@ -87,10 +95,13 @@ jobs:
         env:
           SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
+          RELEASE_DIR: ${{ steps.deploy.outputs.release_dir }}
         run: |
           set -e
           npm_script=$(mktemp)
           cat << 'EOF' > $npm_script
+            RELEASE_DIR="${RELEASE_DIR}"
+
             # Change ownership to www-data
             sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
 
@@ -105,10 +116,14 @@ jobs:
         env:
           SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
+          RELEASE_DIR: ${{ steps.deploy.outputs.release_dir }}
         run: |
           set -e
           version_script=$(mktemp)
           cat << 'EOF' > $version_script
+            RELEASE_DIR="${RELEASE_DIR}"
+            CURRENT_DIR="/var/www/dev.apply.shoprite.jobs/current"
+
             # Update the current symlink to the new release
             sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
 
