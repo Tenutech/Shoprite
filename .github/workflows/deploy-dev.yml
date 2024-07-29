@@ -9,7 +9,7 @@ on:
 jobs:
   Build:
     runs-on: ubuntu-latest
-
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -23,16 +23,11 @@ jobs:
         env:
           SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
-        id: deploy
         run: |
-          set -e
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          RELEASE_DIR="/var/www/dev.apply.shoprite.jobs/releases/$TIMESTAMP"
-
-          deploy_script=$(mktemp)
-          cat << 'EOF' > $deploy_script
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
             export TZ="Africa/Johannesburg"
-            RELEASE_DIR="${RELEASE_DIR}"
+            TIMESTAMP=$(date +%Y%m%d%H%M%S)
+            RELEASE_DIR="/var/www/dev.apply.shoprite.jobs/releases/$TIMESTAMP"
             CURRENT_DIR="/var/www/dev.apply.shoprite.jobs/current"
             SHARED_DIR="/var/www/dev.apply.shoprite.jobs/shared"
 
@@ -57,25 +52,6 @@ jobs:
             # Change ownership to www-data
             sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
 
-            # Update the current symlink to the new release
-            sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
-          EOF
-
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "bash -s" < $deploy_script
-
-          echo "::set-output name=release_dir::$RELEASE_DIR"
-
-      - name: Run Artisan commands
-        env:
-          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
-          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
-          RELEASE_DIR: ${{ steps.deploy.outputs.release_dir }}
-        run: |
-          set -e
-          artisan_script=$(mktemp)
-          cat << 'EOF' > $artisan_script
-            RELEASE_DIR="${RELEASE_DIR}"
-
             # Cache Laravel configurations and run optimizations
             sudo -u www-data php artisan config:cache
             sudo -u www-data php artisan route:cache
@@ -85,44 +61,9 @@ jobs:
             # Run migrations
             sudo -u www-data php artisan migrate --force
 
-            # Change ownership to www-data
-            sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
-          EOF
-
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "bash -s" < $artisan_script
-
-      - name: Run NPM commands
-        env:
-          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
-          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
-          RELEASE_DIR: ${{ steps.deploy.outputs.release_dir }}
-        run: |
-          set -e
-          npm_script=$(mktemp)
-          cat << 'EOF' > $npm_script
-            RELEASE_DIR="${RELEASE_DIR}"
-
-            # Change ownership to www-data
-            sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
-
             # Install npm dependencies and build assets
             # sudo -u www-data npm install
             # sudo -u www-data npm run build
-          EOF
-
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "bash -s" < $npm_script
-
-      - name: Set new version
-        env:
-          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
-          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
-          RELEASE_DIR: ${{ steps.deploy.outputs.release_dir }}
-        run: |
-          set -e
-          version_script=$(mktemp)
-          cat << 'EOF' > $version_script
-            RELEASE_DIR="${RELEASE_DIR}"
-            CURRENT_DIR="/var/www/dev.apply.shoprite.jobs/current"
 
             # Update the current symlink to the new release
             sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
@@ -131,10 +72,11 @@ jobs:
             ls -dt /var/www/dev.apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
           EOF
 
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP "bash -s" < $version_script
-
-      - name: Notify on Failure
-        if: failure()
+      - name: Run Artisan commands
+        env:
+          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
+          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         run: |
-          echo "Deployment failed. Please check the logs for details."
-          # Add any additional notification steps here (e.g., send a message to Slack)
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
+
+          EOF
