@@ -75,4 +75,4 @@ jobs:
             sudo supervisorctl reread
             sudo supervisorctl update
             sudo supervisorctl restart laravel-queue-worker:*
-          EOF 
+EOF 
