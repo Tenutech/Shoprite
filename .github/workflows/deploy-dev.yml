@@ -70,4 +70,9 @@ jobs:
 
             # Remove old releases, keeping only the last two
             ls -dt /var/www/dev.apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
-            EOF 
+
+            # Restart Supervisor to apply changes
+            sudo supervisorctl reread
+            sudo supervisorctl update
+            sudo supervisorctl restart laravel-queue-worker:*
+          EOF 
