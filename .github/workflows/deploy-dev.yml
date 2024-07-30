@@ -68,6 +68,11 @@ jobs:
             # Update the current symlink to the new release
             sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
 
+            # Restart Supervisor to apply changes
+            sudo supervisorctl reread
+            sudo supervisorctl update
+            sudo supervisorctl restart laravel-queue-worker:*
+
             # Remove old releases, keeping only the last two
             ls -dt /var/www/dev.apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
           EOF
