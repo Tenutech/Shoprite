@@ -229,13 +229,14 @@ class InterviewController extends Controller
             "Interview Time" => $latestInterview->start_time->format('H:i'),
             "Notes" => $latestInterview->notes ?? 'None provided',
         ];
-    
+
+        $type = 'template';    
 
         foreach ($messages as $message) {
             $personalizedMessage = $this->replacePlaceholders($message->message, $dataToReplace);
     
             // Dispatch the job to send WhatsApp messages
-            SendWhatsAppMessage::dispatch($applicant, $personalizedMessage, $message->template);
+            SendWhatsAppMessage::dispatch($applicant, $personalizedMessage, $type, $message->template);
         }
     }
 

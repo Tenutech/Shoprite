@@ -4101,7 +4101,11 @@ class ChatService
 
                     foreach ($messages as &$message) {
                         foreach ($dataToReplace as $key => $value) {
-                            $message = str_replace("[$key]", $value, $message);
+                            if (is_array($message)) {
+                                $message['message'] = str_replace("[$key]", $value, $message['message']);
+                            } else {
+                                $message = str_replace("[$key]", $value, $message);
+                            }
                         }
                     }
 
@@ -4150,7 +4154,7 @@ class ChatService
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
-            Log::error('Error in handleScheduleState: ' . $e->getMessage());
+            Log::error('Error in handleScheduleStartState: ' . $e);
     
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
@@ -4401,7 +4405,7 @@ class ChatService
     */
 
     public function sendAndLogMessages($applicant, $messages, $client, $to, $from, $token) {
-        static $lastMessage = null; // Static variable to remember the last message se
+        static $lastMessage = null; // Static variable to remember the last message sent
 
         foreach ($messages as $messageData) { // Ensure $messageData is used to clarify it's an array from messages
             try {

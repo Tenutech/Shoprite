@@ -63,6 +63,7 @@ class MessageController extends Controller
             // Retrieve the last chat message for the applicant
             $chat = Chat::where('applicant_id', $applicantID)->orderBy('created_at', 'desc')->first();
 
+            $type = 'template';
             $template = null;
 
             // Check if a chat record exists and if it's more than 24 hours old
@@ -70,7 +71,7 @@ class MessageController extends Controller
                 $template = "free_message";
             }
 
-            SendWhatsAppMessage::dispatch($applicant, $request->message, $template);
+            SendWhatsAppMessage::dispatch($applicant, $request->message, $type, $template);
 
             // Retrieve the last chat message for the applicant
             $chat = Chat::where('applicant_id', $applicantID)->orderBy('created_at', 'desc')->first();

@@ -115,28 +115,35 @@ class ApplicantProfileController extends Controller
 
             // Check each step in sequence, ensuring previous steps are completed
             if ($completion >= 100) {
-                $progressBarWidth = 20; // First step
-
+                // Check for applied vacancies
                 if ($applicant->user && $applicant->user->appliedVacancies->count() > 0) {
-                    $progressBarWidth = 40; // Second step
-
-                    if (Shortlist::whereJsonContains('applicant_ids', $applicant->id)->exists()) {
-                        $progressBarWidth = 60; // Third step
-
-                        if ($applicant->interviews && $applicant->interviews->count() > 0) {
-                            $progressBarWidth = 80; // Fourth step
-
-                            if ($applicant->interviews->count() > 0 && $applicant->interviews[0]->score) {
-                                $progressBarWidth = 100; // Sixth step
-
-                                if ($applicant->vacanciesFilled && $applicant->vacanciesFilled->count() > 0) {
-                                    $progressBarWidth = 100; // Final step
-                                }
-                            }
-                        }
+                    $progressBarWidth = max($progressBarWidth, 40); // Second step
+                }
+            
+                // Check for shortlist
+                if ($applicant->shortlist_id) {
+                    $progressBarWidth = max($progressBarWidth, 60); // Third step
+                }
+            
+                // Check for interviews
+                if ($applicant->interviews && $applicant->interviews->count() > 0) {
+                    $progressBarWidth = max($progressBarWidth, 80); // Fourth step
+            
+                    // Check for interview score
+                    $firstInterview = $applicant->interviews->first();
+                    if ($firstInterview->score) {
+                        $progressBarWidth = max($progressBarWidth, 100); // Sixth step
                     }
                 }
+            
+                // Check for appointment
+                if ($applicant->appointed_id) {
+                    $progressBarWidth = 100; // Final step
+                }
             }
+
+            Log::info($progressBarWidth);
+
             return view('manager/applicant-profile',[
                 'applicant' => $applicant,
                 'documents' => $documents,

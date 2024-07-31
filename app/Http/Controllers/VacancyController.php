@@ -348,8 +348,10 @@ class VacancyController extends Controller
                         "{$vacancy->store->brand->name} ({$vacancy->store->town->name}). " .
                         "We are excited to have you join our team!";
 
+                        $type = 'text';
+
                         // Dispatch WhatsApp message
-                        SendWhatsAppMessage::dispatch($applicant, $whatsappMessage);
+                        SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type);
                     }
                 }
 
