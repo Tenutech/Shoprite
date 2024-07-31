@@ -586,6 +586,425 @@ class AdminController extends Controller
         }
         return view('404');
     }
+    
+    /*
+    |--------------------------------------------------------------------------
+    | Update Data
+    |--------------------------------------------------------------------------
+    */
 
+    public function updateData(Request $request)
+    {
+        // Validate the request data
+        $request->validate([
+            'start_date' => 'required|date_format:d/m/Y',
+            'end_date' => 'required|date_format:d/m/Y',
+        ]);
 
+        try {
+            // Convert validated dates to Carbon instances
+            $startDate = Carbon::createFromFormat('d/m/Y', $request['start_date']);
+            $endDate = Carbon::createFromFormat('d/m/Y', $request['end_date']);
+
+            // Extract the year and month for range processing
+            $startYear = $startDate->year;
+            $endYear = $endDate->year;
+            $startMonth = $startDate->month;
+            $endMonth = $endDate->month;
+
+            // Extract the year and month for range processing
+            $startYear = $startDate->year;
+            $endYear = $endDate->year;
+            $startMonth = $startDate->format('M');
+            $endMonth = $endDate->format('M');
+            
+            // Prepare an array to map month names to their numeric values
+            $months = [
+                'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4, 'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8, 'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12,
+            ];
+
+            $monthlyCounts = [];
+            $totalApplicants = 0;
+            $totalAppointed = 0;
+            $applicantsPerProvince = [];
+            $applicantsByRace = [];
+            $totalApplicantsPerMonth = [];
+            $applicationsPerMonth = [];
+            $interviewedPerMonth = [];
+            $appointedPerMonth = [];
+            $rejectedPerMonth = [];
+            $percentMovementApplicationsPerMonth = 0;
+            $percentMovementInterviewedPerMonth = 0;
+            $percentMovementAppointedPerMonth = 0;
+            $percentMovementRejectedPerMonth = 0;
+            $totalIncomingMessages = 0;
+            $totalOutgoingMessages = 0;
+            $incomingMessages = [];
+            $outgoingMessages = [];
+            $applicantsByPosition = [];
+            $totalTimeToHire = 0;
+            $totalAbsorptionRate = 0;
+
+            // Fetch the applicants per province for the selected date range
+            $applicantsPerProvince = DB::table('applicant_monthly_data')
+            ->join('applicant_total_data', 'applicant_monthly_data.applicant_total_data_id', '=', 'applicant_total_data.id')
+            ->join('provinces', 'applicant_monthly_data.category_id', '=', 'provinces.id')
+            ->where('applicant_monthly_data.category_type', 'Province')
+            ->where(function($query) use ($startYear, $endYear, $startMonth, $endMonth, $months) {
+                if ($startYear == $endYear) {
+                    $query->whereYear('applicant_total_data.year', $startYear)
+                        ->where(function($subQuery) use ($startMonth, $endMonth, $months) {
+                            $subQuery->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $endMonth, $months) {
+                                return $value >= $months[$startMonth] && $value <= $months[$endMonth];
+                            })));
+                        });
+                } else {
+                    $query->where(function($subQuery) use ($startYear, $startMonth, $months) {
+                        $subQuery->whereYear('applicant_total_data.year', $startYear)
+                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $months) {
+                                    return $value >= $months[$startMonth];
+                                })));
+                    })->orWhere(function($subQuery) use ($endYear, $endMonth, $months) {
+                        $subQuery->whereYear('applicant_total_data.year', $endYear)
+                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($endMonth, $months) {
+                                    return $value <= $months[$endMonth];
+                                })));
+                    })->orWhereBetween('applicant_total_data.year', [$startYear + 1, $endYear - 1]);
+                }
+            })
+            ->select('provinces.name', DB::raw('SUM(applicant_monthly_data.count) as total_applicants'))
+            ->groupBy('provinces.name')
+            ->get()
+            ->map(function ($item) {
+                // Format for the chart
+                return ['x' => $item->name, 'y' => (int) $item->total_applicants];
+            })
+            ->toArray();
+
+            // Fetch applicants by race for the selected date range
+            $applicantsByRace = DB::table('applicant_monthly_data')
+            ->join('applicant_total_data', 'applicant_monthly_data.applicant_total_data_id', '=', 'applicant_total_data.id')
+            ->join('races', 'applicant_monthly_data.category_id', '=', 'races.id')
+            ->where('applicant_monthly_data.category_type', 'Race')
+            ->where(function($query) use ($startYear, $endYear, $startMonth, $endMonth, $months) {
+                if ($startYear == $endYear) {
+                    $query->whereYear('applicant_total_data.year', $startYear)
+                        ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $endMonth, $months) {
+                            return $value >= $months[$startMonth] && $value <= $months[$endMonth];
+                        })));
+                } else {
+                    $query->where(function($subQuery) use ($startYear, $startMonth, $months) {
+                        $subQuery->whereYear('applicant_total_data.year', $startYear)
+                            ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $months) {
+                                return $value >= $months[$startMonth];
+                            })));
+                    })->orWhere(function($subQuery) use ($endYear, $endMonth, $months) {
+                        $subQuery->whereYear('applicant_total_data.year', $endYear)
+                            ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($endMonth, $months) {
+                                return $value <= $months[$endMonth];
+                            })));
+                    })->orWhereBetween('applicant_total_data.year', [$startYear + 1, $endYear - 1]);
+                }
+            })
+            ->select('races.name as race_name', 'applicant_monthly_data.month', 'applicant_monthly_data.count')
+            ->get();
+
+            // Group and format the data for the chart
+            $applicantsByRace = $applicantsByRace->groupBy('race_name')->map(function ($items, $raceName) {
+                $formattedData = $items->map(function ($item) {
+                    return $item->month . ': ' . (int)$item->count;
+                });
+                return [
+                    'name' => $raceName,
+                    'data' => $formattedData->toArray(),
+                ];
+            })->values()->toArray();
+
+            //Total application per month
+            // Loop through each year in the range
+            for ($year = $startYear; $year <= $endYear; $year++) {
+                $yearData = ApplicantTotalData::where('year', $year)->first();
+                if (!$yearData) {
+                    continue;
+                }
+
+                // Determine the months to process for the current year
+                if ($year == $startYear && $year == $endYear) {
+                    // If start year and end year are the same, process from start month to end month
+                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($startMonth, $endMonth, $months) {
+                        return $value >= $months[$startMonth] && $value <= $months[$endMonth];
+                    }));
+                } elseif ($year == $startYear) {
+                    // For the start year, process from the start month to December
+                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($startMonth, $months) {
+                        return $value >= $months[$startMonth];
+                    }));
+                } elseif ($year == $endYear) {
+                    // For the end year, process from January to the end month
+                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($endMonth, $months) {
+                        return $value <= $months[$endMonth];
+                    }));
+                } else {
+                    // For the intermediate years, process all months
+                    $monthsToProcess = array_keys($months);
+                }
+
+                // Add data for the current year's months
+                foreach ($monthsToProcess as $month) {
+                    $monthKey = strtolower($month); // Convert month to the key format (e.g., 'jan', 'feb')
+                    $count = $yearData->$monthKey ?? 0;
+                    $totalApplicantsPerMonth[] = $month . ' \'' . substr($year, -2) . ': ' . $count;
+                    $monthlyCounts[] = $count;
+                    $totalApplicants += $count;+
+
+                    // Fetch count for "Application"
+                    $applicationsCount = DB::table('applicant_monthly_data')
+                    ->join('applicant_total_data', 'applicant_monthly_data.applicant_total_data_id', '=', 'applicant_total_data.id')
+                    ->where('applicant_monthly_data.category_type', 'Application')
+                    ->where('applicant_total_data.year', $year)
+                    ->where('applicant_monthly_data.month', $month)
+                    ->sum('applicant_monthly_data.count');
+
+                    // If no record is found, set the count to 0
+                    $applicationsCount = $applicationsCount ?: 0;
+
+                    $applicationsPerMonth[] = $month . ' \'' . substr($year, -2) . ': ' . $applicationsCount;
+                    $applicationsMonthlyCounts[] = $applicationsCount;
+
+                    // Fetch count for "Interviewed"
+                    $interviewedCount = DB::table('applicant_monthly_data')
+                    ->join('applicant_total_data', 'applicant_monthly_data.applicant_total_data_id', '=', 'applicant_total_data.id')
+                    ->where('applicant_monthly_data.category_type', 'Interviewed')
+                    ->where('applicant_total_data.year', $year)
+                    ->where('applicant_monthly_data.month', $month)
+                    ->sum('applicant_monthly_data.count');
+
+                    // If no record is found, set the count to 0
+                    $interviewedCount = $interviewedCount ?: 0;
+
+                    $interviewedPerMonth[] = $month . ' \'' . substr($year, -2) . ': ' . $interviewedCount;
+                    $interviewedMonthlyCounts[] = $interviewedCount;
+
+                    // Fetch count for "Appointed"
+                    $appointedCount = DB::table('applicant_monthly_data')
+                    ->join('applicant_total_data', 'applicant_monthly_data.applicant_total_data_id', '=', 'applicant_total_data.id')
+                    ->where('applicant_monthly_data.category_type', 'Appointed')
+                    ->where('applicant_total_data.year', $year)
+                    ->where('applicant_monthly_data.month', $month)
+                    ->sum('applicant_monthly_data.count');
+
+                    // If no record is found, set the count to 0
+                    $appointedCount = $appointedCount ?: 0;
+
+                    $appointedPerMonth[] = $month . ' \'' . substr($year, -2) . ': ' . $appointedCount;
+                    $appointedMonthlyCounts[] = $appointedCount;
+
+                    // Add time to total appointed
+                    $totalAppointed += $appointedCount;
+
+                    // Fetch count for "Rejected"
+                    $rejectedCount = DB::table('applicant_monthly_data')
+                    ->join('applicant_total_data', 'applicant_monthly_data.applicant_total_data_id', '=', 'applicant_total_data.id')
+                    ->where('applicant_monthly_data.category_type', 'Rejected')
+                    ->where('applicant_total_data.year', $year)
+                    ->where('applicant_monthly_data.month', $month)
+                    ->sum('applicant_monthly_data.count');
+
+                    // If no record is found, set the count to 0
+                    $rejectedCount = $rejectedCount ?: 0;
+                    
+                    $rejectedPerMonth[] = $month . ' \'' . substr($year, -2) . ': ' . $rejectedCount;
+                    $rejectedMonthlyCounts[] = $rejectedCount;
+
+                    // Calculate Time to Hire
+                    $timeToHire = DB::table('applicant_monthly_data')
+                    ->join('applicant_total_data', 'applicant_monthly_data.applicant_total_data_id', '=', 'applicant_total_data.id')
+                    ->where('applicant_monthly_data.category_type', 'Appointed')
+                    ->where('applicant_total_data.year', $year)
+                    ->where('applicant_monthly_data.month', $month)
+                    ->sum('applicant_monthly_data.total_time_to_appointed');
+
+                    // Add time to total time to hire
+                    $totalTimeToHire += $timeToHire ?: 0;
+                }
+            }
+
+            // Calculate percent movement of applications per month
+            $applicationsSlicedMonthlyCounts = array_slice($applicationsMonthlyCounts, -2, 1);
+            $applicationsPenultimateMonthCount = end($applicationsSlicedMonthlyCounts) ?: 0;
+            $applicationsLastMonthCount = end($applicationsMonthlyCounts) ?: 0;
+            $percentMovementApplicationsPerMonth = $applicationsPenultimateMonthCount != 0 ? round((($applicationsLastMonthCount - $applicationsPenultimateMonthCount) / $applicationsPenultimateMonthCount) * 100, 2) : 0;
+
+            // Calculate percent movement of interviewed per month
+            $interviewedSlicedMonthlyCounts = array_slice($interviewedMonthlyCounts, -2, 1);
+            $interviewedPenultimateMonthCount = end($interviewedSlicedMonthlyCounts) ?: 0;
+            $interviewedLastMonthCount = end($interviewedMonthlyCounts) ?: 0;
+            $percentMovementInterviewedPerMonth = $interviewedPenultimateMonthCount != 0 ? round((($interviewedLastMonthCount - $interviewedPenultimateMonthCount) / $interviewedPenultimateMonthCount) * 100, 2) : 0;
+
+            // Calculate percent movement of appointed per month
+            $appointedSlicedMonthlyCounts = array_slice($appointedMonthlyCounts, -2, 1);
+            $appointedPenultimateMonthCount = end($appointedSlicedMonthlyCounts) ?: 0;
+            $appointedLastMonthCount = end($appointedMonthlyCounts) ?: 0;
+            $percentMovementAppointedPerMonth = $appointedPenultimateMonthCount != 0 ? round((($appointedLastMonthCount - $appointedPenultimateMonthCount) / $appointedPenultimateMonthCount) * 100, 2) : 0;
+    
+            // Calculate percent movement of rejected per month
+            $rejectedSlicedMonthlyCounts = array_slice($rejectedMonthlyCounts, -2, 1);
+            $rejectedPenultimateMonthCount = end($rejectedSlicedMonthlyCounts) ?: 0;
+            $rejectedLastMonthCount = end($rejectedMonthlyCounts) ?: 0;
+            $percentMovementRejectedPerMonth = $rejectedPenultimateMonthCount != 0 ? round((($rejectedLastMonthCount - $rejectedPenultimateMonthCount) / $rejectedPenultimateMonthCount) * 100, 2) : 0;
+
+            // Fetch chat data for the selected years
+            $chatDataByYear = ChatTotalData::whereIn('year', [$startYear, $endYear])->get()->keyBy('year');
+
+            $totalIncomingMessages = 0;
+            $totalOutgoingMessages = 0;
+            $incomingMessages = [];
+            $outgoingMessages = [];
+
+            for ($year = $startYear; $year <= $endYear; $year++) {
+                if (!isset($chatDataByYear[$year])) {
+                    continue;
+                }
+
+                $yearChatData = $chatDataByYear[$year];
+
+                // Determine the months to process for the current year
+                if ($year == $startYear && $year == $endYear) {
+                    // If start year and end year are the same, process from start month to end month
+                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($startMonth, $endMonth, $months) {
+                        return $value >= $months[$startMonth] && $value <= $months[$endMonth];
+                    }));
+                } elseif ($year == $startYear) {
+                    // For the start year, process from the start month to December
+                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($startMonth, $months) {
+                        return $value >= $months[$startMonth];
+                    }));
+                } elseif ($year == $endYear) {
+                    // For the end year, process from January to the end month
+                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($endMonth, $months) {
+                        return $value <= $months[$endMonth];
+                    }));
+                } else {
+                    // For the intermediate years, process all months
+                    $monthsToProcess = array_keys($months);
+                }
+
+                // Add data for the current year's months
+                foreach ($monthsToProcess as $month) {
+                    $monthIncoming = strtolower($month) . '_incoming';
+                    $monthOutgoing = strtolower($month) . '_outgoing';
+                    $incomingCount = $yearChatData->$monthIncoming ?? 0;
+                    $outgoingCount = $yearChatData->$monthOutgoing ?? 0;
+                    
+                    $formattedMonth = $month . ' \'' . substr($year, -2);
+                    $incomingMessages[] = $formattedMonth . ': ' . $incomingCount;
+                    $outgoingMessages[] = $formattedMonth . ': ' . $outgoingCount;
+
+                    // Sum the total incoming and outgoing messages
+                    $totalIncomingMessages += $incomingCount;
+                    $totalOutgoingMessages += $outgoingCount;
+                }
+            }
+
+            // Fetch the applicants by position for the selected date range
+            $applicantsByPosition = DB::table('applicant_monthly_data')
+            ->join('applicant_total_data', 'applicant_monthly_data.applicant_total_data_id', '=', 'applicant_total_data.id')
+            ->join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
+            ->where('applicant_monthly_data.category_type', 'Position')
+            ->where(function($query) use ($startYear, $endYear, $startMonth, $endMonth, $months) {
+                if ($startYear == $endYear) {
+                    $query->whereYear('applicant_total_data.year', $startYear)
+                        ->where(function($subQuery) use ($startMonth, $endMonth, $months) {
+                            $subQuery->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $endMonth, $months) {
+                                return $value >= $months[$startMonth] && $value <= $months[$endMonth];
+                            })));
+                        });
+                } else {
+                    $query->where(function($subQuery) use ($startYear, $startMonth, $months) {
+                        $subQuery->whereYear('applicant_total_data.year', $startYear)
+                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $months) {
+                                    return $value >= $months[$startMonth];
+                                })));
+                    })->orWhere(function($subQuery) use ($endYear, $endMonth, $months) {
+                        $subQuery->whereYear('applicant_total_data.year', $endYear)
+                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($endMonth, $months) {
+                                    return $value <= $months[$endMonth];
+                                })));
+                    })->orWhereBetween('applicant_total_data.year', [$startYear + 1, $endYear - 1]);
+                }
+            })
+            ->select('positions.name', DB::raw('SUM(applicant_monthly_data.count) as total_applicants'))
+            ->groupBy('positions.name')
+            ->get()
+            ->map(function ($item) {
+                // Format for the chart
+                return ['x' => $item->name, 'y' => (int) $item->total_applicants];
+            })
+            ->toArray();
+
+            $averageTimeToHire = $totalApplicants == 0 ? 0 : round($totalTimeToHire / $totalApplicants);
+            $totalAbsorptionRate = $totalApplicants == 0 ? 0 : round($totalAppointed / $totalApplicants * 100);
+
+            //Data to return
+            $data = [
+                'totalApplicants' => $totalApplicants,
+                'totalAppointed' => $totalAppointed,
+                'applicantsPerProvince' => $applicantsPerProvince,
+                'applicantsByRace' => $applicantsByRace,
+                'totalApplicantsPerMonth' => $totalApplicantsPerMonth,
+                'applicationsPerMonth' => $totalApplicantsPerMonth,
+                'interviewedPerMonth' => $interviewedPerMonth,
+                'appointedPerMonth' => $appointedPerMonth,
+                'rejectedPerMonth' => $rejectedPerMonth,
+                'percentMovementApplicationsPerMonth' => $percentMovementApplicationsPerMonth,
+                'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
+                'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
+                'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                'totalIncomingMessages' => $totalIncomingMessages,
+                'totalOutgoingMessages' => $totalOutgoingMessages,
+                'incomingMessages' => $incomingMessages,
+                'outgoingMessages' => $outgoingMessages,
+                'applicantsByPosition' => $applicantsByPosition,
+                'totalTimeToHire' => $totalTimeToHire,
+                'averageTimeToHire' => $averageTimeToHire,
+                'totalAbsorptionRate' => $totalAbsorptionRate,
+            ];
+
+            // Return the aggregated data
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'message' => 'Data updated successfully!',
+            ]);
+        } catch (Exception $e) {            
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve data!',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Calculate % Movement
+    |--------------------------------------------------------------------------
+    */
+
+    private function calculatePercentMovement($data)
+    {
+        if (count($data) < 2) {
+            return 0;
+        }
+
+        $sumOfData = array_sum($data);
+        $lastMonth = end($data);
+        $penultimateMonth = prev($data);
+
+        if ($sumOfData > 0) {
+            return round((($lastMonth - $penultimateMonth) / $sumOfData) * 100, 2);
+        } else {
+            return 0;
+        }
+    }
 }

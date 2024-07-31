@@ -13,7 +13,7 @@
             <div class="row mb-3 pb-1">
                 <div class="col-12">
                     <div class="d-flex align-items-lg-center flex-lg-row flex-column">
-                        <div class="flex-grow-1">
+                        <div class="flex-grow-1" style="width: 60%;">
                             <h4 class="fs-16 mb-1">
                                 Hello, {{ Auth::user()->firstname }}!
                             </h4>
@@ -21,9 +21,17 @@
                                 Here's what's happening with Orient today.
                             </p>
                         </div>
-                        <div class="mt-3 mt-lg-0">
+                        <div class="mt-3 mt-lg-0" style="width: 40%;">
                             <form action="javascript:void(0);">
-                                <div class="row g-3 mb-0 align-items-center">
+                                <div class="row g-3 mb-0 align-items-end justify-content-end">
+                                    <div class="col-8">
+                                        <div class="input-group">
+                                            <input type="text" id="dateFilter" class="form-control border-0 dash-filter-picker shadow flatpickr-input">
+                                            <div class="input-group-text bg-primary border-primary text-white" id="dateFilterIcon">
+                                                <i class="ri-calendar-2-line"></i>
+                                            </div>
+                                        </div>
+                                    </div>
                                     <!--end col-->
                                     <div class="col-auto">
                                         <button type="button" class="btn btn-soft-info btn-icon waves-effect waves-light layout-rightside-btn"><i class="ri-pulse-line"></i></button>
@@ -37,7 +45,6 @@
                 </div>
                 <!--end col-->
             </div>
-            <!--end row-->
 
             <!-------------------------------------------------------------------------------------
                 Information
@@ -52,7 +59,7 @@
                                     Applications
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementApplicationsPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
+                                    <span class="badge bg-light text-{{ $percentMovementApplicationsPerMonth > 0 ? 'success' : 'danger' }} mb-0" id="percentMovementApplicationsPerMonthBadge"> 
                                         <i class="ri-arrow-{{ $percentMovementApplicationsPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
                                         {{ abs($percentMovementApplicationsPerMonth) }} % 
                                     </span>vs. previous month
@@ -73,7 +80,7 @@
                                     Interviewed
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementInterviewedPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
+                                    <span class="badge bg-light text-{{ $percentMovementInterviewedPerMonth > 0 ? 'success' : 'danger' }} mb-0" id="percentMovementInterviewedPerMonthBadge"> 
                                         <i class="ri-arrow-{{ $percentMovementInterviewedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
                                         {{ abs($percentMovementInterviewedPerMonth) }} % 
                                     </span>vs. previous month
@@ -94,7 +101,7 @@
                                     Hired
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementAppointedPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
+                                    <span class="badge bg-light text-{{ $percentMovementAppointedPerMonth > 0 ? 'success' : 'danger' }} mb-0" id="percentMovementHiredPerMonthBadge"> 
                                         <i class="ri-arrow-{{ $percentMovementAppointedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
                                         {{ abs($percentMovementAppointedPerMonth) }} % 
                                     </span>vs. previous month
@@ -115,7 +122,7 @@
                                     Rejected
                                 </h5>
                                 <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementRejectedPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
+                                    <span class="badge bg-light text-{{ $percentMovementRejectedPerMonth > 0 ? 'success' : 'danger' }} mb-0" id="percentMovementRejectedPerMonthBadge"> 
                                         <i class="ri-arrow-{{ $percentMovementRejectedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
                                         {{ abs($percentMovementRejectedPerMonth) }} % 
                                     </span>vs. previous month
@@ -135,7 +142,7 @@
             -------------------------------------------------------------------------------------->
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-6" id="timeToHirePreviousYearColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -149,10 +156,10 @@
                                         $formattedInterval = $interval->cascade()->format('%dD %HH %IM');
                                     @endphp
                                     <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span>{{ $formattedInterval }}</span>
+                                        <span id="timeToHirePreviousYearValue">{{ $formattedInterval }}</span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0">
+                                        <span class="badge bg-light text-secondary mb-0" id="timeToHirePreviousYear">
                                             {{ $previousYearData->year }}
                                         </span>
                                     </p>
@@ -169,7 +176,7 @@
                     </div> <!-- end card-->
                 </div> <!-- end col-->
 
-                <div class="col-md-6">
+                <div class="col-md-6" id="timeToHireCurrentYearColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -183,10 +190,10 @@
                                         $formattedInterval = $interval->cascade()->format('%dD %HH %IM');
                                     @endphp
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span>{{ $formattedInterval }}</span>
+                                        <span id="timeToHireCurrentYearValue">{{ $formattedInterval }}</span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-primary mb-0">
+                                        <span class="badge bg-light text-primary mb-0" id="timeToHireCurrentYear">
                                             {{ $currentYearData->year }}
                                         </span>
                                     </p>
@@ -209,7 +216,7 @@
             -------------------------------------------------------------------------------------->
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-6" id="absorptionRatePreviousYearColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -218,12 +225,12 @@
                                         Absorption Rate
                                     </p>
                                     <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span class="counter-value" data-target="{{ $previousYearData->total_applicants > 0 ? round($previousYearData->total_appointed / $previousYearData->total_applicants * 100) : 0 }}">
+                                        <span class="counter-value" data-target="{{ $previousYearData->total_applicants > 0 ? round($previousYearData->total_appointed / $previousYearData->total_applicants * 100) : 0 }}" id="absorptionRatePreviousYearValue">
                                             0
                                         </span>%
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0">
+                                        <span class="badge bg-light text-secondary mb-0" id="absorptionRatePreviousYear">
                                             {{ $previousYearData->year }}
                                         </span>
                                     </p>
@@ -240,7 +247,7 @@
                     </div> <!-- end card-->
                 </div> <!-- end col-->
 
-                <div class="col-md-6">
+                <div class="col-md-6" id="absorptionRateCurrentYearColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -249,12 +256,12 @@
                                         Absorption Rate
                                     </p>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span class="counter-value" data-target="{{ $currentYearData->total_applicants > 0 ? round($currentYearData->total_appointed / $currentYearData->total_applicants * 100) : 0 }}">
+                                        <span class="counter-value" data-target="{{ $currentYearData->total_applicants > 0 ? round($currentYearData->total_appointed / $currentYearData->total_applicants * 100) : 0 }}" id="absorptionRateCurrentYearValue">
                                             0
                                         </span>%
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-primary mb-0">
+                                        <span class="badge bg-light text-primary mb-0" id="absorptionRateCurrentYear">
                                             {{ $currentYearData->year }}
                                         </span>
                                     </p>
@@ -337,14 +344,14 @@
                             <div class="row g-0 text-center">
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
-                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $totalIncomingMessages }}">0</span></h5>
+                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $totalIncomingMessages }}" id="totalIncomingCounter">0</span></h5>
                                         <p class="text-muted mb-0">Incoming</p>
                                     </div>
                                 </div>
                                 <!--end col-->
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
-                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $totalOutgoingMessages }}">0</span></h5>
+                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $totalOutgoingMessages }}" id="totalOutgoingCounter">0</span></h5>
                                         <p class="text-muted mb-0">Outgoing</p>
                                     </div>
                                 </div>
@@ -415,7 +422,7 @@
                                 $sortedProvinces = $applicantsPerProvinceCollection->sortByDesc('y')->take(3);
                             @endphp
 
-                            <div class="px-2 py-2 mt-4">
+                            <div class="px-2 py-2 mt-4" id="provinceProgress">
                                 @foreach($sortedProvinces as $province)
                                     @php
                                     // Calculate the percentage of total applicants for each province
