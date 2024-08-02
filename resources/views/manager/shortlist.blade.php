@@ -268,7 +268,7 @@
     </div>
 </div>
 
-<div class="row g-4 mb-4">
+<div class="row g-4 mb-4 d-none">
     <div class="col-md-12">
         <label class="form-label">
             Verification Checks
