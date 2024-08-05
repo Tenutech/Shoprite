@@ -780,6 +780,7 @@ class ChatService
                 $templateMessage = [
                     [
                         'message' => "I have picked up the address as:\n\n*$formattedAddress*\n\nPlease confirm that this is correct.",
+                        'type' => "template",
                         'template' => "location",
                         'variables' => [$formattedAddress]
                     ]
