@@ -70,8 +70,10 @@
                                                     <div class="d-flex align-items-center">
                                                         <div class="flex-shrink-0 me-3">
                                                             @if ($user->id == $interview->interviewer_id)
-                                                                <div class="avatar-sm bg-light rounded p-1">
-                                                                    <img src="{{ URL::asset(optional($interview->applicant)->avatar ?? 'images/avatar.jpg') }}" alt="" class="img-fluid d-block">
+                                                                <div class="flex-shrink-0 col-auto">
+                                                                    <div class="avatar-sm rounded overflow-hidden">
+                                                                        <img src="{{ URL::asset(optional($interview->applicant)->avatar ?? 'images/avatar.jpg') }}" alt="" class="member-img img-fluid d-block rounded">
+                                                                    </div>
                                                                 </div>
                                                             @else
                                                                 <div class="avatar-sm bg-{{ optional(optional($interview->vacancy)->position)->color ?? 'primary' }}-subtle rounded p-1">

@@ -56,15 +56,13 @@
                     </a>
                 </li>                
                 @if ($user->role_id > 3)
-                    @if (!$user->applicant)
+                    @if ($user->applicant)
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('application.index') }}">
                                 <i class="ri-add-line"></i> 
                                 <span>Application</span>
                             </a>
                         </li>
-                    @endif
-                    @if ($user->applicant)
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('vacancies.index') }}">
                                 <i class="ri-briefcase-line"></i> 
