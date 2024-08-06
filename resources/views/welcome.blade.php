@@ -116,8 +116,8 @@
                                             <select class="form-control" data-choices>
                                                 <option value="">Select Job</option>
                                                 @foreach ($positions as $position)
-                                                    <option value="{{ $position->id }}">
-                                                        {{ $position->name }}
+                                                    <option value="{{ e($position->id) }}">
+                                                        {{ e($position->name) }}
                                                     </option>
                                                 @endforeach
                                             </select>

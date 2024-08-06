@@ -8,8 +8,6 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
-use App\Models\Company;
-use App\Models\Position;
 use App\Models\Applicant;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
@@ -44,6 +42,8 @@ class RegisterController extends Controller
      */
     public function __construct()
     {
+        // Apply the 'guest' middleware to all methods
+        // This means only guests (unauthenticated users) can access the registration methods
         $this->middleware('guest');
     }
 
@@ -55,14 +55,15 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+        // Define validation rules for registration data
         return Validator::make($data, [
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'id_number' => ['required', 'string',  'digits:13', 'unique:users'],
+            'id_number' => ['required', 'string', 'digits:13', 'unique:users'],
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
+            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
         ]);
     }
 
@@ -74,19 +75,20 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        // return request()->file('avatar');
+        // Handle avatar upload if provided
         if (request()->has('avatar')) {
             $avatar = request()->file('avatar');
-            $avatarName = $data['firstname'].' '.$data['lastname'].'-'.time().'.'.$avatar->getClientOriginalExtension();
+            $avatarName = $data['firstname'] . ' ' . $data['lastname'] . '-' . time() . '.' . $avatar->getClientOriginalExtension();
             $avatarPath = public_path('/images/');
             $avatar->move($avatarPath, $avatarName);
-        } else{
-            $avatarName = 'avatar.jpg';
+        } else {
+            $avatarName = 'avatar.jpg'; // Default avatar
         }
 
-        // Check if an applicant exists with the given id_number
+        // Check if an applicant exists with the given ID number
         $applicant = Applicant::where('id_number', $data['id_number'])->first();
 
+        // Create a new user record
         $user = User::create([
             'firstname' => ucwords($data['firstname']),
             'lastname' => ucwords($data['lastname']),
@@ -94,10 +96,10 @@ class RegisterController extends Controller
             'phone' => $data['phone'],
             'id_number' => $data['id_number'],
             'password' => Hash::make($data['password']),
-            'avatar' =>  $avatarName,
-            'role_id' => 4,
+            'avatar' => $avatarName,
+            'role_id' => 4, // Default role for new users
             'applicant_id' => $applicant ? $applicant->id : null,
-            'ststus_id' => 1
+            'status_id' => 1 // User status (e.g., active)
         ]);
 
         // Create default notification settings for the user
@@ -105,7 +107,7 @@ class RegisterController extends Controller
             'user_id' => $user->id,
         ]);
 
-        // Dispatch the job
+        // Dispatch the job to process the user's ID number
         ProcessUserIdNumber::dispatch($user->id);
 
         return $user;
@@ -113,19 +115,22 @@ class RegisterController extends Controller
 
     /**
      * The user has been registered.
+     * This method is called after a user has successfully registered.
+     * You can use it to perform additional tasks upon registration.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  mixed  $user
+     * @param  mixed  $user  The registered user instance
      * @return mixed
      */
     protected function registered(Request $request, $user)
     {
+        // Redirect the user based on their role_id
         switch ($user->role_id) {
             case 1:
             case 2:
-                return redirect('/admin/home');
+                return redirect('/admin/home'); // Redirect admins to admin home
             case 3:
-                return redirect('/manager/home');
+                return redirect('/manager/home'); // Redirect managers to manager home
             default:
                 return redirect('/home'); // Fallback for any other cases
         }

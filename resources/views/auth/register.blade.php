@@ -53,42 +53,42 @@
                                                     <label for="firstname" class="form-label">
                                                         First Name <span class="text-danger">*</span>
                                                     </label>
-                                                    <input type="text" class="form-control @error('firstname') is-invalid @enderror" name="firstname" value="{{ old('firstname') }}" id="firstname" placeholder="Enter first name" required>
+                                                    <input type="text" class="form-control @error('firstname') is-invalid @enderror" name="firstname" value="{{ e(old('firstname')) }}" id="firstname" placeholder="Enter first name" required>
                                                     @error('firstname')
                                                         <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $message }}</strong>
+                                                            <strong>{{ e($message) }}</strong>
                                                         </span>
                                                     @enderror
                                                 </div>
-
+                                    
                                                 <!-- ID Number -->
                                                 <div class="mb-3">
                                                     <label for="idNumber" class="form-label">
                                                         ID Number <span class="text-danger">*</span>
                                                     </label>
-                                                    <input type="text" class="form-control @error('id_number') is-invalid @enderror" name="id_number" value="{{ old('id_number') }}" id="idNumber" placeholder="Enter id number" required>
+                                                    <input type="text" class="form-control @error('id_number') is-invalid @enderror" name="id_number" value="{{ e(old('id_number')) }}" id="idNumber" placeholder="Enter id number" required>
                                                     @error('id_number')
                                                         <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $message }}</strong>
+                                                            <strong>{{ e($message) }}</strong>
                                                         </span>
                                                     @enderror
                                                 </div>
                                             </div>
-
+                                    
                                             <div class="col-lg-6"> 
                                                 <!-- Last Name -->
                                                 <div class="mb-3">
                                                     <label for="lastname" class="form-label">
                                                         Last Name <span class="text-danger">*</span>
                                                     </label>
-                                                    <input type="text" class="form-control @error('lastname') is-invalid @enderror" name="lastname" value="{{ old('lastname') }}" id="lastname" placeholder="Enter last name" required>
+                                                    <input type="text" class="form-control @error('lastname') is-invalid @enderror" name="lastname" value="{{ e(old('lastname')) }}" id="lastname" placeholder="Enter last name" required>
                                                     @error('lastname')
                                                         <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $message }}</strong>
+                                                            <strong>{{ e($message) }}</strong>
                                                         </span>
                                                     @enderror
                                                 </div>
-
+                                    
                                                 <!-- Phone Number -->
                                                 <div class="mb-3">
                                                     <label for="phone" class="form-label">
@@ -96,13 +96,13 @@
                                                     </label>
                                                     <div class="input-group" data-input-flag>
                                                         <button class="btn btn-light border" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <img src="{{URL::asset('build/images/flags/za.svg')}}" alt="flag img" height="20" class="country-flagimg rounded">
+                                                            <img src="{{ URL::asset('build/images/flags/za.svg') }}" alt="flag img" height="20" class="country-flagimg rounded">
                                                             <span class="ms-2 country-codeno">+ 27</span>
                                                         </button>
-                                                        <input type="text" class="form-control rounded-end flag-input @error('phone') is-invalid @enderror" name="phone" value="{{ old('phone') }}" id="phone" placeholder="Enter phone number" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0+/, '').replace(/(\..*?)\..*/g, '$1');" required/>
+                                                        <input type="text" class="form-control rounded-end flag-input @error('phone') is-invalid @enderror" name="phone" value="{{ e(old('phone')) }}" id="phone" placeholder="Enter phone number" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0+/, '').replace(/(\..*?)\..*/g, '$1');" required/>
                                                         @error('phone')
                                                             <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $message }}</strong>
+                                                                <strong>{{ e($message) }}</strong>
                                                             </span>
                                                         @enderror
                                                         <div class="dropdown-menu w-100">
@@ -114,22 +114,22 @@
                                                     </div>
                                                 </div>
                                             </div>
-
+                                    
                                             <div class="col-lg-12">
                                                 <!-- Email -->
                                                 <div class="mb-3">
                                                     <label for="email" class="form-label">
                                                         Email <span class="text-danger">*</span>
                                                     </label>
-                                                    <input type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" id="email" placeholder="Enter email address" required>
+                                                    <input type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ e(old('email')) }}" id="email" placeholder="Enter email address" required>
                                                     @error('email')
                                                         <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $message }}</strong>
+                                                            <strong>{{ e($message) }}</strong>
                                                         </span>
                                                     @enderror
                                                 </div>
                                             </div>
-
+                                    
                                             <div class="col-lg-6">
                                                 <!-- Password -->
                                                 <div class="mb-2">
@@ -143,13 +143,13 @@
                                                         </button>
                                                         @error('password')
                                                             <span class="invalid-feedback" role="alert">
-                                                                <strong>{{ $message }}</strong>
+                                                                <strong>{{ e($message) }}</strong>
                                                             </span>
                                                         @enderror
                                                     </div>
                                                 </div>
                                             </div>
-
+                                    
                                             <div class="col-lg-6">
                                                 <!-- Confirm Password -->
                                                 <div class=" mb-4">
@@ -167,7 +167,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-
+                                    
                                             <div class="col-lg-12">
                                                 <!-- Profile Picture -->
                                                 <div class=" mb-4">
@@ -175,7 +175,7 @@
                                                     <input type="file" class="form-control @error('avatar') is-invalid @enderror" name="avatar" id="input-avatar" accept=".jpg, .jpeg, .png">
                                                     @error('avatar')
                                                         <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ $message }}</strong>
+                                                            <strong>{{ e($message) }}</strong>
                                                         </span>
                                                     @enderror
                                                     <div class="">
@@ -184,7 +184,7 @@
                                                 </div>
                                             </div>
                                         </div>
-
+                                    
                                         <div class="mb-4">
                                             <p class="mb-0 fs-12 text-muted fst-italic">
                                                 By registering you agree to the Orient
@@ -193,7 +193,7 @@
                                                 </a>
                                             </p>
                                         </div>
-
+                                    
                                         <div class="mt-4">
                                             <button class="btn btn-success w-100" type="submit">Sign Up</button>
                                         </div>
