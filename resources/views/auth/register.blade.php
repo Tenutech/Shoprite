@@ -137,7 +137,7 @@
                                                         Password <span class="text-danger">*</span>
                                                     </label>
                                                     <div class="position-relative auth-pass-inputgroup mb-3">
-                                                        <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" id="password" placeholder="Enter password" required>
+                                                        <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" id="password" placeholder="Enter password" autocomplete="off" required>
                                                         <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon">
                                                             <i class="ri-eye-fill align-middle"></i>
                                                         </button>
@@ -157,7 +157,7 @@
                                                         Confirm Password <span class="text-danger">*</span>
                                                     </label>
                                                     <div class="position-relative auth-pass-inputgroup mb-3">
-                                                        <input type="password" class="form-control pe-5 password-input @error('password_confirmation') is-invalid @enderror" name="password_confirmation" id="input-password" placeholder="Enter confirm password" required>
+                                                        <input type="password" class="form-control pe-5 password-input @error('password_confirmation') is-invalid @enderror" name="password_confirmation" id="input-password" placeholder="Enter confirm password" autocomplete="off" required>
                                                         <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon-2">
                                                             <i class="ri-eye-fill align-middle"></i>
                                                         </button>
