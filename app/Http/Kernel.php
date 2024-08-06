@@ -24,6 +24,7 @@ class Kernel extends HttpKernel
         \App\Http\Middleware\SessionLifeTime::class,
         \App\Http\Middleware\ContentSecurityPolicy::class,
         \App\Http\Middleware\SecureHeaders::class,
+        \App\Http\Middleware\SetHttpOnlyForXsrfToken::class,
     ];
 
     /**
