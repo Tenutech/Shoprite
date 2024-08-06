@@ -580,6 +580,9 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::delete('/message-delete/{id}', [App\Http\Controllers\MessageController::class, 'destroy'])->name('message.destroy');
 
+    //Queries
+    Route::post('/queries', [App\Http\Controllers\QueryController::class, 'store'])->name('query.store');
+
     //Vacancies
     Route::get('/vacancies', [App\Http\Controllers\VacanciesController::class, 'index'])->middleware('check.user.applicant')->name('vacancies.index');
 
@@ -634,6 +637,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::post('/interview-noShow', [App\Http\Controllers\InterviewController::class, 'noShow'])->name('interview.noShow');
 
+
     //Notifications
     Route::put('/notification-read', [App\Http\Controllers\NotificationController::class, 'notificationRead'])->name('notification.read');
 
@@ -648,6 +652,9 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
 //Welcome
 Route::get('/', [App\Http\Controllers\HomeController::class, 'root'])->name('root');
+
+//help
+Route::get('/help', [App\Http\Controllers\HelpController::class, 'index'])->name('help');
 
 //Subscribe
 Route::post('/subscribe', [App\Http\Controllers\HomeController::class, 'subscribe']);

@@ -1,10 +1,15 @@
 @extends('layouts.master')
 @section('title') @lang('translation.faqs') @endsection
 @section('content')
-    @component('components.breadcrumb')
-        @slot('li_1') Pages @endslot
-        @slot('title') FAQs @endslot
-    @endcomponent
+
+@component('components.breadcrumb')
+    @slot('li_1') Pages @endslot
+    @slot('title') FAQs @endslot
+@endcomponent
+
+@section('css')
+    <link href="{{ URL::asset('build/libs/quill/quill.snow.css') }}" rel="stylesheet" type="text/css" />
+@endsection
 
     <div class="row">
         <div class="col-lg-12">
@@ -224,10 +229,156 @@
                         </div><!--end accordion-->
                     </div>
                 </div>
+
             </div>
         </div><!--end col-->
+     
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <div class="flex-grow-1">
+                            <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#queryModal">
+                                <i class="ri-add-fill me-1 align-bottom"></i> 
+                                Send a Query
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xxl-12">
+            <div class="card" id="queryList">
+            <div class="card-header">
+                    <div class="row g-3">                      
+                        <div class="col-md-auto ms-auto">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-muted">Display: </span>
+                                <select class="form-control mb-0" id="per-page-select" data-choices data-choices-search-false>
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="{{count($queries)}}">All</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div>
+                        <div class="table-responsive table-card mb-3">
+                            <table class="table align-middle table-nowrap mb-0" id="queryTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="sort d-none" data-sort="id" scope="col">ID</th>
+                                        <th class="sort" data-sort="body" scope="col">Subject</th>
+                                        <th class="sort" data-sort="intro" scope="col">Body</th>              
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="list form-check-all" style="height:200px;">
+                                    @if($queries && count($queries) > 0)
+                                        @foreach ($queries as $query)
+                                            <tr style="vertical-align:top;">
+                                                <td class="id d-none">{{ Crypt::encryptstring($query->id) }}</td>
+                                                <td class="subject">{{ $query->subject }}</td>
+                                                <td class="body" style="white-space: pre-wrap;">{{ str_replace(';;', '', $query->body) }}</td>
+                                                <td>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr style="vertical-align:top;">
+                                            <td class="id d-none"></td>
+                                            <td class="subject"></td>
+                                            <td class="body"></td>
+                                            <td>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                            <div class="noresult" style="display: none">
+                                <div class="text-center">
+                                    <lord-icon src="https://cdn.lordicon.com/msoeawqm.json"
+                                        trigger="loop" colors="primary:#121331,secondary:#08a88a"
+                                        style="width:75px;height:75px">
+                                    </lord-icon>
+                                    <h5 class="mt-2">
+                                        Sorry! No Result Found
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <div class="pagination-wrap hstack gap-2">
+                                <a class="page-item pagination-prev disabled" href="#">
+                                    Previous
+                                </a>
+                                <ul class="pagination listjs-pagination mb-0"></ul>
+                                <a class="page-item pagination-next" href="#">
+                                    Next
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+            </div>
+            <!--end card-->
+        </div>
+        <!--end col-->
     </div><!--end row-->
+
+    <!-- Modal Message -->
+    <div class="modal fade zoomIn" id="queryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-xl">
+            <div class="modal-content border-0">
+                <div class="modal-header bg-light p-3">
+                    <h5 class="modal-title" id="exampleModalLabel"></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
+                </div>
+                <form id="formQuery" enctype="multipart/form-data">
+                    @csrf
+                    <input type="hidden" id="field-id" name="field_id"/>
+                    <div class="modal-body">
+                        <div class="col-lg-12 mb-3">
+
+                            <div class="mb-3">
+                                <label for="subject" class="form-label">
+                                    Subject
+                                </label>
+                                <input type="text" class="form-control" id="subject" name="subject"/>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="body" class="form-label">
+                                    Body
+                                </label>
+                                <div class="snow-editor" id="body" style="height: 500px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">                                        
+                        <div class="hstack gap-2 justify-content-end">
+                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-success" id="add-btn">Submit</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!--end modal-->
+
+
+
 @endsection
 @section('script')
+<script src="{{ URL::asset('build/libs/quill/quill.min.js') }}"></script>
+<script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
+<script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
+<script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+<script src="{{ URL::asset('build/js/pages/query.init.js') }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('chat_total_data', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->year('year')->nullable()->unique('unique_year');
+            $table->year('year')->nullable();
             $table->integer('total_incoming')->nullable()->default(0);
             $table->integer('total_outgoing')->nullable()->default(0);
             $table->integer('jan_incoming')->nullable()->default(0);
@@ -42,8 +42,10 @@ return new class extends Migration
             $table->integer('nov_outgoing')->default(0);
             $table->integer('dec_incoming')->default(0);
             $table->integer('dec_outgoing')->default(0);
-            $table->timestamp('created_at')->nullable()->useCurrent();
-            $table->timestamp('updated_at')->useCurrentOnUpdate()->nullable()->useCurrent();
+            $table->timestamps();
+
+            // Create unique index for year
+            $table->unique('year', 'unique_year2');
         });
     }
 
