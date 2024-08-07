@@ -9,6 +9,42 @@ use Illuminate\Support\Facades\Validator;
 
 class QueryController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware(['auth', 'verified']);
+    }
+
+    /**
+     * Show the application dashboard.
+     *
+     * @return \Illuminate\Contracts\Support\Renderable
+     */
+
+    /*
+    |--------------------------------------------------------------------------
+    | Query Index
+    |--------------------------------------------------------------------------
+    */
+
+    public function index(Request $request)
+    {
+        if (view()->exists('help')) {
+            return view('help');
+        }
+        return view('404');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Query Store
+    |--------------------------------------------------------------------------
+    */
+
     public function store(Request $request)
     {
         $request->validate([
@@ -41,9 +77,6 @@ class QueryController extends Controller
                 'error' => $e->getMessage()
             ], 400);
         }
-
-
-
 
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
