@@ -16,7 +16,8 @@ class Position extends Model
         'description',
         'icon',
         'color',
-        'image'
+        'image',
+        'template_id'
     ];
 
     //User Position
@@ -101,6 +102,12 @@ class Position extends Model
     public function files()
     {
         return $this->hasMany(File::class);
+    }
+
+    // Interview Template
+    public function interviewTemplate()
+    {
+        return $this->belongsTo(InterviewTemplate::class, 'template_id');
     }
 
     /**

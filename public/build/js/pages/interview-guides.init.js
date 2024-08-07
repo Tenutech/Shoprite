@@ -8,53 +8,6 @@ File: CRM-contact Js File
 
 /*
 |--------------------------------------------------------------------------
-| Snow Editor
-|--------------------------------------------------------------------------
-*/
-
-var snowEditor = document.querySelectorAll(".snow-editor");
-
-if (snowEditor) {
-    Array.from(snowEditor).forEach(function (item) {
-      var snowEditorData = {};
-      var issnowEditorVal = item.classList.contains("snow-editor");
-  
-      if (issnowEditorVal == true) {
-        snowEditorData.theme = 'snow', snowEditorData.modules = {
-          'toolbar': [[{
-            'font': []
-          }, {
-            'size': []
-          }], ['bold', 'italic', 'underline', 'strike'], [{
-            'color': []
-          }, {
-            'background': []
-          }], [{
-            'script': 'super'
-          }, {
-            'script': 'sub'
-          }], [{
-            'header': [false, 1, 2, 3, 4, 5, 6]
-          }, 'blockquote', 'code-block'], [{
-            'list': 'ordered'
-          }, {
-            'list': 'bullet'
-          }, {
-            'indent': '-1'
-          }, {
-            'indent': '+1'
-          }], ['direction', {
-            'align': []
-          }], ['link', 'image', 'video'], ['clean']]
-        };
-      }
-  
-      new Quill(item, snowEditorData);
-    });
-}
-
-/*
-|--------------------------------------------------------------------------
 | List Js
 |--------------------------------------------------------------------------
 */
@@ -81,9 +34,8 @@ var perPage = 10;
 var options = {
     valueNames: [
         "id",
-        "question",
-        "icon",
-        "color"
+        "position",
+        "template"
     ],
     page: perPage,
     pagination: true,
@@ -136,9 +88,8 @@ isCount = new DOMParser().parseFromString(
 );
 
 var idField = document.getElementById("field-id"),
-    question = document.getElementById("question"),
-    icon = document.getElementById("icon"),
-    color = document.getElementById("color"),
+    position = document.getElementById("position"),
+    template = document.getElementById("template"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
@@ -179,31 +130,16 @@ var trlist = table.querySelectorAll(".list tr");
 
 var count = 11;
 
-var iconVal = new Choices(icon, {
-    searchEnabled: true
-});
-
-// Fetch the list of Remix Icons from the JSON file
-$.getJSON('/build/json/remixicons.json', function(icons) {
-    const iconChoices = icons.map(function(icon) {
-        return {
-            value: icon,
-            label: '<i class="' + icon + ' text-primary"></i> ' + icon,
-            selected: false,
-            disabled: false,
-            customProperties: {},
-            placeholder: false,
-        };
-    });
-  
-    // Set choices using the array of icon objects
-    iconVal.setChoices(iconChoices, 'value', 'label', true);
-});
-
-var colorVal = new Choices(color, {
+var positionVal = new Choices(position, {
     searchEnabled: true,
     shouldSort: false
 });
+
+var templateVal = new Choices(template, {
+    searchEnabled: true,
+    shouldSort: false
+});
+
 
 /*
 |--------------------------------------------------------------------------
@@ -217,10 +153,6 @@ addBtn.addEventListener("click", function (e) {
     if (form.checkValidity()) {
         var formData = new FormData($('#fromGuide')[0]);
 
-        var question = $("#question .ql-editor").html();
-
-        formData.set('question', question);
-
         $.ajax({
             url: route('guide.store'),
             type: 'POST',
@@ -233,11 +165,22 @@ addBtn.addEventListener("click", function (e) {
             },
             success:function(data) {
                 if(data.success == true) {
+                    if (position.value) {
+                        positionValue = position.options[position.selectedIndex].text;
+                    } else {
+                        positionValue = '';
+                    }
+
+                    if (template.value) {
+                        templateValue = template.options[template.selectedIndex].text;
+                    } else {
+                        templateValue = '';
+                    }
+
                     guideList.add({
                         id: data.encID,
-                        question: $("#question .ql-editor").html(),
-                        icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
-                        color: '<span class="text-'+ color.value +'">'+ color.value +'</span>'
+                        position: positionValue,
+                        template: templateValue
                     });
 
                     Swal.fire({
@@ -300,10 +243,6 @@ editBtn.addEventListener("click", function (e) {
     if (form.checkValidity()) {
         var formData = new FormData($('#fromGuide')[0]);
 
-        var question = $("#question .ql-editor").html();
-
-        formData.set('question', question);
-
         $.ajax({
             url: route('guide.update'),
             type: 'POST',
@@ -320,11 +259,22 @@ editBtn.addEventListener("click", function (e) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
                         if (selectedid == itemId) {
+                            if (position.value) {
+                                positionValue = position.options[position.selectedIndex].text;
+                            } else {
+                                positionValue = '';
+                            }
+        
+                            if (template.value) {
+                                templateValue = template.options[template.selectedIndex].text;
+                            } else {
+                                templateValue = '';
+                            }
+
                             x.values({
                                 id: idField.value,
-                                question: $("#question .ql-editor").html(),
-                                icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
-                                color: '<span class="text-'+ color.value +'">'+ color.value +'</span>'
+                                position: positionValue,
+                                template: templateValue
                             });
                         }
                     });
@@ -491,13 +441,11 @@ function refreshCallbacks() {
 }
 
 function clearFields() {
-    $("#question .ql-editor").html('');
+    positionVal.removeActiveItems();
+    positionVal.setChoiceByValue("");
 
-    iconVal.removeActiveItems();
-    iconVal.setChoiceByValue("");
-
-    colorVal.removeActiveItems();
-    colorVal.setChoiceByValue("");
+    templateVal.removeActiveItems();
+    templateVal.setChoiceByValue("");
 }
 
 // Delete Multiple Records

@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\Position;
+use App\Models\InterviewTemplate;
 use App\Models\InterviewQuestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -42,10 +44,18 @@ class InterviewGuideController extends Controller
     public function index()
     {
         if (view()->exists('admin/interview-guides')) {
+            //Positions
+            $positions = Position::all();
+
+            //Templates
+            $templates = InterviewTemplate::all();
+
             //Interview Questions
             $guides = InterviewQuestion::all();
 
             return view('admin/interview-guides', [
+                'positions' => $positions,
+                'templates' => $templates,
                 'guides' => $guides
             ]);
         }
