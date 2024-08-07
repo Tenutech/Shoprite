@@ -27,6 +27,10 @@
                         </div>
                         <div class="flex-shrink-0">
                             <div class="hstack text-nowrap gap-2">
+                                <a href="{{ route('email.export') }}" type="button" class="btn btn-success btn-label">
+                                    <i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i> 
+                                    Export
+                                </a>
                                 <button class="btn btn-soft-danger" onClick="deleteMultiple()">
                                     <i class="ri-delete-bin-2-line"></i>
                                 </button>

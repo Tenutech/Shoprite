@@ -14,6 +14,9 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
+use App\Exports\EmailExport;
+use Maatwebsite\Excel\Facades\Excel;
+
 
 class EmailController extends Controller
 {
@@ -278,5 +281,16 @@ class EmailController extends Controller
         }
 
         return $text;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Email Export
+    |--------------------------------------------------------------------------
+    */
+
+    public function export()
+    {
+        return Excel::download(new EmailExport, 'Email Templates.xlsx');
     }
 }

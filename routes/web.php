@@ -83,6 +83,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/email/destroy-multiple', [App\Http\Controllers\EmailController::class, 'destroyMultiple'])->name('email.destroyMultiple');
 
+    Route::get('email/export', [App\Http\Controllers\EmailController::class, 'export'])->name('email.export');
+
     //Literacy
 
     Route::get('/literacy', [App\Http\Controllers\LiteracyController::class, 'index'])->name('literacy.index');
