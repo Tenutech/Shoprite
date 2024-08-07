@@ -16,7 +16,7 @@ return new class extends Migration
             $table->dropColumn(['color', 'icon']);
 
             // Add new columns with foreign key constraints
-            $table->foreignId('template_id')->nullable()->constrained('interview_templates')->before('question')->onDelete('set null')->onUpdate('cascade');
+            $table->foreignId('template_id')->nullable()->constrained('interview_templates')->before('question')->onDelete('cascade')->onUpdate('cascade');
             $table->enum('type', ['text', 'number', 'rating', 'textarea'])->after('question');
             $table->integer('sort')->default(0)->after('type');
         });

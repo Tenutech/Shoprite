@@ -8,6 +8,69 @@ File: CRM-contact Js File
 
 /*
 |--------------------------------------------------------------------------
+| Add Template
+|--------------------------------------------------------------------------
+*/
+
+document.getElementById('template-btn').addEventListener('click', function(e) {
+    e.preventDefault();
+    var form = document.getElementById('template-form');
+    var formData = new FormData(form);
+
+    $.ajax({
+        url: route('template.store'),
+        type: 'POST',
+        data: formData,
+        processData: false,
+        contentType: false,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+            if (data.success === true) {
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: data.message,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    showCloseButton: true,
+                    toast: true
+                });
+
+                // Redirect after Swal notification
+                setTimeout(function() {
+                    window.location.href = data.redirect_url;
+                }, 2000); // 2000ms matches the Swal timer
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            let message = ''; // Initialize the message variable
+    
+            if (jqXHR.status === 400 || jqXHR.status === 422) {
+                message = jqXHR.responseJSON.message;
+            } else if (textStatus === 'timeout') {
+                message = 'The request timed out. Please try again later.';
+            } else {
+                message = 'An error occurred while processing your request. Please try again later.';
+            }
+        
+            // Trigger the Swal notification with the dynamic message
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: message,
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+                toast: true
+            });
+        }
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
 | List Js
 |--------------------------------------------------------------------------
 */
@@ -140,94 +203,6 @@ var templateVal = new Choices(template, {
     shouldSort: false
 });
 
-
-/*
-|--------------------------------------------------------------------------
-| Add Guide
-|--------------------------------------------------------------------------
-*/
-
-addBtn.addEventListener("click", function (e) {
-    e.preventDefault();
-    var form = document.getElementById("fromGuide");
-    if (form.checkValidity()) {
-        var formData = new FormData($('#fromGuide')[0]);
-
-        $.ajax({
-            url: route('guide.store'),
-            type: 'POST',
-            data: formData,
-            async: false,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success:function(data) {
-                if(data.success == true) {
-                    if (position.value) {
-                        positionValue = position.options[position.selectedIndex].text;
-                    } else {
-                        positionValue = '';
-                    }
-
-                    if (template.value) {
-                        templateValue = template.options[template.selectedIndex].text;
-                    } else {
-                        templateValue = '';
-                    }
-
-                    guideList.add({
-                        id: data.encID,
-                        position: positionValue,
-                        template: templateValue
-                    });
-
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: data.message,
-                        showConfirmButton: false,
-                        timer: 2000,
-                        showCloseButton: true,
-                        toast: true
-                    })
-                    
-                    document.querySelector(".pagination-wrap").style.display = "flex";
-                    document.getElementById("close-modal").click();
-                    clearFields();
-                    refreshCallbacks();
-                    count++;                    
-                } 
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                let message = ''; // Initialize the message variable
-        
-                if (jqXHR.status === 400 || jqXHR.status === 422) {
-                    message = jqXHR.responseJSON.message;
-                } else if (textStatus === 'timeout') {
-                    message = 'The request timed out. Please try again later.';
-                } else {
-                    message = 'An error occurred while processing your request. Please try again later.';
-                }
-            
-                // Trigger the Swal notification with the dynamic message
-                Swal.fire({
-                    position: 'top-end',
-                    icon: 'error',
-                    title: message,
-                    showConfirmButton: false,
-                    timer: 5000,
-                    showCloseButton: true,
-                    toast: true
-                });
-            }
-        })
-    } else {
-        form.reportValidity();
-    }
-});
-
 /*
 |--------------------------------------------------------------------------
 | Update Guide
@@ -265,10 +240,13 @@ editBtn.addEventListener("click", function (e) {
                                 positionValue = '';
                             }
         
-                            if (template.value) {
-                                templateValue = template.options[template.selectedIndex].text;
+                            if (data.templateID) {
+                                templateValue = `
+                                    <a href="${route('template.index', { id: data.templateID })}">
+                                        Template ${data.position.template_id}
+                                    </a>`;
                             } else {
-                                templateValue = '';
+                                templateValue = `<span class="text-danger">None</span>`;
                             }
 
                             x.values({
@@ -342,72 +320,6 @@ function ischeckboxcheck() {
 */
 
 function refreshCallbacks() {
-    Array.from(removeBtns).forEach(function (btn) {
-        btn.onclick = function (e) {
-            e.target.closest("tr").children[1].innerText;
-            itemId = e.target.closest("tr").children[1].innerText;
-            var itemValues = guideList.get({
-                id: itemId,
-            });
-
-            Array.from(itemValues).forEach(function (x) {
-                deleteid = new DOMParser().parseFromString(x._values.id, "text/html");
-
-                var isdeleteid = deleteid.body.innerHTML;
-
-                if (isdeleteid == itemId) {
-                    document.getElementById("delete-guide").onclick = function () {                        
-                        $.ajax({
-                            url: route('guide.destroy', {id: isdeleteid}),
-                            type: 'DELETE',
-                            headers: {
-                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                            },
-                            success:function(data) {            
-                                if(data.success === true) {
-                                    guideList.remove("id", isdeleteid);
-                                    document.getElementById("deleteRecord-close").click();
-                                    document.querySelector(".pagination-wrap").style.display = "flex";
-                                    Swal.fire({
-                                        position: 'top-end',
-                                        icon: 'success',
-                                        title: data.message,
-                                        showConfirmButton: false,
-                                        timer: 2000,
-                                        showCloseButton: true,
-                                        toast: true
-                                    });                    
-                                }
-                            },
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                let message = ''; // Initialize the message variable
-        
-                                if (jqXHR.status === 400 || jqXHR.status === 422) {
-                                    message = jqXHR.responseJSON.message;
-                                } else if (textStatus === 'timeout') {
-                                    message = 'The request timed out. Please try again later.';
-                                } else {
-                                    message = 'An error occurred while processing your request. Please try again later.';
-                                }
-                            
-                                // Trigger the Swal notification with the dynamic message
-                                Swal.fire({
-                                    position: 'top-end',
-                                    icon: 'error',
-                                    title: message,
-                                    showConfirmButton: false,
-                                    timer: 5000,
-                                    showCloseButton: true,
-                                    toast: true
-                                });
-                            }
-                        });
-                    }
-                }
-            });
-        };
-    });
-
     Array.from(editBtns).forEach(function (btn) {
         btn.onclick = function (e) {
             e.target.closest("tr").children[1].innerText;
@@ -426,14 +338,12 @@ function refreshCallbacks() {
             }).done(function(data) {
                 idField.value = data.encID;
 
-                $("#question .ql-editor").html(data.guide.question);
-
-                if (data.guide.icon) {
-                    iconVal.setChoiceByValue(data.guide.icon.toString());
+                if (data.position.id) {
+                    positionVal.setChoiceByValue(data.position.id.toString());
                 }
 
-                if (data.guide.color) {
-                    colorVal.setChoiceByValue(data.guide.color.toString());
+                if (data.position.template_id) {
+                    templateVal.setChoiceByValue(data.position.template_id.toString());
                 }
             });
         }
@@ -446,92 +356,6 @@ function clearFields() {
 
     templateVal.removeActiveItems();
     templateVal.setChoiceByValue("");
-}
-
-// Delete Multiple Records
-function deleteMultiple(){
-    ids_array = [];
-    var items = document.getElementsByName('chk_child');
-    for (i = 0; i < items.length; i++) {
-        if (items[i].checked == true) {
-            var trNode = items[i].parentNode.parentNode.parentNode;
-            var id = trNode.querySelector("td").innerHTML;
-            ids_array.push(id);
-        }
-    }
-
-    if(typeof ids_array !== 'undefined' && ids_array.length > 0){
-        Swal.fire({
-            html: '<div class="mt-3">' + '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' + '<div class="mt-4 pt-2 fs-15 mx-5">' + '<h4>You are about to delete these guides ?</h4>' + '<p class="text-muted mx-4 mb-0">Deleting these guides will remove all of their information from the database.</p>' + '</div>' + '</div>',
-            showCancelButton: true,
-            confirmButtonClass: 'btn btn-primary w-xs me-2 mt-2',
-            cancelButtonClass: 'btn btn-danger w-xs mt-2',
-            confirmButtonText: "Yes, delete it!",
-            buttonsStyling: false,
-            showCloseButton: true
-        }).then(function (result) {
-            if (result.value) {
-                for (i = 0; i < ids_array.length; i++) {
-                    guideList.remove("id", `${ids_array[i]}`);
-                }
-    
-                $.ajax({
-                    url: route('guide.destroyMultiple'),
-                    type: 'post',
-                    data: {
-                        ids: ids_array
-                    },
-                    headers: {
-                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                    },
-                    success:function(data) {            
-                        if(data.success === true) {
-                            document.getElementById('checkAll').checked = false;
-
-                            Swal.fire({
-                                position: 'top-end',
-                                icon: 'success',
-                                title: data.message,
-                                showConfirmButton: false,
-                                timer: 2000,
-                                showCloseButton: true,
-                                toast: true
-                            });                  
-                        }
-                    },
-                    error: function(jqXHR, textStatus, errorThrown) {
-                        let message = ''; // Initialize the message variable
-        
-                        if (jqXHR.status === 400 || jqXHR.status === 422) {
-                            message = jqXHR.responseJSON.message;
-                        } else if (textStatus === 'timeout') {
-                            message = 'The request timed out. Please try again later.';
-                        } else {
-                            message = 'An error occurred while processing your request. Please try again later.';
-                        }
-                    
-                        // Trigger the Swal notification with the dynamic message
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: message,
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    }
-                })
-            }
-        });
-    }else{
-        Swal.fire({
-            title: 'Please select at least one guide',
-            confirmButtonClass: 'btn btn-info',
-            buttonsStyling: false,
-            showCloseButton: true
-        });
-    }
 }
 
 // Prevent default behavior for all pagination links created by List.js

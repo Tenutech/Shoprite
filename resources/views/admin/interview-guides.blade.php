@@ -16,11 +16,26 @@
             <div class="card">
                 <div class="card-header">
                     <div class="d-flex align-items-center flex-wrap gap-2">
-                        <div class="flex-shrink-0">
-                            <div class="hstack text-nowrap gap-2">
-                                <button class="btn btn-soft-danger" onClick="deleteMultiple()">
-                                    <i class="ri-delete-bin-2-line"></i>
-                                </button>
+                        <div class="flex-grow-1">
+                            <div class="d-flex flex-wrap gap-2">
+                                <form id="template-form" method="POST">
+                                    @csrf
+                                    <button id="template-btn" class="btn btn-success">
+                                        <i class="ri-add-fill me-1 align-bottom"></i>
+                                        New Template
+                                    </button>
+                                </form>
+    
+                                <div class="dropdown">
+                                    <a href="#" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        View Template
+                                    </a>    
+                                    <div class="dropdown-menu" style="">
+                                        @foreach ($templates as $template)
+                                            <a class="dropdown-item" href="{{ route('template.index', ['id' => Crypt::encryptstring($template->id)]) }}">Template {{ $template->id }}</a>
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -28,6 +43,7 @@
             </div>
         </div>
         <!--end col-->
+
         <div class="col-xxl-12">
             <div class="card" id="guideList">
                 <div class="card-header">
@@ -45,7 +61,7 @@
                                     <option value="10" selected>10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
-                                    <option value="{{count($guides)}}">All</option>
+                                    <option value="{{count($positions)}}">All</option>
                                 </select>
                             </div>
                         </div>
@@ -79,7 +95,15 @@
                                                 </th>
                                                 <td class="id d-none">{{ Crypt::encryptstring($position->id) }}</td>
                                                 <td class="position">{{ $position->name }}</td>
-                                                <td class="template">Template {{ $position->template_id }}</td>
+                                                <td class="template">
+                                                    @if($position->template_id)
+                                                        <a href="{{ route('template.index', ['id' => Crypt::encryptstring($position->template_id)]) }}">
+                                                            Template {{ $position->template_id }}
+                                                        </a>
+                                                    @else
+                                                        <span class="text-danger">None</span>
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
                                                         <li class="list-inline-item">
@@ -92,12 +116,6 @@
                                                                         <a class="dropdown-item edit-item-btn" href="#guideModal" data-bs-toggle="modal">
                                                                             <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                             Edit
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a class="dropdown-item remove-item-btn" data-bs-toggle="modal" href="#deleteRecordModal">
-                                                                            <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
-                                                                            Delete
                                                                         </a>
                                                                     </li>
                                                                 </ul>
@@ -129,12 +147,6 @@
                                                                     <a class="dropdown-item edit-item-btn" href="#guideModal" data-bs-toggle="modal">
                                                                         <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                         Edit
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a class="dropdown-item remove-item-btn" data-bs-toggle="modal" href="#deleteRecordModal">
-                                                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
-                                                                        Delete
                                                                     </a>
                                                                 </li>
                                                             </ul>
