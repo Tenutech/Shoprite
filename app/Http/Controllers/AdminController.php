@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Race;
 use App\Models\Message;
-use App\Models\Vacancy;
+use App\Models\Vacancy; 
 use App\Models\Position;
 use App\Models\Applicant;
 use App\Models\Application;
