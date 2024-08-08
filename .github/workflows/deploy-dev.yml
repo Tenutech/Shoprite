@@ -4,48 +4,25 @@ on:
   push:
     branches:
       - development
+  workflow_dispatch:
 
 jobs:
-  Checkout:
+  Build:
     runs-on: ubuntu-latest
-    outputs:
-      timestamp: ${{ steps.set_timestamp.outputs.timestamp }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
-      - name: Set Timestamp
-        id: set_timestamp
-        run: |
-          TIMESTAMP=$(date +%Y%m%d%H%M%S)
-          echo "timestamp=$TIMESTAMP" >> $GITHUB_ENV
-          echo "timestamp=$TIMESTAMP" >> $GITHUB_OUTPUT
 
-  SetupSSH:
-    runs-on: ubuntu-latest
-    needs: Checkout
-    steps:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
           ssh-private-key: ${{ secrets.SSH_DEV_DEPLOYER_PRIVATE_KEY }}
 
-  Deploy:
-    runs-on: ubuntu-latest
-    needs: [Checkout, SetupSSH]
-    outputs:
-      release_dir: ${{ steps.deploy.outputs.release_dir }}
-    steps:
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_DEV_DEPLOYER_PRIVATE_KEY }}
-          
       - name: Deploy to Development Server
-        id: deploy
         env:
           SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
           SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
-          TIMESTAMP: ${{ needs.Checkout.outputs.timestamp }}
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
             export TZ="Africa/Johannesburg"
@@ -54,39 +31,26 @@ jobs:
             CURRENT_DIR="/var/www/dev.apply.shoprite.jobs/current"
             SHARED_DIR="/var/www/dev.apply.shoprite.jobs/shared"
 
-            sudo -u www-data mkdir -p $RELEASE_DIR
+            # Create the release directory
+            sudo mkdir -p $RELEASE_DIR
+            sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
 
+            # Clone the repository
             sudo -u www-data git clone -b development git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
 
+            # Change to the release directory
             cd $RELEASE_DIR
 
-            sudo -u www-data ln -nfs $SHARED_DIR/.env $RELEASE_DIR/.env
-            sudo -u www-data ln -nfs $SHARED_DIR/storage $RELEASE_DIR/storage
+            # Link the .env file and storage directory
+            sudo rm -R $RELEASE_DIR/storage
+            sudo ln -nfs $SHARED_DIR/.env .env
+            sudo ln -nfs $SHARED_DIR/storage storage
 
+            # Install dependencies
             sudo -u www-data composer install --no-dev --optimize-autoloader
 
+            # Change ownership to www-data
             sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
-          EOF
-
-  FinalizeDeployment:
-    runs-on: ubuntu-latest
-    needs: Deploy
-    steps:
-      - name: Set up SSH
-        uses: webfactory/ssh-agent@v0.5.3
-        with:
-          ssh-private-key: ${{ secrets.SSH_DEV_DEPLOYER_PRIVATE_KEY }}
-
-      - name: Finalize Deployment
-        env:
-          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
-          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
-        run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
-            RELEASE_DIR=$(ls -dt /var/www/dev.apply.shoprite.jobs/releases/* | head -n 1)
-            cd $RELEASE_DIR
-
-            php artisan migrate --force
 
             # Cache Laravel configurations and run optimizations
             sudo -u www-data php artisan config:cache
@@ -94,12 +58,23 @@ jobs:
             sudo -u www-data php artisan view:cache
             sudo -u www-data php artisan optimize
 
-            sudo -u www-data ln -sfn $RELEASE_DIR /var/www/dev.apply.shoprite.jobs/current
+            # Run migrations
+            sudo -u www-data php artisan migrate --force
+
+            # Install npm dependencies and build assets
+            # sudo -u www-data npm install
+            # sudo -u www-data npm run build
+
+            # Update the current symlink to the new release
+            sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
 
             # Restart Supervisor to apply changes
             sudo supervisorctl reread
             sudo supervisorctl update
             sudo supervisorctl restart laravel-queue-worker:*
 
-            ls -dt /var/www/dev.apply.shoprite.jobs/releases/* | tail -n +6Z | xargs sudo rm -rf
+            # Remove old releases, keeping only the last two
+            ls -dt /var/www/dev.apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
           EOF
+
+          
