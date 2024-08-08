@@ -598,6 +598,11 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::delete('/message-delete/{id}', [App\Http\Controllers\MessageController::class, 'destroy'])->name('message.destroy');
 
+    //Queries
+    Route::get('/help', [App\Http\Controllers\QueryController::class, 'index'])->name('help.index');
+
+    Route::post('/queries/store', [App\Http\Controllers\QueryController::class, 'store'])->name('query.store');
+
     //Vacancies
 
     Route::get('/vacancies', [App\Http\Controllers\VacanciesController::class, 'index'])->middleware('check.user.applicant')->name('vacancies.index');
@@ -658,6 +663,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::post('/interview-noShow', [App\Http\Controllers\InterviewController::class, 'noShow'])->name('interview.noShow');
 
+
     //Notifications
 
     Route::put('/notification-read', [App\Http\Controllers\NotificationController::class, 'notificationRead'])->name('notification.read');
@@ -691,6 +697,7 @@ Route::get('/terms-of-service', [App\Http\Controllers\HomeController::class, 'te
 
 Route::get('/security', [App\Http\Controllers\HomeController::class, 'security'])->name('security');
 
+//Shoops
 Route::post('/shoops', [App\Http\Controllers\ShoopsController::class, 'shoops'])->name('shoops');
 
 Route::get('/shoops', function(Request $request) {
@@ -704,6 +711,9 @@ Route::get('/shoops', function(Request $request) {
         return response()->json(['message' => 'Forbidden'], 403);
     }
 });
+
+//Jira
+Route::post('/jira', [App\Http\Controllers\JiraController::class, 'handle'])->middleware('verify.jira')->name('jira');
 
 //Pages
 

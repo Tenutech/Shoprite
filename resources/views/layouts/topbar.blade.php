@@ -856,7 +856,7 @@
                             <i class="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Messages</span>
                         </a>
-                        <a class="dropdown-item" href="faqs">
+                        <a class="dropdown-item" href="{{ route('help.index') }}">
                             <i class="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Help</span>
                         </a>

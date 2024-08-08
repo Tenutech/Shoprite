@@ -37,14 +37,14 @@ return [
         'account' => env('META_WHATSAPP_BUSINESS_ACCOUNT_ID'),
     ],
 
-    'twilio' => [
-        'sid' => env('TWILIO_SID'),
-        'token' => env('TWILIO_AUTH_TOKEN'),
-        'whatsapp_number' => env('TWILIO_WHATSAPP_NUMBER'),
-        'service_sid' => env('TWILIO_SERVICE_SID'),
-    ],
-
     'googlemaps' => [
         'key' => env('GOOGLE_MAPS_API_KEY'),
+    ],
+
+    'jira' => [
+        'host' => env('JIRA_HOST', 'https://tenutech.atlassian.net'),
+        'user' => env('JIRA_USER', 'admin@tenutech.com'),
+        'secret' => env('JIRA_SECRET'),
+        'token' => env('JIRA_API_TOKEN', 'ATATT3xFfGF0Hv2D5CyGjDnjGL5j9medBUqpDdy922KtUnA3BBICVROxYboITpzmWeDhIeFvj-noomSdyaPSaigvQ5QZg8EN_mfJqQ-gAI5swknj2HDYa3pNROqqvuzWn3HkpIPjQ0Z8MAMOPv5U0QtygZbxhUG73VMwzmlHEAM4Wiv_lS2pCKo=569C722C'),
     ],
 ];
