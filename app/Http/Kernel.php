@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         'role' => \App\Http\Middleware\RoleMiddleware::class,
         'user.activity' => \App\Http\Middleware\UserActivity::class,
         'check.user.applicant' => \App\Http\Middleware\CheckUserApplicant::class,
+        'verify.jira' => \App\Http\Middleware\VerifyJiraWebhook::class,
     ];
 }
