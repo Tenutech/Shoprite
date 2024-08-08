@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Validator;
 
 class QueryController extends Controller
 {
+<<<<<<< HEAD
 
     public function index()
     {
@@ -29,6 +30,8 @@ class QueryController extends Controller
         }
     }
 
+=======
+>>>>>>> 6c61decd4c956fa8c9a0ae6122c4b207b7a2e979
     public function store(Request $request)
     {
         $request->validate([
@@ -43,8 +46,12 @@ class QueryController extends Controller
         try {            
             $query = Query::create([                
                 'subject' => $request->subject,
+<<<<<<< HEAD
                 'body' => $textContent,
                 'user_id' => auth()->id(),
+=======
+                'body' => $textContent
+>>>>>>> 6c61decd4c956fa8c9a0ae6122c4b207b7a2e979
             ]);
 
             $encID = Crypt::encryptString($query->id);
