@@ -44,7 +44,7 @@ return [
     'jira' => [
         'host' => env('JIRA_HOST', 'https://tenutech.atlassian.net'),
         'user' => env('JIRA_USER', 'admin@tenutech.com'),
-        'jira_secret' => env('JIRA_SECRET'),
+        'secret' => env('JIRA_SECRET'),
         'token' => env('JIRA_API_TOKEN', 'ATATT3xFfGF0Hv2D5CyGjDnjGL5j9medBUqpDdy922KtUnA3BBICVROxYboITpzmWeDhIeFvj-noomSdyaPSaigvQ5QZg8EN_mfJqQ-gAI5swknj2HDYa3pNROqqvuzWn3HkpIPjQ0Z8MAMOPv5U0QtygZbxhUG73VMwzmlHEAM4Wiv_lS2pCKo=569C722C'),
     ],
 ];

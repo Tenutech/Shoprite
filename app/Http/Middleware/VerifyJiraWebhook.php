@@ -17,7 +17,7 @@ class VerifyJiraWebhook
      */
     public function handle(Request $request, Closure $next)
     {
-        $secret = config('services.jira.jira_secret');
+        $secret = config('services.jira.secret');
 
         $signature = $request->header('x-hub-signature');
         $payload = $request->getContent();
