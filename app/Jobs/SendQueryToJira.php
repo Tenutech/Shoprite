@@ -50,9 +50,6 @@ class SendQueryToJira implements ShouldQueue
             ],
         ];
 
-        // Log the request body for debugging purposes
-        Log::info('Jira Issue Data: ' . json_encode($issueData));
-
         try {
             $response = $client->post(
                 config('services.jira.host') . '/rest/api/2/issue',

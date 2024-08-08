@@ -16,8 +16,6 @@ class JiraController extends Controller
 
     public function handle(Request $request)
     {
-        Log::info('Jira Webhook Received: ', $request->all());
-
         // Extract necessary data from the request
         $issueKey = $request->input('issue.key');
         $eventType = $request->header('X-Atlassian-Webhook-Identifier'); // Identify the event type
@@ -35,9 +33,6 @@ class JiraController extends Controller
             'Done' => 'Complete',
             'In Progress' => 'In Progress'
         ];
-
-        // Find the query corresponding to the Jira issue
-        $query = Query::where('jira_issue_id', $issueKey)->first();
 
         if ($query) {
             if ($newStatus && isset($statusMap[$newStatus])) {
