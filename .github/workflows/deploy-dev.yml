@@ -62,7 +62,6 @@ jobs:
 
             sudo -u www-data ln -nfs $SHARED_DIR/.env $RELEASE_DIR/.env
             sudo -u www-data ln -nfs $SHARED_DIR/storage $RELEASE_DIR/storage
-            sudo -u www-data ln -nfs $SHARED_DIR/auth.json $RELEASE_DIR/auth.json
 
             sudo -u www-data composer install --no-dev --optimize-autoloader
 
