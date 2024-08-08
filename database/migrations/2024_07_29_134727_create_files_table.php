@@ -15,14 +15,13 @@ return new class extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('position_id')->nullable()->index('files_opportunity_id_foreign2');
+            $table->unsignedBigInteger('position_id')->nullable()->index('files_opportunity_id_foreign');
             $table->string('name')->nullable();
             $table->string('type', 20)->nullable();
             $table->string('size', 20)->nullable();
             $table->string('url')->nullable();
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrent();
-
         });
     }
 
