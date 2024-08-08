@@ -12,15 +12,16 @@ class InterviewQuestion extends Model
     use HasFactory, LogsActivity;
     
     protected $fillable = [
+        'template_id',
         'question',
-        'icon',
-        'color'
+        'type',
+        'sort',
     ];
 
-    //Applicants
-    public function applicants()
+    // Interview Template
+    public function template()
     {
-        return $this->hasMany(Applicant::class);
+        return $this->belongsTo(InterviewTemplate::class);
     }
 
     /**

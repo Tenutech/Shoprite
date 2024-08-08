@@ -457,15 +457,25 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::get('/guide', [App\Http\Controllers\InterviewGuideController::class, 'index'])->name('guide.index');
 
-    Route::post('/guide/add', [App\Http\Controllers\InterviewGuideController::class, 'store'])->name('guide.store');
-
     Route::post('/guide/update', [App\Http\Controllers\InterviewGuideController::class, 'update'])->name('guide.update');
 
     Route::get('/guide/details/{id}', [App\Http\Controllers\InterviewGuideController::class, 'details'])->name('guide.details');
 
-    Route::delete('/guide/destroy/{id}', [App\Http\Controllers\InterviewGuideController::class, 'destroy'])->name('guide.destroy');
+    //Interview Template
 
-    Route::post('/guide/destroy-multiple', [App\Http\Controllers\InterviewGuideController::class, 'destroyMultiple'])->name('guide.destroyMultiple');
+    Route::get('/template', [App\Http\Controllers\InterviewTemplateController::class, 'index'])->name('template.index');
+
+    Route::post('/template/question/add', [App\Http\Controllers\InterviewTemplateController::class, 'question_store'])->name('template.question.store');
+
+    Route::post('/template/question/update', [App\Http\Controllers\InterviewTemplateController::class, 'question_update'])->name('template.question.update');
+
+    Route::get('/template/question/details/{id}', [App\Http\Controllers\InterviewTemplateController::class, 'question_details'])->name('template.question.details');
+
+    Route::delete('/template/question/destroy/{id}', [App\Http\Controllers\InterviewTemplateController::class, 'question_destroy'])->name('template.question.destroy');
+
+    Route::post('/template/add', [App\Http\Controllers\InterviewTemplateController::class, 'store'])->name('template.store');
+
+    Route::delete('/template/destroy/{id}', [App\Http\Controllers\InterviewTemplateController::class, 'destroy'])->name('template.destroy');
 });
 
 /*

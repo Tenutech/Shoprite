@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\Position;
+use App\Models\InterviewTemplate;
 use App\Models\InterviewQuestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -42,52 +44,21 @@ class InterviewGuideController extends Controller
     public function index()
     {
         if (view()->exists('admin/interview-guides')) {
+            //Positions
+            $positions = Position::all();
+
+            //Templates
+            $templates = InterviewTemplate::all();
+
             //Interview Questions
             $guides = InterviewQuestion::all();
 
             return view('admin/interview-guides', [
-                'guides' => $guides
+                'positions' => $positions,
+                'templates' => $templates
             ]);
         }
         return view('404');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Interview Question Add
-    |--------------------------------------------------------------------------
-    */
-
-    public function store(Request $request)
-    {
-        //Validate
-        $request->validate([
-            'question' => 'required|string'
-        ]);
-
-        try {
-            //Interview Question Create
-            $guide = InterviewQuestion::create([                
-                'question' => $request->question,
-                'icon' => $request->icon ?: null,
-                'color' => $request->color ?: null
-            ]);
-
-            $encID = Crypt::encryptString($guide->id);
-
-            return response()->json([
-                'success' => true,
-                'guide' => $guide,
-                'encID' => $encID,
-                'message' => 'Guide created successfully!',
-            ], 200);
-        } catch (Exception $e) {            
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to create guide!',
-                'error' => $e->getMessage()
-            ], 400);
-        }
     }
 
     /*
@@ -99,12 +70,12 @@ class InterviewGuideController extends Controller
     public function details($id)
     {
         try {
-            $guideID = Crypt::decryptString($id);
+            $positionID = Crypt::decryptString($id);
 
-            $guide = InterviewQuestion::findOrFail($guideID);
+            $position = Position::findOrFail($positionID);
 
             return response()->json([
-                'guide' => $guide,
+                'position' => $position,
                 'encID' => $id
             ], 200);
         } catch (Exception $e) {
@@ -123,27 +94,29 @@ class InterviewGuideController extends Controller
 
     public function update(Request $request)
     {
-        //InterviewQuestion ID
-        $guideID = Crypt::decryptString($request->field_id);
+        //Position ID
+        $positionID = Crypt::decryptString($request->field_id);
 
         //Validate
         $request->validate([
-            'question' => 'required|string'
+            'template' => 'required|integer|min:1|exists:interview_templates,id'
         ]);
 
         try {
-            //Interview Question
-            $guide = InterviewQuestion::findorfail($guideID);
+            //Position
+            $position = Position::findorfail($positionID);
 
-            //Interview Question Update
-            $guide->question = $request->question;
-            $guide->icon = $request->icon ?: null;
-            $guide->color = $request->color ?: null;
-            $guide->save();
+            //Positon Update
+            $position->template_id = $request->template;
+            $position->save();
+
+            //Template ID
+            $templateID = Crypt::encryptString($position->template_id);
 
             return response()->json([
                 'success' => true,
-                'guide' => $guide,
+                'position' => $position,
+                'templateID' => $templateID,
                 'message' => 'Guide updated successfully!'
             ], 201);
         } catch (Exception $e) {
@@ -152,78 +125,6 @@ class InterviewGuideController extends Controller
                 'message' => 'Failed to update guide!',
                 'error' => $e->getMessage()
             ], 400);
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Interview Question Delete
-    |--------------------------------------------------------------------------
-    */
-
-    public function destroy($id)
-    {
-        try {
-            $guideID = Crypt::decryptString($id);
-
-            $guide = InterviewQuestion::findOrFail($guideID);
-            $guide->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Guide deleted successfully!',
-            ], 200);
-        } catch (Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete guide!',
-                'error' => $e->getMessage()
-            ], 400);
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Interview Question Destroy Multiple
-    |--------------------------------------------------------------------------
-    */
-
-    public function destroyMultiple(Request $request)
-    {
-        try {
-            $ids = $request->input('ids');
-            
-            if (is_null($ids) || empty($ids)) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'No IDs provided',
-                    'error' => 'No IDs provided'
-                ], 400);
-            }
-    
-            // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
-                return Crypt::decryptString($id);
-            }, $ids);
-    
-            DB::beginTransaction();
-    
-            InterviewQuestion::destroy($decryptedIds);
-    
-            DB::commit();
-    
-            return response()->json([
-                'success' => true,
-                'message' => 'Guides deleted successfully!'
-            ], 200);
-        } catch (\Exception $e) {
-            DB::rollBack();
-    
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to delete guides!',
-                'error' => $e->getMessage()
-            ], 500);
         }
     }
 }

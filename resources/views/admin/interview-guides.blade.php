@@ -17,16 +17,25 @@
                 <div class="card-header">
                     <div class="d-flex align-items-center flex-wrap gap-2">
                         <div class="flex-grow-1">
-                            <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#guideModal">
-                                <i class="ri-add-fill me-1 align-bottom"></i> 
-                                Add Guide
-                            </button>
-                        </div>
-                        <div class="flex-shrink-0">
-                            <div class="hstack text-nowrap gap-2">
-                                <button class="btn btn-soft-danger" onClick="deleteMultiple()">
-                                    <i class="ri-delete-bin-2-line"></i>
-                                </button>
+                            <div class="d-flex flex-wrap gap-2">
+                                <form id="template-form" method="POST">
+                                    @csrf
+                                    <button id="template-btn" class="btn btn-success">
+                                        <i class="ri-add-fill me-1 align-bottom"></i>
+                                        New Template
+                                    </button>
+                                </form>
+    
+                                <div class="dropdown">
+                                    <a href="#" class="btn btn-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                        View Template
+                                    </a>    
+                                    <div class="dropdown-menu" style="">
+                                        @foreach ($templates as $template)
+                                            <a class="dropdown-item" href="{{ route('template.index', ['id' => Crypt::encryptstring($template->id)]) }}">Template {{ $template->id }}</a>
+                                        @endforeach
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -34,6 +43,7 @@
             </div>
         </div>
         <!--end col-->
+
         <div class="col-xxl-12">
             <div class="card" id="guideList">
                 <div class="card-header">
@@ -51,7 +61,7 @@
                                     <option value="10" selected>10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
-                                    <option value="{{count($guides)}}">All</option>
+                                    <option value="{{count($positions)}}">All</option>
                                 </select>
                             </div>
                         </div>
@@ -69,25 +79,31 @@
                                             </div>
                                         </th>
                                         <th class="sort d-none" data-sort="id" scope="col">ID</th>
-                                        <th class="sort" data-sort="question" scope="col">Question</th>
-                                        <th class="sort" data-sort="icon" scope="col">Icon</th>
-                                        <th class="sort" data-sort="color" scope="col">Color</th>               
+                                        <th class="sort" data-sort="position" scope="col">Position</th>
+                                        <th class="sort" data-sort="template" scope="col">Template</th>             
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="list form-check-all" style="height:200px;">
-                                    @if($guides && count($guides) > 0)
-                                        @foreach ($guides as $guide)
+                                    @if($positions && count($positions) > 0)
+                                        @foreach ($positions as $position)
                                             <tr style="vertical-align:top;">
                                                 <th scope="row">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
                                                     </div>
                                                 </th>
-                                                <td class="id d-none">{{ Crypt::encryptstring($guide->id) }}</td>
-                                                <td class="question" style="white-space: pre-wrap;">{!! $guide->question !!}</td>
-                                                <td class="icon"><i class="{{ $guide->icon }} text-{{ $guide->color }} fs-18"></i></td>
-                                                <td class="color"><span class="text-{{ $guide->color }}">{{ $guide->color }}</span></td>
+                                                <td class="id d-none">{{ Crypt::encryptstring($position->id) }}</td>
+                                                <td class="position">{{ $position->name }}</td>
+                                                <td class="template">
+                                                    @if($position->template_id)
+                                                        <a href="{{ route('template.index', ['id' => Crypt::encryptstring($position->template_id)]) }}">
+                                                            Template {{ $position->template_id }}
+                                                        </a>
+                                                    @else
+                                                        <span class="text-danger">None</span>
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
                                                         <li class="list-inline-item">
@@ -100,12 +116,6 @@
                                                                         <a class="dropdown-item edit-item-btn" href="#guideModal" data-bs-toggle="modal">
                                                                             <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                             Edit
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a class="dropdown-item remove-item-btn" data-bs-toggle="modal" href="#deleteRecordModal">
-                                                                            <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
-                                                                            Delete
                                                                         </a>
                                                                     </li>
                                                                 </ul>
@@ -123,9 +133,8 @@
                                                 </div>
                                             </th>
                                             <td class="id d-none"></td>
-                                            <td class="question"  style="white-space: pre-wrap;"></td>
-                                            <td class="icon"></td>
-                                            <td class="color"></td>
+                                            <td class="position"></td>
+                                            <td class="template"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -138,12 +147,6 @@
                                                                     <a class="dropdown-item edit-item-btn" href="#guideModal" data-bs-toggle="modal">
                                                                         <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                         Edit
-                                                                    </a>
-                                                                </li>
-                                                                <li>
-                                                                    <a class="dropdown-item remove-item-btn" data-bs-toggle="modal" href="#deleteRecordModal">
-                                                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
-                                                                        Delete
                                                                     </a>
                                                                 </li>
                                                             </ul>
@@ -197,32 +200,26 @@
                                     <div class="modal-body">
                                         <div class="col-lg-12 mb-3">
                                             <div class="mb-3">
-                                                <label for="question" class="form-label">
+                                                <label for="position" class="form-label">
                                                     Question
                                                 </label>
-                                                <div class="snow-editor" id="question" style="height: 300px;"></div>
+                                                <select id="position" name="position" class="form-control" required>
+                                                    <option value="" selected>Select Position</option>
+                                                    @foreach ($positions as $position)
+                                                        <option value="{{ $position->id }}">{{ $position->name }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
 
                                             <div class="mb-3">
-                                                <label for="icon" class="form-label">Icon</label>
-                                                <select id="icon" name="icon" class="form-control">
-                                                    <option value="" selected>Select Icon</option>
-                                                </select>
-                                            </div>
-    
-                                            <div class="mb-3">
-                                                <label for="color" class="form-label">
-                                                    Color
+                                                <label for="template" class="form-label">
+                                                    Templates
                                                 </label>
-                                                <select id="color" name="color" class="form-control">
-                                                    <option value="" selected>Select Color</option>
-                                                    <option class="text-primary" value="primary">Primary</option>
-                                                    <option class="text-secondary" value="secondary">Secondary</option>
-                                                    <option class="text-success" value="success">Success</option>
-                                                    <option class="text-info" value="info">Info</option>
-                                                    <option class="text-warning" value="warning">Warning</option>
-                                                    <option class="text-danger" value="danger">Danger</option>
-                                                    <option class="text-dark" value="dark">Dark</option>
+                                                <select id="template" name="template" class="form-control" required>
+                                                    <option value="" selected>Select Template</option>
+                                                    @foreach ($templates as $template)
+                                                        <option value="{{ $template->id }}">Template {{ $template->id }}</option>
+                                                    @endforeach
                                                 </select>
                                             </div>
                                         </div>                                        
@@ -285,6 +282,6 @@
     <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/quill/quill.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/interview-guides.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/interview-guides.init.js') }}?v={{ filemtime(public_path('build/js/pages/interview-guides.init.js')) }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

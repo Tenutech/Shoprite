@@ -107,8 +107,19 @@ class ApplicantProfileController extends Controller
             ->take(3)
             ->get();
 
-            //Interview Questions
-            $questions = InterviewQuestion::get();
+            // Get the latest interview
+            $latestInterview = $applicant->interviews->first();
+
+            // Initialize questions
+            $questions = collect();
+
+            if ($latestInterview) {
+                // Get the vacancy's position's template_id
+                $templateID = $latestInterview->vacancy->position->template_id;
+
+                // Fetch interview questions for the template
+                $questions = InterviewQuestion::where('template_id', $templateID)->get();
+            }
 
             // Initialize progress bar width
             $progressBarWidth = 0;
