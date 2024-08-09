@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Enums\RoleEnum;
 use App\Models\User;
 use App\Models\Type;
 use App\Models\Store;
@@ -75,11 +76,19 @@ class VacancyController extends Controller
             $positions = Position::whereNotIn('id', [1, 10])->get();
 
             //Stores
-            $stores = Store::with([
-                'brand', 
-                'town',
-            ])
-            ->get();
+            if ($user->role->name === RoleEnum::MANAGER) {
+                $store = $user->store;
+                if ($store) {
+                    $stores[] = $store;
+                }
+            } else {
+                $stores = Store::with([
+                    'brand', 
+                    'town',
+                ])
+                ->get();
+            }
+           
 
             //Types
             $types = Type::whereNotIn('id', [6])->get();
