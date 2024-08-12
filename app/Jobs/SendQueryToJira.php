@@ -72,4 +72,9 @@ class SendQueryToJira implements ShouldQueue
             throw $e;
         }
     }
+
+    public function getQuery()
+    {
+        return $this->query;
+    }
 }

@@ -13,9 +13,15 @@ return new class extends Migration
      */
     public function up()
     {
+        // Drop the table if it exists to avoid any conflicts
+        Schema::dropIfExists('chat_total_data');
+        
+
+        // Create the table
         Schema::create('chat_total_data', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->year('year')->nullable()->unique('unique_year');
+            
+            $table->year('year')->nullable()->unique();
             $table->integer('total_incoming')->nullable()->default(0);
             $table->integer('total_outgoing')->nullable()->default(0);
             $table->integer('jan_incoming')->nullable()->default(0);

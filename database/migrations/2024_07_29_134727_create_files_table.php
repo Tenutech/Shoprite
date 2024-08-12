@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('files', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('position_id')->nullable()->index('files_opportunity_id_foreign');
+            $table->unsignedBigInteger('position_id')->nullable()->index();
             $table->string('name')->nullable();
             $table->string('type', 20)->nullable();
             $table->string('size', 20)->nullable();
