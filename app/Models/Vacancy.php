@@ -88,6 +88,12 @@ class Vacancy extends Model
         return $this->hasMany(Amendment::class);
     }
 
+    //SAP Number
+    public function sapNumber()
+    {
+        return $this->hasMany(SapNumber::class);
+    }
+
     /**
      * The attributes that should be logged.
      * @var bool

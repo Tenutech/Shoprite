@@ -7,23 +7,20 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Status extends Model
+class SapNumber extends Model
 {
-    use HasFactory;
-    use LogsActivity;
-
-    protected $table = 'status';
+    use HasFactory, LogsActivity;
     
     protected $fillable = [
-        'name',
-        'icon',
-        'color'
+        'vacancy_id',
+        'sap_number',
+        'description',
     ];
 
-    //User Status
-    public function users()
+    //Vacancy
+    public function vacancy()
     {
-        return $this->hasMany(User::class, 'status_id');
+        return $this->belongsTo(Vacancy::class);
     }
 
     /**
