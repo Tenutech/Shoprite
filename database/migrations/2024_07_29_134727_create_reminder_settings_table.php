@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('reminder_settings', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('type', 255);
-            $table->unsignedBigInteger('role_id')->nullable()->index('reminders_role_id_foreign');
+            $table->unsignedBigInteger('role_id')->nullable()->index();
             $table->integer('delay');
             $table->unsignedBigInteger('email_template_id')->nullable()->index('reminders_email_template_id_foreign');
             $table->boolean('is_active')->nullable()->default(true);

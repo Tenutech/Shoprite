@@ -43,8 +43,7 @@
                             -------------------------------------------------------------------------------------->
 
                             <div class="col-lg-3">
-                                <div class="nav flex-column custom-nav nav-pills" role="tablist"
-                                    aria-orientation="vertical">
+                                <div class="nav flex-column custom-nav nav-pills" role="tablist" aria-orientation="vertical">
                                     <button class="nav-link active" id="v-pills-position-tab" data-bs-toggle="pill"
                                         data-bs-target="#v-pills-position" type="button" role="tab"
                                         aria-controls="v-pills-position" aria-selected="false">
@@ -53,11 +52,19 @@
                                         </span>
                                         Job Position
                                     </button>
+                                    <button class="nav-link" id="v-pills-sap-numbers-tab" data-bs-toggle="pill"
+                                        data-bs-target="#v-pills-sap-numbers" type="button" role="tab"
+                                        aria-controls="v-pills-sap-numbers" aria-selected="false">
+                                        <span class="step-title me-2">
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 2:
+                                        </span>
+                                        SAP Numbers
+                                    </button>
                                     <button class="nav-link" id="v-pills-store-tab" data-bs-toggle="pill"
                                         data-bs-target="#v-pills-store" type="button" role="tab"
                                         aria-controls="v-pills-store" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 2:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 3:
                                         </span>
                                         Store
                                     </button>
@@ -65,7 +72,7 @@
                                         data-bs-target="#v-pills-type" type="button" role="tab"
                                         aria-controls="v-pills-type" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 3:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 4:
                                         </span>
                                         Job Type
                                     </button>
@@ -73,7 +80,7 @@
                                         data-bs-target="#v-pills-advertisement" type="button" role="tab"
                                         aria-controls="v-pills-advertisement" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 4:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 5:
                                         </span>
                                         Advertisement
                                     </button>
@@ -81,7 +88,7 @@
                                         data-bs-target="#v-pills-finish" type="button" role="tab"
                                         aria-controls="v-pills-finish" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 5:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 6:
                                         </span>
                                         Finish
                                     </button>
@@ -96,11 +103,11 @@
                             <div class="col-lg-9">
                                 <div class="px-lg-4">
                                     <div class="tab-content">
-
+                            
                                         <!-------------------------------------------------------------------------------------
                                             Position
                                         -------------------------------------------------------------------------------------->
-
+                            
                                         <div class="tab-pane fade show active" id="v-pills-position" role="tabpanel"
                                             aria-labelledby="v-pills-position-tab">
                                             <div>
@@ -109,7 +116,7 @@
                                                     Choose the job position that best matches the vacancy you're looking for.
                                                 </p>
                                             </div>
-
+                            
                                             <div>
                                                 <div class="row gy-3">
                                                     <div class="col-md-12">
@@ -137,8 +144,69 @@
                                                     </div>
                                                 </div>
                                             </div>
-
+                            
                                             <div class="d-flex align-items-start gap-3 mt-4">
+                                                <button type="button"
+                                                    class="btn btn-secondary btn-label right ms-auto nexttab nexttab"
+                                                    data-nexttab="v-pills-sap-numbers-tab">
+                                                    <i class="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>
+                                                    Continue
+                                                </button>
+                                            </div>
+                                        </div>
+                                        <!-- end tab pane -->
+                            
+                                        <!-------------------------------------------------------------------------------------
+                                            SAP Numbers
+                                        -------------------------------------------------------------------------------------->
+                            
+                                        <div class="tab-pane fade" id="v-pills-sap-numbers" role="tabpanel"
+                                            aria-labelledby="v-pills-sap-numbers-tab">
+                                            <div>
+                                                <h5>SAP Numbers</h5>
+                                                <p class="text-muted">
+                                                    Enter the SAP number associated with this job position.
+                                                </p>
+                                            </div>
+                            
+                                            <div>
+                                                @if ($vacancy && $vacancy->sapNumber->count() > 0)
+                                                    @foreach ($vacancy->sapNumber as $index => $sapNumber)
+                                                        <div class="col-md-12">
+                                                            <div id="sapNumbersContainer">
+                                                                <div class="mb-3">
+                                                                    <label for="sapNumber{{ $index }}" class="form-label">
+                                                                        {{ $vacancy->position ? $vacancy->position->name . ' ' . ($index + 1) : 'SAP Number ' . ($index + 1) }}
+                                                                    </label>
+                                                                    <input type="text" class="form-control" id="sapNumber{{ $index }}" name="sap_numbers[]" placeholder="Enter 8-digit SAP Number" value="{{ $sapNumber->sap_number }}" pattern="\d{8}" maxlength="8" required />
+                                                                    <div class="invalid-feedback">
+                                                                        Please enter an 8-digit SAP number.
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    @endforeach
+                                                @else
+                                                    <div class="col-md-12">
+                                                        <div id="sapNumbersContainer">
+                                                            <div class="mb-3">
+                                                                <label for="sapNumber1" class="form-label">SAP Number 1</label>
+                                                                <input type="text" class="form-control" id="sapNumber1" name="sap_numbers[]" placeholder="Enter 8-digit SAP Number" pattern="\d{8}" maxlength="8" required />
+                                                                <div class="invalid-feedback">
+                                                                    Please enter an 8-digit SAP number.
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                @endif
+                                            </div>
+                            
+                                            <div class="d-flex align-items-start gap-3 mt-4">
+                                                <button type="button" class="btn btn-light btn-label previestab"
+                                                    data-previous="v-pills-position-tab">
+                                                    <i class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
+                                                    Back
+                                                </button>
                                                 <button type="button"
                                                     class="btn btn-secondary btn-label right ms-auto nexttab nexttab"
                                                     data-nexttab="v-pills-store-tab">
@@ -148,11 +216,11 @@
                                             </div>
                                         </div>
                                         <!-- end tab pane -->
-
+                            
                                         <!-------------------------------------------------------------------------------------
                                             Store
                                         -------------------------------------------------------------------------------------->
-
+                            
                                         <div class="tab-pane fade" id="v-pills-store" role="tabpanel"
                                             aria-labelledby="v-pills-store-tab">
                                             <div>
@@ -161,7 +229,7 @@
                                                     Choose the store that you are creating this vacancy for.
                                                 </p>
                                             </div>
-
+                            
                                             <div>
                                                 <div class="row gy-3">
                                                     <div class="col-md-12">
@@ -187,10 +255,10 @@
                                                     </div>                                                    
                                                 </div>
                                             </div>
-
+                            
                                             <div class="d-flex align-items-start gap-3 mt-4">
                                                 <button type="button" class="btn btn-light btn-label previestab"
-                                                    data-previous="v-pills-position-tab">
+                                                    data-previous="v-pills-sap-numbers-tab">
                                                     <i class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
                                                     Back
                                                 </button>
@@ -203,11 +271,11 @@
                                             </div>
                                         </div>
                                         <!-- end tab pane -->
-
+                            
                                         <!-------------------------------------------------------------------------------------
                                             Type
                                         -------------------------------------------------------------------------------------->
-
+                            
                                         <div class="tab-pane fade" id="v-pills-type" role="tabpanel"
                                             aria-labelledby="v-pills-type-tab">
                                             <div>
@@ -216,7 +284,7 @@
                                                     Choose the job type that best matches the vacancy you're looking for.
                                                 </p>
                                             </div>
-
+                            
                                             <div>
                                                 <div class="row g-3">
                                                     @foreach ($types as $type)
@@ -247,7 +315,7 @@
                                                     @endforeach                                             
                                                 </div>
                                             </div>
-
+                            
                                             <div class="d-flex align-items-start gap-3 mt-4">
                                                 <button type="button" class="btn btn-light btn-label previestab"
                                                     data-previous="v-pills-store-tab">
@@ -263,11 +331,11 @@
                                             </div>
                                         </div>
                                         <!-- end tab pane -->
-
+                            
                                         <!-------------------------------------------------------------------------------------
                                             Advertisement
                                         -------------------------------------------------------------------------------------->
-
+                            
                                         <div class="tab-pane fade" id="v-pills-advertisement" role="tabpanel"
                                             aria-labelledby="v-pills-advertisement-tab">
                                             <div>
@@ -276,7 +344,7 @@
                                                     Choose to whom you would like to advertisement this job.
                                                 </p>
                                             </div>
-
+                            
                                             <div>
                                                 <div class="row g-3">
                                                     <div class="col-xl-3 col-md-6 d-flex align-items-stretch">
@@ -328,7 +396,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-
+                            
                                                     <div class="col-xl-3 col-md-6 d-flex align-items-stretch">
                                                         <div class="form-check card-radio h-100 w-100">
                                                             <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">                                                                
@@ -355,7 +423,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-
+                            
                                             <div class="d-flex align-items-start gap-3 mt-4">
                                                 <button type="button" class="btn btn-light btn-label previestab"
                                                     data-previous="v-pills-type-tab">
@@ -371,11 +439,11 @@
                                             </div>
                                         </div>
                                         <!-- end tab pane -->
-
+                            
                                         <!-------------------------------------------------------------------------------------
                                             Finish
                                         -------------------------------------------------------------------------------------->
-
+                            
                                         <div class="tab-pane fade d-flex align-items-center justify-content-center flex-column" id="v-pills-finish" role="tabpanel" aria-labelledby="v-pills-finish-tab">
                                             @if ($vacancy)
                                                 <!-- Update -->
@@ -402,7 +470,7 @@
                                                         View Vacancy
                                                     </a>
                                                 </div>
-
+                            
                                                 <!-- Loading -->
                                                 <div class="text-center pt-4 pb-2 mt-4 d-none" id="loading">
                                                     <div class="spinner-border text-success mb-4" role="status">
@@ -428,14 +496,14 @@
                                                         Yes, Create !
                                                     </button>
                                                 </div>                                            
-
+                            
                                                 <!-- Loading -->
                                                 <div class="text-center pt-4 pb-2 d-none" id="loading">
                                                     <div class="spinner-border text-success mb-4" role="status">
                                                         <span class="sr-only">Loading...</span>
                                                     </div>
                                                 </div>
-
+                            
                                                 <!-- Complete -->
                                                 <div class="text-center pt-4 pb-2 d-none" id="complete">
                                                     <div class="mb-4">
@@ -457,7 +525,7 @@
                                                     </a>
                                                 </div>
                                             @endif
-
+                            
                                             <!-- Danger Alert -->
                                             <div class="alert alert-danger alert-dismissible fade text-center mt-4" role="alert" id="requiredAlert">
                                                 <strong>Some fields are missing!</strong> Please make sure that all the required fields are filled out
@@ -465,11 +533,12 @@
                                             </div>
                                         </div>
                                         <!-- end tab pane -->
+                            
                                     </div>
                                     <!-- end tab content -->
                                 </div>
                             </div>
-                            <!-- end col -->
+                            <!-- end col -->                            
                         </div>
                         <!-- end row -->
                     </form>

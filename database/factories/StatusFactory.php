@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Status;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StatusFactory extends Factory
 {
@@ -12,8 +12,13 @@ class StatusFactory extends Factory
     public function definition()
     {
         return [
+<<<<<<< HEAD
             'name' => 'Active',     
             'icon' => 'circle',
+=======
+            'name' => 'Open',  
+            'icon' => 'man',
+>>>>>>> 51f333a (SS-4 | Add field for position detail)
             'color' => '#000000',
         ];
     }
