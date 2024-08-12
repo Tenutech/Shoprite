@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('salary_benefits', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('position_id')->nullable()->index('responsibilities_position_id_foreign');
+        $table->unsignedBigInteger('position_id')->nullable()->index();
             $table->string('salary')->nullable();
             $table->text('description')->nullable();
             $table->string('icon')->nullable();

@@ -15,8 +15,8 @@ return new class extends Migration
     {
         Schema::create('vacancy_save', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id')->index('saved_user_id_foreign');
-            $table->unsignedBigInteger('vacancy_id')->index('saved_opportunity_id_foreign');
+            $table->unsignedBigInteger('user_id')->index();
+            $table->unsignedBigInteger('vacancy_id')->index();
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrent();
         });

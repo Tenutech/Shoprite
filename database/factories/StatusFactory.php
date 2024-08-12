@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Status;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StatusFactory extends Factory
 {
@@ -12,9 +12,9 @@ class StatusFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->word,     
-            'icon' => $this->faker->word,
-            'color' => $this->faker->hexColor,
+            'name' => 'Open',  
+            'icon' => 'man',
+            'color' => '#000000',
         ];
     }
 }

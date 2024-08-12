@@ -89,8 +89,8 @@ jobs:
           mkdir -p database
           touch database/database.sqlite
           cp .env.testing .env
-          # php artisan migrate --database=sqlite
-          mkdir -p build/coverage
+          php artisan migrate --database=sqlite
+
           # Install npm dependencies and build assets
           # npm install
           # npm run build
