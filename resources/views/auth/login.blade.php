@@ -81,6 +81,12 @@
                                         <button class="btn btn-success w-100" type="submit">Sign In</button>
                                     </div>
                                 </form>
+
+                                <!-- SAML Login Button -->
+                                <form action="{{ url('/saml2/test/login') }}" method="GET" style="margin-top: 10px;">
+                                    @csrf
+                                    <button class="btn btn-danger w-100" type="submit">Sign In SSO</button>
+                                </form>
                             </div>
                         </div>
                         <!-- end card body -->

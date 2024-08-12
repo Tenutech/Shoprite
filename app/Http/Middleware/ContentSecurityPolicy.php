@@ -31,7 +31,6 @@ class ContentSecurityPolicy
         $csp .= "img-src 'self' data:; "; // Allow images from the same origin and data URIs
         $csp .= "connect-src 'self' https://cdn.lordicon.com https://maps.googleapis.com; "; // Allow connections to the same origin, lordicon CDN, and Google Maps
         $csp .= "frame-ancestors 'none'; "; // Prevent the page from being embedded in frames
-        $csp .= "form-action 'self'; "; // Only allow form submissions to the same origin
 
         // Set the Content-Security-Policy header in the response
         $response->headers->set('Content-Security-Policy', $csp);
