@@ -168,13 +168,16 @@ function fetchData() {
     }
 
     // Validate the number input
-    if (number === '' || isNaN(number) || parseInt(number) < 1) {
+    if (number === '' || isNaN(number) || parseInt(number) < parseInt(minShortlistNumber)) {
         numberInput.classList.add('is-invalid');
-        return; // Stop the function if validation fails
+        return; 
+    } else if (number === '' || isNaN(number) || parseInt(number) > parseInt(maxShortlistNumber)) {
+        numberInput.classList.add('is-invalid');
+        return; 
     } else {
         numberInput.classList.remove('is-invalid');
     }
-
+    
     // Validate the applicant type select
     if (applicantType === '') {
         let choicesDiv = applicantTypeSelect.closest('.mb-3');

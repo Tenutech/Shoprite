@@ -41,6 +41,8 @@
                                         $vacancyPostingDuration = $settings->firstWhere('key', 'vacancy_posting_duration');
                                         $shortlistExpiry = $settings->firstWhere('key', 'shortlist_expiry');
                                         $sessionTimeout = $settings->firstWhere('key', 'session_timeout');
+                                        $minShortlistNumber = $settings->firstWhere('key', 'min_shorlist_number');
+                                        $maxShortlistNumber = $settings->firstWhere('key', 'max_shorlist_number');
                                     @endphp
                                     <div class="col-lg-6">
                                         <div class="mb-3">
@@ -106,6 +108,53 @@
                                             @enderror
                                             <div class="invalid-feedback">
                                                 Please enter the amount of days
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end col-->
+                                    
+
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="minShortlistNumber" class="form-label">
+                                                Minimum Shortlist Nummber <span class="text-danger">*</span>
+                                            </label>
+                                            @if ($minShortlistNumber && $minShortlistNumber->description)
+                                                <p class="text-muted">
+                                                    {{ $minShortlistNumber->description }}
+                                                </p>
+                                            @endif
+                                            <input type="number" class="form-control @error('min_shorlist_number') is-invalid @enderror" name="min_shorlist_number" id="minShortlistNumber" placeholder="Enter the least amount of candidates on a shortlist" value="{{ $minShortlistNumber ? ($minShortlistNumber->value ? $minShortlistNumber->value : 1) : 1 }}" min="1" required/>
+                                            @error('min_shorlist_number')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            <div class="invalid-feedback">
+                                                Please enter the minimum shortlist number
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end col-->
+
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="maxShortlistNumber" class="form-label">
+                                                Max Shortlist Nummber <span class="text-danger">*</span>
+                                            </label>
+                                            @if ($maxShortlistNumber && $maxShortlistNumber->description)
+                                                <p class="text-muted">
+                                                    {{ $maxShortlistNumber->description }}
+                                                </p>
+                                            @endif
+                                            <input type="number" class="form-control @error('max_shorlist_number') is-invalid @enderror" name="max_shorlist_number" id="maxShortlistNumber" placeholder="Enter the maximum of candidates on a shortlist" value="{{ $maxShortlistNumber ? ($maxShortlistNumber->value ? $maxShortlistNumber->value : 1) : 1 }}" max="1000" required/>
+                                            @error('min_shorlist_number')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            <div class="invalid-feedback">
+                                                Please enter the maximum shortlist number
                                             </div>
                                         </div>
                                     </div>

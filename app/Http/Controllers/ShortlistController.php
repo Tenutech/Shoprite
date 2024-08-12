@@ -12,14 +12,15 @@ use App\Models\Bank;
 use App\Models\Chat;
 use App\Models\Check;
 use App\Models\Brand;
-use App\Models\State;
 use App\Models\Gender;
 use App\Models\Reason;
 use App\Models\Vacancy;
 use App\Models\Position;
 use App\Models\Duration;
 use App\Models\Language;
+use App\Models\Setting;
 use App\Models\Shortlist;
+use App\Models\State;
 use App\Models\Applicant;
 use App\Models\Education;
 use App\Models\Transport;
@@ -164,6 +165,9 @@ class ShortlistController extends Controller
             //Checks
             $checks = Check::get();
 
+            $minShortlistNumber = Setting::where('key', 'min_shorlist_number')->first()->value;
+            $maxShortlistNumber = Setting::where('key', 'max_shorlist_number')->first()->value;
+
             return view('manager/shortlist', [
                 'applicants' => $applicants,
                 'vacancyID'  => $vacancyID,
@@ -186,7 +190,9 @@ class ShortlistController extends Controller
                 'banks' => $banks,
                 'roles' => $roles,
                 'states' => $states,
-                'checks' => $checks
+                'checks' => $checks,
+                'minShortlistNumber' => $minShortlistNumber,
+                'maxShortlistNumber' => $maxShortlistNumber
             ]);
         }
         return view('404');
