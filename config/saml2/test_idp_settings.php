@@ -62,18 +62,18 @@ return $settings = array(
     // Identity Provider (IdP) Data that we want to connect with our SP
     'idp' => array(
         // Identifier of the IdP entity (must be a URI)
-        'entityId' => env('SAML2_' . $this_idp_env_id . '_IDP_ENTITYID', $idp_host . '/saml2/idp/metadata.php'),
+        'entityId' => env('SAML2_' . $this_idp_env_id . '_IDP_ENTITYID', ''),
         // SSO endpoint info of the IdP (Authentication Request protocol)
         'singleSignOnService' => array(
             // URL Target of the IdP where the SP will send the Authentication Request Message,
             // using HTTP-Redirect binding.
-            'url' => env('SAML2_' . $this_idp_env_id . '_IDP_SSO_URL', $idp_host . '/saml2/idp/SSOService.php'),
+            'url' => env('SAML2_' . $this_idp_env_id . '_IDP_SSO_URL', ''),
         ),
         // SLO endpoint info of the IdP.
         'singleLogoutService' => array(
             // URL Location of the IdP where the SP will send the SLO Request,
             // using HTTP-Redirect binding.
-            'url' => env('SAML2_' . $this_idp_env_id . '_IDP_SL_URL', $idp_host . '/saml2/idp/SingleLogoutService.php'),
+            'url' => env('SAML2_' . $this_idp_env_id . '_IDP_SL_URL', ''),
         ),
         // Public x509 certificate of the IdP
         'x509cert' => env('SAML2_' . $this_idp_env_id . '_IDP_x509', ''),
