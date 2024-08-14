@@ -14,8 +14,7 @@ return new class extends Migration
         Schema::create('sap_numbers', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('vacancy_id');
-            $table->string('position_detail', 8)->unique()->comment('8 digit numeric only, unique');
-            $table->string('sap_number', 8)->comment('8 digit SAP position number');
+            $table->string('sap_number', 8)->unique()->comment('8 digit SAP position number');
             $table->text('description')->nullable();
             $table->timestamps();
 

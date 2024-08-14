@@ -8,6 +8,79 @@ File: Form wizard Js File
 
 /*
 |--------------------------------------------------------------------------
+| SAP Numbers
+|--------------------------------------------------------------------------
+*/
+
+document.addEventListener('DOMContentLoaded', function () {
+    const openPositionsInput = document.getElementById('openPositions');
+    const positionSelect = document.getElementById('position');
+    const sapNumbersContainer = document.getElementById('sapNumbersContainer');
+
+    function updateSapNumberFields() {
+        const numberOfPositions = parseInt(openPositionsInput.value) || 0;
+        const positionName = positionSelect.options[positionSelect.selectedIndex].text || 'SAP Number';
+
+        // Clear existing fields
+        sapNumbersContainer.innerHTML = '';
+
+        // Generate new fields based on the number of positions
+        for (let i = 0; i < numberOfPositions; i++) {
+            const fieldLabel = `${positionName} ${i + 1}`;
+            const inputId = `sapNumber${i}`;
+
+            // Create label
+            const label = document.createElement('label');
+            label.setAttribute('for', inputId);
+            label.className = 'form-label';
+            label.textContent = fieldLabel;
+
+            // Create input field
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'form-control';
+            input.id = inputId;
+            input.name = 'sap_numbers[]';
+            input.placeholder = `Enter 8-digit SAP Number`;
+            input.maxLength = 8;
+            input.pattern = '\\d{8}';
+            input.required = true;
+
+            // Create invalid feedback
+            const invalidFeedback = document.createElement('div');
+            invalidFeedback.className = 'invalid-feedback';
+            invalidFeedback.textContent = 'Please enter an 8-digit SAP number.';
+
+            // Create mb-3 wrapper div
+            const div = document.createElement('div');
+            div.className = 'mb-3';
+
+            // Append elements to the wrapper div
+            div.appendChild(label);
+            div.appendChild(input);
+            div.appendChild(invalidFeedback);
+
+            // Append the wrapper div to the container
+            sapNumbersContainer.appendChild(div);
+        }
+    }
+
+    // Listen for changes on the openPositions input field
+    openPositionsInput.addEventListener('input', function () {
+        updateSapNumberFields();
+    });
+
+    // Listen for changes on the position select field
+    positionSelect.addEventListener('change', function () {
+        updateSapNumberFields();
+    });
+
+    // Initialize fields on page load if there are existing values
+    updateSapNumberFields();
+});
+
+/*
+|--------------------------------------------------------------------------
 | Tabs
 |--------------------------------------------------------------------------
 */
