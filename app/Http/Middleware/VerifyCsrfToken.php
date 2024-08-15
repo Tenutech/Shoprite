@@ -19,5 +19,6 @@ class VerifyCsrfToken extends Middleware
     protected $except = [
         '/shoops', // Exclude the '/shoops' URI from CSRF verification
         '/jira',   // Exclude the '/jira' URI from CSRF verification
+        'saml2/shoprite/acs' // Exclude the '/saml2/shoprite/acs' URI from CSRF verification
     ];
 }
