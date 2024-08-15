@@ -2,6 +2,10 @@
 @section('title')
 @lang('translation.signin')
 @endsection
+@section('css')
+    <!-- Sweet Alert CSS-->
+    <link href="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
+@endsection
 @section('content')
 <div class="auth-page-wrapper pt-5">
     <!-- auth page bg -->
@@ -83,9 +87,16 @@
                                 </form>
 
                                 <!-- SAML Login Button -->
-                                <form action="{{ url('/saml2/test/login') }}" method="GET" style="margin-top: 10px;">
+                                <form action="{{ url('/saml2/shoprite/login') }}" method="GET" style="margin-top: 10px;">
                                     @csrf
-                                    <button class="btn btn-danger w-100" type="submit">Sign In SSO</button>
+                                    <button class="btn btn-light w-100" type="submit">
+                                        <div class="row">
+                                            <div class="d-flex align-items-center justify-content-center">
+                                                <img src="{{ URL::asset('build/images/microsoft-logo.png') }}" width="20px" style="margin-top:-2px; margin-right:5px;">
+                                                <span>Continue with <b>Microsoft</b></span>
+                                            </div>
+                                        </div>
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -128,4 +139,5 @@
 <script src="{{ URL::asset('build/libs/particles.js/particles.js') }}"></script>
 <script src="{{ URL::asset('build/js/pages/particles.app.js') }}"></script>
 <script src="{{ URL::asset('build/js/pages/password-addon.init.js') }}"></script>
+<script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 @endsection

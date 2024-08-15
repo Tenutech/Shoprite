@@ -7,7 +7,7 @@ return $settings = array(
      * Separate routes will be automatically registered for each IDP specified with IDP name as prefix
      * Separate config file saml2/<idpName>_idp_settings.php should be added & configured accordingly
      */
-    'idpNames' => ['test'],
+    'idpNames' => ['shoprite'],
 
     /**
      * If 'useRoutes' is set to true, the package defines five new routes for reach entry in idpNames:
@@ -31,7 +31,7 @@ return $settings = array(
      * which middleware group to use for the saml routes
      * Laravel 5.2 will need a group which includes StartSession
      */
-    'routesMiddleware' => [],
+    'routesMiddleware' => ['web'],
 
     /**
      * Indicates how the parameters will be
@@ -47,7 +47,7 @@ return $settings = array(
     /**
      * Where to redirect after login if no other option was provided
      */
-    'loginRoute' => '/',
+    'loginRoute' => '/admin/home',
 
     /**
      * Where to redirect after login if no other option was provided
@@ -67,5 +67,5 @@ return $settings = array(
      * a `$returnTo` argument), this value allows you to pass your own controller, and have
      * it used in the routes definition.
      */
-     // 'saml2_controller' => '',
+    'saml2_controller' => \App\Http\Controllers\SamlController::class,
 );
