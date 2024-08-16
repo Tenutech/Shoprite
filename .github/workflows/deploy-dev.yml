@@ -31,9 +31,13 @@ jobs:
           key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
           restore-keys: |
             ${{ runner.os }}-php-
+            
+      - name: Install Dependencies
+        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
 
       - name: Set Up Environment
         run: |
+          mkdir -p storage/framework/views storage/framework/cache
           mkdir -p database
           touch database/database.sqlite
           cp .env.testing .env
