@@ -9,7 +9,6 @@ on:
 jobs:
   Test:
     runs-on: ubuntu-latest
-    needs: Lint
 
     steps:
       - name: Checkout
@@ -58,7 +57,7 @@ jobs:
       - name: Create Coverage Report Link
         run: |
           echo "Coverage report available at: [Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)" >> $GITHUB_STEP_SUMMARY
-          
+
   Build:
     runs-on: ubuntu-latest
     
