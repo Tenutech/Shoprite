@@ -34,7 +34,6 @@ jobs:
 
       - name: Set Up Environment
         run: |
-          mkdir -p storage/framework/views storage/framework/cache
           mkdir -p database
           touch database/database.sqlite
           cp .env.testing .env
@@ -60,7 +59,7 @@ jobs:
 
   Build:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
