@@ -14,6 +14,26 @@
         }
     </style>
 @endsection
+@php
+    // Sample ID
+    $id = '900610';
+
+    // Extract year, month, and day
+    $year = substr($id, 0, 2);
+    $month = substr($id, 2, 2);
+    $day = substr($id, 4, 2);
+
+    // Adjust year to be in the 1900s or 2000s
+    $year = (intval($year) > date('y')) ? '19' . $year : '20' . $year;
+
+    // Create a DateTime object from the extracted date
+    $birthDate = new DateTime($year . '-' . $month . '-' . $day);
+
+    // Calculate the age
+    $now = new DateTime();
+    $age = $now->diff($birthDate)->y;
+@endphp
+
 @section('content')
     <div class="profile-foreground position-relative mx-n4 mt-n4">
         <div class="profile-wid-bg">
@@ -275,7 +295,7 @@
                                                                                 </h6>
                                                                             </div>
                                                                             <div class="col-lg-6">
-                                                                                {{ $applicant->firstname ?? 'N/A' }} {{ $applicant->lastname }}
+                                                                                {{ $applicant->firstname ?? 'N/A' }}
                                                                             </div>
                                                                         </div>
 
@@ -287,7 +307,18 @@
                                                                                 </h6>
                                                                             </div>
                                                                             <div class="col-lg-6">
-                                                                                {{ $applicant->id_number ?? 'N/A' }}
+                                                                                {{ Str::limit($applicant->id_number ?? 'N/A', 4, '*********') }}
+                                                                            </div>
+                                                                        </div>
+
+                                                                        <div class="row mb-3">
+                                                                            <div class="col-lg-6">
+                                                                                <h6 class="fs-15 mb-0">
+                                                                                    Age
+                                                                                </h6>
+                                                                            </div>
+                                                                            <div class="col-lg-6">
+                                                                                {{ $age }}
                                                                             </div>
                                                                         </div>
 
