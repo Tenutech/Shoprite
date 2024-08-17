@@ -13,7 +13,10 @@ use Illuminate\Support\Facades\Log;
 
 class SendQueryToJira implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $query;
 
@@ -72,9 +75,13 @@ class SendQueryToJira implements ShouldQueue
             throw $e;
         }
     }
+<<<<<<< HEAD
 
     public function getQuery()
     {
         return $this->query;
     }
 }
+=======
+}
+>>>>>>> c45bbca (Lint fixes)

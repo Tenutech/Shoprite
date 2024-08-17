@@ -16,8 +16,9 @@ class RoleMiddleware
      */
     public function handle($request, Closure $next, ...$roles)
     {
-        if (!Auth::check())
+        if (!Auth::check()) {
             return redirect('login');
+        }
 
         $user = Auth::user();
 
@@ -38,6 +39,6 @@ class RoleMiddleware
             return $next($request);
         }
 
-        return redirect($url.'home');
+        return redirect($url . 'home');
     }
 }

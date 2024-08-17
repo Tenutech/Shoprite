@@ -53,7 +53,7 @@ class ApplicationController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-     
+
     /*
     |--------------------------------------------------------------------------
     | Application Index
@@ -131,7 +131,7 @@ class ApplicationController extends Controller
             ->inRandomOrder()
             ->get();
 
-            return view('application',[
+            return view('application', [
                 'user' => $user,
                 'types' => $types,
                 'races' => $races,
@@ -161,11 +161,12 @@ class ApplicationController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    protected function calculateScore($applicant) {
+    protected function calculateScore($applicant)
+    {
         $totalScore = 0;
         $totalWeight = 0;
         $weightings = ScoreWeighting::all(); // Fetch all weightings
-    
+
         foreach ($weightings as $weighting) {
             // Check if this weighting involves a condition
             if (!empty($weighting->condition_field)) {
@@ -184,10 +185,10 @@ class ApplicationController extends Controller
 
             $totalWeight += $weighting->weight;
         }
-    
+
         // Normalize the score to a scale of 0 to 5
         $normalizedScore = $totalWeight > 0 ? ($totalScore / $totalWeight) * 5 : ($totalScore / 100) * 5;
-    
+
         return round($normalizedScore, 2); // Round to 2 decimal places
     }
 
@@ -198,13 +199,13 @@ class ApplicationController extends Controller
     */
 
     public function store(Request $request)
-    {        
+    {
         $commencementDate = Carbon::createFromFormat('d M, Y', $request->commencement);
         $commencementDate = $commencementDate->format('Y-m-d');
 
         $request->merge(['commencement' => $commencementDate]);
 
-        //Validate Input           
+        //Validate Input
         $request->validate([
             'avatar' => ['sometimes', 'image' ,'mimes:jpg,jpeg,png','max:1024'],
             'firstname' => ['required', 'string', 'max:191'],
@@ -267,9 +268,9 @@ class ApplicationController extends Controller
             $user = User::find($userID);
 
             //Form Fields
-            if ($request->avatar) {                
+            if ($request->avatar) {
                 $avatar = request()->file('avatar');
-                $avatarName = '/images/'.$request->firstname.' '.$request->lastname.'-'.time().'.'.$avatar->getClientOriginalExtension();
+                $avatarName = '/images/' . $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
@@ -362,10 +363,10 @@ class ApplicationController extends Controller
 
             // Applicant Create
             $applicant = Applicant::create([
-                'phone' => $phone,                
+                'phone' => $phone,
                 'firstname' => $firstname,
                 'lastname' => $lastname,
-                'id_number' => $idNumber,                
+                'id_number' => $idNumber,
                 'location' => $location,
                 'contact_number' => $phone,
                 'additional_contact_number' => $phone,
@@ -439,7 +440,7 @@ class ApplicationController extends Controller
                 $applicant->update([
                     'location' => $geocodedAddress['formatted_address'],
                     'town_id' => $geocodedAddress['city'],
-                    'coordinates' => $geocodedAddress['latitude'].' '.$geocodedAddress['longitude']
+                    'coordinates' => $geocodedAddress['latitude'] . ' ' . $geocodedAddress['longitude']
                 ]);
             }
 
@@ -497,7 +498,7 @@ class ApplicationController extends Controller
             ], 201);
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to submit application!',
@@ -521,7 +522,7 @@ class ApplicationController extends Controller
 
         $request->merge(['commencement' => $commencementDate]);
 
-        //Validate Input           
+        //Validate Input
         $request->validate([
             'avatar' => ['sometimes', 'image' ,'mimes:jpg,jpeg,png','max:1024'],
             'firstname' => ['required', 'string', 'max:191'],
@@ -588,7 +589,7 @@ class ApplicationController extends Controller
             //Form Fields
             if ($request->hasFile('avatar')) {
                 $avatar = request()->file('avatar');
-                $avatarName = '/images/'.$request->firstname.' '.$request->lastname.'-'.time().'.'.$avatar->getClientOriginalExtension();
+                $avatarName = '/images/' . $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
@@ -681,10 +682,10 @@ class ApplicationController extends Controller
 
             // Applicant Create
             $applicant->update([
-                'phone' => $phone,                
+                'phone' => $phone,
                 'firstname' => $firstname,
                 'lastname' => $lastname,
-                'id_number' => $idNumber,                
+                'id_number' => $idNumber,
                 'location' => $location,
                 'contact_number' => $phone,
                 'additional_contact_number' => $phone,
@@ -758,7 +759,7 @@ class ApplicationController extends Controller
                 $applicant->update([
                     'location' => $geocodedAddress['formatted_address'],
                     'town_id' => $geocodedAddress['city'],
-                    'coordinates' => $geocodedAddress['latitude'].' '.$geocodedAddress['longitude']
+                    'coordinates' => $geocodedAddress['latitude'] . ' ' . $geocodedAddress['longitude']
                 ]);
             }
 
@@ -813,7 +814,7 @@ class ApplicationController extends Controller
             ], 201);
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update application!',
@@ -837,13 +838,13 @@ class ApplicationController extends Controller
             Vacancy::destroy($applicantID);
 
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Application deleted!'
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false, 
-                'message' => 'Application deletion failed', 
+                'success' => false,
+                'message' => 'Application deletion failed',
                 'error' => $e->getMessage()
             ], 400);
         }

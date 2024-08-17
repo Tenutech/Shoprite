@@ -40,7 +40,7 @@ class ApplicantApprovalController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-     
+
     /*
     |--------------------------------------------------------------------------
     | Approvals Index
@@ -98,13 +98,13 @@ class ApplicantApprovalController extends Controller
             $towns = Town::get();
 
             //Provinces
-            $provinces = Province::get();        
+            $provinces = Province::get();
 
-            return view('admin/applicant-approvals',[
+            return view('admin/applicant-approvals', [
                 'applicants' => $applicants,
                 'positions' => $positions,
                 'genders' => $genders,
-                'races' => $races,                
+                'races' => $races,
                 'towns' => $towns,
                 'provinces' => $provinces,
             ]);
@@ -119,7 +119,7 @@ class ApplicantApprovalController extends Controller
     */
 
     public function approve(Request $request)
-    {        
+    {
         try {
             $vacancyID = Crypt::decryptString($request->id);
 
@@ -168,7 +168,7 @@ class ApplicantApprovalController extends Controller
     */
 
     public function amend(Request $request)
-    {        
+    {
         try {
             $vacancyID = Crypt::decryptString($request->id);
 
@@ -225,7 +225,7 @@ class ApplicantApprovalController extends Controller
     */
 
     public function decline(Request $request)
-    {        
+    {
         try {
             $vacancyID = Crypt::decryptString($request->id);
 

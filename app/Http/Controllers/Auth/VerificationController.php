@@ -19,7 +19,6 @@ class VerificationController extends Controller
     | be re-sent if the user didn't receive the original email message.
     |
     */
-
     use VerifiesEmails;
 
     public function resend(Request $request)
@@ -30,7 +29,7 @@ class VerificationController extends Controller
 
         try {
             $request->user()->sendEmailVerificationNotification();
-            
+
             return back()->with('resent', true);
         } catch (\Exception $e) {
             // Log the error for debugging
@@ -49,7 +48,7 @@ class VerificationController extends Controller
     protected function redirectTo()
     {
         $user = auth()->user();
-        
+
         switch ($user->role_id) {
             case 1:
             case 2:

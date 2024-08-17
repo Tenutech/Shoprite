@@ -85,11 +85,11 @@ class TwilioChatService
         try {
             // Query for the applicant based on the phone number and preload certain related data
             $applicant = Applicant::with([
-                'user', 
-                'gender', 
-                'race', 
-                'transport', 
-                'role', 
+                'user',
+                'gender',
+                'race',
+                'transport',
+                'role',
                 'interviews.vacancy.position'
             ])
             ->where('phone', $phone)
@@ -142,7 +142,7 @@ class TwilioChatService
 
             // Determine the fields to update based on the message type
             $totalField = $type == 1 ? 'total_incoming' : 'total_outgoing';
-            $monthField = $type == 1 ? $currentMonth.'_incoming' : $currentMonth.'_outgoing';
+            $monthField = $type == 1 ? $currentMonth . '_incoming' : $currentMonth . '_outgoing';
 
             $yearlyData = ChatTotalData::firstOrCreate(
                 ['year' => $currentYear]
@@ -167,7 +167,6 @@ class TwilioChatService
 
             // Save the ChatMonthlyData entry
             $monthlyData->save();
-    
         } catch (Exception $e) {
             Log::error("Error in logMessage: {$e->getMessage()}");
             throw new Exception('There was an error logging the message. Please try again later.');
@@ -200,7 +199,7 @@ class TwilioChatService
 
             $checkpointTriggered = false; // flag to track checkpoint status
 
-            // If the elapsed time exceeds the delay or if the applicant's state has a '_checkpoint' suffix, 
+            // If the elapsed time exceeds the delay or if the applicant's state has a '_checkpoint' suffix,
             // update the state of the applicant
             if ($applicant->state_id > 2 && ($timeDifference > 15 || $applicant->checkpoint == 'Yes')) {
                 // Set applicant checkpoint to 'Yes'
@@ -220,11 +219,11 @@ class TwilioChatService
                     $questionPool = ($state == 'literacy') ? 'literacy_question_pool' : 'numeracy_question_pool';
                     $sortOrderPool = explode(',', $applicant->{$questionPool});
                     $currentQuestionSortOrder = $sortOrderPool[0];
-                    
+
                     $currentQuestion = ChatTemplate::where('state_id', $stateID)
                                                    ->where('sort', $currentQuestionSortOrder)
                                                    ->first();
-                    
+
                     if ($currentQuestion) {
                         $currentQuestionText = $currentQuestion->message;
                         $this->sendAndLogMessages($applicant, [$currentQuestionText], $twilio, $to, $from, $service);
@@ -254,7 +253,8 @@ class TwilioChatService
     * @param  string $body
     * @return void
     */
-    public function processStateActions($applicant, $body, $latitude, $longitude, $mediaUrl) {
+    public function processStateActions($applicant, $body, $latitude, $longitude, $mediaUrl)
+    {
         $twilio = new Client(config('services.twilio.sid'), config('services.twilio.token'));
         $to = 'whatsapp:' . $applicant->phone;
         $from = config('services.twilio.whatsapp_number');
@@ -269,19 +269,19 @@ class TwilioChatService
             case 'welcome':
                 $this->handleWelcomeState($applicant, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'personal_information':
                 $this->handlePersonalInformationState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'first_name':
                 $this->handleFirstNameState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'last_name':
                 $this->handleLastNameState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'id_number':
                 $this->handleIdNumberState($applicant, $body, $twilio, $to, $from, $service);
                 break;
@@ -305,35 +305,35 @@ class TwilioChatService
             case 'gender':
                 $this->handleGenderState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'race':
                 $this->handleRaceState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'has_email':
                 $this->handleHasEmailState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'email':
                 $this->handleEmailState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'has_tax':
                 $this->handleHasTaxState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'tax_number':
                 $this->handleTaxNumberState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'citizen':
                 $this->handleCitizenState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'foreign_national':
                 $this->handleForeignNationalState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'criminal':
                 $this->handleCriminalState($applicant, $body, $twilio, $to, $from, $service);
                 break;
@@ -341,43 +341,43 @@ class TwilioChatService
             case 'avatar':
                 $this->handleAvatarState($applicant, $body, $twilio, $to, $from, $service, $mediaUrl);
                 break;
-        
+
             case 'position':
                 $this->handlePositionState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'position_specify':
                 $this->handlePositionSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'qualifications':
                 $this->handleQualificationsState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'school':
                 $this->handleSchoolState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'highest_qualification':
                 $this->handleHighestQualificationState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'training':
                 $this->handleTrainingState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'other_training':
                 $this->handleOtherTrainingState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'drivers_license':
                 $this->handleDriversLicenseState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'drivers_license_code':
                 $this->handleDriversLicenseCodeState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'read':
                 $this->handleReadState($applicant, $body, $twilio, $to, $from, $service);
                 break;
@@ -385,166 +385,166 @@ class TwilioChatService
             case 'speak':
                 $this->handleSpeakState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'experience':
                 $this->handleExperienceState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_previous':
                 $this->handleJobPreviousState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_leave':
                 $this->handleJobLeaveState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_leave_specify':
                 $this->handleJobLeaveSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_business':
                 $this->handleJobBusinessState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_position':
                 $this->handleJobPositionState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_term':
                 $this->handleJobTermState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_salary':
                 $this->handleJobSalaryState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_reference_name':
                 $this->handleJobReferenceNameState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_reference_phone':
                 $this->handleJobReferencePhoneState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-                
+
             case 'job_retrenched':
                 $this->handleJobRetrenchedState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_retrenched_specify':
                 $this->handleJobRetrenchedSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_shoprite':
                 $this->handleJobShopriteState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_shoprite_position':
                 $this->handleJobShopritePositionState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_shoprite_position_specify':
                 $this->handleJobShopritePositionSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'job_shoprite_leave':
                 $this->handleJobShopriteLeaveState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'punctuality':
                 $this->handlePunctualityState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'transport':
                 $this->handleTransportState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'transport_specify':
                 $this->handleTransportSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'illness':
                 $this->handleIllnessState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'illness_specify':
                 $this->handleIllnessSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'commencement':
                 $this->handleCommencementState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'reason':
                 $this->handleReasonState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'application_reason':
                 $this->handleApplicationReasonState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'application_reason_specify':
                 $this->handleApplicationReasonSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'relocate':
                 $this->handleRelocateState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'relocate_town':
                 $this->handleRelocateTownState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'vacancy':
                 $this->handleVacancyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'shift':
                 $this->handleShiftState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'has_bank_account':
                 $this->handleHasBankAccountState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'bank':
                 $this->handleBankState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'bank_specify':
                 $this->handleBankSpecifyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'bank_number':
                 $this->handleBankNumberState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'expected_salary':
                 $this->handleExpectedSalaryState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'literacy_start':
                 $this->handleLiteracyStartState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'literacy':
                 $this->handleLiteracyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'numeracy_start':
                 $this->handleNumeracyStartState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'numeracy':
                 $this->handleNumeracyState($applicant, $body, $twilio, $to, $from, $service);
                 break;
-        
+
             case 'complete':
                 $this->handleCompleteState($applicant, $body, $twilio, $to, $from, $service);
                 break;
 
             case 'schedule_start':
                     $this->handleScheduleStartState($applicant, $body, $twilio, $to, $from, $service);
-                    break;
+                break;
 
             case 'schedule':
                 $this->handleScheduleState($applicant, $body, $twilio, $to, $from, $service);
@@ -552,7 +552,7 @@ class TwilioChatService
 
             case 'reschedule':
                 $this->handleRescheduleState($applicant, $body, $twilio, $to, $from, $service);
-                 break;
+                break;
         }
     }
 
@@ -562,7 +562,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleWelcomeState($applicant, $twilio, $to, $from, $service) {
+    protected function handleWelcomeState($applicant, $twilio, $to, $from, $service)
+    {
         try {
             $messages = $this->fetchStateMessages('welcome');
             $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
@@ -572,10 +573,10 @@ class TwilioChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleWelcomeState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
@@ -587,7 +588,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePersonalInformationState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handlePersonalInformationState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -607,10 +609,10 @@ class TwilioChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handlePersonalInformationState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
@@ -622,7 +624,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleFirstNameState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleFirstNameState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -642,10 +645,10 @@ class TwilioChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleFirstNameState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
@@ -657,7 +660,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLastNameState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleLastNameState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -677,10 +681,10 @@ class TwilioChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleLastNameState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
@@ -692,7 +696,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleIdNumberState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleIdNumberState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             if (preg_match('/^\d{13}$/', $body)) {
                 // Update the applicant's id number
@@ -728,7 +733,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLocationState($applicant, $body, $latitude, $longitude, $twilio, $to, $from, $service) {
+    protected function handleLocationState($applicant, $body, $latitude, $longitude, $twilio, $to, $from, $service)
+    {
         try {
             // Send the "Please give a second to verify your address" message
             $message = "Please give me a second to verify your address...";
@@ -737,7 +743,7 @@ class TwilioChatService
             $googleMapsService = new GoogleMapsService();
 
             if (isset($latitude) && isset($longitude)) {
-                $applicant->update(['location' => $latitude.' '.$longitude]);
+                $applicant->update(['location' => $latitude . ' ' . $longitude]);
                 $response = $googleMapsService->reverseGeocodeCoordinates(trim($latitude), trim($longitude));
             } else {
                 $applicant->update(['location' => $body]);
@@ -747,17 +753,17 @@ class TwilioChatService
             if ($response !== null) {
                 $formattedAddress = $response['formatted_address'];
                 $city = $response['city'] ?? null;
-        
+
                 // Send the formatted address with the buttons "This is correct" and "Re-enter address"
                 $templateMessage = "I have picked up the address as:\n\n*$formattedAddress*\n\nPlease confirm that this is correct.";
                 $this->sendAndLogMessages($applicant, [$templateMessage], $twilio, $to, $from, $service);
 
                 $latitude = $response['latitude'];
                 $longitude = $response['longitude'];
-        
+
                 $applicant->update([
                     'location' => $formattedAddress,
-                    'coordinates' => $latitude.','.$longitude,
+                    'coordinates' => $latitude . ',' . $longitude,
                     'town_id' => $city  // update the applicant's town with the city
                 ]);
 
@@ -786,8 +792,9 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLocationConfirmationState($applicant, $body, $twilio, $to, $from, $service) {
-        try {            
+    protected function handleLocationConfirmationState($applicant, $body, $twilio, $to, $from, $service)
+    {
+        try {
             if (strtolower($body) === 'that is correct' || strtolower($body) === 'correct') {
                 // If the user confirms the address, move on to contact_number
                 $stateID = State::where('code', 'contact_number')->value('id');
@@ -828,7 +835,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleContactNumberState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleContactNumberState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             if (preg_match('/^\d{10}$/', $body)) {
                 // Update the applicant's contact number
@@ -862,13 +870,14 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleAdditionalContactNumberState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleAdditionalContactNumberState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             if (preg_match('/^\d{10}$/', $body) || $body == '0' || strtolower($body) == 'no' || strtolower($body) == 'none') {
                 // Update the applicant's additional contact number
                 $applicant->update([
                     'additional_contact_number' => ($body === '0' || strtolower($body) === 'no' || strtolower($body) === 'none') ? null : $body,
-                ]);  
+                ]);
 
                 $stateID = State::where('code', 'gender')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -898,7 +907,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleGenderState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleGenderState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $gender = null;
 
@@ -949,7 +959,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRaceState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleRaceState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $race = null;
 
@@ -1011,7 +1022,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHasEmailState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleHasEmailState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $hasEmail = null;
 
@@ -1035,7 +1047,6 @@ class TwilioChatService
 
                 $messages = $this->fetchStateMessages('email');
                 $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
-
             } elseif ($hasEmail && $hasEmail == 'No') {
                 // Update the applicant's has email
                 $applicant->update(['has_email' => $hasEmail]);
@@ -1071,7 +1082,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleEmailState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleEmailState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             if (filter_var($body, FILTER_VALIDATE_EMAIL)) {
                 // Update the applicant's email
@@ -1086,7 +1098,7 @@ class TwilioChatService
                 // Send a message prompting for a valid email
                 $message = "Please enter a valid email address:";
                 $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
-            }  
+            }
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleEmailState: ' . $e->getMessage());
@@ -1105,7 +1117,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHasTaxState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleHasTaxState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $hasTax = null;
 
@@ -1137,7 +1150,7 @@ class TwilioChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('citizen');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);                
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid has tax
                 $message = "Please select a valid option!";
@@ -1164,7 +1177,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTaxNumberState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleTaxNumberState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             if (preg_match('/^\d{10}$/', $body)) {
                 // Update the applicant's has number
@@ -1198,7 +1212,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCitizenState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleCitizenState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $citizen = null;
 
@@ -1257,7 +1272,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleForeignNationalState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleForeignNationalState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $foreignNational = null;
 
@@ -1307,7 +1323,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCriminalState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleCriminalState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $criminal = null;
 
@@ -1357,7 +1374,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleAvatarState($applicant, $body, $twilio, $to, $from, $service, $mediaUrl) {
+    protected function handleAvatarState($applicant, $body, $twilio, $to, $from, $service, $mediaUrl)
+    {
         try {
             if (isset($mediaUrl)) {
                 $opts = [
@@ -1375,7 +1393,8 @@ class TwilioChatService
                 if (in_array($contentType, $allowedContentTypes)) {
                     $fileContent = file_get_contents($mediaUrl);
 
-                    function getExtensionFromContentType($contentType) {
+                    function getExtensionFromContentType($contentType)
+                    {
                         $mapping = [
                             'image/jpeg' => 'jpg',
                             'image/png' => 'png',
@@ -1383,7 +1402,7 @@ class TwilioChatService
                             'image/pjpeg' => 'jpg',
                             'image/x-png' => 'png',
                         ];
-                    
+
                         return isset($mapping[$contentType]) ? $mapping[$contentType] : null;
                     }
 
@@ -1433,7 +1452,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePositionState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handlePositionState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $position = null;
 
@@ -1441,6 +1461,7 @@ class TwilioChatService
                 case '1':
                 case 'any':
                     $position = 1;
+                    break;
                 case '2':
                 case 'assistant':
                     $position = 2;
@@ -1488,7 +1509,6 @@ class TwilioChatService
                 case 'other':
                     $position = 10;
                     break;
-                    
             }
 
             if ($position && $position !== 10) {
@@ -1508,7 +1528,7 @@ class TwilioChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('position_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please select a valid option!";
@@ -1535,7 +1555,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePositionSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handlePositionSpecifyState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digit and has more than two character
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -1570,7 +1591,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleQualificationsState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleQualificationsState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -1602,7 +1624,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleSchoolState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleSchoolState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -1637,7 +1660,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHighestQualificationState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleHighestQualificationState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $education = null;
 
@@ -1667,7 +1691,7 @@ class TwilioChatService
                 case '6':
                 case 'university':
                     $education = 6;
-                    break;                    
+                    break;
             }
 
             if ($education) {
@@ -1705,7 +1729,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTrainingState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleTrainingState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $training = null;
 
@@ -1755,7 +1780,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleOtherTrainingState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleOtherTrainingState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digits
             if (!preg_match('/\d/', $body)) {
@@ -1790,7 +1816,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleDriversLicenseState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleDriversLicenseState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $driversLicense = null;
 
@@ -1849,7 +1876,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleDriversLicenseCodeState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleDriversLicenseCodeState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $licenseCode = null;
 
@@ -1876,7 +1904,7 @@ class TwilioChatService
                 case 'ec1':
                 case 'ec':
                     $licenseCode = 'EB, EC1, EC';
-                    break;                   
+                    break;
             }
 
             if ($licenseCode) {
@@ -1914,11 +1942,12 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleReadState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleReadState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Removing spaces and splitting the string by commas to get an array of selected language IDs
             $selectedLanguages = array_map('trim', explode(',', $body));
-    
+
             // Validate if all provided IDs exist in the Language table and are numeric
             $validLanguageIds = Language::pluck('id')->all();
             foreach ($selectedLanguages as $id) {
@@ -1934,14 +1963,14 @@ class TwilioChatService
             foreach ($selectedLanguages as $id) {
                 $syncData[$id] = ['created_at' => now(), 'updated_at' => now()];
             }
-    
+
             // Sync the selected languages with the applicant
             $applicant->readLanguages()->sync($syncData);
-    
+
             // Move to the next state
             $stateID = State::where('code', 'speak')->value('id');
             $applicant->update(['state_id' => $stateID]);
-    
+
             $messages = $this->fetchStateMessages('speak');
             $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
         } catch (Exception $e) {
@@ -1962,11 +1991,12 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleSpeakState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleSpeakState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Removing spaces and splitting the string by commas to get an array of selected language IDs
             $selectedLanguages = array_map('trim', explode(',', $body));
-    
+
             // Validate if all provided IDs exist in the Language table and are numeric
             $validLanguageIds = Language::pluck('id')->all();
             foreach ($selectedLanguages as $id) {
@@ -1976,20 +2006,20 @@ class TwilioChatService
                     return;
                 }
             }
-    
+
             // Prepare the data to sync including timestamps
             $syncData = [];
             foreach ($selectedLanguages as $id) {
                 $syncData[$id] = ['created_at' => now(), 'updated_at' => now()];
             }
-    
+
             // Sync the selected languages with the applicant
             $applicant->speakLanguages()->sync($syncData);
-    
+
             // Move to the next state
             $stateID = State::where('code', 'experience')->value('id');
             $applicant->update(['state_id' => $stateID]);
-    
+
             $messages = $this->fetchStateMessages('experience');
             $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
         } catch (Exception $e) {
@@ -2010,14 +2040,15 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleExperienceState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleExperienceState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             try {
                 // Handle the 'start' keyword
                 if (strtolower($body) == 'start') {
                     $messages = $this->fetchStateMessages('job_previous');
                     $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
-    
+
                     $stateID = State::where('code', 'job_previous')->value('id');
                     $applicant->update(['state_id' => $stateID]);
                 } else {
@@ -2028,10 +2059,10 @@ class TwilioChatService
             } catch (Exception $e) {
                 // Log the error for debugging purposes
                 Log::error('Error in handleExperienceState: ' . $e->getMessage());
-    
+
                 // Get the error message from the method
                 $errorMessage = $this->getErrorMessage();
-    
+
                 // Send the error message to the user
                 $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
             }
@@ -2053,7 +2084,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobPreviousState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobPreviousState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $jobPrevious = null;
 
@@ -2077,7 +2109,6 @@ class TwilioChatService
 
                 $messages = $this->fetchStateMessages('job_leave');
                 $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
-
             } elseif ($jobLeave && $jobPrevious == 'No') {
                 // Update the applicant's previous job
                 $applicant->update(['job_previous' => $jobPrevious]);
@@ -2113,7 +2144,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobLeaveState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobLeaveState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $jobLeave = null;
 
@@ -2151,7 +2183,6 @@ class TwilioChatService
                 case 'other':
                     $jobLeave = 8;
                     break;
-                    
             }
 
             if ($jobLeave && $jobLeave !== 9) {
@@ -2171,7 +2202,7 @@ class TwilioChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_leave_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid job leave
                 $message = "Please select a valid option!";
@@ -2198,7 +2229,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobLeaveSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobLeaveSpecifyState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2233,7 +2265,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobBusinessState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobBusinessState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -2268,7 +2301,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobPositionState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobPositionState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2303,7 +2337,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobTermState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobTermState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $jobTerm = null;
 
@@ -2331,7 +2366,7 @@ class TwilioChatService
                 case '6':
                 case 'more than five years':
                     $jobTerm = 6;
-                    break;                    
+                    break;
             }
 
             if ($jobTerm) {
@@ -2369,7 +2404,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobSalaryState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobSalaryState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Strip spaces
             $body = preg_replace('/\s+/', '', $body);
@@ -2410,7 +2446,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobReferenceNameState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobReferenceNameState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -2445,7 +2482,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobReferencePhoneState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobReferencePhoneState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             if (preg_match('/^\d{10}$/', $body)) {
                 // Update the applicant's job reference contact number
@@ -2479,7 +2517,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobRetrenchedState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobRetrenchedState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $jobRetrench = null;
 
@@ -2497,11 +2536,11 @@ class TwilioChatService
                 case 'never':
                 case 'no':
                     $jobRetrench = 3;
-                    break;                    
+                    break;
             }
 
             if ($jobRetrench && $jobRetrench == 3) {
-                // Update the applicant's retrenchment id 
+                // Update the applicant's retrenchment id
                 $applicant->update(['retrenchment_id' => $jobRetrench]);
 
                 $stateID = State::where('code', 'job_shoprite')->value('id');
@@ -2510,7 +2549,7 @@ class TwilioChatService
                 $messages = $this->fetchStateMessages('job_shoprite');
                 $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } elseif ($jobRetrench && $jobRetrench == 1 || $jobRetrench == 2) {
-                // Update the applicant's retrenchment id 
+                // Update the applicant's retrenchment id
                 $applicant->update(['retrenchment_id' => $jobRetrench]);
 
                 $stateID = State::where('code', 'job_retrenched_specify')->value('id');
@@ -2544,7 +2583,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobRetrenchedSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobRetrenchedSpecifyState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2579,7 +2619,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopriteState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobShopriteState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $jobShoprite = null;
 
@@ -2651,7 +2692,7 @@ class TwilioChatService
                 case '16':
                 case 'usave':
                     $jobShoprite = 16;
-                    break;              
+                    break;
             }
 
             if ($jobShoprite && $jobShoprite == 'no') {
@@ -2668,7 +2709,7 @@ class TwilioChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_shoprite_position');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid brand worked at
                 $message = "Please select a valid option!";
@@ -2695,7 +2736,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopritePositionState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobShopritePositionState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $jobShopritePosition = null;
 
@@ -2746,7 +2788,7 @@ class TwilioChatService
                 case '9':
                 case 'other':
                     $jobShopritePosition = 10;
-                    break;                    
+                    break;
             }
 
             if ($jobShopritePosition && $jobShopritePosition !== 10) {
@@ -2766,7 +2808,7 @@ class TwilioChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_shoprite_position_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please select a valid option!";
@@ -2793,7 +2835,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopritePositionSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobShopritePositionSpecifyState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2828,7 +2871,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopriteLeaveState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleJobShopriteLeaveState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2863,7 +2907,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePunctualityState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handlePunctualityState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -2895,7 +2940,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTransportState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleTransportState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $transport = null;
 
@@ -2938,7 +2984,7 @@ class TwilioChatService
                 case '9':
                 case 'other':
                     $transport = 9;
-                    break;                   
+                    break;
             }
 
             if ($transport && $transport !== 9) {
@@ -2958,7 +3004,7 @@ class TwilioChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('transport_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please select a valid option!";
@@ -2985,7 +3031,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTransportSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleTransportSpecifyState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -3020,7 +3067,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleIllnessState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleIllnessState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $illness = null;
 
@@ -3042,7 +3090,7 @@ class TwilioChatService
                 case 'none':
                 case 'no':
                     $illness = 4;
-                    break;              
+                    break;
             }
 
             if ($illness && $illness == 4) {
@@ -3062,7 +3110,7 @@ class TwilioChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('illness_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid illness
                 $message = "Please select a valid option!";
@@ -3089,7 +3137,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleIllnessSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleIllnessSpecifyState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digits and has more than one characters
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -3124,7 +3173,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCommencementState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleCommencementState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             try {
                 // Attempt to parse using DateTime constructor
@@ -3137,7 +3187,7 @@ class TwilioChatService
                 $message = "Please enter a valid date:";
                 $this->sendAndLogMessages($applicant, [$message], $twilio, $to, $from, $service);
             }
-            
+
             $date = new DateTime($body);
 
             if ($date) {
@@ -3145,7 +3195,7 @@ class TwilioChatService
                 $formattedDate = $date->format('Ymd');
 
                 // Update the applicant's commencement date
-                $applicant->update(['commencement' => $formattedDate]); 
+                $applicant->update(['commencement' => $formattedDate]);
 
                 $stateID = State::where('code', 'reason')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -3175,7 +3225,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleReasonState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleReasonState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -3207,7 +3258,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleApplicationReasonState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleApplicationReasonState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $application = null;
 
@@ -3236,11 +3288,11 @@ class TwilioChatService
                 case 'co-operative':
                 case 'training':
                     $application = 5;
-                    break; 
+                    break;
                 case '6':
                 case 'other':
                     $application = 6;
-                    break;          
+                    break;
             }
 
             if ($application && $application !== 6) {
@@ -3260,7 +3312,7 @@ class TwilioChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('application_reason_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid application reason
                 $message = "Please select a valid option!";
@@ -3287,7 +3339,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleApplicationReasonSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleApplicationReasonSpecifyState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -3322,7 +3375,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRelocateState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleRelocateState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $relocate = null;
 
@@ -3381,7 +3435,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRelocateTownState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleRelocateTownState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digits and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -3416,7 +3471,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleVacancyState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleVacancyState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $vacancy = null;
 
@@ -3466,7 +3522,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleShiftState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleShiftState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $shift = null;
 
@@ -3516,7 +3573,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHasBankAccountState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleHasBankAccountState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $hasBankAccount = null;
 
@@ -3575,7 +3633,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleBankState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleBankState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $bank = null;
 
@@ -3621,7 +3680,7 @@ class TwilioChatService
                 case '9':
                 case 'other':
                     $bank = 9;
-                    break;                   
+                    break;
             }
 
             if ($bank && $bank !== 9) {
@@ -3641,7 +3700,7 @@ class TwilioChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('bank_specify');
-                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);            
+                $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
             } else {
                 // Send a message prompting for a valid bank
                 $message = "Please select a valid option!";
@@ -3668,7 +3727,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleBankSpecifyState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleBankSpecifyState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -3703,7 +3763,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleBankNumberState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleBankNumberState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (preg_match('/^\d{6,}$/', $body)) {
@@ -3738,7 +3799,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleExpectedSalaryState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleExpectedSalaryState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Strip spaces
             $body = preg_replace('/\s+/', '', $body);
@@ -3779,7 +3841,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLiteracyStartState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleLiteracyStartState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -3791,9 +3854,9 @@ class TwilioChatService
                     $applicant->update([
                         'literacy_question_pool' => $sortOrderValues,
                         'literacy_score' => 0,
-                        'literacy_questions' => count($messages)                 
+                        'literacy_questions' => count($messages)
                     ]);
-        
+
                     $firstQuestionMessages = array_column($messages, 'message');
                     $firstQuestion = array_shift($firstQuestionMessages);
 
@@ -3829,36 +3892,37 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLiteracyState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleLiteracyState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Extract the order of the literacy questions from the applicant's data.
             $sortOrderPool = explode(',', $applicant->literacy_question_pool);
             // Retrieve the current question's sort order.
             $currentQuestionSortOrder = array_shift($sortOrderPool);
-        
+
             // Fetch the current question based on the sort order.
             $stateID = State::where('code', 'literacy')->value('id');
             $currentQuestion = ChatTemplate::where('state_id', $stateID)
                                            ->where('sort', $currentQuestionSortOrder)
                                            ->first();
-        
+
             // Check if the user's response is one of the valid options ('a', 'b', 'c', or 'd').
             if (in_array(strtolower($body), ['a', 'b', 'c', 'd'])) {
                 // If the user's answer matches the correct answer, increment the score.
                 if (strtolower($currentQuestion->answer) == strtolower($body)) {
                     $applicant->update(['literacy_score' => $applicant->literacy_score + 1]);
                 }
-        
+
                 // If there are more questions in the pool, present the next one.
                 if (count($sortOrderPool) > 0) {
                     $nextQuestionSortOrder = $sortOrderPool[0];
                     $nextQuestion = ChatTemplate::where('state_id', $stateID)
                                                 ->where('sort', $nextQuestionSortOrder)
                                                 ->first();
-                    
+
                     // Update the applicant's data with the remaining questions.
                     $applicant->update(['literacy_question_pool' => implode(',', $sortOrderPool)]);
-        
+
                     // Send the next question to the user.
                     $nextQuestionText = $nextQuestion->message;
                     $this->sendAndLogMessages($applicant, [$nextQuestionText], $twilio, $to, $from, $service);
@@ -3867,11 +3931,11 @@ class TwilioChatService
                     $correctAnswers = $applicant->literacy_score;
                     $literacyQuestions = $applicant->literacy_questions;
                     $applicant->update(['literacy' => "$correctAnswers/$literacyQuestions"]);
-                    
+
                     // Move to the numeracy questions.
                     $stateID = State::where('code', 'numeracy_start')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-    
+
                     $messages = $this->fetchStateMessages('numeracy_start');
                     $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
                 }
@@ -3879,7 +3943,7 @@ class TwilioChatService
                 // If the user's response is not valid, prepend the current question back and inform the user.
                 array_unshift($sortOrderPool, $currentQuestionSortOrder);
                 $applicant->update(['literacy_question_pool' => implode(',', $sortOrderPool)]);
-        
+
                 $invalidAnswerMessage = "Please choose a valid option (a, b, c or d).";
                 $this->sendAndLogMessages($applicant, [$invalidAnswerMessage], $twilio, $to, $from, $service);
             }
@@ -3897,7 +3961,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleNumeracyStartState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleNumeracyStartState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -3909,7 +3974,7 @@ class TwilioChatService
                     $applicant->update([
                         'numeracy_question_pool' => $sortOrderValues,
                         'numeracy_score' => 0,
-                        'numeracy_questions' => count($messages)                 
+                        'numeracy_questions' => count($messages)
                     ]);
 
                     $firstQuestionMessages = array_column($messages, 'message');
@@ -3947,37 +4012,38 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleNumeracyState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleNumeracyState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Extract the order of the numeracy questions from the applicant's data.
             $sortOrderPool = explode(',', $applicant->numeracy_question_pool);
-            
+
             // Retrieve the current question's sort order.
             $currentQuestionSortOrder = array_shift($sortOrderPool);
-            
+
             // Fetch the current question based on the sort order.
             $stateID = State::where('code', 'numeracy')->value('id');
             $currentQuestion = ChatTemplate::where('state_id', $stateID)
                                            ->where('sort', $currentQuestionSortOrder)
                                            ->first();
-            
+
             // Check if the user's response is one of the valid options ('a', 'b', or 'c').
             if (in_array(strtolower($body), ['a', 'b', 'c'])) {
                 // If the user's answer matches the correct answer, increment the score.
                 if (strtolower($currentQuestion->answer) == strtolower($body)) {
                     $applicant->update(['numeracy_score' => $applicant->numeracy_score + 1]);
                 }
-                
+
                 // If there are more questions in the pool, present the next one.
                 if (count($sortOrderPool) > 0) {
                     $nextQuestionSortOrder = $sortOrderPool[0];
                     $nextQuestion = ChatTemplate::where('state_id', $stateID)
                                                 ->where('sort', $nextQuestionSortOrder)
                                                 ->first();
-                    
+
                     // Update the applicant's data with the remaining questions.
                     $applicant->update(['numeracy_question_pool' => implode(',', $sortOrderPool)]);
-                    
+
                     // Send the next question to the user.
                     $nextQuestionText = $nextQuestion->message;
                     $this->sendAndLogMessages($applicant, [$nextQuestionText], $twilio, $to, $from, $service);
@@ -3986,11 +4052,11 @@ class TwilioChatService
                     $correctAnswers = $applicant->numeracy_score;
                     $numeracyQuestions = $applicant->numeracy_questions;
                     $applicant->update(['numeracy' => "$correctAnswers/$numeracyQuestions"]);
-                    
+
                     // Move to the complete.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-    
+
                     $messages = $this->fetchStateMessages('complete');
                     $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
                 }
@@ -3998,7 +4064,7 @@ class TwilioChatService
                 // If the user's response is not valid, prepend the current question back and inform the user.
                 array_unshift($sortOrderPool, $currentQuestionSortOrder);
                 $applicant->update(['numeracy_question_pool' => implode(',', $sortOrderPool)]);
-                
+
                 $invalidAnswerMessage = "Please choose a valid option (a, b, or c).";
                 $this->sendAndLogMessages($applicant, [$invalidAnswerMessage], $twilio, $to, $from, $service);
             }
@@ -4016,13 +4082,14 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCompleteState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleCompleteState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             // Check if the score is null and then set it
             if (is_null($applicant->score)) {
                 $score = $this->calculateScore($applicant);
                 $applicant->update(['score' => $score]);
-            }    
+            }
 
             $messages = $this->fetchStateMessages('complete');
             $this->sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service);
@@ -4044,7 +4111,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleScheduleStartState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleScheduleStartState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
 
@@ -4053,7 +4121,7 @@ class TwilioChatService
                 if (strtolower($body) == 'yes') {
                     //Data to replace
                     $dataToReplace = [
-                        "Applicant Name" => $applicant->firstname.' '.$applicant->lastname,
+                        "Applicant Name" => $applicant->firstname . ' ' . $applicant->lastname,
                         "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A',
                         "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' ' . ($latestInterview->vacancy->store->town->name ?? 'Our Office'),
                         "Interview Location" => $latestInterview->location ?? 'N/A',
@@ -4074,7 +4142,7 @@ class TwilioChatService
 
                     $stateID = State::where('code', 'schedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                } else if (strtolower($body) == 'no') {
+                } elseif (strtolower($body) == 'no') {
                     // Update the status of the interview
                     $latestInterview->status = 'Declined';
                     $latestInterview->save();
@@ -4116,10 +4184,10 @@ class TwilioChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleScheduleState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
@@ -4131,7 +4199,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleScheduleState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleScheduleState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
 
@@ -4166,7 +4235,7 @@ class TwilioChatService
 
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                } else if (strtolower($body) == 'reschedule') {
+                } elseif (strtolower($body) == 'reschedule') {
                     // Update the status of the interview
                     $latestInterview->status = 'Reschedule';
                     $latestInterview->save();
@@ -4191,7 +4260,7 @@ class TwilioChatService
 
                     $stateID = State::where('code', 'reschedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                } else if (strtolower($body) == 'decline') {
+                } elseif (strtolower($body) == 'decline') {
                     // Update the status of the interview
                     $latestInterview->status = 'Declined';
                     $latestInterview->save();
@@ -4233,10 +4302,10 @@ class TwilioChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleScheduleState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
@@ -4248,7 +4317,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRescheduleState($applicant, $body, $twilio, $to, $from, $service) {
+    protected function handleRescheduleState($applicant, $body, $twilio, $to, $from, $service)
+    {
         try {
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
 
@@ -4256,11 +4326,11 @@ class TwilioChatService
                 try {
                     // Attempt to parse the provided date and time
                     $newDateTime = Carbon::parse($body);
-        
+
                     // If parsing was successful, update the interview's reschedule field
                     $latestInterview->reschedule_date = $newDateTime;
                     $latestInterview->save();
-        
+
                     // Send a confirmation message
                     $messages = [
                         "Thank you, we have noted the date and time. We will get back to you with a newly scheduled interview."
@@ -4285,10 +4355,10 @@ class TwilioChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleScheduleState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $twilio, $to, $from, $service);
         }
@@ -4300,11 +4370,12 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function calculateScore($applicant) {
+    protected function calculateScore($applicant)
+    {
         $totalScore = 0;
         $totalWeight = 0;
         $weightings = ScoreWeighting::all(); // Fetch all weightings
-    
+
         foreach ($weightings as $weighting) {
             // Check if this weighting involves a condition
             if (!empty($weighting->condition_field)) {
@@ -4323,10 +4394,10 @@ class TwilioChatService
 
             $totalWeight += $weighting->weight;
         }
-    
+
         // Normalize the score to a scale of 0 to 5
         $normalizedScore = $totalWeight > 0 ? ($totalScore / $totalWeight) * 5 : ($totalScore / 100) * 5;
-    
+
         return round($normalizedScore, 2); // Round to 2 decimal places
     }
 
@@ -4336,10 +4407,11 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function fetchStateMessages($stateCode) {
+    protected function fetchStateMessages($stateCode)
+    {
         // Retrieve messages from the database
         $stateID = State::where('code', $stateCode)->first()->id;
-        
+
         // Check if the state is 'literacy' or 'numeracy'
         if (in_array($stateCode, ['literacy', 'numeracy'])) {
             return ChatTemplate::where('state_id', $stateID)
@@ -4348,7 +4420,7 @@ class TwilioChatService
                 ->get()
                 ->toArray(); // Returns both the 'message' and 'sort' columns as an array of arrays
         }
-    
+
         return ChatTemplate::where('state_id', $stateID)
             ->pluck('message')
             ->toArray(); // Return only the 'message' column for other states
@@ -4360,7 +4432,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    public function sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service) {
+    public function sendAndLogMessages($applicant, $messages, $twilio, $to, $from, $service)
+    {
         foreach ($messages as $message) {
             $this->logMessage($applicant->id, $message, 2); // Assuming '2' is the type for outgoing
 
@@ -4374,7 +4447,8 @@ class TwilioChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function getErrorMessage() {
+    protected function getErrorMessage()
+    {
         return "Something went wrong. Please try again later.";
     }
 }

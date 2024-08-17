@@ -32,7 +32,7 @@ class ProvincesController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Provinces Index
@@ -67,7 +67,7 @@ class ProvincesController extends Controller
 
         try {
             //Province Create
-            $province = Province::create([                
+            $province = Province::create([
                 'name' => $request->name
             ]);
 
@@ -79,7 +79,7 @@ class ProvincesController extends Controller
                 'encID' => $encID,
                 'message' => 'Province created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create province!',
@@ -188,7 +188,7 @@ class ProvincesController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -196,25 +196,25 @@ class ProvincesController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             Province::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Provinces deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete provinces!',

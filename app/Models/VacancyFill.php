@@ -9,7 +9,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class VacancyFill extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $fillable = [
         'vacancy_id',

@@ -10,7 +10,7 @@ use Aacotroneo\Saml2\Saml2Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Hash; 
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 
 class SamlController extends Saml2Controller
@@ -38,33 +38,33 @@ class SamlController extends Saml2Controller
     public function acs(Saml2Auth $saml2Auth, $idpName)
     {
         $errors = $saml2Auth->acs();
-    
+
         if (!empty($errors)) {
             logger()->error('Saml2 error_detail', ['error' => $saml2Auth->getLastErrorReason()]);
             session()->flash('saml2_error_detail', [$saml2Auth->getLastErrorReason()]);
-    
+
             logger()->error('Saml2 error', $errors);
             session()->flash('saml2_error', $errors);
             return redirect(config('saml2_settings.errorRoute'));
         }
-    
+
         $user = $saml2Auth->getSaml2User();
         $attributes = $user->getAttributes();
-    
+
         // Ensure that the required attributes are present
         $requiredAttributes = [
             'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname',
             'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname',
             'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress'
         ];
-    
+
         foreach ($requiredAttributes as $attribute) {
             if (!isset($attributes[$attribute][0])) {
                 Log::error('SAML2Auth: Missing required attribute', ['attribute' => $attribute]);
                 return redirect(config('saml2_settings.errorRoute'))->withErrors('Missing required SAML attributes.');
             }
         }
-    
+
         // Extract attributes
         $firstname = $attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/givenname'][0];
         $lastname = $attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/surname'][0];
@@ -72,11 +72,11 @@ class SamlController extends Saml2Controller
         $phone = $attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/telephoneNumber'][0] ?? null;
         $avatar = $attributes['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/photo'][0] ?? 'avatar.jpg';
         $password = Str::random(16);
-    
+
         // Check if the user already exists
         $existingUser = \App\Models\User::where('email', $email)->first();
-    
-        if (!$existingUser) {    
+
+        if (!$existingUser) {
             $newUser = \App\Models\User::create([
                 'firstname' => $firstname,
                 'lastname' => $lastname,
@@ -91,7 +91,7 @@ class SamlController extends Saml2Controller
                 'resident' => 1,
                 'company_id' => 1,
             ]);
-    
+
             Auth::login($newUser);
         } else {
             Auth::login($existingUser);
@@ -103,7 +103,7 @@ class SamlController extends Saml2Controller
         } else {
             return redirect(config('saml2_settings.errorRoute'))->withErrors('Authentication failed.');
         }
-    } 
+    }
 
     /**
      * Process an incoming saml2 logout request.

@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<ruleset name="Recon Engine Ruleset">
+    <arg name="colors" />
+    
+    <!-- Include the PSR-12 standard -->
+    <rule ref="PSR12"/>
+
+    <!-- Ignore specific file for line length rule -->
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="265" />
+            <property name="absoluteLineLimit" value="300" />
+        </properties>
+    </rule>
+
+</ruleset>

@@ -54,7 +54,7 @@ class SaveController extends Controller
                 $applicant->savedBy()->detach($userID);
                 return response()->json([
                     'userID' => $userID,
-                    'success' => true, 
+                    'success' => true,
                     'message' => 'Applicant Unsaved!'
                 ], 200);
             } else {
@@ -62,7 +62,7 @@ class SaveController extends Controller
                 $applicant->savedBy()->attach($userID);
                 return response()->json([
                     'userID' => $userID,
-                    'success' => true, 
+                    'success' => true,
                     'message' => 'Applicant Saved!'
                 ], 200);
             }
@@ -104,7 +104,7 @@ class SaveController extends Controller
                 $vacancy->savedBy()->detach($userID);
                 return response()->json([
                     'success' => true,
-                    'vacancy'=> $vacancy,
+                    'vacancy' => $vacancy,
                     'id' => $id,
                     'message' => 'Vacancy Unsaved!'
                 ], 200);
@@ -113,7 +113,7 @@ class SaveController extends Controller
                 $vacancy->savedBy()->attach($userID);
                 return response()->json([
                     'success' => true,
-                    'vacancy'=> $vacancy,
+                    'vacancy' => $vacancy,
                     'id' => $id,
                     'message' => 'Vacancy Saved!'
                 ], 200);

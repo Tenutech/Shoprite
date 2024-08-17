@@ -9,8 +9,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class WorkingHour extends Model
 {
-    use HasFactory, LogsActivity;
-    
+    use HasFactory;
+    use LogsActivity;
+
     protected $fillable = [
         'position_id',
         'shift_info',

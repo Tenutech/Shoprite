@@ -116,10 +116,10 @@ class ManagerController extends Controller
 
             // Define the models that are relevant for the activity log.
             $allowedModels = [
-                'App\Models\Applicant', 
-                'App\Models\Application', 
-                'App\Models\Vacancy', 
-                'App\Models\Message', 
+                'App\Models\Applicant',
+                'App\Models\Application',
+                'App\Models\Vacancy',
+                'App\Models\Message',
                 'App\Models\User'
             ];
 
@@ -128,26 +128,26 @@ class ManagerController extends Controller
 
             // Query the activity log, filtering for activities related to the allowed models.
             $activities = Activity::whereIn('subject_type', $allowedModels)
-                ->where(function($query) use ($authUserId, $authVacancyIds) {
+                ->where(function ($query) use ($authUserId, $authVacancyIds) {
                     // Filter for activities where the 'causer' (the user who performed the action) is the authenticated user,
                     // and the action is one of 'created', 'updated', or 'deleted'.
                     $query->where('causer_id', $authUserId)
                         ->whereIn('event', ['created', 'updated', 'deleted']);
                 })
-                ->orWhere(function($q) use ($authUserId) {
+                ->orWhere(function ($q) use ($authUserId) {
                     // Include activities where the event is 'accessed' (e.g., a user viewed a vacancy or applicant profile),
                     // specifically for the authenticated user.
                     $q->where('event', 'accessed')
                     ->whereIn('description', ['job-overview.index', 'applicant-profile.index'])
                     ->where('causer_id', $authUserId);
                 })
-                ->orWhere(function($q) use ($authUserId) {
+                ->orWhere(function ($q) use ($authUserId) {
                     // Include activities related to messages where the authenticated user is the recipient ('to_id').
                     $q->where('subject_type', 'App\Models\Message')
                     ->where('properties->attributes->to_id', $authUserId)
                     ->where('event', 'created');
                 })
-                ->orWhere(function($q) use ($authVacancyIds) {
+                ->orWhere(function ($q) use ($authVacancyIds) {
                     // Include activities related to applications connected to any of the vacancies owned by the authenticated user.
                     $q->where('subject_type', 'App\Models\Application')
                     ->whereIn('properties->attributes->vacancy_id', $authVacancyIds);
@@ -216,7 +216,7 @@ class ManagerController extends Controller
             foreach ($deletedMessageActivities as $activity) {
                 $toId = data_get($activity, 'properties.old.to_id');
                 $activity->setRelation('userForDeletedMessage', $usersForDeletedMessages->firstWhere('id', $toId));
-            }           
+            }
 
             // Extract the encrypted IDs from the URL of the 'accessed' activities for vacancies.
             $accessedVacancyEncryptedIds = $activities->where('event', 'accessed')
@@ -225,7 +225,7 @@ class ManagerController extends Controller
                 // Get the URL from the activity's properties.
                 return data_get($activity, 'properties.url');
             })
-            ->map(function($url) {
+            ->map(function ($url) {
                 // Split the URL into segments and get the last segment, which is the encrypted ID.
                 $segments = explode('/', $url);
                 $encryptedId = count($segments) > 1 ? last($segments) : null;
@@ -272,7 +272,7 @@ class ManagerController extends Controller
                 parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
                 return $queryParams['id'] ?? null;
             })
-            ->map(function($encryptedId) {
+            ->map(function ($encryptedId) {
                 // Attempt to decrypt the encrypted ID.
                 if ($encryptedId) {
                     try {
@@ -324,7 +324,7 @@ class ManagerController extends Controller
             $previousYear = $currentYear - 1;
 
             $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            
+
             // Determine months to query for the current year
             $queryMonthsCurrentYear = array_slice($months, 0, $currentMonth + 1);
             // Determine months to query for the previous year, excluding months overlapping with the current year
@@ -334,7 +334,7 @@ class ManagerController extends Controller
             $previousYearData = ApplicantTotalData::where('year', $currentYear - 1)->first();
             $currentYearId = $currentYearData->id;
             $previousYearId = $previousYearData->id;
-            
+
             $applicationsPerMonth = [];
             $interviewedPerMonth = [];
             $appointedPerMonth = [];
@@ -396,9 +396,9 @@ class ManagerController extends Controller
 
                     // Process the combined data for visualization
                     $combinedInterviews->groupBy('month')->each(function ($items, $month) use (&$interviewedPerMonth, $months) {
-                    $totalInterviews = $items->sum('count'); // Sum up interviews for the month
+                        $totalInterviews = $items->sum('count'); // Sum up interviews for the month
 
-                    $index = array_search($month, $months);
+                        $index = array_search($month, $months);
                         if ($index !== false) {
                             $interviewedPerMonth[] = $totalInterviews;
                         }
@@ -425,9 +425,9 @@ class ManagerController extends Controller
 
                     // Process the combined data for visualization
                     $combinedAppointed->groupBy('month')->each(function ($items, $month) use (&$appointedPerMonth, $months) {
-                    $totalAppointed = $items->sum('count'); // Sum up appointed for the month
+                        $totalAppointed = $items->sum('count'); // Sum up appointed for the month
 
-                    $index = array_search($month, $months);
+                        $index = array_search($month, $months);
                         if ($index !== false) {
                             $appointedPerMonth[] = $totalAppointed;
                         }
@@ -454,9 +454,9 @@ class ManagerController extends Controller
 
                     // Process the combined data for visualization
                     $combinedRejected->groupBy('month')->each(function ($items, $month) use (&$rejectedPerMonth, $months) {
-                    $totalRejected = $items->sum('count'); // Sum up rejected for the month
+                        $totalRejected = $items->sum('count'); // Sum up rejected for the month
 
-                    $index = array_search($month, $months);
+                        $index = array_search($month, $months);
                         if ($index !== false) {
                             $rejectedPerMonth[] = $totalRejected;
                         }
@@ -466,11 +466,11 @@ class ManagerController extends Controller
                 //Percent movement from last month for applications
                 $sumOfApplications = array_sum($applicationsPerMonth);
 
-                if(count($applicationsPerMonth) >= 2) {
+                if (count($applicationsPerMonth) >= 2) {
                     $lastMonthApplications = end($applicationsPerMonth);
                     $penultimateMonthApplications = $applicationsPerMonth[count($applicationsPerMonth) - 2];
-                
-                    if($sumOfApplications > 0) {
+
+                    if ($sumOfApplications > 0) {
                         $percentMovementApplicationsPerMonth = round((($lastMonthApplications - $penultimateMonthApplications) / $sumOfApplications) * 100, 2);
                     } else {
                         $percentMovementApplicationsPerMonth = 0;
@@ -482,11 +482,11 @@ class ManagerController extends Controller
                 //Percent movement from last month for interviews
                 $sumOfInterviewed = array_sum($interviewedPerMonth);
 
-                if(count($interviewedPerMonth) >= 2) {
+                if (count($interviewedPerMonth) >= 2) {
                     $lastMonthInterviewed = end($interviewedPerMonth);
                     $penultimateMonthInterviewed = $interviewedPerMonth[count($interviewedPerMonth) - 2];
-                
-                    if($sumOfInterviewed > 0) {
+
+                    if ($sumOfInterviewed > 0) {
                         $percentMovementInterviewedPerMonth = round((($lastMonthInterviewed - $penultimateMonthInterviewed) / $sumOfInterviewed) * 100, 2);
                     } else {
                         $percentMovementInterviewedPerMonth = 0;
@@ -498,11 +498,11 @@ class ManagerController extends Controller
                 //Percent movement from last month for appointed
                 $sumOfAppointed = array_sum($appointedPerMonth);
 
-                if(count($appointedPerMonth) >= 2) {
+                if (count($appointedPerMonth) >= 2) {
                     $lastMonthAppointed = end($appointedPerMonth);
                     $penultimateMonthAppointed = $appointedPerMonth[count($appointedPerMonth) - 2];
-                
-                    if($sumOfAppointed > 0) {
+
+                    if ($sumOfAppointed > 0) {
                         $percentMovementAppointedPerMonth = round((($lastMonthAppointed - $penultimateMonthAppointed) / $sumOfAppointed) * 100, 2);
                     } else {
                         $percentMovementAppointedPerMonth = 0;
@@ -514,11 +514,11 @@ class ManagerController extends Controller
                 //Percent movement from last month
                 $sumOfRejected = array_sum($rejectedPerMonth);
 
-                if(count($rejectedPerMonth) >= 2) {
+                if (count($rejectedPerMonth) >= 2) {
                     $lastMonthRejected = end($rejectedPerMonth);
                     $penultimateMonthRejected = $rejectedPerMonth[count($rejectedPerMonth) - 2];
-                
-                    if($sumOfRejected > 0) {
+
+                    if ($sumOfRejected > 0) {
                         $percentMovementRejectedPerMonth = round((($lastMonthRejected - $penultimateMonthRejected) / $sumOfRejected) * 100, 2);
                     } else {
                         $percentMovementRejectedPerMonth = 0;
@@ -528,7 +528,7 @@ class ManagerController extends Controller
                 }
             }
 
-            return view('manager/home',[
+            return view('manager/home', [
                 'vacancies' => $vacancies,
                 'allVacancies' => $allVacancies,
                 'activities' => $activities,

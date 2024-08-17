@@ -37,7 +37,7 @@ class VacanciesController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-     
+
     /*
     |--------------------------------------------------------------------------
     | Vacancies Index
@@ -57,7 +57,7 @@ class VacanciesController extends Controller
                 $positionName = $request->input('position');
                 $position = Position::where('name', $positionName)->first();
 
-                if($position) {
+                if ($position) {
                     $selectedPositionId = $position->id;
                 }
             }
@@ -81,16 +81,16 @@ class VacanciesController extends Controller
                 $provinceName = $request->input('province');
                 $province = Province::where('name', $provinceName)->first();
 
-                if($province) {
+                if ($province) {
                     $selectedProvinceId = $province->id;
                 }
             }
 
-            return view('vacancies',[
+            return view('vacancies', [
                 'positions' => $positions,
                 'selectedPositionId' => $selectedPositionId,
                 'types' => $types,
-                'brands' => $brands,                
+                'brands' => $brands,
                 'towns' => $towns,
                 'provinces' => $provinces,
                 'selectedProvinceId' => $selectedProvinceId,

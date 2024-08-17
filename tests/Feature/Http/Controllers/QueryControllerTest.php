@@ -17,7 +17,7 @@ beforeEach(function () {
         'status_id' => $this->status->id,
     ]);
 
-    actingAs($this->user);
+    $this->actingAs($this->user);
 });
 
 // it('creates a query', function () {

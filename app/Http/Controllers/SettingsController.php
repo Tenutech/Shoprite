@@ -33,7 +33,7 @@ class SettingsController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Weighting Index
@@ -63,7 +63,8 @@ class SettingsController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function update(Request $request) {    
+    public function update(Request $request)
+    {
         try {
             // List of all settings keys you expect to update
             $settingsKeys = [
@@ -91,7 +92,7 @@ class SettingsController extends Controller
                 'success' => true,
                 'message' => 'Settings Updated Successfully.'
             ]);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed To Update Settings!',
@@ -106,7 +107,8 @@ class SettingsController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function reminderSettings(Request $request) {    
+    public function reminderSettings(Request $request)
+    {
         try {
             // Define an array of all possible reminder types
             $reminderTypes = [
@@ -119,17 +121,17 @@ class SettingsController extends Controller
                 // Check if the reminder type was present in the request
                 // This assumes unchecked checkboxes will not be sent in the request
                 $isActive = $request->has($type);
-    
+
                 // Update the reminder's active status based on whether it was checked or not
                 ReminderSetting::where('type', $type)->update(['is_active' => $isActive ? 1 : 0]);
-            }    
-    
+            }
+
             // Return a success response
             return response()->json([
                 'success' => true,
                 'message' => 'Reminders Updated Successfully.'
             ]);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed To Update Reminders!',

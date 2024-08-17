@@ -46,7 +46,7 @@ class ChatService
 
             // Extract phone number ID from the webhook data
             $phoneNumberId = $data['entry'][0]['changes'][0]['value']['metadata']['phone_number_id'] ?? null;
-            
+
             // Get the configured phone number ID from the environment
             $configuredPhoneNumberId = config('services.meta.phone');
 
@@ -69,7 +69,7 @@ class ChatService
             } elseif (isset($messageData['interactive']['list_reply']['id'])) {
                 $body = $messageData['interactive']['list_reply']['id'];
             }
-            
+
             $latitude = $messageData['location']['latitude'] ?? null;
             $longitude = $messageData['location']['longitude'] ?? null;
             $mediaUrl = $messageData['media'][0]['url'] ?? null;
@@ -114,11 +114,11 @@ class ChatService
         try {
             // Query for the applicant based on the phone number and preload certain related data
             $applicant = Applicant::with([
-                'user', 
-                'gender', 
-                'race', 
-                'transport', 
-                'role', 
+                'user',
+                'gender',
+                'race',
+                'transport',
+                'role',
                 'interviews.vacancy.position'
             ])
             ->where('phone', $phone)
@@ -171,7 +171,7 @@ class ChatService
 
             // Determine the fields to update based on the message type
             $totalField = $type == 1 ? 'total_incoming' : 'total_outgoing';
-            $monthField = $type == 1 ? $currentMonth.'_incoming' : $currentMonth.'_outgoing';
+            $monthField = $type == 1 ? $currentMonth . '_incoming' : $currentMonth . '_outgoing';
 
             $yearlyData = ChatTotalData::firstOrCreate(
                 ['year' => $currentYear]
@@ -196,7 +196,6 @@ class ChatService
 
             // Save the ChatMonthlyData entry
             $monthlyData->save();
-    
         } catch (Exception $e) {
             Log::error("Error in logMessage: {$e->getMessage()}");
             throw new Exception('There was an error logging the message. Please try again later.');
@@ -229,7 +228,7 @@ class ChatService
 
             $checkpointTriggered = false; // flag to track checkpoint status
 
-            // If the elapsed time exceeds the delay or if the applicant's state has a '_checkpoint' suffix, 
+            // If the elapsed time exceeds the delay or if the applicant's state has a '_checkpoint' suffix,
             // update the state of the applicant
             if ($applicant->state_id > 2 && ($timeDifference > 15 || $applicant->checkpoint == 'Yes')) {
                 // Set applicant checkpoint to 'Yes'
@@ -249,11 +248,11 @@ class ChatService
                     $questionPool = ($state == 'literacy') ? 'literacy_question_pool' : 'numeracy_question_pool';
                     $sortOrderPool = explode(',', $applicant->{$questionPool});
                     $currentQuestionSortOrder = $sortOrderPool[0];
-                    
+
                     $currentQuestion = ChatTemplate::where('state_id', $stateID)
                                                    ->where('sort', $currentQuestionSortOrder)
                                                    ->first();
-                    
+
                     if ($currentQuestion) {
                         $currentQuestionText = $currentQuestion->message;
                         $this->sendAndLogMessages($applicant, [$currentQuestionText], $client, $to, $from, $token);
@@ -283,7 +282,8 @@ class ChatService
     * @param  string $body
     * @return void
     */
-    public function processStateActions($applicant, $body, $latitude, $longitude, $mediaId) {
+    public function processStateActions($applicant, $body, $latitude, $longitude, $mediaId)
+    {
         $client = new GuzzleClient();
         $to = $applicant->phone;
         $from = config('services.meta.phone');
@@ -298,19 +298,19 @@ class ChatService
             case 'welcome':
                 $this->handleWelcomeState($applicant, $client, $to, $from, $token);
                 break;
-        
+
             case 'personal_information':
                 $this->handlePersonalInformationState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'first_name':
                 $this->handleFirstNameState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'last_name':
                 $this->handleLastNameState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'id_number':
                 $this->handleIdNumberState($applicant, $body, $client, $to, $from, $token);
                 break;
@@ -334,35 +334,35 @@ class ChatService
             case 'gender':
                 $this->handleGenderState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'race':
                 $this->handleRaceState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'has_email':
                 $this->handleHasEmailState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'email':
                 $this->handleEmailState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'has_tax':
                 $this->handleHasTaxState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'tax_number':
                 $this->handleTaxNumberState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'citizen':
                 $this->handleCitizenState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'foreign_national':
                 $this->handleForeignNationalState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'criminal':
                 $this->handleCriminalState($applicant, $body, $client, $to, $from, $token);
                 break;
@@ -370,43 +370,43 @@ class ChatService
             case 'avatar':
                 $this->handleAvatarState($applicant, $body, $client, $to, $from, $token, $mediaId);
                 break;
-        
+
             case 'position':
                 $this->handlePositionState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'position_specify':
                 $this->handlePositionSpecifyState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'qualifications':
                 $this->handleQualificationsState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'school':
                 $this->handleSchoolState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'highest_qualification':
                 $this->handleHighestQualificationState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'training':
                 $this->handleTrainingState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'other_training':
                 $this->handleOtherTrainingState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'drivers_license':
                 $this->handleDriversLicenseState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'drivers_license_code':
                 $this->handleDriversLicenseCodeState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'read':
                 $this->handleReadState($applicant, $body, $client, $to, $from, $token);
                 break;
@@ -414,166 +414,166 @@ class ChatService
             case 'speak':
                 $this->handleSpeakState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'experience':
                 $this->handleExperienceState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_previous':
                 $this->handleJobPreviousState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_leave':
                 $this->handleJobLeaveState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_leave_specify':
                 $this->handleJobLeaveSpecifyState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_business':
                 $this->handleJobBusinessState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_position':
                 $this->handleJobPositionState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_term':
                 $this->handleJobTermState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_salary':
                 $this->handleJobSalaryState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_reference_name':
                 $this->handleJobReferenceNameState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_reference_phone':
                 $this->handleJobReferencePhoneState($applicant, $body, $client, $to, $from, $token);
                 break;
-                
+
             case 'job_retrenched':
                 $this->handleJobRetrenchedState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_retrenched_specify':
                 $this->handleJobRetrenchedSpecifyState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_shoprite':
                 $this->handleJobShopriteState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_shoprite_position':
                 $this->handleJobShopritePositionState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_shoprite_position_specify':
                 $this->handleJobShopritePositionSpecifyState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'job_shoprite_leave':
                 $this->handleJobShopriteLeaveState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'punctuality':
                 $this->handlePunctualityState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'transport':
                 $this->handleTransportState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'transport_specify':
                 $this->handleTransportSpecifyState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'illness':
                 $this->handleIllnessState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'illness_specify':
                 $this->handleIllnessSpecifyState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'commencement':
                 $this->handleCommencementState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'reason':
                 $this->handleReasonState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'application_reason':
                 $this->handleApplicationReasonState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'application_reason_specify':
                 $this->handleApplicationReasonSpecifyState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'relocate':
                 $this->handleRelocateState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'relocate_town':
                 $this->handleRelocateTownState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'vacancy':
                 $this->handleVacancyState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'shift':
                 $this->handleShiftState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'has_bank_account':
                 $this->handleHasBankAccountState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'bank':
                 $this->handleBankState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'bank_specify':
                 $this->handleBankSpecifyState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'bank_number':
                 $this->handleBankNumberState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'expected_salary':
                 $this->handleExpectedSalaryState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'literacy_start':
                 $this->handleLiteracyStartState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'literacy':
                 $this->handleLiteracyState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'numeracy_start':
                 $this->handleNumeracyStartState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'numeracy':
                 $this->handleNumeracyState($applicant, $body, $client, $to, $from, $token);
                 break;
-        
+
             case 'complete':
                 $this->handleCompleteState($applicant, $body, $client, $to, $from, $token);
                 break;
 
             case 'schedule_start':
                     $this->handleScheduleStartState($applicant, $body, $client, $to, $from, $token);
-                    break;
+                break;
 
             case 'schedule':
                 $this->handleScheduleState($applicant, $body, $client, $to, $from, $token);
@@ -581,7 +581,7 @@ class ChatService
 
             case 'reschedule':
                 $this->handleRescheduleState($applicant, $body, $client, $to, $from, $token);
-                 break;
+                break;
         }
     }
 
@@ -591,7 +591,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleWelcomeState($applicant, $client, $to, $from, $token) {
+    protected function handleWelcomeState($applicant, $client, $to, $from, $token)
+    {
         try {
             $messages = $this->fetchStateMessages('welcome');
             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
@@ -601,10 +602,10 @@ class ChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleWelcomeState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
         }
@@ -616,7 +617,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePersonalInformationState($applicant, $body, $client, $to, $from, $token) {
+    protected function handlePersonalInformationState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -636,10 +638,10 @@ class ChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handlePersonalInformationState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
         }
@@ -651,7 +653,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleFirstNameState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleFirstNameState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -671,10 +674,10 @@ class ChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleFirstNameState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
         }
@@ -686,7 +689,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLastNameState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleLastNameState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -706,10 +710,10 @@ class ChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleLastNameState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
         }
@@ -721,7 +725,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleIdNumberState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleIdNumberState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             if (preg_match('/^\d{13}$/', $body)) {
                 // Update the applicant's id number
@@ -757,7 +762,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLocationState($applicant, $body, $latitude, $longitude, $client, $to, $from, $token) {
+    protected function handleLocationState($applicant, $body, $latitude, $longitude, $client, $to, $from, $token)
+    {
         try {
             // Send the "Please give a second to verify your address" message
             $message = "Please give me a second to verify your address...";
@@ -766,7 +772,7 @@ class ChatService
             $googleMapsService = new GoogleMapsService();
 
             if (isset($latitude) && isset($longitude)) {
-                $applicant->update(['location' => $latitude.' '.$longitude]);
+                $applicant->update(['location' => $latitude . ' ' . $longitude]);
                 $response = $googleMapsService->reverseGeocodeCoordinates(trim($latitude), trim($longitude));
             } else {
                 $applicant->update(['location' => $body]);
@@ -776,7 +782,7 @@ class ChatService
             if ($response !== null) {
                 $formattedAddress = $response['formatted_address'];
                 $city = $response['city'] ?? null;
-        
+
                 $templateMessage = [
                     [
                         'message' => "I have picked up the address as:\n\n*$formattedAddress*\n\nPlease confirm that this is correct.",
@@ -790,10 +796,10 @@ class ChatService
 
                 $latitude = $response['latitude'];
                 $longitude = $response['longitude'];
-        
+
                 $applicant->update([
                     'location' => $formattedAddress,
-                    'coordinates' => $latitude.','.$longitude,
+                    'coordinates' => $latitude . ',' . $longitude,
                     'town_id' => $city  // update the applicant's town with the city
                 ]);
 
@@ -822,8 +828,9 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLocationConfirmationState($applicant, $body, $client, $to, $from, $token) {
-        try {            
+    protected function handleLocationConfirmationState($applicant, $body, $client, $to, $from, $token)
+    {
+        try {
             if (strtolower($body) === 'that is correct' || strtolower($body) === 'correct' || strtolower($body) === "that's correct") {
                 // If the user confirms the address, move on to contact_number
                 $stateID = State::where('code', 'contact_number')->value('id');
@@ -864,7 +871,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleContactNumberState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleContactNumberState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             if (preg_match('/^\d{10}$/', $body)) {
                 // Update the applicant's contact number
@@ -898,13 +906,14 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleAdditionalContactNumberState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleAdditionalContactNumberState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             if (preg_match('/^\d{10}$/', $body) || $body == '0' || strtolower($body) == 'no' || strtolower($body) == 'none') {
                 // Update the applicant's additional contact number
                 $applicant->update([
                     'additional_contact_number' => ($body === '0' || strtolower($body) === 'no' || strtolower($body) === 'none') ? null : $body,
-                ]);  
+                ]);
 
                 $stateID = State::where('code', 'gender')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -934,7 +943,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleGenderState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleGenderState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $gender = null;
 
@@ -985,7 +995,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRaceState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleRaceState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $race = null;
 
@@ -1047,7 +1058,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHasEmailState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleHasEmailState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $hasEmail = null;
 
@@ -1071,7 +1083,6 @@ class ChatService
 
                 $messages = $this->fetchStateMessages('email');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-
             } elseif ($hasEmail && $hasEmail == 'No') {
                 // Update the applicant's has email
                 $applicant->update(['has_email' => $hasEmail]);
@@ -1107,7 +1118,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleEmailState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleEmailState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             if (filter_var($body, FILTER_VALIDATE_EMAIL)) {
                 // Update the applicant's email
@@ -1122,7 +1134,7 @@ class ChatService
                 // Send a message prompting for a valid email
                 $message = "Please enter a valid email address:";
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
-            }  
+            }
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleEmailState: ' . $e->getMessage());
@@ -1141,7 +1153,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHasTaxState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleHasTaxState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $hasTax = null;
 
@@ -1173,7 +1186,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('citizen');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);                
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // Send a message prompting for a valid has tax
                 $message = "Please select a valid option!";
@@ -1200,7 +1213,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTaxNumberState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleTaxNumberState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             if (preg_match('/^\d{10}$/', $body)) {
                 // Update the applicant's has number
@@ -1234,7 +1248,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCitizenState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleCitizenState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $citizen = null;
 
@@ -1293,7 +1308,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleForeignNationalState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleForeignNationalState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $foreignNational = null;
 
@@ -1343,7 +1359,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCriminalState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleCriminalState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $criminal = null;
 
@@ -1393,7 +1410,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleAvatarState($applicant, $body, $client, $to, $from, $token, $mediaId) {
+    protected function handleAvatarState($applicant, $body, $client, $to, $from, $token, $mediaId)
+    {
         try {
             if (isset($mediaId)) {
                 $url = "https://graph.facebook.com/v19.0/$mediaId";
@@ -1404,32 +1422,32 @@ class ChatService
                 if ($response->getStatusCode() == 200) {
                     $data = json_decode($response->getBody(), true);
                     $mediaUrl = $data['url'] ?? null;
-    
+
                     if ($mediaUrl) {
                         $imageResponse = $client->get($mediaUrl, [
                             'headers' => ['Authorization' => "Bearer $token"]
                         ]);
                         $contentType = $imageResponse->getHeaderLine('Content-Type');
                         $allowedContentTypes = ['image/jpeg', 'image/png', 'image/jpg'];
-    
+
                         if (in_array($contentType, $allowedContentTypes)) {
                             $fileContent = $imageResponse->getBody()->getContents();
-    
+
                             $fileExtension = array_search($contentType, [
                                 'jpg' => 'image/jpeg',
                                 'jpg' => 'image/jpg',
                                 'png' => 'image/png'
                             ]) ?: 'jpg'; // Default to jpg if no match found
-    
+
                             $fileName = $applicant->firstname . ' ' . $applicant->lastname . '-' . time() . '.' . $fileExtension;
                             $filePath = public_path('/images/' . $fileName);
-    
+
                             if (file_put_contents($filePath, $fileContent)) {
                                 $applicant->update(['avatar' => '/images/' . $fileName]);
-    
+
                                 $stateID = State::where('code', 'position')->value('id');
                                 $applicant->update(['state_id' => $stateID]);
-    
+
                                 $messages = $this->fetchStateMessages('position');
                                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
                             } else {
@@ -1470,7 +1488,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePositionState($applicant, $body, $client, $to, $from, $token) {
+    protected function handlePositionState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $position = null;
 
@@ -1478,6 +1497,7 @@ class ChatService
                 case '1':
                 case 'any':
                     $position = 1;
+                    break;
                 case '2':
                 case 'assistant':
                     $position = 2;
@@ -1544,7 +1564,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('position_specify');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);            
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please select a valid option!";
@@ -1571,7 +1591,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePositionSpecifyState($applicant, $body, $client, $to, $from, $token) {
+    protected function handlePositionSpecifyState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digit and has more than two character
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -1606,7 +1627,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleQualificationsState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleQualificationsState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -1638,7 +1660,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleSchoolState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleSchoolState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -1673,7 +1696,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHighestQualificationState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleHighestQualificationState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $education = null;
 
@@ -1703,7 +1727,7 @@ class ChatService
                 case '6':
                 case 'university':
                     $education = 6;
-                    break;                    
+                    break;
             }
 
             if ($education) {
@@ -1741,7 +1765,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTrainingState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleTrainingState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $training = null;
 
@@ -1791,7 +1816,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleOtherTrainingState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleOtherTrainingState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digits
             if (!preg_match('/\d/', $body)) {
@@ -1826,7 +1852,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleDriversLicenseState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleDriversLicenseState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $driversLicense = null;
 
@@ -1885,7 +1912,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleDriversLicenseCodeState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleDriversLicenseCodeState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $licenseCode = null;
 
@@ -1912,7 +1940,7 @@ class ChatService
                 case 'ec1':
                 case 'ec':
                     $licenseCode = 'EB, EC1, EC';
-                    break;                   
+                    break;
             }
 
             if ($licenseCode) {
@@ -1950,11 +1978,12 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleReadState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleReadState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Removing spaces and splitting the string by commas to get an array of selected language IDs
             $selectedLanguages = array_map('trim', explode(',', $body));
-    
+
             // Validate if all provided IDs exist in the Language table and are numeric
             $validLanguageIds = Language::pluck('id')->all();
             foreach ($selectedLanguages as $id) {
@@ -1970,14 +1999,14 @@ class ChatService
             foreach ($selectedLanguages as $id) {
                 $syncData[$id] = ['created_at' => now(), 'updated_at' => now()];
             }
-    
+
             // Sync the selected languages with the applicant
             $applicant->readLanguages()->sync($syncData);
-    
+
             // Move to the next state
             $stateID = State::where('code', 'speak')->value('id');
             $applicant->update(['state_id' => $stateID]);
-    
+
             $messages = $this->fetchStateMessages('speak');
             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
         } catch (Exception $e) {
@@ -1998,11 +2027,12 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleSpeakState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleSpeakState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Removing spaces and splitting the string by commas to get an array of selected language IDs
             $selectedLanguages = array_map('trim', explode(',', $body));
-    
+
             // Validate if all provided IDs exist in the Language table and are numeric
             $validLanguageIds = Language::pluck('id')->all();
             foreach ($selectedLanguages as $id) {
@@ -2012,20 +2042,20 @@ class ChatService
                     return;
                 }
             }
-    
+
             // Prepare the data to sync including timestamps
             $syncData = [];
             foreach ($selectedLanguages as $id) {
                 $syncData[$id] = ['created_at' => now(), 'updated_at' => now()];
             }
-    
+
             // Sync the selected languages with the applicant
             $applicant->speakLanguages()->sync($syncData);
-    
+
             // Move to the next state
             $stateID = State::where('code', 'experience')->value('id');
             $applicant->update(['state_id' => $stateID]);
-    
+
             $messages = $this->fetchStateMessages('experience');
             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
         } catch (Exception $e) {
@@ -2046,14 +2076,15 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleExperienceState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleExperienceState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             try {
                 // Handle the 'start' keyword
                 if (strtolower($body) == 'start') {
                     $messages = $this->fetchStateMessages('job_previous');
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-    
+
                     $stateID = State::where('code', 'job_previous')->value('id');
                     $applicant->update(['state_id' => $stateID]);
                 } else {
@@ -2064,10 +2095,10 @@ class ChatService
             } catch (Exception $e) {
                 // Log the error for debugging purposes
                 Log::error('Error in handleExperienceState: ' . $e->getMessage());
-    
+
                 // Get the error message from the method
                 $errorMessage = $this->getErrorMessage();
-    
+
                 // Send the error message to the user
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
             }
@@ -2089,7 +2120,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobPreviousState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobPreviousState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $jobPrevious = null;
 
@@ -2113,7 +2145,6 @@ class ChatService
 
                 $messages = $this->fetchStateMessages('job_leave');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-
             } elseif ($jobLeave && $jobPrevious == 'No') {
                 // Update the applicant's previous job
                 $applicant->update(['job_previous' => $jobPrevious]);
@@ -2149,7 +2180,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobLeaveState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobLeaveState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $jobLeave = null;
 
@@ -2187,7 +2219,6 @@ class ChatService
                 case 'other':
                     $jobLeave = 8;
                     break;
-                    
             }
 
             if ($jobLeave && $jobLeave !== 9) {
@@ -2207,7 +2238,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_leave_specify');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);            
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // Send a message prompting for a valid job leave
                 $message = "Please select a valid option!";
@@ -2234,7 +2265,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobLeaveSpecifyState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobLeaveSpecifyState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2269,7 +2301,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobBusinessState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobBusinessState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -2304,7 +2337,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobPositionState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobPositionState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2339,7 +2373,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobTermState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobTermState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $jobTerm = null;
 
@@ -2367,7 +2402,7 @@ class ChatService
                 case '6':
                 case 'more than five years':
                     $jobTerm = 6;
-                    break;                    
+                    break;
             }
 
             if ($jobTerm) {
@@ -2405,7 +2440,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobSalaryState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobSalaryState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Strip spaces
             $body = preg_replace('/\s+/', '', $body);
@@ -2446,7 +2482,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobReferenceNameState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobReferenceNameState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digit and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -2481,7 +2518,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobReferencePhoneState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobReferencePhoneState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             if (preg_match('/^\d{10}$/', $body)) {
                 // Update the applicant's job reference contact number
@@ -2515,7 +2553,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobRetrenchedState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobRetrenchedState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $jobRetrench = null;
 
@@ -2533,11 +2572,11 @@ class ChatService
                 case 'never':
                 case 'no':
                     $jobRetrench = 3;
-                    break;                    
+                    break;
             }
 
             if ($jobRetrench && $jobRetrench == 3) {
-                // Update the applicant's retrenchment id 
+                // Update the applicant's retrenchment id
                 $applicant->update(['retrenchment_id' => $jobRetrench]);
 
                 $stateID = State::where('code', 'job_shoprite')->value('id');
@@ -2546,7 +2585,7 @@ class ChatService
                 $messages = $this->fetchStateMessages('job_shoprite');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } elseif ($jobRetrench && $jobRetrench == 1 || $jobRetrench == 2) {
-                // Update the applicant's retrenchment id 
+                // Update the applicant's retrenchment id
                 $applicant->update(['retrenchment_id' => $jobRetrench]);
 
                 $stateID = State::where('code', 'job_retrenched_specify')->value('id');
@@ -2580,7 +2619,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobRetrenchedSpecifyState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobRetrenchedSpecifyState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digit and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2615,7 +2655,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopriteState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobShopriteState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $jobShoprite = null;
 
@@ -2687,7 +2728,7 @@ class ChatService
                 case '16':
                 case 'usave':
                     $jobShoprite = 16;
-                    break;              
+                    break;
             }
 
             if ($jobShoprite && $jobShoprite == 'no') {
@@ -2704,7 +2745,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_shoprite_position');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);            
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // Send a message prompting for a valid brand worked at
                 $message = "Please select a valid option!";
@@ -2731,7 +2772,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopritePositionState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobShopritePositionState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $jobShopritePosition = null;
 
@@ -2782,7 +2824,7 @@ class ChatService
                 case '9':
                 case 'other':
                     $jobShopritePosition = 10;
-                    break;                    
+                    break;
             }
 
             if ($jobShopritePosition && $jobShopritePosition !== 10) {
@@ -2802,7 +2844,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('job_shoprite_position_specify');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);            
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please select a valid option!";
@@ -2829,7 +2871,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopritePositionSpecifyState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobShopritePositionSpecifyState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2864,7 +2907,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleJobShopriteLeaveState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleJobShopriteLeaveState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -2899,7 +2943,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handlePunctualityState($applicant, $body, $client, $to, $from, $token) {
+    protected function handlePunctualityState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -2931,7 +2976,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTransportState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleTransportState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $transport = null;
 
@@ -2974,7 +3020,7 @@ class ChatService
                 case '9':
                 case 'other':
                     $transport = 9;
-                    break;                   
+                    break;
             }
 
             if ($transport && $transport !== 9) {
@@ -2994,7 +3040,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('transport_specify');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);            
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // Send a message prompting for a valid position
                 $message = "Please select a valid option!";
@@ -3021,7 +3067,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleTransportSpecifyState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleTransportSpecifyState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -3056,7 +3103,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleIllnessState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleIllnessState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $illness = null;
 
@@ -3078,7 +3126,7 @@ class ChatService
                 case 'none':
                 case 'no':
                     $illness = 4;
-                    break;              
+                    break;
             }
 
             if ($illness && $illness == 4) {
@@ -3098,7 +3146,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('illness_specify');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);            
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // Send a message prompting for a valid illness
                 $message = "Please select a valid option!";
@@ -3125,7 +3173,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleIllnessSpecifyState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleIllnessSpecifyState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digits and has more than one characters
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -3160,7 +3209,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCommencementState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleCommencementState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             try {
                 // Attempt to parse using DateTime constructor
@@ -3173,7 +3223,7 @@ class ChatService
                 $message = "Please enter a valid date:";
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
             }
-            
+
             $date = new DateTime($body);
 
             if ($date) {
@@ -3181,7 +3231,7 @@ class ChatService
                 $formattedDate = $date->format('Ymd');
 
                 // Update the applicant's commencement date
-                $applicant->update(['commencement' => $formattedDate]); 
+                $applicant->update(['commencement' => $formattedDate]);
 
                 $stateID = State::where('code', 'reason')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -3211,7 +3261,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleReasonState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleReasonState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -3243,7 +3294,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleApplicationReasonState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleApplicationReasonState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $application = null;
 
@@ -3272,11 +3324,11 @@ class ChatService
                 case 'co-operative':
                 case 'training':
                     $application = 5;
-                    break; 
+                    break;
                 case '6':
                 case 'other':
                     $application = 6;
-                    break;          
+                    break;
             }
 
             if ($application && $application !== 6) {
@@ -3296,7 +3348,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('application_reason_specify');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);            
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // Send a message prompting for a valid application reason
                 $message = "Please select a valid option!";
@@ -3323,7 +3375,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleApplicationReasonSpecifyState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleApplicationReasonSpecifyState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -3358,7 +3411,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRelocateState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleRelocateState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $relocate = null;
 
@@ -3417,7 +3471,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRelocateTownState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleRelocateTownState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digits and has more than one character
             if (!preg_match('/\d/', $body) && strlen($body) > 1) {
@@ -3452,7 +3507,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleVacancyState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleVacancyState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $vacancy = null;
 
@@ -3502,7 +3558,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleShiftState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleShiftState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $shift = null;
 
@@ -3552,7 +3609,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleHasBankAccountState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleHasBankAccountState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $hasBankAccount = null;
 
@@ -3611,7 +3669,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleBankState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleBankState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $bank = null;
 
@@ -3657,7 +3716,7 @@ class ChatService
                 case '9':
                 case 'other':
                     $bank = 9;
-                    break;                   
+                    break;
             }
 
             if ($bank && $bank !== 9) {
@@ -3677,7 +3736,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 $messages = $this->fetchStateMessages('bank_specify');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);            
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // Send a message prompting for a valid bank
                 $message = "Please select a valid option!";
@@ -3704,7 +3763,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleBankSpecifyState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleBankSpecifyState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (!preg_match('/\d/', $body) && strlen($body) > 2) {
@@ -3739,7 +3799,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleBankNumberState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleBankNumberState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the body does not contain any digits and has more than two characters
             if (preg_match('/^\d{6,}$/', $body)) {
@@ -3774,7 +3835,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleExpectedSalaryState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleExpectedSalaryState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Strip spaces
             $body = preg_replace('/\s+/', '', $body);
@@ -3815,7 +3877,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLiteracyStartState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleLiteracyStartState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -3827,9 +3890,9 @@ class ChatService
                     $applicant->update([
                         'literacy_question_pool' => $sortOrderValues,
                         'literacy_score' => 0,
-                        'literacy_questions' => count($messages)                 
+                        'literacy_questions' => count($messages)
                     ]);
-        
+
                     $firstQuestionMessages = array_column($messages, 'message');
                     $firstQuestion = array_shift($firstQuestionMessages);
 
@@ -3865,36 +3928,37 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleLiteracyState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleLiteracyState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Extract the order of the literacy questions from the applicant's data.
             $sortOrderPool = explode(',', $applicant->literacy_question_pool);
             // Retrieve the current question's sort order.
             $currentQuestionSortOrder = array_shift($sortOrderPool);
-        
+
             // Fetch the current question based on the sort order.
             $stateID = State::where('code', 'literacy')->value('id');
             $currentQuestion = ChatTemplate::where('state_id', $stateID)
                                            ->where('sort', $currentQuestionSortOrder)
                                            ->first();
-        
+
             // Check if the user's response is one of the valid options ('a', 'b', 'c', or 'd').
             if (in_array(strtolower($body), ['a', 'b', 'c', 'd'])) {
                 // If the user's answer matches the correct answer, increment the score.
                 if (strtolower($currentQuestion->answer) == strtolower($body)) {
                     $applicant->update(['literacy_score' => $applicant->literacy_score + 1]);
                 }
-        
+
                 // If there are more questions in the pool, present the next one.
                 if (count($sortOrderPool) > 0) {
                     $nextQuestionSortOrder = $sortOrderPool[0];
                     $nextQuestion = ChatTemplate::where('state_id', $stateID)
                                                 ->where('sort', $nextQuestionSortOrder)
                                                 ->first();
-                    
+
                     // Update the applicant's data with the remaining questions.
                     $applicant->update(['literacy_question_pool' => implode(',', $sortOrderPool)]);
-        
+
                     // Send the next question to the user.
                     $nextQuestionText = $nextQuestion->message;
                     $this->sendAndLogMessages($applicant, [$nextQuestionText], $client, $to, $from, $token);
@@ -3903,11 +3967,11 @@ class ChatService
                     $correctAnswers = $applicant->literacy_score;
                     $literacyQuestions = $applicant->literacy_questions;
                     $applicant->update(['literacy' => "$correctAnswers/$literacyQuestions"]);
-                    
+
                     // Move to the numeracy questions.
                     $stateID = State::where('code', 'numeracy_start')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-    
+
                     $messages = $this->fetchStateMessages('numeracy_start');
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
                 }
@@ -3915,7 +3979,7 @@ class ChatService
                 // If the user's response is not valid, prepend the current question back and inform the user.
                 array_unshift($sortOrderPool, $currentQuestionSortOrder);
                 $applicant->update(['literacy_question_pool' => implode(',', $sortOrderPool)]);
-        
+
                 $invalidAnswerMessage = "Please choose a valid option (a, b, c or d).";
                 $this->sendAndLogMessages($applicant, [$invalidAnswerMessage], $client, $to, $from, $token);
             }
@@ -3933,7 +3997,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleNumeracyStartState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleNumeracyStartState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Handle the 'start' keyword
             if (strtolower($body) == 'start') {
@@ -3945,7 +4010,7 @@ class ChatService
                     $applicant->update([
                         'numeracy_question_pool' => $sortOrderValues,
                         'numeracy_score' => 0,
-                        'numeracy_questions' => count($messages)                 
+                        'numeracy_questions' => count($messages)
                     ]);
 
                     $firstQuestionMessages = array_column($messages, 'message');
@@ -3983,37 +4048,38 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleNumeracyState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleNumeracyState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Extract the order of the numeracy questions from the applicant's data.
             $sortOrderPool = explode(',', $applicant->numeracy_question_pool);
-            
+
             // Retrieve the current question's sort order.
             $currentQuestionSortOrder = array_shift($sortOrderPool);
-            
+
             // Fetch the current question based on the sort order.
             $stateID = State::where('code', 'numeracy')->value('id');
             $currentQuestion = ChatTemplate::where('state_id', $stateID)
                                            ->where('sort', $currentQuestionSortOrder)
                                            ->first();
-            
+
             // Check if the user's response is one of the valid options ('a', 'b', or 'c').
             if (in_array(strtolower($body), ['a', 'b', 'c'])) {
                 // If the user's answer matches the correct answer, increment the score.
                 if (strtolower($currentQuestion->answer) == strtolower($body)) {
                     $applicant->update(['numeracy_score' => $applicant->numeracy_score + 1]);
                 }
-                
+
                 // If there are more questions in the pool, present the next one.
                 if (count($sortOrderPool) > 0) {
                     $nextQuestionSortOrder = $sortOrderPool[0];
                     $nextQuestion = ChatTemplate::where('state_id', $stateID)
                                                 ->where('sort', $nextQuestionSortOrder)
                                                 ->first();
-                    
+
                     // Update the applicant's data with the remaining questions.
                     $applicant->update(['numeracy_question_pool' => implode(',', $sortOrderPool)]);
-                    
+
                     // Send the next question to the user.
                     $nextQuestionText = $nextQuestion->message;
                     $this->sendAndLogMessages($applicant, [$nextQuestionText], $client, $to, $from, $token);
@@ -4022,11 +4088,11 @@ class ChatService
                     $correctAnswers = $applicant->numeracy_score;
                     $numeracyQuestions = $applicant->numeracy_questions;
                     $applicant->update(['numeracy' => "$correctAnswers/$numeracyQuestions"]);
-                    
+
                     // Move to the complete.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-    
+
                     $messages = $this->fetchStateMessages('complete');
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
                 }
@@ -4034,7 +4100,7 @@ class ChatService
                 // If the user's response is not valid, prepend the current question back and inform the user.
                 array_unshift($sortOrderPool, $currentQuestionSortOrder);
                 $applicant->update(['numeracy_question_pool' => implode(',', $sortOrderPool)]);
-                
+
                 $invalidAnswerMessage = "Please choose a valid option (a, b, or c).";
                 $this->sendAndLogMessages($applicant, [$invalidAnswerMessage], $client, $to, $from, $token);
             }
@@ -4052,13 +4118,14 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCompleteState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleCompleteState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Check if the score is null and then set it
             if (is_null($applicant->score)) {
                 $score = $this->calculateScore($applicant);
                 $applicant->update(['score' => $score]);
-            }    
+            }
 
             $messages = $this->fetchStateMessages('complete');
             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
@@ -4080,7 +4147,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleScheduleStartState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleScheduleStartState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
 
@@ -4089,7 +4157,7 @@ class ChatService
                 if (strtolower($body) == 'yes') {
                     //Data to replace
                     $dataToReplace = [
-                        "Applicant Name" => $applicant->firstname.' '.$applicant->lastname,
+                        "Applicant Name" => $applicant->firstname . ' ' . $applicant->lastname,
                         "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A',
                         "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' ' . ($latestInterview->vacancy->store->town->name ?? 'Our Office'),
                         "Interview Location" => $latestInterview->location ?? 'N/A',
@@ -4114,7 +4182,7 @@ class ChatService
 
                     $stateID = State::where('code', 'schedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                } else if (strtolower($body) == 'no') {
+                } elseif (strtolower($body) == 'no') {
                     // Update the status of the interview
                     $latestInterview->status = 'Declined';
                     $latestInterview->save();
@@ -4156,10 +4224,10 @@ class ChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleScheduleStartState: ' . $e);
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
         }
@@ -4171,7 +4239,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleScheduleState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleScheduleState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
 
@@ -4206,7 +4275,7 @@ class ChatService
 
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                } else if (strtolower($body) == 'reschedule') {
+                } elseif (strtolower($body) == 'reschedule') {
                     // Update the status of the interview
                     $latestInterview->status = 'Reschedule';
                     $latestInterview->save();
@@ -4231,7 +4300,7 @@ class ChatService
 
                     $stateID = State::where('code', 'reschedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                } else if (strtolower($body) == 'decline') {
+                } elseif (strtolower($body) == 'decline') {
                     // Update the status of the interview
                     $latestInterview->status = 'Declined';
                     $latestInterview->save();
@@ -4273,10 +4342,10 @@ class ChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleScheduleState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
         }
@@ -4288,7 +4357,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleRescheduleState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleRescheduleState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
 
@@ -4296,11 +4366,11 @@ class ChatService
                 try {
                     // Attempt to parse the provided date and time
                     $newDateTime = Carbon::parse($body);
-        
+
                     // If parsing was successful, update the interview's reschedule field
                     $latestInterview->reschedule_date = $newDateTime;
                     $latestInterview->save();
-        
+
                     // Send a confirmation message
                     $messages = [
                         "Thank you, we have noted the date and time. We will get back to you with a newly scheduled interview."
@@ -4325,10 +4395,10 @@ class ChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleScheduleState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
         }
@@ -4340,11 +4410,12 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function calculateScore($applicant) {
+    protected function calculateScore($applicant)
+    {
         $totalScore = 0;
         $totalWeight = 0;
         $weightings = ScoreWeighting::all(); // Fetch all weightings
-    
+
         foreach ($weightings as $weighting) {
             // Check if this weighting involves a condition
             if (!empty($weighting->condition_field)) {
@@ -4363,10 +4434,10 @@ class ChatService
 
             $totalWeight += $weighting->weight;
         }
-    
+
         // Normalize the score to a scale of 0 to 5
         $normalizedScore = $totalWeight > 0 ? ($totalScore / $totalWeight) * 5 : ($totalScore / 100) * 5;
-    
+
         return round($normalizedScore, 2); // Round to 2 decimal places
     }
 
@@ -4376,10 +4447,11 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function fetchStateMessages($stateCode) {
+    protected function fetchStateMessages($stateCode)
+    {
         // Retrieve messages from the database
         $stateID = State::where('code', $stateCode)->first()->id;
-        
+
         // Check if the state is 'literacy' or 'numeracy'
         if (in_array($stateCode, ['literacy', 'numeracy'])) {
             return ChatTemplate::where('state_id', $stateID)
@@ -4395,7 +4467,7 @@ class ChatService
         ->with('interactiveOptions')
         ->get()
         ->toArray();
-    
+
         return $messages;
     }
 
@@ -4405,7 +4477,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    public function sendAndLogMessages($applicant, $messages, $client, $to, $from, $token) {
+    public function sendAndLogMessages($applicant, $messages, $client, $to, $from, $token)
+    {
         static $lastMessage = null; // Static variable to remember the last message sent
 
         foreach ($messages as $messageData) { // Ensure $messageData is used to clarify it's an array from messages
@@ -4428,7 +4501,7 @@ class ChatService
                 if ($lastMessage === $body) {
                     continue; // Skip sending this message
                 }
-    
+
                 // Prepare the API URL
                 $url = "https://graph.facebook.com/v20.0/$from/messages";
 
@@ -4447,13 +4520,13 @@ class ChatService
                         'components' => [
                             [
                                 'type' => 'body',
-                                'parameters' => array_map(function($var) { 
-                                    return ['type' => 'text', 'text' => $var]; 
+                                'parameters' => array_map(function ($var) {
+                                    return ['type' => 'text', 'text' => $var];
                                 }, $variables)
                             ]
                         ]
                     ];
-                } else if ($type == 'interactive') {
+                } elseif ($type == 'interactive') {
                     $interactivePayload = [
                         'type' => 'list',
                         'body' => [
@@ -4467,7 +4540,7 @@ class ChatService
                             'sections' => [
                                 [
                                     'title' => 'Options',
-                                    'rows' => array_map(function($option) {
+                                    'rows' => array_map(function ($option) {
                                         return [
                                             'id' => (string)$option['value'], // Ensure value is a string
                                             'title' => $option['title'],
@@ -4478,12 +4551,12 @@ class ChatService
                             ]
                         ]
                     ];
-    
+
                     $payload['interactive'] = $interactivePayload;
                 } else {
                     $payload['text'] = ['body' => $body];
                 }
-    
+
                 // Send the message via Meta's WhatsApp API
                 $response = $client->post($url, [
                     'headers' => [
@@ -4495,7 +4568,7 @@ class ChatService
 
                 // Update the last message sent
                 $lastMessage = $body;
-    
+
                 // Log the outgoing message
                 $this->logMessage($applicant->id, $body, 2);
             } catch (\GuzzleHttp\Exception\ClientException $e) {
@@ -4503,10 +4576,10 @@ class ChatService
 
                 // Log the error for debugging purposes
                 Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
-        
+
                 // Get the error message from the method
                 $errorMessage = $this->getErrorMessage();
-        
+
                 // Send the error message to the user
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
             }
@@ -4519,7 +4592,8 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function getErrorMessage() {
+    protected function getErrorMessage()
+    {
         return "Something went wrong. Please try again later.";
     }
 }

@@ -99,7 +99,7 @@ class ApplicantProfileController extends Controller
             }
 
             //Completion Percentage
-            $completion = round(($applicant->state_id/69)*100);
+            $completion = round(($applicant->state_id / 69) * 100);
             if ($completion > 100) {
                 $completion = 100;
             }
@@ -127,31 +127,37 @@ class ApplicantProfileController extends Controller
                 if ($applicant->user && $applicant->user->appliedVacancies->count() > 0) {
                     $progressBarWidth = max($progressBarWidth, 40); // Second step
                 }
-            
+
                 // Check for shortlist
                 if ($applicant->shortlist_id) {
                     $progressBarWidth = max($progressBarWidth, 60); // Third step
                 }
-            
+
                 // Check for interviews
                 if ($applicant->interviews && $applicant->interviews->count() > 0) {
                     $progressBarWidth = max($progressBarWidth, 80); // Fourth step
-            
+
                     // Check for interview score
                     $firstInterview = $applicant->interviews->first();
                     if ($firstInterview->score) {
                         $progressBarWidth = max($progressBarWidth, 100); // Sixth step
                     }
                 }
-            
+
                 // Check for appointment
                 if ($applicant->appointed_id) {
                     $progressBarWidth = 100; // Final step
                 }
             }
 
+<<<<<<< HEAD
             return view('manager/applicant-profile',[
                 'authUser' => $authUser,
+=======
+            Log::info($progressBarWidth);
+
+            return view('manager/applicant-profile', [
+>>>>>>> c45bbca (Lint fixes)
                 'applicant' => $applicant,
                 'documents' => $documents,
                 'completion' => $completion,
@@ -177,7 +183,7 @@ class ApplicantProfileController extends Controller
         }
         //Messages
         $messages = Chat::with([
-            'applicant', 
+            'applicant',
             'type',
         ])
         ->where('applicant_id', $applicantID)

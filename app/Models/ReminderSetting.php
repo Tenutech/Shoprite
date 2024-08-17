@@ -9,10 +9,11 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class ReminderSetting extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $table = 'reminder_settings';
-    
+
     protected $fillable = [
         'type',
         'role_id',

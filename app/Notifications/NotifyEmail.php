@@ -38,7 +38,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         if ($userSettings && $userSettings->receive_email_notifications) {
             return ['mail'];
         }
-        
+
         return [];
     }
 
@@ -49,10 +49,10 @@ class NotifyEmail extends Notification implements ShouldQueue
      * @return \Illuminate\Notifications\Messages\MailMessage
      */
     public function toMail(object $notifiable): MailMessage
-    {         
+    {
         $this->prepareMailData();
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject($this->subject)
             ->view('vendor.notifications.notification', [
                 'greeting' => 'Dear ' . $this->notification->user->firstname . ' ' . $this->notification->user->lastname,
@@ -120,37 +120,37 @@ class NotifyEmail extends Notification implements ShouldQueue
                 break;
             case 'Interview Scheduled 📅':
                     $this->interviewScheduledData();
-    
+
                     // Check if $templateID is set
-                    if (isset($this->templateID)) {
-                        $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
-                        $this->subject = $template->subject;
-                        $this->introLines = explode(';;', $template->intro);
-    
-                        // Iterate through each line and replace placeholders as needed
-                        foreach ($this->introLines as &$line) {
-                            if (isset($this->vacancy)) {
-                                $line = str_replace('[Position]', $this->vacancy, $line);
-                            }
-                            if (isset($this->date)) {
-                                $line = str_replace('[Date]', $this->date, $line);
-                            }
-                            if (isset($this->start)) {
-                                $line = str_replace('[Start Time]', $this->start, $line);
-                            }
-                            if (isset($this->store)) {
-                                $line = str_replace('[Store]', $this->store, $line);
-                            }
-                            if (isset($this->location)) {
-                                $line = str_replace('[Location]', $this->location, $line);
-                            }
-                            if (isset($this->notes)) {
-                                $line = str_replace('[Notes]', $this->notes, $line);
-                            }
+                if (isset($this->templateID)) {
+                    $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                    $this->subject = $template->subject;
+                    $this->introLines = explode(';;', $template->intro);
+
+                    // Iterate through each line and replace placeholders as needed
+                    foreach ($this->introLines as &$line) {
+                        if (isset($this->vacancy)) {
+                            $line = str_replace('[Position]', $this->vacancy, $line);
                         }
-                        unset($line);
+                        if (isset($this->date)) {
+                            $line = str_replace('[Date]', $this->date, $line);
+                        }
+                        if (isset($this->start)) {
+                            $line = str_replace('[Start Time]', $this->start, $line);
+                        }
+                        if (isset($this->store)) {
+                            $line = str_replace('[Store]', $this->store, $line);
+                        }
+                        if (isset($this->location)) {
+                            $line = str_replace('[Location]', $this->location, $line);
+                        }
+                        if (isset($this->notes)) {
+                            $line = str_replace('[Notes]', $this->notes, $line);
+                        }
                     }
-                    break;
+                    unset($line);
+                }
+                break;
             case 'Confirmed your interview request ✅':
                 $this->interviewConfirmedData();
 
@@ -219,40 +219,40 @@ class NotifyEmail extends Notification implements ShouldQueue
                 break;
             case 'Requested to reschedule 📅':
                     $this->interviewRescheduleData();
-    
+
                     // Check if $templateID is set
-                    if (isset($this->templateID)) {
-                        $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
-                        $this->subject = $template->subject;
-                        $this->introLines = explode(';;', $template->intro);
-    
-                        // Iterate through each line and replace placeholders as needed
-                        foreach ($this->introLines as &$line) {
-                            if (isset($this->userName)) {
-                                $line = str_replace('[Applicant Name]', $this->userName, $line);
-                            }
-                            if (isset($this->vacancy)) {
-                                $line = str_replace('[Position]', $this->vacancy, $line);
-                            }
-                            if (isset($this->date)) {
-                                $line = str_replace('[Date]', $this->date, $line);
-                            }
-                            if (isset($this->start)) {
-                                $line = str_replace('[Start Time]', $this->start, $line);
-                            }
-                            if (isset($this->store)) {
-                                $line = str_replace('[Store]', $this->store, $line);
-                            }
-                            if (isset($this->location)) {
-                                $line = str_replace('[Location]', $this->location, $line);
-                            }
-                            if (isset($this->reschedule)) {
-                                $line = str_replace('[Suggested Date]', $this->reschedule, $line);
-                            }
+                if (isset($this->templateID)) {
+                    $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                    $this->subject = $template->subject;
+                    $this->introLines = explode(';;', $template->intro);
+
+                    // Iterate through each line and replace placeholders as needed
+                    foreach ($this->introLines as &$line) {
+                        if (isset($this->userName)) {
+                            $line = str_replace('[Applicant Name]', $this->userName, $line);
                         }
-                        unset($line);
+                        if (isset($this->vacancy)) {
+                            $line = str_replace('[Position]', $this->vacancy, $line);
+                        }
+                        if (isset($this->date)) {
+                            $line = str_replace('[Date]', $this->date, $line);
+                        }
+                        if (isset($this->start)) {
+                            $line = str_replace('[Start Time]', $this->start, $line);
+                        }
+                        if (isset($this->store)) {
+                            $line = str_replace('[Store]', $this->store, $line);
+                        }
+                        if (isset($this->location)) {
+                            $line = str_replace('[Location]', $this->location, $line);
+                        }
+                        if (isset($this->reschedule)) {
+                            $line = str_replace('[Suggested Date]', $this->reschedule, $line);
+                        }
                     }
-                    break;
+                    unset($line);
+                }
+                break;
             case 'Completed your interview 🚀':
                 $this->interviewCompletedData();
 
@@ -393,25 +393,25 @@ class NotifyEmail extends Notification implements ShouldQueue
                 break;
             case 'Has been declined ❌':
                     $this->vacancyDeclineData();
-    
+
                     // Check if $templateID is set
-                    if (isset($this->templateID)) {
-                        $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
-                        $this->subject = $template->subject;
-                        $this->introLines = explode(';;', $template->intro);
-    
-                        // Iterate through each line and replace placeholders as needed
-                        foreach ($this->introLines as &$line) {
-                            if (isset($this->vacancy)) {
-                                $line = str_replace('[Position]', $this->vacancy, $line);
-                            }
-                            if (isset($this->store)) {
-                                $line = str_replace('[Store]', $this->store, $line);
-                            }
+                if (isset($this->templateID)) {
+                    $template = EmailTemplate::findOrFail($this->templateID); // Proceed only if $templateID is set
+                    $this->subject = $template->subject;
+                    $this->introLines = explode(';;', $template->intro);
+
+                    // Iterate through each line and replace placeholders as needed
+                    foreach ($this->introLines as &$line) {
+                        if (isset($this->vacancy)) {
+                            $line = str_replace('[Position]', $this->vacancy, $line);
                         }
-                        unset($line);
+                        if (isset($this->store)) {
+                            $line = str_replace('[Store]', $this->store, $line);
+                        }
                     }
-                    break;
+                    unset($line);
+                }
+                break;
             case 'Has applied for vacancy 🔔':
                 $this->appliedForVacancyData();
 
@@ -422,7 +422,7 @@ class NotifyEmail extends Notification implements ShouldQueue
                     $this->introLines = explode(';;', $template->intro);
 
                     // Iterate through each line and replace placeholders as needed
-                    foreach ($this->introLines as &$line) {                        
+                    foreach ($this->introLines as &$line) {
                         if (isset($this->userName)) {
                             $line = str_replace('[Applicant Name]', $this->userName, $line);
                         }
