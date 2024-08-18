@@ -3,17 +3,18 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\User;
-use App\Models\Type;
-use App\Models\Store;
-use App\Models\Vacancy;
-use App\Models\Position;
 use App\Models\Applicant;
 use App\Models\Application;
-use App\Models\VacancyFill;
 use App\Models\Notification;
+use App\Models\Position;
+use App\Models\Interview;
 use App\Jobs\SendWhatsAppMessage;
+use App\Models\Store;
+use App\Models\Type;
 use App\Jobs\UpdateApplicantData;
+use App\Models\User;
+use App\Models\Vacancy;
+use App\Models\VacancyFill;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -255,10 +256,18 @@ class VacancyController extends Controller
         try {
             $vacancyId = Crypt::decryptString($request->input('vacancy_id'));
             $selectedApplicants = $request->input('applicants_vacancy');
-
+           
             // Extract user IDs from the selected applicants
-            $selectedUserIds = User::whereIn('applicant_id', $selectedApplicants)->pluck('id')->filter()->toArray();
-
+            $selectedUserIds = User::whereIn('applicant_id', $selectedApplicants)->pluck('id')->filter()->toArray(); 
+            $applicantsWithScore = $this->applicantsWithScore($vacancyId, $selectedUserIds);
+           
+            if (count($applicantsWithScore) <= 0 || empty($applicantsWithScore)) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => "Some applicants do not have an interview score"
+                ], 400);
+            }
+           
             DB::beginTransaction();
 
             // Find the vacancy
@@ -402,5 +411,45 @@ class VacancyController extends Controller
                 'error' => $e->getMessage()
             ], 400);
         }
+    }
+
+    /**
+     * Check and return the name and ID of applicants without a score for a given vacancy.
+     *
+     * @param  int  $vacancyId
+     * @param  array  $selectedUserIds
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function applicantsWithScore($vacancyId, array $selectedUserIds)
+    {
+        // Fetch the applicants without a score
+        $applicantsWithScore = Interview::where('vacancy_id', $vacancyId)
+            ->whereIn('applicant_id', array_values($selectedUserIds))
+            ->with('applicant:id,firstname,score')
+            ->get()
+            ->map(function ($interview) {
+                return [
+                    'id' => $interview->applicant->id,
+                    'firstname' => $interview->applicant->firstname,
+                    'score' => $interview->score ?? ''
+                ];
+            })
+            ->keyBy('id')
+            ->toArray();
+   
+        $result = [];
+     
+        if(empty($applicantsWithScore)) {
+            return $result;
+        }
+
+        foreach ($selectedUserIds as $userId) {
+            if(isset($applicantsWithScore[$userId])) {
+                $result[$userId]['firstname'] = $applicantsWithScore[$userId]['firstname'];
+                $result[$userId]['score']  = $applicantsWithScore[$userId]['score'] ?? '';
+            } 
+        }
+
+        return $result;
     }
 }
