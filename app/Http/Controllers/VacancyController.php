@@ -256,15 +256,13 @@ class VacancyController extends Controller
         try {
             $vacancyId = Crypt::decryptString($request->input('vacancy_id'));
             $selectedApplicants = $request->input('applicants_vacancy');
-           
-            // Extract user IDs from the selected applicants
-            $selectedUserIds = User::whereIn('applicant_id', $selectedApplicants)->pluck('id')->filter()->toArray(); 
-            $applicantsWithScore = $this->applicantsWithScore($vacancyId, $selectedUserIds);
+            
+            $applicantsWithScore = $this->applicantsWithScore($vacancyId, $selectedApplicants);
            
             if (count($applicantsWithScore) <= 0 || empty($applicantsWithScore)) {
                 return response()->json([
                     'success' => false, 
-                    'message' => "Some applicants do not have an interview score"
+                    'message' => "Some applicants have not completed their interview."
                 ], 400);
             }
            
@@ -367,7 +365,7 @@ class VacancyController extends Controller
                 if ($vacancy->open_positions == 0) {
                     //Create notification for all applicants that where not appointed
                     foreach ($vacancy->applicants as $applicant) {
-                        if (!in_array($applicant->id, $selectedUserIds)) {
+                        if (!in_array($applicant->id, $selectedApplicants)) {
                             $application = Application::where('user_id', $applicant->id)
                                                     ->where('vacancy_id', $vacancy->id)
                                                     ->first();
@@ -417,37 +415,39 @@ class VacancyController extends Controller
      * Check and return the name and ID of applicants without a score for a given vacancy.
      *
      * @param  int  $vacancyId
-     * @param  array  $selectedUserIds
+     * @param  array  $selectedApplicants
      * @return \Illuminate\Http\JsonResponse
      */
-    public function applicantsWithScore($vacancyId, array $selectedUserIds)
+    public function applicantsWithScore($vacancyId, array $selectedApplicants)
     {
-        // Fetch the applicants without a score
+        // Fetch the interviews for the selected applicants with the specified vacancy_id
         $applicantsWithScore = Interview::where('vacancy_id', $vacancyId)
-            ->whereIn('applicant_id', array_values($selectedUserIds))
-            ->with('applicant:id,firstname,score')
+            ->whereIn('applicant_id', array_values($selectedApplicants))
+            ->with('applicant:id,firstname')
             ->get()
             ->map(function ($interview) {
                 return [
                     'id' => $interview->applicant->id,
                     'firstname' => $interview->applicant->firstname,
-                    'score' => $interview->score ?? ''
+                    'score' => $interview->score
                 ];
             })
             ->keyBy('id')
             ->toArray();
-   
-        $result = [];
-     
-        if(empty($applicantsWithScore)) {
-            return $result;
-        }
 
-        foreach ($selectedUserIds as $userId) {
-            if(isset($applicantsWithScore[$userId])) {
+        // Initialize the result array
+        $result = [];
+
+        // Loop through the selectedApplicants and check for the interview and score
+        foreach ($selectedApplicants as $userId) {
+            if (isset($applicantsWithScore[$userId]) && $applicantsWithScore[$userId]['score'] !== null) {
+                // If an interview exists and score is not null, add to result
                 $result[$userId]['firstname'] = $applicantsWithScore[$userId]['firstname'];
-                $result[$userId]['score']  = $applicantsWithScore[$userId]['score'] ?? '';
-            } 
+                $result[$userId]['score'] = $applicantsWithScore[$userId]['score'];
+            } else {
+                // If any applicant does not have a score or an interview, return an empty array
+                return [];
+            }
         }
 
         return $result;
