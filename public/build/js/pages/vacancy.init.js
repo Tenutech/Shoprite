@@ -21,48 +21,60 @@ document.addEventListener('DOMContentLoaded', function () {
         const numberOfPositions = parseInt(openPositionsInput.value) || 0;
         const positionName = positionSelect.options[positionSelect.selectedIndex].text || 'SAP Number';
 
-        // Clear existing fields
-        sapNumbersContainer.innerHTML = '';
+        const currentFields = sapNumbersContainer.querySelectorAll('.mb-3');
 
-        // Generate new fields based on the number of positions
-        for (let i = 0; i < numberOfPositions; i++) {
-            const fieldLabel = `${positionName} ${i + 1}`;
-            const inputId = `sapNumber${i}`;
+        // If the new number of positions is greater than the current number of fields, add fields
+        if (numberOfPositions > currentFields.length) {
+            for (let i = currentFields.length; i < numberOfPositions; i++) {
+                const fieldLabel = `${positionName} ${i + 1}`;
+                const inputId = `sapNumber${i}`;
 
-            // Create label
-            const label = document.createElement('label');
-            label.setAttribute('for', inputId);
-            label.className = 'form-label';
-            label.textContent = fieldLabel;
+                // Create label
+                const label = document.createElement('label');
+                label.setAttribute('for', inputId);
+                label.className = 'form-label';
+                label.textContent = fieldLabel;
 
-            // Create input field
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.className = 'form-control';
-            input.id = inputId;
-            input.name = 'sap_numbers[]';
-            input.placeholder = `Enter 8-digit SAP Number`;
-            input.maxLength = 8;
-            input.pattern = '\\d{8}';
-            input.required = true;
+                // Create input field
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.className = 'form-control';
+                input.id = inputId;
+                input.name = 'sap_numbers[]';
+                input.placeholder = `Enter 8-digit SAP Number`;
+                input.maxLength = 8;
+                input.pattern = '\\d{8}';
+                input.required = true;
 
-            // Create invalid feedback
-            const invalidFeedback = document.createElement('div');
-            invalidFeedback.className = 'invalid-feedback';
-            invalidFeedback.textContent = 'Please enter an 8-digit SAP number.';
+                // Create invalid feedback
+                const invalidFeedback = document.createElement('div');
+                invalidFeedback.className = 'invalid-feedback';
+                invalidFeedback.textContent = 'Please enter an 8-digit SAP number.';
 
-            // Create mb-3 wrapper div
-            const div = document.createElement('div');
-            div.className = 'mb-3';
+                // Create mb-3 wrapper div
+                const div = document.createElement('div');
+                div.className = 'mb-3';
 
-            // Append elements to the wrapper div
-            div.appendChild(label);
-            div.appendChild(input);
-            div.appendChild(invalidFeedback);
+                // Append elements to the wrapper div
+                div.appendChild(label);
+                div.appendChild(input);
+                div.appendChild(invalidFeedback);
 
-            // Append the wrapper div to the container
-            sapNumbersContainer.appendChild(div);
+                // Append the wrapper div to the container
+                sapNumbersContainer.appendChild(div);
+            }
+        } else if (numberOfPositions < currentFields.length) {
+            // If the new number of positions is less than the current number of fields, remove fields
+            for (let i = currentFields.length - 1; i >= numberOfPositions; i--) {
+                sapNumbersContainer.removeChild(currentFields[i]);
+            }
         }
+
+        // Update labels for existing fields if position name changes
+        currentFields.forEach((field, index) => {
+            const label = field.querySelector('label');
+            label.textContent = `${positionName} ${index + 1}`;
+        });
     }
 
     // Listen for changes on the openPositions input field

@@ -140,7 +140,7 @@ class VacancyController extends Controller
             ]);
            
             foreach ($request->sap_numbers as $sap) {
-                $vacancy->sapNumber()->create([
+                $vacancy->sapNumbers()->create([
                     'sap_number' => $sap,
                 ]);
             }
@@ -217,12 +217,31 @@ class VacancyController extends Controller
                 'advertisement' => $request->advertisement,
             ]);
 
-            // Remove existing SAP numbers
-            $vacancy->sapNumber()->delete();
-    
-            // Create new SAP numbers
-            if ($request->has('sap_numbers')) {
-                $this->createSapNumbers($vacancy->id, $request->input('sap_numbers'));
+            // Get existing SAP numbers from the database
+            $existingSapNumbers = $vacancy->sapNumbers;
+
+            // Loop through each SAP number in the request
+            foreach ($request->sap_numbers as $index => $sapNumbers) {
+                if (isset($existingSapNumbers[$index])) {
+                    // Update existing SAP number
+                    $existingSapNumbers[$index]->update([
+                        'sap_number' => $sapNumbers,
+                        'updated_at' => now(),
+                    ]);
+                } else {
+                    // Add new SAP number
+                    $vacancy->sapNumbers()->create([
+                        'sap_number' => $sapNumbers,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+            }
+
+            // Remove SAP numbers that are no longer in the request
+            if ($existingSapNumbers->count() > count($request->sap_numbers)) {
+                $idsToDelete = $existingSapNumbers->slice(count($request->sap_numbers))->pluck('id');
+                $vacancy->sapNumbers()->whereIn('id', $idsToDelete)->delete();
             }
 
             DB::commit();
@@ -272,7 +291,7 @@ class VacancyController extends Controller
             DB::beginTransaction();
 
             // Delete associated SAP numbers
-            $vacancy->sapNumber()->delete();
+            $vacancy->sapNumbers()->delete();
 
             // Delete the vacancy
             $vacancy->delete();

@@ -136,7 +136,7 @@
                                                             <label for="openPositions" class="form-label">
                                                                 Positions Available
                                                             </label>
-                                                            <input type="number" class="form-control" id="openPositions" name="open_positions" placeholder="Enter number of positions available" value="{{ $vacancy ? $vacancy->open_positions : '1' }}" min="0" required />
+                                                            <input type="number" class="form-control" id="openPositions" name="open_positions" placeholder="Enter number of positions available" value="{{ $vacancy ? $vacancy->open_positions : '1' }}" min="1" required />
                                                             <div class="invalid-feedback">
                                                                 Please enter a number
                                                             </div>
