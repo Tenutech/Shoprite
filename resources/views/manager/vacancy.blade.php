@@ -42,13 +42,17 @@
                                 Navigation Links
                             -------------------------------------------------------------------------------------->
 
+                            @php
+                                $step = 1; // Initialize step counter
+                            @endphp
+
                             <div class="col-lg-3">
                                 <div class="nav flex-column custom-nav nav-pills" role="tablist" aria-orientation="vertical">
                                     <button class="nav-link active" id="v-pills-position-tab" data-bs-toggle="pill"
                                         data-bs-target="#v-pills-position" type="button" role="tab"
                                         aria-controls="v-pills-position" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 1:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step {{ $step++ }}:
                                         </span>
                                         Job Position
                                     </button>
@@ -56,23 +60,27 @@
                                         data-bs-target="#v-pills-sap-numbers" type="button" role="tab"
                                         aria-controls="v-pills-sap-numbers" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 2:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step {{ $step++ }}:
                                         </span>
                                         SAP Numbers
                                     </button>
+
+                                    @if(Auth::user()->role_id != 3)
                                     <button class="nav-link" id="v-pills-store-tab" data-bs-toggle="pill"
                                         data-bs-target="#v-pills-store" type="button" role="tab"
                                         aria-controls="v-pills-store" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 3:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step {{ $step++ }}:
                                         </span>
                                         Store
                                     </button>
+                                    @endif
+
                                     <button class="nav-link" id="v-pills-type-tab" data-bs-toggle="pill"
                                         data-bs-target="#v-pills-type" type="button" role="tab"
                                         aria-controls="v-pills-type" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 4:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step {{ $step++ }}:
                                         </span>
                                         Job Type
                                     </button>
@@ -80,7 +88,7 @@
                                         data-bs-target="#v-pills-advertisement" type="button" role="tab"
                                         aria-controls="v-pills-advertisement" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 5:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step {{ $step++ }}:
                                         </span>
                                         Advertisement
                                     </button>
@@ -88,7 +96,7 @@
                                         data-bs-target="#v-pills-finish" type="button" role="tab"
                                         aria-controls="v-pills-finish" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 6:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step {{ $step++ }}:
                                         </span>
                                         Finish
                                     </button>
@@ -207,9 +215,9 @@
                                                     <i class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
                                                     Back
                                                 </button>
-                                                <button type="button"
+                                                <button type="button" 
                                                     class="btn btn-secondary btn-label right ms-auto nexttab nexttab"
-                                                    data-nexttab="v-pills-store-tab">
+                                                    data-nexttab="{{ Auth::user()->role_id != 3 ? 'v-pills-store-tab' : 'v-pills-type-tab' }}">
                                                     <i class="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>
                                                     Continue
                                                 </button>
@@ -217,60 +225,63 @@
                                         </div>
                                         <!-- end tab pane -->
                             
-                                        <!-------------------------------------------------------------------------------------
-                                            Store
-                                        -------------------------------------------------------------------------------------->
-                            
-                                        <div class="tab-pane fade" id="v-pills-store" role="tabpanel"
-                                            aria-labelledby="v-pills-store-tab">
-                                            <div>
-                                                <h5>Store</h5>
-                                                <p class="text-muted">
-                                                    Choose the store that you are creating this vacancy for.
-                                                </p>
-                                            </div>
-                            
-                                            <div>
-                                                <div class="row gy-3">
-                                                    <div class="col-md-12">
-                                                        <div class="mb-3">
-                                                            <select class="form-control" id="store" name="store_id" data-choices data-choices-search-true required>
-                                                                <option value="">Select Store</option>
-                                                                @foreach ($stores as $store)
-                                                                    <option value="{{$store->id}}"
-                                                                            {{ 
-                                                                                ($vacancy && $vacancy->store_id == $store->id) 
-                                                                                ? 'selected'
-                                                                                : ((!$vacancy && $user && $user->store_id == $store->id) ? 'selected' : '')
-                                                                            }}
-                                                                            {{ 
-                                                                                ($user && $user->store_id == $store->id) ? '' : 'disabled'
-                                                                            }}>
-                                                                        {{ $store->brand->name }} ({{ $store->town->name }})
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
-                                                            <div class="invalid-feedback">Please select a store</div>
-                                                        </div>                                                        
-                                                    </div>                                                    
+                                        @if(Auth::user()->role_id != 3)
+
+                                            <!-------------------------------------------------------------------------------------
+                                                Store
+                                            -------------------------------------------------------------------------------------->
+                                            
+                                            <div class="tab-pane fade" id="v-pills-store" role="tabpanel"
+                                                aria-labelledby="v-pills-store-tab">
+                                                <div>
+                                                    <h5>Store</h5>
+                                                    <p class="text-muted">
+                                                        Choose the store that you are creating this vacancy for.
+                                                    </p>
+                                                </div>
+
+                                                <div>
+                                                    <div class="row gy-3">
+                                                        <div class="col-md-12">
+                                                            <div class="mb-3">
+                                                                <select class="form-control" id="store" name="store_id" data-choices data-choices-search-true required>
+                                                                    <option value="">Select Store</option>
+                                                                    @foreach ($stores as $store)
+                                                                        <option value="{{$store->id}}"
+                                                                                {{ 
+                                                                                    ($vacancy && $vacancy->store_id == $store->id) 
+                                                                                    ? 'selected'
+                                                                                    : ((!$vacancy && $user && $user->store_id == $store->id) ? 'selected' : '')
+                                                                                }}
+                                                                                {{ 
+                                                                                    ($user && $user->store_id == $store->id) ? '' : 'disabled'
+                                                                                }}>
+                                                                            {{ $store->brand->name }} ({{ $store->town->name }})
+                                                                        </option>
+                                                                    @endforeach
+                                                                </select>
+                                                                <div class="invalid-feedback">Please select a store</div>
+                                                            </div>                                                        
+                                                        </div>                                                    
+                                                    </div>
+                                                </div>
+
+                                                <div class="d-flex align-items-start gap-3 mt-4">
+                                                    <button type="button" class="btn btn-light btn-label previestab"
+                                                        data-previous="v-pills-sap-numbers-tab">
+                                                        <i class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
+                                                        Back
+                                                    </button>
+                                                    <button type="button"
+                                                        class="btn btn-secondary btn-label right ms-auto nexttab nexttab"
+                                                        data-nexttab="v-pills-type-tab">
+                                                        <i class="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>
+                                                        Continue
+                                                    </button>
                                                 </div>
                                             </div>
-                            
-                                            <div class="d-flex align-items-start gap-3 mt-4">
-                                                <button type="button" class="btn btn-light btn-label previestab"
-                                                    data-previous="v-pills-sap-numbers-tab">
-                                                    <i class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
-                                                    Back
-                                                </button>
-                                                <button type="button"
-                                                    class="btn btn-secondary btn-label right ms-auto nexttab nexttab"
-                                                    data-nexttab="v-pills-type-tab">
-                                                    <i class="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>
-                                                    Continue
-                                                </button>
-                                            </div>
-                                        </div>
-                                        <!-- end tab pane -->
+                                            <!-- end tab pane -->
+                                        @endif
                             
                                         <!-------------------------------------------------------------------------------------
                                             Type
@@ -318,7 +329,7 @@
                             
                                             <div class="d-flex align-items-start gap-3 mt-4">
                                                 <button type="button" class="btn btn-light btn-label previestab"
-                                                    data-previous="v-pills-store-tab">
+                                                    data-previous="{{ Auth::user()->role_id != 3 ? 'v-pills-store-tab' : 'v-pills-sap-numbers-tab' }}">
                                                     <i class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
                                                     Back
                                                 </button>
