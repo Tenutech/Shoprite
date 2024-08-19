@@ -165,8 +165,9 @@ class ShortlistController extends Controller
             //Checks
             $checks = Check::get();
 
-            $minShortlistNumber = Setting::where('key', 'min_shorlist_number')->first()->value;
-            $maxShortlistNumber = Setting::where('key', 'max_shorlist_number')->first()->value;
+            //Shortlist Limits
+            $minShortlistNumber = Setting::where('key', 'min_shorlist_number')->first()->value ?? 5;
+            $maxShortlistNumber = Setting::where('key', 'max_shorlist_number')->first()->value ?? 20;
 
             return view('manager/shortlist', [
                 'applicants' => $applicants,
@@ -207,6 +208,17 @@ class ShortlistController extends Controller
     public function applicants(Request $request)
     {
         try {
+            // Get the min and max shortlist numbers from the settings, with default values
+            $minShortlistNumber = Setting::where('key', 'min_shorlist_number')->first()->value ?? 5;
+            $maxShortlistNumber = Setting::where('key', 'max_shorlist_number')->first()->value ?? 20;
+
+            // Validation rules
+            $validatedData = $request->validate([
+                'vacancy_id' => 'required|integer|exists:vacancies,id',
+                'shortlist_type_id' => 'required|integer|exists:shortlist_types,id',
+                'number' => "required|integer|min:$minShortlistNumber|max:$maxShortlistNumber"
+            ]);
+
             // Auth User ID
             $userID = Auth::id();
 

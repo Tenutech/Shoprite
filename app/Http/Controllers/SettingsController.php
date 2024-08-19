@@ -69,7 +69,9 @@ class SettingsController extends Controller
             $settingsKeys = [
                 'vacancy_posting_duration',
                 'shortlist_expiry',
-                'session_timeout'
+                'session_timeout',
+                'min_shortlist_number',
+                'max_shortlist_number'
             ];
 
             foreach ($settingsKeys as $key) {

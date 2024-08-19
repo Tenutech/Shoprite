@@ -80,7 +80,7 @@
             <label for="number" class="form-label">
                 Shortlist Number
             </label>
-            <input type="number" class="form-control" id="number" name="number" placeholder="Enter number of applicants" value="{{ ($vacancyID && $shortlistedApplicants) ? count($shortlistedApplicants) : 1 }}" min="1" required />
+            <input type="number" class="form-control" id="number" name="number" placeholder="Enter number of applicants" value="{{ ($vacancyID && $shortlistedApplicants) ? count($shortlistedApplicants) : $minShortlistNumber }}" min="{{ $minShortlistNumber }}" max="{{ $maxShortlistNumber }}" required />
             <div class="invalid-feedback">
                 Please enter a number above {{ $minShortlistNumber }} and below {{ $maxShortlistNumber}}
             </div>
