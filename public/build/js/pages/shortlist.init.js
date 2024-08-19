@@ -1493,7 +1493,7 @@ $('#formVacancy').on('submit', function(e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+                
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
