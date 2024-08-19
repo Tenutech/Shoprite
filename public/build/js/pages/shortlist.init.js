@@ -615,6 +615,13 @@ if (interviewButton) {
                 buttonsStyling: false,
                 showCloseButton: true
             });
+        } else if (checkedCheckboxes.length > 2) {
+                Swal.fire({
+                    title: 'Please only select two applicants at a time',
+                    confirmButtonClass: 'btn btn-info',
+                    buttonsStyling: false,
+                    showCloseButton: true
+                });
         } else {
             // Push the selected applicants' data into the selectedApplicants array
             checkedCheckboxes.forEach(function(checkbox) {
