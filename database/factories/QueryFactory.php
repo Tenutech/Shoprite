@@ -4,6 +4,7 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\Query;
+use App\Models\User;
 
 class QueryFactory extends Factory
 {

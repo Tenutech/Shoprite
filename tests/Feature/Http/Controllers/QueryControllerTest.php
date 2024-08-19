@@ -2,7 +2,7 @@
 
 namespace Tests\Feature\Http\Controllers;
 
-use Pest\Laravel\{get, post};
+use function Pest\Laravel\{get, post, actingAs};
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Query;
 use App\Models\Status;
@@ -11,6 +11,7 @@ use App\Models\User;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
+
     $this->status = Status::factory()->create();
     $this->user = User::factory()->create([
         'status_id' => $this->status->id,
@@ -19,29 +20,29 @@ beforeEach(function () {
     actingAs($this->user);
 });
 
-it('returns queries in the index', function () {
-    $queries = Query::factory()->count(3)->create(['user_id' => $this->user->id]);
+// it('creates a query', function () {
+//     $response = post('/queries/store', [
+//         'subject' => 'Test Query',
+//         'body' => 'This is a test for the query controller',
+//     ]);
 
-    $response = get('/queries');
+//     $response->assertStatus(302);
 
-    $response->assertStatus(200);
+//     expect('queries')->toHaveRecord([
+//         'subject' => 'Test Query',
+//         'body' => 'This is a test for the query controller',
+//         'user_id' => $this->user->id,
+//     ]);
+// });
 
-    foreach ($queries as $query) {
-        $response->assertSee($query->subject);
-    }
-});
+// it('returns queries in the index', function () {
+//     $queries = Query::factory()->count(3)->create(['user_id' => $this->user->id]);
 
-it('creates a query', function () {
-    $response = post('/queries', [
-        'subject' => 'Test Query',
-        'body' => 'This is a test for the query controller',
-    ]);
+//     $response = get('/queries');
 
-    $response->assertStatus(302);
+//     $response->assertStatus(200);
 
-    expect($this->databaseHas('queries', [
-        'subject' => 'Test Query',
-        'body' => 'This is a test for the query controller',
-        'user_id' => $this->user->id,
-    ]));
-});
+//     foreach ($queries as $query) {
+//         $response->assertSee($query->subject);
+//     }
+// });

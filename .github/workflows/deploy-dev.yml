@@ -61,7 +61,7 @@ jobs:
         run: |
           echo "Coverage report available at: [Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)" >> $GITHUB_STEP_SUMMARY
 
-  Build:
+  Deploy:
     runs-on: ubuntu-latest
 
     steps:
