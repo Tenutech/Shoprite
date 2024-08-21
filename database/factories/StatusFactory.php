@@ -12,9 +12,9 @@ class StatusFactory extends Factory
     public function definition()
     {
         return [
-            'name' => $this->faker->word,     
-            'icon' => $this->faker->word,
-            'color' => $this->faker->hexColor,
+            'name' => 'Active',     
+            'icon' => 'circle',
+            'color' => '#000000',
         ];
     }
 }
