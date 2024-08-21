@@ -91,14 +91,14 @@
                                     <i class="ri-price-tag-line d-inline-block d-md-none"></i> 
                                     <span class="d-none d-md-inline-block">Messaging</span>
                                 </a>
+                            </li>                        
+                            <li class="nav-item">
+                                <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#assessments-tab" role="tab">
+                                    <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
+                                    <span class="d-none d-md-inline-block">Assessments</span>
+                                </a>
                             </li>
                         @endif
-                        <li class="nav-item">
-                            <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#assessments-tab" role="tab">
-                                <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
-                                <span class="d-none d-md-inline-block">Assessments</span>
-                            </a>
-                        </li>
                         <li class="nav-item">
                             <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#documents-tab" role="tab">
                                 <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
@@ -1154,45 +1154,47 @@
                         Assessments
                     -------------------------------------------------------------------------------------->
 
-                    <div class="tab-pane fade" id="assessments-tab" role="tabpanel">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-4">
-                                    <h5 class="card-title flex-grow-1 mb-0">
-                                        Assessments
-                                    </h5>
-                                </div>
-                                <div class="row">
-                                    <div class="col-xl-6">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h4 class="card-title mb-0">Literacy Score</h4>
-                                            </div><!-- end card header -->
-                            
-                                            <div class="card-body">
-                                                <div id="literacy_chart" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
-                                            </div><!-- end card-body -->
-                                        </div><!-- end card -->
+                    @if ($user->role_id <= 2)
+                        <div class="tab-pane fade" id="assessments-tab" role="tabpanel">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-4">
+                                        <h5 class="card-title flex-grow-1 mb-0">
+                                            Assessments
+                                        </h5>
                                     </div>
-                                    <!-- end col -->                                    
+                                    <div class="row">
+                                        <div class="col-xl-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h4 class="card-title mb-0">Literacy Score</h4>
+                                                </div><!-- end card header -->
+                                
+                                                <div class="card-body">
+                                                    <div id="literacy_chart" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
+                                                </div><!-- end card-body -->
+                                            </div><!-- end card -->
+                                        </div>
+                                        <!-- end col -->                                    
 
-                                    <div class="col-xl-6">
-                                        <div class="card">
-                                            <div class="card-header">
-                                                <h4 class="card-title mb-0">Numeracy Score</h4>
-                                            </div><!-- end card header -->
-                            
-                                            <div class="card-body">
-                                                <div id="numeracy_chart" data-colors='["--vz-secondary"]' class="apex-charts" dir="ltr"></div>
-                                            </div><!-- end card-body -->
-                                        </div><!-- end card -->
+                                        <div class="col-xl-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h4 class="card-title mb-0">Numeracy Score</h4>
+                                                </div><!-- end card header -->
+                                
+                                                <div class="card-body">
+                                                    <div id="numeracy_chart" data-colors='["--vz-secondary"]' class="apex-charts" dir="ltr"></div>
+                                                </div><!-- end card-body -->
+                                            </div><!-- end card -->
+                                        </div>
+                                        <!-- end col -->
                                     </div>
-                                    <!-- end col -->
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!--end tab-pane-->
+                        <!--end tab-pane-->
+                    @endif
 
                     <!-------------------------------------------------------------------------------------
                         Documents Tab
