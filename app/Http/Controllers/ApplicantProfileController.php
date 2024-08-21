@@ -151,7 +151,7 @@ class ApplicantProfileController extends Controller
                 'documents' => $documents,
                 'completion' => $completion,
                 'questions' => $questions,
-                'progressBarWidth' => $progressBarWidth
+                'progressBarWidth' => $progressBarWidth,
             ]);
         }
         return view('404');
