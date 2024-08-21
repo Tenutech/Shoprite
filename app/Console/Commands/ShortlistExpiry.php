@@ -39,14 +39,13 @@ class ShortlistExpiry extends Command
         foreach ($shortlists as $shortlist) {
             // Calculate the expiry date from the shortlist's creation date
             $expiryDate = Carbon::parse($shortlist->created_at)->addDays($shortlistExpiryDays);
-    
+
             // Check if the current date is greater than or equal to the expiry date
             if (Carbon::now()->gte($expiryDate)) {
                 //Applicant Ids
                 $applicantIds = json_decode($shortlist->applicant_ids, true);
 
                 foreach ($applicantIds as $key => $applicantId) {
-        
                     // Check if an interview exists for the applicant within the expiry period
                     $interviews = Interview::where('applicant_id', $applicantId)
                                           ->where('vacancy_id', $shortlist->vacancy_id)
@@ -59,7 +58,7 @@ class ShortlistExpiry extends Command
                         // Get the most recent interview
                         $lastInterview = $interviews->last();
                         $lastInterviewDatePlusExpiry = Carbon::parse($lastInterview->scheduled_date)->addDays($shortlistExpiryDays);
-        
+
                         // Check if today is <= the last interview's scheduled_date plus shortlistExpiryDays and status is 'Scheduled'
                         if (Carbon::now()->lte($lastInterviewDatePlusExpiry) && $lastInterview->status == 'Scheduled') {
                             $removeApplicant = false;
@@ -69,7 +68,7 @@ class ShortlistExpiry extends Command
                     if ($removeApplicant) {
                         // Remove applicant from the array
                         unset($applicantIds[$key]);
-        
+
                         // Additionally, fetch the Applicant model and update the 'shortlist_id' attribute to null if 'appointed_id' is null
                         $applicant = Applicant::find($applicantId);
                         if ($applicant && is_null($applicant->appointed_id) && $applicant->shortlist_id == $shortlist->id) {
@@ -78,7 +77,7 @@ class ShortlistExpiry extends Command
                         }
                     }
                 }
-        
+
                 // Update the shortlist with the modified applicant IDs array
                 $shortlist->update(['applicant_ids' => json_encode(array_values($applicantIds))]);
             }

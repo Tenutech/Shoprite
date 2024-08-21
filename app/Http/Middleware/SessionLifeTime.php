@@ -21,11 +21,11 @@ class SessionLifeTime
     {
         // Fetch session timeout setting from the database
         $sessionTimeout = Setting::where('key', 'session_timeout')->first();
-        
+
         if ($sessionTimeout) {
             // Convert minutes to minutes, as Laravel expects session lifetime to be in minutes
             $lifetime = (int) $sessionTimeout->value;
-            
+
             // Set the session lifetime configuration dynamically
             Config::set('session.lifetime', $lifetime);
         }

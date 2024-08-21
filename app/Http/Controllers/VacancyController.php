@@ -44,7 +44,7 @@ class VacancyController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-     
+
     /*
     |--------------------------------------------------------------------------
     | Vacancies Index
@@ -64,10 +64,10 @@ class VacancyController extends Controller
                 $vacancyId = Crypt::decryptString($request->id);
 
                 $vacancy = Vacancy::with([
-                    'user', 
-                    'position', 
-                    'store', 
-                    'type', 
+                    'user',
+                    'position',
+                    'store',
+                    'type',
                     'status'
                 ])
                 ->findOrFail($vacancyId);
@@ -78,7 +78,7 @@ class VacancyController extends Controller
 
             //Stores
             $stores = Store::with([
-                'brand', 
+                'brand',
                 'town',
             ])
             ->get();
@@ -86,7 +86,7 @@ class VacancyController extends Controller
             //Types
             $types = Type::whereNotIn('id', [6])->get();
 
-            return view('manager/vacancy',[
+            return view('manager/vacancy', [
                 'user' => $user,
                 'vacancy' => $vacancy,
                 'positions' => $positions,
@@ -111,8 +111,8 @@ class VacancyController extends Controller
      * @throws \Exception
      */
     public function store(Request $request)
-    {        
-        //Validate Input           
+    {
+        //Validate Input
         $request->validate([
             'position_id' => 'required|integer',
             'open_positions' => 'required|integer',
@@ -129,7 +129,7 @@ class VacancyController extends Controller
 
             // Vacancy Create
             $vacancy = Vacancy::create([
-                'user_id' => $userID,        
+                'user_id' => $userID,
                 'position_id' => $request->position_id,
                 'open_positions' => $request->open_positions,
                 'filled_positions' => 0,
@@ -171,7 +171,7 @@ class VacancyController extends Controller
             ], 201);
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create vacancy!',
@@ -192,7 +192,12 @@ class VacancyController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request)
+<<<<<<< HEAD
     {           
+=======
+    {
+        //Validate Input
+>>>>>>> c45bbca (Lint fixes)
         $request->validate([
             'position_id' => 'required|integer',
             'open_positions' => 'required|integer',
@@ -202,6 +207,10 @@ class VacancyController extends Controller
         ]);
 
         try {
+<<<<<<< HEAD
+=======
+            //User ID
+>>>>>>> c45bbca (Lint fixes)
             $userID = Auth::id();
 
             DB::beginTransaction();
@@ -251,7 +260,7 @@ class VacancyController extends Controller
             ], 201);
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update vacancy!',
@@ -295,8 +304,13 @@ class VacancyController extends Controller
             DB::commit();
 
             return response()->json([
+<<<<<<< HEAD
                 'success' => true, 
                 'message' => 'Vacancy and associated SAP numbers deleted successfully!'
+=======
+                'success' => true,
+                'message' => 'Vacancy deleted!'
+>>>>>>> c45bbca (Lint fixes)
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
@@ -307,8 +321,8 @@ class VacancyController extends Controller
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'success' => false, 
-                'message' => 'Vacancy deletion failed', 
+                'success' => false,
+                'message' => 'Vacancy deletion failed',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -341,22 +355,22 @@ class VacancyController extends Controller
 
             // Find the vacancy
             $vacancy = Vacancy::with([
-                'position', 
-                'store.brand', 
+                'position',
+                'store.brand',
                 'store.town',
-                'applicants' 
+                'applicants'
             ])->find($vacancyId);
 
             if (!$vacancy) {
                 return response()->json([
-                    'success' => false, 
+                    'success' => false,
                     'message' => 'Vacancy not found'
                 ], 400);
             }
 
             if ($vacancy->open_positions == 0) {
                 return response()->json([
-                    'success' => false, 
+                    'success' => false,
                     'message' => 'No open positiions available'
                 ], 400);
             }
@@ -365,8 +379,8 @@ class VacancyController extends Controller
 
             if ($vacancy->open_positions < $numSelectedApplicants) {
                 return response()->json([
-                    'success' => false, 
-                    'message' => 'Only '. $vacancy->open_positions .' positiions available'
+                    'success' => false,
+                    'message' => 'Only ' . $vacancy->open_positions . ' positiions available'
                 ], 400);
             }
 
@@ -405,7 +419,7 @@ class VacancyController extends Controller
                         // Get user ID if the applicant has a user, else null
                         $userId = $applicant->user ? $applicant->user->id : null;
 
-                        if($userId) {
+                        if ($userId) {
                             // Create Notification
                             $notification = new Notification();
                             $notification->user_id = $userId;
@@ -421,8 +435,8 @@ class VacancyController extends Controller
                         UpdateApplicantData::dispatch($applicant->id, 'updated', 'Appointed', $vacancyId)->onQueue('default');
 
                         // Constructing the WhatsApp message
-                        $whatsappMessage = "Congratulations {$applicant->firstname}! You have been appointed for the position of " . 
-                        "{$vacancy->position->name} at " . 
+                        $whatsappMessage = "Congratulations {$applicant->firstname}! You have been appointed for the position of " .
+                        "{$vacancy->position->name} at " .
                         "{$vacancy->store->brand->name} ({$vacancy->store->town->name}). " .
                         "We are excited to have you join our team!";
 
@@ -440,11 +454,11 @@ class VacancyController extends Controller
                             $application = Application::where('user_id', $applicant->id)
                                                     ->where('vacancy_id', $vacancy->id)
                                                     ->first();
-                    
+
                             if ($application) {
                                 $application->approved = 'No';
                                 $application->save();
-                    
+
                                 if ($application->wasChanged()) {
                                     // Create Notification
                                     $notification = new Notification();
@@ -468,19 +482,20 @@ class VacancyController extends Controller
             DB::commit();
 
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Vacancy filled!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
 
             return response()->json([
-                'success' => false, 
-                'message' => 'Failed to fill vacancy', 
+                'success' => false,
+                'message' => 'Failed to fill vacancy',
                 'error' => $e->getMessage()
             ], 400);
         }
     }
+<<<<<<< HEAD
 
     /**
      * Check and return the name and ID of applicants without a score for a given vacancy.
@@ -538,3 +553,6 @@ class VacancyController extends Controller
         }
     }
 }
+=======
+}
+>>>>>>> c45bbca (Lint fixes)

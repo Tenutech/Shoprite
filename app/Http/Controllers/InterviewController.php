@@ -58,11 +58,11 @@ class InterviewController extends Controller
 
             //Interviews
             $interviews = Interview::with([
-                'applicant', 
-                'interviewer', 
+                'applicant',
+                'interviewer',
                 'vacancy'
             ])
-            ->where(function($query) use ($user, $userID) {
+            ->where(function ($query) use ($user, $userID) {
                 // Check for interviews where the current user is the applicant
                 if ($user->applicant_id) {
                     $query->where('applicant_id', $user->applicant_id);
@@ -127,7 +127,7 @@ class InterviewController extends Controller
 
         try {
             // Start a transaction
-            DB::beginTransaction();            
+            DB::beginTransaction();
 
             // Loop through each applicant and create an interview
             foreach ($validatedData['applicants'] as $applicantID) {
@@ -139,7 +139,7 @@ class InterviewController extends Controller
             DB::commit();
 
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Interviews scheduled successfully.',
                 'date' => $interviewDate->format('d M'),
                 'time' => $startTime->format('H:i')
@@ -152,7 +152,7 @@ class InterviewController extends Controller
 
             // Return an error response
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Failed to schedule interviews.',
                 'error' => $e->getMessage()
             ], 400);
@@ -174,7 +174,7 @@ class InterviewController extends Controller
         $interview = Interview::create([
             'applicant_id' => $applicantID,
             'interviewer_id' => $userID,
-            'vacancy_id' => $validatedData['vacancy_id'],                    
+            'vacancy_id' => $validatedData['vacancy_id'],
             'scheduled_date' => $validatedData['date'],
             'start_time' => $validatedData['start_time'],
             'end_time' => $validatedData['end_time'],
@@ -210,7 +210,7 @@ class InterviewController extends Controller
     private function sendWhatsAppMessages($applicantID, $messages)
     {
         $applicant = Applicant::with([
-            'interviews.vacancy.position', 
+            'interviews.vacancy.position',
             'interviews.vacancy.store.brand',
             'interviews.vacancy.store.town',
         ])->find($applicantID);
@@ -221,7 +221,7 @@ class InterviewController extends Controller
         $latestInterview = $applicant->interviews->sortByDesc('created_at')->first();
 
         $dataToReplace = [
-            "Applicant Name" => $applicant->firstname.' '.$applicant->lastname,
+            "Applicant Name" => $applicant->firstname . ' ' . $applicant->lastname,
             "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A',
             "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' ' . ($latestInterview->vacancy->store->town->name ?? 'Our Office'),
             "Interview Location" => $latestInterview->location ?? 'N/A',
@@ -230,11 +230,11 @@ class InterviewController extends Controller
             "Notes" => $latestInterview->notes ?? 'None provided',
         ];
 
-        $type = 'template';    
+        $type = 'template';
 
         foreach ($messages as $message) {
             $personalizedMessage = $this->replacePlaceholders($message->message, $dataToReplace);
-    
+
             // Dispatch the job to send WhatsApp messages
             SendWhatsAppMessage::dispatch($applicant, $personalizedMessage, $type, $message->template);
         }
@@ -270,7 +270,7 @@ class InterviewController extends Controller
             //Interview
             $interviewID = Crypt::decryptString($request->id);
             $interview = Interview::findOrFail($interviewID);
-            
+
             //Application Update
             $interview->update([
                 'status' => 'Confirmed'
@@ -290,7 +290,7 @@ class InterviewController extends Controller
             }
 
             $encryptedID = Crypt::encryptString($interviewID);
-            
+
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
@@ -321,7 +321,7 @@ class InterviewController extends Controller
             //Interview
             $interviewID = Crypt::decryptString($request->id);
             $interview = Interview::findOrFail($interviewID);
-            
+
             //Application Update
             $interview->update([
                 'status' => 'Declined'
@@ -339,7 +339,7 @@ class InterviewController extends Controller
                 $notification->read = "No";
                 $notification->save();
             }
-            
+
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
@@ -371,7 +371,7 @@ class InterviewController extends Controller
             $interview = Interview::findOrFail($interviewID);
 
             $dateTime = Carbon::parse($request->reschedule_time);
-            
+
             //Application Update
             $interview->update([
                 'status' => 'Reschedule',
@@ -392,7 +392,7 @@ class InterviewController extends Controller
             }
 
             $encryptedID = Crypt::encryptString($interviewID);
-            
+
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
@@ -426,7 +426,7 @@ class InterviewController extends Controller
 
             // Vacancy ID
             $vacancyId = $interview->vacancy_id;
-            
+
             //Application Update
             $interview->update([
                 'status' => 'Completed'
@@ -447,7 +447,7 @@ class InterviewController extends Controller
 
             //Update Applicant Monthly Data
             UpdateApplicantData::dispatch($interview->applicant->id, 'updated', 'Interviewed', $vacancyId)->onQueue('default');
-            
+
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
@@ -477,7 +477,7 @@ class InterviewController extends Controller
             //Interview
             $interviewID = Crypt::decryptString($request->id);
             $interview = Interview::findOrFail($interviewID);
-            
+
             //Application Update
             $interview->update([
                 'status' => 'Cancelled'
@@ -495,7 +495,7 @@ class InterviewController extends Controller
                 $notification->read = "No";
                 $notification->save();
             }
-            
+
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
@@ -525,12 +525,12 @@ class InterviewController extends Controller
             //Interview
             $interviewID = Crypt::decryptString($request->id);
             $interview = Interview::findOrFail($interviewID);
-            
+
             //Application Update
             $interview->update([
                 'status' => 'No Show'
             ]);
-            
+
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
@@ -655,13 +655,13 @@ class InterviewController extends Controller
             }
 
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Contract sent succesfully!',
             ]);
         } catch (\Exception $e) {
             // Return an error response
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Failed to send contract.',
                 'error' => $e->getMessage()
             ], 400);

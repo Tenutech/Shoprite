@@ -29,7 +29,7 @@ class TopbarServiceProvider extends ServiceProvider
 
             // Messages
             $messages = Message::with([
-                'from', 
+                'from',
                 'to'
             ])
             ->where('to_id', $userID)
@@ -39,7 +39,7 @@ class TopbarServiceProvider extends ServiceProvider
 
             // Notifications
             $notifications = Notification::with([
-                'user', 
+                'user',
                 'causer',
                 'subject',
                 'type',

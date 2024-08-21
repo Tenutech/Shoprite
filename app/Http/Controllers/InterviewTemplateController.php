@@ -34,7 +34,7 @@ class InterviewTemplateController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Interview Questions Index
@@ -85,7 +85,7 @@ class InterviewTemplateController extends Controller
 
             //Interview Question Create
             $question = InterviewQuestion::create([
-                'template_id' => $templateID,                
+                'template_id' => $templateID,
                 'question' => $request->question,
                 'type' => $request->type ?: null,
                 'sort' => $request->sort ?: 0
@@ -99,7 +99,7 @@ class InterviewTemplateController extends Controller
                 'encID' => $encID,
                 'message' => 'Question created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create question!',
@@ -251,7 +251,7 @@ class InterviewTemplateController extends Controller
 
             // Reset the auto-increment value
             $maxId = InterviewTemplate::max('id') ?? 0; // Get the highest current ID or 0 if no records
-            DB::statement('ALTER TABLE interview_templates AUTO_INCREMENT = '.($maxId + 1));
+            DB::statement('ALTER TABLE interview_templates AUTO_INCREMENT = ' . ($maxId + 1));
 
             return response()->json([
                 'success' => true,

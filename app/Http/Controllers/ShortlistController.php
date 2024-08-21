@@ -232,7 +232,7 @@ class ShortlistController extends Controller
                 $applicantsToUpdate = Applicant::where('shortlist_id', $existingShortlist->id)
                                                 ->whereNull('appointed_id')
                                                 ->get();
-    
+
                 // Set shortlist_id to null for applicants with non-null appointed_id
                 foreach ($applicantsToUpdate as $applicant) {
                     $applicant->update(['shortlist_id' => null]);
@@ -317,7 +317,7 @@ class ShortlistController extends Controller
                     $radius = (int) $matches[1];
                     $latitude = (float) $matches[2];
                     $longitude = (float) $matches[3];
-            
+
                     // Split the 'coordinates' field into latitude and longitude
                     $query->whereRaw("ST_Distance_Sphere(point(SUBSTRING_INDEX(coordinates, ',', -1), SUBSTRING_INDEX(coordinates, ',', 1)), point(?, ?)) <= ?", [
                         $longitude, $latitude, $radius * 1000 // radius in meters
@@ -368,9 +368,9 @@ class ShortlistController extends Controller
                 'message' => 'Shortlist generated!',
                 'applicants' => $applicants,
             ]);
-        } catch (\Exception $e) { 
+        } catch (\Exception $e) {
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Failed to generate shortlist.',
                 'error' => $e->getMessage()
             ], 400);
@@ -383,14 +383,11 @@ class ShortlistController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    protected function performChecks($applicants, $selectedChecks) {
+    protected function performChecks($applicants, $selectedChecks)
+    {
         $results = ['Passed', 'Failed', 'Discrepancy']; // The possible statuses
-        $reasons = [
-            'Passed' => 'The applicant has successfully passed all verification stages. No issues were found in the background check, and all provided information aligns with our independent verification sources. The applicant’s qualifications and identity have been confirmed, and no discrepancies were found in the documentation provided.',
-            'Failed' => 'The applicant has failed to meet the necessary criteria for verification. There were one or more significant issues that could not be reconciled. This includes but is not limited to: mismatched information on official documents, a concerning discrepancy in employment history, or a failed drug screening. The specifics of the failures are noted in the detailed report.',
-            'Discrepancy' => 'During the verification process, we encountered some discrepancies that need further attention. While these issues do not result in outright failure of the check, they raise questions that cannot be ignored. For instance, there were minor inconsistencies in employment dates or education history that did not match our records. These discrepancies could be due to a variety of reasons, such as clerical errors or miscommunication, and warrant a secondary review.'
-        ];
-    
+        $reasons = config('verification.reasons');
+
         foreach ($applicants as $applicant) {
             foreach ($selectedChecks as $checkType => $checkIds) {
                 foreach ($checkIds as $checkId) {
@@ -420,7 +417,7 @@ class ShortlistController extends Controller
                         }
                     }
                     $dummyReason = $reasons[$randomResult]; // Get the dummy reason for the result
-        
+
                     // Add check to the applicant_checks table with reason
                     $applicant->checks()->attach($checkId, [
                         'result' => $randomResult,
@@ -503,14 +500,14 @@ class ShortlistController extends Controller
                 ]);
             } else {
                 return response()->json([
-                    'success' => false, 
+                    'success' => false,
                     'message' => 'Failed to generate shortlist.',
                     'error' => $e->getMessage()
                 ], 400);
             }
-        } catch (\Exception $e) { 
+        } catch (\Exception $e) {
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Failed to generate shortlist.',
                 'error' => $e->getMessage()
             ], 400);
@@ -535,7 +532,7 @@ class ShortlistController extends Controller
 
             // Remove the applicant ID from the list
             $applicantIDs = collect(json_decode($shortlist->applicant_ids));
-            $updatedApplicantIDs = $applicantIDs->reject(function($id) use ($applicantIDToRemove) {
+            $updatedApplicantIDs = $applicantIDs->reject(function ($id) use ($applicantIDToRemove) {
                 return $id == $applicantIDToRemove;
             })->values(); // values() to reset the keys
 
@@ -550,7 +547,6 @@ class ShortlistController extends Controller
                 'success' => true,
                 'message' => 'Applicant removed successfully.',
             ]);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,

@@ -9,10 +9,11 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class ChatTotalData extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $table = 'chat_total_data';
-    
+
     protected $fillable = [
         'year',
         'total_incoming',

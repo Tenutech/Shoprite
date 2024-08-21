@@ -9,10 +9,11 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Education extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $table = 'educations';
-    
+
     protected $fillable = [
         'name',
         'icon',

@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use App\Jobs\SendQueryToJira;
 
-
 class QueryController extends Controller
 {
     /**
@@ -40,7 +39,7 @@ class QueryController extends Controller
         if (view()->exists('help')) {
             // Queries
             $queries = Query::where('user_id', Auth::id())->get();
-            
+
             return view('help', [
                 'queries' => $queries
             ]);

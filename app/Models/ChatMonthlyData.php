@@ -9,10 +9,11 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class ChatMonthlyData extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $table = 'chat_monthly_data';
-    
+
     protected $fillable = [
         'chat_total_data_id',
         'chat_type',

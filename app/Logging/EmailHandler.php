@@ -28,7 +28,7 @@ class EmailHandler extends MailHandler
         $record = $records[0]; // Take the first record to get the message and context
 
         $this->actionUrl = route('home');
-        $this->userName = Auth::check() ? Auth::user()->firstname.' '.Auth::user()->lastname : 'N/A';
+        $this->userName = Auth::check() ? Auth::user()->firstname . ' ' . Auth::user()->lastname : 'N/A';
 
         // Format the file and line information
         $fileAndLine = '';

@@ -24,7 +24,7 @@ class VerifyEmail extends VerifyEmailBase
     {
         $template = EmailTemplate::findorfail(2);
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject($template->subject)
             ->view('vendor.notifications.verify', [
                 'greeting' => $template->greeting,

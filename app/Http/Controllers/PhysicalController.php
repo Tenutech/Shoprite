@@ -33,7 +33,7 @@ class PhysicalController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Physical Index
@@ -73,7 +73,7 @@ class PhysicalController extends Controller
 
         try {
             //Physical Create
-            $physical = PhysicalRequirement::create([                
+            $physical = PhysicalRequirement::create([
                 'position_id' => $request->position_id ?: null,
                 'description' => $request->description ?: null,
                 'icon' => $request->icon ?: null,
@@ -88,7 +88,7 @@ class PhysicalController extends Controller
                 'encID' => $encID,
                 'message' => 'Physical requirement created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create physical requirement!',
@@ -201,7 +201,7 @@ class PhysicalController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -209,25 +209,25 @@ class PhysicalController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             PhysicalRequirement::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Physical requirements deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete physical requirements!',

@@ -17,7 +17,6 @@ use Illuminate\Support\Facades\Response;
 use App\Exports\EmailExport;
 use Maatwebsite\Excel\Facades\Excel;
 
-
 class EmailController extends Controller
 {
     /**
@@ -76,9 +75,9 @@ class EmailController extends Controller
         // Convert HTML to text with ;; delimiters
         $textContent = $this->convertHtmlToTextWithDelimiters($htmlContent);
 
-        try {            
+        try {
             //Email Template Create
-            $email = EmailTemplate::create([                
+            $email = EmailTemplate::create([
                 'name' => $request->email_name,
                 'subject' => $request->subject,
                 'intro' => $textContent
@@ -92,7 +91,7 @@ class EmailController extends Controller
                 'encID' => $encID,
                 'message' => 'Email template created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create email template!',
@@ -209,7 +208,7 @@ class EmailController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -217,25 +216,25 @@ class EmailController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             EmailTemplate::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Email templates deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete email templates!',
@@ -266,7 +265,7 @@ class EmailController extends Controller
         $lines = explode("\n", $normalizedBreaks);
 
         // Append ';;' to each non-empty line, add an extra newline for separation, and process empty lines
-        $processedLines = array_map(function($line) {
+        $processedLines = array_map(function ($line) {
             // For non-empty lines, trim the line, append ';;', and add a newline character for separation
             // For empty lines, just return an empty string (which maintains existing empty lines without adding extra ';;')
             return trim($line) === '' ? "\n" : trim($line) . ';;' . "\n";
@@ -276,7 +275,7 @@ class EmailController extends Controller
         $text = implode("", $processedLines);
 
         // Ensure ';;' is appended at the end of the content if not already present
-        if(substr($text, -2) !== ";;") {
+        if (substr($text, -2) !== ";;") {
             $text .= ';;';
         }
 
@@ -291,6 +290,6 @@ class EmailController extends Controller
 
     public function export()
     {
-        return Excel::download(new EmailExport, 'Email Templates.xlsx');
+        return Excel::download(new EmailExport(), 'Email Templates.xlsx');
     }
 }

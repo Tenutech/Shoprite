@@ -73,47 +73,47 @@ class JiraController extends Controller
         // $html = preg_replace('/^### (.*)$/m', '<h3>$1</h3>', $html);
         // $html = preg_replace('/^## (.*)$/m', '<h2>$1</h2>', $html);
         // $html = preg_replace('/^# (.*)$/m', '<h1>$1</h1>', $html);
-    
+
         // Handle blockquotes
         $html = preg_replace('/^> (.*)$/m', '<blockquote>$1</blockquote>', $markdown);
-    
+
         // Handle horizontal rules
         $html = preg_replace('/^\*\*\*\*$/m', '<hr>', $markdown);
         $html = preg_replace('/^-{3,}$/m', '<hr>', $html);
         $html = preg_replace('/^_{3,}$/m', '<hr>', $html);
-    
+
         // Handle links
         $html = preg_replace('/\[(.*?)\]\((.*?)\)/', '<a href="$2">$1</a>', $markdown);
-    
+
         // Handle images
         $html = preg_replace('/!\[(.*?)\]\((.*?)\)/', '<img src="$2" alt="$1">', $html);
-    
+
         // Handle bold text (with asterisks)
         $html = preg_replace('/\*\*(.*?)\*\*/', '<b>$1</b>', $markdown);
-    
+
         // Handle italic text (with asterisks)
         $html = preg_replace('/_(.*?)_/', '<i>$1</i>', $html);
-    
+
         // Handle inline code
         $html = preg_replace('/`(.*?)`/', '<code>$1</code>', $html);
-    
+
         // Handle ordered lists
         $html = preg_replace('/^# (.*)$/m', '<li>$1</li>', $html);
         $html = preg_replace('/<\/li>\s*<li>/', '</li><li>', $html);
         $html = preg_replace('/^(<li>.*<\/li>)+$/m', '<ol>$0</ol>', $html);
-    
+
         // Handle unordered lists
         $html = preg_replace('/^\* (.*)$/m', '<li>$1</li>', $html);
         $html = preg_replace('/<\/li>\s*<li>/', '</li><li>', $html);
         $html = preg_replace('/^(<li>.*<\/li>)+$/m', '<ul>$0</ul>', $html);
-    
+
         // Handle line breaks
         $html = preg_replace('/\n/', '<br>', $html);
-    
+
         // Clean up any remaining empty lists
         $html = preg_replace('/<ul>\s*<\/ul>/', '', $html);
         $html = preg_replace('/<ol>\s*<\/ol>/', '', $html);
-    
+
         return $html;
-    }      
+    }
 }

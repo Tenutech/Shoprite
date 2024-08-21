@@ -94,7 +94,6 @@ class ApplyController extends Controller
                 'application' => $application,
                 'message' => 'Request Sent!'
             ], 200);
-            
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -121,7 +120,7 @@ class ApplyController extends Controller
             //Application
             $applicationID = Crypt::decryptString($request->id);
             $application = Application::findOrFail($applicationID);
-            
+
             //Application Update
             $application->update([
                 'approved' => 'Yes'
@@ -141,7 +140,7 @@ class ApplyController extends Controller
             }
 
             $encryptedID = Crypt::encryptString($application->user_id);
-            
+
             return response()->json([
                 'success' => true,
                 'encryptedID' => $encryptedID,
@@ -171,7 +170,7 @@ class ApplyController extends Controller
             //Application
             $applicationID = Crypt::decryptString($request->id);
             $application = Application::findOrFail($applicationID);
-            
+
             //Application Update
             $application->update([
                 'approved' => 'No'
@@ -189,7 +188,7 @@ class ApplyController extends Controller
                 $notification->read = "No";
                 $notification->save();
             }
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Application declined!',

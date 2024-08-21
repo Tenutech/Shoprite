@@ -49,9 +49,9 @@ class ProfileSettingsController extends Controller
 
             //User
             $user = User::with([
-                'role', 
-                'status', 
-                'company', 
+                'role',
+                'status',
+                'company',
                 'position'
             ])
             ->findorfail($userID);
@@ -64,21 +64,21 @@ class ProfileSettingsController extends Controller
                 'phone',
                 'avatar',
             ];
-            
+
             $filledFieldsCount = 0;
-            
+
             foreach ($fields as $field) {
                 if (!empty($user->$field)) {
                     $filledFieldsCount++;
                 }
             }
-            
+
             $completionPercentage = ($filledFieldsCount / count($fields)) * 100;
 
             //User Settings
             $userSettings = NotificationSetting::where('user_id', $userID)->first();
 
-            return view('profile-settings',[
+            return view('profile-settings', [
                 'user' => $user,
                 'completionPercentage' => $completionPercentage,
                 'userSettings' => $userSettings
@@ -122,9 +122,9 @@ class ProfileSettingsController extends Controller
                         File::delete($oldAvatarPath);
                     }
                 }
-                
+
                 $avatar = request()->file('avatar');
-                $avatarName = $request->firstname.' '.$request->lastname.'-'.time().'.'.$avatar->getClientOriginalExtension();
+                $avatarName = $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
@@ -149,7 +149,7 @@ class ProfileSettingsController extends Controller
             ], 201);
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed To Update Profile!',
@@ -168,7 +168,7 @@ class ProfileSettingsController extends Controller
     {
         //User
         $user = auth()->user();
-        
+
         // Validate Request
         $request->validate([
             'oldPassword' => ['required', 'string'],
@@ -199,15 +199,16 @@ class ProfileSettingsController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function notificationSettings(Request $request) {
+    public function notificationSettings(Request $request)
+    {
         $userId = Auth::id();
-    
-        try {    
+
+        try {
             // Retrieve or create notification settings for the user
             $notificationSettings = NotificationSetting::firstOrCreate(
                 ['user_id' => $userId]
             );
-        
+
             // Prepare data for updating
             $data = $request->all();
             $checkboxFields = [
@@ -231,22 +232,22 @@ class ProfileSettingsController extends Controller
                     $data[$field] = false;
                 }
             }
-    
+
             // Update the notification settings with the prepared data
             $notificationSettings->fill($data);
             $notificationSettings->save();
-    
+
             // Return a success response
             return response()->json([
                 'success' => true,
                 'message' => 'Settings Updated Successfully.'
             ]);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed To Update Settings!',
                 'error' => $e->getMessage()
             ], 400);
         }
-    }    
+    }
 }

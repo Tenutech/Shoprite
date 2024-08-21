@@ -34,7 +34,7 @@ class GoogleMapsService
         try {
             $service = new Google_Service_MapsEngine($this->client);
             $url = "https://maps.googleapis.com/maps/api/{$endpoint}?" . http_build_query($parameters);
-            
+
             $response = $this->client->execute($service->request('GET', $url));
             if ($response['status'] === 'OK') {
                 $result = $response['results'][0];

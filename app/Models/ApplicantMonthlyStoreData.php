@@ -9,10 +9,11 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class ApplicantMonthlyStoreData extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $table = 'applicant_monthly_store_data';
-    
+
     protected $fillable = [
         'store_id',
         'applicant_monthly_data_id',

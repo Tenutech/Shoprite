@@ -32,7 +32,7 @@ class ReasonsController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Reasons Index
@@ -67,7 +67,7 @@ class ReasonsController extends Controller
 
         try {
             //Reason Create
-            $reason = Reason::create([                
+            $reason = Reason::create([
                 'name' => $request->name,
                 'icon' => $request->icon ?: null,
                 'color' => $request->color ?: null
@@ -81,7 +81,7 @@ class ReasonsController extends Controller
                 'encID' => $encID,
                 'message' => 'Reason created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create reason!',
@@ -192,7 +192,7 @@ class ReasonsController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -200,25 +200,25 @@ class ReasonsController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             Reason::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Reasons deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete reasons!',
