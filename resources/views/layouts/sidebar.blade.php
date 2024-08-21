@@ -116,18 +116,6 @@
                             <span>Interviews</span>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link menu-link" href="/chat">
-                            <i class="ri-chat-1-line"></i> 
-                            <span>Chat</span>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link menu-link" href="/calendar">
-                            <i class="ri-calendar-line"></i> 
-                            <span>Calendar</span>
-                        </a>
-                    </li>
                 @endif
                 @if ($user->role_id == 1 || $user->role_id == 2)
                     <li class="nav-item">

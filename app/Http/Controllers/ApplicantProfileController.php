@@ -49,8 +49,14 @@ class ApplicantProfileController extends Controller
             if ($request->id) {
                 $applicantID = Crypt::decryptString($request->id);
             } else {
-                $applicantID = null;
+                return view('404');
             }
+
+            //Auth User ID
+            $authUserId = Auth::id();
+
+            //User
+            $authUser = User::findOrFail($authUserId);
 
             //Applicant
             $applicant = Applicant::with([
@@ -144,9 +150,8 @@ class ApplicantProfileController extends Controller
                 }
             }
 
-            Log::info($progressBarWidth);
-
             return view('manager/applicant-profile',[
+                'authUser' => $authUser,
                 'applicant' => $applicant,
                 'documents' => $documents,
                 'completion' => $completion,

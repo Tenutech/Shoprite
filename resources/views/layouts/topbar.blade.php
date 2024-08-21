@@ -847,15 +847,6 @@
                             <i class="mdi mdi-account-circle text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Profile</span>
                         </a>
-                        <a class="dropdown-item" href="/chat">
-                            @if($messages && $messages->count() > 0)
-                                <span class="badge rounded-pill bg-danger mt-1 float-end">
-                                    {{$messages->count()}}
-                                </span>
-                            @endif
-                            <i class="mdi mdi-message-text-outline text-muted fs-16 align-middle me-1"></i>
-                            <span class="align-middle">Messages</span>
-                        </a>
                         <a class="dropdown-item" href="{{ route('help.index') }}">
                             <i class="mdi mdi-lifebuoy text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Help</span>
