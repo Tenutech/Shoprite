@@ -514,14 +514,16 @@
                                     {{ date('d M, Y', strtotime($vacancy->created_at)) }}
                                 </td>
                             </tr>
-                            <tr>
-                                <td class="fw-semibold">
-                                    Salary
-                                </td>
-                                <td>
-                                    {{ $vacancy->position->salaryBenefits[0]->salary ?? 'N/A' }}
-                                </td>
-                            </tr>
+                            @if ($user->role_id == 1)
+                                <tr>
+                                    <td class="fw-semibold">
+                                        Salary
+                                    </td>
+                                    <td>
+                                        {{ $vacancy->position->salaryBenefits[0]->salary ?? 'N/A' }}
+                                    </td>
+                                </tr>
+                            @endif
                             <tr>
                                 <td class="fw-semibold">
                                     Experience
