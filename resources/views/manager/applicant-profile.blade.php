@@ -1154,7 +1154,7 @@
                         Assessments
                     -------------------------------------------------------------------------------------->
 
-                    @if ($user->role_id <= 2)
+                    @if ($authUser->role_id <= 2)
                         <div class="tab-pane fade" id="assessments-tab" role="tabpanel">
                             <div class="card">
                                 <div class="card-body">
