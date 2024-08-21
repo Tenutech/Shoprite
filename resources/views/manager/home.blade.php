@@ -5,7 +5,7 @@
 <link href="{{ URL::asset('build/libs/swiper/swiper-bundle.min.css')}}" rel="stylesheet" type="text/css" />
 <style>
 .applicantsView:hover {
-    cursor: pointer;
+    cursor: pointer; 
 }
 </style>
 @endsection
