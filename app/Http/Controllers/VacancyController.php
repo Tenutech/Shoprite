@@ -5,11 +5,7 @@ namespace App\Http\Controllers;
 use Exception;
 use App\Models\Applicant;
 use App\Models\Application;
-<<<<<<< HEAD
-use App\Models\Notification;
-use App\Models\Position;
 use App\Models\Interview;
-=======
 use App\Models\Position;
 use App\Models\Notification;
 use App\Models\SapNumber;
@@ -18,7 +14,6 @@ use App\Models\Type;
 use App\Models\User;
 use App\Models\Vacancy;
 use App\Models\VacancyFill;
->>>>>>> a7ddaed (SS-4 | Add field for position detail)
 use App\Jobs\SendWhatsAppMessage;
 use App\Models\Store;
 use App\Models\Type;
