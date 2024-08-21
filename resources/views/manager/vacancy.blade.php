@@ -387,10 +387,12 @@
                                                     <p class="text-muted" id="completeText">
                                                         You are about to update this vacancy with new information.
                                                     </p>
-                                                    <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-position-tab">
-                                                        <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                                                        Edit
-                                                    </button>
+                                                    @if ($user->role_id == 1)
+                                                        <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-position-tab">
+                                                            <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            Edit
+                                                        </button>
+                                                    @endif
                                                     <button type="submit" id="updateBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
                                                         <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                                                         Yes, Update !
@@ -443,10 +445,12 @@
                                                     <p class="text-muted" id="completeText">
                                                         You will receive an confirmation email with details of the vacancy opportunity.
                                                     </p>
-                                                    <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-position-tab">
-                                                        <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                                                        Edit
-                                                    </button>
+                                                    @if ($user->role_id == 1)
+                                                        <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-position-tab">
+                                                            <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            Edit
+                                                        </button>
+                                                    @endif
                                                     <a type="button" id="view-vacancy" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
                                                         <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
                                                         View Vacancy
