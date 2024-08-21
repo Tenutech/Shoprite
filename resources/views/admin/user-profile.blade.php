@@ -153,44 +153,7 @@
                                             </table>
                                         </div>
                                     </div><!-- end card body -->
-                                </div><!-- end card -->
-
-                                <!-------------------------------------------------------------------------------------
-                                    Popular Vacancies
-                                -------------------------------------------------------------------------------------->
-
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center mb-4">
-                                            <div class="flex-grow-1">
-                                                <h5 class="card-title mb-0">
-                                                    Popular Vacancies
-                                                </h5>
-                                            </div>                                            
-                                        </div>
-                                        @foreach ($topVacancies as $vacancy)  
-                                            <div class="d-flex mb-4">
-                                                <div class="avatar-sm flex-shrink-0">
-                                                    <span class="avatar-title bg-{{ $vacancy->position->color }}-subtle text-{{ $vacancy->position->color }} rounded-circle fs-4">
-                                                        <i class="{{ $vacancy->position->icon }}"></i>
-                                                    </span>
-                                                </div>
-                                                <div class="flex-grow-1 ms-3 overflow-hidden">
-                                                    <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString($vacancy->id)]) }}">
-                                                        <h6 class="text-truncate fs-15">
-                                                            {{ $vacancy->position->name }} ({{ $vacancy->store->town->name }})
-                                                        </h6>
-                                                    </a>
-                                                    <p class="text-muted mb-0">
-                                                        {{ date('d M Y', strtotime($vacancy->created_at)) }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    <!--end card-body-->
-                                </div>
-                                <!--end card-->
+                                </div><!-- end card -->                                
                             </div>
                             <!--end col-->
 
