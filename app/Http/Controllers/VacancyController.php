@@ -116,10 +116,9 @@ class VacancyController extends Controller
         $request->validate([
             'position_id' => 'required|integer',
             'open_positions' => 'required|integer',
+            'sap_numbers' => 'required|array',
             'store_id' => 'required|integer',
             'type_id' => 'required|integer',
-            'advertisement' => 'required|string',
-            'sap_numbers' => 'required|array',
         ]);
      
         try {
@@ -136,12 +135,13 @@ class VacancyController extends Controller
                 'filled_positions' => 0,
                 'store_id' => $request->store_id,
                 'type_id' => $request->type_id,
-                'status_id' => 1,
-                'advertisement' => $request->advertisement
+                'status_id' => 2,
+                'advertisement' => 'Any'
             ]);
-           
+
+            // Create SAP Numbers        
             foreach ($request->sap_numbers as $sap) {
-                $vacancy->sapNumber()->create([
+                $vacancy->sapNumbers()->create([
                     'sap_number' => $sap,
                 ]);
             }
@@ -196,10 +196,9 @@ class VacancyController extends Controller
         $request->validate([
             'position_id' => 'required|integer',
             'open_positions' => 'required|integer',
-            'store_id' => 'required|integer',
-            'type_id' => 'required|integer',
-            'advertisement' => 'required|string',
             'sap_numbers' => 'required|array',
+            'store_id' => 'required|integer',
+            'type_id' => 'required|integer',          
         ]);
 
         try {
@@ -214,16 +213,30 @@ class VacancyController extends Controller
                 'open_positions' => $request->open_positions,
                 'store_id' => $request->store_id,
                 'type_id' => $request->type_id,
-                'status_id' => 1,
-                'advertisement' => $request->advertisement,
+                'status_id' => 2,
+                'advertisement' => 'Any'
             ]);
 
-            // Remove existing SAP numbers
-            $vacancy->sapNumber()->delete();
-    
-            // Create new SAP numbers
-            if ($request->has('sap_numbers')) {
-                $this->createSapNumbers($vacancy->id, $request->input('sap_numbers'));
+            // Get the existing SAP numbers for the vacancy
+            $existingSapNumbers = $vacancy->sapNumbers;
+
+            // Convert the request SAP numbers to an associative array with their index as the key
+            $newSapNumbers = array_values($request->sap_numbers);
+
+            // Iterate over the existing SAP numbers and update them
+            foreach ($existingSapNumbers as $index => $sapNumber) {
+                if (isset($newSapNumbers[$index])) {
+                    $sapNumber->update(['sap_number' => $newSapNumbers[$index]]);
+                    unset($newSapNumbers[$index]); // Remove this from the new SAP numbers array
+                } else {
+                    // Remove SAP numbers that are no longer needed
+                    $sapNumber->delete();
+                }
+            }
+
+            // Add any new SAP numbers that weren't in the original set
+            foreach ($newSapNumbers as $sapNumber) {
+                $vacancy->sapNumbers()->create(['sap_number' => $sapNumber]);
             }
 
             DB::commit();
@@ -273,7 +286,7 @@ class VacancyController extends Controller
             DB::beginTransaction();
 
             // Delete associated SAP numbers
-            $vacancy->sapNumber()->delete();
+            $vacancy->sapNumbers()->delete();
 
             // Delete the vacancy
             $vacancy->delete();

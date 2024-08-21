@@ -76,6 +76,7 @@
                                         </span>
                                         Job Type
                                     </button>
+                                    <!--
                                     <button class="nav-link" id="v-pills-advertisement-tab" data-bs-toggle="pill"
                                         data-bs-target="#v-pills-advertisement" type="button" role="tab"
                                         aria-controls="v-pills-advertisement" aria-selected="false">
@@ -84,6 +85,7 @@
                                         </span>
                                         Advertisement
                                     </button>
+                                    -->
                                     <button class="nav-link" id="v-pills-finish-tab" data-bs-toggle="pill"
                                         data-bs-target="#v-pills-finish" type="button" role="tab"
                                         aria-controls="v-pills-finish" aria-selected="false">
@@ -170,35 +172,29 @@
                                             </div>
                             
                                             <div>
-                                                @if ($vacancy && $vacancy->sapNumber->count() > 0)
-                                                    @foreach ($vacancy->sapNumber as $index => $sapNumber)
-                                                        <div class="col-md-12">
-                                                            <div id="sapNumbersContainer">
-                                                                <div class="mb-3">
-                                                                    <label for="sapNumber{{ $index }}" class="form-label">
-                                                                        {{ $vacancy->position ? $vacancy->position->name . ' ' . ($index + 1) : 'SAP Number ' . ($index + 1) }}
-                                                                    </label>
-                                                                    <input type="text" class="form-control" id="sapNumber{{ $index }}" name="sap_numbers[]" placeholder="Enter 8-digit SAP Number" value="{{ $sapNumber->sap_number }}" pattern="\d{8}" maxlength="8" required />
-                                                                    <div class="invalid-feedback">
-                                                                        Please enter an 8-digit SAP number.
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    @endforeach
-                                                @else
-                                                    <div class="col-md-12">
-                                                        <div id="sapNumbersContainer">
+                                                <div id="sapNumbersContainer">
+                                                    @if ($vacancy && $vacancy->sapNumbers->count() > 0)
+                                                        @foreach ($vacancy->sapNumbers as $index => $sapNumber)
                                                             <div class="mb-3">
-                                                                <label for="sapNumber1" class="form-label">SAP Number 1</label>
-                                                                <input type="text" class="form-control" id="sapNumber1" name="sap_numbers[]" placeholder="Enter 8-digit SAP Number" pattern="\d{8}" maxlength="8" required />
+                                                                <label for="sapNumber{{ $index }}" class="form-label">
+                                                                    {{ $vacancy->position ? $vacancy->position->name . ' ' . ($index + 1) : 'SAP Number ' . ($index + 1) }}
+                                                                </label>
+                                                                <input type="text" class="form-control" id="sapNumber{{ $index }}" name="sap_numbers[]" placeholder="Enter 8-digit SAP Number" value="{{ $sapNumber->sap_number }}" pattern="\d{8}" maxlength="8" required />
                                                                 <div class="invalid-feedback">
                                                                     Please enter an 8-digit SAP number.
                                                                 </div>
                                                             </div>
+                                                        @endforeach
+                                                    @else
+                                                        <div class="mb-3">
+                                                            <label for="sapNumber1" class="form-label">SAP Number 1</label>
+                                                            <input type="text" class="form-control" id="sapNumber1" name="sap_numbers[]" placeholder="Enter 8-digit SAP Number" pattern="\d{8}" maxlength="8" required />
+                                                            <div class="invalid-feedback">
+                                                                Please enter an 8-digit SAP number.
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                @endif
+                                                    @endif
+                                                </div>
                                             </div>
                             
                                             <div class="d-flex align-items-start gap-3 mt-4">
@@ -324,7 +320,7 @@
                                                 </button>
                                                 <button type="button"
                                                     class="btn btn-secondary btn-label right ms-auto nexttab nexttab"
-                                                    data-nexttab="v-pills-advertisement-tab">
+                                                    data-nexttab="v-pills-finish-tab">
                                                     <i class="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>
                                                     Continue
                                                 </button>
@@ -336,6 +332,7 @@
                                             Advertisement
                                         -------------------------------------------------------------------------------------->
                             
+                                        <!--
                                         <div class="tab-pane fade" id="v-pills-advertisement" role="tabpanel"
                                             aria-labelledby="v-pills-advertisement-tab">
                                             <div>
@@ -438,6 +435,7 @@
                                                 </button>
                                             </div>
                                         </div>
+                                        -->
                                         <!-- end tab pane -->
                             
                                         <!-------------------------------------------------------------------------------------

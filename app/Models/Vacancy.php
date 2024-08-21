@@ -89,7 +89,7 @@ class Vacancy extends Model
     }
 
     //SAP Number
-    public function sapNumber()
+    public function sapNumbers()
     {
         return $this->hasMany(SapNumber::class);
     }

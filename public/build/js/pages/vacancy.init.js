@@ -21,6 +21,12 @@ document.addEventListener('DOMContentLoaded', function () {
         const numberOfPositions = parseInt(openPositionsInput.value) || 0;
         const positionName = positionSelect.options[positionSelect.selectedIndex].text || 'SAP Number';
 
+        // Store the current values
+        const currentValues = {};
+        sapNumbersContainer.querySelectorAll('input[name="sap_numbers[]"]').forEach((input, index) => {
+            currentValues[index] = input.value;
+        });
+
         // Clear existing fields
         sapNumbersContainer.innerHTML = '';
 
@@ -45,6 +51,11 @@ document.addEventListener('DOMContentLoaded', function () {
             input.maxLength = 8;
             input.pattern = '\\d{8}';
             input.required = true;
+
+            // Restore the value if it exists
+            if (currentValues[i] !== undefined) {
+                input.value = currentValues[i];
+            }
 
             // Create invalid feedback
             const invalidFeedback = document.createElement('div');
