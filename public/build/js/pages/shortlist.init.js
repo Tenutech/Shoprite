@@ -65,6 +65,12 @@ document.getElementById('generate-btn').addEventListener('click', function() {
     fetchData();
 });
 
+/*
+|--------------------------------------------------------------------------
+| Fetch Shortlisted Applicants
+|--------------------------------------------------------------------------
+*/
+
 function fetchShortlistedApplicants() {
     if (vacancyID && shortlistedApplicants.length > 0) {
         $.ajax({
@@ -127,6 +133,12 @@ function fetchShortlistedApplicants() {
         });
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Fetch Data
+|--------------------------------------------------------------------------
+*/
 
 function fetchData() {
     // Get the input elements and their values
@@ -296,6 +308,12 @@ function fetchData() {
         }
     });
 }
+
+/*
+|--------------------------------------------------------------------------
+| Load Candidate List Data
+|--------------------------------------------------------------------------
+*/
 
 function loadCandidateListData(datas, page) {
     var pages = Math.ceil(datas.length / itemsPerPage)
@@ -559,6 +577,12 @@ function loadCandidateListData(datas, page) {
     currentPage == pages ? nextButton.parentNode.classList.add('disabled') : nextButton.parentNode.classList.remove('disabled');
 }
 
+/*
+|--------------------------------------------------------------------------
+| Get Status Class
+|--------------------------------------------------------------------------
+*/
+
 function getStatusClass(statusResult) {
     switch (statusResult) {
         case 'Passed':
@@ -590,6 +614,12 @@ if (checkAll) {
     }
   });
 }
+
+/*
+|--------------------------------------------------------------------------
+| Interview
+|--------------------------------------------------------------------------
+*/
 
 // This array will hold the selected applicants' data
 var selectedApplicants = [];
@@ -655,6 +685,12 @@ $('#interviewModal').on('hidden.bs.modal', function () {
     clearFields();
 });
 
+/*
+|--------------------------------------------------------------------------
+| Contract
+|--------------------------------------------------------------------------
+*/
+
 // Select the Contract button
 var contractBtn = document.querySelector('#contractBtn');
 
@@ -689,6 +725,12 @@ if (contractBtn) {
         }
     });
 }
+
+/*
+|--------------------------------------------------------------------------
+| Fill Vacancy
+|--------------------------------------------------------------------------
+*/
 
 // Select the Vacancy button
 var vacancyBtn = document.querySelector('#vacancyBtn');
@@ -744,8 +786,13 @@ $('#vacancyModal').on('hidden.bs.modal', function () {
     clearFields();
 });
 
-function removeCandidate(candidateId) {
+/*
+|--------------------------------------------------------------------------
+| Remove Candidate
+|--------------------------------------------------------------------------
+*/
 
+function removeCandidate(candidateId) {
     $.ajax({
         url: 'manager/shortlist-update',
         type: 'POST',
@@ -813,6 +860,12 @@ function removeCandidate(candidateId) {
     });
 }
 
+/*
+|--------------------------------------------------------------------------
+| Selected Page
+|--------------------------------------------------------------------------
+*/
+
 function selectedPage() {
     var pagenumLink = document.getElementById('page-num').getElementsByClassName('clickPageNumber');
     for (var i = 0; i < pagenumLink.length; i++) {
@@ -823,6 +876,12 @@ function selectedPage() {
         }
     }
 };
+
+/*
+|--------------------------------------------------------------------------
+| Pagination Events
+|--------------------------------------------------------------------------
+*/
 
 // paginationEvents
 function paginationEvents() {
@@ -866,6 +925,12 @@ function paginationEvents() {
     clickPage();
     selectedPage();
 }
+
+/*
+|--------------------------------------------------------------------------
+| Google Map
+|--------------------------------------------------------------------------
+*/
 
 var map;
 var selectedLocation;
@@ -1026,6 +1091,12 @@ function addBadge(key, value, label, isCheck = false) {
     badgeContainer.appendChild(badge);
 }
 
+/*
+|--------------------------------------------------------------------------
+| Filters
+|--------------------------------------------------------------------------
+*/
+
 const activeFilters = {};
 
 function applyLocationFilter(location) {
@@ -1044,6 +1115,12 @@ function applyFilter(key, value) {
         activeFilters[key].push(value);
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Checks
+|--------------------------------------------------------------------------
+*/
 
 // Define activeChecks to store the checks
 const activeChecks = {};
@@ -1097,6 +1174,12 @@ function removeCheck(key, value) {
         }
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Clear Fields
+|--------------------------------------------------------------------------
+*/
 
 function clearFields() {
     // Reset text inputs
