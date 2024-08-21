@@ -53,7 +53,7 @@
                         </div>
                         <div class="col-md-auto">
                             <div class="hstack gap-1 flex-wrap mt-4 mt-md-0">
-                                @if ($user->role_id <= 2)
+                                @if ($user->role_id == 1)
                                     <a type="button" href="{{ route('vacancy.index', ['id' => Crypt::encryptString($vacancy->id)]) }}" class="btn btn-icon btn-sm btn-ghost-primary fs-16 custom-toggle">
                                         <span class="icon-on">
                                             <i class="ri-edit-box-line"></i>
