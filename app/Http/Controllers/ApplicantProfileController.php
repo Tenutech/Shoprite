@@ -98,15 +98,6 @@ class ApplicantProfileController extends Controller
                 $completion = 100;
             }
 
-            //Top Applicants
-            $topApplicants = Applicant::where('id', '!=', $applicantID)
-            ->whereHas('state', function ($query) {
-                $query->where('code', 'complete');
-            })
-            ->orderBy('score', 'desc')
-            ->take(3)
-            ->get();
-
             // Get the latest interview
             $latestInterview = $applicant->interviews->first();
 
@@ -159,7 +150,6 @@ class ApplicantProfileController extends Controller
                 'applicant' => $applicant,
                 'documents' => $documents,
                 'completion' => $completion,
-                'topApplicants' => $topApplicants,
                 'questions' => $questions,
                 'progressBarWidth' => $progressBarWidth
             ]);

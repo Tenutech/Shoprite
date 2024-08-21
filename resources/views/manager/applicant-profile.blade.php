@@ -226,38 +226,7 @@
                                             </table>
                                         </div>
                                     </div><!-- end card body -->
-                                </div><!-- end card -->
-
-                                <div class="card">
-                                    <div class="card-body">
-                                        <div class="d-flex align-items-center mb-4">
-                                            <div class="flex-grow-1">
-                                                <h5 class="card-title mb-0">Top Applicants</h5>
-                                            </div>                                            
-                                        </div>
-                                        @foreach ($topApplicants as $topApplicant)  
-                                            <div class="d-flex mb-4">
-                                                <div class="flex-shrink-0">
-                                                    <div class="avatar-sm rounded overflow-hidden">
-                                                        <img src="{{ URL::asset($topApplicant->avatar ?? 'images/avatar.jpg') }}" alt="" height="50" class="member-img img-fluid d-block rounded" />
-                                                    </div>                                                    
-                                                </div>
-                                                <div class="flex-grow-1 ms-3 overflow-hidden">
-                                                    <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($topApplicant->id)]) }}">
-                                                        <h6 class="text-truncate fs-15">
-                                                            {{ $topApplicant->firstname }} {{ $topApplicant->lastname }}
-                                                        </h6>
-                                                    </a>
-                                                    <p class="text-muted mb-0">
-                                                        {{ date('d M Y', strtotime($applicant->created_at)) }}
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        @endforeach
-                                    </div>
-                                    <!--end card-body-->
-                                </div>
-                                <!--end card-->
+                                </div><!-- end card -->                                
                             </div>
                             <!--end col-->
                             <div class="col-xxl-9"> 
