@@ -1603,10 +1603,6 @@
                                                 <p class="text-muted" id="completeText">
                                                     You are about to update your application with new information.
                                                 </p>
-                                                <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
-                                                    <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                                                    Edit
-                                                </button>
                                                 <button type="submit" id="updateBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
                                                     <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                                                     Yes, Update !
@@ -1664,10 +1660,6 @@
                                                     Your application has been submitted successfully, you will be notified should you qualify 
                                                     for an interview
                                                 </p>
-                                                <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
-                                                    <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                                                    Edit
-                                                </button>
                                                 <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
                                                     <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
                                                     View Application
