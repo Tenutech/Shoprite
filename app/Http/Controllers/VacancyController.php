@@ -3,38 +3,28 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\Applicant;
-use App\Models\Application;
-<<<<<<< HEAD
-use App\Models\Notification;
-use App\Models\Position;
-use App\Models\Interview;
-=======
-use App\Models\Position;
-use App\Models\Notification;
-use App\Models\SapNumber;
-use App\Models\Store;
-use App\Models\Type;
-use App\Models\User;
-use App\Models\Vacancy;
-use App\Models\VacancyFill;
->>>>>>> a7ddaed (SS-4 | Add field for position detail)
-use App\Jobs\SendWhatsAppMessage;
-use App\Models\Store;
-use App\Models\Type;
-use App\Jobs\UpdateApplicantData;
-use App\Models\User;
-use App\Models\Vacancy;
-use App\Models\VacancyFill;
 use Carbon\Carbon;
+use App\Models\Type;
+use App\Models\User;
+use App\Models\Store;
+use App\Models\Position;
+use App\Models\Vacancy;
+use App\Models\Applicant;
+use App\Models\Interview;
+use App\Models\SapNumber;
+use App\Models\Application;
+use App\Models\Notification;
+use App\Models\VacancyFill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
-use Illuminate\Support\Facades\Log;
+use App\Jobs\SendWhatsAppMessage;
+use App\Jobs\UpdateApplicantData;
 
 class VacancyController extends Controller
 {
@@ -517,7 +507,9 @@ class VacancyController extends Controller
         }
 
         return $result;
-     * Create SAP numbers for the given vacancy ID.
+    }
+
+     /* Create SAP numbers for the given vacancy ID.
      *
      * @param  int  $vacancyId
      * @param  array  $sapNumbersData
