@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('reminders', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id')->nullable()->index('reminders_user_id_foreign');
+            $table->unsignedBigInteger('user_id')->nullable()->index('reminders_userd_foreign');
             $table->unsignedBigInteger('reminder_setting_id')->nullable()->index('reminders_reminder_setting_id_foreign');
             $table->unsignedBigInteger('email_template_id')->nullable();
             $table->timestamp('created_at')->useCurrent();
