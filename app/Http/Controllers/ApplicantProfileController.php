@@ -161,7 +161,8 @@ class ApplicantProfileController extends Controller
                 'completion' => $completion,
                 'topApplicants' => $topApplicants,
                 'questions' => $questions,
-                'progressBarWidth' => $progressBarWidth
+                'progressBarWidth' => $progressBarWidth,
+                'vacancyId' => 21
             ]);
         }
         return view('404');

@@ -287,6 +287,139 @@ $('#formInterview').on('submit', function(e) {
     }
 });
 
+/*
+|--------------------------------------------------------------------------
+| Form Schedule Interview
+|--------------------------------------------------------------------------
+*/
+
+var interviewButton = document.querySelector('#interviewBtn');
+
+// Add click event listener to the Interview button
+if (interviewButton) {
+    interviewButton.addEventListener('click', function(event) {
+        // Manually open the modal using jQuery
+        $('#interviewModal').modal('show');
+    });
+}
+
+
+$('#interviewModal').on('hidden.bs.modal', function () {
+    clearFields();
+});
+
+$('#formInterviewSchedule').on('submit', function(e) {
+    e.preventDefault();
+    var formData = new FormData(this);
+    var isValid = true; // Flag to determine if the form is valid
+
+    // Clear previous invalid feedback
+    $('.is-invalid').removeClass('is-invalid');
+    $('.invalid-feedback').hide();
+    $('.choices').css('border', '');
+
+    // Validate each field
+    $('#formInterviewSchedule').find('input, select, textarea').each(function() {
+        var element = $(this); // Current element
+        var value = element.val(); // Value of the element
+        var isRequired = element.prop('required'); // Is it required?
+        var elementType = element.attr('type'); // Type of element
+
+        // Check if the field is required and empty
+        if (isRequired && !value) {
+            isValid = false;
+            element.addClass('is-invalid');
+            element.siblings('.invalid-feedback').show();
+        }
+
+        // Additional validation for specific types
+        if (elementType === 'email' && value && !validateEmail(value)) {
+            isValid = false;
+            element.addClass('is-invalid');
+            element.siblings('.invalid-feedback').show();
+        }
+
+        // Custom validation for Choices.js select
+        if (element.hasClass('choices-select') && !value) {
+            isValid = false;
+            var choicesDiv = element.closest('.mb-3');
+            choicesDiv.find('.choices').css('border', '1px solid #f17171');
+            choicesDiv.find('.invalid-feedback').show();
+        }
+
+        // Custom validation for time comparison
+        if (element.attr('id') === 'endTime') {
+            var startTime = $('#startTime').val();
+            var endTime = element.val();
+            // Assuming time is in HH:mm format
+            if (startTime && endTime && startTime >= endTime) {
+                isValid = false;
+                element.addClass('is-invalid');
+                element.siblings('.invalid-feedback').show().text('End time must be after start time.');
+            }
+        }
+    });
+
+    // If the form is not valid, stop here
+    if (!isValid) {
+        return;
+    }
+
+    if (this.checkValidity()) {
+        $.ajax({
+            url: route('interview.store'),
+            type: 'POST',
+            data: formData,
+            async: true,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success:function(data){                
+                if (data.success == true) {
+            
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 2000,
+                        toast: true,
+                        showCloseButton: true
+                    });
+            
+                    $('#interviewModal').modal('hide');
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+        
+                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
+                } else {
+                    message = 'An error occurred while processing your request. Please try again later.';
+                }
+            
+                // Trigger the Swal notification with the dynamic message
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
+            }
+        });
+    } else {
+        this.reportValidity();
+    }
+});
+
 function validateRatings() {
     let allRated = true;
     $('input[type="hidden"][name^="answers["]').each(function() {

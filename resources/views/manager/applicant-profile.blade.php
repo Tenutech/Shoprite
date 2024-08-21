@@ -1468,6 +1468,11 @@
                                             <strong>{{ $status }}:</strong> {{ $applicant->interviews[0]->scheduled_date->format('d M') }} at {{ $applicant->interviews[0]->start_time->format('H:i') }}-{{ $applicant->interviews[0]->end_time->format('H:i') }}
                                         </div>
                                     @endif
+
+                                    <button class="btn btn-secondary" id="interviewBtn">
+                                        <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
+                                        Interview
+                                    </button> 
                                 </div>
                                 <div class="row">
                                     <div class="col-xxl-12 mb-4">
@@ -1479,7 +1484,7 @@
                                         <br><br>
                                         We value your insight and look forward to your contributions to our collective success.
                                     </div>
-                                    @if ($applicant->interviews->count() > 0)
+                                    @if ($applicant->interviews->count() < 0)
                                         @if ($applicant->interviews[0]->score)
                                             <h1 class="display-2 coming-soon-text text-center">
                                                 {{ $applicant->interviews[0]->score }}
@@ -1573,6 +1578,9 @@
                 </div>
                 <!--end tab-content-->
             </div>
+
+            @include('manager.partials.interview-modal', ['vacancyId' => $vacancyId, 'applicantId' => $applicant->id])
+
         </div>
         <!--end col-->
     </div>
