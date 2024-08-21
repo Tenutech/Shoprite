@@ -491,25 +491,6 @@
                                     info@orient.com
                                 </td>
                             </tr>
-                            <tr>
-                                <td class="fw-semibold">Social media</td>
-                                <td>
-                                    <ul class="list-inline mb-0">
-                                        <li class="list-inline-item">
-                                            <a href="#!"><i class="ri-whatsapp-line"></i></a>
-                                        </li>
-                                        <li class="list-inline-item">
-                                            <a href="#!"><i class="ri-facebook-line"></i></a>
-                                        </li>
-                                        <li class="list-inline-item">
-                                            <a href="#!"><i class="ri-twitter-line"></i></a>
-                                        </li>
-                                        <li class="list-inline-item">
-                                            <a href="#!"><i class="ri-youtube-line"></i></a>
-                                        </li>
-                                    </ul>
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                     <!--end table-->
@@ -530,36 +511,6 @@
                 <div class="ratio ratio-4x3">
                     <iframe src="https://www.google.com/maps/embed/v1/place?key={{ config('services.googlemaps.key') }}&q={{ urlencode($vacancy->store->brand->name . ' ' . $vacancy->store->town->name) }}" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
-            </div>
-        </div>
-        <!--end card-->
-
-        <!-------------------------------------------------------------------------------------
-            Contact Us
-        -------------------------------------------------------------------------------------->
-
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Contact Us</h5>
-            </div>
-            <div class="card-body">
-                <form>
-                    <div class="mb-3">
-                        <label for="nameInput" class="form-label">Name</label>
-                        <input type="text" class="form-control" id="nameInput" placeholder="Enter your name">
-                    </div>
-                    <div class="mb-3">
-                        <label for="emailInput" class="form-label">Email</label>
-                        <input type="text" class="form-control" id="emailInput" placeholder="Enter your email">
-                    </div>
-                    <div class="mb-3">
-                        <label for="messageInput" class="form-label">Message</label>
-                        <textarea class="form-control" id="messageInput" rows="3" placeholder="Message"></textarea>
-                    </div>
-                    <div class="text-end">
-                        <button type="submit" class="btn btn-primary">Send Message</button>
-                    </div>
-                </form>
             </div>
         </div>
         <!--end card-->
