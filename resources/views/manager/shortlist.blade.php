@@ -199,7 +199,7 @@
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="ri-book-read-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                        Education
+                        Qualifications
                     </button>
                     <ul class="dropdown-menu">
                         @foreach ($educations as $education)
