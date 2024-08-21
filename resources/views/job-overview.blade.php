@@ -176,7 +176,7 @@
                             <h5 class="fs-17 mb-0" id="filetype-title">
                                 Documentation
                             </h5>
-                            @if ($user->role_id <= 2)
+                            @if ($user->role_id == 1)
                                 <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fileUploadModal">
                                     <i class="ri-upload-2-fill me-1 align-bottom"></i> 
                                     Upload File
@@ -285,7 +285,7 @@
                                                                 Download
                                                             </a>
                                                         </li>
-                                                        @if ($user->role_id <= 2)
+                                                        @if ($user->role_id == 1)
                                                             <li class="dropdown-divider"></li>
                                                             <li>
                                                                 <button class="dropdown-item downloadfile-list" href="#fileDeleteModal" data-bs-toggle="modal" data-bs-id="{{ $file->id }}">
@@ -303,47 +303,6 @@
                             </table>
                         </div>
                     </div>
-                @endif
-
-                @if ($user->role_id <= 3)
-                    <ul class="list-inline mb-0">
-                        <li class="list-inline-item">
-                            <h5 class="mb-0">Share this job:</h5>
-                        </li>
-                        <li class="list-inline-item">
-                            <div class="dropdown">
-                                <button class="btn btn-soft-primary dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Advertise
-                                </button>
-                                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton1" style="">
-                                    <a class="dropdown-item" href="#">Within Shoprite</a>
-                                    <a class="dropdown-item" href="#">Internal Applicants</a>
-                                    <a class="dropdown-item" href="#">External Candidates</a>
-                                    <a class="dropdown-item" href="#">Vendors</a>
-                                </div>
-                            </div>
-                        </li>
-                        <li class="list-inline-item">
-                            <a class="btn btn-icon btn-soft-info" href="{{ $facebookShareUrl }}" target="_blank">
-                                <i class="ri-facebook-line"></i>
-                            </a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a class="btn btn-icon btn-soft-success" href="{{ $whatsappShareUrl }}" target="_blank">
-                                <i class="ri-whatsapp-line"></i>
-                            </a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a class="btn btn-icon btn-soft-secondary" href="{{ $twitterShareUrl }}" target="_blank">
-                                <i class="ri-twitter-line"></i>
-                            </a>
-                        </li>
-                        <li class="list-inline-item">
-                            <a class="btn btn-icon btn-soft-danger" href="{{ $mailShareUrl }}" target="_blank">
-                                <i class="ri-mail-line"></i>
-                            </a>
-                        </li>
-                    </ul>
                 @endif
             </div>
         </div>

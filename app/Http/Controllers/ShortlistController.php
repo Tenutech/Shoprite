@@ -215,7 +215,6 @@ class ShortlistController extends Controller
             // Validation rules
             $validatedData = $request->validate([
                 'vacancy_id' => 'required|integer|exists:vacancies,id',
-                'shortlist_type_id' => 'required|integer|exists:shortlist_types,id',
                 'number' => "required|integer|min:$minShortlistNumber|max:$maxShortlistNumber"
             ]);
 
