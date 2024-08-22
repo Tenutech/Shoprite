@@ -272,6 +272,7 @@ class ShortlistController extends Controller
                     $query->where('user_id', $userID);
                 }
             ])
+            ->where('no_show', '<', config('shortlist.no_show_threshold'))
             ->whereNull('shortlist_id')
             ->whereNull('appointed_id')
             ->orderBy('score', 'desc');
