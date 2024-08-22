@@ -606,7 +606,7 @@ function refreshCallbacks() {
                     genderVal.setChoiceByValue(data.user.gender_id.toString());
                 }
 
-                if(data.user.resident) {
+                if (data.user.resident !== null) {
                     residentVal.setChoiceByValue(data.user.resident.toString());
                 }
 
@@ -686,12 +686,12 @@ function refreshCallbacks() {
                                             <td>${x._values.gender}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Citizen Status</td>
-                                            <td>${x._values.resident}</td>
+                                            <td class="fw-medium d-none" scope="row">Citizen Status</td>
+                                            <td class="d-none">${x._values.resident}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Position</td>
-                                            <td>${x._values.position}</td>
+                                            <td class="fw-medium d-none" scope="row">Position</td>
+                                            <td class="d-none">${x._values.position}</td>
                                         </tr>
                                         <tr>
                                             <td class="fw-medium" scope="row">Role</td>
@@ -702,8 +702,8 @@ function refreshCallbacks() {
                                             <td>${x._values.store}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Internal</td>
-                                            <td>${x._values.internal}</td>
+                                            <td class="fw-medium d-none" scope="row">Internal</td>
+                                            <td class="d-none">${x._values.internal}</td>
                                         </tr>
                                     </tbody>
                                 </table>

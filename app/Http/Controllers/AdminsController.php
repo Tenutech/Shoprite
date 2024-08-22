@@ -22,7 +22,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 
-class UsersController extends Controller
+class AdminsController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -48,7 +48,7 @@ class UsersController extends Controller
 
     public function index()
     {
-        if (view()->exists('admin.users')) {
+        if (view()->exists('admin.admins')) {
             //Users
             $users = User::with([
                 'role',
@@ -69,7 +69,7 @@ class UsersController extends Controller
                 'messagesTo',
                 'notifications'
             ])
-            ->whereIn('role_id', [4, 5])
+            ->where('role_id', 2)
             ->orderby('firstname')
             ->orderby('lastname')
             ->get();
@@ -94,7 +94,7 @@ class UsersController extends Controller
                          ->orderby('name')
                          ->get();
 
-            return view('admin/users',[
+            return view('admin/admins',[
                 'users' => $users,
                 'genders' => $genders,
                 'companies' => $companies,

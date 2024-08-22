@@ -8,7 +8,7 @@
             Pages
         @endslot
         @slot('title')
-            Users
+            Admins
         @endslot
     @endcomponent
     <div class="row">
@@ -19,7 +19,7 @@
                         <div class="flex-grow-1">
                             <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#usersModal">
                                 <i class="ri-add-fill me-1 align-bottom"></i> 
-                                Add User
+                                Add Admin
                             </button>
                         </div>
                         <div class="flex-shrink-0">
@@ -249,13 +249,13 @@
                         </div>
                     </div>
 
-                    <!-- Modal User -->
+                    <!-- Modal Admin -->
                     <div class="modal fade zoomIn" id="usersModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-xl">
                             <div class="modal-content border-0">
                                 <div class="modal-header p-3 bg-soft-primary-rainbow">
                                     <h5 class="modal-title" id="exampleModalLabel">
-                                        Add User
+                                        Add Admin
                                     </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
                                 </div>
@@ -404,7 +404,7 @@
                                                         Role
                                                     </label>
                                                     <select id="role" name="role_id" class="form-control" required>
-                                                        <option value="" selected>Select User Role</option>
+                                                        <option value="" selected>Select Admin Role</option>
                                                         @foreach ($roles as $role)
                                                             <option value="{{ $role->id }}">{{ $role->name }}</option>
                                                         @endforeach
@@ -430,8 +430,8 @@
                                     <div class="modal-footer">
                                         <div class="hstack gap-2 justify-content-end">
                                             <button type="button" class="btn btn-light" id="close-modal" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success" id="add-btn">Add User</button>
-                                            <button type="button" class="btn btn-success" id="edit-btn">Update User</button>
+                                            <button type="submit" class="btn btn-success" id="add-btn">Add Admin</button>
+                                            <button type="button" class="btn btn-success" id="edit-btn">Update Admin</button>
                                         </div>
                                     </div>
                                 </form>
@@ -556,7 +556,7 @@
 @section('script')
     <script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/users.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/admins.init.js') }}"></script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

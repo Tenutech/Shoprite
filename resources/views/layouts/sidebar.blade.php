@@ -186,13 +186,37 @@
                             <i class="ri-medal-line"></i> 
                             <span>Weightings</span>
                         </a>
-                    </li>                    
-                    <li class="nav-item">
-                        <a class="nav-link menu-link" href="{{ route('users.index') }}">
-                            <i class="ri-group-line"></i> 
-                            <span>Users</span>
-                        </a>
                     </li>
+                    <a class="nav-link menu-link" href="#sidebarUsers" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarUsers">
+                        <i class="ri-group-line"></i> 
+                        <span>Users</span>
+                    </a>
+                    <div class="collapse menu-dropdown" id="sidebarUsers">
+                        <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('users.index') }}">
+                                    Users
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('managers.index') }}">
+                                    Managers
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('admins.index') }}">
+                                    Admins
+                                </a>
+                            </li>
+                            @if ($user->role_id == 1)
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('super-admins.index') }}">
+                                        Super Admins
+                                    </a>
+                                </li>
+                            @endif
+                        </ul>
+                    </div>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarJobs" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarJobs">
                             <i class="ri-briefcase-3-line"></i> 

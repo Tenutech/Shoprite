@@ -69,6 +69,18 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/users/destroy-multiple', [App\Http\Controllers\UsersController::class, 'destroyMultiple'])->name('users.destroyMultiple');
 
+    //Managers
+
+    Route::get('/managers', [App\Http\Controllers\ManagersController::class, 'index'])->name('managers.index');
+
+    //Admins
+
+    Route::get('/admins', [App\Http\Controllers\AdminsController::class, 'index'])->name('admins.index');
+
+    //Super Admins
+
+    Route::get('/super-admins', [App\Http\Controllers\SuperAdminsController::class, 'index'])->name('super-admins.index');
+
     //Email
 
     Route::get('/email', [App\Http\Controllers\EmailController::class, 'index'])->name('email.index');
