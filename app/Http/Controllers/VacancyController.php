@@ -388,12 +388,13 @@ class VacancyController extends Controller
                         $application->approved = 'Yes';
                         $application->save();
                     }
-
+                   
                     if (!$vacancy->appointed->contains($applicantId)) {
                         $vacancyFill = VacancyFill::create([
-                            'vacancy_id' => $vacancy->id,
-                            'applicant_id' => $applicantId,
-                            'approved' => 'Pending'
+                            'vacancy_id'    => $vacancy->id,
+                            'applicant_id'  => $applicantId,
+                            'approved'      => 'Pending',
+                            'sap_number'    => $request->input('sap_number'),
                         ]);
 
                         //Update applicant appointed_id

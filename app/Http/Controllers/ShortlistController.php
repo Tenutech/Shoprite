@@ -21,6 +21,7 @@ use App\Models\Language;
 use App\Models\Setting;
 use App\Models\Shortlist;
 use App\Models\State;
+use App\Models\SapNumber;
 use App\Models\Applicant;
 use App\Models\Education;
 use App\Models\Transport;
@@ -193,7 +194,8 @@ class ShortlistController extends Controller
                 'states' => $states,
                 'checks' => $checks,
                 'minShortlistNumber' => $minShortlistNumber,
-                'maxShortlistNumber' => $maxShortlistNumber
+                'maxShortlistNumber' => $maxShortlistNumber,
+                'sapNumbers' => [],
             ]);
         }
         return view('404');
@@ -352,14 +354,17 @@ class ShortlistController extends Controller
             // Convert the Collection to an array after plucking the 'id's
             $applicantIds = $applicantsCollection->pluck('id')->toArray();
 
-            //Save Shortlist
+            $sap_numbers = SapNumber::where('vacancy_id', $vacancyID)->pluck('sap_number');
+           
+            // Save Shortlist
             $shortlistData = [
                 'user_id' => $userID,
                 'vacancy_id' => $vacancyID,
-                'applicant_ids' => json_encode($applicantIds)
+                'applicant_ids' => json_encode($applicantIds),
+                'sap_numbers' => $sap_numbers,
             ];
             $shortlist = Shortlist::updateOrCreate(['user_id' => $userID, 'vacancy_id' => $vacancyID], $shortlistData);
-
+            
             // Update all the applicants with the shortlist_id
             Applicant::whereIn('id', $applicantIds)->update(['shortlist_id' => $shortlist->id]);
 
@@ -367,6 +372,7 @@ class ShortlistController extends Controller
                 'success' => true,
                 'message' => 'Shortlist generated!',
                 'applicants' => $applicants,
+                'sapNumbers' => $sap_numbers,
             ]);
         } catch (\Exception $e) { 
             return response()->json([

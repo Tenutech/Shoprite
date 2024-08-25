@@ -260,13 +260,24 @@ function fetchData() {
                     // Hide the candidate list container and show the no result message
                     document.querySelector("#candidate-list").style.display = 'none';
                     document.querySelector(".noresult").style.display = 'block';
+                    var sapNumbers = []; 
                 } else {
                     // Show the candidate list container and hide the no result message
                     document.querySelector("#candidate-list").style.display = 'block';
                     document.querySelector(".noresult").style.display = 'none';
                     loadCandidateListData(allcandidateList, currentPage);
+                    var sapNumbers = data.sapNumbers; 
                     paginationEvents();
                 }
+                
+                // Update the SAP Number dropdown
+                var sapNumberSelect = document.getElementById('sapNumber');
+                sapNumbers.forEach(function(sapNumber) {
+                    var option = document.createElement('option');
+                    option.value = sapNumber;
+                    option.textContent = sapNumber;
+                    sapNumberSelect.appendChild(option);
+                });
 
                 Swal.fire({
                     position: 'top-end',
@@ -763,6 +774,8 @@ if (vacancyBtn) {
 
             // Manually open the modal using jQuery
             $('#vacancyModal').modal('show');
+
+
         }
     });
 }

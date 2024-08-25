@@ -14,7 +14,8 @@ class VacancyFill extends Model
     protected $fillable = [
         'vacancy_id',
         'applicant_id',
-        'approved'
+        'approved',
+        'sap_number',
     ];
 
     //Applicant

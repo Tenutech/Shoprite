@@ -558,6 +558,18 @@
                             </select>
                             <div class="invalid-feedback">Please select a vacancy</div>
                         </div>
+                        <div class="mb-3" id="sapNumberDiv">
+                            <label for="sapNumber" class="form-label">
+                                SAP Number
+                            </label>
+                            <select class="form-control" id="sapNumber" name="sap_number"  required>
+                                <option value="">Select SAP Number</option>
+                                @foreach ($sapNumbers as $sapNumber)
+                                    <option value="{{ $sapNumber }}" >{{ $sapNumber }}</option>
+                                @endforeach
+                            </select>
+                            <div class="invalid-feedback">Please select a SAP Number</div>
+                        </div>
                         <div class="hstack gap-2 justify-content-center remove">
                             <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="vacancy-close">
                                 <i class="ri-close-line me-1 align-middle"></i>
@@ -586,6 +598,7 @@
 <script type="text/javascript">
     var shortlistedApplicants = @json($shortlistedApplicants);
     var vacancyID = @json($vacancyID);
+    var sapNumbers = @json($sapNumbers);
 </script>
 <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
