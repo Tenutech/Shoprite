@@ -206,7 +206,7 @@ if(document.querySelector("#numeracy_chart")){
 |--------------------------------------------------------------------------
 */
 
-$('#formInterview').on('submit', function(e) {
+$(document).on('submit', '#formInterview', function(e) { 
     e.preventDefault();
 
     if (!validateRatings()) {
@@ -367,7 +367,7 @@ $('#formInterviewSchedule').on('submit', function(e) {
 
     if (this.checkValidity()) {
         $.ajax({
-            url: route('interview.store'),
+            url: route('applicant-interview.store'),
             type: 'POST',
             data: formData,
             async: true,
@@ -378,7 +378,7 @@ $('#formInterviewSchedule').on('submit', function(e) {
             },
             success:function(data){                
                 if (data.success == true) {
-            
+                    
                     Swal.fire({
                         position: 'top-end',
                         icon: 'success',
@@ -390,6 +390,95 @@ $('#formInterviewSchedule').on('submit', function(e) {
                     });
             
                     $('#interviewModal').modal('hide');
+            
+                    // Replace the interview alert and form
+                    $('#interviewAlert').html(`
+                        <div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
+                            <i class="ri-calendar-todo-fill label-icon"></i>
+                            <strong>Scheduled:</strong> ${data.date} at ${data.time}
+                        </div>
+                    `);
+            
+                    if (data.questions.length === 0) {
+                        // If no questions, show the error alert
+                        $('#interviewFormContainer').html(`
+                            <div class="alert alert-danger mb-xl-0 text-center" role="alert">
+                                <strong>Sorry, no interview template has been loaded</strong> for this position. Please <b>contact your administrator</b>
+                            </div>
+                        `);
+                    } else {
+                        // If questions exist, generate the form
+                        $('#interviewFormContainer').html(`
+                            <form class="mt-3" id="formInterview" enctype="multipart/form-data">
+                                <input type="hidden" id="interviewID" name="interview_id" value="${data.interviewId}"/>
+                                ${data.questions.map(question => `
+                                    <div class="form-group mb-4">
+                                        <label class="form-label fs-16" style="width:100%;">
+                                            <div class="row" style="width:100%;">
+                                                <div class="col-sm-1">
+                                                    ${question.id}.) 
+                                                </div>
+                                                <div class="col-sm-11">
+                                                    ${question.question}
+                                                </div>
+                                            </div>
+                                        </label>
+                                        <div class="col-sm-11 offset-sm-1">
+                                            <div class="d-flex">
+                                                ${question.type === 'text' ? `
+                                                    <input type="text" class="form-control" name="answers[${question.id}]" required>
+                                                ` : question.type === 'number' ? `
+                                                    <input type="number" class="form-control" name="answers[${question.id}]" required>
+                                                ` : question.type === 'rating' ? `
+                                                    <div class="form-check">
+                                                        <input class="form-check-input d-none" type="hidden" name="answers[${question.id}]" id="rating-${question.id}" required>
+                                                        ${[1, 2, 3, 4, 5].map(i => `
+                                                            <label class="form-check-label" for="rating-${question.id}-${i}" style="cursor: pointer; margin-right:20px;">
+                                                                <i class="ri-star-line" id="star-${question.id}-${i}" style="font-size: 1.5em; color: grey;"></i>
+                                                            </label>
+                                                        `).join('')}
+                                                    </div>
+                                                ` : `
+                                                    <textarea class="form-control" name="answers[${question.id}]" rows="5" required></textarea>
+                                                `}
+                                            </div>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                                <div class="d-grid gap-2">
+                                    <button class="btn btn-success" type="submit">
+                                        Submit
+                                    </button>
+                                </div>
+                            </form>
+                            <h1 class="display-2 coming-soon-text text-center" id="scoreDisplay" style="display: none;">
+                                <!-- The score will be injected here -->
+                            </h1>
+                        `);
+            
+                        // Initialize the rating functionality after the form is added to the DOM
+                        data.questions.forEach(question => {
+                            if (question.type === 'rating') {
+                                let stars = document.querySelectorAll(`#formInterview [id^="star-${question.id}-"]`);
+                                stars.forEach(star => {
+                                    star.addEventListener('click', function() {
+                                        let rating = parseInt(star.id.split('-').pop());
+                                        for (let i = 1; i <= rating; i++) {
+                                            document.querySelector(`#star-${question.id}-${i}`).classList.remove('ri-star-line');
+                                            document.querySelector(`#star-${question.id}-${i}`).classList.add('ri-star-fill');
+                                            document.querySelector(`#star-${question.id}-${i}`).style.color = 'gold';
+                                        }
+                                        for (let i = rating + 1; i <= 5; i++) {
+                                            document.querySelector(`#star-${question.id}-${i}`).classList.remove('ri-star-fill');
+                                            document.querySelector(`#star-${question.id}-${i}`).classList.add('ri-star-line');
+                                            document.querySelector(`#star-${question.id}-${i}`).style.color = 'grey';
+                                        }
+                                        document.querySelector(`#rating-${question.id}`).value = rating;
+                                    });
+                                });
+                            }
+                        });
+                    }
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -430,4 +519,13 @@ function validateRatings() {
         }
     });
     return allRated;
+}
+
+function clearFields() {
+    // Reset text inputs
+    $('#date').val('');
+    $('#startTime').val('');
+    $('#endTime').val('');
+    $('#location').val('');
+    $('#notes').val('');
 }

@@ -1,3 +1,4 @@
+<!--  Interview Modal -->
 <div class="modal fade" id="interviewModal" tabindex="-1" role="dialog" aria-labelledby="interviewModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content border-0">
@@ -12,7 +13,7 @@
                     @csrf
                     <input type="hidden" id="UserID" name="user_id" value="{{ Crypt::encryptstring(Auth::id()) }}"/>
                     <input type="hidden" id="vacancyID" name="vacancy_id" value="{{ $vacancyId ? $vacancyId : '' }}"/>
-                    <input type="hidden" name="applicants[]" value="{{ $applicantId }} ">
+                    <input type="hidden" name="applicant_id" value="{{ $applicantId }} ">
                     <div class="row">
                         <div class="col-12">
                             <div class="mb-3">
