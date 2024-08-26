@@ -233,7 +233,21 @@ $(document).on('submit', '#formInterview', function(e) {
                     // Hide the form
                     $('#formInterview').hide();
 
-                    $('#scoreDisplay').text(data.score).show(); 
+                    $('#scoreDisplay').text(data.score).show();
+                    
+                    // Update the alert to 'Completed' status
+                    var alertElement = $('#interviewAlert .alert'); // Select the existing alert
+                    var iconElement = $('#interviewAlert .label-icon'); // Select the icon element
+                    var statusTextElement = $('#interviewAlert strong'); // Select the status text element
+
+                    // Update the alert's class to 'alert-success'
+                    alertElement.removeClass('alert-warning alert-danger alert-info alert-dark').addClass('alert-success');
+
+                    // Update the icon to 'ri-calendar-check-fill'
+                    iconElement.removeClass().addClass('ri-calendar-check-fill label-icon');
+
+                    // Update the status text to 'Completed:'
+                    statusTextElement.text('Completed:');
 
                     Swal.fire({
                         position: 'top-end',
@@ -247,39 +261,26 @@ $(document).on('submit', '#formInterview', function(e) {
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+        
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: jqXHR.responseJSON.message,
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
                 } else {
-                    if(textStatus === 'timeout') {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'The request timed out. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    } else {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'An error occurred while processing your request. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    }
+                    message = 'An error occurred while processing your request. Please try again later.';
                 }
+            
+                // Trigger the Swal notification with the dynamic message
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
             }
         });
     } else {
