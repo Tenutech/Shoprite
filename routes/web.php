@@ -555,6 +555,8 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3', 'user.ac
 
     Route::get('/applicant-profile/files/{filename}', [App\Http\Controllers\ApplicantProfileController::class, 'checkFile'])->name('check.file');
 
+    Route::post('/applicant-interview-store', [App\Http\Controllers\ApplicantProfileController::class, 'interview'])->name('applicant-interview.store');
+
     //Chats
 
     Route::get('/chats', [App\Http\Controllers\ChatsController::class, 'index'])->name('chats.index');

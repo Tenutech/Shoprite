@@ -8,6 +8,370 @@ File: job-statistics init js
 
 /*
 |--------------------------------------------------------------------------
+| Date Filter Default
+|--------------------------------------------------------------------------
+*/
+
+// Calculate the current date
+const currentDate = new Date();
+
+// Calculate the past date: one year ago
+const pastDate = new Date(currentDate);
+pastDate.setFullYear(currentDate.getFullYear() - 1);
+
+// Adjust the month to the next month
+let newMonth = currentDate.getMonth() + 1;
+if (newMonth > 11) {
+    pastDate.setFullYear(pastDate.getFullYear() + 1); // Move to next year
+    newMonth = 0; // Set to January
+}
+pastDate.setMonth(newMonth);
+pastDate.setDate(1); // Set to the first day of the month
+
+// Format the dates as "d M, Y"
+const formatDate = (date) => {
+    const options = { day: '2-digit', month: 'short', year: 'numeric' };
+    return date.toLocaleDateString('en-GB', options);
+};
+
+const defaultDateRange = `${formatDate(pastDate)} to ${formatDate(currentDate)}`;
+
+// Initialize Flatpickr with the default date range
+flatpickr("#dateFilter", {
+    mode: "range",
+    dateFormat: "d M, Y",
+    defaultDate: [pastDate, currentDate],
+    onChange: function(selectedDates, dateStr, instance) {
+        // Check if both start and end dates have been selected
+        if (selectedDates.length === 2) {
+            // Fetch new data when both dates in the range have been selected
+            fetchDataAndUpdate(selectedDates);
+        }
+    }
+});
+
+/*
+|--------------------------------------------------------------------------
+| Fetch Updated Date
+|--------------------------------------------------------------------------
+*/
+
+function fetchDataAndUpdate(selectedDates) {
+    // Get the start and end dates from the selected date range
+    const [startDate, endDate] = selectedDates;
+
+    // Format the dates as dd/mm/yyyy
+    const formatDate = (date) => {
+        const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        return date.toLocaleDateString('en-GB', options);
+    };
+
+    const formattedStartDate = formatDate(startDate);
+    const formattedEndDate = formatDate(endDate);
+
+    // Store the original icon HTML
+    const originalIconHTML = '<i class="ri-calendar-2-line"></i>';
+    const spinnerHTML = '<div class="spinner-border text-light" role="status" style="width:1.5rem; height:1.5rem"><span class="sr-only">Loading...</span></div>';
+
+    // Make an AJAX request to fetch new data based on the selected date range
+    $.ajax({
+        url: route('admin.updateData'), // Replace with your actual endpoint
+        method: 'GET',
+        data: {
+            start_date: formattedStartDate,
+            end_date: formattedEndDate,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        beforeSend: function() {
+            // Replace the icon with the spinner
+            $('#dateFilterIcon').html(spinnerHTML);
+        },
+        success: function(response) {
+            // Update charts with the new data
+            updateCharts(response.data);
+
+            // Replace the spinner with the icon
+            $('#dateFilterIcon').html(originalIconHTML);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            let message = ''; // Initialize the message variable
+    
+            if (jqXHR.status === 400 || jqXHR.status === 422) {
+                message = jqXHR.responseJSON.message;
+            } else if (textStatus === 'timeout') {
+                message = 'The request timed out. Please try again later.';
+            } else {
+                message = 'An error occurred while processing your request. Please try again later.';
+            }
+        
+            // Trigger the Swal notification with the dynamic message
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: message,
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+                toast: true
+            });
+
+            // Replace the spinner with the icon
+            $('#dateFilterIcon').html(originalIconHTML);
+        }
+    });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Charts
+|--------------------------------------------------------------------------
+*/
+
+function updateCharts(data) {
+    // Remove timeToHirePreviousYearColumn and absorptionRatePreviousYearColumn
+    document.getElementById('timeToHirePreviousYearColumn').remove();
+    document.getElementById('absorptionRatePreviousYearColumn').remove();
+
+    // Set timeToHireCurrentYearColumn and absorptionRateCurrentYearColumn to col-md-12
+    document.getElementById('timeToHireCurrentYearColumn').className = 'col-md-12';
+    document.getElementById('absorptionRateCurrentYearColumn').className = 'col-md-12';
+
+    // Update timeToHireCurrentYearValue with data.totalTimeToHire
+    document.getElementById('timeToHireCurrentYearValue').textContent = formatTime(data.averageTimeToHire);
+
+    // Update absorptionRateCurrentYearValue with data.totalAbsorptionRate
+    document.getElementById('absorptionRateCurrentYearValue').textContent = data.totalAbsorptionRate;
+
+    // Set timeToHireCurrentYear and absorptionRateCurrentYear to #dateFilter.value
+    var dateFilterValue = document.getElementById('dateFilter').value;
+    document.getElementById('timeToHireCurrentYear').textContent = dateFilterValue;
+    document.getElementById('absorptionRateCurrentYear').textContent = dateFilterValue;
+
+    // Update applicationsSparklineChart
+    updateSparklineChart(
+        applicationsSparklineChart,
+        data.applicationsPerMonth,
+        data.percentMovementApplicationsPerMonth,
+        "percentMovementApplicationsPerMonthBadge"
+    );
+
+    // Update interviewedSparklineChart
+    updateSparklineChart(
+        interviewedSparklineChart,
+        data.interviewedPerMonth,
+        data.percentMovementInterviewedPerMonth,
+        "percentMovementInterviewedPerMonthBadge"
+    );
+
+    // Update hiredSparklineChart
+    updateSparklineChart(
+        hiredSparklineChart,
+        data.appointedPerMonth,
+        data.percentMovementAppointedPerMonth,
+        "percentMovementHiredPerMonthBadge"
+    );
+
+    // Update rejectedSparklineChart
+    updateSparklineChart(
+        rejectedSparklineChart,
+        data.rejectedPerMonth,
+        data.percentMovementRejectedPerMonth,
+        "percentMovementRejectedPerMonthBadge"
+    );
+
+    // Update the applicantsTreemap chart
+    applicantsTreemap.updateSeries([{
+        data: data.applicantsPerProvince
+    }]);
+
+    // Update the applicantsTreemap chart
+    applicantRaceChart.updateSeries(data.applicantsByRace.map(raceData => ({
+        name: raceData.name,
+        data: raceData.data.map(entry => parseInt(entry.split(': ')[1], 10))
+    })));
+    
+    applicantRaceChart.updateOptions({
+        xaxis: {
+            categories: data.applicantsByRace[0].data.map(entry => entry.split(': ')[0]) // Extracting the months (Jul, Aug, Sep)
+        }
+    });
+
+    // Update the totalApplicantsChart
+    totalApplicantsChart.updateSeries([{
+        name: 'Number',
+        data: data.totalApplicantsPerMonth.map(entry => parseInt(entry.split(': ')[1], 10))
+    }]);
+
+    totalApplicantsChart.updateOptions({
+        xaxis: {
+            categories: data.totalApplicantsPerMonth.map(entry => entry.split(': ')[0]) // Extracting the months (Jul '23, Aug '23, Sep '23)
+        }
+    });
+
+    // Update the totalMessagesChart
+    totalMessagesChart.updateSeries([{
+        name: "Incoming",
+        data: data.incomingMessages.map(entry => parseInt(entry.split(': ')[1], 10))
+    }, {
+        name: "Outgoing",
+        data: data.outgoingMessages.map(entry => parseInt(entry.split(': ')[1], 10))
+    }]);
+
+    totalMessagesChart.updateOptions({
+        xaxis: {
+            categories: data.incomingMessages.map(entry => entry.split(': ')[0]) // Extracting the months (Jul '23, Aug '23, Sep '23)
+        }
+    });
+
+    // Update the counters
+    updateCounter("totalIncomingCounter", data.totalIncomingMessages);
+    updateCounter("totalOutgoingCounter", data.totalOutgoingMessages);
+
+    // Update the jobsChart
+    jobsChart.updateSeries([{
+        name: 'Applications',
+        data: data.applicationsPerMonth.map(entry => parseInt(entry.split(': ')[1], 10))
+    }, {
+        name: 'Interviews',
+        data: data.interviewedPerMonth.map(entry => parseInt(entry.split(': ')[1], 10))
+    }, {
+        name: 'Hired',
+        data: data.appointedPerMonth.map(entry => parseInt(entry.split(': ')[1], 10))
+    }, {
+        name: 'Rejected',
+        data: data.rejectedPerMonth.map(entry => parseInt(entry.split(': ')[1], 10))
+    }]);
+
+    jobsChart.updateOptions({
+        xaxis: {
+            categories: data.applicationsPerMonth.map(entry => entry.split(': ')[0]) // Extracting the months (Jul '23, Aug '23, Sep '23)
+        }
+    });
+
+    // Update the applicant data for the vector map
+    data.applicantsPerProvince.forEach(province => {
+        applicantData[province.x] = province.y;
+    });
+
+    // Update the province progress
+    updateProvinceProgress(data.applicantsPerProvince);
+
+    // Update the applicantPositionsChart
+    applicantPositionsChart.updateSeries(
+        data.applicantsByPosition.map(entry => ({
+            name: entry.x,
+            data: [entry.y]
+        }))
+    );
+}
+
+/*
+|--------------------------------------------------------------------------
+| Format Time
+|--------------------------------------------------------------------------
+*/
+
+function formatTime(minutes) {
+    const days = Math.floor(minutes / (24 * 60));
+    minutes %= (24 * 60);
+    const hours = Math.floor(minutes / 60);
+    minutes %= 60;
+    return `${days}D ${hours}H ${minutes}M`;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Sparkline Charts
+|--------------------------------------------------------------------------
+*/
+
+function updateSparklineChart(chart, data, percentMovement, badgeId) {
+    // Get the last 5 records
+    const last5Records = data.slice(-5);
+
+    // Split the data into categories (months) and series data (values)
+    const last5Categories = last5Records.map(entry => entry.split(': ')[0]);
+    const last5Values = last5Records.map(entry => parseInt(entry.split(': ')[1], 10));
+
+    // Determine the color based on percentMovement
+    const chartColor = percentMovement >= 0 ? 'rgb(103, 177, 115)' : 'rgb(241, 113, 113)';
+
+    // Update the chart series and color
+    chart.updateSeries([{
+        name: "Data",
+        data: last5Values,
+    }]);
+
+    chart.updateOptions({
+        xaxis: {
+            categories: last5Categories,
+        },
+        colors: [chartColor]
+    });
+
+    // Update the percentage badge
+    const absPercentMovement = Math.abs(percentMovement);
+    const badgeElement = document.getElementById(badgeId);
+
+    badgeElement.className = `badge bg-light text-${percentMovement >= 0 ? 'success' : 'danger'} mb-0`;
+    badgeElement.innerHTML = `
+        <i class="ri-arrow-${percentMovement >= 0 ? 'up' : 'down'}-line align-middle"></i> 
+        ${absPercentMovement} %
+    `;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Counter
+|--------------------------------------------------------------------------
+*/
+
+function updateCounter(counterId, value) {
+    const counterElement = document.getElementById(counterId);
+    counterElement.setAttribute('data-target', value);
+    counterElement.textContent = value;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Province Progress
+|--------------------------------------------------------------------------
+*/
+
+function updateProvinceProgress(data) {
+    const provinceProgressElement = document.getElementById('provinceProgress');
+    provinceProgressElement.innerHTML = ''; // Clear existing content
+
+    // Sort the provinces by the number of applicants in descending order
+    const sortedProvinces = data.sort((a, b) => b.y - a.y);
+
+    // Get the top 3 provinces
+    const top3Provinces = sortedProvinces.slice(0, 3);
+
+    // Calculate the total applicants
+    const totalApplicants = data.reduce((total, province) => total + province.y, 0);
+
+    // Generate HTML for the top 3 provinces
+    top3Provinces.forEach(province => {
+        const percentage = ((province.y / totalApplicants) * 100).toFixed(2);
+
+        const provinceHTML = `
+            <p class="mb-1">
+                ${province.x}
+                <span class="float-end">${percentage}%</span>
+            </p>
+            <div class="progress mt-1 mb-3" style="height: 6px;">
+                <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
+                    style="width: ${percentage}%" aria-valuenow="${percentage}" aria-valuemin="0" aria-valuemax="100"></div>
+            </div>
+        `;
+
+        provinceProgressElement.insertAdjacentHTML('beforeend', provinceHTML);
+    });
+}
+
+/*
+|--------------------------------------------------------------------------
 | Colors Array
 |--------------------------------------------------------------------------
 */
@@ -63,8 +427,8 @@ function getLast5Months() {
 |--------------------------------------------------------------------------
 */
 
-var areachartbitcoinColors = getChartColorsArray("applications_sparkline_chart");
-if (areachartbitcoinColors) {
+var applicationsSparklineChartColors = getChartColorsArray("applications_sparkline_chart");
+if (applicationsSparklineChartColors) {
     var options = {
         series: [{
             name: "Applications",
@@ -97,13 +461,13 @@ if (areachartbitcoinColors) {
                 stops: [50, 100, 100, 100],
             },
         },
-        colors: areachartbitcoinColors,
+        colors: applicationsSparklineChartColors,
         xaxis: {
             categories: getLast5Months(),
         }
     };
-    var chart = new ApexCharts(document.querySelector("#applications_sparkline_chart"), options);
-    chart.render();
+    var applicationsSparklineChart = new ApexCharts(document.querySelector("#applications_sparkline_chart"), options);
+    applicationsSparklineChart.render();
 }
 
 /*
@@ -112,8 +476,8 @@ if (areachartbitcoinColors) {
 |--------------------------------------------------------------------------
 */
 
-var areachartbitcoinColors = getChartColorsArray("interviewed_sparkline_chart");
-if (areachartbitcoinColors) {
+var interviewedSparklineChartColors = getChartColorsArray("interviewed_sparkline_chart");
+if (interviewedSparklineChartColors) {
     var options = {
         series: [{
             name: "Interviewed",
@@ -146,13 +510,13 @@ if (areachartbitcoinColors) {
                 stops: [50, 100, 100, 100],
             },
         },
-        colors: areachartbitcoinColors,
+        colors: interviewedSparklineChartColors,
         xaxis: {
             categories: getLast5Months(),
         }
     };
-    var chart = new ApexCharts(document.querySelector("#interviewed_sparkline_chart"), options);
-    chart.render();
+    var interviewedSparklineChart = new ApexCharts(document.querySelector("#interviewed_sparkline_chart"), options);
+    interviewedSparklineChart.render();
 }
 
 /*
@@ -161,8 +525,8 @@ if (areachartbitcoinColors) {
 |--------------------------------------------------------------------------
 */
 
-var areachartbitcoinColors = getChartColorsArray("hired_sparkline_chart");
-if (areachartbitcoinColors) {
+var hiredSparklineChartColors = getChartColorsArray("hired_sparkline_chart");
+if (hiredSparklineChartColors) {
     var options = {
         series: [{
             name: "Appointed",
@@ -195,13 +559,13 @@ if (areachartbitcoinColors) {
                 stops: [50, 100, 100, 100],
             },
         },
-        colors: areachartbitcoinColors,
+        colors: hiredSparklineChartColors,
         xaxis: {
             categories: getLast5Months(),
         }
     };
-    var chart = new ApexCharts(document.querySelector("#hired_sparkline_chart"), options);
-    chart.render();
+    var hiredSparklineChart = new ApexCharts(document.querySelector("#hired_sparkline_chart"), options);
+    hiredSparklineChart.render();
 }
 
 /*
@@ -210,8 +574,8 @@ if (areachartbitcoinColors) {
 |--------------------------------------------------------------------------
 */
 
-var areachartbitcoinColors = getChartColorsArray("rejected_sparkline_chart");
-if (areachartbitcoinColors) {
+var rejectedSparklineChartColors = getChartColorsArray("rejected_sparkline_chart");
+if (rejectedSparklineChartColors) {
     var options = {
         series: [{
             name: "Rejected",
@@ -244,13 +608,13 @@ if (areachartbitcoinColors) {
                 stops: [50, 100, 100, 100],
             },
         },
-        colors: areachartbitcoinColors,
+        colors: rejectedSparklineChartColors,
         xaxis: {
             categories: getLast5Months(),
         }
     };
-    var chart = new ApexCharts(document.querySelector("#rejected_sparkline_chart"), options);
-    chart.render();
+    var rejectedSparklineChart = new ApexCharts(document.querySelector("#rejected_sparkline_chart"), options);
+    rejectedSparklineChart.render();
 }
 
 /*
@@ -288,8 +652,8 @@ function generateRandomData(length, min, max) {
 |--------------------------------------------------------------------------
 */
 
-var chartTreemapDistributedColors = getChartColorsArray("applicants_treemap");
-if (chartTreemapDistributedColors) {
+var applicantsTreemapColors = getChartColorsArray("applicants_treemap");
+if (applicantsTreemapColors) {
     var options = {
         series: [{
             data: applicantsPerProvince
@@ -304,7 +668,7 @@ if (chartTreemapDistributedColors) {
                 show: false
             }
         },
-        colors: chartTreemapDistributedColors,
+        colors: applicantsTreemapColors,
         plotOptions: {
             treemap: {
                 distributed: true,
@@ -313,8 +677,8 @@ if (chartTreemapDistributedColors) {
         }
     };
 
-    var chart = new ApexCharts(document.querySelector("#applicants_treemap"), options);
-    chart.render();
+    var applicantsTreemap = new ApexCharts(document.querySelector("#applicants_treemap"), options);
+    applicantsTreemap.render();
 }
 
 /*
@@ -323,9 +687,9 @@ if (chartTreemapDistributedColors) {
 |--------------------------------------------------------------------------
 */
 
-var applicantRaceChartsColors = getChartColorsArray("applicant_race");
+var applicantRaceChartColors = getChartColorsArray("applicant_race");
 
-if (applicantRaceChartsColors) {
+if (applicantRaceChartColors) {
     var options = {
         series: applicantsByRace,
         chart: {
@@ -365,13 +729,13 @@ if (applicantRaceChartsColors) {
         markers: {
             size: 0
         },
-        colors: applicantRaceChartsColors,
+        colors: applicantRaceChartColors,
         xaxis: {
             categories: getLast12Months()
         }
     };
-    var chart = new ApexCharts(document.querySelector("#applicant_race"), options);
-    chart.render();
+    var applicantRaceChart = new ApexCharts(document.querySelector("#applicant_race"), options);
+    applicantRaceChart.render();
 }
 
 /*
@@ -380,9 +744,9 @@ if (applicantRaceChartsColors) {
 |--------------------------------------------------------------------------
 */
 
-var linechartZoomColors = getChartColorsArray("total_applicants");
+var totalApplicantsChartColors = getChartColorsArray("total_applicants");
 
-if (linechartZoomColors) {
+if (totalApplicantsChartColors) {
     var options = {
         series: [{
             name: 'Number',
@@ -401,7 +765,7 @@ if (linechartZoomColors) {
                 autoSelected: 'zoom'
             }
         },
-        colors: linechartZoomColors,
+        colors: totalApplicantsChartColors,
         dataLabels: {
             enabled: false
         },
@@ -413,13 +777,13 @@ if (linechartZoomColors) {
         },
         fill: {
             type: 'gradient',
-        gradient: {
-            shadeIntensity: 1,
-            inverseColors: false,
-            opacityFrom: 0.5,
-            opacityTo: 0,
-            stops: [0, 90, 100]
-        }
+            gradient: {
+                shadeIntensity: 1,
+                inverseColors: false,
+                opacityFrom: 0.5,
+                opacityTo: 0,
+                stops: [0, 90, 100]
+            }
         },
         xaxis: {
             categories: getLast12Months(),
@@ -437,8 +801,8 @@ if (linechartZoomColors) {
             shared: false,
         }
     };
-    var chart = new ApexCharts(document.querySelector("#total_applicants"), options);
-    chart.render();
+    var totalApplicantsChart = new ApexCharts(document.querySelector("#total_applicants"), options);
+    totalApplicantsChart.render();
 }
 
 /*
@@ -447,9 +811,9 @@ if (linechartZoomColors) {
 |--------------------------------------------------------------------------
 */
 
-var totalCostColors = getChartColorsArray("total_messages");
+var totalMessagesChartColors = getChartColorsArray("total_messages");
 
-if (totalCostColors) {
+if (totalMessagesChartColors) {
     var options = {
         chart: {
             height: 380,
@@ -461,7 +825,7 @@ if (totalCostColors) {
                 show: false
             }
         },
-        colors: totalCostColors,
+        colors: totalMessagesChartColors,
         dataLabels: {
             enabled: false
         },
@@ -528,9 +892,153 @@ if (totalCostColors) {
             }
         }]
     };
-    var chart = new ApexCharts(document.querySelector("#total_messages"), options);
-    chart.render();
+    var totalMessagesChart = new ApexCharts(document.querySelector("#total_messages"), options);
+    totalMessagesChart.render();
 }
+
+/*
+|--------------------------------------------------------------------------
+| Jobs Summary
+|--------------------------------------------------------------------------
+*/
+
+// Job Summary
+var jobsChartColors = getChartColorsArray("jobs_chart");
+if (jobsChartColors) {
+    var options = {
+        series: [{
+            name: 'Applications',
+            data: applicationsPerMonth
+        }, {
+            name: 'Interviews',
+            data: interviewedPerMonth
+        },
+        {
+            name: 'Hired',
+            data: appointedPerMonth
+        },
+        {
+            name: 'Rejected',
+            data: rejectedPerMonth
+        }],
+        chart: {
+            height: 320,
+            type: 'area',
+            toolbar: 'false',
+        },
+        dataLabels: {
+            enabled: false
+        },
+        stroke: {
+            curve: 'smooth',
+            width: 2,
+        },
+        xaxis: {
+            categories: getLast12Months(),
+        },
+        colors: jobsChartColors,
+        fill: {
+            opacity: 0.06,
+            colors: jobsChartColors,
+            type: 'solid'
+        }
+    };
+    var jobsChart = new ApexCharts(document.querySelector("#jobs_chart"), options);
+    jobsChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Applicant Map
+|--------------------------------------------------------------------------
+*/
+
+function adjustSVGViewBox() {
+    var svgElement = document.querySelector("#applicants-by-locations svg");
+    if (svgElement) {
+        svgElement.style.marginLeft = "45px";
+    }
+}
+
+function loadCharts() {
+    // South Africa map with markers
+    var vectorMapSAMarkersColors = getChartColorsArray("applicants-by-locations");
+    if (vectorMapSAMarkersColors) {
+        document.getElementById("applicants-by-locations").innerHTML = "";
+
+        // Define markers array outside of the map configuration
+        var markersArray = [
+            { name: "Eastern Cape", coords: [-32.9611, 25.6022] },
+            { name: "Free State", coords: [-29.0852, 26.1596] },
+            { name: "Gauteng", coords: [-26.2041, 28.0473] },
+            { name: "KwaZulu-Natal", coords: [-29.8587, 31.0218] },
+            { name: "Limpopo", coords: [-23.9045, 29.4685] },
+            { name: "Mpumalanga", coords: [-25.4751, 30.9692] },
+            { name: "Northern Cape", coords: [-27.7323, 20.7623] },
+            { name: "Western Cape", coords: [-33.5249, 18.9241] },
+        ];
+
+        const worldemapmarkers = new jsVectorMap({
+            map: "za_mill",  // Hypothetical map data for South Africa
+            selector: "#applicants-by-locations",
+            zoomOnScroll: false,
+            zoomButtons: false,
+            selectedMarkers: [], // hypothetical markers
+            regionStyle: {
+                initial: {
+                    stroke: "#9599ad",
+                    strokeWidth: 0.75,
+                    fill: vectorMapSAMarkersColors[0],
+                    fillOpacity: 1,
+                },
+            },
+            markersSelectable: true,
+            markers: markersArray,
+            markerStyle: {
+                initial: {
+                    fill: vectorMapSAMarkersColors[1],
+                },
+                selected: {
+                    fill: vectorMapSAMarkersColors[2],
+                },
+            },
+            labels: {
+                markers: {
+                    render: function (marker) {
+                        return marker.name;
+                    },
+                },
+            },
+            onMarkerClick: function(event, markerIndex) {
+                var marker = markersArray[markerIndex]; 
+                if (marker && marker.name) {
+                    window.location.href = route('applicants.index', {location: marker.name});
+                }
+            },
+            onRegionTooltipShow: function(event, tooltip, code) {
+                var regionName = tooltip.text();
+
+                var count = applicantData[regionName] || 0;
+                
+                tooltip.text(
+                    `<p class="fs-6 p-0 m-0">${regionName}</p>` +
+                    `<p class="text-xs p-0 m-0">Applicants: ${count}</p>`,
+                    true
+                );
+            },            
+        });
+    }
+    setTimeout(adjustSVGViewBox, 100);
+}
+
+window.onresize = function () {
+    setTimeout(() => {
+        loadCharts();
+        adjustSVGViewBox();
+    }, 100);
+};
+
+loadCharts();
 
 /*
 |--------------------------------------------------------------------------
@@ -538,9 +1046,9 @@ if (totalCostColors) {
 |--------------------------------------------------------------------------
 */
 
-var areachartSalesColors = getChartColorsArray("applicant_positions");
+var applicantPositionsChartColors = getChartColorsArray("applicant_positions");
 
-if (areachartSalesColors) {
+if (applicantPositionsChartColors) {
     var options = {
         series: applicantsByPosition,
         chart: {
@@ -608,155 +1116,11 @@ if (areachartSalesColors) {
                 height: 10
             }
         },
-        colors: areachartSalesColors
+        colors: applicantPositionsChartColors
     };
-    var chart = new ApexCharts(document.querySelector("#applicant_positions"), options);
-    chart.render();
+    var applicantPositionsChart = new ApexCharts(document.querySelector("#applicant_positions"), options);
+    applicantPositionsChart.render();
 }
-
-/*
-|--------------------------------------------------------------------------
-| Jobs Summary
-|--------------------------------------------------------------------------
-*/
-
-// Job Summary
-var revenueExpensesChartsColors = getChartColorsArray("jobs_chart");
-if (revenueExpensesChartsColors) {
-    var options = {
-        series: [{
-            name: 'Applications',
-            data: applicationsPerMonth
-        }, {
-            name: 'Interviews',
-            data: interviewedPerMonth
-        },
-        {
-            name: 'Hired',
-            data: appointedPerMonth
-        },
-        {
-            name: 'Rejected',
-            data: rejectedPerMonth
-        }],
-        chart: {
-            height: 320,
-            type: 'area',
-            toolbar: 'false',
-        },
-        dataLabels: {
-            enabled: false
-        },
-        stroke: {
-            curve: 'smooth',
-            width: 2,
-        },
-        xaxis: {
-            categories: getLast12Months(),
-        },
-        colors: revenueExpensesChartsColors,
-        fill: {
-            opacity: 0.06,
-            colors: revenueExpensesChartsColors,
-            type: 'solid'
-        }
-    };
-    var chart = new ApexCharts(document.querySelector("#jobs_chart"), options);
-    chart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Applicant Map
-|--------------------------------------------------------------------------
-*/
-
-function adjustSVGViewBox() {
-    var svgElement = document.querySelector("#applicants-by-locations svg");
-    if (svgElement) {
-        svgElement.style.marginLeft = "45px";
-    }
-}
-
-function loadCharts() {
-    // South Africa map with markers
-    var vectorMapSAMarkersColors = getChartColorsArray("applicants-by-locations");
-    if (vectorMapSAMarkersColors) {
-        document.getElementById("applicants-by-locations").innerHTML = "";
-
-        // Define markers array outside of the map configuration
-        var markersArray = [
-            { name: "Eastern Cape", coords: [-32.9611, 25.6022] },
-            { name: "Free State", coords: [-29.0852, 26.1596] },
-            { name: "Gauteng", coords: [-26.2041, 28.0473] },
-            { name: "KwaZulu-Natal", coords: [-29.8587, 31.0218] },
-            { name: "Limpopo", coords: [-23.9045, 29.4685] },
-            { name: "Mpumalanga", coords: [-25.4751, 30.9692] },
-            { name: "Northern Cape", coords: [-27.7323, 20.7623] },
-            { name: "Western Cape", coords: [-33.5249, 18.9241] },
-        ];
-
-        const worldemapmarkers = new jsVectorMap({
-            map: "za_mill",  // Hypothetical map data for South Africa
-            selector: "#applicants-by-locations",
-            zoomOnScroll: false,
-            zoomButtons: false,
-            selectedMarkers: [], // hypothetical markers
-            regionStyle: {
-                initial: {
-                    stroke: "#9599ad",
-                    strokeWidth: 0.25,
-                    fill: vectorMapSAMarkersColors[0],
-                    fillOpacity: 1,
-                },
-            },
-            markersSelectable: true,
-            markers: markersArray,
-            markerStyle: {
-                initial: {
-                    fill: vectorMapSAMarkersColors[1],
-                },
-                selected: {
-                    fill: vectorMapSAMarkersColors[2],
-                },
-            },
-            labels: {
-                markers: {
-                    render: function (marker) {
-                        return marker.name;
-                    },
-                },
-            },
-            onMarkerClick: function(event, markerIndex) {
-                var marker = markersArray[markerIndex]; 
-                if (marker && marker.name) {
-                    window.location.href = route('applicants.index', {location: marker.name});
-                }
-            },
-            onRegionTooltipShow: function(event, tooltip, code) {
-                var regionName = tooltip.text();
-
-                var count = applicantData[regionName] || 0;
-                
-                tooltip.text(
-                    `<p class="fs-6 p-0 m-0">${regionName}</p>` +
-                    `<p class="text-xs p-0 m-0">Applicants: ${count}</p>`,
-                    true
-                );
-            },            
-        });
-    }
-    setTimeout(adjustSVGViewBox, 100);
-}
-
-window.onresize = function () {
-    setTimeout(() => {
-        loadCharts();
-        adjustSVGViewBox();
-    }, 100);
-};
-
-loadCharts();
 
 /*
 |--------------------------------------------------------------------------
@@ -764,8 +1128,8 @@ loadCharts();
 |--------------------------------------------------------------------------
 */
 
-var dountchartUserDeviceColors = getChartColorsArray("applicant_device");
-if (dountchartUserDeviceColors) {
+var applicantDeviceChartColors = getChartColorsArray("applicant_device");
+if (applicantDeviceChartColors) {
     var options = {
         series: [78.56, 105.02, 42.89],
         labels: ["Desktop", "Mobile", "Tablet"],
@@ -812,10 +1176,10 @@ if (dountchartUserDeviceColors) {
             tickAmount: 4,
             min: 0
         },
-        colors: dountchartUserDeviceColors,
+        colors: applicantDeviceChartColors,
     };
-    var chart = new ApexCharts(document.querySelector("#applicant_device"), options);
-    chart.render();
+    var applicantDeviceChart = new ApexCharts(document.querySelector("#applicant_device"), options);
+    applicantDeviceChart.render();
 }
 
 /*
