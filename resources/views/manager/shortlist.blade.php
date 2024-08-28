@@ -101,6 +101,7 @@
                     <option value="1">Talent Pool/Candidates</option>
                     <option value="2">Applicants</option>
                     <option value="3">Any</option>
+                    <option value="3">Saved Applicants</option>
             </select>
             <div class="invalid-feedback">Please select shortlist type</div>
         </div>                                                       
