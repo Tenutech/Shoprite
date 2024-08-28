@@ -57,7 +57,8 @@ class ApplicantsController extends Controller
     public function index()
     {
         if (view()->exists('manager/applicants')) {
-            //Applicants
+            
+            $userID = Auth::id();
             $applicants = Applicant::with([
                 'town',
                 'gender',
@@ -81,7 +82,7 @@ class ApplicantsController extends Controller
             ->orderBy('firstname')
             ->orderBy('lastname')
             ->get();
-
+            $applicants =[];
             //Towns
             $towns = Town::get();
 
@@ -188,6 +189,9 @@ class ApplicantsController extends Controller
                 $query->where('user_id', $userID);
             }
         ])
+        ->whereHas('savedBy', function ($query) use ($userID) {
+            $query->where('user_id', $userID);
+        })
         ->orderBy('firstname')
         ->orderBy('lastname')
         ->get()
