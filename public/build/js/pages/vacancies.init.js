@@ -71,7 +71,7 @@ function loadJobListData(datas, page, authID) {
 
     if (currentPage == 1) {
         itemsPerPage = 7;
-        document.querySelector("#job-list").insertAdjacentHTML('afterbegin', '<div class="col-lg-3 col-md-6" id="job-widget">\
+        document.querySelector("#job-list").insertAdjacentHTML('afterbegin', '<div class="col-lg-3 col-md-6 d-none" id="job-widget">\
         <div class="card card-height-100 bg-primary bg-job">\
             <div class="card-body p-5">\
                 <h2 class="lh-base text-white">Shoprite invites young professionals for an intership!</h2>\
