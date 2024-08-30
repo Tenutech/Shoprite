@@ -97,20 +97,14 @@
                                     <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
                                     <span class="d-none d-md-inline-block">Assessments</span>
                                 </a>
+                            </li>                        
+                            <li class="nav-item">
+                                <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#documents-tab" role="tab">
+                                    <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
+                                    <span class="d-none d-md-inline-block">Documents</span>
+                                </a>
                             </li>
                         @endif
-                        <li class="nav-item">
-                            <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#documents-tab" role="tab">
-                                <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
-                                <span class="d-none d-md-inline-block">Documents</span>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link fs-14 applicant-tab d-none" data-bs-toggle="tab" href="#checks-tab" role="tab">
-                                <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
-                                <span class="d-none d-md-inline-block">Checks</span>
-                            </a>
-                        </li>
                         <li class="nav-item">
                             <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#interview-tab" role="tab">
                                 <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
@@ -1200,215 +1194,139 @@
                         Documents Tab
                     -------------------------------------------------------------------------------------->
 
-                    <div class="tab-pane fade" id="documents-tab" role="tabpanel">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-4">
-                                    <h5 class="card-title flex-grow-1 mb-0">
-                                        Documents
-                                    </h5>
-                                </div>
-                                <div class="row">
-                                    <div class="col-lg-12">
-                                        <div class="table-responsive">
-                                            <table class="table align-middle table-nowrap mb-0" id="fileTable">
-                                                <thead class="table-active">
-                                                    <tr>
-                                                        <th scope="col">Name</th>
-                                                        <th scope="col">Type</th>
-                                                        <th scope="col">Size</th>
-                                                        <th scope="col">Upload Date</th>
-                                                        <th scope="col" class="text-center">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="file-list">
-                                                    @foreach ($documents as $file)
-                                                        @php
-                                                            $fileIcon = '';
-                                                        @endphp
-                                                        
-                                                        @switch($file->type)
-                                                            @case('png')
-                                                            @case('jpg')
-                                                            @case('jpeg')
-                                                                @php
-                                                                    $fileIcon = '<i class="ri-gallery-fill align-bottom text-success"></i>';
-                                                                @endphp
-                                                                @break
-                                                        
-                                                            @case('pdf')
-                                                                @php
-                                                                    $fileIcon = '<i class="ri-file-pdf-fill align-bottom text-danger"></i>';
-                                                                @endphp
-                                                                @break
-                                                        
-                                                            @case('docx')
-                                                                @php
-                                                                    $fileIcon = '<i class="ri-file-word-2-fill align-bottom text-primary"></i>';
-                                                                @endphp
-                                                                @break
-                                                        
-                                                            @case('xls')
-                                                            @case('xlsx')
-                                                                @php
-                                                                    $fileIcon = '<i class="ri-file-excel-2-fill align-bottom text-success"></i>';
-                                                                @endphp
-                                                                @break
-                                                        
-                                                            @case('csv')
-                                                                @php
-                                                                    $fileIcon = '<i class="ri-file-excel-fill align-bottom text-success"></i>';
-                                                                @endphp
-                                                                @break
-                                                        
-                                                            @case('txt')
-                                                            @default
-                                                                @php
-                                                                    $fileIcon = '<i class="ri-file-text-fill align-bottom text-secondary"></i>';
-                                                                @endphp
-                                                        @endswitch
-                                                        <tr data-file-id="{{ $file->id }}">
-                                                            <td>
-                                                                <a href="{{ route('document.view', ['id' => Crypt::encryptString($file->id)]) }}" target="_blank">
-                                                                    <div class="d-flex align-items-center">
-                                                                        <div class="flex-shrink-0 fs-17 me-2 filelist-icon">{!! $fileIcon !!}</div>
-                                                                        <div class="flex-grow-1 filelist-name">{{ substr($file->name, 0, strrpos($file->name, '-')) }}</div>
-                                                                    </div>
-                                                                </a>
-                                                            </td>
-                                                            <td>
-                                                                {{ $file->type }}
-                                                            </td>
-                                                            @php
-                                                                $fileSizeInMB = $file->size / (1024 * 1024);
-                                                                if ($fileSizeInMB < 0.1) {
-                                                                    $fileSizeInKB = number_format($file->size / 1024, 1);
-                                                                    $fileSizeText = "{$fileSizeInKB} KB";
-                                                                } else {
-                                                                    $fileSizeInMB = number_format($fileSizeInMB, 1);
-                                                                    $fileSizeText = "{$fileSizeInMB} MB";
-                                                                }
-                                                            @endphp
-                                                            <td class="filelist-size">                                            
-                                                                {{ $fileSizeText }}
-                                                            </td>
-                                                            <td class="filelist-create">
-                                                                {{ date('d M Y', strtotime($file->created_at)) }}
-                                                            </td>
-                                                            <td>
-                                                                <div class="d-flex gap-3 justify-content-center">
-                                                                    <div class="dropdown">
-                                                                        <button class="btn btn-light btn-icon btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                            <i class="ri-more-fill align-bottom"></i>
-                                                                        </button>
-                                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                                            <li>
-                                                                                <a class="dropdown-item viewfile-list" href="{{ route('document.view', ['id' => Crypt::encryptString($file->id)]) }}" target="_blank">
-                                                                                    View
-                                                                                </a>
-                                                                            </li>
-                                                                            <li class="dropdown-divider"></li>
-                                                                            <li>
-                                                                                <a class="dropdown-item downloadfile-list" href="{{ route('document.download', ['id' => Crypt::encryptString($file->id)]) }}">
-                                                                                    Download
-                                                                                </a>
-                                                                            </li>
-                                                                        </ul>
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                        </tr>
-                                                    @endforeach
-                                                </tbody>
-                                            </table>
-                                        </div>
+                    @if ($authUser->role_id <= 2)
+                        <div class="tab-pane fade" id="documents-tab" role="tabpanel">
+                            <div class="card">
+                                <div class="card-body">
+                                    <div class="d-flex align-items-center mb-4">
+                                        <h5 class="card-title flex-grow-1 mb-0">
+                                            Documents
+                                        </h5>
                                     </div>
-                                </div>
-                                <!--end row-->
-                            </div>
-                            <!--end card-body-->
-                        </div>
-                        <!--end card-->
-                    </div>
-                    <!--end tab-pane-->
-
-                    <!-------------------------------------------------------------------------------------
-                        Checks Tab
-                    -------------------------------------------------------------------------------------->
-
-                    <div class="tab-pane fade d-none" id="checks-tab" role="tabpanel">
-                        <div class="card">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center mb-4">
-                                    <h5 class="card-title flex-grow-1 mb-0">
-                                        Verification Checks
-                                    </h5>
-                                </div>
-                                <div class="row">
-                                    @foreach ($applicant->latestChecks as $check)
-                                        @php
-                                            $statusColor;
-                                            // Convert the result into a status class
-                                            switch ($check->pivot->result) {
-                                                case 'Passed':
-                                                    $statusColor = 'success';
-                                                    break;
-                                                case 'Discrepancy':
-                                                    $statusColor = 'warning';
-                                                    break;
-                                                case 'Failed':
-                                                    $statusColor = 'danger';
-                                                    break;
-                                                default:
-                                                    $statusColor = 'danger';
-                                                    break;
-                                            }
-                                        @endphp
-                                        <div class="col-xxl-4 mb-4 d-flex align-items-stretch">
-                                            <div class="card w-100 d-flex flex-column border card-border-{{ $statusColor }}"> 
-                                                <div class="card-header">
-                                                    <span class="badge bg-{{ $statusColor }} align-middle fs-10 float-end">
-                                                        {{ $check->pivot->result }}
-                                                    </span>
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="avatar-sm flex-shrink-0">
-                                                            <span class="avatar-title bg-{{ $statusColor }}-subtle text-{{ $statusColor }} rounded-circle fs-4">
-                                                                <i class="{{ $check->icon }}"></i>
-                                                            </span>
-                                                        </div>
-                                                        <div class="flex-grow-1 ms-3">
-                                                            <h6 class="card-title mb-0">
-                                                                {{ $check->name }}                                                        
-                                                            </h6>
-                                                        </div>
-                                                    </div>                                                    
-                                                </div>
-                                                <div class="card-body d-flex flex-column">
-                                                    <p class="card-text mb-auto">
-                                                        {{ $check->pivot->reason }}
-                                                    </p>
-                                                    <div class="mt-3 text-end">
-                                                        @if (!empty($check->pivot->file))
-                                                            <a href="{{ route('check.file', ['filename' => $check->pivot->file]) }}" class="link-{{ $statusColor }} fw-medium" target="_blank">
-                                                                Read More 
-                                                                <i class="ri-arrow-right-line align-middle"></i>
-                                                            </a>
-                                                        @else
-                                                            <span class="text-muted">No file available</span>
-                                                        @endif
-                                                    </div>
-                                                </div>
+                                    <div class="row">
+                                        <div class="col-lg-12">
+                                            <div class="table-responsive">
+                                                <table class="table align-middle table-nowrap mb-0" id="fileTable">
+                                                    <thead class="table-active">
+                                                        <tr>
+                                                            <th scope="col">Name</th>
+                                                            <th scope="col">Type</th>
+                                                            <th scope="col">Size</th>
+                                                            <th scope="col">Upload Date</th>
+                                                            <th scope="col" class="text-center">Action</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="file-list">
+                                                        @foreach ($documents as $file)
+                                                            @php
+                                                                $fileIcon = '';
+                                                            @endphp
+                                                            
+                                                            @switch($file->type)
+                                                                @case('png')
+                                                                @case('jpg')
+                                                                @case('jpeg')
+                                                                    @php
+                                                                        $fileIcon = '<i class="ri-gallery-fill align-bottom text-success"></i>';
+                                                                    @endphp
+                                                                    @break
+                                                            
+                                                                @case('pdf')
+                                                                    @php
+                                                                        $fileIcon = '<i class="ri-file-pdf-fill align-bottom text-danger"></i>';
+                                                                    @endphp
+                                                                    @break
+                                                            
+                                                                @case('docx')
+                                                                    @php
+                                                                        $fileIcon = '<i class="ri-file-word-2-fill align-bottom text-primary"></i>';
+                                                                    @endphp
+                                                                    @break
+                                                            
+                                                                @case('xls')
+                                                                @case('xlsx')
+                                                                    @php
+                                                                        $fileIcon = '<i class="ri-file-excel-2-fill align-bottom text-success"></i>';
+                                                                    @endphp
+                                                                    @break
+                                                            
+                                                                @case('csv')
+                                                                    @php
+                                                                        $fileIcon = '<i class="ri-file-excel-fill align-bottom text-success"></i>';
+                                                                    @endphp
+                                                                    @break
+                                                            
+                                                                @case('txt')
+                                                                @default
+                                                                    @php
+                                                                        $fileIcon = '<i class="ri-file-text-fill align-bottom text-secondary"></i>';
+                                                                    @endphp
+                                                            @endswitch
+                                                            <tr data-file-id="{{ $file->id }}">
+                                                                <td>
+                                                                    <a href="{{ route('document.view', ['id' => Crypt::encryptString($file->id)]) }}" target="_blank">
+                                                                        <div class="d-flex align-items-center">
+                                                                            <div class="flex-shrink-0 fs-17 me-2 filelist-icon">{!! $fileIcon !!}</div>
+                                                                            <div class="flex-grow-1 filelist-name">{{ substr($file->name, 0, strrpos($file->name, '-')) }}</div>
+                                                                        </div>
+                                                                    </a>
+                                                                </td>
+                                                                <td>
+                                                                    {{ $file->type }}
+                                                                </td>
+                                                                @php
+                                                                    $fileSizeInMB = $file->size / (1024 * 1024);
+                                                                    if ($fileSizeInMB < 0.1) {
+                                                                        $fileSizeInKB = number_format($file->size / 1024, 1);
+                                                                        $fileSizeText = "{$fileSizeInKB} KB";
+                                                                    } else {
+                                                                        $fileSizeInMB = number_format($fileSizeInMB, 1);
+                                                                        $fileSizeText = "{$fileSizeInMB} MB";
+                                                                    }
+                                                                @endphp
+                                                                <td class="filelist-size">                                            
+                                                                    {{ $fileSizeText }}
+                                                                </td>
+                                                                <td class="filelist-create">
+                                                                    {{ date('d M Y', strtotime($file->created_at)) }}
+                                                                </td>
+                                                                <td>
+                                                                    <div class="d-flex gap-3 justify-content-center">
+                                                                        <div class="dropdown">
+                                                                            <button class="btn btn-light btn-icon btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                                <i class="ri-more-fill align-bottom"></i>
+                                                                            </button>
+                                                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                                                <li>
+                                                                                    <a class="dropdown-item viewfile-list" href="{{ route('document.view', ['id' => Crypt::encryptString($file->id)]) }}" target="_blank">
+                                                                                        View
+                                                                                    </a>
+                                                                                </li>
+                                                                                <li class="dropdown-divider"></li>
+                                                                                <li>
+                                                                                    <a class="dropdown-item downloadfile-list" href="{{ route('document.download', ['id' => Crypt::encryptString($file->id)]) }}">
+                                                                                        Download
+                                                                                    </a>
+                                                                                </li>
+                                                                            </ul>
+                                                                        </div>
+                                                                    </div>
+                                                                </td>
+                                                            </tr>
+                                                        @endforeach
+                                                    </tbody>
+                                                </table>
                                             </div>
                                         </div>
-                                    @endforeach                                                                       
+                                    </div>
+                                    <!--end row-->
                                 </div>
-                                <!--end row-->
+                                <!--end card-body-->
                             </div>
-                            <!--end card-body-->
+                            <!--end card-->
                         </div>
-                        <!--end card-->
-                    </div>
-                    <!--end tab-pane-->
+                        <!--end tab-pane-->
+                    @endif
 
                     <!-------------------------------------------------------------------------------------
                         Interview Guide
