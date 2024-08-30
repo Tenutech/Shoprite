@@ -18,7 +18,17 @@ class EmailExport implements FromCollection, WithHeadings, WithStyles, WithColum
     public function collection()
     {
         // Select the columns you want to export
-        return EmailTemplate::select('subject', 'intro')->get();
+        return EmailTemplate::with('role:id,name')
+        ->select('name', 'subject', 'intro', 'role_id')
+        ->get()
+        ->map(function($emailTemplate) {
+            return [
+                'name' => $emailTemplate->name,
+                'subject' => $emailTemplate->subject,
+                'intro' => $emailTemplate->intro,
+                'role' => optional($emailTemplate->role)->name,
+            ];
+        });
     }
 
     /**
@@ -27,8 +37,10 @@ class EmailExport implements FromCollection, WithHeadings, WithStyles, WithColum
     public function headings(): array
     {
         return [
+            'Name',
             'Subject',
-            'Body'
+            'Body',
+            'Role'
         ];
     }
 
@@ -46,6 +58,8 @@ class EmailExport implements FromCollection, WithHeadings, WithStyles, WithColum
             // Wrap text in columns
             'A' => ['alignment' => ['wrapText' => true]],
             'B' => ['alignment' => ['wrapText' => true]],
+            'C' => ['alignment' => ['wrapText' => true]],
+            'D' => ['alignment' => ['wrapText' => true]],
         ];
     }
 
@@ -57,8 +71,10 @@ class EmailExport implements FromCollection, WithHeadings, WithStyles, WithColum
     public function columnWidths(): array
     {
         return [
-            'A' => 52,
-            'B' => 140,
+            'A' => 30,
+            'B' => 52,
+            'C' => 140,
+            'D' => 20,
         ];
     }
 }

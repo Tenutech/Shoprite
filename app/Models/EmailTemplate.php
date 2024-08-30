@@ -14,6 +14,7 @@ class EmailTemplate extends Model
     protected $table = 'email_templates';
 
     protected $fillable = [
+        'role_id',
         'name',
         'subject',
         'greeting',
@@ -22,6 +23,12 @@ class EmailTemplate extends Model
         'icon',
         'color',
     ];
+
+    //Role
+    public function role()
+    {
+        return $this->belongsTo(Role::class);
+    }
 
     //Notifications
     public function emails()

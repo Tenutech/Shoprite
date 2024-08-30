@@ -85,6 +85,7 @@ var options = {
         "outro",
         "icon",
         "color",
+        "role"
     ],
     page: perPage,
     pagination: true,
@@ -140,6 +141,7 @@ var idField = document.getElementById("field-id"),
     emailName = document.getElementById("emailName"),
     subject = document.getElementById("subject"),
     intro = document.getElementById("intro"),
+    role = document.getElementById("role"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
@@ -180,6 +182,10 @@ var trlist = table.querySelectorAll(".list tr");
 
 var count = 11;
 
+var roleVal = new Choices(role, {
+    searchEnabled: false
+});
+
 /*
 |--------------------------------------------------------------------------
 | Add Email
@@ -206,11 +212,18 @@ addBtn.addEventListener("click", function (e) {
             },
             success:function(data) {
                 if(data.success == true) {
+                    if (role.value) {
+                        roleValue = role.options[role.selectedIndex].text;
+                    } else {
+                        roleValue = '';
+                    }
+
                     emailList.add({
                         id: data.encID,
                         name: emailName.value,
                         subject: subject.value,
-                        intro: $("#intro .ql-editor").html()              
+                        intro: $("#intro .ql-editor").html(),
+                        role: roleValue,           
                     });
 
                     Swal.fire({
@@ -290,12 +303,19 @@ editBtn.addEventListener("click", function (e) {
                     Array.from(editValues).forEach(function (x) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
-                        if (selectedid == itemId) {         
+                        if (selectedid == itemId) {
+                            if (role.value) {
+                                roleValue = role.options[role.selectedIndex].text;
+                            } else {
+                                roleValue = '';
+                            }
+                                   
                             x.values({
                                 id: idField.value,
                                 name: emailName.value,
                                 subject: subject.value,
-                                intro: $("#intro .ql-editor").html() 
+                                intro: $("#intro .ql-editor").html(),
+                                role: roleValue,
                             });
                         }
                     });
@@ -454,6 +474,10 @@ function refreshCallbacks() {
                 var cleanedIntro = data.email.intro.replace(/;;/g, '');
 
                 $("#intro .ql-editor").html(cleanedIntro);
+
+                if(data.email.role_id) {
+                    roleVal.setChoiceByValue(data.email.role_id.toString());
+                }
             });
         }
     });
@@ -465,6 +489,9 @@ function clearFields() {
     subject.value = "";
 
     $("#intro .ql-editor").html('');
+
+    roleVal.removeActiveItems();
+    roleVal.setChoiceByValue("");
 }
 
 // Delete Multiple Records

@@ -82,7 +82,8 @@
                                         <th class="sort" data-sort="intro" scope="col">Body</th>
                                         <th class="sort d-none" data-sort="outro" scope="col">Outro</th> 
                                         <th class="sort d-none" data-sort="icon" scope="col">Icon</th>
-                                        <th class="sort d-none" data-sort="color" scope="col">Color</th>                 
+                                        <th class="sort d-none" data-sort="color" scope="col">Color</th>
+                                        <th class="sort" data-sort="role" scope="col">Role</th>                 
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -103,6 +104,7 @@
                                                 <td class="outro d-none">{{ $email->outro }}</td>
                                                 <td class="icon d-none">{{ $email->icon }}</td>
                                                 <td class="color d-none">{{ $email->color }}</td>
+                                                <td class="role">{{ optional($email->role)->name ?? 'N/A' }}</td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
                                                         <li class="list-inline-item">
@@ -145,6 +147,7 @@
                                             <td class="outro d-none"></td>
                                             <td class="icon d-none"></td>
                                             <td class="color d-none"></td>
+                                            <td class="role"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -219,14 +222,14 @@
                                                 <label for="emailName" class="form-label">
                                                     Name
                                                 </label>
-                                                <input type="text" class="form-control" id="emailName" name="email_name"/>
+                                                <input type="text" class="form-control" id="emailName" name="email_name" required/>
                                             </div>
 
                                             <div class="mb-3">
                                                 <label for="subject" class="form-label">
                                                     Subject
                                                 </label>
-                                                <input type="text" class="form-control" id="subject" name="subject"/>
+                                                <input type="text" class="form-control" id="subject" name="subject" required/>
                                             </div>
 
                                             <div class="mb-3">
@@ -235,6 +238,19 @@
                                                 </label>
                                                 <div class="snow-editor" id="intro" style="height: 500px;"></div>
                                             </div>
+
+                                            <div class="mb-3">
+                                                <label for="role" class="form-label">
+                                                    Role
+                                                </label>
+                                                <select id="role" name="role_id" class="form-control" required>
+                                                    <option value="" selected>Select Role</option>
+                                                    @foreach ($roles as $role)
+                                                        <option value="{{ $role->id }}">{{ $role->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                            <!--end col-->
                                         </div>
                                     </div>
                                     <div class="modal-footer">                                        

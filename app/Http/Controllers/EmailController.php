@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\Role;
 use App\Models\EmailTemplate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -48,8 +49,12 @@ class EmailController extends Controller
             //Email Templates
             $emails = EmailTemplate::all();
 
+            //Roles
+            $roles = Role::all();
+
             return view('admin/email', [
-                'emails' => $emails
+                'emails' => $emails,
+                'roles' => $roles
             ]);
         }
         return view('404');
@@ -67,7 +72,8 @@ class EmailController extends Controller
         $request->validate([
             'email_name' => 'required|string|max:191',
             'subject' => 'required|string|max:191',
-            'intro' => 'required|string'
+            'intro' => 'required|string',
+            'role_id' => 'required|integer|exists:roles,id',
         ]);
 
         // Get the 'intro' field from the request
@@ -81,7 +87,8 @@ class EmailController extends Controller
             $email = EmailTemplate::create([                
                 'name' => $request->email_name,
                 'subject' => $request->subject,
-                'intro' => $textContent
+                'intro' => $textContent,
+                'role_id' => $request->role_id,
             ]);
 
             $encID = Crypt::encryptString($email->id);
@@ -140,7 +147,8 @@ class EmailController extends Controller
         $request->validate([
             'email_name' => 'required|string|max:191',
             'subject' => 'required|string|max:191',
-            'intro' => 'required|string'
+            'intro' => 'required|string',
+            'role_id' => 'required|integer|exists:roles,id',
         ]);
 
         // Get the 'intro' field from the request
@@ -157,6 +165,7 @@ class EmailController extends Controller
             $email->name = $request->email_name;
             $email->subject = $request->subject;
             $email->intro = $textContent;
+            $email->role_id = $request->role_id;
             $email->save();
 
             return response()->json([
