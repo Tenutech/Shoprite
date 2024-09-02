@@ -286,6 +286,13 @@ class ShortlistController extends Controller
                             ->where('applications.approved', 'Yes'); // Use 'applications.approved' to specify the pivot table and column
                 });
             }
+           
+            // Check if shortlist_type_id is 3 then only get from saved applicants
+            if ($request->input('shortlist_type_id') == '3' ) {
+                $query->whereHas('savedBy', function ($query) use ($userID) {
+                    $query->where('user_id', $userID);
+                });
+            }
 
             // Apply filters if they are present in the request
             if ($request->has('filters')) {
@@ -338,7 +345,7 @@ class ShortlistController extends Controller
 
             // Execute the query and get the results
             $applicantsCollection = $query->get();
-
+           
             // Perform checks and assign statuses
             $this->performChecks($applicantsCollection, $selectedChecks);
 
