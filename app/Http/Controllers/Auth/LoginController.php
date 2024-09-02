@@ -43,6 +43,21 @@ class LoginController extends Controller
     }
 
     /**
+     * Override the method to support email or id_number login.
+     */
+    public function username()
+    {
+        $login = request()->input('login');
+        
+        // Check if the input is a valid ID number (e.g., numeric and 13 characters long)
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'id_number';
+
+        request()->merge([$field => $login]);
+
+        return $field;
+    }
+
+    /**
      * The user has been authenticated.
      * This method is called after a user has successfully logged in.
      * You can use it to perform additional tasks upon authentication.
