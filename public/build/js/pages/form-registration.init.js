@@ -5,6 +5,55 @@ Website: https://orient.tenutech.com/
 Contact: admin@tenutech.com
 File: Form wizard Js File
 */
+document.getElementById('idNumber').addEventListener('input', function() {
+    const idNumber = this.value;
+    const guardianMobileContainer = document.getElementById('guardianMobileContainer');
+
+    if (isUnder18(idNumber)) {
+        guardianMobileContainer.style.display = 'block';
+    } else {
+        guardianMobileContainer.style.display = 'none';
+    }
+});
+
+function isUnder18(id) {
+    if (id.length < 6) return false;
+
+    const year = parseInt(id.substring(0, 2), 10);
+    const month = parseInt(id.substring(2, 4), 10);
+    const day = parseInt(id.substring(4, 6), 10);
+
+    const currentYear = new Date().getFullYear() % 100;
+    const century = year > currentYear ? 1900 : 2000;
+    const birthDate = new Date(century + year, month - 1, day);
+
+    const ageDifMs = Date.now() - birthDate.getTime();
+    const ageDate = new Date(ageDifMs);
+    const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+
+    return age < 18;
+}
+
+// Save guardian's mobile number when the user clicks "Save"
+document.getElementById('saveGuardianMobile').addEventListener('click', function() {
+    const guardianMobile = document.getElementById('guardianMobile').value;
+    const mobileError = document.getElementById('mobileError');
+
+    if (isValidMobile(guardianMobile)) {
+        mobileError.style.display = 'none';
+        // You can now submit the form or handle the guardian's mobile number as needed
+        console.log("Guardian's Mobile Number:", guardianMobile);
+        // Close the modal
+        bootstrap.Modal.getInstance(document.getElementById('guardianModal')).hide();
+    } else {
+        mobileError.style.display = 'block';
+    }
+});
+
+function isValidMobile(mobile) {
+    const phonePattern = /^[0-9]{10}$/;
+    return phonePattern.test(mobile);
+}
 
 document.getElementById('formRegister').addEventListener('submit', function(event) {    
     // Get the country code and remove spaces
