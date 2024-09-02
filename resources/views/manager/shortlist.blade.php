@@ -635,7 +635,6 @@
 <script type="text/javascript">
     var shortlistedApplicants = @json($shortlistedApplicants);
     var vacancyID = @json($vacancyID);
-    var availableSapNumbers = @json($vacancy->availableSapNumbers);
 </script>
 <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
