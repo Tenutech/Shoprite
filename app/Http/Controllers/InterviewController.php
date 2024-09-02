@@ -522,24 +522,34 @@ class InterviewController extends Controller
             // User ID
             $userID = Auth::id();
 
-            //Interview
+            // Decrypt the interview ID from the request
             $interviewID = Crypt::decryptString($request->id);
+            
+            // Find the interview using the decrypted ID
             $interview = Interview::findOrFail($interviewID);
             
-            //Application Update
+            // Update the interview status to "No Show"
             $interview->update([
                 'status' => 'No Show'
             ]);
+
+            // Find the applicant associated with the interview
+            $applicant = Applicant::findOrFail($interview->applicant_id);
             
+            // Increment the 'no_show' count for the applicant
+            $applicant->increment('no_show');
+            
+            // Return a success response
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
-                'message' => 'Interview cancelled!',
+                'message' => 'Interview marked as No Show!',
             ], 201);
         } catch (\Exception $e) {
+            // Return an error response if something goes wrong
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to cancel interview.',
+                'message' => 'Failed to mark interview as No Show.',
                 'error' => $e->getMessage()
             ], 400);
         }

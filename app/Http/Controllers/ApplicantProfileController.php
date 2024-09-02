@@ -115,6 +115,15 @@ class ApplicantProfileController extends Controller
             //Vacancy ID
             $vacancyId = optional($applicant->shortlist)->vacancy_id;
 
+            // If vacancyId exists, reload the interviews relationship with the specific vacancy filter
+            if ($vacancyId) {
+                $applicant->load(['interviews' => function ($query) use ($vacancyId) {
+                    $query->where('vacancy_id', $vacancyId) // Filter by vacancy_id
+                        ->latest('scheduled_date') // Get the latest interview based on scheduled date
+                        ->take(1); // Limit to one result
+                }]);
+            }
+
             //Completion Percentage
             $completion = round(($applicant->state_id/69)*100);
             if ($completion > 100) {

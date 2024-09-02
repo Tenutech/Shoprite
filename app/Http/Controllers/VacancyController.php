@@ -347,8 +347,6 @@ class VacancyController extends Controller
                 'sap_number_id_decrypted' => $sapNumberId,
             ]);
 
-            Log::info($sapNumberId);
-
             // Validate the request data
             $request->validate([
                 'applicants_vacancy' => 'required|array',

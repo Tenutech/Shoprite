@@ -471,7 +471,6 @@
                         </div>
                     </div>
                     <!--end delete modal -->
-
                 </div>
             </div>
             <!--end card-->

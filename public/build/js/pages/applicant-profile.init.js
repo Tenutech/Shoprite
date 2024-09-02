@@ -510,6 +510,86 @@ $('#formInterviewSchedule').on('submit', function(e) {
     }
 });
 
+/*
+|--------------------------------------------------------------------------
+| No Show Interviiew
+|--------------------------------------------------------------------------
+*/
+
+$('#noShow-interview').on('click', function() {
+    var interviewId = $(this).data('id');
+    var url = route('interview.noShow');
+    
+    $.ajax({
+        url: url,
+        type: 'POST',
+        data: {
+            id: interviewId
+        },
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+            if (data.success) {
+                // Get the data from the alert element
+                var alertBox = $('.alert');
+                var statusColor = alertBox.data('status-color');
+                var statusIcon = alertBox.data('status-icon');
+
+                // Update the alert box with new status
+                alertBox.removeClass('alert-' + statusColor).addClass('alert-danger');
+                alertBox.find('strong').text('No Show:');
+                alertBox.find('i').removeClass(statusIcon).addClass('ri-user-unfollow-fill');
+
+                // Hide the interview form container
+                $('#interviewFormContainer').hide();
+
+                // Close the modal
+                $('#interviewNoShowModal').modal('hide');
+
+                // Optionally, you can also show a success message or notification
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: data.message,
+                    showConfirmButton: false,
+                    timer: 2000,
+                    toast: true,
+                    showCloseButton: true
+                });
+            }
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            let message = ''; // Initialize the message variable
+    
+            if (jqXHR.status === 400 || jqXHR.status === 422) {
+                message = jqXHR.responseJSON.message;
+            } else if (textStatus === 'timeout') {
+                message = 'The request timed out. Please try again later.';
+            } else {
+                message = 'An error occurred while processing your request. Please try again later.';
+            }
+        
+            // Trigger the Swal notification with the dynamic message
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: message,
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+                toast: true
+            });
+        }
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Validate Ratings
+|--------------------------------------------------------------------------
+*/
+
 function validateRatings() {
     let allRated = true;
     $('input[type="hidden"][name^="answers["]').each(function() {
@@ -521,6 +601,12 @@ function validateRatings() {
     });
     return allRated;
 }
+
+/*
+|--------------------------------------------------------------------------
+| Clear Fields
+|--------------------------------------------------------------------------
+*/
 
 function clearFields() {
     // Reset text inputs

@@ -1343,6 +1343,11 @@
                                     <button class="btn btn-secondary ms-3" id="interviewBtn">
                                         <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
                                         Interview
+                                    </button>
+                                    
+                                    <button class="btn btn-light ms-3" id="noShowBtn" data-bs-toggle="modal" data-bs-target="#interviewNoShowModal">
+                                        <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
+                                        No Show
                                     </button> 
                                 </div>
                                 
@@ -1392,7 +1397,8 @@
                                                     $statusIcon = $statusMapping[$status]['icon'] ?? 'ri-calendar-todo-fill'; // Default to 'ri-calendar-todo-fill' if status not found
                                                 @endphp
                                                 
-                                                <div class="alert alert-{{ $statusColor }} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
+                                                <div class="alert alert-{{ $statusColor }} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert"
+                                                    data-status-color="{{ $statusColor }}" data-status-icon="{{ $statusIcon }}">
                                                     <i class="{{ $statusIcon }} label-icon"></i>
                                                     <strong>{{ $status }}:</strong> {{ $applicant->interviews[0]->scheduled_date->format('d M') }} at {{ $applicant->interviews[0]->start_time->format('H:i') }}-{{ $applicant->interviews[0]->end_time->format('H:i') }}
                                                 </div>
@@ -1413,85 +1419,92 @@
                                     <!-- Interview Form Placeholder -->
                                     <div id="interviewFormContainer">
                                         @if ($applicant->interviews->count() > 0)
-                                            @if ($applicant->interviews[0]->score)
-                                                <h1 class="display-2 coming-soon-text text-center">
-                                                    {{ $applicant->interviews[0]->score }}
-                                                </h1>
-                                            @else
-                                                @if ($questions->isEmpty())
-                                                    <div class="alert alert-danger mb-xl-0 text-center" role="alert">
-                                                        <strong>Sorry, no interview template has been loaded</strong> for this position. Please <b>contact your administrator</b>
-                                                    </div>
+                                            @php
+                                                $interview = $applicant->interviews[0];
+                                                $validStatuses = ['Scheduled', 'Confirmed', 'Reschedule', 'Completed'];
+                                            @endphp
+
+                                            @if (in_array($interview->status, $validStatuses))
+                                                @if ($applicant->interviews[0]->score)
+                                                    <h1 class="display-2 coming-soon-text text-center">
+                                                        {{ $applicant->interviews[0]->score }}
+                                                    </h1>
                                                 @else
-                                                    <form class="mt-3" id="formInterview" enctype="multipart/form-data">
-                                                        <input type="hidden" id="interviewID" name="interview_id" value="{{ Crypt::encryptstring($applicant->interviews[0]->id) }}"/>
-                                                        @foreach ($questions as $question)
-                                                            <div class="form-group mb-4">
-                                                                <label class="form-label fs-16" style="width:100%;">
-                                                                    <div class="row" style="width:100%;">
-                                                                        <div class="col-sm-1">
-                                                                            {{ $question->id }}.) 
-                                                                        </div>
-                                                                        <div class="col-sm-11">
-                                                                            {!! $question->question !!}
-                                                                        </div>
-                                                                    </div>
-                                                                </label>
-                                                                <div class="col-sm-11 offset-sm-1">
-                                                                    <div class="d-flex">
-                                                                        @if ($question->type == 'text')
-                                                                            <input type="text" class="form-control" name="answers[{{$question->id}}]" required>
-                                                                        @elseif ($question->type == 'number')
-                                                                            <input type="number" class="form-control" name="answers[{{$question->id}}]" required>
-                                                                        @elseif ($question->type == 'rating')
-                                                                            <div class="form-check">
-                                                                                <input class="form-check-input d-none" type="hidden" name="answers[{{$question->id}}]" id="rating-{{$question->id}}" required>
-                                                                                @for ($i = 1; $i <= 5; $i++)
-                                                                                    <label class="form-check-label" for="rating-{{$question->id}}-{{$i}}" style="cursor: pointer; margin-right:20px;">
-                                                                                        <i class="ri-star-line" id="star-{{$question->id}}-{{$i}}" style="font-size: 1.5em; color: grey;"></i>
-                                                                                    </label>
-                                                                                @endfor
-                                                                                <span class="invalid-feedback" role="alert" style="display:none">
-                                                                                    <strong>Please select a rating</strong>
-                                                                                </span>
+                                                    @if ($questions->isEmpty())
+                                                        <div class="alert alert-danger mb-xl-0 text-center" role="alert">
+                                                            <strong>Sorry, no interview template has been loaded</strong> for this position. Please <b>contact your administrator</b>
+                                                        </div>
+                                                    @else
+                                                        <form class="mt-3" id="formInterview" enctype="multipart/form-data">
+                                                            <input type="hidden" id="interviewID" name="interview_id" value="{{ Crypt::encryptstring($applicant->interviews[0]->id) }}"/>
+                                                            @foreach ($questions as $question)
+                                                                <div class="form-group mb-4">
+                                                                    <label class="form-label fs-16" style="width:100%;">
+                                                                        <div class="row" style="width:100%;">
+                                                                            <div class="col-sm-1">
+                                                                                {{ $question->id }}.) 
                                                                             </div>
-                                                                            <script>
-                                                                                document.addEventListener('DOMContentLoaded', function() {
-                                                                                    let stars = document.querySelectorAll('[id^="star-{{$question->id}}-"]');
-                                                                                    stars.forEach(star => {
-                                                                                        star.addEventListener('click', function() {
-                                                                                            let rating = parseInt(star.id.split('-').pop());
-                                                                                            for (let i = 1; i <= rating; i++) {
-                                                                                                document.querySelector('#star-{{$question->id}}-' + i).classList.remove('ri-star-line');
-                                                                                                document.querySelector('#star-{{$question->id}}-' + i).classList.add('ri-star-fill');
-                                                                                                document.querySelector('#star-{{$question->id}}-' + i).style.color = 'gold';
-                                                                                            }
-                                                                                            for (let i = rating + 1; i <= 5; i++) {
-                                                                                                document.querySelector('#star-{{$question->id}}-' + i).classList.remove('ri-star-fill');
-                                                                                                document.querySelector('#star-{{$question->id}}-' + i).classList.add('ri-star-line');
-                                                                                                document.querySelector('#star-{{$question->id}}-' + i).style.color = 'grey';
-                                                                                            }
-                                                                                            document.querySelector('#rating-{{$question->id}}').value = rating;
+                                                                            <div class="col-sm-11">
+                                                                                {!! $question->question !!}
+                                                                            </div>
+                                                                        </div>
+                                                                    </label>
+                                                                    <div class="col-sm-11 offset-sm-1">
+                                                                        <div class="d-flex">
+                                                                            @if ($question->type == 'text')
+                                                                                <input type="text" class="form-control" name="answers[{{$question->id}}]" required>
+                                                                            @elseif ($question->type == 'number')
+                                                                                <input type="number" class="form-control" name="answers[{{$question->id}}]" required>
+                                                                            @elseif ($question->type == 'rating')
+                                                                                <div class="form-check">
+                                                                                    <input class="form-check-input d-none" type="hidden" name="answers[{{$question->id}}]" id="rating-{{$question->id}}" required>
+                                                                                    @for ($i = 1; $i <= 5; $i++)
+                                                                                        <label class="form-check-label" for="rating-{{$question->id}}-{{$i}}" style="cursor: pointer; margin-right:20px;">
+                                                                                            <i class="ri-star-line" id="star-{{$question->id}}-{{$i}}" style="font-size: 1.5em; color: grey;"></i>
+                                                                                        </label>
+                                                                                    @endfor
+                                                                                    <span class="invalid-feedback" role="alert" style="display:none">
+                                                                                        <strong>Please select a rating</strong>
+                                                                                    </span>
+                                                                                </div>
+                                                                                <script>
+                                                                                    document.addEventListener('DOMContentLoaded', function() {
+                                                                                        let stars = document.querySelectorAll('[id^="star-{{$question->id}}-"]');
+                                                                                        stars.forEach(star => {
+                                                                                            star.addEventListener('click', function() {
+                                                                                                let rating = parseInt(star.id.split('-').pop());
+                                                                                                for (let i = 1; i <= rating; i++) {
+                                                                                                    document.querySelector('#star-{{$question->id}}-' + i).classList.remove('ri-star-line');
+                                                                                                    document.querySelector('#star-{{$question->id}}-' + i).classList.add('ri-star-fill');
+                                                                                                    document.querySelector('#star-{{$question->id}}-' + i).style.color = 'gold';
+                                                                                                }
+                                                                                                for (let i = rating + 1; i <= 5; i++) {
+                                                                                                    document.querySelector('#star-{{$question->id}}-' + i).classList.remove('ri-star-fill');
+                                                                                                    document.querySelector('#star-{{$question->id}}-' + i).classList.add('ri-star-line');
+                                                                                                    document.querySelector('#star-{{$question->id}}-' + i).style.color = 'grey';
+                                                                                                }
+                                                                                                document.querySelector('#rating-{{$question->id}}').value = rating;
+                                                                                            });
                                                                                         });
                                                                                     });
-                                                                                });
-                                                                            </script>
-                                                                        @elseif ($question->type == 'textarea')
-                                                                            <textarea class="form-control" name="answers[{{$question->id}}]" rows="5" required></textarea>
-                                                                        @endif
+                                                                                </script>
+                                                                            @elseif ($question->type == 'textarea')
+                                                                                <textarea class="form-control" name="answers[{{$question->id}}]" rows="5" required></textarea>
+                                                                            @endif
+                                                                        </div>
                                                                     </div>
                                                                 </div>
+                                                            @endforeach
+                                                            <div class="d-grid gap-2">
+                                                                <button class="btn btn-success" type="submit">
+                                                                    Submit
+                                                                </button>
                                                             </div>
-                                                        @endforeach
-                                                        <div class="d-grid gap-2">
-                                                            <button class="btn btn-success" type="submit">
-                                                                Submit
-                                                            </button>
-                                                        </div>
-                                                    </form>
-                                                    <h1 class="display-2 coming-soon-text text-center" id="scoreDisplay" style="display: none;">
-                                                        <!-- The score will be injected here -->
-                                                    </h1>
+                                                        </form>
+                                                        <h1 class="display-2 coming-soon-text text-center" id="scoreDisplay" style="display: none;">
+                                                            <!-- The score will be injected here -->
+                                                        </h1>
+                                                    @endif
                                                 @endif
                                             @endif
                                         @endif
@@ -1510,6 +1523,10 @@
 
             @if ($vacancyId)
                 @include('manager.partials.interview-modal', ['vacancyId' => $vacancyId, 'applicantId' => $applicant->id])
+
+                @if(isset($applicant->interviews) && $applicant->interviews->isNotEmpty())
+                    @include('manager.partials.noshow-modal', ['vacancyId' => $vacancyId, 'applicantId' => $applicant->id, 'interviewId' => $applicant->interviews[0]->id])
+                @endif
             @endif
 
         </div>

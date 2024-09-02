@@ -275,6 +275,7 @@ class ShortlistController extends Controller
             ])
             ->whereNull('shortlist_id')
             ->whereNull('appointed_id')
+            ->where('no_show', '<=', 2)
             ->orderBy('score', 'desc');
 
             // Check if shortlist_type_id is 1 and vacancy_id is provided
