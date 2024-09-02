@@ -51,6 +51,13 @@
     #vacancyFillDiv .is-active {
         visibility: visible !important;
     }
+    #sapNumberDiv .choices__list--dropdown {
+        visibility: hidden !important;
+    }
+
+    #sapNumberDiv .is-active {
+        visibility: visible !important;
+    }
 </style>
 @endsection
 @section('content')
@@ -540,24 +547,66 @@
                 <div class="mt-4 text-center">
                     <h4 class="fs-semibold">You are about to appoint these applicants !</h4>
                     <p class="text-muted fs-14 mb-4 pt-1">Send appointment confirmation ?</p>
-                    <form id="formVacancy" enctype="multipart/form-data">
+                    <form id="formVacancy" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="mb-3" id="applicantsVacancyDiv">
                             <label class="form-label" for="applicantsVacancy">Applicants</label>
                             <select class="form-control" id="applicantsVacancy" name="applicants_vacancy[]" multiple required></select>
                         </div>
+
                         <div class="mb-3" id="vacancyFillDiv">
                             <label for="vacancyFill" class="form-label">
                                 Vacancy
                             </label>
-                            <select class="form-control" id="vacancyFill" name="vacancy_id" data-choices data-choices-search-true required>
-                                <option value="">Select Vacancy</option>
-                                @foreach ($vacancies as $vacancy)
-                                    <option value="{{ Crypt::encryptString($vacancy->id) }}" {{ ($vacancyID && $vacancyID == $vacancy->id) ? 'selected' : '' }}>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->town->name }})</option>
-                                @endforeach
+                            <select class="form-control" id="vacancyFill" name="vacancy_id_visible" data-choices data-choices-search-true {{ $vacancyID ? 'disabled' : 'required' }}>
+                                @if($vacancyID)
+                                    @foreach ($vacancies as $vacancy)
+                                        @if($vacancyID == $vacancy->id)
+                                            <option value="{{ Crypt::encryptString($vacancy->id) }}" selected>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->town->name }})</option>
+                                        @endif
+                                    @endforeach
+                                @else
+                                    <option value="">Select Vacancy</option>
+                                    @foreach ($vacancies as $vacancy)
+                                        <option value="{{ Crypt::encryptString($vacancy->id) }}" {{ ($vacancyID && $vacancyID == $vacancy->id) ? 'selected' : '' }}>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->town->name }})</option>
+                                    @endforeach
+                                @endif
                             </select>
                             <div class="invalid-feedback">Please select a vacancy</div>
+
+                            @if($vacancyID)
+                                <input type="hidden" name="vacancy_id" value="{{ Crypt::encryptString($vacancyID) }}">
+                            @endif
                         </div>
+
+                        <div class="mb-3" id="sapNumberDiv">
+                            <label for="sapNumber" class="form-label">
+                                SAP Number
+                            </label>
+                            <select class="form-control" id="sapNumber" name="sap_number" {{ (isset($vacancy) && $vacancy->availableSapNumbers->count() === 1) ? 'disabled' : 'required' }}>
+                                @if(isset($vacancy) && $vacancy->availableSapNumbers->isNotEmpty())
+                                    @if($vacancy->availableSapNumbers->count() === 1)
+                                        <!-- Automatically select the single SAP Number -->
+                                        @foreach ($vacancy->availableSapNumbers as $sapNumber)
+                                            <option value="{{ Crypt::encryptString($sapNumber->id) }}" selected>{{ $sapNumber->sap_number }}</option>
+                                        @endforeach
+                                    @else
+                                        <option value="">Select SAP Number</option>
+                                        @foreach ($vacancy->availableSapNumbers as $sapNumber)
+                                            <option value="{{ Crypt::encryptString($sapNumber->id) }}">{{ $sapNumber->sap_number }}</option>
+                                        @endforeach
+                                    @endif
+                                @else
+                                    <option value="">Select SAP Number</option>
+                                @endif
+                            </select>
+                            <div class="invalid-feedback">Please select a SAP Number</div>
+
+                            @if(isset($vacancy) && $vacancy->availableSapNumbers->count() === 1)
+                                <input type="hidden" name="sap_number" value="{{ Crypt::encryptString($vacancy->availableSapNumbers[0]->id) }}">
+                            @endif
+                        </div>
+
                         <div class="hstack gap-2 justify-content-center remove">
                             <button type="button" class="btn btn-danger" data-bs-dismiss="modal" id="vacancy-close">
                                 <i class="ri-close-line me-1 align-middle"></i>
@@ -586,6 +635,7 @@
 <script type="text/javascript">
     var shortlistedApplicants = @json($shortlistedApplicants);
     var vacancyID = @json($vacancyID);
+    var availableSapNumbers = @json($vacancy->availableSapNumbers);
 </script>
 <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

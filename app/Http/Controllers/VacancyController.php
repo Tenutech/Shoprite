@@ -68,9 +68,14 @@ class VacancyController extends Controller
                     'position', 
                     'store', 
                     'type', 
-                    'status'
+                    'status',
+                    'appointed',
+                    'sapNumbers',
+                    'availableSapNumbers'
                 ])
                 ->findOrFail($vacancyId);
+            } else {
+                return view('404');
             }
 
             //Positions
@@ -314,169 +319,260 @@ class VacancyController extends Controller
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Vacancy Fill
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Fill the specified vacancy with selected applicants.
+     *
+     * This method decrypts the vacancy ID, validates the selected applicants, and then fills the
+     * vacancy by updating the vacancy's open and filled positions. It ensures that only valid 
+     * applicants who have been interviewed are considered. If the vacancy has open positions 
+     * available, the method proceeds to appoint the selected applicants, create notifications,
+     * send WhatsApp messages, and update applicant data. If all positions are filled, the remaining
+     * applicants are notified of their rejection.
+     *
+     * @param  \Illuminate\Http\Request  $request  The request object containing vacancy and applicant data.
+     * @return \Illuminate\Http\JsonResponse
+     *
+     * @throws \Exception
+     */
     public function vacancyFill(Request $request)
     {
         try {
+            // Decrypt the encrypted vacancy_id and sap_number from the request
             $vacancyId = Crypt::decryptString($request->input('vacancy_id'));
+            $sapNumberId = Crypt::decryptString($request->input('sap_number'));
+
+            // Merge decrypted IDs back into the request for validation purposes
+            $request->merge([
+                'vacancy_id_decrypted' => $vacancyId,
+                'sap_number_id_decrypted' => $sapNumberId,
+            ]);
+
+            Log::info($sapNumberId);
+
+            // Validate the request data
+            $request->validate([
+                'applicants_vacancy' => 'required|array',
+                'applicants_vacancy.*' => 'exists:applicants,id',
+                'vacancy_id_decrypted' => 'required|exists:vacancies,id',
+                'sap_number_id_decrypted' => 'required|exists:sap_numbers,id',
+            ]);
+
+            // Retrieve the selected applicants from the request
             $selectedApplicants = $request->input('applicants_vacancy');
-           
-            // Extract user IDs from the selected applicants
-            $selectedUserIds = User::whereIn('applicant_id', $selectedApplicants)->pluck('id')->filter()->toArray(); 
-            $applicantsWithScore = $this->applicantsWithScore($vacancyId, $selectedUserIds);
-           
-            if (count($applicantsWithScore) <= 0 || empty($applicantsWithScore)) {
-                return response()->json([
-                    'success' => false, 
-                    'message' => "Some applicants do not have an interview score"
-                ], 400);
-            }
-           
+
+            // Begin database transaction to ensure data integrity
             DB::beginTransaction();
 
-            // Find the vacancy
+            // Retrieve the vacancy along with its related data
             $vacancy = Vacancy::with([
-                'position', 
-                'store.brand', 
-                'store.town',
-                'applicants' 
-            ])->find($vacancyId);
+                    'position',
+                    'store.brand',
+                    'store.town',
+                    'applicants'
+                ])
+                ->find($vacancyId);
 
+            // If the vacancy doesn't exist, return an error response
             if (!$vacancy) {
                 return response()->json([
-                    'success' => false, 
+                    'success' => false,
                     'message' => 'Vacancy not found'
                 ], 400);
             }
 
+            // Check if there are open positions available in the vacancy
             if ($vacancy->open_positions == 0) {
                 return response()->json([
-                    'success' => false, 
-                    'message' => 'No open positiions available'
+                    'success' => false,
+                    'message' => 'No open positions available'
                 ], 400);
             }
 
+            // Count the number of selected applicants
             $numSelectedApplicants = count($selectedApplicants);
 
+            // Ensure that the number of selected applicants does not exceed available positions
             if ($vacancy->open_positions < $numSelectedApplicants) {
                 return response()->json([
-                    'success' => false, 
-                    'message' => 'Only '. $vacancy->open_positions .' positiions available'
+                    'success' => false,
+                    'message' => 'Only ' . $vacancy->open_positions . ' positions available'
                 ], 400);
             }
 
-            if ($vacancy->open_positions !== 0) {
-                // Update open_positions and filled_positions
-                $vacancy->filled_positions = $vacancy->filled_positions + $numSelectedApplicants;
-                $vacancy->open_positions = max($vacancy->open_positions - $numSelectedApplicants, 0); // Ensure it doesn't go below 0
-                $vacancy->save();
+            // Retrieve the SapNumber instance using the decrypted ID
+            $sapNumber = SapNumber::find($sapNumberId);
 
-                // Attach applicants to the vacancy without duplicating
-                foreach ($selectedApplicants as $applicantId) {
-                    $applicant = Applicant::find($applicantId);
+            // Double-check that the SAP number exists
+            if (!$sapNumber) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'SAP Number not found'
+                ], 400);
+            }
 
-                    $application = Application::where('user_id', $applicant->id)
-                                            ->where('vacancy_id', $vacancy->id)
-                                            ->first();
+            // Loop through each selected applicant to process their appointment
+            foreach ($selectedApplicants as $applicantId) {
+                // Retrieve the applicant by ID
+                $applicant = Applicant::find($applicantId);
 
-                    if ($application) {
-                        $application->approved = 'Yes';
-                        $application->save();
+                // If applicant does not exist, skip to the next iteration
+                if (!$applicant) {
+                    continue;
+                }
+
+                // Check if the applicant has already been appointed to the vacancy
+                $alreadyAppointed = VacancyFill::where('vacancy_id', $vacancy->id)
+                ->where('applicant_id', $applicantId)
+                ->exists();
+
+                if ($alreadyAppointed) {
+                    // Return an error response if the applicant is already appointed
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Applicant {$applicant->firstname} {$applicant->lastname} has already been appointed to this vacancy."
+                    ], 400);
+                }
+
+                // Check if the applicant has been interviewed
+                $applicantWithScore = $this->applicantsWithScore($vacancyId, $applicantId);
+
+                if (!$applicantWithScore || empty($applicantWithScore)) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => "Applicant {$applicant->firstname} {$applicant->lastname} has not been interviewed yet."
+                    ], 400);
+                }
+
+                // Retrieve the application associated with the applicant and vacancy
+                $application = Application::where('user_id', $applicant->id)
+                    ->where('vacancy_id', $vacancy->id)
+                    ->first();
+
+                // Update application approval status to 'Yes' if application exists
+                if ($application) {
+                    $application->approved = 'Yes';
+                    $application->save();
+                }
+
+                // Check if the applicant has not already been appointed to the vacancy
+                if (!$vacancy->appointed->contains($applicantId)) {
+                    // Create a new VacancyFill record to associate applicant with vacancy and SAP number
+                    $vacancyFill = VacancyFill::create([
+                        'vacancy_id'    => $vacancy->id,
+                        'applicant_id'  => $applicantId,
+                        'sap_number_id' => $sapNumber->id,
+                        'sap_number'    => $sapNumber->sap_number,
+                        'approved'      => 'Yes'
+                    ]);
+
+                    // Update the applicant's appointed_id to reference the new VacancyFill record
+                    $applicant->appointed_id = $vacancyFill->id;
+                    $applicant->save();
+
+                    // Retrieve the user associated with the applicant
+                    $userId = $applicant->user ? $applicant->user->id : null;
+
+                    // If user exists, create a notification about the appointment
+                    if ($userId) {
+                        $notification = new Notification();
+                        $notification->user_id = $userId;
+                        $notification->causer_id = Auth::id();
+                        $notification->subject()->associate($vacancyFill);
+                        $notification->type_id = 1;
+                        $notification->notification = "You have been Appointed 🎉";
+                        $notification->read = "No";
+                        $notification->save();
                     }
 
-                    if (!$vacancy->appointed->contains($applicantId)) {
-                        $vacancyFill = VacancyFill::create([
-                            'vacancy_id' => $vacancy->id,
-                            'applicant_id' => $applicantId,
-                            'approved' => 'Pending'
-                        ]);
+                    // Dispatch a job to update the applicant's monthly data
+                    UpdateApplicantData::dispatch($applicant->id, 'updated', 'Appointed', $vacancyId)->onQueue('default');
 
-                        //Update applicant appointed_id
-                        if ($applicant) {
-                            $applicant->appointed_id = $vacancyFill->id;
-                            $applicant->save();
-                        }
+                    // Prepare a congratulatory WhatsApp message for the applicant
+                    $whatsappMessage = "Congratulations {$applicant->firstname}! You have been appointed for the position of " .
+                        "{$vacancy->position->name} at " .
+                        "{$vacancy->store->brand->name} ({$vacancy->store->town->name}). " .
+                        "We are excited to have you join our team!";
 
-                        // Get user ID if the applicant has a user, else null
-                        $userId = $applicant->user ? $applicant->user->id : null;
+                    // Define the message type
+                    $type = 'text';
 
-                        if($userId) {
-                            // Create Notification
+                    // Dispatch a job to send the WhatsApp message
+                    SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type);
+                }
+            }
+
+            // Update vacancy's filled and open positions
+            $vacancy->filled_positions += $numSelectedApplicants;
+            $vacancy->open_positions = max($vacancy->open_positions - $numSelectedApplicants, 0); // Ensure it doesn't go below zero
+            $vacancy->save();
+
+            // If no open positions remain after appointments, notify unappointed applicants
+            if ($vacancy->open_positions == 0) {
+                // Loop through all applicants associated with the vacancy
+                foreach ($vacancy->applicants as $applicant) {
+                    // Skip applicants who have been appointed
+                    if (in_array($applicant->id, $selectedUserIds)) {
+                        continue;
+                    }
+
+                    // Retrieve the application associated with the applicant and vacancy
+                    $application = Application::where('user_id', $applicant->id)
+                        ->where('vacancy_id', $vacancy->id)
+                        ->first();
+
+                    // If application exists, update its approval status to 'No'
+                    if ($application) {
+                        $application->approved = 'No';
+                        $application->save();
+
+                        // If the application status was changed, create a notification about the decline
+                        if ($application->wasChanged()) {
                             $notification = new Notification();
-                            $notification->user_id = $userId;
+                            $notification->user_id = $applicant->id;
                             $notification->causer_id = Auth::id();
-                            $notification->subject()->associate($vacancyFill); // Assuming you want to associate the notification with the vacancy
+                            $notification->subject()->associate($application);
                             $notification->type_id = 1;
-                            $notification->notification = "You have been Appointed 🎉";
+                            $notification->notification = "Has been declined 🚫";
                             $notification->read = "No";
                             $notification->save();
                         }
 
-                        //Update Applicant Monthly Data
-                        UpdateApplicantData::dispatch($applicant->id, 'updated', 'Appointed', $vacancyId)->onQueue('default');
-
-                        // Constructing the WhatsApp message
-                        $whatsappMessage = "Congratulations {$applicant->firstname}! You have been appointed for the position of " . 
-                        "{$vacancy->position->name} at " . 
-                        "{$vacancy->store->brand->name} ({$vacancy->store->town->name}). " .
-                        "We are excited to have you join our team!";
-
-                        $type = 'text';
-
-                        // Dispatch WhatsApp message
-                        SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type);
-                    }
-                }
-
-                if ($vacancy->open_positions == 0) {
-                    //Create notification for all applicants that where not appointed
-                    foreach ($vacancy->applicants as $applicant) {
-                        if (!in_array($applicant->id, $selectedUserIds)) {
-                            $application = Application::where('user_id', $applicant->id)
-                                                    ->where('vacancy_id', $vacancy->id)
-                                                    ->first();
-                    
-                            if ($application) {
-                                $application->approved = 'No';
-                                $application->save();
-                    
-                                if ($application->wasChanged()) {
-                                    // Create Notification
-                                    $notification = new Notification();
-                                    $notification->user_id = $applicant->id;
-                                    $notification->causer_id = Auth::id();
-                                    $notification->subject()->associate($application); // Associate notification with the application
-                                    $notification->type_id = 1;
-                                    $notification->notification = "Has been declined 🚫";
-                                    $notification->read = "No";
-                                    $notification->save();
-                                }
-
-                                //Update Applicant Monthly Data
-                                UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
-                            }
-                        }
+                        // Dispatch a job to update the applicant's monthly data as 'Rejected'
+                        UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
                     }
                 }
             }
 
+            // Commit the database transaction after all operations are successful
             DB::commit();
 
+            // Map the availableSapNumbers to include encrypted IDs
+            $availableSapNumbers = SapNumber::where('vacancy_id', $vacancy->id)
+            ->whereDoesntHave('vacancyFills')
+            ->get()
+            ->map(function($sapNumber) {
+                return [
+                    'id' => Crypt::encryptString($sapNumber->id),
+                    'sap_number' => $sapNumber->sap_number
+                ];
+            });
+
+            // Return a success response with the updated vacancy data
             return response()->json([
-                'success' => true, 
-                'message' => 'Vacancy filled!'
+                'success' => true,
+                'message' => 'Vacancy filled!',
+                'vacancy' => [
+                    'available_sap_numbers' => $availableSapNumbers
+                ]
             ], 200);
         } catch (\Exception $e) {
+            // Rollback the transaction in case of any exception to maintain data integrity
             DB::rollBack();
 
+            // Return an error response with exception message
             return response()->json([
-                'success' => false, 
-                'message' => 'Failed to fill vacancy', 
+                'success' => false,
+                'message' => 'Failed to fill vacancy',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -486,40 +582,18 @@ class VacancyController extends Controller
      * Check and return the name and ID of applicants without a score for a given vacancy.
      *
      * @param  int  $vacancyId
-     * @param  array  $selectedUserIds
+     * @param  array  $selectedApplicantsIds
      * @return \Illuminate\Http\JsonResponse
      */
-    public function applicantsWithScore($vacancyId, array $selectedUserIds)
+    public function applicantsWithScore($vacancyId, $applicantId)
     {
-        // Fetch the applicants without a score
-        $applicantsWithScore = Interview::where('vacancy_id', $vacancyId)
-            ->whereIn('applicant_id', array_values($selectedUserIds))
-            ->with('applicant:id,firstname,score')
-            ->get()
-            ->map(function ($interview) {
-                return [
-                    'id' => $interview->applicant->id,
-                    'firstname' => $interview->applicant->firstname,
-                    'score' => $interview->score ?? ''
-                ];
-            })
-            ->keyBy('id')
-            ->toArray();
-   
-        $result = [];
-     
-        if(empty($applicantsWithScore)) {
-            return $result;
-        }
+        // Fetch the applicant's interview data
+        $interview = Interview::where('vacancy_id', $vacancyId)
+            ->where('applicant_id', $applicantId)
+            ->first();
 
-        foreach ($selectedUserIds as $userId) {
-            if(isset($applicantsWithScore[$userId])) {
-                $result[$userId]['firstname'] = $applicantsWithScore[$userId]['firstname'];
-                $result[$userId]['score']  = $applicantsWithScore[$userId]['score'] ?? '';
-            } 
-        }
-
-        return $result;
+        // Return the score or null if no interview found
+        return $interview ? $interview->score : null;
     }
 
      /* Create SAP numbers for the given vacancy ID.

@@ -23,6 +23,12 @@ class SapNumber extends Model
         return $this->belongsTo(Vacancy::class);
     }
 
+    //Vacancy Fills
+    public function vacancyFills()
+    {
+        return $this->hasMany(VacancyFill::class);
+    }
+
     /**
      * The attributes that should be logged.
      * @var bool
