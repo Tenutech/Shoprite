@@ -11,7 +11,7 @@
 @section('content')
 @component('components.breadcrumb')
 @slot('li_1') Pages @endslot
-@slot('title') Applicants @endslot
+@slot('title') Saved Applicants @endslot
 @endcomponent
 
 <div class="row g-4 mb-4">
