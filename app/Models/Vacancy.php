@@ -94,6 +94,15 @@ class Vacancy extends Model
         return $this->hasMany(SapNumber::class);
     }
 
+    // Unused SAP Numbers
+    public function availableSapNumbers()
+    {
+        return $this->hasMany(SapNumber::class)
+                    ->whereDoesntHave('vacancyFills', function($query) {
+                        $query->where('vacancy_fills.vacancy_id', $this->id);
+                    });
+    }
+
     /**
      * The attributes that should be logged.
      * @var bool

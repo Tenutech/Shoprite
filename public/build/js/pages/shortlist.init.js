@@ -260,24 +260,13 @@ function fetchData() {
                     // Hide the candidate list container and show the no result message
                     document.querySelector("#candidate-list").style.display = 'none';
                     document.querySelector(".noresult").style.display = 'block';
-                    var sapNumbers = []; 
                 } else {
                     // Show the candidate list container and hide the no result message
                     document.querySelector("#candidate-list").style.display = 'block';
                     document.querySelector(".noresult").style.display = 'none';
                     loadCandidateListData(allcandidateList, currentPage);
-                    var sapNumbers = data.sapNumbers; 
                     paginationEvents();
                 }
-                
-                // Update the SAP Number dropdown
-                var sapNumberSelect = document.getElementById('sapNumber');
-                sapNumbers.forEach(function(sapNumber) {
-                    var option = document.createElement('option');
-                    option.value = sapNumber;
-                    option.textContent = sapNumber;
-                    sapNumberSelect.appendChild(option);
-                });
 
                 Swal.fire({
                     position: 'top-end',
@@ -628,6 +617,19 @@ if (checkAll) {
 
 /*
 |--------------------------------------------------------------------------
+| Choices
+|--------------------------------------------------------------------------
+*/
+
+var sapNumber = document.getElementById("sapNumber");
+
+var sapNumberChoices = new Choices(sapNumber, {
+    searchEnabled: true,
+    shouldSort: false
+});
+
+/*
+|--------------------------------------------------------------------------
 | Interview
 |--------------------------------------------------------------------------
 */
@@ -755,8 +757,18 @@ if (vacancyBtn) {
         // Reset the selectedApplicants array
         selectedApplicants = [];
 
-        // Check if there are any checked checkboxes
-        if (checkedCheckboxes.length === 0) {
+        // Check if more than one checkbox is checked
+        if (checkedCheckboxes.length > 1) {
+            // Show SweetAlert notification
+            Swal.fire({
+                title: 'Please select only one applicant at a time',
+                confirmButtonClass: 'btn btn-info',
+                buttonsStyling: false,
+                showCloseButton: true
+            });
+        } 
+        // Check if no checkboxes are checked
+        else if (checkedCheckboxes.length === 0) {
             // Show SweetAlert notification
             Swal.fire({
                 title: 'Please select at least one applicant',
@@ -765,7 +777,7 @@ if (vacancyBtn) {
                 showCloseButton: true
             });
         } else {
-            // Push the selected applicants' data into the selectedApplicants array
+            // Push the selected applicant's data into the selectedApplicants array
             checkedCheckboxes.forEach(function(checkbox) {
                 var id = checkbox.getAttribute('data-bs-id');
                 var name = checkbox.getAttribute('data-bs-name');
@@ -774,8 +786,6 @@ if (vacancyBtn) {
 
             // Manually open the modal using jQuery
             $('#vacancyModal').modal('show');
-
-
         }
     });
 }
@@ -1206,6 +1216,9 @@ function clearFields() {
     var applicantsSelect = $('#applicants')[0];
     var choicesInstance = new Choices(applicantsSelect);
     choicesInstance.removeActiveItems();
+
+    sapNumberChoices.removeActiveItems();
+    sapNumberChoices.setChoiceByValue("");
 }
 
 /*
@@ -1490,36 +1503,16 @@ $('#formVacancy').on('submit', function(e) {
         var elementType = element.attr('type'); // Type of element
 
         // Check if the field is required and empty
-        if (isRequired && !value) {
+        if (isRequired && (!value || value.length === 0)) {
             isValid = false;
-            element.addClass('is-invalid');
-            element.siblings('.invalid-feedback').show();
-        }
-
-        // Additional validation for specific types
-        if (elementType === 'email' && value && !validateEmail(value)) {
-            isValid = false;
-            element.addClass('is-invalid');
-            element.siblings('.invalid-feedback').show();
-        }
-
-        // Custom validation for Choices.js select
-        if (element.hasClass('choices-select') && !value) {
-            isValid = false;
-            var choicesDiv = element.closest('.mb-3');
-            choicesDiv.find('.choices').css('border', '1px solid #f17171');
-            choicesDiv.find('.invalid-feedback').show();
-        }
-
-        // Custom validation for time comparison
-        if (element.attr('id') === 'endTime') {
-            var startTime = $('#startTime').val();
-            var endTime = element.val();
-            // Assuming time is in HH:mm format
-            if (startTime && endTime && startTime >= endTime) {
-                isValid = false;
+            // Custom validation for Choices.js select
+            if (element.hasClass('choices__input')) {
+                var choicesDiv = element.closest('.mb-3');
+                choicesDiv.find('.choices').css('border', '1px solid #f17171');
+                choicesDiv.find('.invalid-feedback').show();
+            } else {
                 element.addClass('is-invalid');
-                element.siblings('.invalid-feedback').show().text('End time must be after start time.');
+                element.siblings('.invalid-feedback').show();
             }
         }
     });
@@ -1562,6 +1555,21 @@ $('#formVacancy').on('submit', function(e) {
                             }
                         }
                     });
+
+                    // Reload SAP Number options
+                    sapNumberChoices.clearChoices(); // Clear existing choices
+                    if (data.vacancy.available_sap_numbers.length > 0) {
+                        sapNumberChoices.setChoices(
+                            data.vacancy.available_sap_numbers.map(function(sap) {
+                                return {
+                                    value: sap.id, // Use ID or value field as needed
+                                    label: sap.sap_number,
+                                    selected: sapNumberChoices.getValue(true) == sap.id // Optional: set selected if needed
+                                };
+                            }),
+                            'value', 'label', true
+                        );
+                    }
             
                     Swal.fire({
                         position: 'top-end',

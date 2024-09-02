@@ -194,8 +194,7 @@ class ShortlistController extends Controller
                 'states' => $states,
                 'checks' => $checks,
                 'minShortlistNumber' => $minShortlistNumber,
-                'maxShortlistNumber' => $maxShortlistNumber,
-                'sapNumbers' => [],
+                'maxShortlistNumber' => $maxShortlistNumber
             ]);
         }
         return view('404');

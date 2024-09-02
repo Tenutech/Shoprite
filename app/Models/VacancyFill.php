@@ -14,8 +14,9 @@ class VacancyFill extends Model
     protected $fillable = [
         'vacancy_id',
         'applicant_id',
-        'approved',
+        'sap_number_id',
         'sap_number',
+        'approved'
     ];
 
     //Applicant
@@ -28,6 +29,12 @@ class VacancyFill extends Model
     public function vacancy()
     {
         return $this->belongsTo(Vacancy::class);
+    }
+
+    //SAP Number
+    public function sapNumbers()
+    {
+        return $this->belongsTo(SapNumber::class);
     }
 
     /**
