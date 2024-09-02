@@ -69,6 +69,20 @@ getJSON("job-candidate-list.json", function (err, data) {
     }
 });
 
+// Event listener for the bookmark (save-applicant) button
+document.addEventListener('click', function(event) {
+    if (event.target.closest('.save-applicant')) {
+        var button = event.target.closest('.save-applicant');
+        var candidateId = button.getAttribute('data-bs-id');
+
+        // Remove the candidate card from the DOM
+        var candidateCard = button.closest('.col-md-6.col-lg-12');
+        if (candidateCard) {
+            candidateCard.remove();
+        }
+    }
+});
+
 function loadCandidateListData(datas, page) {
     var pages = Math.ceil(datas.length / itemsPerPage)
     if (page < 1) page = 1

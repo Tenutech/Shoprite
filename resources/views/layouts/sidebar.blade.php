@@ -101,7 +101,7 @@
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('applicants.index') }}">
                             <i class="ri-profile-line"></i> 
-                            <span>Candidates</span>
+                            <span>Saved Candidates</span>
                         </a>
                     </li> 
                     <li class="nav-item">

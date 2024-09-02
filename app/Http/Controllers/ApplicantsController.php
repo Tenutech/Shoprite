@@ -57,6 +57,9 @@ class ApplicantsController extends Controller
     public function index()
     {
         if (view()->exists('manager/applicants')) {
+            //User ID
+            $userID = Auth::id();
+
             //Applicants
             $applicants = Applicant::with([
                 'town',
@@ -78,6 +81,17 @@ class ApplicantsController extends Controller
                 'role',
                 'state',
             ])
+            ->where('no_show', '<=', 2)
+            ->whereNull('appointed_id')
+            ->where(function ($query) use ($userID) {
+                $query->whereNull('shortlist_id')
+                    ->orWhereHas('shortlist', function ($subQuery) use ($userID) {
+                        $subQuery->where('user_id', $userID);
+                    });
+            })
+            ->whereHas('savedBy', function ($query) use ($userID) {
+                $query->where('user_id', $userID);
+            })
             ->orderBy('firstname')
             ->orderBy('lastname')
             ->get();
@@ -188,6 +202,17 @@ class ApplicantsController extends Controller
                 $query->where('user_id', $userID);
             }
         ])
+        ->where('no_show', '<=', 2)
+        ->whereNull('appointed_id')
+        ->where(function ($query) use ($userID) {
+            $query->whereNull('shortlist_id')
+                ->orWhereHas('shortlist', function ($subQuery) use ($userID) {
+                    $subQuery->where('user_id', $userID);
+                });
+        })
+        ->whereHas('savedBy', function ($query) use ($userID) {
+            $query->where('user_id', $userID);
+        })
         ->orderBy('firstname')
         ->orderBy('lastname')
         ->get()
