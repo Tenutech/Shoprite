@@ -510,27 +510,35 @@ class InterviewController extends Controller
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Interview No Show
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Marks an interview as "No Show" and updates the associated applicant record.
+     *
+     * This method is triggered when an applicant does not show up for an interview.
+     * It updates the status of the interview to "No Show" and marks the applicant
+     * as having missed the interview. The method returns a JSON response indicating
+     * the success or failure of the operation.
+     *
+     * @param  \Illuminate\Http\Request  $request  The HTTP request object containing the encrypted interview ID.
+     * @return \Illuminate\Http\JsonResponse  A JSON response indicating the success or failure of the operation.
+     *
+     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException  If the interview is not found.
+     * @throws \Illuminate\Contracts\Encryption\DecryptException  If the interview ID cannot be decrypted.
+     * @throws \Exception  If any other error occurs during the update process.
+     */
     public function noShow(Request $request)
     {
         try {
-            // User ID
             $userID = Auth::id();
 
-            //Interview
             $interviewID = Crypt::decryptString($request->id);
             $interview = Interview::findOrFail($interviewID);
             
-            //Application Update
             $interview->update([
                 'status' => 'No Show'
             ]);
-            
+
+            $interview->applicant->increment('no_show');
+
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
