@@ -569,8 +569,6 @@ class InterviewController extends Controller
             'answers.*' => 'required|integer|min:1|max:5',
         ]);
 
-        Log::info($request);
-
         try {
             // User ID
             $userID = Auth::id();
