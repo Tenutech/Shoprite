@@ -7,12 +7,12 @@ File: Form wizard Js File
 */
 document.getElementById('idNumber').addEventListener('input', function() {
     const idNumber = this.value;
-    const guardianMobileContainer = document.getElementById('guardianMobileContainer');
+    const IdNumberError = document.getElementById('IdNumberError');
 
     if (isUnder18(idNumber)) {
-        guardianMobileContainer.style.display = 'block';
+        IdNumberError.style.display = 'block';
     } else {
-        guardianMobileContainer.style.display = 'none';
+        IdNumberError.style.display = 'none';
     }
 });
 
@@ -33,22 +33,6 @@ function isUnder18(id) {
 
     return age < 18;
 }
-
-// Save guardian's mobile number when the user clicks "Save"
-document.getElementById('saveGuardianMobile').addEventListener('click', function() {
-    const guardianMobile = document.getElementById('guardianMobile').value;
-    const mobileError = document.getElementById('mobileError');
-
-    if (isValidMobile(guardianMobile)) {
-        mobileError.style.display = 'none';
-        // You can now submit the form or handle the guardian's mobile number as needed
-        console.log("Guardian's Mobile Number:", guardianMobile);
-        // Close the modal
-        bootstrap.Modal.getInstance(document.getElementById('guardianModal')).hide();
-    } else {
-        mobileError.style.display = 'block';
-    }
-});
 
 function isValidMobile(mobile) {
     const phonePattern = /^[0-9]{10}$/;
@@ -72,6 +56,23 @@ document.getElementById('formRegister').addEventListener('submit', function(even
         // Update the phone value to include the country code
         phoneInput.value = countryCode + phoneInput.value;
     }
+
+    // let idNumberInput = document.getElementById('idNumber');
+    // let idNumber = document.getElementById('idNumber').value;
+    // if (isUnder18(idNumber)) {
+    //     event.preventDefault();
+
+    //     document.getElementById('formRegister').classList.remove('was-validated');
+        
+    //     idNumberInput.classList.add('is-invalid');
+    //     var errorElement = idNumberInput.parentNode.querySelector('.invalid-feedback');
+    //     if (!errorElement) { // If the error message doesn't already exist, create it.
+    //         errorElement = document.createElement('div');
+    //         errorElement.className = "invalid-feedback";
+    //         idNumberInput.parentNode.appendChild(errorElement);
+    //     }
+    //     errorElement.innerText = "Applicant is under the age of 18";
+    // }
 
     // Password matching validation
     var passwordInput = document.getElementById('password');
