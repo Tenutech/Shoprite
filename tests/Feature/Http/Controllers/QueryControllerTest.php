@@ -2,11 +2,11 @@
 
 namespace Tests\Feature\Http\Controllers;
 
-use function Pest\Laravel\{get, post, actingAs};
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\Query;
 use App\Models\Status;
 use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use function Pest\Laravel\{get, post, actingAs};
 
 uses(RefreshDatabase::class);
 
