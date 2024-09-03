@@ -287,7 +287,7 @@ class ShortlistController extends Controller
                 });
             }
            
-            // Check if shortlist_type_id is 3 then only get from saved applicants
+            // Check if shortlist_type_id is 4 then only get from saved applicants
             if ($request->input('shortlist_type_id') == '4' ) {
                 $query->whereHas('savedBy', function ($query) use ($userID) {
                     $query->where('user_id', $userID);
