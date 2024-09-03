@@ -74,8 +74,6 @@ class VacancyController extends Controller
                     'availableSapNumbers'
                 ])
                 ->findOrFail($vacancyId);
-            } else {
-                return view('404');
             }
 
             //Positions
