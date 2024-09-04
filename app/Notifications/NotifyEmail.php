@@ -2,6 +2,7 @@
 
 namespace App\Notifications;
 
+use App\Models\User;
 use App\Models\Email;
 use App\Models\EmailTemplate;
 use App\Models\NotificationSetting;
@@ -33,10 +34,15 @@ class NotifyEmail extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
+        // Fetch the user by the notifiable ID
+        $user = User::find($notifiable->id);
+
         // Check user's settings to determine if they've opted in for email notifications
         $userSettings = NotificationSetting::where('user_id', $notifiable->id)->first();
         if ($userSettings && $userSettings->receive_email_notifications) {
-            return ['mail'];
+            if ($user->role_id != 3) {
+                return ['mail'];
+            }
         }
         
         return [];

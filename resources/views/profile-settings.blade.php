@@ -299,6 +299,7 @@
                                             </div>
                                         </li>
                                         <li class="d-flex">
+                                            <!--
                                             <div class="flex-grow-1">
                                                 <label for="receiveWhatsappNotifications" class="form-check-label fs-15">
                                                     Receive WhatsApp Notifications
@@ -306,12 +307,13 @@
                                                 <p class="text-muted">
                                                     Enable this to get notifications on WhatsApp. This is useful for immediate updates and alerts.
                                                 </p>
-                                            </div>
+                                            </div>                                            
                                             <div class="flex-shrink-0">
                                                 <div class="form-check form-switch">
                                                     <input class="form-check-input" type="checkbox" role="switch" id="receiveWhatsappNotifications" name="receive_whatsapp_notifications" {{ $userSettings ? ($userSettings->receive_whatsapp_notifications ? 'checked' : '') : 'checked' }} />
                                                 </div>
                                             </div>
+                                            -->
                                         </li>
                                         <li class="d-flex">
                                             <div class="flex-grow-1">

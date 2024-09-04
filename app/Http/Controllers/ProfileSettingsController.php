@@ -212,7 +212,6 @@ class ProfileSettingsController extends Controller
             $data = $request->all();
             $checkboxFields = [
                 'receive_email_notifications',
-                'receive_whatsapp_notifications',
                 'notify_application_submitted',
                 'notify_application_status',
                 'notify_shortlisted',
