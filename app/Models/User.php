@@ -14,7 +14,10 @@ use Illuminate\Support\Facades\Log;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable, LogsActivity;
+    use HasApiTokens;
+    use HasFactory;
+    use Notifiable;
+    use LogsActivity;
 
     /**
      * The attributes that are mass assignable.
@@ -41,12 +44,14 @@ class User extends Authenticatable implements MustVerifyEmail
         'applicant_id',
         'store_id',
         'internal',
-        'status_id'
+        'status_id',
+        'address'
     ];
 
     protected $appends = ['updated_at_human'];
 
-    public function getUpdatedAtHumanAttribute() {
+    public function getUpdatedAtHumanAttribute()
+    {
         return $this->updated_at->diffForHumans();
     }
 
@@ -125,7 +130,8 @@ class User extends Authenticatable implements MustVerifyEmail
     //Saved Applicants
     public function savedApplicants()
     {
-        return $this->belongsToMany(Applicant::class, 'applicant_save', 'user_id', 'applicant_id')->withTimestamps();;
+        return $this->belongsToMany(Applicant::class, 'applicant_save', 'user_id', 'applicant_id')->withTimestamps();
+        ;
     }
 
     //Files
@@ -281,15 +287,14 @@ class User extends Authenticatable implements MustVerifyEmail
     public function sendEmailVerificationNotification()
     {
         try {
-            $this->notify(new VerifyEmail);
-    
+            $this->notify(new VerifyEmail());
+
             Email::create([
                 'user_id'      => $this->id,
                 'subject_type' => get_class($this),
                 'subject_id'   => $this->id,
                 'template_id'  => 2
             ]);
-            
         } catch (\Exception $e) {
             Log::error('Error: ' . $e->getMessage());
         }

@@ -33,7 +33,7 @@ class SuccessFactorsController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Success Factors Index
@@ -45,7 +45,7 @@ class SuccessFactorsController extends Controller
         if (view()->exists('admin/success-factors')) {
             //Success Factors
             $successFactors = SuccessFactor::orderBy('position_id')->get();
-            
+
             //Positions
             $positions = Position::all();
 
@@ -73,7 +73,7 @@ class SuccessFactorsController extends Controller
 
         try {
             //Success Factor Create
-            $successFactor = SuccessFactor::create([                
+            $successFactor = SuccessFactor::create([
                 'position_id' => $request->position_id ?: null,
                 'description' => $request->description ?: null,
                 'icon' => $request->icon ?: null,
@@ -88,7 +88,7 @@ class SuccessFactorsController extends Controller
                 'encID' => $encID,
                 'message' => 'Success factor created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create success factor!',
@@ -201,7 +201,7 @@ class SuccessFactorsController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -209,25 +209,25 @@ class SuccessFactorsController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             SuccessFactor::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Success factors deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete success factors!',

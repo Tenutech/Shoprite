@@ -33,7 +33,7 @@ class WeightingController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Weighting Index
@@ -80,9 +80,9 @@ class WeightingController extends Controller
             'fallback_value' => 'nullable|numeric|between:0,999999.99'
         ]);
 
-        try {            
+        try {
             //Weighting Create
-            $weighting = ScoreWeighting::create([                
+            $weighting = ScoreWeighting::create([
                 'score_type' => $request->score_type,
                 'weight' => $request->weight,
                 'max_value' => $request->max_value ?: null,
@@ -106,7 +106,7 @@ class WeightingController extends Controller
                 'totalWeight' => $totalWeight,
                 'message' => 'Weighting created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create weighting!',
@@ -230,7 +230,7 @@ class WeightingController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -238,25 +238,25 @@ class WeightingController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             ScoreWeighting::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Weighting deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete weightings!',

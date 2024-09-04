@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
-use Illuminate\Http\Request; 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Providers\RouteServiceProvider;
@@ -20,7 +20,6 @@ class LoginController extends Controller
     | to conveniently provide its functionality to your applications.
     |
     */
-
     use AuthenticatesUsers;
 
     /**
@@ -87,7 +86,7 @@ class LoginController extends Controller
 
         // Get the currently authenticated user
         $user = Auth::user();
-        
+
         if ($user) {
             // Set the user's status to "offline" (2)
             $user->status_id = 2;

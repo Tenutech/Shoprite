@@ -9,7 +9,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class EmailTemplate extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $table = 'email_templates';
 
@@ -35,7 +36,7 @@ class EmailTemplate extends Model
     {
         return $this->hasMany(Email::class, 'type_id');
     }
-    
+
     /**
      * The attributes that should be logged.
      * @var bool

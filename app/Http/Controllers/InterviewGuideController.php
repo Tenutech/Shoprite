@@ -34,7 +34,7 @@ class InterviewGuideController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Interview Questions Index

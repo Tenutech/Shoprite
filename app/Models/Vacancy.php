@@ -9,8 +9,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Vacancy extends Model
 {
-    use HasFactory, LogsActivity;
-    
+    use HasFactory;
+    use LogsActivity;
+
     protected $fillable = [
         'user_id',
         'position_id',
@@ -104,7 +105,7 @@ class Vacancy extends Model
     public function availableSapNumbers()
     {
         return $this->hasMany(SapNumber::class)
-                    ->whereDoesntHave('vacancyFills', function($query) {
+                    ->whereDoesntHave('vacancyFills', function ($query) {
                         $query->where('vacancy_fills.vacancy_id', $this->id);
                     });
     }

@@ -477,13 +477,13 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::get('/template', [App\Http\Controllers\InterviewTemplateController::class, 'index'])->name('template.index');
 
-    Route::post('/template/question/add', [App\Http\Controllers\InterviewTemplateController::class, 'question_store'])->name('template.question.store');
+    Route::post('/template/question/add', [App\Http\Controllers\InterviewTemplateController::class, 'questionStore'])->name('template.question.store');
 
-    Route::post('/template/question/update', [App\Http\Controllers\InterviewTemplateController::class, 'question_update'])->name('template.question.update');
+    Route::post('/template/question/update', [App\Http\Controllers\InterviewTemplateController::class, 'questionUpdate'])->name('template.question.update');
 
-    Route::get('/template/question/details/{id}', [App\Http\Controllers\InterviewTemplateController::class, 'question_details'])->name('template.question.details');
+    Route::get('/template/question/details/{id}', [App\Http\Controllers\InterviewTemplateController::class, 'questionDetails'])->name('template.question.details');
 
-    Route::delete('/template/question/destroy/{id}', [App\Http\Controllers\InterviewTemplateController::class, 'question_destroy'])->name('template.question.destroy');
+    Route::delete('/template/question/destroy/{id}', [App\Http\Controllers\InterviewTemplateController::class, 'questionDestroy'])->name('template.question.destroy');
 
     Route::post('/template/add', [App\Http\Controllers\InterviewTemplateController::class, 'store'])->name('template.store');
 

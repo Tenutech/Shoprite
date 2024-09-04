@@ -14,7 +14,10 @@ use Illuminate\Support\Facades\Log;
 
 class ProcessUserIdNumber implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $userId;
     protected $applicantId;
@@ -47,7 +50,7 @@ class ProcessUserIdNumber implements ShouldQueue
         } else {
             return;
         }
-        
+
         if ($person) {
             // Extract birth date
             $year = substr($person->id_number, 0, 2);
@@ -77,23 +80,23 @@ class ProcessUserIdNumber implements ShouldQueue
             if (empty($person->birth_date)) {
                 $person->birth_date = $birthdate;
             }
-            
+
             if (is_null($person->age) || $person->age === '') {
                 $person->age = $age;
             }
-            
+
             if (empty($person->gender_id)) {
                 $person->gender_id = $genderId;
             }
-            
+
             if (empty($person->resident)) {
                 $person->resident = $resident;
             }
-            
+
             if (empty($person->id_verified)) {
                 $person->id_verified = $verified;
             }
-            
+
             $person->save();
         }
     }

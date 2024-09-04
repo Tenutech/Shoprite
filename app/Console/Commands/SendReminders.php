@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Console\Commands;
+
 use App\Models\User;
 use App\Models\Vacancy;
 use App\Models\Shortlist;
@@ -67,7 +68,7 @@ class SendReminders extends Command
                                            ->where('reminder_setting_id', $reminderType->id)
                                            ->where('created_at', '>=', Carbon::now()->subDays($reminderType->delay))
                                            ->exists();
-                    
+
                     if (!$alreadySent) {
                         // No reminder has been sent in the specified period, proceed to send
                         $reminderEmail = new ReminderEmail($reminderType, $userVacancies);
@@ -89,12 +90,12 @@ class SendReminders extends Command
     {
         //Reminder
         $reminderType = ReminderSetting::where('type', 'shortlist_created_no_interview')->first();
-    
+
         // Check if the reminder setting is active
         if ($reminderType && $reminderType->is_active === 1) {
             $shortlists = Shortlist::where('created_at', '<=', Carbon::now()->subDays($reminderType->delay))->get();
-            
-            foreach ($shortlists as $shortlist) {                
+
+            foreach ($shortlists as $shortlist) {
                 // Check if applicant_ids is empty or if no interviews have been scheduled for any applicants
                 if (empty(json_decode($shortlist->applicant_ids, true)) || !$this->anyApplicantHasScheduledInterview($shortlist)) {
                     $user = User::find($shortlist->user_id);
@@ -104,7 +105,7 @@ class SendReminders extends Command
                                                ->where('reminder_setting_id', $reminderType->id)
                                                ->where('created_at', '>=', Carbon::now()->subDays($reminderType->delay))
                                                ->exists();
-                        
+
                         if (!$alreadySent) {
                             // No reminder has been sent in the specified period, proceed to send
                             $reminderEmail = new ReminderEmail($reminderType, collect([$shortlist]));
@@ -126,7 +127,7 @@ class SendReminders extends Command
     protected function anyApplicantHasScheduledInterview(Shortlist $shortlist): bool
     {
         $applicantIds = json_decode($shortlist->applicant_ids, true);
-        
+
         if (empty($applicantIds)) {
             return false;
         }
@@ -140,7 +141,7 @@ class SendReminders extends Command
                 return true;
             }
         }
-        
+
         // If no applicants have scheduled interviews, return false
         return false;
     }
@@ -154,13 +155,13 @@ class SendReminders extends Command
     protected function notifyNoAppointmentAfterInterview()
     {
         $reminderType = ReminderSetting::where('type', 'interview_scheduled_no_vacancy_filled')->first();
-    
+
         if ($reminderType && $reminderType->is_active === 1) {
             $shortlists = Shortlist::where('created_at', '<=', Carbon::now()->subDays($reminderType->delay))
                                    ->whereNotNull('applicant_ids')
                                    ->where('applicant_ids', '<>', '[]')
                                    ->get();
-            
+
             foreach ($shortlists as $shortlist) {
                 if ($this->anyApplicantInterviewedButNotAppointed($shortlist)) {
                     $user = User::find($shortlist->user_id);
@@ -170,7 +171,7 @@ class SendReminders extends Command
                                                ->where('reminder_setting_id', $reminderType->id)
                                                ->where('created_at', '>=', Carbon::now()->subDays($reminderType->delay))
                                                ->exists();
-                        
+
                         if (!$alreadySent) {
                             // No reminder has been sent in the specified period, proceed to send
                             $reminderEmail = new ReminderEmail($reminderType, collect([$shortlist]));

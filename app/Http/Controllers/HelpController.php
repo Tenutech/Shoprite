@@ -7,7 +7,6 @@ use Illuminate\Http\Request;
 
 class HelpController extends Controller
 {
-
     public function index()
     {
         if (view()->exists('faqs')) {
@@ -20,5 +19,4 @@ class HelpController extends Controller
         }
         return view('404');
     }
-
 }

@@ -13,7 +13,7 @@ class Status extends Model
     use LogsActivity;
 
     protected $table = 'status';
-    
+
     protected $fillable = [
         'name',
         'icon',

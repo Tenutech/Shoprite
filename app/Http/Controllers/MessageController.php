@@ -32,7 +32,7 @@ class MessageController extends Controller
     {
         $this->middleware(['auth', 'verified']);
         $this->chatService = $chatService;
-    }    
+    }
 
     /**
      * Show the application dashboard.
@@ -47,7 +47,7 @@ class MessageController extends Controller
     */
 
     public function store(Request $request)
-    {        
+    {
         try {
             $applicantID = $request->applicant_id;
 
@@ -81,7 +81,7 @@ class MessageController extends Controller
                 'chat' => $chat,
                 'message' => 'Message Sent!'
             ], 201);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed To Send Message!',

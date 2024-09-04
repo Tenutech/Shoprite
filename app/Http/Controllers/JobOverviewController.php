@@ -36,7 +36,7 @@ class JobOverviewController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-     
+
     /*
     |--------------------------------------------------------------------------
     | Opportunity Overview Index
@@ -61,7 +61,7 @@ class JobOverviewController extends Controller
 
             //Vacancy
             $vacancy = Vacancy::with([
-                'user', 
+                'user',
                 'position.responsibilities',
                 'position.qualifications',
                 'position.skills',
@@ -130,7 +130,7 @@ class JobOverviewController extends Controller
             $twitterShareUrl = "https://twitter.com/intent/tweet?text=" . $encodedTextToShare . "&url=" . urlencode($vacancyUrl);
             $mailShareUrl = "mailto:?subject=" . $encodedTextToShare . "&body=Check out this job opportunity here: " . urlencode($vacancyUrl);
 
-            return view('job-overview',[
+            return view('job-overview', [
                 'user' => $user,
                 'vacancy' => $vacancy,
                 'userApplied' => $userApplied,
@@ -187,7 +187,7 @@ class JobOverviewController extends Controller
 
         //Path
         $path = storage_path('app/public/positions/' . $file->name);
-        
+
         return response()->download($path, $file->original_name);
     }
 
@@ -225,7 +225,7 @@ class JobOverviewController extends Controller
                 ]);
 
                 return response()->json([
-                    'success' => true,                    
+                    'success' => true,
                     'file' => $fileRecord,
                     'encrypted_id' => Crypt::encryptString($fileRecord->id),
                     'upload_date' => $fileRecord->created_at->format('d M Y'),
@@ -259,13 +259,13 @@ class JobOverviewController extends Controller
             File::destroy($id);
 
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'File deleted!'
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false, 
-                'message' => 'File deletion failed', 
+                'success' => false,
+                'message' => 'File deletion failed',
                 'error' => $e->getMessage()
             ], 400);
         }

@@ -32,7 +32,7 @@ class BanksController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Banks Index
@@ -67,7 +67,7 @@ class BanksController extends Controller
 
         try {
             //Bank Create
-            $bank = Bank::create([                
+            $bank = Bank::create([
                 'name' => $request->name,
                 'icon' => $request->icon ?: null,
                 'color' => $request->color ?: null
@@ -81,7 +81,7 @@ class BanksController extends Controller
                 'encID' => $encID,
                 'message' => 'Bank created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create bank!',
@@ -192,7 +192,7 @@ class BanksController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -200,25 +200,25 @@ class BanksController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             Bank::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Banks deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete banks!',

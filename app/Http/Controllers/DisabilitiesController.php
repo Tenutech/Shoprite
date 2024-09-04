@@ -32,7 +32,7 @@ class DisabilitiesController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Disabilities Index
@@ -67,7 +67,7 @@ class DisabilitiesController extends Controller
 
         try {
             //Disability Create
-            $disability = Disability::create([                
+            $disability = Disability::create([
                 'name' => $request->name,
                 'icon' => $request->icon ?: null,
                 'color' => $request->color ?: null
@@ -81,7 +81,7 @@ class DisabilitiesController extends Controller
                 'encID' => $encID,
                 'message' => 'Disability created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create disability!',
@@ -192,7 +192,7 @@ class DisabilitiesController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -200,25 +200,25 @@ class DisabilitiesController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             Disability::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Disabilities deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete disabilities!',

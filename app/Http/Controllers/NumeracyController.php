@@ -35,13 +35,13 @@ class NumeracyController extends Controller
     | Numeracy Index
     |--------------------------------------------------------------------------
     */
-    
+
     public function index()
     {
         if (view()->exists('admin/numeracy')) {
             //Messages
             $messages = ChatTemplate::with([
-                'state', 
+                'state',
                 'category'
             ])
             ->whereHas('state', function ($query) {
@@ -81,7 +81,7 @@ class NumeracyController extends Controller
             $categoryID = ChatCategory::where('name', 'numeracy')->value('id');
 
             // Message Create
-            $message = ChatTemplate::create([                
+            $message = ChatTemplate::create([
                 'message' => $request->message,
                 'state_id' => $stateID ? $stateID : null,
                 'category_id' => $categoryID ? $categoryID : null,
@@ -99,7 +99,7 @@ class NumeracyController extends Controller
                 'encID' => $encID,
                 'message' => 'Message created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create message!',
@@ -120,7 +120,7 @@ class NumeracyController extends Controller
             $messageID = Crypt::decryptString($id);
 
             $message = ChatTemplate::with([
-                'state', 
+                'state',
                 'category'
             ])->findOrFail($messageID);
 
@@ -166,7 +166,7 @@ class NumeracyController extends Controller
             return response()->json([
                 'success' => true,
                 'chat' => $message,
-                'encID' => $request->field_id,                
+                'encID' => $request->field_id,
                 'message' => 'Message updated successfully!'
             ], 201);
         } catch (Exception $e) {

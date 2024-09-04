@@ -125,7 +125,7 @@ class ApplicantProfileController extends Controller
             }
 
             //Completion Percentage
-            $completion = round(($applicant->state_id/69)*100);
+            $completion = round(($applicant->state_id / 69) * 100);
             if ($completion > 100) {
                 $completion = 100;
             }
@@ -153,30 +153,30 @@ class ApplicantProfileController extends Controller
                 if ($applicant->user && $applicant->user->appliedVacancies->count() > 0) {
                     $progressBarWidth = max($progressBarWidth, 40); // Second step
                 }
-            
+
                 // Check for shortlist
                 if ($applicant->shortlist_id) {
                     $progressBarWidth = max($progressBarWidth, 60); // Third step
                 }
-            
+
                 // Check for interviews
                 if ($applicant->interviews && $applicant->interviews->count() > 0) {
                     $progressBarWidth = max($progressBarWidth, 80); // Fourth step
-            
+
                     // Check for interview score
                     $firstInterview = $applicant->interviews->first();
                     if ($firstInterview->score) {
                         $progressBarWidth = max($progressBarWidth, 100); // Sixth step
                     }
                 }
-            
+
                 // Check for appointment
                 if ($applicant->appointed_id) {
                     $progressBarWidth = 100; // Final step
                 }
             }
 
-            return view('manager/applicant-profile',[
+            return view('manager/applicant-profile', [
                 'authUser' => $authUser,
                 'applicant' => $applicant,
                 'documents' => $documents,
@@ -204,7 +204,7 @@ class ApplicantProfileController extends Controller
         }
         //Messages
         $messages = Chat::with([
-            'applicant', 
+            'applicant',
             'type',
         ])
         ->where('applicant_id', $applicantID)
@@ -278,7 +278,7 @@ class ApplicantProfileController extends Controller
         try {
             // Start a transaction
             DB::beginTransaction();
-            
+
             $applicantID = $validatedData['applicant_id'];
 
             // Create an interview for applicant
@@ -305,7 +305,7 @@ class ApplicantProfileController extends Controller
             $interviewId = Crypt::encryptstring($interview->id);
 
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Interviews scheduled successfully.',
                 'date' => $interviewDate->format('d M'),
                 'time' => $startTime->format('H:i'),
@@ -320,7 +320,7 @@ class ApplicantProfileController extends Controller
 
             // Return an error response
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Failed to schedule interviews.',
                 'error' => $e->getMessage()
             ], 400);
@@ -342,7 +342,7 @@ class ApplicantProfileController extends Controller
         $interview = Interview::create([
             'applicant_id' => $applicantID,
             'interviewer_id' => $userID,
-            'vacancy_id' => $validatedData['vacancy_id'],                    
+            'vacancy_id' => $validatedData['vacancy_id'],
             'scheduled_date' => $validatedData['date'],
             'start_time' => $validatedData['start_time'],
             'end_time' => $validatedData['end_time'],
@@ -381,7 +381,7 @@ class ApplicantProfileController extends Controller
     private function sendWhatsAppMessages($applicantID, $messages)
     {
         $applicant = Applicant::with([
-            'interviews.vacancy.position', 
+            'interviews.vacancy.position',
             'interviews.vacancy.store.brand',
             'interviews.vacancy.store.town',
         ])->find($applicantID);
@@ -392,7 +392,7 @@ class ApplicantProfileController extends Controller
         $latestInterview = $applicant->interviews->sortByDesc('created_at')->first();
 
         $dataToReplace = [
-            "Applicant Name" => $applicant->firstname.' '.$applicant->lastname,
+            "Applicant Name" => $applicant->firstname . ' ' . $applicant->lastname,
             "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A',
             "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' ' . ($latestInterview->vacancy->store->town->name ?? 'Our Office'),
             "Interview Location" => $latestInterview->location ?? 'N/A',
@@ -401,11 +401,11 @@ class ApplicantProfileController extends Controller
             "Notes" => $latestInterview->notes ?? 'None provided',
         ];
 
-        $type = 'template';    
+        $type = 'template';
 
         foreach ($messages as $message) {
             $personalizedMessage = $this->replacePlaceholders($message->message, $dataToReplace);
-    
+
             // Dispatch the job to send WhatsApp messages
             SendWhatsAppMessage::dispatch($applicant, $personalizedMessage, $type, $message->template);
         }

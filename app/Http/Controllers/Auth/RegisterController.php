@@ -25,7 +25,6 @@ class RegisterController extends Controller
     | provide this functionality without requiring any additional code.
     |
     */
-
     use RegistersUsers;
 
     /**
@@ -64,6 +63,7 @@ class RegisterController extends Controller
             'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
             'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
+            'address' => ['required', 'string', 'max:255']
         ]);
     }
 
@@ -99,7 +99,8 @@ class RegisterController extends Controller
             'avatar' => $avatarName,
             'role_id' => 4, // Default role for new users
             'applicant_id' => $applicant ? $applicant->id : null,
-            'status_id' => 1 // User status (e.g., active)
+            'status_id' => 1, // User status (e.g., active)
+            'address' => $data['address'],
         ]);
 
         // Create default notification settings for the user
@@ -112,11 +113,11 @@ class RegisterController extends Controller
 
         // If the user is under 18, create a consent record
         if ($age < 18) {
-            Consent::create([
-                'user_id' => $user->id,
-                'guardian_mobile' => $data['guardian_mobile'],
-                'consent_status' => 'Pending',
-            ]);
+            // Consent::create([
+            //     'user_id' => $user->id,
+            //     'guardian_mobile' => $data['guardian_mobile'],
+            //     'consent_status' => 'Pending',
+            // ]);
         }
 
         // Dispatch the job to process the user's ID number

@@ -11,15 +11,16 @@ use App\Jobs\UpdateApplicantData;
 
 class Applicant extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $fillable = [
         'phone',
         'firstname',
-        'lastname',        
+        'lastname',
         'id_number',
-        'id_verified',  
-        'location',        
+        'id_verified',
+        'location',
         'town_id',
         'coordinates',
         'contact_number',
@@ -28,7 +29,7 @@ class Applicant extends Model
         'age',
         'gender_id',
         'race_id',
-        'has_email',        
+        'has_email',
         'email',
         're_enter_email',
         'has_tax',
@@ -245,12 +246,14 @@ class Applicant extends Model
     }
 
     //Checks
-    public function checks() {
+    public function checks()
+    {
         return $this->belongsToMany(Check::class, 'applicant_checks')->withTimestamps()->withPivot('result', 'reason', 'file', 'updated_at');
     }
 
     //Latest Checks
-    public function latestChecks() {
+    public function latestChecks()
+    {
         return $this->belongsToMany(Check::class, 'applicant_checks')
                     ->withTimestamps()
                     ->withPivot('result', 'reason', 'file', 'updated_at')
@@ -303,7 +306,7 @@ class Applicant extends Model
         }
     }
 
-    //Handle Attribute Update 
+    //Handle Attribute Update
     protected static function handleAttributeUpdate($yearlyDataId, $attributeType, $applicant)
     {
         $attributeId = strtolower($attributeType) . "_id";

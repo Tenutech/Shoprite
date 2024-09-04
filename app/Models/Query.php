@@ -9,7 +9,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Query extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $fillable = [
         'jira_issue_id',
@@ -18,7 +19,7 @@ class Query extends Model
         'lastname',
         'email',
         'phone',
-        'subject', 
+        'subject',
         'body',
         'status',
         'answer'
@@ -43,4 +44,3 @@ class Query extends Model
             ->logFillable();
     }
 }
-

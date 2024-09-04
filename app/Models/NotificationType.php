@@ -9,7 +9,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class NotificationType extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $table = 'notification_types';
 
@@ -24,7 +25,7 @@ class NotificationType extends Model
     {
         return $this->hasMany(Notification::class, 'type_id');
     }
-    
+
     /**
      * The attributes that should be logged.
      * @var bool

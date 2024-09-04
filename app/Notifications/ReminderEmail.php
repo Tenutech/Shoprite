@@ -69,7 +69,7 @@ class ReminderEmail extends Notification implements ShouldQueue
     {
         $this->prepareMailData();
 
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject($this->subject)
             ->view('vendor.notifications.notification', [
                 'greeting' => 'Dear ' . $this->lastItem->user->firstname . ' ' . $this->lastItem->user->lastname,
@@ -260,7 +260,6 @@ class ReminderEmail extends Notification implements ShouldQueue
                 'reminder_setting_id' => $this->reminderType->id, // Ensure this is the correct way to access the ID
                 'email_template_id' => $this->reminderType->email_template_id , // Make sure this property is set
             ]);
-
         } catch (\Exception $e) {
             // Log error or handle exception
             Log::error("Error logging reminder: {$e->getMessage()}");

@@ -33,7 +33,7 @@ class TownsController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Towns Index
@@ -77,7 +77,7 @@ class TownsController extends Controller
 
         try {
             //Town Create
-            $town = Town::create([                
+            $town = Town::create([
                 'name' => $request->name,
                 'code' => $request->code ?: null,
                 'province_id' => $request->province,
@@ -94,7 +94,7 @@ class TownsController extends Controller
                 'encID' => $encID,
                 'message' => 'Town created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create town!',
@@ -213,7 +213,7 @@ class TownsController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -221,25 +221,25 @@ class TownsController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             Town::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Towns deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete towns!',

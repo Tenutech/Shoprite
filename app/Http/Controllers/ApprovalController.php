@@ -40,7 +40,7 @@ class ApprovalController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-     
+
     /*
     |--------------------------------------------------------------------------
     | Approvals Index
@@ -109,13 +109,13 @@ class ApprovalController extends Controller
             $movementTotal = $totalVacancies != 0 ? round((($currentMonthVacancies - $previousMonthVacancies) / $totalVacancies) * 100, 2) : 0;
             $movementPending = $pendingVacancies != 0 ? round((($currentMonthPending - $previousMonthPending) / $pendingVacancies) * 100, 2) : 0;
             $movementApproved = $approvedVacancies != 0 ? round((($currentMonthApproved - $previousMonthApproved) / $approvedVacancies) * 100, 2) : 0;
-            $movementAmend = $amendVacancies != 0 ? round((($currentMonthAmend - $previousMonthAmend) / $amendVacancies) * 100, 2) : 0;            
+            $movementAmend = $amendVacancies != 0 ? round((($currentMonthAmend - $previousMonthAmend) / $amendVacancies) * 100, 2) : 0;
 
-            return view('admin/approvals',[
+            return view('admin/approvals', [
                 'vacancies' => $vacancies,
                 'positions' => $positions,
                 'types' => $types,
-                'brands' => $brands,                
+                'brands' => $brands,
                 'towns' => $towns,
                 'provinces' => $provinces,
                 'totalVacancies' => $totalVacancies,
@@ -138,7 +138,7 @@ class ApprovalController extends Controller
     */
 
     public function approve(Request $request)
-    {        
+    {
         try {
             $vacancyID = Crypt::decryptString($request->id);
 
@@ -187,7 +187,7 @@ class ApprovalController extends Controller
     */
 
     public function amend(Request $request)
-    {        
+    {
         try {
             $vacancyID = Crypt::decryptString($request->id);
 
@@ -244,7 +244,7 @@ class ApprovalController extends Controller
     */
 
     public function decline(Request $request)
-    {        
+    {
         try {
             $vacancyID = Crypt::decryptString($request->id);
 

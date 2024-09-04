@@ -44,7 +44,7 @@ class VacancyController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-     
+
     /*
     |--------------------------------------------------------------------------
     | Vacancies Index
@@ -64,10 +64,10 @@ class VacancyController extends Controller
                 $vacancyId = Crypt::decryptString($request->id);
 
                 $vacancy = Vacancy::with([
-                    'user', 
-                    'position', 
-                    'store', 
-                    'type', 
+                    'user',
+                    'position',
+                    'store',
+                    'type',
                     'status',
                     'appointed',
                     'sapNumbers',
@@ -81,7 +81,7 @@ class VacancyController extends Controller
 
             //Stores
             $stores = Store::with([
-                'brand', 
+                'brand',
                 'town',
             ])
             ->get();
@@ -89,7 +89,7 @@ class VacancyController extends Controller
             //Types
             $types = Type::whereNotIn('id', [6])->get();
 
-            return view('manager/vacancy',[
+            return view('manager/vacancy', [
                 'user' => $user,
                 'vacancy' => $vacancy,
                 'positions' => $positions,
@@ -114,8 +114,8 @@ class VacancyController extends Controller
      * @throws \Exception
      */
     public function store(Request $request)
-    {        
-        //Validate Input           
+    {
+        //Validate Input
         $request->validate([
             'position_id' => 'required|integer',
             'open_positions' => 'required|integer',
@@ -123,7 +123,7 @@ class VacancyController extends Controller
             'store_id' => 'required|integer',
             'type_id' => 'required|integer',
         ]);
-     
+
         try {
             //User ID
             $userID = Auth::id();
@@ -132,7 +132,7 @@ class VacancyController extends Controller
 
             // Vacancy Create
             $vacancy = Vacancy::create([
-                'user_id' => $userID,        
+                'user_id' => $userID,
                 'position_id' => $request->position_id,
                 'open_positions' => $request->open_positions,
                 'filled_positions' => 0,
@@ -142,13 +142,13 @@ class VacancyController extends Controller
                 'advertisement' => 'Any'
             ]);
 
-            // Create SAP Numbers        
+            // Create SAP Numbers
             foreach ($request->sap_numbers as $sap) {
                 $vacancy->sapNumbers()->create([
                     'sap_number' => $sap,
                 ]);
             }
-            
+
             // If a new vacancy was created, then create a notification
             if ($vacancy->wasRecentlyCreated) {
                 // Create Notification
@@ -174,7 +174,7 @@ class VacancyController extends Controller
             ], 201);
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create vacancy!',
@@ -195,13 +195,13 @@ class VacancyController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function update(Request $request)
-    {           
+    {
         $request->validate([
             'position_id' => 'required|integer',
             'open_positions' => 'required|integer',
             'sap_numbers' => 'required|array',
             'store_id' => 'required|integer',
-            'type_id' => 'required|integer',          
+            'type_id' => 'required|integer',
         ]);
 
         try {
@@ -254,7 +254,7 @@ class VacancyController extends Controller
             ], 201);
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update vacancy!',
@@ -267,7 +267,7 @@ class VacancyController extends Controller
      * Remove the specified vacancy and its associated SAP numbers from storage.
      *
      * This method decrypts the given ID to find the vacancy, deletes the associated SAP numbers,
-     * and then deletes the vacancy itself. If any error occurs during the process, it catches the 
+     * and then deletes the vacancy itself. If any error occurs during the process, it catches the
      * exception and returns a corresponding error response.
      *
      * @param  string  $id  The encrypted ID of the vacancy to be deleted.
@@ -298,20 +298,20 @@ class VacancyController extends Controller
             DB::commit();
 
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'Vacancy and associated SAP numbers deleted successfully!'
             ], 200);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
             return response()->json([
-                'success' => false, 
-                'message' => 'Vacancy not found', 
+                'success' => false,
+                'message' => 'Vacancy not found',
                 'error' => $e->getMessage()
             ], 404);
         } catch (\Exception $e) {
             DB::rollBack();
             return response()->json([
-                'success' => false, 
-                'message' => 'Vacancy deletion failed', 
+                'success' => false,
+                'message' => 'Vacancy deletion failed',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -321,8 +321,8 @@ class VacancyController extends Controller
      * Fill the specified vacancy with selected applicants.
      *
      * This method decrypts the vacancy ID, validates the selected applicants, and then fills the
-     * vacancy by updating the vacancy's open and filled positions. It ensures that only valid 
-     * applicants who have been interviewed are considered. If the vacancy has open positions 
+     * vacancy by updating the vacancy's open and filled positions. It ensures that only valid
+     * applicants who have been interviewed are considered. If the vacancy has open positions
      * available, the method proceeds to appoint the selected applicants, create notifications,
      * send WhatsApp messages, and update applicant data. If all positions are filled, the remaining
      * applicants are notified of their rejection.
@@ -546,7 +546,7 @@ class VacancyController extends Controller
             $availableSapNumbers = SapNumber::where('vacancy_id', $vacancy->id)
             ->whereDoesntHave('vacancyFills')
             ->get()
-            ->map(function($sapNumber) {
+            ->map(function ($sapNumber) {
                 return [
                     'id' => Crypt::encryptString($sapNumber->id),
                     'sap_number' => $sapNumber->sap_number

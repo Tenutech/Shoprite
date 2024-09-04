@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Race;
 use App\Models\Message;
-use App\Models\Vacancy; 
+use App\Models\Vacancy;
 use App\Models\Position;
 use App\Models\Applicant;
 use App\Models\Application;
@@ -54,10 +54,10 @@ class AdminController extends Controller
         if (view()->exists('admin/home')) {
             // Define the models that are relevant for the activity log.
             $allowedModels = [
-                'App\Models\Applicant', 
-                'App\Models\Application', 
-                'App\Models\Vacancy', 
-                'App\Models\Message', 
+                'App\Models\Applicant',
+                'App\Models\Application',
+                'App\Models\Vacancy',
+                'App\Models\Message',
                 'App\Models\User'
             ];
 
@@ -68,26 +68,26 @@ class AdminController extends Controller
 
             // Query the activity log, filtering for activities related to the allowed models.
             $activities = Activity::whereIn('subject_type', $allowedModels)
-                ->where(function($query) use ($authUserId, $authVacancyIds) {
+                ->where(function ($query) use ($authUserId, $authVacancyIds) {
                     // Filter for activities where the 'causer' (the user who performed the action) is the authenticated user,
                     // and the action is one of 'created', 'updated', or 'deleted'.
                     $query->where('causer_id', $authUserId)
                         ->whereIn('event', ['created', 'updated', 'deleted']);
                 })
-                ->orWhere(function($q) use ($authUserId) {
+                ->orWhere(function ($q) use ($authUserId) {
                     // Include activities where the event is 'accessed' (e.g., a user viewed a vacancy or applicant profile),
                     // specifically for the authenticated user.
                     $q->where('event', 'accessed')
                     ->whereIn('description', ['job-overview.index', 'applicant-profile.index'])
                     ->where('causer_id', $authUserId);
                 })
-                ->orWhere(function($q) use ($authUserId) {
+                ->orWhere(function ($q) use ($authUserId) {
                     // Include activities related to messages where the authenticated user is the recipient ('to_id').
                     $q->where('subject_type', 'App\Models\Message')
                     ->where('properties->attributes->to_id', $authUserId)
                     ->where('event', 'created');
                 })
-                ->orWhere(function($q) use ($authVacancyIds) {
+                ->orWhere(function ($q) use ($authVacancyIds) {
                     // Include activities related to applications connected to any of the vacancies owned by the authenticated user.
                     $q->where('subject_type', 'App\Models\Application')
                     ->whereIn('properties->attributes->vacancy_id', $authVacancyIds);
@@ -156,7 +156,7 @@ class AdminController extends Controller
             foreach ($deletedMessageActivities as $activity) {
                 $toId = data_get($activity, 'properties.old.to_id');
                 $activity->setRelation('userForDeletedMessage', $usersForDeletedMessages->firstWhere('id', $toId));
-            }           
+            }
 
             // Extract the encrypted IDs from the URL of the 'accessed' activities for vacancies.
             $accessedVacancyEncryptedIds = $activities->where('event', 'accessed')
@@ -165,7 +165,7 @@ class AdminController extends Controller
                 // Get the URL from the activity's properties.
                 return data_get($activity, 'properties.url');
             })
-            ->map(function($url) {
+            ->map(function ($url) {
                 // Split the URL into segments and get the last segment, which is the encrypted ID.
                 $segments = explode('/', $url);
                 $encryptedId = count($segments) > 1 ? last($segments) : null;
@@ -212,7 +212,7 @@ class AdminController extends Controller
                 parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
                 return $queryParams['id'] ?? null;
             })
-            ->map(function($encryptedId) {
+            ->map(function ($encryptedId) {
                 // Attempt to decrypt the encrypted ID.
                 if ($encryptedId) {
                     try {
@@ -264,7 +264,7 @@ class AdminController extends Controller
             $previousYear = $currentYear - 1;
 
             $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            
+
             // Determine months to query for the current year
             $queryMonthsCurrentYear = array_slice($months, 0, $currentMonth + 1);
             // Determine months to query for the previous year, excluding months overlapping with the current year
@@ -318,7 +318,7 @@ class AdminController extends Controller
                 // Combine both year's data
                 $combinedApplicantsByRace = $applicantsByRacePreviousYear->concat($applicantsByRaceCurrentYear);
 
-                // Initialize the series array for the chart                
+                // Initialize the series array for the chart
                 $combinedApplicantsByRace->groupBy('race_name')->each(function ($items, $raceName) use (&$applicantsByRace, $months, $currentMonth) {
                     $dataPoints = array_fill(0, count($months), 0); // Initialize with zeros for all months
 
@@ -336,7 +336,7 @@ class AdminController extends Controller
                         'name' => $raceName,
                         'data' => array_reverse($dataPoints), // Reverse to start with the most recent month
                     ];
-                });           
+                });
 
                 // Handle the previous year's data
                 if ($currentMonth < 11) {
@@ -380,11 +380,11 @@ class AdminController extends Controller
                 //Percent movement from last month
                 $sumOfApplications = array_sum($applicationsPerMonth);
 
-                if(count($applicationsPerMonth) >= 2) {
+                if (count($applicationsPerMonth) >= 2) {
                     $lastMonthApplications = end($applicationsPerMonth);
                     $penultimateMonthApplications = $applicationsPerMonth[count($applicationsPerMonth) - 2];
-                
-                    if($sumOfApplications > 0) {
+
+                    if ($sumOfApplications > 0) {
                         $percentMovementApplicationsPerMonth = round((($lastMonthApplications - $penultimateMonthApplications) / $sumOfApplications) * 100, 2);
                     } else {
                         $percentMovementApplicationsPerMonth = 0;
@@ -410,9 +410,9 @@ class AdminController extends Controller
 
                 // Process the combined data for visualization
                 $combinedInterviews->groupBy('month')->each(function ($items, $month) use (&$interviewedPerMonth, $months) {
-                $totalInterviews = $items->sum('count'); // Sum up interviews for the month
+                    $totalInterviews = $items->sum('count'); // Sum up interviews for the month
 
-                $index = array_search($month, $months);
+                    $index = array_search($month, $months);
                     if ($index !== false) {
                         $interviewedPerMonth[] = $totalInterviews;
                     }
@@ -421,11 +421,11 @@ class AdminController extends Controller
                 //Percent movement from last month
                 $sumOfInterviewed = array_sum($interviewedPerMonth);
 
-                if(count($interviewedPerMonth) >= 2) {
+                if (count($interviewedPerMonth) >= 2) {
                     $lastMonthInterviewed = end($interviewedPerMonth);
                     $penultimateMonthInterviewed = $interviewedPerMonth[count($interviewedPerMonth) - 2];
-                
-                    if($sumOfInterviewed > 0) {
+
+                    if ($sumOfInterviewed > 0) {
                         $percentMovementInterviewedPerMonth = round((($lastMonthInterviewed - $penultimateMonthInterviewed) / $sumOfInterviewed) * 100, 2);
                     } else {
                         $percentMovementInterviewedPerMonth = 0;
@@ -451,9 +451,9 @@ class AdminController extends Controller
 
                 // Process the combined data for visualization
                 $combinedAppointed->groupBy('month')->each(function ($items, $month) use (&$appointedPerMonth, $months) {
-                $totalAppointed = $items->sum('count'); // Sum up appointed for the month
+                    $totalAppointed = $items->sum('count'); // Sum up appointed for the month
 
-                $index = array_search($month, $months);
+                    $index = array_search($month, $months);
                     if ($index !== false) {
                         $appointedPerMonth[] = $totalAppointed;
                     }
@@ -462,11 +462,11 @@ class AdminController extends Controller
                 //Percent movement from last month
                 $sumOfAppointed = array_sum($appointedPerMonth);
 
-                if(count($appointedPerMonth) >= 2) {
+                if (count($appointedPerMonth) >= 2) {
                     $lastMonthAppointed = end($appointedPerMonth);
                     $penultimateMonthAppointed = $appointedPerMonth[count($appointedPerMonth) - 2];
-                
-                    if($sumOfAppointed > 0) {
+
+                    if ($sumOfAppointed > 0) {
                         $percentMovementAppointedPerMonth = round((($lastMonthAppointed - $penultimateMonthAppointed) / $sumOfAppointed) * 100, 2);
                     } else {
                         $percentMovementAppointedPerMonth = 0;
@@ -492,9 +492,9 @@ class AdminController extends Controller
 
                 // Process the combined data for visualization
                 $combinedRejected->groupBy('month')->each(function ($items, $month) use (&$rejectedPerMonth, $months) {
-                $totalRejected = $items->sum('count'); // Sum up rejected for the month
+                    $totalRejected = $items->sum('count'); // Sum up rejected for the month
 
-                $index = array_search($month, $months);
+                    $index = array_search($month, $months);
                     if ($index !== false) {
                         $rejectedPerMonth[] = $totalRejected;
                     }
@@ -503,11 +503,11 @@ class AdminController extends Controller
                 //Percent movement from last month
                 $sumOfRejected = array_sum($rejectedPerMonth);
 
-                if(count($rejectedPerMonth) >= 2) {
+                if (count($rejectedPerMonth) >= 2) {
                     $lastMonthRejected = end($rejectedPerMonth);
                     $penultimateMonthRejected = $rejectedPerMonth[count($rejectedPerMonth) - 2];
-                
-                    if($sumOfRejected > 0) {
+
+                    if ($sumOfRejected > 0) {
                         $percentMovementRejectedPerMonth = round((($lastMonthRejected - $penultimateMonthRejected) / $sumOfRejected) * 100, 2);
                     } else {
                         $percentMovementRejectedPerMonth = 0;
@@ -561,7 +561,7 @@ class AdminController extends Controller
                 ];
             })->all();
 
-            return view('admin/home',[
+            return view('admin/home', [
                 'activities' => $activities,
                 'positions' => $positions,
                 'currentYearData' => $currentYearData,
@@ -586,7 +586,7 @@ class AdminController extends Controller
         }
         return view('404');
     }
-    
+
     /*
     |--------------------------------------------------------------------------
     | Update Data
@@ -617,7 +617,7 @@ class AdminController extends Controller
             $endYear = $endDate->year;
             $startMonth = $startDate->format('M');
             $endMonth = $endDate->format('M');
-            
+
             // Prepare an array to map month names to their numeric values
             $months = [
                 'Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4, 'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8, 'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12,
@@ -650,23 +650,23 @@ class AdminController extends Controller
             ->join('applicant_total_data', 'applicant_monthly_data.applicant_total_data_id', '=', 'applicant_total_data.id')
             ->join('provinces', 'applicant_monthly_data.category_id', '=', 'provinces.id')
             ->where('applicant_monthly_data.category_type', 'Province')
-            ->where(function($query) use ($startYear, $endYear, $startMonth, $endMonth, $months) {
+            ->where(function ($query) use ($startYear, $endYear, $startMonth, $endMonth, $months) {
                 if ($startYear == $endYear) {
                     $query->whereYear('applicant_total_data.year', $startYear)
-                        ->where(function($subQuery) use ($startMonth, $endMonth, $months) {
-                            $subQuery->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $endMonth, $months) {
+                        ->where(function ($subQuery) use ($startMonth, $endMonth, $months) {
+                            $subQuery->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function ($value) use ($startMonth, $endMonth, $months) {
                                 return $value >= $months[$startMonth] && $value <= $months[$endMonth];
                             })));
                         });
                 } else {
-                    $query->where(function($subQuery) use ($startYear, $startMonth, $months) {
+                    $query->where(function ($subQuery) use ($startYear, $startMonth, $months) {
                         $subQuery->whereYear('applicant_total_data.year', $startYear)
-                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $months) {
+                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function ($value) use ($startMonth, $months) {
                                     return $value >= $months[$startMonth];
                                 })));
-                    })->orWhere(function($subQuery) use ($endYear, $endMonth, $months) {
+                    })->orWhere(function ($subQuery) use ($endYear, $endMonth, $months) {
                         $subQuery->whereYear('applicant_total_data.year', $endYear)
-                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($endMonth, $months) {
+                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function ($value) use ($endMonth, $months) {
                                     return $value <= $months[$endMonth];
                                 })));
                     })->orWhereBetween('applicant_total_data.year', [$startYear + 1, $endYear - 1]);
@@ -686,21 +686,21 @@ class AdminController extends Controller
             ->join('applicant_total_data', 'applicant_monthly_data.applicant_total_data_id', '=', 'applicant_total_data.id')
             ->join('races', 'applicant_monthly_data.category_id', '=', 'races.id')
             ->where('applicant_monthly_data.category_type', 'Race')
-            ->where(function($query) use ($startYear, $endYear, $startMonth, $endMonth, $months) {
+            ->where(function ($query) use ($startYear, $endYear, $startMonth, $endMonth, $months) {
                 if ($startYear == $endYear) {
                     $query->whereYear('applicant_total_data.year', $startYear)
-                        ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $endMonth, $months) {
+                        ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function ($value) use ($startMonth, $endMonth, $months) {
                             return $value >= $months[$startMonth] && $value <= $months[$endMonth];
                         })));
                 } else {
-                    $query->where(function($subQuery) use ($startYear, $startMonth, $months) {
+                    $query->where(function ($subQuery) use ($startYear, $startMonth, $months) {
                         $subQuery->whereYear('applicant_total_data.year', $startYear)
-                            ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $months) {
+                            ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function ($value) use ($startMonth, $months) {
                                 return $value >= $months[$startMonth];
                             })));
-                    })->orWhere(function($subQuery) use ($endYear, $endMonth, $months) {
+                    })->orWhere(function ($subQuery) use ($endYear, $endMonth, $months) {
                         $subQuery->whereYear('applicant_total_data.year', $endYear)
-                            ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($endMonth, $months) {
+                            ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function ($value) use ($endMonth, $months) {
                                 return $value <= $months[$endMonth];
                             })));
                     })->orWhereBetween('applicant_total_data.year', [$startYear + 1, $endYear - 1]);
@@ -731,17 +731,17 @@ class AdminController extends Controller
                 // Determine the months to process for the current year
                 if ($year == $startYear && $year == $endYear) {
                     // If start year and end year are the same, process from start month to end month
-                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($startMonth, $endMonth, $months) {
+                    $monthsToProcess = array_keys(array_filter($months, function ($value) use ($startMonth, $endMonth, $months) {
                         return $value >= $months[$startMonth] && $value <= $months[$endMonth];
                     }));
                 } elseif ($year == $startYear) {
                     // For the start year, process from the start month to December
-                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($startMonth, $months) {
+                    $monthsToProcess = array_keys(array_filter($months, function ($value) use ($startMonth, $months) {
                         return $value >= $months[$startMonth];
                     }));
                 } elseif ($year == $endYear) {
                     // For the end year, process from January to the end month
-                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($endMonth, $months) {
+                    $monthsToProcess = array_keys(array_filter($months, function ($value) use ($endMonth, $months) {
                         return $value <= $months[$endMonth];
                     }));
                 } else {
@@ -755,7 +755,7 @@ class AdminController extends Controller
                     $count = $yearData->$monthKey ?? 0;
                     $totalApplicantsPerMonth[] = $month . ' \'' . substr($year, -2) . ': ' . $count;
                     $monthlyCounts[] = $count;
-                    $totalApplicants += $count;+
+                    $totalApplicants += $count; +
 
                     // Fetch count for "Application"
                     $applicationsCount = DB::table('applicant_monthly_data')
@@ -812,7 +812,7 @@ class AdminController extends Controller
 
                     // If no record is found, set the count to 0
                     $rejectedCount = $rejectedCount ?: 0;
-                    
+
                     $rejectedPerMonth[] = $month . ' \'' . substr($year, -2) . ': ' . $rejectedCount;
                     $rejectedMonthlyCounts[] = $rejectedCount;
 
@@ -846,7 +846,7 @@ class AdminController extends Controller
             $appointedPenultimateMonthCount = end($appointedSlicedMonthlyCounts) ?: 0;
             $appointedLastMonthCount = end($appointedMonthlyCounts) ?: 0;
             $percentMovementAppointedPerMonth = $appointedPenultimateMonthCount != 0 ? round((($appointedLastMonthCount - $appointedPenultimateMonthCount) / $appointedPenultimateMonthCount) * 100, 2) : 0;
-    
+
             // Calculate percent movement of rejected per month
             $rejectedSlicedMonthlyCounts = array_slice($rejectedMonthlyCounts, -2, 1);
             $rejectedPenultimateMonthCount = end($rejectedSlicedMonthlyCounts) ?: 0;
@@ -871,17 +871,17 @@ class AdminController extends Controller
                 // Determine the months to process for the current year
                 if ($year == $startYear && $year == $endYear) {
                     // If start year and end year are the same, process from start month to end month
-                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($startMonth, $endMonth, $months) {
+                    $monthsToProcess = array_keys(array_filter($months, function ($value) use ($startMonth, $endMonth, $months) {
                         return $value >= $months[$startMonth] && $value <= $months[$endMonth];
                     }));
                 } elseif ($year == $startYear) {
                     // For the start year, process from the start month to December
-                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($startMonth, $months) {
+                    $monthsToProcess = array_keys(array_filter($months, function ($value) use ($startMonth, $months) {
                         return $value >= $months[$startMonth];
                     }));
                 } elseif ($year == $endYear) {
                     // For the end year, process from January to the end month
-                    $monthsToProcess = array_keys(array_filter($months, function($value) use ($endMonth, $months) {
+                    $monthsToProcess = array_keys(array_filter($months, function ($value) use ($endMonth, $months) {
                         return $value <= $months[$endMonth];
                     }));
                 } else {
@@ -895,7 +895,7 @@ class AdminController extends Controller
                     $monthOutgoing = strtolower($month) . '_outgoing';
                     $incomingCount = $yearChatData->$monthIncoming ?? 0;
                     $outgoingCount = $yearChatData->$monthOutgoing ?? 0;
-                    
+
                     $formattedMonth = $month . ' \'' . substr($year, -2);
                     $incomingMessages[] = $formattedMonth . ': ' . $incomingCount;
                     $outgoingMessages[] = $formattedMonth . ': ' . $outgoingCount;
@@ -911,23 +911,23 @@ class AdminController extends Controller
             ->join('applicant_total_data', 'applicant_monthly_data.applicant_total_data_id', '=', 'applicant_total_data.id')
             ->join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
             ->where('applicant_monthly_data.category_type', 'Position')
-            ->where(function($query) use ($startYear, $endYear, $startMonth, $endMonth, $months) {
+            ->where(function ($query) use ($startYear, $endYear, $startMonth, $endMonth, $months) {
                 if ($startYear == $endYear) {
                     $query->whereYear('applicant_total_data.year', $startYear)
-                        ->where(function($subQuery) use ($startMonth, $endMonth, $months) {
-                            $subQuery->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $endMonth, $months) {
+                        ->where(function ($subQuery) use ($startMonth, $endMonth, $months) {
+                            $subQuery->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function ($value) use ($startMonth, $endMonth, $months) {
                                 return $value >= $months[$startMonth] && $value <= $months[$endMonth];
                             })));
                         });
                 } else {
-                    $query->where(function($subQuery) use ($startYear, $startMonth, $months) {
+                    $query->where(function ($subQuery) use ($startYear, $startMonth, $months) {
                         $subQuery->whereYear('applicant_total_data.year', $startYear)
-                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($startMonth, $months) {
+                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function ($value) use ($startMonth, $months) {
                                     return $value >= $months[$startMonth];
                                 })));
-                    })->orWhere(function($subQuery) use ($endYear, $endMonth, $months) {
+                    })->orWhere(function ($subQuery) use ($endYear, $endMonth, $months) {
                         $subQuery->whereYear('applicant_total_data.year', $endYear)
-                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function($value) use ($endMonth, $months) {
+                                ->whereIn('applicant_monthly_data.month', array_keys(array_filter($months, function ($value) use ($endMonth, $months) {
                                     return $value <= $months[$endMonth];
                                 })));
                     })->orWhereBetween('applicant_total_data.year', [$startYear + 1, $endYear - 1]);
@@ -976,7 +976,7 @@ class AdminController extends Controller
                 'data' => $data,
                 'message' => 'Data updated successfully!',
             ]);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve data!',

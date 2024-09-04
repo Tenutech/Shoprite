@@ -21,7 +21,7 @@ class UserActivity
     {
         $user = Auth::user();
         $routeName = $request->route()->getName();
-    
+
         if ($routeName !== null) {
             activity()
                 ->causedBy($user)
@@ -33,7 +33,7 @@ class UserActivity
                 ])
                 ->log($routeName);
         }
-    
+
         return $next($request);
     }
 }
