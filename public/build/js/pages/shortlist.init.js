@@ -14,6 +14,10 @@ $(document).ready(function() {
 
         // Set the hidden input field's value to the selected vacancy ID
         $('#vacancyID').val(selectedVacancyID);
+
+        // Redirect to the shortlist route with the selected vacancy ID
+        const url = route('shortlist.index', { id: selectedVacancyID });
+        window.location.href = url;
     });
 
     fetchShortlistedApplicants();
@@ -191,6 +195,7 @@ function fetchData() {
     }
     
     // Validate the applicant type select
+    /*
     if (applicantType === '') {
         let choicesDiv = applicantTypeSelect.closest('.mb-3');
         if(choicesDiv) {
@@ -217,6 +222,7 @@ function fetchData() {
             feedbackDiv.style.display = 'none';
         }
     }
+    */
 
     // Get the generate button and disable it to prevent multiple clicks
     var generateBtn = document.getElementById('generate-btn');
@@ -697,47 +703,6 @@ $('#interviewModal').on('hidden.bs.modal', function () {
     applicantChoices.clearStore();
     clearFields();
 });
-
-/*
-|--------------------------------------------------------------------------
-| Contract
-|--------------------------------------------------------------------------
-*/
-
-// Select the Contract button
-var contractBtn = document.querySelector('#contractBtn');
-
-// Add click event listener to the Contract button
-if (contractBtn) {
-    contractBtn.addEventListener('click', function(event) {
-        // Find all checked checkboxes for the candidates
-        var checkedCheckboxes = document.querySelectorAll('input[type="checkbox"][name="chk_child"]:checked');
-        
-        // Reset the selectedApplicants array
-        selectedApplicants = [];
-
-        // Check if there are any checked checkboxes
-        if (checkedCheckboxes.length === 0) {
-            // Show SweetAlert notification
-            Swal.fire({
-                title: 'Please select at least one applicant',
-                confirmButtonClass: 'btn btn-info',
-                buttonsStyling: false,
-                showCloseButton: true
-            });
-        } else {
-            // Push the selected applicants' data into the selectedApplicants array
-            checkedCheckboxes.forEach(function(checkbox) {
-                var id = checkbox.getAttribute('data-bs-id');
-                var name = checkbox.getAttribute('data-bs-name');
-                selectedApplicants.push({ id: id, name: name });
-            });
-
-            // Manually open the modal using jQuery
-            $('#contractModal').modal('show');
-        }
-    });
-}
 
 /*
 |--------------------------------------------------------------------------
@@ -1339,116 +1304,6 @@ $('#formInterview').on('submit', function(e) {
                     });
             
                     $('#interviewModal').modal('hide');
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                let message = ''; // Initialize the message variable
-        
-                if (jqXHR.status === 400 || jqXHR.status === 422) {
-                    message = jqXHR.responseJSON.message;
-                } else if (textStatus === 'timeout') {
-                    message = 'The request timed out. Please try again later.';
-                } else {
-                    message = 'An error occurred while processing your request. Please try again later.';
-                }
-            
-                // Trigger the Swal notification with the dynamic message
-                Swal.fire({
-                    position: 'top-end',
-                    icon: 'error',
-                    title: message,
-                    showConfirmButton: false,
-                    timer: 5000,
-                    showCloseButton: true,
-                    toast: true
-                });
-            }
-        });
-    } else {
-        this.reportValidity();
-    }
-});
-
-/*
-|--------------------------------------------------------------------------
-| Form Contract
-|--------------------------------------------------------------------------
-*/
-
-$('#formContract').on('submit', function(e) {
-    e.preventDefault();
-    var formData = new FormData(this);
-    var isValid = true; // Flag to determine if the form is valid
-
-    // Clear previous invalid feedback
-    $('.is-invalid').removeClass('is-invalid');
-    $('.invalid-feedback').hide();
-    $('.choices').css('border', '');
-
-    // Validate each field
-    $('#formContract').find('input, select, textarea').each(function() {
-        var element = $(this); // Current element
-        var value = element.val(); // Value of the element
-        var isRequired = element.prop('required'); // Is it required?
-        var elementType = element.attr('type'); // Type of element
-
-        // Check if the field is required and empty
-        if (isRequired && !value) {
-            isValid = false;
-            element.addClass('is-invalid');
-            element.siblings('.invalid-feedback').show();
-        }
-    });
-
-    // If the form is not valid, stop here
-    if (!isValid) {
-        return;
-    }
-
-    if (this.checkValidity()) {
-        $.ajax({
-            url: route('contract.send'),
-            type: 'POST',
-            data: formData,
-            async: true,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success:function(data){                
-                if (data.success == true) {
-
-                    // For each selected applicant, add the alert if it doesn't exist
-                    selectedChoices.forEach(function(applicantID) {
-                        var candidateCard = document.querySelector('.candidate-card[data-candidate-id="' + applicantID + '"]');
-
-                        if (candidateCard) {
-                            // Check if the alert div already exists
-                            if (!candidateCard.querySelector('.alert-contract')) {
-                                var alertHtml = '<div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show mb-0 alert-contract" role="alert">' +
-                                                '<i class="ri-article-fill label-icon"></i><strong>Contract Sent</strong>' + 
-                                                '</div>';
-                                // Append the alertHtml to the card footer
-                                var cardFooter = candidateCard.querySelector('.card-footer .d-flex');
-                                if (cardFooter) {
-                                    cardFooter.insertAdjacentHTML('beforeend', alertHtml);
-                                }
-                            }
-                        }
-                    });
-            
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: data.message,
-                        showConfirmButton: false,
-                        timer: 2000,
-                        toast: true,
-                        showCloseButton: true
-                    });
-            
-                    $('#contractModal').modal('hide');
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {

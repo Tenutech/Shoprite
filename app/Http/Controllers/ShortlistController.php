@@ -209,21 +209,33 @@ class ShortlistController extends Controller
     public function applicants(Request $request)
     {
         try {
+            // Decrypt Vacancy ID with error handling
+            try {
+                // Vacancy ID
+                $vacancyID = Crypt::decryptString($request->input('vacancy_id'));
+            } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Invalid Payload',
+                    'error' => $e->getMessage()
+                ], 400);
+            }
+
+            // Merge the decrypted vacancy ID into the request
+            $request->merge(['vacancy_id_decrypted' => $vacancyID]);
+
             // Get the min and max shortlist numbers from the settings, with default values
             $minShortlistNumber = Setting::where('key', 'min_shorlist_number')->first()->value ?? 5;
             $maxShortlistNumber = Setting::where('key', 'max_shorlist_number')->first()->value ?? 20;
 
             // Validation rules
             $validatedData = $request->validate([
-                'vacancy_id' => 'required|integer|exists:vacancies,id',
+                'vacancy_id_decrypted' => 'required|integer|exists:vacancies,id',
                 'number' => "required|integer|min:$minShortlistNumber|max:$maxShortlistNumber"
             ]);
 
             // Auth User ID
             $userID = Auth::id();
-
-            // Vacancy ID
-            $vacancyID = $request->input('vacancy_id');
 
             // Check for existing shortlist and update applicants if needed
             $existingShortlist = Shortlist::where('user_id', $userID)->where('vacancy_id', $vacancyID)->first();
@@ -299,7 +311,7 @@ class ShortlistController extends Controller
                 $filters = $request->input('filters');
                 foreach ($filters as $key => $values) {
                     // Skip the applicant_type_id filter if its value is 3
-                    if ($key === 'applicant_type_id' && $values == '3') {
+                    if ($key === 'applicant_type_id' && ($values == '3' || empty($values))) {
                         continue;
                     }
 
@@ -457,8 +469,17 @@ class ShortlistController extends Controller
             // Auth User ID
             $userID = Auth::id();
 
-            // Vacancy ID
-            $vacancyID = $request->input('vacancy_id');
+            // Decrypt Vacancy ID with error handling
+            try {
+                // Vacancy ID
+                $vacancyID = Crypt::decryptString($request->input('vacancy_id'));
+            } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Invalid Payload',
+                    'error' => $e->getMessage()
+                ], 400);
+            }
 
             //Shortlist
             $shortlist = Shortlist::where('user_id', $userID)
@@ -539,7 +560,18 @@ class ShortlistController extends Controller
     public function shortlistUpdate(Request $request)
     {
         try {
-            $vacancyID = $request->input('vacancy_id');
+            // Decrypt Vacancy ID with error handling
+            try {
+                // Vacancy ID
+                $vacancyID = Crypt::decryptString($request->input('vacancy_id'));
+            } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+                return response()->json([
+                    'success' => false, 
+                    'message' => 'Invalid Payload',
+                    'error' => $e->getMessage()
+                ], 400);
+            }
+            
             $userID = Auth::id(); // Or however you obtain the authenticated user's ID
             $applicantIDToRemove = $request->input('applicant_id');
 

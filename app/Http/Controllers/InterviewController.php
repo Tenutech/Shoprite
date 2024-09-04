@@ -88,6 +88,17 @@ class InterviewController extends Controller
 
     public function store(Request $request)
     {
+        // Decrypt Vacancy ID with error handling
+        try {
+            $vacancyID = Crypt::decryptString($request->input('vacancy_id'));
+        } catch (\Illuminate\Contracts\Encryption\DecryptException $e) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'Invalid Payload',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+
         // Format the date input
         $interviewDate = Carbon::createFromFormat('d M, Y', $request->date);
         $interviewDateFormatted = $interviewDate->format('Y-m-d');
@@ -102,6 +113,7 @@ class InterviewController extends Controller
 
         // Merge the formatted date and times back into the request
         $request->merge([
+            'vacancy_id_decrypted' => $vacancyID,
             'date' => $interviewDateFormatted,
             'start_time' => $startTimeFormatted,
             'end_time' => $endTimeFormatted,
@@ -109,7 +121,7 @@ class InterviewController extends Controller
 
         // Validate the request data
         $validatedData = $request->validate([
-            'vacancy_id' => 'required|int',
+            'vacancy_id_decrypted' => 'required|int|exists:vacancies,id',
             'applicants' => 'required|array',
             'date' => 'required|date',
             'start_time' => 'required|date_format:H:i',
@@ -174,7 +186,7 @@ class InterviewController extends Controller
         $interview = Interview::create([
             'applicant_id' => $applicantID,
             'interviewer_id' => $userID,
-            'vacancy_id' => $validatedData['vacancy_id'],                    
+            'vacancy_id' => $validatedData['vacancy_id_decrypted'],                    
             'scheduled_date' => $validatedData['date'],
             'start_time' => $validatedData['start_time'],
             'end_time' => $validatedData['end_time'],

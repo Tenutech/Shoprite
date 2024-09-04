@@ -71,15 +71,15 @@
 -------------------------------------------------------------------------------------->
 
 <div class="row g-4 mb-4">
-    <div class="col-md-6">
+    <div class="col-md-12">
         <div class="mb-3" id="applicantTypeChoice">
             <label for="vacancy" class="form-label">
                 Vacancy
             </label>
-            <select class="form-control" id="vacancy" name="vacancy_id" data-choices data-choices-search-true required>
+            <select class="form-control" id="vacancy" name="vacancy_id" required>
                 <option value="">Select Vacancy</option>
                 @foreach ($vacancies as $vacancy)
-                    <option value="{{ $vacancy->id }}" {{ ($vacancyID && $vacancyID == $vacancy->id) ? 'selected' : '' }}>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->town->name }})</option>
+                    <option value="{{ Crypt::encryptString($vacancy->id) }}" {{ ($vacancyID && $vacancyID == $vacancy->id) ? 'selected' : '' }}>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->town->name }}) {{ $vacancy->id }}</option>
                 @endforeach
             </select>
             <div class="invalid-feedback">Please select a vacancy</div>
@@ -105,24 +105,26 @@
             </label>
             <select class="form-control" id="shortlistType" name="shortlist_type_id" data-choices data-choices-search-true required>
                 <option value="">Select Type</option>
-                    <option value="1">Talent Pool/Candidates</option>
-                    <option value="2">Applicants</option>
-                    <option value="3">Any</option>
+                    <!-- <option value="1">Talent Pool/Candidates</option> -->
+                    <!-- <option value="2">Applicants</option> -->
+                    <option value="3" selected>Any</option>
                     <option value="4">Saved Applicants</option>
             </select>
             <div class="invalid-feedback">Please select shortlist type</div>
         </div>                                                       
     </div>
 
-    <div class="col-md-6">
+    <div class="col-md-6 d-none">
         <div class="mb-3" id="applicantTypeChoice">
             <label for="applicantType" class="form-label">
                 Applicant Type
             </label>
-            <select class="form-control" id="applicantType" name="applicant_type_id" data-choices data-choices-search-true required>
+            <select class="form-control" id="applicantType" name="applicant_type_id" data-choices data-choices-search-true>
                 <option value="">Select Type</option>
                 @foreach ($applicantTypes as $applicantType)
-                    <option value="{{ $applicantType->id }}">{{ $applicantType->name }}</option>
+                    <option value="{{ $applicantType->id }}" {{ $applicantType->name == 'Any' ? 'selected' : '' }}>
+                        {{ $applicantType->name }}
+                    </option>
                 @endforeach
             </select>
             <div class="invalid-feedback">Please select a applicant type</div>
@@ -456,7 +458,7 @@
                 <form id="formInterview" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" id="UserID" name="user_id" value="{{ Crypt::encryptstring(Auth::id()) }}"/>
-                    <input type="hidden" id="vacancyID" name="vacancy_id" value="{{ $vacancyID ? $vacancyID : '' }}"/>
+                    <input type="hidden" id="vacancyID" name="vacancy_id" value="{{ $vacancyID ? Crypt::encryptstring($vacancyID) : '' }}"/>
                     <div class="row">
                         <div class="col-12">
                             <div class="mb-3" id="applicantsIntreview">
@@ -635,7 +637,7 @@
 </script>
 <script type="text/javascript">
     var shortlistedApplicants = @json($shortlistedApplicants);
-    var vacancyID = @json($vacancyID);
+    var vacancyID = @json(Crypt::encryptString($vacancyID));
 </script>
 <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
