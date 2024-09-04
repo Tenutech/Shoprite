@@ -6,6 +6,26 @@ Contact: admin@tenutech.com
 File: job-statistics init js
 */
 
+/*
+|--------------------------------------------------------------------------
+| Show Unactioned Shortlist
+|--------------------------------------------------------------------------
+*/
+
+$(document).ready(function() {
+    // Check if the shortlist exists
+    if (typeof shortlist !== 'undefined' && shortlist !== null) {
+        // Show the modal when shortlist exists
+        $('#unActionedShortlistModal').modal('show');
+    }
+});
+
+/*
+|--------------------------------------------------------------------------
+| Format Date
+|--------------------------------------------------------------------------
+*/
+
 // list js
 function formatDate(date) {
     var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -21,6 +41,12 @@ function formatDate(date) {
         day = '0' + day;
     return [day + " " + month, year].join(', ');
 };
+
+/*
+|--------------------------------------------------------------------------
+| Check Boxes
+|--------------------------------------------------------------------------
+*/
 
 var checkAll = document.getElementById("checkAll");
 if (checkAll) {
@@ -39,6 +65,12 @@ if (checkAll) {
     (checkedCount > 0) ? document.getElementById("remove-actions").style.display = 'none' : document.getElementById("remove-actions").style.display = 'block';
   };
 }
+
+/*
+|--------------------------------------------------------------------------
+| Vacancies List
+|--------------------------------------------------------------------------
+*/
 
 var perPage = 8;
 var editlist = false;
@@ -564,89 +596,4 @@ if (revenueExpensesChartsColors) {
     };
     var chart = new ApexCharts(document.querySelector("#jobs_chart"), options);
     chart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Right Sidebar
-|--------------------------------------------------------------------------
-*/
-
-var layoutRightSideBtn = document.querySelector('.layout-rightside-btn');
-if (layoutRightSideBtn) {
-    Array.from(document.querySelectorAll(".layout-rightside-btn")).forEach(function (item) {
-        var userProfileSidebar = document.querySelector(".layout-rightside-col");
-        item.addEventListener("click", function () {
-            if (userProfileSidebar.classList.contains("d-block")) {
-                userProfileSidebar.classList.remove("d-block");
-                userProfileSidebar.classList.add("d-none");
-            } else {
-                userProfileSidebar.classList.remove("d-none");
-                userProfileSidebar.classList.add("d-block");
-            }
-        });
-    });
-    window.addEventListener("resize", function () {
-        var userProfileSidebar = document.querySelector(".layout-rightside-col");
-        if (userProfileSidebar) {
-            Array.from(document.querySelectorAll(".layout-rightside-btn")).forEach(function () {
-                if (window.outerWidth < 1699 || window.outerWidth > 3440) {
-                    userProfileSidebar.classList.remove("d-block");
-                } else if (window.outerWidth > 1699) {
-                    userProfileSidebar.classList.add("d-block");
-                }
-            });
-        }
-
-        var htmlAttr = document.documentElement;
-        if (htmlAttr.getAttribute("data-layout") == "semibox") {
-            userProfileSidebar.classList.remove("d-block");
-            userProfileSidebar.classList.add("d-none");
-        }
-    });
-    var overlay = document.querySelector('.overlay');
-    if (overlay) {
-        document.querySelector(".overlay").addEventListener("click", function () {
-            if (document.querySelector(".layout-rightside-col").classList.contains('d-block') == true) {
-                document.querySelector(".layout-rightside-col").classList.remove("d-block");
-            }
-        });
-    }
-}
-
-/*
-|--------------------------------------------------------------------------
-| Vacancies
-|--------------------------------------------------------------------------
-*/
-
-// Simple Donut Charts
-var chart;
-var chartDonutBasicColors = getChartColorsArray("vacancy_chart");
-if (chartDonutBasicColors) {
-    var options = {
-        series: [totalApplications, totalApplicationsApproved, totalApplicationsRejected],
-        labels: ["Applications", "Approved", "Rejected"],
-        chart: {
-            height: 300,
-            type: 'donut',
-        },
-        legend: {
-            position: 'bottom'
-        },
-        dataLabels: {
-            dropShadow: {
-                enabled: false,
-            }
-        },
-        colors: chartDonutBasicColors
-    };
-
-    var chart = new ApexCharts(document.querySelector("#vacancy_chart"), options);
-    chart.render();
-}
-
-// Function to generate random data for the chart
-function generateRandomChartData() {
-    return [Math.floor(Math.random() * 100), Math.floor(Math.random() * 100), Math.floor(Math.random() * 100)];
 }

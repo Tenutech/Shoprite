@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Message;
 use App\Models\Vacancy;
 use App\Models\Position;
+use App\Models\Interview;
 use App\Models\Applicant;
 use App\Models\Application;
+use App\Models\Shortlist;
+use App\Models\ReminderSetting;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
 use App\Models\ApplicantMonthlyStoreData;
@@ -84,239 +88,28 @@ class ManagerController extends Controller
                 return $vacancy;
             });
 
-            // All Vacancies
-            $allVacancies = Vacancy::with([
-                'user',
-                'position.tags',
-                'store.brand',
-                'store.town',
-                'type',
-                'status',
-                'applicants.applicant',
-                'applications',
-                'savedBy' => function ($query) use ($authUserId) {
-                    $query->where('user_id', $authUserId);
-                }
-            ])
-            ->withCount(['applications as total_applications'])
-            ->withCount(['applications as applications_approved' => function ($query) {
-                $query->where('approved', 'Yes');
-            }])
-            ->withCount(['applications as applications_rejected' => function ($query) {
-                $query->where('approved', 'No');
-            }])
-            ->where('status_id', 2)
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($vacancy) {
-                $vacancy->encrypted_id = Crypt::encryptString($vacancy->id);
-                $vacancy->encrypted_user_id = Crypt::encryptString($vacancy->user_id);
-                return $vacancy;
-            });
+            // Get the delay from ReminderSetting where type is 'shortlist_created_no_interview'
+            $reminderSetting = ReminderSetting::where('type', 'shortlist_created_no_interview')->first();
+            $delayDays = $reminderSetting ? $reminderSetting->delay : 1;
 
-            // Define the models that are relevant for the activity log.
-            $allowedModels = [
-                'App\Models\Applicant', 
-                'App\Models\Application', 
-                'App\Models\Vacancy', 
-                'App\Models\Message', 
-                'App\Models\User'
-            ];
+            // Get the current date and calculate the cutoff date based on the delay
+            $cutoffDate = Carbon::now()->subDays($delayDays);
 
-            // Get a list of IDs for vacancies that are associated with the authenticated user.
-            $authVacancyIds = Vacancy::where('user_id', $authUserId)->pluck('id')->toArray();
-
-            // Query the activity log, filtering for activities related to the allowed models.
-            $activities = Activity::whereIn('subject_type', $allowedModels)
-                ->where(function($query) use ($authUserId, $authVacancyIds) {
-                    // Filter for activities where the 'causer' (the user who performed the action) is the authenticated user,
-                    // and the action is one of 'created', 'updated', or 'deleted'.
-                    $query->where('causer_id', $authUserId)
-                        ->whereIn('event', ['created', 'updated', 'deleted']);
-                })
-                ->orWhere(function($q) use ($authUserId) {
-                    // Include activities where the event is 'accessed' (e.g., a user viewed a vacancy or applicant profile),
-                    // specifically for the authenticated user.
-                    $q->where('event', 'accessed')
-                    ->whereIn('description', ['job-overview.index', 'applicant-profile.index'])
-                    ->where('causer_id', $authUserId);
-                })
-                ->orWhere(function($q) use ($authUserId) {
-                    // Include activities related to messages where the authenticated user is the recipient ('to_id').
-                    $q->where('subject_type', 'App\Models\Message')
-                    ->where('properties->attributes->to_id', $authUserId)
-                    ->where('event', 'created');
-                })
-                ->orWhere(function($q) use ($authVacancyIds) {
-                    // Include activities related to applications connected to any of the vacancies owned by the authenticated user.
-                    $q->where('subject_type', 'App\Models\Application')
-                    ->whereIn('properties->attributes->vacancy_id', $authVacancyIds);
-                })
-                ->latest() // Order the results by the most recent first.
-                ->limit(10) // Limit the results to the 10 most recent activities.
-                ->get(); // Execute the query and get the results
-
-            // Filter activities to get only those related to vacancies.
-            $vacancyActivities = $activities->where('subject_type', 'App\Models\Vacancy');
-            // Extract the IDs of the affected vacancies from these activities.
-            $vacancyIds = $vacancyActivities->pluck('subject_id');
-
-            // Retrieve the vacancies along with their related models like position, store's brand, store's town, and type.
-            $vacanciesWithRelations = Vacancy::with(['position', 'store.brand', 'store.town', 'type'])
-                                            ->whereIn('id', $vacancyIds)
-                                            ->get();
-
-            // Associate each activity with its corresponding vacancy by setting a relation.
-            foreach ($vacancyActivities as $activity) {
-                $activity->setRelation('subject', $vacanciesWithRelations->firstWhere('id', $activity->subject_id));
-            }
-
-            // Filter activities to get only those related to messages.
-            $messageActivities = $activities->where('subject_type', 'App\Models\Message');
-            // Extract the IDs of the messages from these activities.
-            $ids = $messageActivities->pluck('subject_id');
-
-            // Retrieve the messages along with their related 'to' and 'from' users.
-            $messagesWithRelations = Message::with('to', 'from')->whereIn('id', $ids)->get();
-
-            // Associate each message activity with its corresponding message by setting a relation.
-            foreach ($messageActivities as $activity) {
-                $activity->setRelation('subject', $messagesWithRelations->firstWhere('id', $activity->subject_id));
-            }
-
-            // Filter activities to get only those related to applications.
-            $applicationActivities = $activities->where('subject_type', 'App\Models\Application');
-            // Extract the IDs of the applications from these activities.
-            $connectionIds = $applicationActivities->pluck('subject_id');
-
-            // Retrieve the applications along with their related user and the user of the related vacancy.
-            $applicationWithRelations = Application::with(['user', 'vacancy.user'])->whereIn('id', $connectionIds)->get();
-
-            // Associate each application activity with its corresponding application by setting a relation.
-            foreach ($applicationActivities as $activity) {
-                $activity->setRelation('subject', $applicationWithRelations->firstWhere('id', $activity->subject_id));
-            }
-
-            // For activities where messages have been deleted, extract the 'to_id' from the old properties.
-            $deletedMessageUserIds = $activities->where('subject_type', 'App\Models\Message')
-                                                ->where('event', 'deleted')
-                                                ->map(function ($activity) {
-                                                    return data_get($activity, 'properties.old.to_id');
-                                                })
-                                                ->filter()
-                                                ->unique();
-
-            // Retrieve the users associated with the deleted messages.
-            $usersForDeletedMessages = User::whereIn('id', $deletedMessageUserIds)->get();
-
-            // Filter activities to get only those where messages have been deleted.
-            $deletedMessageActivities = $activities->where('subject_type', 'App\Models\Message')->where('event', 'deleted');
-
-            // Associate each deleted message activity with the user it was sent to by setting a relation.
-            foreach ($deletedMessageActivities as $activity) {
-                $toId = data_get($activity, 'properties.old.to_id');
-                $activity->setRelation('userForDeletedMessage', $usersForDeletedMessages->firstWhere('id', $toId));
-            }           
-
-            // Extract the encrypted IDs from the URL of the 'accessed' activities for vacancies.
-            $accessedVacancyEncryptedIds = $activities->where('event', 'accessed')
-            ->where('description', 'job-overview.index')
-            ->map(function ($activity) {
-                // Get the URL from the activity's properties.
-                return data_get($activity, 'properties.url');
+            // Query to find the first shortlist where either `applicant_ids` is null/empty OR no interviews exist
+            $shortlist = Shortlist::where('user_id', $authUserId)
+            ->where(function ($query) {
+                // Check if applicant_ids is null or an empty JSON array
+                $query->whereNull('applicant_ids')
+                    ->orWhere('applicant_ids', '=', '')
+                    ->orWhereRaw('JSON_LENGTH(applicant_ids) = 0')
+                    // If applicant_ids is not empty, check that there are no interviews
+                    ->orWhereHas('vacancy', function ($subquery) {
+                        $subquery->doesntHave('interviews');
+                    });
             })
-            ->map(function($url) {
-                // Split the URL into segments and get the last segment, which is the encrypted ID.
-                $segments = explode('/', $url);
-                $encryptedId = count($segments) > 1 ? last($segments) : null;
-
-                // Attempt to decrypt the encrypted ID.
-                if ($encryptedId) {
-                    try {
-                        return Crypt::decryptString($encryptedId);
-                    } catch (\Exception $e) {
-                        // If decryption fails, return null.
-                        return null;
-                    }
-                }
-                return null;
-            })
-            ->filter(); // Remove any null values from the collection.
-
-            // Retrieve the vacancies that have been accessed using the decrypted IDs.
-            $accessedOpportunities = Vacancy::whereIn('id', $accessedVacancyEncryptedIds)->get();
-
-            // Filter the activities to get only those with 'accessed' event and 'job-overview.index' description.
-            $accessedVacancyActivities = $activities->where('event', 'accessed')->where('description', 'job-overview.index');
-
-            // Associate each accessed vacancy activity with the corresponding vacancy.
-            foreach ($accessedVacancyActivities as $activity) {
-                // Decrypt the encrypted ID from the URL.
-                $encryptedId = last(explode('/', data_get($activity, 'properties.url')));
-                try {
-                    $decryptedId = Crypt::decryptString($encryptedId);
-                    // Find the vacancy using the decrypted ID and set the relation.
-                    $opportunity = $accessedOpportunities->firstWhere('id', $decryptedId);
-                    $activity->setRelation('accessedVacancy', $opportunity);
-                } catch (\Exception $e) {
-                    // If decryption fails, skip this iteration.
-                    continue;
-                }
-            }
-
-            // Extract the encrypted IDs from the URL of the 'accessed' activities for applicants.
-            $accessedApplicantEncryptedIds = $activities->where('event', 'accessed')
-            ->where('description', 'applicant-profile.index')
-            ->map(function ($activity) {
-                // Parse the URL to get the query string, then extract the 'id' parameter.
-                parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
-                return $queryParams['id'] ?? null;
-            })
-            ->map(function($encryptedId) {
-                // Attempt to decrypt the encrypted ID.
-                if ($encryptedId) {
-                    try {
-                        return Crypt::decryptString($encryptedId);
-                    } catch (\Exception $e) {
-                        // If decryption fails, return null.
-                        return null;
-                    }
-                }
-                return null;
-            })
-            ->filter(); // Remove any null values from the collection.
-
-            // Retrieve the applicants that have been accessed using the decrypted IDs.
-            $accessedApplicants = Applicant::whereIn('id', $accessedApplicantEncryptedIds)->get();
-
-            // Filter the activities to get only those with 'accessed' event and 'applicant-profile.index' description.
-            $accessedApplicantActivities = $activities->where('event', 'accessed')->where('description', 'applicant-profile.index');
-
-            // Associate each accessed applicant activity with the corresponding applicant.
-            foreach ($accessedApplicantActivities as $activity) {
-                // Parse the URL to get the encrypted ID from the query string.
-                parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
-                $encryptedId = $queryParams['id'] ?? null;
-                if ($encryptedId) {
-                    try {
-                        // Decrypt the encrypted ID and find the corresponding applicant.
-                        $decryptedId = Crypt::decryptString($encryptedId);
-                        $applicant = $accessedApplicants->firstWhere('id', $decryptedId);
-                        // Set the relation on the activity.
-                        $activity->setRelation('accessedApplicant', $applicant);
-                    } catch (\Exception $e) {
-                        // If decryption fails or the applicant is not found, skip this iteration.
-                        continue;
-                    }
-                }
-            }
-
-            //Positions
-            $positions = Position::withCount('users')
-                ->whereNotIn('id', [1, 10])
-                ->orderBy('users_count', 'desc')
-                ->take(10)
-                ->get();
+            // Apply the created_at condition to all results
+            ->where('created_at', '<=', $cutoffDate)
+            ->first(); // Get the first matching shortlist
 
             //Current Year
             $currentYear = now()->year;
@@ -530,9 +323,7 @@ class ManagerController extends Controller
 
             return view('manager/home',[
                 'vacancies' => $vacancies,
-                'allVacancies' => $allVacancies,
-                'activities' => $activities,
-                'positions' => $positions,
+                'shortlist' => $shortlist,
                 'currentYearData' => $currentYearData,
                 'previousYearData' => $previousYearData,
                 'applicationsPerMonth' => $applicationsPerMonth,

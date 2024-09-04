@@ -741,6 +741,10 @@
                 </div><!-- end col -->
             </div>
 
+            @if ($shortlist)
+                @include('manager.partials.shortlist-modal', ['shortlist' => $shortlist])
+            @endif
+
         </div> <!-- end .h-100-->
 
     </div> <!-- end col -->
@@ -750,14 +754,11 @@
 @endsection
 @section('script')
 <script>
+    var shortlist = @json($shortlist);
     var applicationsPerMonth = @json($applicationsPerMonth);
     var interviewedPerMonth = @json($interviewedPerMonth);
     var appointedPerMonth = @json($appointedPerMonth);
     var rejectedPerMonth = @json($rejectedPerMonth);
-
-    var totalApplications = @json(count($allVacancies) > 0 ? $allVacancies[0]->total_applications : 0);
-    var totalApplicationsApproved = @json(count($allVacancies) > 0 ? $allVacancies[0]->applications_approved : 0);
-    var totalApplicationsRejected = @json(count($allVacancies) > 0 ? $allVacancies[0]->applications_rejected : 0);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

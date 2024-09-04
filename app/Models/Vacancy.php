@@ -76,6 +76,12 @@ class Vacancy extends Model
         return $this->hasMany(Shortlist::class);
     }
 
+    //Interviews
+    public function interviews()
+    {
+        return $this->hasMany(Interview::class);
+    }
+
     //Appointed
     public function appointed()
     {
