@@ -115,21 +115,18 @@
                                                 </div>
                                             </div>
 
-                                            <div class="col-lg-12" id="guardianMobileContainer" style="display: none;">
+                                            <div class="col-lg-12" id="IdNumberError" style="display: none;">
                                                 <div class="mb-3">
-                                                    <label for="email" class="form-label">
-                                                        Guardian Mobile Number
-                                                    </label>
                                                     <p>
-                                                        Our system has detected that you are under the age of 18, you will need the consent of your Legal <br>
-                                                        guardian to apply to any of the roles.
+                                                        Our system has detected that you are under the age of 18, you will not be able to apply for any roles.
                                                     </p>
-                                                    <input type="tel" class="form-control" id="guardianMobile" placeholder="Enter guardian's mobile number">
-                                                    @error('email')
-                                                        <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ e($message) }}</strong>
-                                                        </span>
-                                                    @enderror
+                                                </div>
+                                            </div>
+                                            <div class="col-lg-12" id="IdNumberInvalidError" style="display: none;">
+                                                <div class="mb-3">
+                                                    <p>
+                                                        Our system has detected that you have entered and invalid ID Number.
+                                                    </p>
                                                 </div>
                                             </div>
 
