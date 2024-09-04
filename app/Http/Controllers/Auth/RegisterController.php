@@ -107,6 +107,18 @@ class RegisterController extends Controller
             'user_id' => $user->id,
         ]);
 
+        // Calculate the user's age from the ID number
+        $age = $this->calculateAgeFromId($data['id_number']);
+
+        // If the user is under 18, create a consent record
+        if ($age < 18) {
+            Consent::create([
+                'user_id' => $user->id,
+                'guardian_mobile' => $data['guardian_mobile'],
+                'consent_status' => 'Pending',
+            ]);
+        }
+
         // Dispatch the job to process the user's ID number
         ProcessUserIdNumber::dispatch($user->id);
 
