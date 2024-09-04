@@ -49,26 +49,26 @@
                     <!-- Nav tabs -->
                     <ul class="nav nav-pills animation-nav profile-nav gap-2 gap-lg-3 flex-grow-1" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link fs-14 active" data-bs-toggle="tab" href="#overview-tab" role="tab">
+                            <a class="nav-link fs-14 {{ Auth::user()->role_id > 3 ? 'd-none' : 'active' }}" data-bs-toggle="tab" href="#overview-tab" role="tab">
                                 <i class="ri-airplay-fill d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">Overview</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#application-tab" role="tab">
+                            <a class="nav-link fs-14 {{ Auth::user()->role_id > 3 ? 'active' : '' }}" data-bs-toggle="tab" href="#application-tab" role="tab">
                                 <i class="ri-price-tag-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">My Application</span>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#applications-tab" role="tab">
+                            <a class="nav-link fs-14 d-none" data-bs-toggle="tab" href="#applications-tab" role="tab">
                                 <i class="ri-price-tag-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">My Job Applications</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14" data-bs-toggle="tab" href="#documents-tab" role="tab">
+                            <a class="nav-link fs-14 d-none" data-bs-toggle="tab" href="#documents-tab" role="tab">
                                 <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">My Documents</span>
                             </a>
@@ -92,7 +92,7 @@
                         Overview
                     -------------------------------------------------------------------------------------->
 
-                    <div class="tab-pane active" id="overview-tab" role="tabpanel">
+                    <div class="tab-pane {{ Auth::user()->role_id > 3 ? 'fade d-none' : 'active' }}" id="overview-tab" role="tabpanel">
                         <div class="row">
                             <div class="col-xxl-3">
                                 <div class="card">
@@ -903,7 +903,7 @@
                                     My Applications
                                 -------------------------------------------------------------------------------------->
 
-                                <div class="card">
+                                <div class="card d-none">
                                     <div class="card-body">
                                         <h5 class="card-title {{ $user->appliedVacancies->count() <= 3 ? 'mb-5' : ''}}">My Applications</h5>
                                         <!-- Swiper -->
@@ -999,7 +999,7 @@
                        My Application
                     -------------------------------------------------------------------------------------->
 
-                    <div class="tab-pane fade" id="application-tab" role="tabpanel">
+                    <div class="tab-pane {{ Auth::user()->role_id > 3 ? 'active' : 'fade' }}" id="application-tab" role="tabpanel">
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-4">
@@ -1775,7 +1775,7 @@
                        Job Applications
                     -------------------------------------------------------------------------------------->
 
-                    <div class="tab-pane fade" id="applications-tab" role="tabpanel">
+                    <div class="tab-pane fade d-none" id="applications-tab" role="tabpanel">
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-4">
@@ -1842,17 +1842,13 @@
                         Documents
                     -------------------------------------------------------------------------------------->
 
-                    <div class="tab-pane fade" id="documents-tab" role="tabpanel">
+                    <div class="tab-pane fade d-none" id="documents-tab" role="tabpanel">
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center justify-content-between mb-3"> <!-- Flex container -->
                                     <h5 class="fs-17 mb-0" id="filetype-title">
                                         My Documentation
                                     </h5>
-                                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fileUploadModal">
-                                        <i class="ri-upload-2-fill me-1 align-bottom"></i> 
-                                        Upload File
-                                    </button>
                                 </div>
                                 <div class="row">
                                     <div class="col-lg-12">
@@ -1990,62 +1986,6 @@
     <!-------------------------------------------------------------------------------------
         Modals
     -------------------------------------------------------------------------------------->
-
-    <!-- File upload modal -->
-    <div id="fileUploadModal" class="modal fade" tabindex="-1" aria-hidden="true" style="display: none;">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content border-0 overflow-hidden">
-                <div class="modal-header p-3">
-                    <h4 class="card-title mb-0">Upload File</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="formFile" enctype="multipart/form-data">
-                        @csrf
-                        <input type="hidden" id="positionID" name="position_id" value="{{ Crypt::encryptString($vacancy->position->id) }}"/>
-                        <div class="mb-3">
-                            <input class="form-control" name="file" type="file" multiple="multiple" accept=".pdf,.doc,.docx,.xls,.xlsx" required>
-                        </div>
-                        <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-primary" id="submitBtn" type="button">
-                                Upload
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div><!-- /.modal-content -->
-        </div><!-- /.modal-dialog -->
-    </div><!-- /.modal -->
-    <!-- end file upload modal -->
-
-    <!-- file delete modal -->
-    <div class="modal fade flip" id="fileDeleteModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body p-5 text-center">
-                    <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f06548,secondary:#f7b84b" style="width:90px;height:90px"></lord-icon>
-                    <div class="mt-4 text-center">
-                        <h4>
-                            You are about to delete this file ?
-                        </h4>
-                        <p class="text-muted fs-14 mb-4">
-                            Deleting this file will remove all of the information from the database.
-                        </p>
-                        <div class="hstack gap-2 justify-content-center remove">
-                            <button class="btn btn-link btn-ghost-dark fw-medium text-decoration-none" data-bs-dismiss="modal" id="deleteFile-close">
-                                <i class="ri-close-line me-1 align-middle"></i> 
-                                Close
-                            </button>
-                            <button class="btn btn-danger" id="delete-file" data-bs-id="">
-                                Yes, Delete It
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <!--end file delete modal -->
 
     <!-- Profile delete modal -->
     <div class="modal fade flip" id="profileDeleteModal" tabindex="-1" aria-hidden="true">

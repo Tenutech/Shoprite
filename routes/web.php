@@ -592,7 +592,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     //Application
 
-    Route::get('/application', [App\Http\Controllers\ApplicationController::class, 'index'])->name('application.index');
+    //Route::get('/application', [App\Http\Controllers\ApplicationController::class, 'index'])->name('application.index');
 
     Route::post('/application/store', [App\Http\Controllers\ApplicationController::class, 'store'])->name('application.store');
 

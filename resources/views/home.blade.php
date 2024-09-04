@@ -8,284 +8,31 @@
 @section('content')
 
 
-<div class="row">
+<div class="row mt-5">
     @if ($user->applicant && Auth::id() != 3)
-        <div class="col">
-            <div class="h-100">
-                <div class="row mb-3 pb-1">
-                    <div class="col-12">
-                        <div class="d-flex align-items-lg-center flex-lg-row flex-column">
-                            <div class="flex-grow-1">
-                                <h4 class="fs-16 mb-1">
-                                    Hello, {{ Auth::user()->firstname }}!
-                                </h4>
-                                <p class="text-muted mb-0">
-                                    Here's what's happening with your opportunities today.
-                                </p>
-                            </div>
-                        </div><!-- end card header -->
-                    </div>
-                    <!--end col-->
+    <div class="col">
+        <div class="h-100 text-center">
+            <div class="row mb-3 pb-1">
+                <div class="col-12">
+                    <div class="d-flex align-items-lg-center flex-lg-row flex-column">
+                        <div class="flex-grow-1">
+                            <h1 class="display-2 coming-soon-text mb-4">
+                                Thank You
+                            </h1>
+                            <p class="fs-16 text-muted mb-0">
+                                We are currently reviewing your application. If you qualify for the next steps, you will receive an invitation for an interview. Please keep an eye on your email and WhatsApp for further updates.
+                            </p>
+                            <p class="fs-16 text-muted mb-0">
+                                Should you have any questions or require assistance, feel free to reach out. We're here to help!
+                            </p>
+                        </div>
+                    </div><!-- end card header -->
                 </div>
-                <!--end row-->
-
-                <!-------------------------------------------------------------------------------------
-                    Information
-                -------------------------------------------------------------------------------------->
-
-                <div class="row">
-                    <div class="col-xl-4 col-md-6">
-                        <!-- card -->
-                        <div class="card card-animate bg-primary">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <p class="text-uppercase fw-bold text-white-50 text-truncate mb-0">
-                                            Total Vacancies
-                                        </p>
-                                    </div>
-                                    <div class="flex-shrink-0">
-                                        <h5 class="text-white fs-14 mb-0">
-                                            <i class="ri-arrow-right-{{ $percentageVacancies >= 0 ? 'up' : 'down' }}-line fs-13 align-middle"></i>
-                                            {{ sprintf("%+0.2f", $percentageVacancies) }} %
-                                        </h5>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-end justify-content-between mt-4">
-                                    <div>
-                                        <h4 class="fs-22 fw-bold ff-secondary text-white mb-4">
-                                            <span class="counter-value" data-target="{{ $totalVacancies >= 1000 ? $totalVacancies / 1000 : $totalVacancies }}">
-                                                {{ $totalVacancies >= 1000 ? number_format($totalVacancies / 1000, 1) : $totalVacancies }}
-                                            </span>
-                                            {{ $totalVacancies >= 1000 ? 'k' : '' }}
-                                        </h4>
-                                        <a href="{{ route('vacancies.index') }}" class="text-decoration-underline text-white-50">
-                                            View Vacancies
-                                        </a>
-                                    </div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-white bg-opacity-10 rounded fs-3">
-                                            <i class="bx bx-briefcase-alt-2 text-white"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div><!-- end card body -->
-                        </div><!-- end card -->
-                    </div><!-- end col -->
-
-                    <div class="col-xl-4 col-md-6">
-                        <!-- card -->
-                        <div class="card card-animate bg-secondary">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <p class="text-uppercase fw-bold text-white-50 text-truncate mb-0">
-                                            My Applications
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-end justify-content-between mt-4">
-                                    <div>
-                                        <h4 class="fs-22 fw-bold ff-secondary text-white mb-4">
-                                            <span class="counter-value" data-target="{{ $totalAppliedVacancies }}">0</span>
-                                        </h4>
-                                        <a href="{{ route('profile.index') }}#applications-tab" class="text-decoration-underline text-white-50">
-                                            View Applications
-                                        </a>
-                                    </div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-white bg-opacity-10 rounded fs-3">
-                                            <i class="bx bx-user-pin text-white"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div><!-- end card body -->
-                        </div><!-- end card -->
-                    </div><!-- end col -->
-
-                    <div class="col-xl-4 col-md-6">
-                        <!-- card -->
-                        <div class="card card-animate bg-success">
-                            <div class="card-body">
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-grow-1 overflow-hidden">
-                                        <p class="text-uppercase fw-bold text-white-50 text-truncate mb-0">
-                                            My Messages
-                                        </p>
-                                    </div>
-                                </div>
-                                <div class="d-flex align-items-end justify-content-between mt-4">
-                                    <div>
-                                        <h4 class="fs-22 fw-bold ff-secondary text-white mb-4">
-                                            <span class="counter-value" data-target="{{ $totalChats }}">0</span>
-                                        </h4>
-                                        <a href="/chat" class="text-decoration-underline text-white-50">
-                                            View Messages
-                                        </a>
-                                    </div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-white bg-opacity-10 rounded fs-3">                                            
-                                            <i class="bx bx-message-rounded text-white"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div><!-- end card body -->
-                        </div><!-- end card -->
-                    </div><!-- end col -->
-                </div> <!-- end row-->
-
-                <!-------------------------------------------------------------------------------------
-                    Vacancies
-                -------------------------------------------------------------------------------------->
-
-                <div class="row">
-                    <div class="col-lg-12">
-                        <div class="card">
-                            <div class="card-body bg-light-subtle">
-                                <div class="d-flex align-items-center">
-                                    <h6 class="card-title mb-0 flex-grow-1 fw-bold">
-                                        Search Vacancies
-                                    </h6>
-                                    <div class="flex-shrink-0">
-                                        <a href="{{ route('vacancies.index') }}" class="btn btn-secondary">
-                                            <i class="ri-briefcase-line align-bottom me-1"></i> 
-                                            View Vacancies
-                                        </a>
-                                    </div>
-                                </div>
-                
-                                <div class="row mt-3 gy-3">
-                                    <div class="col-xxl-10 col-md-6">
-                                        <div class="search-box">
-                                            <input type="text" class="form-control search bg-light border-light" id="searchJob" autocomplete="off" placeholder="Search for jobs or companies...">
-                                            <i class="ri-search-line search-icon"></i>
-                                        </div>
-                                    </div>
-                                    <div class="col-xxl-2 col-md-6">
-                                        <div class="input-light">
-                                            <select class="form-control" data-choices data-choices-search-false name="choices-single-default" id="idStatus">
-                                                <option value="All">All Selected</option>
-                                                <option value="Newest" selected>Newest</option>
-                                                <option value="Popular">Popular</option>
-                                                <option value="Oldest">Oldest</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-xl-12 d-none" id="found-job-alert">
-                                        <div class="alert alert-success mb-0 text-center" role="alert">
-                                            <strong id="total-result">253</strong> vacancies found
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>                
-                
-                <div class="row">
-                    <div class="col-xxl-9">
-                        <div id="job-list"></div>
-                
-                        <div class="row g-0 justify-content-end mb-4" id="pagination-element">
-                            <!-- end col -->
-                            <div class="col-sm-6">
-                                <div class="pagination-block pagination pagination-separated justify-content-center justify-content-sm-end mb-sm-0">
-                                    <div class="page-item">
-                                        <a href="javascript:void(0);" class="page-link" id="page-prev">Previous</a>
-                                    </div>
-                                    <span id="page-num" class="pagination"></span>
-                                    <div class="page-item">
-                                        <a href="javascript:void(0);" class="page-link" id="page-next">Next</a>
-                                    </div>
-                                </div>
-                            </div><!-- end col -->
-                        </div>
-                        <!-- end row -->
-                
-                    </div>
-                    <!--end col-->
-
-                    @if ($vacancies->count() > 0)
-                        <div class="col-xxl-3">
-                            <div class="card job-list-view-card overflow-hidden" id="job-overview">
-                                <img src="{{URL::asset($vacancies[0]->position->image)}}" alt="" id="cover-img" class="img-fluid background object-fit-cover">
-                                <div class="card-body">
-                                    <div class="avatar-md mt-n5">
-                                        <div class="avatar-title bg-light rounded-circle view-opportunity-icon">
-                                            <i class="{{ $vacancies[0]->position->icon }} text-{{ $vacancies[0]->position->color }} fs-1"></i>
-                                        </div>
-                                    </div>
-                                    <div class="mt-3">
-                                        <h5 class="view-title fw-bold">{{ $vacancies[0]->position->name }}</h5>
-                                        <div class="hstack gap-3 mb-3">
-                                            <span class="text-muted">
-                                                <i class="ri-building-line me-1 align-bottom"></i> 
-                                                <span class="view-companyname">{{ $vacancies[0]->store->brand->name }}</span>
-                                            </span>
-                                            <span class="text-muted">
-                                                <i class="ri-map-pin-2-line me-1 align-bottom"></i> 
-                                                <span class="view-location">{{ $vacancies[0]->store->town->name }}</span>
-                                            </span>
-                                        </div>
-                                        <p class="text-muted view-desc truncated-text-6-lines">{!! $vacancies[0]->position->description !!}</p>
-                                        <div class="py-3 border border-dashed border-start-0 border-end-0 mt-4">
-                                            <div class="row">
-                                                <div class="col-lg-4 col-sm-6">
-                                                    <div>
-                                                        <p class="mb-2 text-uppercase fw-semibold fs-12 text-muted">
-                                                            Job Type
-                                                        </p>
-                                                        <h5 class="fs-14 mb-0 view-type">
-                                                            {{ $vacancies[0]->type->name }}
-                                                        </h5>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-4 col-sm-6">
-                                                    <div>
-                                                        <p class="mb-2 text-uppercase fw-semibold fs-12 text-muted">
-                                                            Post Date
-                                                        </p>
-                                                        <h5 class="fs-14 mb-0 view-postdate">
-                                                            {{ date("d M", strtotime($vacancies[0]->created_at)) }}
-                                                        </h5>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-4 col-sm-6">
-                                                    <div>
-                                                        <p class="mb-2 text-uppercase fw-semibold fs-12 text-muted">
-                                                            Experience
-                                                        </p>
-                                                        <h5 class="fs-14 mb-0 view-experience">
-                                                            0 - 5 Year
-                                                        </h5>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="mt-4">
-                                        <h5 class="mb-3">Application Summary</h5>
-                    
-                                        <div>
-                                            <div id="vacancy_chart" data-colors='["--vz-success", "--vz-primary", "--vz-danger", "--vz-danger"]' class="apex-charts" dir="ltr"></div>
-                                        </div>
-                                    </div>
-                    
-                                    <div class="mt-4">
-                                        <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString($vacancies[0]->id)]) }}" type="button" class="btn btn-info w-100">
-                                            Apply Now
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-                </div>
-
-            </div> <!-- end .h-100-->
-
-        </div> <!-- end col -->
+                <!--end col-->
+            </div>
+            <!--end row-->
+        </div><!-- end h-100 -->
+    </div><!-- end col -->
 
     @else
 
@@ -1611,10 +1358,6 @@
                                                     <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
                                                     View Application
                                                 </a>
-                                                <a type="button" href="{{ route('vacancies.index') }}" id="view-vacancies" class="btn btn-info btn-label waves-effect waves-light rounded-pill">
-                                                    <i class="ri-briefcase-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                                                    View Vacancies
-                                                </a>
                                             </div>
 
                                             <!-- Loading -->
@@ -1663,10 +1406,6 @@
                                                 <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
                                                     <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
                                                     View Application
-                                                </a>
-                                                <a type="button" href="{{ route('vacancies.index') }}" id="view-vacancies" class="btn btn-info btn-label waves-effect waves-light rounded-pill">
-                                                    <i class="ri-briefcase-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                                                    View Vacancies
                                                 </a>
                                             </div>
                                         @endif
