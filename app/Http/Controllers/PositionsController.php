@@ -42,9 +42,9 @@ class PositionsController extends Controller
     public function index()
     {
         if (view()->exists('admin/positions')) {
-            //Positions
-            $positions = Position::all();
-
+            // Fetch positions where name is not "Any" or "Other"
+            $positions = Position::whereNotIn('name', ['Any', 'Other'])->get();
+    
             return view('admin/positions', [
                 'positions' => $positions
             ]);
