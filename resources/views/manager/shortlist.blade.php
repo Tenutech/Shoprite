@@ -79,7 +79,7 @@
             <select class="form-control" id="vacancy" name="vacancy_id" required>
                 <option value="">Select Vacancy</option>
                 @foreach ($vacancies as $vacancy)
-                    <option value="{{ Crypt::encryptString($vacancy->id) }}" {{ ($vacancyID && $vacancyID == $vacancy->id) ? 'selected' : '' }}>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->town->name }}) {{ $vacancy->id }}</option>
+                    <option value="{{ Crypt::encryptString($vacancy->id) }}" {{ ($vacancyID && $vacancyID == $vacancy->id) ? 'selected' : '' }}>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->town->name }})</option>
                 @endforeach
             </select>
             <div class="invalid-feedback">Please select a vacancy</div>
