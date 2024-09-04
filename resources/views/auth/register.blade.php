@@ -117,9 +117,6 @@
 
                                             <div class="col-lg-12" id="guardianMobileContainer" style="display: none;">
                                                 <div class="mb-3">
-                                                    <label for="email" class="form-label">
-                                                        Guardian Mobile Number
-                                                    </label>
                                                     <p>
                                                         Our system has detected that you are under the age of 18, you will need the consent of your Legal <br>
                                                         guardian to apply to any of the roles.

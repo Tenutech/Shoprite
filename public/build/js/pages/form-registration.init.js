@@ -6,13 +6,21 @@ Contact: admin@tenutech.com
 File: Form wizard Js File
 */
 document.getElementById('idNumber').addEventListener('input', function() {
+    const idNumberInput = this;
     const idNumber = this.value;
     const guardianMobileContainer = document.getElementById('guardianMobileContainer');
+    const errorIdElement = idNumberInput.parentNode.querySelector('.invalid-feedback');
 
     if (isUnder18(idNumber)) {
         guardianMobileContainer.style.display = 'block';
     } else {
         guardianMobileContainer.style.display = 'none';
+    }
+
+    if (!isValidSAIdNumber(idNumber)) {
+        
+    } else {
+        errorIdElement.remove();
     }
 });
 
@@ -34,21 +42,33 @@ function isUnder18(id) {
     return age < 18;
 }
 
-// Save guardian's mobile number when the user clicks "Save"
-document.getElementById('saveGuardianMobile').addEventListener('click', function() {
-    const guardianMobile = document.getElementById('guardianMobile').value;
-    const mobileError = document.getElementById('mobileError');
-
-    if (isValidMobile(guardianMobile)) {
-        mobileError.style.display = 'none';
-        // You can now submit the form or handle the guardian's mobile number as needed
-        console.log("Guardian's Mobile Number:", guardianMobile);
-        // Close the modal
-        bootstrap.Modal.getInstance(document.getElementById('guardianModal')).hide();
-    } else {
-        mobileError.style.display = 'block';
+function isValidSAIdNumber(id) {
+    id = id.replace(/\D/g, '');
+    
+    if (id.length !== 13) {
+        return false;
     }
-});
+
+    let sum = 0;
+    const length = id.length;
+    
+    for (let i = 0; i < length - 1; i++) {
+        let number = parseInt(id[i], 10);
+        
+        if ((length - i) % 2 === 0) {
+            number *= 2;
+            if (number > 9) {
+                number -= 9;
+            }
+        }
+        
+        sum += number;
+    }
+
+    const checksum = (10 - (sum % 10)) % 10;
+
+    return parseInt(id[length - 1], 10) === checksum;
+}
 
 function isValidMobile(mobile) {
     const phonePattern = /^[0-9]{10}$/;
@@ -98,4 +118,20 @@ document.getElementById('formRegister').addEventListener('submit', function(even
         }
         errorElement.innerText = "Passwords don't match";
     }
+
+    var idNumberInput = document.getElementById('idNumber');
+    var idNumber = idNumberInput.value;
+
+    if (!isValidSAIdNumber(idNumber)) {
+        event.preventDefault();
+
+        var errorIdElement = idNumberInput.parentNode.querySelector('.invalid-feedback');
+        if (!errorIdElement) {
+            errorIdElement = document.createElement('div');
+            errorIdElement.className = "invalid-feedback";
+            idNumberInput.parentNode.appendChild(errorIdElement);
+            errorIdElement.innerText = "You have not entered a valid SA ID Number";
+            errorIdElement.style.display = 'block';
+        }
+    } 
 });
