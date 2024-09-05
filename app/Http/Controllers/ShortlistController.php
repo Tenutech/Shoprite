@@ -224,6 +224,9 @@ class ShortlistController extends Controller
             // Merge the decrypted vacancy ID into the request
             $request->merge(['vacancy_id_decrypted' => $vacancyID]);
 
+            // Fetch the Vacancy model using the decrypted ID
+            $vacancy = Vacancy::findOrFail($vacancyID);
+
             // Get the min and max shortlist numbers from the settings, with default values
             $minShortlistNumber = Setting::where('key', 'min_shorlist_number')->first()->value ?? 5;
             $maxShortlistNumber = Setting::where('key', 'max_shorlist_number')->first()->value ?? 20;
@@ -251,6 +254,9 @@ class ShortlistController extends Controller
                     $applicant->update(['shortlist_id' => null]);
                 }
             }
+
+            // Use optional() to safely access the vacancy's store brand_id
+            $vacancyBrandID = optional($vacancy->store)->brand_id;
 
             //Applicants
             $query = Applicant::with([
@@ -288,6 +294,13 @@ class ShortlistController extends Controller
             ->whereNull('shortlist_id')
             ->whereNull('appointed_id')
             ->where('no_show', '<=', 2)
+            ->when($vacancyBrandID, function ($query, $vacancyBrandID) {
+                // Apply the brand_id filter only if a brand_id exists
+                $query->where(function ($query) use ($vacancyBrandID) {
+                    $query->where('brand_id', 1)
+                          ->orWhere('brand_id', $vacancyBrandID);
+                });
+            })
             ->orderBy('score', 'desc');
 
             // Check if shortlist_type_id is 1 and vacancy_id is provided
