@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use App\Providers\RouteServiceProvider;
 use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
 {
@@ -39,6 +40,48 @@ class LoginController extends Controller
         // Apply the 'guest' middleware to all methods except 'logout'
         // This means only guests (unauthenticated users) can access the login methods
         $this->middleware('guest')->except('logout');
+    }
+
+    /**
+     * Override the method to support email or ID number login.
+     *
+     * @return string The field being used for login ('email' or 'id_number')
+     */
+    public function username()
+    {
+        // Get the input from the 'login' field in the request (this could be an email or ID number)
+        $login = request()->input('login');
+        
+        // Determine if the input is an email address or an ID number
+        $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'id_number';
+
+        // Merge the field and its value into the request so it can be processed
+        request()->merge([$field => $login]);
+
+        // Return the field that will be used for login ('email' or 'id_number')
+        return $field;
+    }
+
+    /**
+     * Send the failed login response for the application.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return void
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    protected function sendFailedLoginResponse(Request $request)
+    {
+        // Get the field that was used for login (either 'email' or 'id_number')
+        $field = $this->username();
+        
+        // Directly specify the error message to be returned for failed login attempts
+        $message = 'The credentials you entered do not match our records.';
+
+        // Attach the error message to the login field
+        throw ValidationException::withMessages([
+            'login' => $message,
+        ]);
     }
 
     /**

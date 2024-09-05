@@ -49,9 +49,9 @@
                                 <form action="{{ route('login') }}" method="POST">
                                     @csrf
                                     <div class="mb-3">
-                                        <label for="username" class="form-label">Username</label>
-                                        <input type="text" class="form-control @error('email') is-invalid @enderror" value="{{ e(old('email')) }}" id="username" name="email" placeholder="Enter username">
-                                        @error('email')
+                                        <label for="username" class="form-label">Email or ID Number</label>
+                                        <input type="text" class="form-control @error('login') is-invalid @enderror" value="{{ e(old('login')) }}" id="login" name="login" placeholder="Enter email or ID number">
+                                        @error('login')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ e($message) }}</strong>
                                             </span>
