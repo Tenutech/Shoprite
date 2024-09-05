@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\User;
 use App\Models\Company;
 use App\Models\Position;
@@ -105,6 +106,7 @@ class ProfileSettingsController extends Controller
             'lastname' => ['required', 'string', 'max:191'],
             'email' => ['required', 'string', 'email', 'max:191', 'unique:users,email,' . $userID],
             'phone' => ['required', 'string', 'max:191', 'unique:users,phone,' . $userID],
+            'address' => ['required', 'string', 'max:255'],
         ]);
 
         try {
@@ -138,6 +140,7 @@ class ProfileSettingsController extends Controller
             $user->lastname = ucwords($request->lastname);
             $user->email = $request->email;
             $user->phone = $request->phone;
+            $user->address = $request->address;
             $user->avatar = $avatarName;
             $user->save();
 

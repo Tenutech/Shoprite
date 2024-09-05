@@ -60,10 +60,10 @@ class RegisterController extends Controller
             'lastname' => ['required', 'string', 'max:191'],
             'id_number' => ['required', 'string', 'digits:13', 'unique:users'],
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
-            'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
+            'email' => ['nullable', 'string', 'email', 'max:191', 'unique:users'],
+            'address' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
-            'address' => ['required', 'string', 'max:255']
+            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024']            
         ]);
     }
 
@@ -95,12 +95,16 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'phone' => $data['phone'],
             'id_number' => $data['id_number'],
+            'address' => $data['address'],
             'password' => Hash::make($data['password']),
             'avatar' => $avatarName,
+            'company_id' => 1,
             'role_id' => 4, // Default role for new users
             'applicant_id' => $applicant ? $applicant->id : null,
             'status_id' => 1, // User status (e.g., active)
-            'address' => $data['address'],
+            // If email is provided, set email_verified_at to null (will trigger verification),
+            // otherwise set it to the current timestamp to consider email verified by default
+            'email_verified_at' => $data['email'] ? null : now(),
         ]);
 
         // Create default notification settings for the user

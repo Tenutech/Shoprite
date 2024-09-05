@@ -31,6 +31,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'email_verified_at',
         'phone',
         'id_number',
+        'address',
         'id_verified',
         'password',
         'avatar',
@@ -44,8 +45,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'applicant_id',
         'store_id',
         'internal',
-        'status_id',
-        'address'
+        'status_id'
     ];
 
     protected $appends = ['updated_at_human'];

@@ -13,6 +13,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
@@ -477,7 +478,7 @@ class ProfileController extends Controller
 
             // Check if the file exists and delete it from the storage
             if (file_exists($filePath)) {
-                \File::delete($filePath);
+                File::delete($filePath);
             }
 
             // Delete the file record from the database
