@@ -58,7 +58,17 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'id_number' => ['required', 'string', 'digits:13', 'unique:users'],
+            'id_number' => ['required', 'string', 'digits:13', 'unique:users', function ($attribute, $value, $fail) {
+                // Check if the ID number is valid
+                if (!$this->isValidSAIdNumber($value)) {
+                    $fail('You have not entered a valid SA ID Number.');
+                }
+
+                // Check if the user is under 18
+                if ($this->calculateAgeFromId($value) < 18) {
+                    $fail('You are under 18 and not eligible to register on the platform.');
+                }
+            }],
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
             'email' => ['nullable', 'string', 'email', 'max:191', 'unique:users'],
             'address' => ['required', 'string', 'max:255'],
@@ -153,18 +163,76 @@ class RegisterController extends Controller
         }
     }
 
-    private function calculateAgeFromId(string $idNumber)
+    /**
+     * Function to validate a South African ID number.
+     *
+     * @param string $id
+     * @return bool
+     */
+    public static function isValidSAIdNumber(string $id): bool
     {
+        $id = preg_replace('/\D/', '', $id); // Ensure the ID is only digits
+
+        if (strlen($id) != 13) {
+            return false; // Early return if ID length is incorrect
+        }
+
+        $sum = 0;
+        $length = strlen($id);
+        for ($i = 0; $i < $length - 1; $i++) { // Exclude the last digit for the main loop
+            $number = (int)$id[$i];
+            if (($length - $i) % 2 === 0) {
+                $number = $number * 2;
+                if ($number > 9) {
+                    $number = $number - 9;
+                }
+            }
+            $sum += $number;
+        }
+
+        // Calculate checksum based on the sum
+        $checksum = (10 - ($sum % 10)) % 10;
+
+        // Last digit of the ID should match the calculated checksum
+        return (int)$id[$length - 1] === $checksum;
+    }
+
+    /**
+     * Function to calculate the user's age based on their ID number.
+     *
+     * @param string $idNumber
+     * @return int
+     */
+    private function calculateAgeFromId(string $idNumber): int
+    {
+        // Extract the first two digits for the year of birth (YY)
         $year = substr($idNumber, 0, 2);
+
+        // Extract the month of birth (MM)
         $month = substr($idNumber, 2, 2);
+
+        // Extract the day of birth (DD)
         $day = substr($idNumber, 4, 2);
 
+        // Get the current year in full (YYYY format)
         $currentYear = date('Y');
+
+        // If the birth year (YY) is greater than the current last two digits of the year, assume 1900s, otherwise 2000s.
+        // This is done to determine if the century is 19xx or 20xx.
         $year = ($year > date('y')) ? '19' . $year : '20' . $year;
 
+        // Create a DateTime object from the extracted birth date (YYYY-MM-DD format)
         $birthDate = \DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
+
+        if (!$birthDate) {
+            // Handle the error if the date is invalid
+            throw new \Exception('Invalid birth date extracted from ID number.');
+        }
+
+        // Create a DateTime object for the current date
         $today = new \DateTime();
 
+        // Calculate the difference between today and the birth date to get the age in years
         return $today->diff($birthDate)->y;
     }
 }

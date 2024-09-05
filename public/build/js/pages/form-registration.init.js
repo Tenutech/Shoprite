@@ -6,56 +6,6 @@ Contact: admin@tenutech.com
 File: Form wizard Js File
 */
 
-document.getElementById('idNumber').addEventListener('input', function() {
-    const idNumberInput = this; // Reference to the ID number input field
-    const idNumber = this.value; // Current value of the ID number input field
-    const guardianMobileContainer = document.getElementById('guardianMobileContainer'); // Container for guardian's mobile number
-    const errorIdElement = idNumberInput.parentNode.querySelector('.invalid-feedback'); // Error message for invalid ID
-
-    // If the user is under 18, show the guardian mobile input field, else hide it
-    if (isUnder18(idNumber)) {
-        guardianMobileContainer.style.display = 'block';
-    } else {
-        guardianMobileContainer.style.display = 'none';
-    }
-
-    // If the ID number is not valid, show error, otherwise remove the error message
-    if (!isValidSAIdNumber(idNumber)) {
-        // Error handling for invalid ID could be added here
-    } else {
-        errorIdElement.remove(); // Remove any existing error message
-    }
-});
-
-/*
-|--------------------------------------------------------------------------
-| Is Under 18
-|--------------------------------------------------------------------------
-*/
-
-/**
- * Function to check if the user is under 18 years old based on their ID number.
- * @param {string} id - The ID number of the applicant.
- * @returns {boolean} - Returns true if the applicant is under 18, otherwise false.
- */
-function isUnder18(id) {
-    if (id.length < 6) return false; // Ensure the ID number has at least 6 digits
-
-    const year = parseInt(id.substring(0, 2), 10); // Extract the year of birth from the ID number
-    const month = parseInt(id.substring(2, 4), 10); // Extract the month of birth
-    const day = parseInt(id.substring(4, 6), 10); // Extract the day of birth
-
-    const currentYear = new Date().getFullYear() % 100; // Get the last two digits of the current year
-    const century = year > currentYear ? 1900 : 2000; // Determine the century (19xx or 20xx)
-    const birthDate = new Date(century + year, month - 1, day); // Construct the birth date from the year, month, and day
-
-    const ageDifMs = Date.now() - birthDate.getTime(); // Calculate the age difference in milliseconds
-    const ageDate = new Date(ageDifMs); // Convert the age difference into a Date object
-    const age = Math.abs(ageDate.getUTCFullYear() - 1970); // Calculate the age in years
-
-    return age < 18; // Return true if the age is less than 18
-}
-
 /*
 |--------------------------------------------------------------------------
 | Is Valid SA ID Number
@@ -97,6 +47,35 @@ function isValidSAIdNumber(id) {
 
     // The last digit of the ID number should match the calculated checksum
     return parseInt(id[length - 1], 10) === checksum;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Is Under 18
+|--------------------------------------------------------------------------
+*/
+
+/**
+ * Function to check if the user is under 18 years old based on their ID number.
+ * @param {string} id - The ID number of the applicant.
+ * @returns {boolean} - Returns true if the applicant is under 18, otherwise false.
+ */
+function isUnder18(id) {
+    if (id.length < 6) return false; // Ensure the ID number has at least 6 digits
+
+    const year = parseInt(id.substring(0, 2), 10); // Extract the year of birth from the ID number
+    const month = parseInt(id.substring(2, 4), 10); // Extract the month of birth
+    const day = parseInt(id.substring(4, 6), 10); // Extract the day of birth
+
+    const currentYear = new Date().getFullYear() % 100; // Get the last two digits of the current year
+    const century = year > currentYear ? 1900 : 2000; // Determine the century (19xx or 20xx)
+    const birthDate = new Date(century + year, month - 1, day); // Construct the birth date from the year, month, and day
+
+    const ageDifMs = Date.now() - birthDate.getTime(); // Calculate the age difference in milliseconds
+    const ageDate = new Date(ageDifMs); // Convert the age difference into a Date object
+    const age = Math.abs(ageDate.getUTCFullYear() - 1970); // Calculate the age in years
+
+    return age < 18; // Return true if the age is less than 18
 }
 
 /*
@@ -190,5 +169,27 @@ document.getElementById('formRegister').addEventListener('submit', function(even
             errorIdElement.innerText = "You have not entered a valid SA ID Number"; // Display the error message
             errorIdElement.style.display = 'block';
         }
+    }
+
+    // Check if the user is under 18
+    if (isUnder18(idNumber)) {
+        event.preventDefault(); // Prevent the form from submitting
+
+        // Remove the 'was-validated' class from the form with a short delay
+        setTimeout(function() {
+            formRegister.classList.remove('was-validated');
+        }, 10);
+
+        // Add 'is-invalid' class to id number field
+        idNumberInput.classList.add('is-invalid');
+
+        var underageErrorElement = idNumberInput.parentNode.querySelector('.invalid-feedback');
+        if (!underageErrorElement) { // If the error message doesn't already exist, create it
+            underageErrorElement = document.createElement('div');
+            underageErrorElement.className = "invalid-feedback";
+            idNumberInput.parentNode.appendChild(underageErrorElement);
+        }
+        underageErrorElement.innerText = "You are under 18 and not eligible to register on the platform"; // Display the underage error message
+        underageErrorElement.style.display = 'block';
     }
 });
