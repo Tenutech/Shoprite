@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Log;
 use DateTime;
 use Exception;
 use Carbon\Carbon;
@@ -16,7 +15,7 @@ use App\Models\ScoreWeighting;
 use App\Models\ChatTotalData;
 use App\Models\ChatMonthlyData;
 use App\Jobs\ProcessUserIdNumber;
-use Twilio\Rest\Client;
+use Illuminate\Support\Facades\Log;
 use App\Services\GoogleMapsService;
 use Illuminate\Support\Facades\File;
 use GuzzleHttp\Client as GuzzleClient;
@@ -2114,7 +2113,7 @@ class ChatService
                 $messages = $this->fetchStateMessages('job_leave');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
 
-            } elseif ($jobLeave && $jobPrevious == 'No') {
+            } elseif ($jobPrevious && $jobPrevious == 'No') {
                 // Update the applicant's previous job
                 $applicant->update(['job_previous' => $jobPrevious]);
 
@@ -4187,7 +4186,7 @@ class ChatService
                         // Create Notification
                         $notification = new Notification();
                         $notification->user_id = $latestInterview->interviewer_id;
-                        $notification->causer_id = $applicant->user->id;
+                        $notification->causer_id = optional($applicant->user)->id ?? $latestInterview->interviewer_id;
                         $notification->subject()->associate($latestInterview);
                         $notification->type_id = 1;
                         $notification->notification = "Confirmed your interview request ✅";
@@ -4216,7 +4215,7 @@ class ChatService
                         // Create Notification
                         $notification = new Notification();
                         $notification->user_id = $latestInterview->interviewer_id;
-                        $notification->causer_id = $userID;
+                        $notification->causer_id = optional($applicant->user)->id ?? $latestInterview->interviewer_id;
                         $notification->subject()->associate($latestInterview);
                         $notification->type_id = 1;
                         $notification->notification = "Requested to reschedule 📅";
@@ -4241,7 +4240,7 @@ class ChatService
                         // Create Notification
                         $notification = new Notification();
                         $notification->user_id = $latestInterview->interviewer_id;
-                        $notification->causer_id = $applicant->user->id;
+                        $notification->causer_id = optional($applicant->user)->id ?? $latestInterview->interviewer_id;
                         $notification->subject()->associate($latestInterview);
                         $notification->type_id = 1;
                         $notification->notification = "Declined your interview request 🚫";
