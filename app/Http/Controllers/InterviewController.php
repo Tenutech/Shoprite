@@ -530,6 +530,9 @@ class InterviewController extends Controller
             $interview->update([
                 'status' => 'No Show'
             ]);
+
+            //Increment No Show
+            $interview->applicant->increment('no_show');
             
             return response()->json([
                 'success' => true,
