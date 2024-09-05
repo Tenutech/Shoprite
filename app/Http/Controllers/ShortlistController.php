@@ -538,8 +538,7 @@ class ShortlistController extends Controller
             } else {
                 return response()->json([
                     'success' => false, 
-                    'message' => 'Failed to generate shortlist.',
-                    'error' => $e->getMessage()
+                    'message' => 'Failed to generate shortlist.'
                 ], 400);
             }
         } catch (\Exception $e) { 
