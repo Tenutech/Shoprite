@@ -2,7 +2,6 @@
 
 namespace App\Services;
 
-use Log;
 use DateTime;
 use Exception;
 use Carbon\Carbon;
@@ -16,6 +15,7 @@ use App\Models\ScoreWeighting;
 use App\Models\ChatTotalData;
 use App\Models\ChatMonthlyData;
 use App\Jobs\ProcessUserIdNumber;
+use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Client;
 use App\Services\GoogleMapsService;
 use Illuminate\Support\Facades\File;
