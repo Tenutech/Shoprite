@@ -68,7 +68,7 @@ class RegisterController extends Controller
     }
 
     /**
-     * Create a new user instance after a valid registration.
+     * Create a new user instancze after a valid registration.
      *
      * @param  array  $data
      * @return \App\Models\User
@@ -107,6 +107,18 @@ class RegisterController extends Controller
             'user_id' => $user->id,
         ]);
 
+        // Calculate the user's age from the ID number
+        $age = $this->calculateAgeFromId($data['id_number']);
+
+        // If the user is under 18, create a consent record
+        if ($age < 18) {
+            Consent::create([
+                'user_id' => $user->id,
+                'guardian_mobile' => $data['guardian_mobile'],
+                'consent_status' => 'Pending',
+            ]);
+        }
+
         // Dispatch the job to process the user's ID number
         ProcessUserIdNumber::dispatch($user->id);
 
@@ -134,5 +146,20 @@ class RegisterController extends Controller
             default:
                 return redirect('/home'); // Fallback for any other cases
         }
+    }
+
+    private function calculateAgeFromId(string $idNumber)
+    {
+        $year = substr($idNumber, 0, 2);
+        $month = substr($idNumber, 2, 2);
+        $day = substr($idNumber, 4, 2);
+
+        $currentYear = date('Y');
+        $year = ($year > date('y')) ? '19' . $year : '20' . $year;
+
+        $birthDate = \DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
+        $today = new \DateTime();
+
+        return $today->diff($birthDate)->y;
     }
 }
