@@ -835,7 +835,7 @@ class ApplicationController extends Controller
             $applicantID = Crypt::decryptString($id);
 
             //Delete Application
-            Vacancy::destroy($applicantID);
+            Applicant::destroy($applicantID);
 
             return response()->json([
                 'success' => true,

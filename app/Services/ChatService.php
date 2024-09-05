@@ -4256,7 +4256,7 @@ class ChatService
                         // Create Notification
                         $notification = new Notification();
                         $notification->user_id = $latestInterview->interviewer_id;
-                        $notification->causer_id = $applicant->user->id;
+                        $notification->causer_id = optional($applicant->user)->id ?? $latestInterview->interviewer_id;
                         $notification->subject()->associate($latestInterview);
                         $notification->type_id = 1;
                         $notification->notification = "Confirmed your interview request ✅";
@@ -4285,7 +4285,7 @@ class ChatService
                         // Create Notification
                         $notification = new Notification();
                         $notification->user_id = $latestInterview->interviewer_id;
-                        $notification->causer_id = $userID;
+                        $notification->causer_id = optional($applicant->user)->id ?? $latestInterview->interviewer_id;
                         $notification->subject()->associate($latestInterview);
                         $notification->type_id = 1;
                         $notification->notification = "Requested to reschedule 📅";
@@ -4310,7 +4310,7 @@ class ChatService
                         // Create Notification
                         $notification = new Notification();
                         $notification->user_id = $latestInterview->interviewer_id;
-                        $notification->causer_id = $applicant->user->id;
+                        $notification->causer_id = optional($applicant->user)->id ?? $latestInterview->interviewer_id;
                         $notification->subject()->associate($latestInterview);
                         $notification->type_id = 1;
                         $notification->notification = "Declined your interview request 🚫";
