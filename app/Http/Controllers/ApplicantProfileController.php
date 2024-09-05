@@ -197,8 +197,8 @@ class ApplicantProfileController extends Controller
 
     public function messages($id)
     {
-        if ($request->id) {
-            $applicantID = Crypt::decryptString($request->id);
+        if ($id) {
+            $applicantID = Crypt::decryptString($id);
         } else {
             $applicantID = null;
         }
