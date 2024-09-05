@@ -2145,7 +2145,7 @@ class ChatService
 
                 $messages = $this->fetchStateMessages('job_leave');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-            } elseif ($jobLeave && $jobPrevious == 'No') {
+            } elseif ($jobPrevious && $jobPrevious == 'No') {
                 // Update the applicant's previous job
                 $applicant->update(['job_previous' => $jobPrevious]);
 
