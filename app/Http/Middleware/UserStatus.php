@@ -19,7 +19,7 @@ class UserStatus
         $response = $next($request);
 
         $user = Auth::user();
-        
+
         if ($user) {
             // Get the last activity time
             $lastActivity = session('last_activity');

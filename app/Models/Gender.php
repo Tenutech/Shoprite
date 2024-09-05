@@ -9,8 +9,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Gender extends Model
 {
-    use HasFactory, LogsActivity;
-    
+    use HasFactory;
+    use LogsActivity;
+
     protected $fillable = [
         'name',
         'icon',
@@ -22,7 +23,7 @@ class Gender extends Model
     {
         return $this->hasMany(Applicant::class);
     }
-    
+
     //Users
     public function users()
     {

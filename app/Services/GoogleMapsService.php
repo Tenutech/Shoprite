@@ -36,7 +36,7 @@ class GoogleMapsService
 
             if ($data['status'] === 'OK') {
                 $result = $data['results'][0];
-                
+
                 // Extract the city from address_components
                 $city = null;
                 foreach ($result['address_components'] as $component) {
@@ -49,7 +49,7 @@ class GoogleMapsService
                 // Check if city exists in towns table
                 $town = Town::where('name', $city)->first();
                 $city = $town ? $town->id : null;
-        
+
                 return [
                     'formatted_address' => $result['formatted_address'],
                     'latitude' => $result['geometry']['location']['lat'],

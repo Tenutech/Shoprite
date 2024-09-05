@@ -34,7 +34,7 @@ class StoresController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Stores Index
@@ -82,7 +82,7 @@ class StoresController extends Controller
 
         try {
             //Store Create
-            $store = Store::create([                
+            $store = Store::create([
                 'brand_id' => $request->brand,
                 'town_id' => $request->town,
                 'address' => $request->address ?: null
@@ -96,7 +96,7 @@ class StoresController extends Controller
                 'encID' => $encID,
                 'message' => 'Store created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create store!',
@@ -210,7 +210,7 @@ class StoresController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -218,25 +218,25 @@ class StoresController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             Store::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Stores deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete stores!',

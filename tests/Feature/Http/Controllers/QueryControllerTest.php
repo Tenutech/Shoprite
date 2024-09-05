@@ -6,6 +6,7 @@ use App\Models\Query;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+
 use function Pest\Laravel\{get, post, actingAs};
 
 uses(RefreshDatabase::class);

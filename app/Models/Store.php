@@ -9,8 +9,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Store extends Model
 {
-    use HasFactory, LogsActivity;
-    
+    use HasFactory;
+    use LogsActivity;
+
     protected $fillable = [
         'brand_id',
         'town_id',

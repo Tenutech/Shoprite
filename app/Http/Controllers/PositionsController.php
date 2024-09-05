@@ -32,7 +32,7 @@ class PositionsController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Positions Index
@@ -44,7 +44,7 @@ class PositionsController extends Controller
         if (view()->exists('admin/positions')) {
             // Fetch positions where name is not "Any" or "Other"
             $positions = Position::whereNotIn('name', ['Any', 'Other'])->get();
-    
+
             return view('admin/positions', [
                 'positions' => $positions
             ]);
@@ -68,9 +68,9 @@ class PositionsController extends Controller
 
         try {
             // Avatar
-            if ($request->avatar) {               
+            if ($request->avatar) {
                 $avatar = request()->file('avatar');
-                $avatarName = 'build/images/position/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
+                $avatarName = 'build/images/position/' . strtolower($request->name) . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('build/images/position/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
@@ -78,7 +78,7 @@ class PositionsController extends Controller
             }
 
             //Position Create
-            $position = Position::create([                
+            $position = Position::create([
                 'name' => $request->name,
                 'description' => $request->description && $request->description != '<p></p>'  && $request->description != '<p><br></p>' ? $request->description : null,
                 'icon' => $request->icon ?: null,
@@ -94,7 +94,7 @@ class PositionsController extends Controller
                 'encID' => $encID,
                 'message' => 'Position created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create position!',
@@ -160,9 +160,9 @@ class PositionsController extends Controller
                         File::delete($oldAvatarPath);
                     }
                 }
-                
+
                 $avatar = request()->file('avatar');
-                $avatarName = 'build/images/position/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
+                $avatarName = 'build/images/position/' . strtolower($request->name) . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('build/images/position/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
@@ -228,7 +228,7 @@ class PositionsController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -236,25 +236,25 @@ class PositionsController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             Position::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Positions deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete positions!',

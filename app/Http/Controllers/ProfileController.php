@@ -13,6 +13,7 @@ use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
@@ -51,10 +52,10 @@ class ProfileController extends Controller
 
             //User
             $user = User::with([
-                'role', 
-                'status', 
-                'company', 
-                'position', 
+                'role',
+                'status',
+                'company',
+                'position',
                 'vacancies',
                 'applicant.town',
                 'applicant.gender',
@@ -74,9 +75,9 @@ class ProfileController extends Controller
                 'applicant.bank',
                 'applicant.role',
                 'applicant.state',
-                'appliedVacancies', 
-                'savedVacancies', 
-                'files', 
+                'appliedVacancies',
+                'savedVacancies',
+                'files',
                 'messagesFrom',
                 'messagesTo',
                 'notifications'
@@ -94,11 +95,11 @@ class ProfileController extends Controller
                 'position_id',
                 'website'
             ];
-            
+
             //Completion Percentage
             $completion = 0;
             if ($user->applicant) {
-                $completion = round(($user->applicant->state_id/69)*100);
+                $completion = round(($user->applicant->state_id / 69) * 100);
                 if ($completion > 100) {
                     $completion = 100;
                 }
@@ -108,10 +109,10 @@ class ProfileController extends Controller
 
             // Define the models that are relevant for the activity log.
             $allowedModels = [
-                'App\Models\Applicant', 
-                'App\Models\Application', 
-                'App\Models\Vacancy', 
-                'App\Models\Message', 
+                'App\Models\Applicant',
+                'App\Models\Application',
+                'App\Models\Vacancy',
+                'App\Models\Message',
                 'App\Models\User'
             ];
 
@@ -122,26 +123,26 @@ class ProfileController extends Controller
 
             // Query the activity log, filtering for activities related to the allowed models.
             $activities = Activity::whereIn('subject_type', $allowedModels)
-                ->where(function($query) use ($authUserId, $authVacancyIds) {
+                ->where(function ($query) use ($authUserId, $authVacancyIds) {
                     // Filter for activities where the 'causer' (the user who performed the action) is the authenticated user,
                     // and the action is one of 'created', 'updated', or 'deleted'.
                     $query->where('causer_id', $authUserId)
                         ->whereIn('event', ['created', 'updated', 'deleted']);
                 })
-                ->orWhere(function($q) use ($authUserId) {
+                ->orWhere(function ($q) use ($authUserId) {
                     // Include activities where the event is 'accessed' (e.g., a user viewed a vacancy or applicant profile),
                     // specifically for the authenticated user.
                     $q->where('event', 'accessed')
                     ->whereIn('description', ['job-overview.index', 'applicant-profile.index'])
                     ->where('causer_id', $authUserId);
                 })
-                ->orWhere(function($q) use ($authUserId) {
+                ->orWhere(function ($q) use ($authUserId) {
                     // Include activities related to messages where the authenticated user is the recipient ('to_id').
                     $q->where('subject_type', 'App\Models\Message')
                     ->where('properties->attributes->to_id', $authUserId)
                     ->where('event', 'created');
                 })
-                ->orWhere(function($q) use ($authVacancyIds) {
+                ->orWhere(function ($q) use ($authVacancyIds) {
                     // Include activities related to applications connected to any of the vacancies owned by the authenticated user.
                     $q->where('subject_type', 'App\Models\Application')
                     ->whereIn('properties->attributes->vacancy_id', $authVacancyIds);
@@ -209,7 +210,7 @@ class ProfileController extends Controller
             foreach ($deletedMessageActivities as $activity) {
                 $toId = data_get($activity, 'properties.old.to_id');
                 $activity->setRelation('userForDeletedMessage', $usersForDeletedMessages->firstWhere('id', $toId));
-            }           
+            }
 
             // Extract the encrypted IDs from the URL of the 'accessed' activities for vacancies.
             $accessedVacancyEncryptedIds = $activities->where('event', 'accessed')
@@ -218,7 +219,7 @@ class ProfileController extends Controller
                 // Get the URL from the activity's properties.
                 return data_get($activity, 'properties.url');
             })
-            ->map(function($url) {
+            ->map(function ($url) {
                 // Split the URL into segments and get the last segment, which is the encrypted ID.
                 $segments = explode('/', $url);
                 $encryptedId = count($segments) > 1 ? last($segments) : null;
@@ -265,7 +266,7 @@ class ProfileController extends Controller
                 parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
                 return $queryParams['id'] ?? null;
             })
-            ->map(function($encryptedId) {
+            ->map(function ($encryptedId) {
                 // Attempt to decrypt the encrypted ID.
                 if ($encryptedId) {
                     try {
@@ -328,19 +329,19 @@ class ProfileController extends Controller
 
             //Top Vacancies
             $topVacancies = Vacancy::with([
-                'position', 
+                'position',
                 'store.brand',
                 'store.town',
                 'type',
                 'applicants'
             ])
             ->withCount('applicants')
-            ->where('status_id', 2)               
+            ->where('status_id', 2)
             ->orderBy('applicants_count', 'desc')
             ->take(3)
             ->get();
 
-            return view('profile',[
+            return view('profile', [
                 'user' => $user,
                 'completion' => $completion,
                 'activities' => $activities,
@@ -397,7 +398,7 @@ class ProfileController extends Controller
 
         //Path
         $path = storage_path('app/public/users/' . $userID . '/' . $file->name);
-        
+
         return response()->download($path, $file->original_name);
     }
 
@@ -439,7 +440,7 @@ class ProfileController extends Controller
                 ]);
 
                 return response()->json([
-                    'success' => true,                    
+                    'success' => true,
                     'file' => $fileRecord,
                     'encrypted_id' => Crypt::encryptString($fileRecord->id),
                     'upload_date' => $fileRecord->created_at->format('d M Y'),
@@ -477,20 +478,20 @@ class ProfileController extends Controller
 
             // Check if the file exists and delete it from the storage
             if (file_exists($filePath)) {
-                \File::delete($filePath);
+                File::delete($filePath);
             }
 
             // Delete the file record from the database
             $file->delete();
 
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'message' => 'File deleted!'
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
-                'success' => false, 
-                'message' => 'File deletion failed', 
+                'success' => false,
+                'message' => 'File deletion failed',
                 'error' => $e->getMessage()
             ], 400);
         }

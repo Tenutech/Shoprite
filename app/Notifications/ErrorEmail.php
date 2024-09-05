@@ -36,7 +36,7 @@ class ErrorEmail extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject('Error Notification')
             ->view('vendor.notifications.notification', $this->data);
     }

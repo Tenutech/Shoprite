@@ -18,7 +18,10 @@ use Carbon\Carbon;
 
 class UpdateApplicantData implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $applicantId;
     protected $action;

@@ -21,7 +21,7 @@ class EmailExport implements FromCollection, WithHeadings, WithStyles, WithColum
         return EmailTemplate::with('role:id,name')
         ->select('name', 'subject', 'intro', 'role_id')
         ->get()
-        ->map(function($emailTemplate) {
+        ->map(function ($emailTemplate) {
             return [
                 'name' => $emailTemplate->name,
                 'subject' => $emailTemplate->subject,

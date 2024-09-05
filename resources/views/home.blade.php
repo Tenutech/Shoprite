@@ -308,7 +308,7 @@
                                                             Address
                                                             <span class="text-danger">*</span>
                                                         </label>
-                                                        <input type="text" class="form-control" id="location" name="location" placeholder="Enter physical address" value="{{ $user->applicant ? $user->applicant->location : '' }}" required />
+                                                        <input type="text" class="form-control" id="location" name="location" placeholder="Enter physical address" value="{{ $user->applicant ? $user->applicant->location : ($user->address ? $user->address : '') }}" required />
                                                         <div class="invalid-feedback">
                                                             Please enter your physical address
                                                         </div>

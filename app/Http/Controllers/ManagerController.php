@@ -117,7 +117,7 @@ class ManagerController extends Controller
             $previousYear = $currentYear - 1;
 
             $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-            
+
             // Determine months to query for the current year
             $queryMonthsCurrentYear = array_slice($months, 0, $currentMonth + 1);
             // Determine months to query for the previous year, excluding months overlapping with the current year
@@ -127,7 +127,7 @@ class ManagerController extends Controller
             $previousYearData = ApplicantTotalData::where('year', $currentYear - 1)->first();
             $currentYearId = $currentYearData->id;
             $previousYearId = $previousYearData->id;
-            
+
             $applicationsPerMonth = [];
             $interviewedPerMonth = [];
             $appointedPerMonth = [];
@@ -189,9 +189,9 @@ class ManagerController extends Controller
 
                     // Process the combined data for visualization
                     $combinedInterviews->groupBy('month')->each(function ($items, $month) use (&$interviewedPerMonth, $months) {
-                    $totalInterviews = $items->sum('count'); // Sum up interviews for the month
+                        $totalInterviews = $items->sum('count'); // Sum up interviews for the month
 
-                    $index = array_search($month, $months);
+                        $index = array_search($month, $months);
                         if ($index !== false) {
                             $interviewedPerMonth[] = $totalInterviews;
                         }
@@ -218,9 +218,9 @@ class ManagerController extends Controller
 
                     // Process the combined data for visualization
                     $combinedAppointed->groupBy('month')->each(function ($items, $month) use (&$appointedPerMonth, $months) {
-                    $totalAppointed = $items->sum('count'); // Sum up appointed for the month
+                        $totalAppointed = $items->sum('count'); // Sum up appointed for the month
 
-                    $index = array_search($month, $months);
+                        $index = array_search($month, $months);
                         if ($index !== false) {
                             $appointedPerMonth[] = $totalAppointed;
                         }
@@ -247,9 +247,9 @@ class ManagerController extends Controller
 
                     // Process the combined data for visualization
                     $combinedRejected->groupBy('month')->each(function ($items, $month) use (&$rejectedPerMonth, $months) {
-                    $totalRejected = $items->sum('count'); // Sum up rejected for the month
+                        $totalRejected = $items->sum('count'); // Sum up rejected for the month
 
-                    $index = array_search($month, $months);
+                        $index = array_search($month, $months);
                         if ($index !== false) {
                             $rejectedPerMonth[] = $totalRejected;
                         }
@@ -259,11 +259,11 @@ class ManagerController extends Controller
                 //Percent movement from last month for applications
                 $sumOfApplications = array_sum($applicationsPerMonth);
 
-                if(count($applicationsPerMonth) >= 2) {
+                if (count($applicationsPerMonth) >= 2) {
                     $lastMonthApplications = end($applicationsPerMonth);
                     $penultimateMonthApplications = $applicationsPerMonth[count($applicationsPerMonth) - 2];
-                
-                    if($sumOfApplications > 0) {
+
+                    if ($sumOfApplications > 0) {
                         $percentMovementApplicationsPerMonth = round((($lastMonthApplications - $penultimateMonthApplications) / $sumOfApplications) * 100, 2);
                     } else {
                         $percentMovementApplicationsPerMonth = 0;
@@ -275,11 +275,11 @@ class ManagerController extends Controller
                 //Percent movement from last month for interviews
                 $sumOfInterviewed = array_sum($interviewedPerMonth);
 
-                if(count($interviewedPerMonth) >= 2) {
+                if (count($interviewedPerMonth) >= 2) {
                     $lastMonthInterviewed = end($interviewedPerMonth);
                     $penultimateMonthInterviewed = $interviewedPerMonth[count($interviewedPerMonth) - 2];
-                
-                    if($sumOfInterviewed > 0) {
+
+                    if ($sumOfInterviewed > 0) {
                         $percentMovementInterviewedPerMonth = round((($lastMonthInterviewed - $penultimateMonthInterviewed) / $sumOfInterviewed) * 100, 2);
                     } else {
                         $percentMovementInterviewedPerMonth = 0;
@@ -291,11 +291,11 @@ class ManagerController extends Controller
                 //Percent movement from last month for appointed
                 $sumOfAppointed = array_sum($appointedPerMonth);
 
-                if(count($appointedPerMonth) >= 2) {
+                if (count($appointedPerMonth) >= 2) {
                     $lastMonthAppointed = end($appointedPerMonth);
                     $penultimateMonthAppointed = $appointedPerMonth[count($appointedPerMonth) - 2];
-                
-                    if($sumOfAppointed > 0) {
+
+                    if ($sumOfAppointed > 0) {
                         $percentMovementAppointedPerMonth = round((($lastMonthAppointed - $penultimateMonthAppointed) / $sumOfAppointed) * 100, 2);
                     } else {
                         $percentMovementAppointedPerMonth = 0;
@@ -307,11 +307,11 @@ class ManagerController extends Controller
                 //Percent movement from last month
                 $sumOfRejected = array_sum($rejectedPerMonth);
 
-                if(count($rejectedPerMonth) >= 2) {
+                if (count($rejectedPerMonth) >= 2) {
                     $lastMonthRejected = end($rejectedPerMonth);
                     $penultimateMonthRejected = $rejectedPerMonth[count($rejectedPerMonth) - 2];
-                
-                    if($sumOfRejected > 0) {
+
+                    if ($sumOfRejected > 0) {
                         $percentMovementRejectedPerMonth = round((($lastMonthRejected - $penultimateMonthRejected) / $sumOfRejected) * 100, 2);
                     } else {
                         $percentMovementRejectedPerMonth = 0;
@@ -321,7 +321,7 @@ class ManagerController extends Controller
                 }
             }
 
-            return view('manager/home',[
+            return view('manager/home', [
                 'vacancies' => $vacancies,
                 'shortlist' => $shortlist,
                 'currentYearData' => $currentYearData,

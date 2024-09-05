@@ -33,7 +33,7 @@ class QualificationsController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Qualifications Index
@@ -45,7 +45,7 @@ class QualificationsController extends Controller
         if (view()->exists('admin/qualifications')) {
             //Qualifications
             $qualifications = Qualification::orderBy('position_id')->get();
-            
+
             //Positions
             $positions = Position::all();
 
@@ -73,7 +73,7 @@ class QualificationsController extends Controller
 
         try {
             //Qualification Create
-            $qualification = Qualification::create([                
+            $qualification = Qualification::create([
                 'position_id' => $request->position_id ?: null,
                 'description' => $request->description ?: null,
                 'icon' => $request->icon ?: null,
@@ -88,7 +88,7 @@ class QualificationsController extends Controller
                 'encID' => $encID,
                 'message' => 'Qualification created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create qualification!',
@@ -201,7 +201,7 @@ class QualificationsController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -209,25 +209,25 @@ class QualificationsController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             Qualification::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Qualifications deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete qualifications!',

@@ -51,7 +51,7 @@ jobs:
             config/**/*.php
 
       - name: Set output using environment files
-        run: echo "LINTING_REQUIRED=false" >> $GITHUB_ENV
+        run: echo "LINTING_REQUIRED=true" >> $GITHUB_ENV
 
       - name: PHP Lint Check
         if: env.LINTING_REQUIRED == 'true'

@@ -9,8 +9,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Check extends Model
 {
-    use HasFactory, LogsActivity;
-    
+    use HasFactory;
+    use LogsActivity;
+
     protected $fillable = [
         'name',
         'icon',
@@ -18,7 +19,8 @@ class Check extends Model
     ];
 
     //Applicants
-    public function applicants() {
+    public function applicants()
+    {
         return $this->belongsToMany(Applicant::class, 'applicant_checks')->withTimestamps()->withPivot('result', 'reason', 'file');
     }
 

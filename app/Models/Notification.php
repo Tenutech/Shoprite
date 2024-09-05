@@ -10,7 +10,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Notification extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $fillable = [
         'user_id',

@@ -94,7 +94,7 @@ class UsersController extends Controller
                          ->orderby('name')
                          ->get();
 
-            return view('admin/users',[
+            return view('admin/users', [
                 'users' => $users,
                 'genders' => $genders,
                 'companies' => $companies,
@@ -133,11 +133,11 @@ class UsersController extends Controller
             'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);
 
-        try {            
+        try {
             // Avatar
-            if ($request->avatar) {               
+            if ($request->avatar) {
                 $avatar = request()->file('avatar');
-                $avatarName = $request->firstname.' '.$request->lastname.'-'.time().'.'.$avatar->getClientOriginalExtension();
+                $avatarName = $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
@@ -145,9 +145,9 @@ class UsersController extends Controller
             }
 
             DB::beginTransaction();
-            
+
             //User Create
-            $user = User::create([                
+            $user = User::create([
                 'firstname' => ucwords($request->firstname),
                 'lastname' => ucwords($request->lastname),
                 'email' => $request->email,
@@ -182,7 +182,7 @@ class UsersController extends Controller
             ], 200);
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create user!',
@@ -267,9 +267,9 @@ class UsersController extends Controller
                         File::delete($oldAvatarPath);
                     }
                 }
-                
+
                 $avatar = request()->file('avatar');
-                $avatarName = $request->firstname.' '.$request->lastname.'-'.time().'.'.$avatar->getClientOriginalExtension();
+                $avatarName = $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
@@ -311,7 +311,7 @@ class UsersController extends Controller
             ], 201);
         } catch (Exception $e) {
             DB::rollBack();
-            
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update user!',
@@ -357,7 +357,7 @@ class UsersController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -366,7 +366,7 @@ class UsersController extends Controller
             }
 
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
 

@@ -13,7 +13,10 @@ use Illuminate\Queue\SerializesModels;
 
 class SendWhatsAppFile implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $applicant;
     protected $fileUrl;

@@ -55,7 +55,7 @@ class NotificationController extends Controller
             foreach ($notifications as $notification) {
                 $notification->read = 'Yes';
                 $notification->save();
-    
+
                 if ($notification->subject_type === Message::class) {
                     $message = Message::find($notification->subject_id);
                     if ($message) {
@@ -71,7 +71,6 @@ class NotificationController extends Controller
                 'success' => true,
                 'message' => 'Marked as Read!'
             ], 200);
-            
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -106,7 +105,7 @@ class NotificationController extends Controller
                 $notification->read = 'Yes';
                 $notification->show = 'No';
                 $notification->save();
-    
+
                 if ($notification->subject_type === Message::class) {
                     $message = Message::find($notification->subject_id);
                     if ($message) {
@@ -117,7 +116,7 @@ class NotificationController extends Controller
             }
 
             DB::commit();
-            
+
             return response()->json([
                 'success' => true,
                 'message' => 'Notifications removed!',

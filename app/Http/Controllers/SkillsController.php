@@ -33,7 +33,7 @@ class SkillsController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Skills Index
@@ -45,7 +45,7 @@ class SkillsController extends Controller
         if (view()->exists('admin/skills')) {
             //Skills
             $skills = Skill::orderBy('position_id')->get();
-            
+
             //Positions
             $positions = Position::all();
 
@@ -73,7 +73,7 @@ class SkillsController extends Controller
 
         try {
             //Skill Create
-            $skill = Skill::create([                
+            $skill = Skill::create([
                 'position_id' => $request->position_id ?: null,
                 'description' => $request->description ?: null,
                 'icon' => $request->icon ?: null,
@@ -88,7 +88,7 @@ class SkillsController extends Controller
                 'encID' => $encID,
                 'message' => 'Skill created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create skill!',
@@ -201,7 +201,7 @@ class SkillsController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -209,25 +209,25 @@ class SkillsController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             Skill::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Skills deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete skills!',

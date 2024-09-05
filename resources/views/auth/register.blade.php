@@ -131,16 +131,34 @@
                                                         </span>
                                                     @enderror
                                                 </div>
-                                            </div>
+                                            </div>                                            
 
                                             <div class="col-lg-12">
                                                 <!-- Email -->
                                                 <div class="mb-3">
                                                     <label for="email" class="form-label">
-                                                        Email <span class="text-danger">*</span>
+                                                        Email
+                                                        <span class="badge bg-secondary-subtle text-secondary badge-border">
+                                                            Optional
+                                                        </span>
                                                     </label>
-                                                    <input type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ e(old('email')) }}" id="email" placeholder="Enter email address" required>
+                                                    <input type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ e(old('email')) }}" id="email" placeholder="Enter email address">
                                                     @error('email')
+                                                        <span class="invalid-feedback" role="alert">
+                                                            <strong>{{ e($message) }}</strong>
+                                                        </span>
+                                                    @enderror
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-12">
+                                                <!-- Email -->
+                                                <div class="mb-3">
+                                                    <label for="address" class="form-label">
+                                                        Address <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="address" class="form-control @error('address') is-invalid @enderror" name="address" value="{{ e(old('address')) }}" id="address" placeholder="Enter your address" required>
+                                                    @error('emaaddressil')
                                                         <span class="invalid-feedback" role="alert">
                                                             <strong>{{ e($message) }}</strong>
                                                         </span>

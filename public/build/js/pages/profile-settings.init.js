@@ -92,9 +92,7 @@ function computeCompletionPercentage() {
         $('#lastname').val(),
         $('#email').val(),
         $('#phone').val(),
-        $('#company').val(),
-        $('#position').val(),
-        $('#website').val()
+        $('#address').val(),
     ];
 
     var filledFieldsCount = 0;
@@ -145,8 +143,8 @@ $("#formUser").submit(function(e) {
                     var lastName = capitalizeFirstLetterOfEachWord($("#lastname").val());
                     $("#user-name").text(firstName + " " + lastName);
 
-                    var position = capitalizeFirstLetterOfEachWord($("#position").val());
-                    $("#user-position").text(position);
+                    //var position = capitalizeFirstLetterOfEachWord($("#position").val());
+                    //$("#user-position").text(position);
 
                     var completionPercentage = computeCompletionPercentage();
 

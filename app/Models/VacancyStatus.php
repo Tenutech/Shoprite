@@ -9,10 +9,11 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class VacancyStatus extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $table = 'vacancy_status';
-    
+
     protected $fillable = [
         'name',
         'icon',

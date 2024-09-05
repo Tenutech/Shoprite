@@ -33,7 +33,7 @@ class HoursController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Working Hours Index
@@ -45,7 +45,7 @@ class HoursController extends Controller
         if (view()->exists('admin/hours')) {
             //Working Hours
             $hours = Qualification::orderBy('position_id')->get();
-            
+
             //Positions
             $positions = Position::all();
 
@@ -73,7 +73,7 @@ class HoursController extends Controller
 
         try {
             //Working Hour Create
-            $hour = Qualification::create([                
+            $hour = Qualification::create([
                 'position_id' => $request->position_id ?: null,
                 'description' => $request->description ?: null,
                 'icon' => $request->icon ?: null,
@@ -88,7 +88,7 @@ class HoursController extends Controller
                 'encID' => $encID,
                 'message' => 'Working hour created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create working hour!',
@@ -201,7 +201,7 @@ class HoursController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -209,25 +209,25 @@ class HoursController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             Qualification::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Working hours deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete working hours!',

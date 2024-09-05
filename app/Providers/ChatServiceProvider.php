@@ -13,7 +13,7 @@ class ChatServiceProvider extends ServiceProvider
 {
     /**
      * Register the ChatService as a singleton in the service container.
-     * 
+     *
      * When another part of the application asks for the ChatService, the same instance of the service
      * will be provided every time, ensuring consistent state and reducing overhead.
      *

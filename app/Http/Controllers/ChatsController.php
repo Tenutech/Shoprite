@@ -47,7 +47,7 @@ class ChatsController extends Controller
         if (view()->exists('admin/chats')) {
             //Messages
             $messages = ChatTemplate::with([
-                'state', 
+                'state',
                 'category'
             ])
             ->whereHas('state', function ($query) {
@@ -88,9 +88,9 @@ class ChatsController extends Controller
             'sort' => ['required', 'integer']
         ]);
 
-        try {            
+        try {
             //Message Create
-            $message = ChatTemplate::create([                
+            $message = ChatTemplate::create([
                 'message' => $request->message,
                 'state_id' => $request->state,
                 'category_id' => $request->category,
@@ -105,7 +105,7 @@ class ChatsController extends Controller
                 'encID' => $encID,
                 'message' => 'Message created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create message!',
@@ -126,7 +126,7 @@ class ChatsController extends Controller
             $messageID = Crypt::decryptString($id);
 
             $message = ChatTemplate::with([
-                'state', 
+                'state',
                 'category'
             ])->findOrFail($messageID);
 
@@ -221,7 +221,7 @@ class ChatsController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -229,25 +229,25 @@ class ChatsController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             ChatTemplate::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Messages deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete messages!',

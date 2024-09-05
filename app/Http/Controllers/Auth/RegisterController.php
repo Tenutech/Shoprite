@@ -25,7 +25,6 @@ class RegisterController extends Controller
     | provide this functionality without requiring any additional code.
     |
     */
-
     use RegistersUsers;
 
     /**
@@ -61,9 +60,10 @@ class RegisterController extends Controller
             'lastname' => ['required', 'string', 'max:191'],
             'id_number' => ['required', 'string', 'digits:13', 'unique:users'],
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
-            'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
+            'email' => ['nullable', 'string', 'email', 'max:191', 'unique:users'],
+            'address' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
+            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024']            
         ]);
     }
 
@@ -95,11 +95,16 @@ class RegisterController extends Controller
             'email' => $data['email'],
             'phone' => $data['phone'],
             'id_number' => $data['id_number'],
+            'address' => $data['address'],
             'password' => Hash::make($data['password']),
             'avatar' => $avatarName,
+            'company_id' => 1,
             'role_id' => 4, // Default role for new users
             'applicant_id' => $applicant ? $applicant->id : null,
-            'status_id' => 1 // User status (e.g., active)
+            'status_id' => 1, // User status (e.g., active)
+            // If email is provided, set email_verified_at to null (will trigger verification),
+            // otherwise set it to the current timestamp to consider email verified by default
+            'email_verified_at' => $data['email'] ? null : now(),
         ]);
 
         // Create default notification settings for the user
@@ -112,11 +117,11 @@ class RegisterController extends Controller
 
         // If the user is under 18, create a consent record
         if ($age < 18) {
-            Consent::create([
-                'user_id' => $user->id,
-                'guardian_mobile' => $data['guardian_mobile'],
-                'consent_status' => 'Pending',
-            ]);
+            // Consent::create([
+            //     'user_id' => $user->id,
+            //     'guardian_mobile' => $data['guardian_mobile'],
+            //     'consent_status' => 'Pending',
+            // ]);
         }
 
         // Dispatch the job to process the user's ID number

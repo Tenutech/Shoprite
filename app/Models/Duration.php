@@ -9,8 +9,9 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class Duration extends Model
 {
-    use HasFactory, LogsActivity;
-    
+    use HasFactory;
+    use LogsActivity;
+
     protected $fillable = [
         'name',
         'icon',

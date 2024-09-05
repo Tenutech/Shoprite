@@ -9,7 +9,8 @@ use Spatie\Activitylog\Traits\LogsActivity;
 
 class ChatCategory extends Model
 {
-    use HasFactory, LogsActivity;
+    use HasFactory;
+    use LogsActivity;
 
     protected $table = 'chat_categories';
 

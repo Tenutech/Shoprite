@@ -32,7 +32,7 @@ class BrandsController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    
+
     /*
     |--------------------------------------------------------------------------
     | Brands Index
@@ -68,9 +68,9 @@ class BrandsController extends Controller
 
         try {
             // Avatar
-            if ($request->avatar) {               
+            if ($request->avatar) {
                 $avatar = request()->file('avatar');
-                $avatarName = 'build/images/brands/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
+                $avatarName = 'build/images/brands/' . strtolower($request->name) . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('build/images/brands/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
@@ -78,7 +78,7 @@ class BrandsController extends Controller
             }
 
             //Brand Create
-            $brand = Brand::create([                
+            $brand = Brand::create([
                 'name' => $request->name,
                 'icon' => $avatarName,
                 'color' => $request->color ?: null
@@ -92,7 +92,7 @@ class BrandsController extends Controller
                 'encID' => $encID,
                 'message' => 'Brand created successfully!',
             ], 200);
-        } catch (Exception $e) {            
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create brand!',
@@ -158,9 +158,9 @@ class BrandsController extends Controller
                         File::delete($oldAvatarPath);
                     }
                 }
-                
+
                 $avatar = request()->file('avatar');
-                $avatarName = 'build/images/brands/'.strtolower($request->name).'.'.$avatar->getClientOriginalExtension();
+                $avatarName = 'build/images/brands/' . strtolower($request->name) . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('build/images/brands/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
@@ -224,7 +224,7 @@ class BrandsController extends Controller
     {
         try {
             $ids = $request->input('ids');
-            
+
             if (is_null($ids) || empty($ids)) {
                 return response()->json([
                     'success' => false,
@@ -232,25 +232,25 @@ class BrandsController extends Controller
                     'error' => 'No IDs provided'
                 ], 400);
             }
-    
+
             // Decrypt IDs
-            $decryptedIds = array_map(function($id) {
+            $decryptedIds = array_map(function ($id) {
                 return Crypt::decryptString($id);
             }, $ids);
-    
+
             DB::beginTransaction();
-    
+
             Brand::destroy($decryptedIds);
-    
+
             DB::commit();
-    
+
             return response()->json([
                 'success' => true,
                 'message' => 'Brands deleted successfully!'
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-    
+
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete brands!',

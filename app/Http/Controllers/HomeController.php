@@ -146,10 +146,10 @@ class HomeController extends Controller
 
             // Define the models that are relevant for the activity log.
             $allowedModels = [
-                'App\Models\Applicant', 
-                'App\Models\Application', 
-                'App\Models\Vacancy', 
-                'App\Models\Message', 
+                'App\Models\Applicant',
+                'App\Models\Application',
+                'App\Models\Vacancy',
+                'App\Models\Message',
                 'App\Models\User'
             ];
 
@@ -160,26 +160,26 @@ class HomeController extends Controller
 
             // Query the activity log, filtering for activities related to the allowed models.
             $activities = Activity::whereIn('subject_type', $allowedModels)
-                ->where(function($query) use ($authUserId, $authVacancyIds) {
+                ->where(function ($query) use ($authUserId, $authVacancyIds) {
                     // Filter for activities where the 'causer' (the user who performed the action) is the authenticated user,
                     // and the action is one of 'created', 'updated', or 'deleted'.
                     $query->where('causer_id', $authUserId)
                         ->whereIn('event', ['created', 'updated', 'deleted']);
                 })
-                ->orWhere(function($q) use ($authUserId) {
+                ->orWhere(function ($q) use ($authUserId) {
                     // Include activities where the event is 'accessed' (e.g., a user viewed a vacancy or applicant profile),
                     // specifically for the authenticated user.
                     $q->where('event', 'accessed')
                     ->whereIn('description', ['job-overview.index', 'applicant-profile.index'])
                     ->where('causer_id', $authUserId);
                 })
-                ->orWhere(function($q) use ($authUserId) {
+                ->orWhere(function ($q) use ($authUserId) {
                     // Include activities related to messages where the authenticated user is the recipient ('to_id').
                     $q->where('subject_type', 'App\Models\Message')
                     ->where('properties->attributes->to_id', $authUserId)
                     ->where('event', 'created');
                 })
-                ->orWhere(function($q) use ($authVacancyIds) {
+                ->orWhere(function ($q) use ($authVacancyIds) {
                     // Include activities related to applications connected to any of the vacancies owned by the authenticated user.
                     $q->where('subject_type', 'App\Models\Application')
                     ->whereIn('properties->attributes->vacancy_id', $authVacancyIds);
@@ -248,7 +248,7 @@ class HomeController extends Controller
             foreach ($deletedMessageActivities as $activity) {
                 $toId = data_get($activity, 'properties.old.to_id');
                 $activity->setRelation('userForDeletedMessage', $usersForDeletedMessages->firstWhere('id', $toId));
-            }           
+            }
 
             // Extract the encrypted IDs from the URL of the 'accessed' activities for vacancies.
             $accessedVacancyEncryptedIds = $activities->where('event', 'accessed')
@@ -257,7 +257,7 @@ class HomeController extends Controller
                 // Get the URL from the activity's properties.
                 return data_get($activity, 'properties.url');
             })
-            ->map(function($url) {
+            ->map(function ($url) {
                 // Split the URL into segments and get the last segment, which is the encrypted ID.
                 $segments = explode('/', $url);
                 $encryptedId = count($segments) > 1 ? last($segments) : null;
@@ -304,7 +304,7 @@ class HomeController extends Controller
                 parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
                 return $queryParams['id'] ?? null;
             })
-            ->map(function($encryptedId) {
+            ->map(function ($encryptedId) {
                 // Attempt to decrypt the encrypted ID.
                 if ($encryptedId) {
                     try {
@@ -409,7 +409,7 @@ class HomeController extends Controller
             ->inRandomOrder()
             ->get();
 
-            return view('home',[
+            return view('home', [
                 'userID' => $userID,
                 'user' => $user,
                 'vacancies' => $vacancies,
