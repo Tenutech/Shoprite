@@ -531,9 +531,26 @@ class InterviewController extends Controller
                 'status' => 'No Show'
             ]);
 
-            //Increment No Show
-            $interview->applicant->increment('no_show');
-            
+            // Increment No Show for the applicant
+            $applicant = $interview->applicant;
+
+            if ($applicant) {
+                $applicant->increment('no_show');
+
+                // Check if the 'no_show' count is >= 2
+                if ($applicant->no_show >= 2) {
+                    // Create Notification for No Show
+                    $notification = new Notification();
+                    $notification->user_id = $applicant->id;
+                    $notification->causer_id = $userID;
+                    $notification->subject()->associate($interview); // Associate notification with the interview or application
+                    $notification->type_id = 1;
+                    $notification->notification = "No-show count has reached " . $applicant->no_show . " 🚫";
+                    $notification->read = "No";
+                    $notification->save();
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
