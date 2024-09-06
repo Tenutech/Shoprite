@@ -15,6 +15,7 @@ use App\Models\SapNumber;
 use App\Models\Application;
 use App\Models\Notification;
 use App\Models\VacancyFill;
+use App\Services\VacancyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
@@ -28,14 +29,17 @@ use App\Jobs\UpdateApplicantData;
 
 class VacancyController extends Controller
 {
+    protected $vacancyService;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(VacancyService $vacancyService)
     {
         $this->middleware(['auth', 'verified']);
+        $this->vacancyService = $vacancyService
     }
 
     /**
@@ -538,6 +542,9 @@ class VacancyController extends Controller
                     }
                 }
             }
+
+            // Send regret to Applicants that were interviewed but not selected
+            $this->vacancyService->sendRegretInterviewedApplicants($selectedApplicants, $vacancyId);
 
             // Commit the database transaction after all operations are successful
             DB::commit();

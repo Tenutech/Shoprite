@@ -51,7 +51,7 @@ class LoginController extends Controller
     {
         // Get the input from the 'login' field in the request (this could be an email or ID number)
         $login = request()->input('login');
-        
+
         // Determine if the input is an email address or an ID number
         $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'id_number';
 
@@ -74,7 +74,7 @@ class LoginController extends Controller
     {
         // Get the field that was used for login (either 'email' or 'id_number')
         $field = $this->username();
-        
+
         // Directly specify the error message to be returned for failed login attempts
         $message = 'The credentials you entered do not match our records.';
 
