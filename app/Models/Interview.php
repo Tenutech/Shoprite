@@ -32,6 +32,23 @@ class Interview extends Model
         'end_time' => 'datetime',
     ];
 
+    /**
+     * The "booted" method of the model.
+     * This is where we hook into model events.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        static::updated(function ($interview) {
+            if ($interview->isDirty('status') && $interview->status === 'no-show') {
+                if ($interview->applicant) {
+                    $interview->applicant->increment('no_show');
+                }
+            }
+        });
+    }
+
     //Applicants
     public function applicant()
     {

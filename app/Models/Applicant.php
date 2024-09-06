@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Jobs\UpdateApplicantData;
+use App\Service\ApplicantService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Support\Facades\Log;
-use App\Jobs\UpdateApplicantData;
 
 class Applicant extends Model
 {
@@ -93,7 +94,33 @@ class Applicant extends Model
         'appointed_id',
         'state_id',
         'checkpoint',
+        'no_show',
     ];
+
+    /**
+     * The "booted" method of the model.
+     * This is where we hook into model events.
+     *
+     * @return void
+     */
+    protected static function booted()
+    {
+        //Create Applicant
+        static::created(function ($applicant) {
+            // Dispatch the job when an applicant is created
+            UpdateApplicantData::dispatch($applicant->id, 'created');
+        });
+
+        //Update Appliant
+        static::updated(function ($applicant) {
+            // Dispatch the job when an applicant is updated
+            UpdateApplicantData::dispatch($applicant->id, 'updated');
+
+            if ($applicant->wasChanged('no_show') && $applicant->no_show >= 2) {
+                app(ApplicantService::class)->sendRegretEmail($applicant);
+            }
+        });
+    }
 
     //Applicant Town
     public function town()
@@ -272,21 +299,6 @@ class Applicant extends Model
         return $this->belongsToMany(Vacancy::class, 'vacancy_fills', 'applicant_id', 'vacancy_id')->withTimestamps();
     }
 
-    //Applicant Total Data
-    protected static function booted()
-    {
-        //Create Applicant
-        static::created(function ($applicant) {
-            // Dispatch the job when an applicant is created
-            UpdateApplicantData::dispatch($applicant->id, 'created');
-        });
-
-        //Update Appliant
-        static::updated(function ($applicant) {
-            // Dispatch the job when an applicant is updated
-            UpdateApplicantData::dispatch($applicant->id, 'updated');
-        });
-    }
 
     //Applicant Monthly Data
     protected static function updateMonthlyData($yearlyDataId, $categoryType, $categoryId)
