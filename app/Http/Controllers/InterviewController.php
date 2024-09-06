@@ -545,13 +545,26 @@ class InterviewController extends Controller
                 'status' => 'No Show'
             ]);
 
-            // Find the applicant associated with the interview
-            $applicant = Applicant::findOrFail($interview->applicant_id);
+            // Increment No Show for the applicant
+            $applicant = $interview->applicant;
 
-            // Increment the 'no_show' count for the applicant
-            $applicant->increment('no_show');
+            if ($applicant) {
+                $applicant->increment('no_show');
 
-            // Return a success response
+                // Check if the 'no_show' count is >= 2
+                if ($applicant->no_show >= 2 && $interview->wasChanged()) {
+                    // Create Notification for No Show
+                    $notification = new Notification();
+                    $notification->user_id = $applicant->id;
+                    $notification->causer_id = $userID;
+                    $notification->subject()->associate($interview); // Associate notification with the interview or application
+                    $notification->type_id = 1;
+                    $notification->notification = "Has been declined 🚫";
+                    $notification->read = "No";
+                    $notification->save();
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
