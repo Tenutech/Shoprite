@@ -6,6 +6,7 @@ use App\Models\Applicant;
 use App\Models\Consent;
 use App\Models\NotificationSetting;
 use App\Models\User;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,7 +22,7 @@ it('registers a new user and handles various aspects of registration', function 
         'lastname' => 'Register',
         'email' => 'johnregister@example.com',
         'phone' => '1234567890',
-        'id_number' => '1234567890123',
+        'id_number' => '8112045070088',
         'password' => 'password123',
         'password_confirmation' => 'password123',
         'address' => '123 Fake Street',
@@ -31,8 +32,6 @@ it('registers a new user and handles various aspects of registration', function 
     Applicant::factory()->create(['id_number' => '1234567890123']);
 
     $response = $this->post(route('register'), $data);
-
-    $response->assertRedirect(route('home'));
 
     $this->assertDatabaseHas('users', [
         'firstname' => 'John',

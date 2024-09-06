@@ -15,6 +15,7 @@ use App\Models\SapNumber;
 use App\Models\Application;
 use App\Models\Notification;
 use App\Models\VacancyFill;
+use App\Services\VacancyService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
@@ -28,14 +29,17 @@ use App\Jobs\UpdateApplicantData;
 
 class VacancyController extends Controller
 {
+    protected $vacancyService;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(VacancyService $vacancyService)
     {
         $this->middleware(['auth', 'verified']);
+        $this->vacancyService = $vacancyService;
     }
 
     /**
@@ -418,8 +422,8 @@ class VacancyController extends Controller
 
                 // Check if the applicant has already been appointed to the vacancy
                 $alreadyAppointed = VacancyFill::where('vacancy_id', $vacancy->id)
-                ->where('applicant_id', $applicantId)
-                ->exists();
+                    ->where('applicant_id', $applicantId)
+                    ->exists();
 
                 if ($alreadyAppointed) {
                     // Return an error response if the applicant is already appointed
@@ -504,54 +508,84 @@ class VacancyController extends Controller
 
             // If no open positions remain after appointments, notify unappointed applicants
             if ($vacancy->open_positions == 0) {
+                // Combine all applicants associated with the vacancy with interviewed applicants
+                $allApplicants = $vacancy->applicants->merge($vacancy->interviews->pluck('applicant'));
+            
                 // Loop through all applicants associated with the vacancy
-                foreach ($vacancy->applicants as $applicant) {
+                foreach ($allApplicants as $applicant) {
                     // Skip applicants who have been appointed
-                    if (in_array($applicant->id, $selectedUserIds)) {
+                    if (in_array($applicant->id, $selectedApplicants)) {
                         continue;
                     }
-
+            
                     // Retrieve the application associated with the applicant and vacancy
                     $application = Application::where('user_id', $applicant->id)
                         ->where('vacancy_id', $vacancy->id)
                         ->first();
-
+            
+                    // Check if the applicant has been interviewed (interview object is available)
+                    $interview = Interview::where('applicant_id', $applicant->id)
+                        ->where('vacancy_id', $vacancy->id)
+                        ->first();
+            
                     // If application exists, update its approval status to 'No'
                     if ($application) {
                         $application->approved = 'No';
                         $application->save();
-
-                        // If the application status was changed, create a notification about the decline
+            
+                        // Only send a notification if the application status was changed
                         if ($application->wasChanged()) {
                             $notification = new Notification();
                             $notification->user_id = $applicant->id;
                             $notification->causer_id = Auth::id();
-                            $notification->subject()->associate($application);
+                            // Associate notification with the application
+                            $notification->subject()->associate($application); 
                             $notification->type_id = 1;
                             $notification->notification = "Has been declined 🚫";
                             $notification->read = "No";
                             $notification->save();
+            
+                            // Dispatch a job to update the applicant's monthly data as 'Rejected'
+                            UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
                         }
+                    } elseif ($interview) {
+                        // If no application but an interview exists, create a notification associated with the interview
+                        $notification = new Notification();
+                        $notification->user_id = $applicant->id;
+                        $notification->causer_id = Auth::id();
+                        // Associate notification with the interview
+                        $notification->subject()->associate($interview); 
+                        $notification->type_id = 1;
+                        $notification->notification = "Has been declined 🚫";
+                        $notification->read = "No";
+                        $notification->save();
 
+                        // Set the applicant's shortlist_id to null
+                        $applicant->shortlist_id = null;
+                        $applicant->save();
+            
                         // Dispatch a job to update the applicant's monthly data as 'Rejected'
                         UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
                     }
                 }
             }
 
+            // Send regret to Applicants that were interviewed but not selected
+            //$this->vacancyService->sendRegretInterviewedApplicants($selectedApplicants, $vacancyId);
+
             // Commit the database transaction after all operations are successful
             DB::commit();
 
             // Map the availableSapNumbers to include encrypted IDs
             $availableSapNumbers = SapNumber::where('vacancy_id', $vacancy->id)
-            ->whereDoesntHave('vacancyFills')
-            ->get()
-            ->map(function ($sapNumber) {
-                return [
-                    'id' => Crypt::encryptString($sapNumber->id),
-                    'sap_number' => $sapNumber->sap_number
-                ];
-            });
+                ->whereDoesntHave('vacancyFills')
+                ->get()
+                ->map(function ($sapNumber) {
+                    return [
+                        'id' => Crypt::encryptString($sapNumber->id),
+                        'sap_number' => $sapNumber->sap_number
+                    ];
+                });
 
             // Return a success response with the updated vacancy data
             return response()->json([
