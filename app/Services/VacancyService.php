@@ -6,12 +6,13 @@ use App\Jobs\UpdateApplicantData;
 use App\Models\Applicant;
 use App\Models\Interview;
 use App\Models\Notification;
+use App\Models\Vacancy;
 use Illuminate\Support\Facades\Auth;
 
 class VacancyService
 {
     /**
-     * Send the regret notification to applicants who have been interviewed.
+     * Send regret notifications to applicants who have been interviewed or applied directly.
      *
      * @param array $selectedApplicantIds The list of applicant IDs that have been selected.
      * @param int $vacancyId The ID of the vacancy being processed.
@@ -19,43 +20,45 @@ class VacancyService
      */
     public function sendRegretNotifications(array $selectedApplicantIds, int $vacancyId): void
     {
-        $vacancy = Vacancy::find($vacancyId);
-
-        $appliedByInterview = $this->getInterviewedApplicants($selectedApplicantIds, $vacancyId);
+        $appliedByInterview = $this->getApplicantsByInterview($selectedApplicantIds, $vacancyId);
         $appliedDirectly = $this->getDirectApplicants($selectedApplicantIds, $vacancyId);
-        $applicantsToProcess = array_merge($appliedByInterview, $appliedDirectly);
 
-        foreach ($applicantsToProcess as $value) {
-            $this->sendRegretNotification($value['applicant'], $vacancyId, $value['subject']);
+        // Merge and reindex the arrays to ensure proper iteration
+        $applicantsToProcess = array_merge($appliedByInterview, $appliedDirectly);
+        $applicantsToProcess = array_values($applicantsToProcess);
+
+        foreach ($applicantsToProcess as $applicantData) {
+            $this->sendRegretNotification($applicantData['applicant'], $vacancyId, $applicantData['subject']);
         }
     }
 
-     /**
-     * Retrieve all applicants that applied directly to the vacancy
+    /**
+     * Retrieve all applicants that applied directly to the vacancy.
      *
      * @param array $selectedApplicantIds The list of applicant IDs that have been selected.
-     * @param Vacancy $vacancy The vacancy being processed.
+     * @param int $vacancyId The ID of the vacancy being processed.
      * @return array The list of applicants to be regretted.
      */
-    public function getDirectApplicants(array $selectedApplicantIds, Vacancy $vacancy): array
+    public function getDirectApplicants(array $selectedApplicantIds, int $vacancyId): array
     {
-        $applicants = [];
+        $vacancy = Vacancy::find($vacancyId);
         $allApplicants = $vacancy->applicants;
 
+        $applicants = [];
         foreach ($allApplicants as $applicant) {
-            if (in_array($applicant->id, $selectedApplicantIds)) {
-                continue;
+            if (!in_array($applicant->id, $selectedApplicantIds)) {
+                $applicants[$applicant->id] = [
+                    'applicant' => $applicant,
+                    'subject' => $applicant
+                ];
             }
-
-            $applicants[$applicant->id]['applicant'] = $applicant;
-            $applicants[$applicant->id]['subject'] = $applicant;
         }
+
         return $applicants;
     }
 
     /**
-     * Retrieve all applicants that have interviews, they did not directly apply but were chosen
-     * or shorlisted
+     * Retrieve all applicants who have been interviewed but did not directly apply.
      *
      * @param array $selectedApplicantIds The list of applicant IDs that have been selected.
      * @param int $vacancyId The ID of the vacancy being processed.
@@ -68,34 +71,38 @@ class VacancyService
         $interviewedApplicants = [];
         foreach ($interviews as $interview) {
             $applicant = $interview->applicant;
-            if (in_array($applicant->id, $selectedApplicantIds)) {
-                continue;
+            if (!in_array($applicant->id, $selectedApplicantIds)) {
+                $interviewedApplicants[$applicant->id] = [
+                    'applicant' => $applicant,
+                    'subject' => $interview
+                ];
             }
-
-            $interviewedApplicants[$applicant->id]['applicant'] = $applicant;
-            $interviewedApplicants[$applicant->id]['subject'] = $interview;
         }
+
         return $interviewedApplicants;
     }
 
     /**
-     * Send the regret notification to an applicant and dispatch an event.
+     * Send a regret notification to an applicant and dispatch an event.
      *
      * @param Applicant $applicant The applicant to send the regret notification to.
      * @param int $vacancyId The ID of the vacancy being processed.
+     * @param mixed $subject The subject of the notification (Interview or Applicant).
      * @return void
      */
     public function sendRegretNotification(Applicant $applicant, int $vacancyId, $subject): void
     {
-        $notification = new Notification();
-        $notification->user_id = $applicant->id;
-        $notification->causer_id = Auth::id();
-        $notification->subject()->associate($subject);
-        $notification->type_id = 1;
-        $notification->notification = "Has been declined 🚫";
-        $notification->read = "No";
-        $notification->save();
+        Notification::create([
+            'user_id' => $applicant->id,
+            'causer_id' => Auth::id(),
+            'subject_type' => get_class($subject),
+            'subject_id' => $subject->id,
+            'type_id' => 1,
+            'notification' => 'Has been declined 🚫',
+            'read' => 'No',
+        ]);
 
-        UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
+        UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)
+            ->onQueue('default');
     }
 }

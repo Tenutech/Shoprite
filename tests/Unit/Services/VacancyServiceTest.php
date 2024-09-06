@@ -20,7 +20,6 @@ beforeEach(function () {
 });
 
 it('sends regret notifications to unselected interviewed applicants', function () {
-
     $selectedApplicantIds = [2, 3]; 
     $unselectedApplicant = Applicant::factory()->create();
     $vacancy = Vacancy::factory()->create();
@@ -32,7 +31,7 @@ it('sends regret notifications to unselected interviewed applicants', function (
         'vacancy_id' => $vacancy->id
     ]);
 
-    $this->vacancyService->sendRegretInterviewedApplicants($selectedApplicantIds, 1);
+    $this->vacancyService->sendRegretNotifications($selectedApplicantIds, $vacancy->id);
 
     $this->assertDatabaseHas('notifications', [
         'user_id' => $unselectedApplicant->id,
@@ -54,10 +53,10 @@ it('retrieves all interviewed applicants that should be regretted', function () 
         'vacancy_id' => $vacancy->id
     ]);
 
-    $applicantsToRegret = $this->vacancyService->getInterviewedApplicants($selectedApplicantIds, 1);
+    $applicantsToRegret = $this->vacancyService->getApplicantsByInterview($selectedApplicantIds, $vacancy->id);
     
     expect($applicantsToRegret)->toHaveCount(1);
-    expect($applicantsToRegret[0]->id)->toBe($interviewedApplicant->id);
+    expect($applicantsToRegret[$interviewedApplicant->id]['applicant']->id)->toBe($interviewedApplicant->id);
 });
 
 it('sends regret notification to a single applicant', function () {
@@ -65,7 +64,7 @@ it('sends regret notification to a single applicant', function () {
     $vacancy = Vacancy::factory()->create();
     $user = User::factory()->create();
 
-    $this->vacancyService->sendRegretNotification($unselectedApplicant, 1);
+    $this->vacancyService->sendRegretNotification($unselectedApplicant, $vacancy->id, $unselectedApplicant);
 
     $this->assertDatabaseHas('notifications', [
         'user_id' => $unselectedApplicant->id,
