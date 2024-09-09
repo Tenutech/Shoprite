@@ -74,7 +74,7 @@ class UpdateApplicantData implements ShouldQueue
         }
 
         if ($this->action === 'created') {
-            $this->handleCreation($applicant, $yearlyData);
+            $this->handleCreation($applicant, $yearlyData, $this->vacancyId);
         } elseif ($this->action === 'updated') {
             if ($this->status) {
                 $this->handleStatusUpdate($yearlyData->id, $this->status, $this->vacancyId);
@@ -90,13 +90,13 @@ class UpdateApplicantData implements ShouldQueue
     |--------------------------------------------------------------------------
     */
 
-    protected function handleCreation($applicant, $yearlyData)
+    protected function handleCreation($applicant, $yearlyData, $vacancyId)
     {
         $yearlyData->increment('total_applicants');
         $monthField = strtolower(Carbon::now()->format('M'));
         $yearlyData->increment($monthField);
 
-        $this->updateMonthlyData($applicant, $yearlyData->id, true);
+        $this->updateMonthlyData($applicant, $yearlyData->id, true, $vacancyId);
     }
 
     /*
