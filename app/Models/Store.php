@@ -13,10 +13,14 @@ class Store extends Model
     use LogsActivity;
 
     protected $fillable = [
+        'name',
         'brand_id',
         'town_id',
         'address',
-        'coordinates'
+        'coordinates',
+        'region_id',
+        'division_id',
+        'code'
     ];
 
     //Brand
@@ -35,6 +39,18 @@ class Store extends Model
     public function vacancies()
     {
         return $this->hasMany(Vacancy::class);
+    }
+
+    //Region
+    public function region()
+    {
+        return $this->belongsTo(Region::class);
+    }
+
+    //Division
+    public function division()
+    {
+        return $this->belongsTo(Division::class);
     }
 
     /**
