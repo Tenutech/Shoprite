@@ -109,7 +109,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
             'avatar' => $avatarName,
             'company_id' => 1,
-            'role_id' => 4, // Default role for new users
+            'role_id' => 7, // Default role for new users
             'applicant_id' => $applicant ? $applicant->id : null,
             'status_id' => 1, // User status (e.g., active)
             // If email is provided, set email_verified_at to null (will trigger verification),
@@ -157,6 +157,12 @@ class RegisterController extends Controller
             case 2:
                 return redirect('/admin/home'); // Redirect admins to admin home
             case 3:
+                return redirect('/rpp/home'); // Redirect rpp to rpp home
+            case 4:
+                return redirect('/dtdp/home'); // Redirect rpp and dtdp to dtdp home
+            case 5:
+                return redirect('/dpp/home'); // Redirect dpp to dpp home
+            case 6:
                 return redirect('/manager/home'); // Redirect managers to manager home
             default:
                 return redirect('/home'); // Fallback for any other cases

@@ -164,7 +164,7 @@
                                                                             Reschedule
                                                                         </a>
                                                                     </li>
-                                                                    @if ($user->role_id < 3)
+                                                                    @if ($user->role_id < 6)
                                                                         <li>
                                                                             <a class="dropdown-item complete-item-btn" data-bs-toggle="modal" href="#interviewCompleteModal">
                                                                                 <i class="ri-calendar-check-fill align-bottom me-2 text-success"></i>
@@ -231,7 +231,7 @@
                                                                         Reschedule
                                                                     </a>
                                                                 </li>
-                                                                @if ($user->role_id < 3)
+                                                                @if ($user->role_id < 6)
                                                                     <li>
                                                                         <a class="dropdown-item complete-item-btn" data-bs-toggle="modal" href="#interviewCompleteModal">
                                                                             <i class="ri-calendar-check-fill align-bottom me-2 text-success"></i>

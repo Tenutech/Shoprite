@@ -357,7 +357,7 @@
                                     </span>
                                 </td>
                             </tr>
-                            @if ($user->role_id <= 3)                   
+                            @if ($user->role_id <= 6)                   
                                 <tr>
                                     <td class="fw-semibold">
                                         Applications
@@ -414,7 +414,7 @@
                     <!--end table-->
                 </div>
                 <div class="mt-4 pt-2 hstack gap-2">
-                    @if ($user->id == $vacancy->user_id && $user->role_id <= 3)
+                    @if ($user->id == $vacancy->user_id && $user->role_id <= 6)
                         <a class="btn btn-success w-100 apply-trigger" href="{{ route('shortlist.index') }}?id={{ Crypt::encryptString($vacancy->id) }}">
                             Shortlist
                         </a>

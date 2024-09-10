@@ -127,7 +127,7 @@ class SuperAdminsController extends Controller
             'gender_id' => ['sometimes', 'nullable', 'integer', 'in:1,2'],
             'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
             'position_id' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:10'],
-            'role_id' => ['required', 'integer', 'min:1', 'max:5'],
+            'role_id' => ['required', 'integer', 'min:1', 'max:8'],
             'store_id' => ['sometimes', 'nullable', 'integer'],
             'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);
@@ -246,7 +246,7 @@ class SuperAdminsController extends Controller
             'gender_id' => ['sometimes', 'nullable', 'integer', 'in:1,2'],
             'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
             'position_id' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:10'],
-            'role_id' => ['required', 'integer', 'min:1', 'max:5'],
+            'role_id' => ['required', 'integer', 'min:1', 'max:8'],
             'store_id' => ['sometimes', 'nullable', 'integer'],
             'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);

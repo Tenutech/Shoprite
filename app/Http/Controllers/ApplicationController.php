@@ -427,7 +427,7 @@ class ApplicationController extends Controller
                 'numeracy_score' => $numeracyScore,
                 'numeracy_questions' => $numeracyQuestionsCount,
                 'numeracy' => "{$numeracyScore}/{$numeracyQuestionsCount}",
-                'role_id' => 5,
+                'role_id' => 8,
                 'state_id' => 69,
             ]);
 
@@ -746,7 +746,7 @@ class ApplicationController extends Controller
                 'numeracy_score' => $numeracyScore,
                 'numeracy_questions' => $numeracyQuestionsCount,
                 'numeracy' => "{$numeracyScore}/{$numeracyQuestionsCount}",
-                'role_id' => 5,
+                'role_id' => 8,
                 'state_id' => 69,
             ]);
 

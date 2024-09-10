@@ -393,7 +393,7 @@
                                                 </div>
                                             </div>
                                         </li>
-                                        @if ($user->role_id < 4)
+                                        @if ($user->role_id < 7)
                                             <li class="d-flex">
                                                 <div class="flex-grow-1">
                                                     <label for="notifyVacancyStatus" class="form-check-label fs-15">

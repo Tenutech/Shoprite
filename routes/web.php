@@ -24,7 +24,7 @@ Auth::routes(['verify' => true]);
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activity'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2,3,4,5', 'user.activity'])->group(function () {
     //Home
 
     Route::get('/home', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.home');
@@ -492,11 +492,59 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
 /*
 |--------------------------------------------------------------------------
+| Regional People Partner (rpp) Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('rpp')->middleware(['auth', 'verified', 'role:3', 'user.activity'])->group(function () {
+    //Home
+
+    Route::get('/home', [App\Http\Controllers\RegionalPeoplePartnerController::class, 'index'])->name('regional-people-partner.home');
+
+    //Update Data
+
+    Route::get('/updateData', [App\Http\Controllers\RegionalPeoplePartnerController::class, 'updateData'])->name('regional-people-partner.updateData');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Divisional Talent Development Partner (dtdp) Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('dtdp')->middleware(['auth', 'verified', 'role:4', 'user.activity'])->group(function () {
+    //Home
+
+    Route::get('/home', [App\Http\Controllers\DivisionalTalentDevelopmentPartnerController::class, 'index'])->name('divisional-talent-development-partner.home');
+
+    //Update Data
+
+    Route::get('/updateData', [App\Http\Controllers\DivisionalTalentDevelopmentPartnerController::class, 'updateData'])->name('divisional-talent-development-partner.updateData');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Divisional People Partner (dpp) Routes
+|--------------------------------------------------------------------------
+*/
+
+Route::prefix('dpp')->middleware(['auth', 'verified', 'role:5', 'user.activity'])->group(function () {
+    //Home
+
+    Route::get('/home', [App\Http\Controllers\DivisionalPeoplePartnerController::class, 'index'])->name('divisional-people-partner.home');
+
+    //Update Data
+
+    Route::get('/updateData', [App\Http\Controllers\DivisionalPeoplePartnerController::class, 'updateData'])->name('divisional-people-partner.updateData');
+});
+
+/*
+|--------------------------------------------------------------------------
 | Manager Routes
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3', 'user.activity'])->group(function () {
+Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,5,6', 'user.activity'])->group(function () {
     //Home
 
     Route::get('/home', [App\Http\Controllers\ManagerController::class, 'index'])->name('manager.home');

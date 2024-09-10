@@ -40,7 +40,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         // Check user's settings to determine if they've opted in for email notifications
         $userSettings = NotificationSetting::where('user_id', $notifiable->id)->first();
         if ($userSettings && $userSettings->receive_email_notifications) {
-            if ($user->role_id != 3) {
+            if ($user->role_id != 6) {
                 return ['mail'];
             }
         }

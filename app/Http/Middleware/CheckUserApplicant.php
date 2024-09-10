@@ -21,8 +21,8 @@ class CheckUserApplicant
     {
         $user = Auth::user();
 
-        // Check if the user's role is greater than 3 and they do not have the 'applicant' role
-        if ($user->role_id > 3 && !$user->applicant_id) {
+        // Check if the user's role is greater than 6 and they do not have the 'applicant' role
+        if ($user->role_id > 6 && !$user->applicant_id) {
             // Redirect them to the home page
             return redirect('/home');
         }

@@ -99,7 +99,7 @@ class TwilioChatService
             if (!$applicant) {
                 $applicant = new Applicant([
                     'phone' => $phone,
-                    'role_id' => 5,
+                    'role_id' => 8,
                     'state_id' => 1,
                 ]);
                 $applicant->save();
