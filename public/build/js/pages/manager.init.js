@@ -84,7 +84,6 @@ var options = {
         "filled",
         "applicants",
         "location",
-        "tags",
         "date",
         "status",
     ],
@@ -103,12 +102,13 @@ var vacanciesList = new List("vacanciesList", options).on("updated", function (l
     list.matchingItems.length == 0 ?
         (document.getElementsByClassName("noresult")[0].style.display = "block") :
         (document.getElementsByClassName("noresult")[0].style.display = "none");
+    
     var isFirst = list.i == 1;
     var isLast = list.i > list.matchingItems.length - list.page;
 
-    // make the Prev and Nex buttons disabled on first and last pages accordingly
     (document.querySelector(".pagination-prev.disabled")) ? document.querySelector(".pagination-prev.disabled").classList.remove("disabled"): '';
     (document.querySelector(".pagination-next.disabled")) ? document.querySelector(".pagination-next.disabled").classList.remove("disabled"): '';
+
     if (isFirst) {
         document.querySelector(".pagination-prev").classList.add("disabled");
     }

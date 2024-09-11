@@ -8,7 +8,7 @@
 <div class="row">
     <div class="col-lg-12">
         <div class="card mt-n4 mx-n4">
-            <div class="bg-{{ $vacancy->position->color }}-subtle">
+            <div class="bg-{{ optional($vacancy->position)->color ?? 'secondary' }}-subtle">
                 <div class="card-body px-4 pb-4">
                     <div class="row mb-3">
                         <div class="col-md">
@@ -16,35 +16,35 @@
                                 <div class="col-md-auto">
                                     <div class="avatar-md">
                                         <div class="avatar-title bg-white rounded-circle">
-                                            <i class="{{ $vacancy->position->icon }} text-{{ $vacancy->position->color }} fs-1"></i>
+                                            <i class="{{ optional($vacancy->position)->icon ?? 'ri-information-line' }} text-{{ optional($vacancy->position)->color ?? 'secondary' }} fs-1"></i>
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md">
                                     <div>
                                         <h4 class="fw-bold">
-                                            {{ $vacancy->position->name }}
+                                            {{ optional($vacancy->position)->name ?? 'N/A' }}
                                         </h4>
                                         <div class="hstack gap-3 flex-wrap">
                                             <div>
                                                 <i class="ri-building-line align-bottom me-1"></i> 
-                                                {{ $vacancy->store->brand->name }}
+                                                {{ optional($vacancy->store->brand)->name ?? 'N/A' }}
                                             </div>
                                             <div class="vr"></div>
                                             <div>
                                                 <i class="ri-map-pin-2-line align-bottom me-1"></i> 
-                                                {{ $vacancy->store->town->name }}, {{ $vacancy->store->town->district }}
+                                                {{ optional($vacancy->store->town)->name ?? 'N/A' }}, {{ optional($vacancy->store->town)->district ?? 'N/A' }}
                                             </div>
                                             <div class="vr"></div>
                                             <div>
                                                 Posted : 
                                                 <span class="fw-semibold">
-                                                    {{ date('d M, Y', strtotime($vacancy->created_at)) }}
+                                                    {{ $vacancy->created_at ? date('d M, Y', strtotime($vacancy->created_at)) : 'N/A' }}
                                                 </span>
                                             </div>
                                             <div class="vr"></div>
-                                            <div class="badge rounded-pill bg-{{ $vacancy->type->color }} fs-12">
-                                                {{ $vacancy->type->name }}
+                                            <div class="badge rounded-pill bg-{{ optional($vacancy->type)->color ?? 'secondary' }} fs-12">
+                                                {{ optional($vacancy->type)->name ?? 'N/A' }}
                                             </div>
                                         </div>
                                     </div>
@@ -92,83 +92,38 @@
                 <h5 class="mb-3">
                     Job Description
                 </h5>
-
+                
                 <p class="text-muted mb-4">
-                    {!! $vacancy->position->description !!}
+                    {!! optional($vacancy->position)->description ?? 'N/A' !!}
                 </p>
-
+                
                 <div class="mb-4">
                     <h5 class="mb-3">
-                        Responsibilities of {{ $vacancy->position->name }}
+                        Purpose of a {{ optional($vacancy->position)->name ?? 'N/A' }}
                     </h5>
-                    <p class="text-muted">
-                        Provided below are the responsibilities of a {{ $vacancy->position->name }}:
-                    </p>
-                    <ul class="text-muted vstack gap-2">
-                        @foreach ($vacancy->position->responsibilities as $responsibility)
-                            <li>
-                                {{ $responsibility->description }}
-                            </li>
-                        @endforeach
-                    </ul>
+                    {!! optional(optional($vacancy->position->responsibilities)[0] ?? null)->description ?? 'N/A' !!}
                 </div>
-
+                
                 <div class="mb-4">
                     <h5 class="mb-3">
-                        Qualifications
+                        How You Add Value
                     </h5>
-                    <ul class="text-muted vstack gap-2">
-                        @foreach ($vacancy->position->qualifications as $qualification)
-                            <li>
-                                {{ $qualification->description }}
-                            </li>
-                        @endforeach
-                    </ul>
+                    {!! optional(optional($vacancy->position->qualifications)[0] ?? null)->description ?? 'N/A' !!}
                 </div>
-
+                
                 <div class="mb-4">
                     <h5 class="mb-3">
-                        Skills & Competencies
+                        What You Do Daily
                     </h5>
-                    <ul class="text-muted vstack gap-2">
-                        @foreach ($vacancy->position->skills as $skill)
-                            <li>
-                                {{ $skill->description }}
-                            </li>
-                        @endforeach
-                    </ul>
+                    {!! optional(optional($vacancy->position->skills)[0] ?? null)->description ?? 'N/A' !!}
                 </div>
-
+                
                 <div class="mb-4">
                     <h5 class="mb-3">
-                        Requirements
+                        What Will Make You Great
                     </h5>
-                    <ul class="text-muted vstack gap-2">
-                        @foreach ($vacancy->position->experienceRequirements as $experience)
-                            <li>
-                                {{ $experience->description }}
-                            </li>
-                        @endforeach
-                        @foreach ($vacancy->position->physicalRequirements as $physical)
-                            <li>
-                                {{ $physical->description }}
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-
-                <div class="mb-4">
-                    <h5 class="mb-3">
-                        Success & Factors
-                    </h5>
-                    <ul class="text-muted vstack gap-2">
-                        @foreach ($vacancy->position->successFactors as $factor)
-                            <li>
-                                <b>{{ $factor->name }}:</b> {{ $factor->description }}
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
+                    {!! optional(optional($vacancy->position->successFactors)[0] ?? null)->description ?? 'N/A' !!}
+                </div>                
 
                 @if ($vacancy->position->files && $vacancy->position->files->count() > 0 || $user->role_id <= 2)
                     <div class="mb-4">
@@ -328,7 +283,7 @@
                                     Title
                                 </td>
                                 <td>
-                                    {{ $vacancy->position->name }}
+                                    {{ optional($vacancy->position)->name ?? 'N/A' }}
                                 </td>
                             </tr>
                             <tr>
@@ -336,7 +291,7 @@
                                     Company Name
                                 </td>
                                 <td>
-                                    {{ $vacancy->store->brand->name }}
+                                    {{ optional($vacancy->store->brand)->name ?? 'N/A' }}
                                 </td>
                             </tr>
                             <tr>
@@ -344,7 +299,7 @@
                                     Location
                                 </td>
                                 <td>
-                                    {{ $vacancy->store->town->name }}
+                                    {{ optional($vacancy->store->town)->name ?? 'N/A' }}
                                 </td>
                             </tr>
                             <tr>
@@ -352,8 +307,8 @@
                                     Type
                                 </td>
                                 <td>
-                                    <span class="badge bg-{{ $vacancy->type->color }}-subtle text-{{ $vacancy->type->color }}">
-                                        {{ $vacancy->type->name }}
+                                    <span class="badge bg-{{ optional($vacancy->type)->color ?? 'secondary' }}-subtle text-{{ optional($vacancy->type)->color ?? 'secondary' }}">
+                                        {{ optional($vacancy->type)->name ?? 'N/A' }}
                                     </span>
                                 </td>
                             </tr>
@@ -363,7 +318,7 @@
                                         Applications
                                     </td>
                                     <td>
-                                        {{ $vacancy->applicants->count() }}
+                                        {{ $vacancy->applicants->count() ?? 'N/A' }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -371,7 +326,7 @@
                                         Available
                                     </td>
                                     <td>
-                                        {{ $vacancy->open_positions }}
+                                        {{ $vacancy->open_positions ?? 'N/A' }}
                                     </td>
                                 </tr>
                                 <tr>
@@ -379,7 +334,7 @@
                                         Filled
                                     </td>
                                     <td>
-                                        {{ $vacancy->filled_positions }}
+                                        {{ $vacancy->filled_positions ?? 'N/A' }}
                                     </td>
                                 </tr>
                             @endif
@@ -388,7 +343,7 @@
                                     Post Date
                                 </td>
                                 <td>
-                                    {{ date('d M, Y', strtotime($vacancy->created_at)) }}
+                                    {{ $vacancy->created_at ? date('d M, Y', strtotime($vacancy->created_at)) : 'N/A' }}
                                 </td>
                             </tr>
                             @if ($user->role_id == 1)
@@ -397,7 +352,7 @@
                                         Salary
                                     </td>
                                     <td>
-                                        {{ $vacancy->position->salaryBenefits[0]->salary ?? 'N/A' }}
+                                        {{ optional(optional($vacancy->position->salaryBenefits)[0] ?? null)->salary ?? 'N/A' }}
                                     </td>
                                 </tr>
                             @endif
@@ -406,13 +361,15 @@
                                     Experience
                                 </td>
                                 <td>
-                                    {{ $vacancy->position->experienceRequirements[0]->description ?? 'N/A' }}
+                                    {{ optional(optional($vacancy->position->experienceRequirements)[0] ?? null)->description ?? 'N/A' }}
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                     <!--end table-->
                 </div>
+                
+                <!-- Button -->
                 <div class="mt-4 pt-2 hstack gap-2">
                     @if ($user->id == $vacancy->user_id && $user->role_id <= 3)
                         <a class="btn btn-success w-100 apply-trigger" href="{{ route('shortlist.index') }}?id={{ Crypt::encryptString($vacancy->id) }}">
@@ -509,7 +466,7 @@
             </div>
             <div class="card-body">
                 <div class="ratio ratio-4x3">
-                    <iframe src="https://www.google.com/maps/embed/v1/place?key={{ config('services.googlemaps.key') }}&q={{ urlencode($vacancy->store->brand->name . ' ' . $vacancy->store->town->name) }}" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <iframe src="https://www.google.com/maps/embed/v1/place?key={{ config('services.googlemaps.key') }}&q={{ urlencode($vacancy->store->address) }}" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
                 </div>
             </div>
         </div>

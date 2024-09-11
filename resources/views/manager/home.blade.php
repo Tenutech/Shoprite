@@ -171,29 +171,7 @@
                                         <a href="{{ route('vacancy.index') }}" type="button" class="btn btn-success add-btn">
                                             <i class="ri-add-line align-bottom me-1"></i> 
                                             Add Vacancy
-                                        </a>
-                                        <span class="dropdown d-none">
-                                            <button class="btn btn-soft-info btn-icon fs-14" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                                                <i class="ri-settings-4-line"></i>
-                                            </button>
-                                            <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton1">
-                                                <li>
-                                                    <a class="dropdown-item" href="#">Copy</a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">Move to pipline</a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">Add to exceptions</a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">Switch to common form view</a>
-                                                </li>
-                                                <li>
-                                                    <a class="dropdown-item" href="#">Reset form view to default</a>
-                                                </li>
-                                            </ul>
-                                        </span>
+                                        </a>                                        
                                     </div>
                                 </div>
                             </div>
@@ -215,8 +193,7 @@
                                                 <th class="sort" data-sort="open">Open</th>
                                                 <th class="sort" data-sort="filled">Filled</th>
                                                 <th class="sort" data-sort="applicants">Applicants</th>
-                                                <th class="sort" data-sort="location">Location</th>                                                                                               
-                                                <th class="sort" data-sort="tags">Tags</th>
+                                                <th class="sort" data-sort="location">Location</th>
                                                 <th class="sort" data-sort="date">Posted</th>
                                                 <th class="sort" data-sort="status">Status</th> 
                                                 <th class="sort" data-sort="action">Action</th>
@@ -257,12 +234,7 @@
                                                         <td class="open">{{ $vacancy->open_positions }}</td>
                                                         <td class="filled">{{ $vacancy->filled_positions }}</td>
                                                         <td class="applicants">{{ $vacancy->applicants->count() }}</td>                                                      
-                                                        <td class="location">{{ $vacancy->store->town->name }}</td>                                                    
-                                                        <td class="tags">
-                                                            @if ($vacancy->position->tags)
-                                                                <span class="badge bg-{{ $vacancy->position->tags[0]->color }}-subtle text-{{ $vacancy->position->tags[0]->color }}">{{ $vacancy->position->tags[0]->name }}</span>
-                                                            @endif
-                                                        </td>
+                                                        <td class="location">{{ $vacancy->store->town->name }}</td>
                                                         <td class="date">{{ date('d M Y', strtotime($vacancy->created_at)) }}</td>
                                                         <td class="status">
                                                             <span class="badge bg-{{ $vacancy->status->color }}-subtle text-{{ $vacancy->status->color }}">
@@ -380,7 +352,6 @@
                                                     <td class="filled"></td>
                                                     <td class="applicants"></td>
                                                     <td class="location"></td>
-                                                    <td class="tags"></td>
                                                     <td class="date"></td>
                                                     <td class="status"></td>
                                                     <td class="action">
@@ -438,7 +409,6 @@
                                                             </li>
                                                         </ul>
                                                     </td>
-                                                    <td class="opportunities d-none"></td>
                                                 </tr>
                                             @endif
                                         </tbody>

@@ -29,8 +29,9 @@ class ContentSecurityPolicy
         $csp .= "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "; // Allow styles from the same origin, inline styles, and Google Fonts
         $csp .= "font-src 'self' https://fonts.gstatic.com data:; "; // Allow fonts from the same origin, Google Fonts, and data URIs
         $csp .= "img-src 'self' data:; "; // Allow images from the same origin and data URIs
-        $csp .= "connect-src 'self' https://cdn.lordicon.com https://maps.googleapis.com https://login.microsoftonline.com;"; // Allow connections to the same origin, lordicon CDN, and Google Maps
+        $csp .= "connect-src 'self' https://cdn.lordicon.com https://maps.googleapis.com https://login.microsoftonline.com; "; // Allow connections to the same origin, lordicon CDN, and Google Maps
         $csp .= "form-action 'self' https://login.microsoftonline.com; "; // Allow form actions to your SAML provider
+        $csp .= "frame-src 'self' https://www.google.com https://maps.googleapis.com; "; // Allow embedding frames from Google Maps
         $csp .= "frame-ancestors 'none'; "; // Prevent the page from being embedded in frames
 
         // Set the Content-Security-Policy header in the response
