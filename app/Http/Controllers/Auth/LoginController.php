@@ -108,9 +108,15 @@ class LoginController extends Controller
             case 2:
                 return redirect('/admin/home'); // Redirect admins to admin home
             case 3:
+                return redirect('/rpp/home'); // Redirect rpp to rpp home
+            case 4:
+                return redirect('/dtdp/home'); // Redirect dtdp to dtdp home
+            case 5:
+                return redirect('/dpp/home'); // Redirect dpp to dpp home
+            case 6:
                 return redirect('/manager/home'); // Redirect managers to manager home
             default:
-                return redirect('/home'); // Redirect all other users to the default home
+                return redirect('/home'); // Fallback for any other cases
         }
     }
 

@@ -23,6 +23,27 @@ class GoogleMapsService
         return $this->makeRequest('geocode/json', ['address' => $address]);
     }
 
+    /**
+     * Get the HTTP client instance.
+     *
+     * @return \GuzzleHttp\Client
+     */
+    public function getClient()
+    {
+        return $this->client;
+    }
+
+    /**
+     * Set the HTTP client instance.
+     *
+     * @param \GuzzleHttp\Client $client
+     * @return void
+     */
+    public function setClient(Client $client)
+    {
+        $this->client = $client;
+    }
+
     public function reverseGeocodeCoordinates($latitude, $longitude)
     {
         return $this->makeRequest('geocode/json', ['latlng' => "{$latitude},{$longitude}"]);

@@ -7,6 +7,15 @@
             $url = 'admin/';
             break;
         case 3:
+            $url = 'rpp/';
+            break;
+        case 4:
+            $url = 'dtdp/';
+            break;
+        case 5:
+            $url = 'dpp/';
+            break;
+        case 6:
             $url = 'manager/';
             break;
         default:
@@ -55,7 +64,7 @@
                         <span>Home</span>
                     </a>
                 </li>                
-                @if ($user->role_id > 3)
+                @if ($user->role_id > 6)
                     @if ($user->applicant)
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
@@ -65,7 +74,7 @@
                         </li>
                     @endif
                 @endif
-                @if ($user->role_id == 1 || $user->role_id == 2 || $user->role_id == 3)
+                @if ($user->role_id <= 6)
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarVacancies" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarVacancies">
                             <i class="ri-briefcase-line"></i> 
@@ -105,7 +114,7 @@
                         </a>
                     </li>
                 @endif
-                @if ($user->role_id == 1 || $user->role_id == 2)
+                @if ($user->role_id <= 5)
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarApprovals" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarApprovals">
                             <i class="ri-shield-check-line"></i> 

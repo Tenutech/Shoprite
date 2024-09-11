@@ -58,6 +58,15 @@
                                         $url = 'admin/';
                                         break;
                                     case 3:
+                                        $url = 'rpp/';
+                                        break;
+                                    case 4:
+                                        $url = 'dtdp/';
+                                        break;
+                                    case 5:
+                                        $url = 'dpp/';
+                                        break;
+                                    case 6:
                                         $url = 'manager/';
                                         break;
                                     default:

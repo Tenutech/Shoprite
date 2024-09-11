@@ -49,13 +49,13 @@
                     <!-- Nav tabs -->
                     <ul class="nav nav-pills animation-nav profile-nav gap-2 gap-lg-3 flex-grow-1" role="tablist">
                         <li class="nav-item">
-                            <a class="nav-link fs-14 {{ Auth::user()->role_id > 3 ? 'd-none' : 'active' }}" data-bs-toggle="tab" href="#overview-tab" role="tab">
+                            <a class="nav-link fs-14 {{ Auth::user()->role_id > 6 ? 'd-none' : 'active' }}" data-bs-toggle="tab" href="#overview-tab" role="tab">
                                 <i class="ri-airplay-fill d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">Overview</span>
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14 {{ Auth::user()->role_id > 3 ? 'active' : '' }}" data-bs-toggle="tab" href="#application-tab" role="tab">
+                            <a class="nav-link fs-14 {{ Auth::user()->role_id > 6 ? 'active' : '' }}" data-bs-toggle="tab" href="#application-tab" role="tab">
                                 <i class="ri-price-tag-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">My Application</span>
                             </a>
@@ -92,7 +92,7 @@
                         Overview
                     -------------------------------------------------------------------------------------->
 
-                    <div class="tab-pane {{ Auth::user()->role_id > 3 ? 'fade d-none' : 'active' }}" id="overview-tab" role="tabpanel">
+                    <div class="tab-pane {{ Auth::user()->role_id > 6 ? 'fade d-none' : 'active' }}" id="overview-tab" role="tabpanel">
                         <div class="row">
                             <div class="col-xxl-3">
                                 <div class="card">
@@ -999,7 +999,7 @@
                        My Application
                     -------------------------------------------------------------------------------------->
 
-                    <div class="tab-pane {{ Auth::user()->role_id > 3 ? 'active' : 'fade' }}" id="application-tab" role="tabpanel">
+                    <div class="tab-pane {{ Auth::user()->role_id > 6 ? 'active' : 'fade' }}" id="application-tab" role="tabpanel">
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-4">
