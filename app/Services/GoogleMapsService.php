@@ -98,7 +98,7 @@ class GoogleMapsService
                 }
 
                 $city = $town ? $town->id : null;
-               
+
                 return [
                     'formatted_address' => $result['formatted_address'],
                     'latitude' => $result['geometry']['location']['lat'],
