@@ -248,7 +248,7 @@ class AdminsController extends Controller
             'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
             'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
-            'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'], 
+            'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
             'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);
 
