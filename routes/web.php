@@ -492,7 +492,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2,3,4,5', 'user.
 
 /*
 |--------------------------------------------------------------------------
-| Regional People Partner (rpp) Routes
+| Regional People Partner (RPP) Routes
 |--------------------------------------------------------------------------
 */
 
@@ -508,7 +508,7 @@ Route::prefix('rpp')->middleware(['auth', 'verified', 'role:3', 'user.activity']
 
 /*
 |--------------------------------------------------------------------------
-| Divisional Talent Development Partner (dtdp) Routes
+| Divisional Talent Development Partner (DTDP) Routes
 |--------------------------------------------------------------------------
 */
 
@@ -524,7 +524,7 @@ Route::prefix('dtdp')->middleware(['auth', 'verified', 'role:4', 'user.activity'
 
 /*
 |--------------------------------------------------------------------------
-| Divisional People Partner (dpp) Routes
+| Divisional People Partner (DPP) Routes
 |--------------------------------------------------------------------------
 */
 

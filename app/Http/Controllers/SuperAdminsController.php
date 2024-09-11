@@ -124,11 +124,11 @@ class SuperAdminsController extends Controller
             'id_verified' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
-            'gender_id' => ['sometimes', 'nullable', 'integer', 'in:1,2'],
+            'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
             'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
-            'position_id' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:10'],
-            'role_id' => ['required', 'integer', 'min:1', 'max:8'],
-            'store_id' => ['sometimes', 'nullable', 'integer'],
+            'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
+            'role_id' => ['required', 'integer', 'exists:roles,id'],
+            'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
             'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);
 
@@ -243,11 +243,11 @@ class SuperAdminsController extends Controller
             'id_verified' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
-            'gender_id' => ['sometimes', 'nullable', 'integer', 'in:1,2'],
+            'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
             'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
-            'position_id' => ['sometimes', 'nullable', 'integer', 'min:1', 'max:10'],
-            'role_id' => ['required', 'integer', 'min:1', 'max:8'],
-            'store_id' => ['sometimes', 'nullable', 'integer'],
+            'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
+            'role_id' => ['required', 'integer', 'exists:roles,id'],
+            'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
             'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);
 
