@@ -18,6 +18,12 @@ class Brand extends Model
         'color'
     ];
 
+    //Positions
+    public function positions()
+    {
+        return $this->hasMany(Position::class);
+    }
+
     //Applicants
     public function applicants()
     {

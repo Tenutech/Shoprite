@@ -126,7 +126,13 @@
                                                             <select class="form-control" id="position" name="position_id" data-choices data-choices-search-true required>
                                                                 <option value="">Select Position</option>
                                                                 @foreach ($positions as $position)
-                                                                    <option value="{{$position->id}}" {{ ($vacancy && $vacancy->position_id == $position->id) ? 'selected' : '' }}>{{ $position->name }}</option>
+                                                                    <option value="{{ $position->id }}" 
+                                                                    {{ ($vacancy && $vacancy->position_id == $position->id) ? 'selected' : '' }}>
+                                                                    {{ $position->name }} 
+                                                                    <span class="text-{{ optional($position->brand)->color ?: 'danger' }}">
+                                                                        ({{ optional($position->brand)->name ?: 'N/A' }})
+                                                                    </span>
+                                                                </option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select a position</div>
