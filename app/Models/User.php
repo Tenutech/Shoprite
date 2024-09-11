@@ -44,6 +44,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'role_id',
         'applicant_id',
         'store_id',
+        'region_id',
+        'division_id',
         'internal',
         'status_id'
     ];
@@ -95,6 +97,18 @@ class User extends Authenticatable implements MustVerifyEmail
     public function store()
     {
         return $this->belongsTo(Store::class, 'store_id');
+    }
+
+    //User Region
+    public function region()
+    {
+        return $this->belongsTo(Region::class);
+    }
+
+    //User Division
+    public function division()
+    {
+        return $this->belongsTo(Division::class);
     }
 
     //User State

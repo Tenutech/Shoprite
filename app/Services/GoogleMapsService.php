@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Town;
+use App\Models\Province;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
@@ -60,15 +61,42 @@ class GoogleMapsService
 
                 // Extract the city from address_components
                 $city = null;
+                $provinceId = null;
+
+                //Loop through each address component
                 foreach ($result['address_components'] as $component) {
+                    // Check if the component contains a 'locality' type, which usually refers to the city or town name
                     if (in_array('locality', $component['types'])) {
-                        $city = $component['long_name'];
+                        // Convert the city name to lowercase and then capitalize each word (e.g., "new york" -> "New York")
+                        $city = ucwords(strtolower($component['long_name']));
+                    }
+
+                    // Check if the component contains 'administrative_area_level_1', which typically refers to the province/state
+                    if (in_array('administrative_area_level_1', $component['types'])) {
+                        // Search for the province in the database by matching the name (partial match using LIKE to handle variations)
+                        $province = Province::where('name', 'LIKE', '%' . $component['long_name'] . '%')->first();
+                        $provinceId = $province ? $province->id : null;
+                    }
+
+                    // Once both the city and the province ID have been found, we can stop looping through the address components
+                    if ($city && $provinceId) {
                         break;
                     }
                 }
 
                 // Check if city exists in towns table
                 $town = Town::where('name', $city)->first();
+
+                // If the town does not exist, insert it into the towns table
+                if (!$town) {
+                    $town = Town::create([
+                        'name' => $city,
+                        'province_id' => $provinceId,
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]);
+                }
+
                 $city = $town ? $town->id : null;
                
                 return [
