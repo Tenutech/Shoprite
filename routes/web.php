@@ -499,11 +499,11 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2,3,4,5', 'user.
 Route::prefix('rpp')->middleware(['auth', 'verified', 'role:3', 'user.activity'])->group(function () {
     //Home
 
-    Route::get('/home', [App\Http\Controllers\RPPController::class, 'index'])->name('regional-people-partner.home');
+    Route::get('/home', [App\Http\Controllers\RPPController::class, 'index'])->name('rpp.home');
 
     //Update Data
 
-    Route::get('/updateData', [App\Http\Controllers\RPPController::class, 'updateData'])->name('regional-people-partner.updateData');
+    Route::get('/updateData', [App\Http\Controllers\RPPController::class, 'updateData'])->name('rpp.updateData');
 });
 
 /*
@@ -515,11 +515,11 @@ Route::prefix('rpp')->middleware(['auth', 'verified', 'role:3', 'user.activity']
 Route::prefix('dtdp')->middleware(['auth', 'verified', 'role:4', 'user.activity'])->group(function () {
     //Home
 
-    Route::get('/home', [App\Http\Controllers\DTDPController::class, 'index'])->name('divisional-talent-development-partner.home');
+    Route::get('/home', [App\Http\Controllers\DTDPController::class, 'index'])->name('dtdp.home');
 
     //Update Data
 
-    Route::get('/updateData', [App\Http\Controllers\DTDPController::class, 'updateData'])->name('divisional-talent-development-partner.updateData');
+    Route::get('/updateData', [App\Http\Controllers\DTDPController::class, 'updateData'])->name('dtdp.updateData');
 });
 
 /*
@@ -531,11 +531,11 @@ Route::prefix('dtdp')->middleware(['auth', 'verified', 'role:4', 'user.activity'
 Route::prefix('dpp')->middleware(['auth', 'verified', 'role:5', 'user.activity'])->group(function () {
     //Home
 
-    Route::get('/home', [App\Http\Controllers\DPPController::class, 'index'])->name('divisional-people-partner.home');
+    Route::get('/home', [App\Http\Controllers\DPPController::class, 'index'])->name('dpp.home');
 
     //Update Data
 
-    Route::get('/updateData', [App\Http\Controllers\DPPController::class, 'updateData'])->name('divisional-people-partner.updateData');
+    Route::get('/updateData', [App\Http\Controllers\DPPController::class, 'updateData'])->name('dpp.updateData');
 });
 
 /*
