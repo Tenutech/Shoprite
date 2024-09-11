@@ -510,41 +510,41 @@ class VacancyController extends Controller
             if ($vacancy->open_positions == 0) {
                 // Combine all applicants associated with the vacancy with interviewed applicants
                 $allApplicants = $vacancy->applicants->merge($vacancy->interviews->pluck('applicant'));
-            
+
                 // Loop through all applicants associated with the vacancy
                 foreach ($allApplicants as $applicant) {
                     // Skip applicants who have been appointed
                     if (in_array($applicant->id, $selectedApplicants)) {
                         continue;
                     }
-            
+
                     // Retrieve the application associated with the applicant and vacancy
                     $application = Application::where('user_id', $applicant->id)
                         ->where('vacancy_id', $vacancy->id)
                         ->first();
-            
+
                     // Check if the applicant has been interviewed (interview object is available)
                     $interview = Interview::where('applicant_id', $applicant->id)
                         ->where('vacancy_id', $vacancy->id)
                         ->first();
-            
+
                     // If application exists, update its approval status to 'No'
                     if ($application) {
                         $application->approved = 'No';
                         $application->save();
-            
+
                         // Only send a notification if the application status was changed
                         if ($application->wasChanged()) {
                             $notification = new Notification();
                             $notification->user_id = $applicant->id;
                             $notification->causer_id = Auth::id();
                             // Associate notification with the application
-                            $notification->subject()->associate($application); 
+                            $notification->subject()->associate($application);
                             $notification->type_id = 1;
                             $notification->notification = "Has been declined 🚫";
                             $notification->read = "No";
                             $notification->save();
-            
+
                             // Dispatch a job to update the applicant's monthly data as 'Rejected'
                             UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
                         }
@@ -554,7 +554,7 @@ class VacancyController extends Controller
                         $notification->user_id = $applicant->id;
                         $notification->causer_id = Auth::id();
                         // Associate notification with the interview
-                        $notification->subject()->associate($interview); 
+                        $notification->subject()->associate($interview);
                         $notification->type_id = 1;
                         $notification->notification = "Has been declined 🚫";
                         $notification->read = "No";
@@ -563,7 +563,7 @@ class VacancyController extends Controller
                         // Set the applicant's shortlist_id to null
                         $applicant->shortlist_id = null;
                         $applicant->save();
-            
+
                         // Dispatch a job to update the applicant's monthly data as 'Rejected'
                         UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
                     }

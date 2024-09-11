@@ -82,7 +82,7 @@ class ActivityLogService
             })
             ->filter()
             ->unique();
-        
+
         return $deletedMessageUserIds;
     }
 
