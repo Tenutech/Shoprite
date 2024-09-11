@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exception;
 use App\Models\User;
 use App\Models\Message;
 use App\Models\Vacancy;
@@ -18,7 +19,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\ActivityLogService;
 
-class DivisionalPeoplePartnerController extends Controller
+class DPPController extends Controller
 {
     private ActivityLogService $activityLogService;
 
