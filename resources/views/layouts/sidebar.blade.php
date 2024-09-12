@@ -96,17 +96,17 @@
                         </div>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link menu-link" href="{{ route('applicants.index') }}">
-                            <i class="ri-profile-line"></i> 
-                            <span>Saved Candidates</span>
-                        </a>
-                    </li> 
-                    <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('shortlist.index') }}">
                             <i class="ri-list-check-2"></i> 
                             <span>Shortlist</span>
                         </a>
                     </li>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="{{ route('applicants.index') }}">
+                            <i class="ri-profile-line"></i> 
+                            <span>Saved Candidates</span>
+                        </a>
+                    </li>                    
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
                             <i class="ri-briefcase-line"></i> 
