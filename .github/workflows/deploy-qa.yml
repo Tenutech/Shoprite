@@ -71,12 +71,12 @@ jobs:
       - name: Set up SSH
         uses: webfactory/ssh-agent@v0.5.3
         with:
-          ssh-private-key: ${{ secrets.SSH_DEV_DEPLOYER_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.SSH_QA_DEPLOYER_PRIVATE_KEY }}
 
-      - name: Deploy to Development Server
+      - name: Deploy to QA Server
         env:
-          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
-          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
+          SSH_USER: ${{ secrets.SSH_QA_DEPLOYER_USERNAME }}
+          SERVER_IP: ${{ secrets.QA_SERVER_IP }}
         run: |
           ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
             export TZ="Africa/Johannesburg"
