@@ -13,7 +13,9 @@ use App\Models\Division;
 use App\Models\Region;
 use App\Models\Brand;
 use App\Jobs\ProcessUserIdNumber;
+use App\Http\Requests\StoreUserRequest;
 use Illuminate\Http\Request;
+use App\Services\UserService;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
@@ -25,16 +27,19 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 
-class AdminsController extends Controller
+class DPPsController extends Controller
 {
+    private UserService $userService;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(UserService $userService)
     {
         $this->middleware(['auth', 'verified']);
+        $this->userService = $userService;
     }
 
     /**
@@ -51,7 +56,7 @@ class AdminsController extends Controller
 
     public function index()
     {
-        if (view()->exists('admin.admins')) {
+        if (view()->exists('admin.dpps')) {
             //Users
             $users = User::with([
                 'role',
@@ -75,7 +80,7 @@ class AdminsController extends Controller
                 'region',
                 'brand'
             ])
-            ->where('role_id', 2)
+            ->where('role_id', 5)
             ->orderby('firstname')
             ->orderby('lastname')
             ->get();
@@ -109,7 +114,7 @@ class AdminsController extends Controller
             //Brands
             $brands = Brand::all();
 
-            return view('admin/admins', [
+            return view('admin/dpps', [
                 'users' => $users,
                 'genders' => $genders,
                 'companies' => $companies,
@@ -130,66 +135,16 @@ class AdminsController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function store(Request $request)
+    public function store(StoreUserRequest $request)
     {
         //Validate
-        $request->validate([
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
-            'firstname' => ['required', 'string', 'max:191'],
-            'lastname' => ['required', 'string', 'max:191'],
-            'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
-            'phone' => ['required', 'string', 'max:191', 'unique:users'],
-            'id_number' => ['required', 'string',  'digits:13', 'unique:users'],
-            'id_verified' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
-            'birth_date' => ['sometimes', 'nullable', 'date'],
-            'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
-            'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
-            'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
-            'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
-            'role_id' => ['required', 'integer', 'exists:roles,id'],
-            'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
-            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
-            'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
-            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
-            'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
-        ]);
+        $request = $request->validated();
 
         try {
-            // Avatar
-            if ($request->avatar) {
-                $avatar = request()->file('avatar');
-                $avatarName = $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
-                $avatarPath = public_path('/images/');
-                $avatar->move($avatarPath, $avatarName);
-            } else {
-                $avatarName = 'avatar.jpg';
-            }
-
             DB::beginTransaction();
 
             //User Create
-            $user = User::create([
-                'firstname' => ucwords($request->firstname),
-                'lastname' => ucwords($request->lastname),
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'id_number' => $request->id_number,
-                'id_verified' => $request->id_verified,
-                'password' => Hash::make("F4!pT9@gL2#dR0wZ"),
-                'avatar' => $avatarName,
-                'birth_date' => date('Y-m-d', strtotime($request->birth_date)),
-                'age' => $request->age,
-                'gender_id' => $request->gender_id,
-                'resident' => $request->resident,
-                'position_id' => $request->position_id,
-                'role_id' => $request->role_id,
-                'store_id' => $request->store_id,
-                'region_id' => $request->region_id,
-                'division_id' => $request->division_id,
-                'brand_id' => $request->brand_id,
-                'internal' => $request->internal,
-                'status_id' => 2,
-            ]);
+            $user = $this->userService->store($request);
 
             DB::commit();
 
@@ -287,51 +242,15 @@ class AdminsController extends Controller
             $user = User::findorfail($userID);
 
             // Avatar
-            if ($request->avatar) {
-                // Check if a previous avatar exists and is not the default one
-                if ($user->avatar && $user->avatar !== 'avatar.jpg') {
-                    // Construct the path to the old avatar
-                    $oldAvatarPath = public_path('/images/') . $user->avatar;
-                    // Check if the file exists and delete it
-                    if (File::exists($oldAvatarPath)) {
-                        File::delete($oldAvatarPath);
-                    }
-                }
-
-                $avatar = request()->file('avatar');
-                $avatarName = $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
-                $avatarPath = public_path('/images/');
-                $avatar->move($avatarPath, $avatarName);
-            } else {
-                $avatarName = $user->avatar;
+            $avatarName = $user->avatar;
+            if (isset($request->avatar)) {
+                $avatarName = $this->userService->checkAvatar($request, $user->avatar);
             }
 
             DB::beginTransaction();
 
-            // Check if the company exists or create a new one
-            $inputCompanyName = strtolower($request->company);
-            $company = Company::whereRaw('LOWER(name) = ?', [$inputCompanyName])->first();
-
-            //User Update
-            $user->firstname = ucwords($request->firstname);
-            $user->lastname = ucwords($request->lastname);
-            $user->email = $request->email;
-            $user->phone = $request->phone;
-            $user->id_number = $request->id_number;
-            $user->id_verified = $request->id_verified;
-            $user->avatar = $avatarName;
-            $user->birth_date = date('Y-m-d', strtotime($request->birth_date));
-            $user->age = $request->age;
-            $user->gender_id = $request->gender_id;
-            $user->resident = $request->resident;
-            $user->position_id = $request->position_id;
-            $user->role_id = $request->role_id;
-            $user->store_id = $request->store_id;
-            $user->region_id = $request->region_id;
-            $user->division_id = $request->division_id;
-            $user->brand_id = $request->brand_id;
-            $user->internal = $request->internal;
-            $user->save();
+            // Update User
+            $user = $this->userService->update($request, $user, $avatarName);
 
             DB::commit();
 

@@ -91,6 +91,9 @@
                                         <th class="sort d-none" data-sort="position" scope="col">Position</th>
                                         <th class="sort" data-sort="role" scope="col">Role</th>
                                         <th class="sort d-none" data-sort="store" scope="col">Store</th>
+                                        <th class="sort d-none" data-sort="region" scope="col">Region</th>
+                                        <th class="sort d-none" data-sort="division" scope="col">Division</th>
+                                        <th class="sort d-none" data-sort="brand" scope="col">Brand</th>
                                         <th class="sort d-none" data-sort="internal" scope="col">Internal</th>
                                         <th class="sort" data-sort="status" scope="col">Status</th>                          
                                         <th scope="col">Action</th>
@@ -125,6 +128,9 @@
                                                 <td class="position d-none">{{ $user->position ? $user->position->name : '' }}</td>
                                                 <td class="role">{{ $user->role ? $user->role->name : '' }}</td>
                                                 <td class="store d-none">{{ $user->store ? optional($user->store->brand)->name.' ('.optional($user->store->town)->name.')' : '' }}</td>
+                                                <td class="region d-none">{{ $user->region ? $user->region->name : '' }}</td>
+                                                <td class="division d-none">{{ $user->division ? $user->division->name : '' }}</td>
+                                                <td class="brand d-none">{{ $user->brand ? $user->brand->name : '' }}</td>
                                                 <td class="internal d-none">{{ $user->internal == 1 ? 'Yes' : 'No' }}</td>
                                                 <td class="status">
                                                     <span class="badge bg-{{ $user->status->color }}-subtle text-{{ $user->status->color }} text-uppercase">
@@ -184,6 +190,9 @@
                                             <td class="position d-none"></td>
                                             <td class="role"></td>
                                             <td class="store d-none"></td>
+                                            <td class="region d-none"></td>
+                                            <td class="division d-none"></td>
+                                            <td class="brand d-none"></td>
                                             <td class="internal d-none"></td>
                                             <td class="status"></td>
                                             <td>
@@ -351,7 +360,30 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->                             
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="division" class="form-label">
+                                                        Division
+                                                    </label>
+                                                    <select id="division" name="division_id" class="form-control">
+                                                        <option value="" selected>Select Division</option>
+                                                        @foreach ($divisions as $division)
+                                                            <option value="{{ $division->id }}">{{ $division->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="brand" class="form-label">
+                                                        Brand
+                                                    </label>
+                                                    <select id="brand" name="brand_id" class="form-control">
+                                                        <option value="" selected>Select Brand</option>
+                                                        @foreach ($brands as $brand)
+                                                            <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>                           
                                             </div>
                                             <!--end col-->
 
@@ -422,6 +454,18 @@
                                                     </select>
                                                 </div>
                                                 <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="region"class="form-label">
+                                                        Region
+                                                    </label>
+                                                    <select id="region" name="region_id" class="form-control" required>
+                                                        <option value="" selected>Select Region</option>
+                                                        @foreach ($regions as $region)
+                                                            <option value="{{ $region->id }}">{{ $region->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!-- end col -->
                                             </div>
                                             <!--end col-->
                                         </div>
@@ -535,6 +579,18 @@
                                 </tr>
                                 <tr>
                                     <td class="fw-medium" scope="row">Store</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Region</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Division</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Brand</td>
                                     <td></td>
                                 </tr>
                                 <tr>

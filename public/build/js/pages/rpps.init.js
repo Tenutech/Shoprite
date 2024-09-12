@@ -51,10 +51,10 @@ var options = {
         "position",
         "role",
         "store",
-        "internal",
         "region",
         "division",
         "brand",
+        "internal",
         "status"
     ],
     page: perPage,
@@ -239,7 +239,7 @@ addBtn.addEventListener("click", function (e) {
     if (form.checkValidity()) {
         var formData = new FormData($('#formUser')[0]);
         $.ajax({
-            url: route('users.store'),
+            url: route('rpps.store'),
             type: 'POST',
             data: formData,
             async: false,
@@ -396,7 +396,7 @@ editBtn.addEventListener("click", function (e) {
         var formData = new FormData($('#formUser')[0]);
 
         $.ajax({
-            url: route('users.update'),
+            url: route('rpps.update'),
             type: 'POST',
             data: formData,
             async: false,
@@ -575,7 +575,7 @@ function refreshCallbacks() {
                 if (isdeleteid == itemId) {
                     document.getElementById("delete-user").onclick = function () {                        
                         $.ajax({
-                            url: route('users.destroy', {id: isdeleteid}),
+                            url: route('rpps.destroy', {id: isdeleteid}),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -630,7 +630,7 @@ function refreshCallbacks() {
             itemId = e.target.closest("tr").children[1].innerText;
            
             $.ajax({
-                url: route('users.details', {id: itemId}),
+                url: route('rpps.details', {id: itemId}),
                 type: 'get',
                 data: {
                     "id": itemId
@@ -682,15 +682,15 @@ function refreshCallbacks() {
                     storeVal.setChoiceByValue(data.user.store_id.toString());
                 }
 
-                if(data.user.region) {
+                if(data.user.region_id) {
                     regionVal.setChoiceByValue(data.user.region_id.toString());
                 }
 
-                if(data.user.division) {
+                if(data.user.division_id) {
                     divisionVal.setChoiceByValue(data.user.division_id.toString());
                 }
 
-                if(data.user.brand) {
+                if(data.user.brand_id) {
                     brandVal.setChoiceByValue(data.user.brand_id.toString());
                 }
 
@@ -843,7 +843,7 @@ function clearFields() {
 
     divisionVal.removeActiveItems();
     divisionVal.setChoiceByValue("");
-
+    
     brandVal.removeActiveItems();
     brandVal.setChoiceByValue("");
 
@@ -879,7 +879,7 @@ function deleteMultiple(){
                 }
     
                 $.ajax({
-                    url: route('users.destroyMultiple'),
+                    url: route('rpps.destroyMultiple'),
                     type: 'post',
                     data: {
                         ids: ids_array

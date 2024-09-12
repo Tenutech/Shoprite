@@ -8,7 +8,7 @@
             Pages
         @endslot
         @slot('title')
-            Managers
+            Divisional People Partner
         @endslot
     @endcomponent
     <div class="row">
@@ -19,7 +19,7 @@
                         <div class="flex-grow-1">
                             <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#usersModal">
                                 <i class="ri-add-fill me-1 align-bottom"></i> 
-                                Add Manager
+                                Add DPP
                             </button>
                         </div>
                         <div class="flex-shrink-0">
@@ -90,7 +90,7 @@
                                         <th class="sort d-none" data-sort="resident" scope="col">Citizen Status</th>
                                         <th class="sort d-none" data-sort="position" scope="col">Position</th>
                                         <th class="sort" data-sort="role" scope="col">Role</th>
-                                        <th class="sort" data-sort="store" scope="col">Store</th>
+                                        <th class="sort d-none" data-sort="store" scope="col">Store</th>
                                         <th class="sort d-none" data-sort="region" scope="col">Region</th>
                                         <th class="sort d-none" data-sort="division" scope="col">Division</th>
                                         <th class="sort d-none" data-sort="brand" scope="col">Brand</th>
@@ -127,7 +127,7 @@
                                                 <td class="resident d-none">{{ $user->resident == 1 ? 'Born a Citizen' : 'Permanent Resident' }}</td>
                                                 <td class="position d-none">{{ $user->position ? $user->position->name : '' }}</td>
                                                 <td class="role">{{ $user->role ? $user->role->name : '' }}</td>
-                                                <td class="store">{{ $user->store ? optional($user->store->brand)->name.' ('.optional($user->store->town)->name.')' : '' }}</td>
+                                                <td class="store d-none">{{ $user->store ? optional($user->store->brand)->name.' ('.optional($user->store->town)->name.')' : '' }}</td>
                                                 <td class="region d-none">{{ $user->region ? $user->region->name : '' }}</td>
                                                 <td class="division d-none">{{ $user->division ? $user->division->name : '' }}</td>
                                                 <td class="brand d-none">{{ $user->brand ? $user->brand->name : '' }}</td>
@@ -258,13 +258,13 @@
                         </div>
                     </div>
 
-                    <!-- Modal Manager -->
+                    <!-- Modal Admin -->
                     <div class="modal fade zoomIn" id="usersModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-xl">
                             <div class="modal-content border-0">
                                 <div class="modal-header p-3 bg-soft-primary-rainbow">
                                     <h5 class="modal-title" id="exampleModalLabel">
-                                        Add Manager
+                                        Add DPP
                                     </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
                                 </div>
@@ -384,7 +384,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->                          
+                                                <!--end col-->                            
                                             </div>
                                             <!--end col-->
 
@@ -437,7 +437,7 @@
                                                         Role
                                                     </label>
                                                     <select id="role" name="role_id" class="form-control">
-                                                        <option value="" selected>Select Manager Role</option>
+                                                        <option value="" selected>Select Admin Role</option>
                                                         @foreach ($roles as $role)
                                                             <option value="{{ $role->id }}">{{ $role->name }}</option>
                                                         @endforeach
@@ -475,8 +475,8 @@
                                     <div class="modal-footer">
                                         <div class="hstack gap-2 justify-content-end">
                                             <button type="button" class="btn btn-light" id="close-modal" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success" id="add-btn">Add Manager</button>
-                                            <button type="button" class="btn btn-success" id="edit-btn">Update Manager</button>
+                                            <button type="submit" class="btn btn-success" id="add-btn">Add DPP</button>
+                                            <button type="button" class="btn btn-success" id="edit-btn">Update DPP</button>
                                         </div>
                                     </div>
                                 </form>
@@ -613,7 +613,7 @@
 @section('script')
     <script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/managers.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/dpps.init.js') }}"></script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection
