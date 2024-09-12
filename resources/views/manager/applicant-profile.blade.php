@@ -1336,7 +1336,7 @@
                                     </h5>
                                 
                                     @if (!$applicant->appointed_id)
-                                        @if(!$applicant->interviews[0]->score)
+                                        @if(count($applicant->interviews) <= 0 || (count($applicant->interviews) > 0 && !$applicant->interviews[0]->score))
                                             <button class="btn btn-secondary ms-3" id="interviewBtn">
                                                 <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
                                                 Interview
