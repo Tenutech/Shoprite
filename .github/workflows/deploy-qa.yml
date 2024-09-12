@@ -79,7 +79,7 @@ jobs:
           SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
           SERVER_IP: ${{ secrets.QA_SERVER_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no p $SSH_PASSWORD $SSH_USER@$SERVER_IP << 'EOF'
+          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP_1 << 'EOF'
             export TZ="Africa/Johannesburg"
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/qa.apply.shoprite.jobs/releases/$TIMESTAMP"
