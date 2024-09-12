@@ -23,15 +23,15 @@
             <div class="col">
                 <div class="p-2">
                     <h3 class="text-white mb-1">{{ $user->firstname }} {{ $user->lastname }}</h3>
-                    <p class="text-white text-opacity-75">{{ $user->role->name }}</p>
+                    <p class="text-white text-opacity-75">{{ optional($user->role)->name ?? 'N/A' }}</p>
                     <div class="hstack text-white-50 gap-1">
                         <div class="me-2">
                             <i class="ri-user-2-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
-                            {{ $user->position->name }}
+                            {{ optional($user->position)->name ?? 'N/A' }}
                         </div>
                         <div>
                             <i class="ri-building-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
-                            {{ $user->company->name }}
+                            {{ optional($user->company)->name ?? 'N/A' }}
                         </div>
                     </div>
                 </div>
@@ -122,33 +122,33 @@
                                                 <tbody>
                                                     <tr>
                                                         <th class="ps-0" scope="row">Full Name :</th>
-                                                        <td class="text-muted">{{ $user->firstname }} {{ $user->lastname }}</td>
+                                                        <td class="text-muted">{{ $user->firstname ?? 'N/A' }} {{ $user->lastname ?? 'N/A' }}</td>
                                                     </tr>
                                                     <tr>
                                                         <th class="ps-0" scope="row">Mobile :</th>
-                                                        <td class="text-muted">{{ $user->phone }}</td>
+                                                        <td class="text-muted">{{ $user->phone ?? 'N/A' }}</td>
                                                     </tr>
                                                     <tr>
                                                         <th class="ps-0" scope="row">E-mail :</th>
-                                                        <td class="text-muted">{{ $user->email }}</td>
+                                                        <td class="text-muted">{{ $user->email ?? 'N/A' }}</td>
                                                     </tr>
                                                     <tr>
                                                         <th class="ps-0" scope="row">Company :</th>
-                                                        <td class="text-muted">{{ $user->company->name }}</td>
+                                                        <td class="text-muted">{{ optional($user->company)->name ?? 'N/A' }}</td>
                                                     </tr>
                                                     <tr>
                                                         <th class="ps-0" scope="row">Position :</th>
-                                                        <td class="text-muted">{{ $user->position->name }}</td>
+                                                        <td class="text-muted">{{ optional($user->position)->name ?? 'N/A' }}</td>
                                                     </tr>
                                                     <tr>
                                                         <th class="ps-0" scope="row">Role :</th>
-                                                        <td class="text-muted">{{ $user->role->name }}</td>
+                                                        <td class="text-muted">{{ optional($user->role)->name ?? 'N/A' }}</td>
                                                     </tr>
                                                     <tr>
-                                                        <th class="ps-0" scope="row">Joining Date</th>
-                                                        <td class="text-muted">{{ date('d M Y', strtotime($user->created_at)) }}</td>
+                                                        <th class="ps-0" scope="row">Joining Date :</th>
+                                                        <td class="text-muted">{{ $user->created_at ? date('d M Y', strtotime($user->created_at)) : 'N/A' }}</td>
                                                     </tr>
-                                                </tbody>
+                                                </tbody>                                                
                                             </table>
                                         </div>
                                     </div><!-- end card body -->

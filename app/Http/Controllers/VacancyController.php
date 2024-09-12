@@ -155,11 +155,12 @@ class VacancyController extends Controller
     {
         //Validate Input
         $request->validate([
-            'position_id' => 'required|integer',
-            'open_positions' => 'required|integer',
-            'sap_numbers' => 'required|array',
-            'store_id' => 'required|integer',
-            'type_id' => 'required|integer',
+            'position_id' => 'required|integer|exists:positions,id', // Ensures the position exists in the positions table
+            'open_positions' => 'required|integer|min:1|max:10',     // Minimum 1 and maximum 10
+            'sap_numbers' => 'required|array',                        // Should be an array
+            'sap_numbers.*' => 'digits:8',                            // Each sap_number should be exactly 8 digits
+            'store_id' => 'required|integer|exists:stores,id',        // Store ID should exist in stores table
+            'type_id' => 'required|integer|exists:types,id',          // Type ID should exist in types table
         ]);
 
         try {
@@ -235,11 +236,12 @@ class VacancyController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'position_id' => 'required|integer',
-            'open_positions' => 'required|integer',
-            'sap_numbers' => 'required|array',
-            'store_id' => 'required|integer',
-            'type_id' => 'required|integer',
+            'position_id' => 'required|integer|exists:positions,id', // Ensures the position exists in the positions table
+            'open_positions' => 'required|integer|min:1|max:10',     // Minimum 1 and maximum 10
+            'sap_numbers' => 'required|array',                        // Should be an array
+            'sap_numbers.*' => 'digits:8',                            // Each sap_number should be exactly 8 digits
+            'store_id' => 'required|integer|exists:stores,id',        // Store ID should exist in stores table
+            'type_id' => 'required|integer|exists:types,id',          // Type ID should exist in types table
         ]);
 
         try {

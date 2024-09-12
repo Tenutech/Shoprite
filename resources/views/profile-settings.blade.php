@@ -29,7 +29,7 @@
                             {{ $user->firstname }} {{ $user->lastname }}
                         </h5>
                         <p class="text-muted mb-0" id="user-position">
-                            {{ $user->position->name }}
+                            {{ optional($user->position)->name ?? 'Employee' }}
                         </p>
                     </div>
                 </div>
