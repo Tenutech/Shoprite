@@ -1239,11 +1239,11 @@ function removeCheck(key, value) {
 
 function clearFields() {
     // Reset text inputs
-    $('#date').val('');
-    $('#startTime').val('');
-    $('#endTime').val('');
-    $('#location').val('');
-    $('#notes').val('');
+    //$('#date').val('');
+    //$('#startTime').val('');
+    //$('#endTime').val('');
+    //$('#location').val('');
+    //$('#notes').val('');
 
     // Reset the Choices.js multi-select
     var applicantsSelect = $('#applicants')[0];
