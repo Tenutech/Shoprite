@@ -62,7 +62,7 @@ class ShortlistController extends Controller
 
     public function index(Request $request)
     {
-        if (view()->exists('manager/shortlist')) {            
+        if (view()->exists('manager/shortlist')) {
             // Auth User ID
             $userID = Auth::id();
 

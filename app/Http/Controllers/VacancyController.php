@@ -55,8 +55,8 @@ class VacancyController extends Controller
      * the vacancy along with its related data (user, position, store, etc.), and
      * returns the vacancy view for managers.
      *
-     * This method also checks if the requested view exists and falls back to a 
-     * 404 view if not. The positions and stores data are retrieved and filtered to 
+     * This method also checks if the requested view exists and falls back to a
+     * 404 view if not. The positions and stores data are retrieved and filtered to
      * exclude certain IDs.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -582,7 +582,7 @@ class VacancyController extends Controller
                                 $notification->notification = "Has been declined 🚫";
                                 $notification->read = "No";
                                 $notification->save();
-                    
+
                                 // Dispatch a job to update the applicant's monthly data as 'Rejected'
                                 UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
                             }
