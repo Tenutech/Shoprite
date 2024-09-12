@@ -1,9 +1,9 @@
-name: Deploy to Development
+name: Deploy to qa
 
 on:
   push:
     branches:
-      - development
+      - qa
   workflow_dispatch:
 
 jobs:
