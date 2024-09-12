@@ -49,18 +49,37 @@ class VacancyController extends Controller
      */
 
 
-    /*
-    |--------------------------------------------------------------------------
-    | Vacancies Index
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Display the list of vacancies along with associated data such as positions,
+     * stores, and types. If a vacancy ID is provided, it decrypts the ID, retrieves
+     * the vacancy along with its related data (user, position, store, etc.), and
+     * returns the vacancy view for managers.
+     *
+     * This method also checks if the requested view exists and falls back to a 
+     * 404 view if not. The positions and stores data are retrieved and filtered to 
+     * exclude certain IDs.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\View\View|\Illuminate\Contracts\View\Factory
+     *
+     * @throws \Exception
+     */
     public function index(Request $request)
     {
         if (view()->exists('manager/vacancy')) {
             $userId = Auth::id();
 
             $user = User::findorfail($userId);
+
+            //Store
+            $store = Store::with([
+                'brand',
+                'town',
+                'region',
+                'division'
+            ])
+            ->where('id', $user->store_id)
+            ->first();
 
             $vacancy = null;
 
@@ -80,8 +99,22 @@ class VacancyController extends Controller
                 ->findOrFail($vacancyId);
             }
 
-            //Positions
-            $positions = Position::whereNotIn('id', [1, 10])->get();
+            //Positions logic based on user role and brand
+            $positions = collect(); // Default to an empty collection
+
+            if (in_array($user->role_id, [1, 2])) {
+                // If role_id is 1 or 2, get all positions where id > 1
+                $positions = Position::where('id', '>', 1)->get();
+            } elseif ($user->role_id > 2 && $user->role_id < 7) {
+                // If role_id is between 3 and 6, check if the user has a brand_id
+                if ($user->brand_id) {
+                    // Get positions where brand_id matches the user's brand_id
+                    $positions = Position::where('brand_id', $user->brand_id)->get();
+                }
+            } elseif (in_array($user->role_id, [7, 8]) || !$user->brand_id) {
+                // If role_id is 7 or 8, or user does not have a brand_id, return empty collection
+                $positions = collect(); // Already set to empty, just a fallback in case
+            }
 
             //Stores
             $stores = Store::with([
@@ -95,6 +128,7 @@ class VacancyController extends Controller
 
             return view('manager/vacancy', [
                 'user' => $user,
+                'store' => $store,
                 'vacancy' => $vacancy,
                 'positions' => $positions,
                 'stores' => $stores,
@@ -121,11 +155,12 @@ class VacancyController extends Controller
     {
         //Validate Input
         $request->validate([
-            'position_id' => 'required|integer',
-            'open_positions' => 'required|integer',
-            'sap_numbers' => 'required|array',
-            'store_id' => 'required|integer',
-            'type_id' => 'required|integer',
+            'position_id' => 'required|integer|exists:positions,id', // Ensures the position exists in the positions table
+            'open_positions' => 'required|integer|min:1|max:10',     // Minimum 1 and maximum 10
+            'sap_numbers' => 'required|array',                        // Should be an array
+            'sap_numbers.*' => 'digits:8',                            // Each sap_number should be exactly 8 digits
+            'store_id' => 'required|integer|exists:stores,id',        // Store ID should exist in stores table
+            'type_id' => 'required|integer|exists:types,id',          // Type ID should exist in types table
         ]);
 
         try {
@@ -201,11 +236,12 @@ class VacancyController extends Controller
     public function update(Request $request)
     {
         $request->validate([
-            'position_id' => 'required|integer',
-            'open_positions' => 'required|integer',
-            'sap_numbers' => 'required|array',
-            'store_id' => 'required|integer',
-            'type_id' => 'required|integer',
+            'position_id' => 'required|integer|exists:positions,id', // Ensures the position exists in the positions table
+            'open_positions' => 'required|integer|min:1|max:10',     // Minimum 1 and maximum 10
+            'sap_numbers' => 'required|array',                        // Should be an array
+            'sap_numbers.*' => 'digits:8',                            // Each sap_number should be exactly 8 digits
+            'store_id' => 'required|integer|exists:stores,id',        // Store ID should exist in stores table
+            'type_id' => 'required|integer|exists:types,id',          // Type ID should exist in types table
         ]);
 
         try {
@@ -535,37 +571,43 @@ class VacancyController extends Controller
 
                         // Only send a notification if the application status was changed
                         if ($application->wasChanged()) {
+                            // Check if the applicant has a user and the user exists in the users table
+                            if ($applicant->user && User::where('id', $applicant->user->id)->exists()) {
+                                $notification = new Notification();
+                                $notification->user_id = $applicant->user->id;
+                                $notification->causer_id = Auth::id();
+                                // Associate notification with the application
+                                $notification->subject()->associate($application);
+                                $notification->type_id = 1;
+                                $notification->notification = "Has been declined 🚫";
+                                $notification->read = "No";
+                                $notification->save();
+                    
+                                // Dispatch a job to update the applicant's monthly data as 'Rejected'
+                                UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
+                            }
+                        }
+                    } elseif ($interview) {
+                        // If no application but an interview exists, create a notification associated with the interview
+                        // Check if the applicant has a user and the user exists in the users table
+                        if ($applicant->user && User::where('id', $applicant->user->id)->exists()) {
                             $notification = new Notification();
-                            $notification->user_id = $applicant->id;
+                            $notification->user_id = $applicant->user->id;
                             $notification->causer_id = Auth::id();
-                            // Associate notification with the application
-                            $notification->subject()->associate($application);
+                            // Associate notification with the interview
+                            $notification->subject()->associate($interview);
                             $notification->type_id = 1;
                             $notification->notification = "Has been declined 🚫";
                             $notification->read = "No";
                             $notification->save();
 
+                            // Set the applicant's shortlist_id to null
+                            $applicant->shortlist_id = null;
+                            $applicant->save();
+
                             // Dispatch a job to update the applicant's monthly data as 'Rejected'
                             UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
                         }
-                    } elseif ($interview) {
-                        // If no application but an interview exists, create a notification associated with the interview
-                        $notification = new Notification();
-                        $notification->user_id = $applicant->id;
-                        $notification->causer_id = Auth::id();
-                        // Associate notification with the interview
-                        $notification->subject()->associate($interview);
-                        $notification->type_id = 1;
-                        $notification->notification = "Has been declined 🚫";
-                        $notification->read = "No";
-                        $notification->save();
-
-                        // Set the applicant's shortlist_id to null
-                        $applicant->shortlist_id = null;
-                        $applicant->save();
-
-                        // Dispatch a job to update the applicant's monthly data as 'Rejected'
-                        UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
                     }
                 }
             }

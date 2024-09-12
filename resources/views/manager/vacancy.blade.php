@@ -29,7 +29,8 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title mb-0">
-                        {{ $vacancy ? 'Update' : 'Post' }} Your Vacancy
+                        {{ $vacancy ? 'Update' : 'Post' }} Your Vacancy: 
+                        {{ $store && $store->brand ? $store->brand->name.' '.$store->name : '' }}
                     </h4>
                 </div><!-- end card header -->
                 <div class="card-body form-steps">
@@ -60,7 +61,7 @@
                                         </span>
                                         SAP Numbers
                                     </button>
-                                    <button class="nav-link" id="v-pills-store-tab" data-bs-toggle="pill"
+                                    <button class="nav-link {{ $user->role_id == 6 ? 'd-none' : '' }}" id="v-pills-store-tab" data-bs-toggle="pill"
                                         data-bs-target="#v-pills-store" type="button" role="tab"
                                         aria-controls="v-pills-store" aria-selected="false">
                                         <span class="step-title me-2">
@@ -72,7 +73,7 @@
                                         data-bs-target="#v-pills-type" type="button" role="tab"
                                         aria-controls="v-pills-type" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 4:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step {{ $user->role_id == 6 ? '3' : '4' }}:
                                         </span>
                                         Job Type
                                     </button>
@@ -90,7 +91,7 @@
                                         data-bs-target="#v-pills-finish" type="button" role="tab"
                                         aria-controls="v-pills-finish" aria-selected="false">
                                         <span class="step-title me-2">
-                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step 6:
+                                            <i class="ri-close-circle-fill step-icon me-2"></i> Step {{ $user->role_id == 6 ? '4' : '5' }}:
                                         </span>
                                         Finish
                                     </button>
@@ -126,10 +127,25 @@
                                                             <select class="form-control" id="position" name="position_id" data-choices data-choices-search-true required>
                                                                 <option value="">Select Position</option>
                                                                 @foreach ($positions as $position)
-                                                                    <option value="{{$position->id}}" {{ ($vacancy && $vacancy->position_id == $position->id) ? 'selected' : '' }}>{{ $position->name }}</option>
+                                                                    <option value="{{ $position->id }}" 
+                                                                    {{ ($vacancy && $vacancy->position_id == $position->id) ? 'selected' : '' }}>
+                                                                    {{ $position->name }} 
+                                                                    <span class="text-{{ optional($position->brand)->color ?: 'danger' }}">
+                                                                        ({{ optional($position->brand)->name ?: 'N/A' }})
+                                                                    </span>
+                                                                </option>
                                                                 @endforeach
                                                             </select>
-                                                            <div class="invalid-feedback">Please select a position</div>
+                                                            @if ($positions->isEmpty())
+                                                                <!-- Display invalid feedback if positions are empty -->
+                                                                <div class="alert alert-danger">
+                                                                    You have not been assigned to a specific brand. Please contact your administrator for assistance.
+                                                                </div>
+                                                            @else
+                                                                <div class="invalid-feedback">
+                                                                    Please select a position
+                                                                </div>
+                                                            @endif
                                                         </div>                                                       
                                                     </div>   
                                                     
@@ -138,7 +154,7 @@
                                                             <label for="openPositions" class="form-label">
                                                                 Positions Available
                                                             </label>
-                                                            <input type="number" class="form-control" id="openPositions" name="open_positions" placeholder="Enter number of positions available" value="{{ $vacancy ? $vacancy->open_positions : '1' }}" min="0" required />
+                                                            <input type="number" class="form-control" id="openPositions" name="open_positions" placeholder="Enter number of positions available" value="{{ $vacancy ? $vacancy->open_positions : '1' }}" min="0" max="10" required />
                                                             <div class="invalid-feedback">
                                                                 Please enter a number
                                                             </div>
@@ -205,7 +221,7 @@
                                                 </button>
                                                 <button type="button"
                                                     class="btn btn-secondary btn-label right ms-auto nexttab nexttab"
-                                                    data-nexttab="v-pills-store-tab">
+                                                    data-nexttab="{{ $user->role_id == 6 ? 'v-pills-type-tab' : 'v-pills-store-tab' }}">
                                                     <i class="ri-arrow-right-line label-icon align-middle fs-16 ms-2"></i>
                                                     Continue
                                                 </button>
@@ -242,7 +258,7 @@
                                                                             {{ 
                                                                                 ($user && $user->store_id == $store->id) ? '' : 'disabled'
                                                                             }}>
-                                                                        {{ $store->brand->name }} ({{ $store->town->name }})
+                                                                        {{ $store->brand->name }} ({{ $store->name }})
                                                                     </option>
                                                                 @endforeach
                                                             </select>
@@ -314,7 +330,7 @@
                             
                                             <div class="d-flex align-items-start gap-3 mt-4">
                                                 <button type="button" class="btn btn-light btn-label previestab"
-                                                    data-previous="v-pills-store-tab">
+                                                    data-previous="{{ $user->role_id == 6 ? 'v-pills-sap-numbers-tab' : 'v-pills-store-tab' }}">
                                                     <i class="ri-arrow-left-line label-icon align-middle fs-16 me-2"></i>
                                                     Back
                                                 </button>

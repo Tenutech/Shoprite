@@ -62,7 +62,7 @@ class ShortlistController extends Controller
 
     public function index(Request $request)
     {
-        if (view()->exists('manager/shortlist')) {
+        if (view()->exists('manager/shortlist')) {            
             // Auth User ID
             $userID = Auth::id();
 
@@ -95,8 +95,10 @@ class ShortlistController extends Controller
 
             // Decrypt the vacancy ID if it's provided
             $vacancyID = null;
+            $vacancy = collect();
             if ($request->has('id')) {
                 $vacancyID = Crypt::decryptString($request->query('id'));
+                $vacancy = Vacancy::find($vacancyID);
             }
 
             //Vacancies
@@ -169,10 +171,12 @@ class ShortlistController extends Controller
             //Shortlist Limits
             $minShortlistNumber = Setting::where('key', 'min_shorlist_number')->first()->value ?? 5;
             $maxShortlistNumber = Setting::where('key', 'max_shorlist_number')->first()->value ?? 20;
+            $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
 
             return view('manager/shortlist', [
                 'applicants' => $applicants,
                 'vacancyID'  => $vacancyID,
+                'vacancy'  => $vacancy,
                 'vacancies'  => $vacancies,
                 'shortlistedApplicants' => $shortlistedApplicants,
                 'towns' => $towns,
@@ -194,7 +198,8 @@ class ShortlistController extends Controller
                 'states' => $states,
                 'checks' => $checks,
                 'minShortlistNumber' => $minShortlistNumber,
-                'maxShortlistNumber' => $maxShortlistNumber
+                'maxShortlistNumber' => $maxShortlistNumber,
+                'maxDistanceFromStore' => $maxDistanceFromStore
             ]);
         }
         return view('404');
@@ -234,7 +239,14 @@ class ShortlistController extends Controller
             // Validation rules
             $validatedData = $request->validate([
                 'vacancy_id_decrypted' => 'required|integer|exists:vacancies,id',
-                'number' => "required|integer|min:$minShortlistNumber|max:$maxShortlistNumber"
+                'number' => "required|integer|min:$minShortlistNumber|max:$maxShortlistNumber",
+                'filters.coordinates' => [
+                    'required',
+                    'regex:/\d+km from: \(-?\d+\.\d+, -?\d+\.\d+\)/', // Custom regex to validate the coordinates format
+                ]
+            ], [
+                'filters.coordinates.required' => 'A location filter is required.',
+                'filters.coordinates.regex' => 'The location filter must be in the correct format: {radius}km from: (latitude, longitude).'
             ]);
 
             // Auth User ID
@@ -406,7 +418,15 @@ class ShortlistController extends Controller
                 'applicants' => $applicants,
                 'sapNumbers' => $sap_numbers,
             ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Return the validation errors
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'error' => $e->errors(), // Return validation errors
+            ], 422);
         } catch (\Exception $e) {
+            // Return other errors
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to generate shortlist.',

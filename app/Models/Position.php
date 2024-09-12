@@ -13,6 +13,7 @@ class Position extends Model
     use LogsActivity;
 
     protected $fillable = [
+        'brand_id',
         'name',
         'description',
         'icon',
@@ -21,7 +22,13 @@ class Position extends Model
         'template_id'
     ];
 
-    //User Position
+    //Brand
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class);
+    }
+
+    //Users
     public function users()
     {
         return $this->hasMany(User::class);

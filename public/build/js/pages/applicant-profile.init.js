@@ -233,6 +233,10 @@ $(document).on('submit', '#formInterview', function(e) {
                     // Hide the form
                     $('#formInterview').hide();
 
+                    // Hide the interview and no-show buttons
+                    $('#interviewBtn').hide();
+                    $('#noShowBtn').hide();
+
                     $('#scoreDisplay').text(data.score).show();
                     
                     // Update the alert to 'Completed' status

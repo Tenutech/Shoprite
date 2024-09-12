@@ -59,7 +59,7 @@
                             <div class="mb-3">
                                 <label class="form-label" for="location">Location</label>
                                 <div>
-                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" required>
+                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" value="{{ $vacancy ? optional($vacancy->store)->address : '' }}" required>
                                     <div class="invalid-feedback">
                                         Please enter a location
                                     </div>
@@ -69,7 +69,7 @@
                         <div class="col-12">
                             <div class="mb-3">
                                 <label class="form-label" for="notes">Notes</label>
-                                <textarea class="form-control d-block" id="notes" name="notes" placeholder="Enter additional notes" rows="3" spellcheck="true"></textarea>
+                                <textarea class="form-control d-block" id="notes" name="notes" placeholder="Enter additional notes" rows="3" spellcheck="true">Please bring your ID and a copy of your ID.</textarea>
                             </div>
                         </div><!--end col-->
                     </div><!--end row-->

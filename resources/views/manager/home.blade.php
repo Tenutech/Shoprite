@@ -23,7 +23,11 @@
                                 Hello, {{ Auth::user()->firstname }}!
                             </h4>
                             <p class="text-muted mb-0">
-                                Here's what's happening with your store today.
+                                Here's what's happening with your store
+                                @if (isset($store) && isset($store->brand))
+                                    ({{ $store->brand->name }} {{ $store->name }})
+                                @endif
+                                today.
                             </p>
                         </div>
                         <div class="mt-3 mt-lg-0">

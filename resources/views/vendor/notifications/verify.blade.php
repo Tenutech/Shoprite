@@ -75,7 +75,7 @@
                                 </a>
                             </p>
                             <p style="font-family: 'Roboto', sans-serif; font-size: 14px;color: #98a6ad; margin: 0px;">
-                                2023 {{ config('app.name') }}. Design & Develop by OTB Group
+                                2023 {{ config('app.name') }}. Designed & Developed by OTB Group
                             </p>
                         </div>
                     </div>

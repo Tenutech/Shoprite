@@ -79,7 +79,7 @@
             <select class="form-control" id="vacancy" name="vacancy_id" required>
                 <option value="">Select Vacancy</option>
                 @foreach ($vacancies as $vacancy)
-                    <option value="{{ Crypt::encryptString($vacancy->id) }}" {{ ($vacancyID && $vacancyID == $vacancy->id) ? 'selected' : '' }}>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->town->name }})</option>
+                    <option value="{{ Crypt::encryptString($vacancy->id) }}" {{ ($vacancyID && $vacancyID == $vacancy->id) ? 'selected' : '' }}>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->name }})</option>
                 @endforeach
             </select>
             <div class="invalid-feedback">Please select a vacancy</div>
@@ -143,13 +143,13 @@
         </label>
         <div class="card mb-0">
             <div class="card-body">
-                <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="modal" data-bs-target="#mapModal">
+                <button type="button" class="btn btn-light btn-label rounded-pill d-none" data-bs-toggle="modal" data-bs-target="#mapModal">
                     <i class="ri-map-pin-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                     Location
                 </button>
 
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button type="button" class="btn btn-light btn-label rounded-pill d-none" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="ri-building-2-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                         Town
                     </button>
@@ -200,7 +200,7 @@
                     Foreign National
                 </button>
 
-                <div class="btn-group" role="group">
+                <div class="btn-group d-none" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="ri-briefcase-4-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                         Position
@@ -228,7 +228,7 @@
                     </ul>
                 </div>
 
-                <div class="btn-group" role="group">
+                <div class="btn-group d-none" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="ri-car-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                         License
@@ -249,7 +249,7 @@
                     </ul>
                 </div>
 
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="has_bank_account;Yes">
+                <button type="button" class="btn btn-light btn-label rounded-pill filter-button d-none" data-bs-filter="has_bank_account;Yes">
                     <i class="ri-bank-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                     Bank Account
                 </button>
@@ -429,7 +429,7 @@
             <div class="modal-body">
                 <!-- Range Slider -->
                 <div id="rangeSlider" class="mb-3" data-rangeslider data-slider-color="primary"></div>
-                <span id="rangeValue" class="mb-3">Selected Range: 10km</span>
+                <span id="rangeValue" class="mb-3">Selected Range: {{ $maxDistanceFromStore }}km</span>
 
                 <!-- Google Maps -->
                 <div id="map" class="mt-3" style="height: 600px;"></div>
@@ -513,7 +513,7 @@
                             <div class="mb-3">
                                 <label class="form-label" for="location">Location</label>
                                 <div>
-                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" required>
+                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" value="{{ $vacancy ? optional($vacancy->store)->address : '' }}" required>
                                     <div class="invalid-feedback">
                                         Please enter a location
                                     </div>
@@ -523,7 +523,7 @@
                         <div class="col-12">
                             <div class="mb-3">
                                 <label class="form-label" for="notes">Notes</label>
-                                <textarea class="form-control d-block" id="notes" name="notes" placeholder="Enter additional notes" rows="3" spellcheck="true"></textarea>
+                                <textarea class="form-control d-block" id="notes" name="notes" placeholder="Enter additional notes" rows="3" spellcheck="true">Please bring your ID and a copy of your ID.</textarea>
                             </div>
                         </div><!--end col-->
                     </div><!--end row-->
@@ -565,7 +565,7 @@
                                 @if($vacancyID)
                                     @foreach ($vacancies as $vacancy)
                                         @if($vacancyID == $vacancy->id)
-                                            <option value="{{ Crypt::encryptString($vacancy->id) }}" selected>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->town->name }})</option>
+                                            <option value="{{ Crypt::encryptString($vacancy->id) }}" selected>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->name }})</option>
                                         @endif
                                     @endforeach
                                 @else
@@ -632,12 +632,12 @@
 @endsection
 @section('script')
 <script>
-  var minShortlistNumber = @json($minShortlistNumber);
-  var maxShortlistNumber = @json($maxShortlistNumber);
-</script>
-<script type="text/javascript">
     var shortlistedApplicants = @json($shortlistedApplicants);
     var vacancyID = @json(Crypt::encryptString($vacancyID));
+    var minShortlistNumber = @json($minShortlistNumber);
+    var maxShortlistNumber = @json($maxShortlistNumber);
+    var coordinates = @json($vacancy ? optional($vacancy->store)->coordinates : '');
+    var maxDistanceFromStore = @json($maxDistanceFromStore);
 </script>
 <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
@@ -645,7 +645,7 @@
 <script src="{{ URL::asset('build/libs/wnumb/wNumb.min.js') }}"></script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.googlemaps.key') }}&callback=initMap"></script>
 <!-- job-candidate-grid js -->
-<script src="{{URL::asset('build/js/pages/shortlist.init.js')}}"></script>
+<script src="{{ URL::asset('build/js/pages/shortlist.init.js') }}?v={{ filemtime(public_path('build/js/pages/shortlist.init.js')) }}"></script>
 <script src="{{ URL::asset('build/js/pages/applicant-save.init.js') }}"></script>
 
 <!-- App js -->
