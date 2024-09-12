@@ -955,7 +955,7 @@ function initMap() {
     // Add location badge on load if coordinates and maxDistanceFromStore are set
     if (coordinates) {
         // Split the coordinates string into latitude and longitude
-        var coordArray = coordinates.split(';');
+        var coordArray = coordinates.split(', ');
         
         // Check if we successfully split the coordinates
         if (coordArray.length === 2) {
