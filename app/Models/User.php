@@ -43,7 +43,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'position_id',
         'role_id',
         'applicant_id',
-        'store_id',        
+        'store_id',
         'division_id',
         'region_id',
         'brand_id',
