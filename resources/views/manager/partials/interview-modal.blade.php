@@ -59,7 +59,7 @@
                             <div class="mb-3">
                                 <label class="form-label" for="location">Location</label>
                                 <div>
-                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" required>
+                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" value="{{ $vacancy ? optional($vacancy->store)->address : '' }}" required>
                                     <div class="invalid-feedback">
                                         Please enter a location
                                     </div>

@@ -30,12 +30,12 @@ const filterTown = new Choices(selectTown, {
 
 var slider = document.getElementById('rangeSlider');
 noUiSlider.create(slider, {
-    start: 10,
+    start: maxDistanceFromStore,
     step: 1,
     connect: 'lower',
     range: {
         'min': 0,
-        'max': 100
+        'max': maxDistanceFromStore
     },
 });
 
@@ -927,8 +927,8 @@ var marker;
 
 function initMap() {
     map = new google.maps.Map(document.getElementById('map'), {
-      zoom: 7,
-      center: center
+        zoom: 7,
+        center: center
     });
 
     // Add a double-click event listener to the map
@@ -947,11 +947,38 @@ function initMap() {
             map: map
         });
 
-        // Add a badge for this location
-        addLocationBadge(selectedLocation);
+        // Add a removable badge for this location
+        addLocationBadge(selectedLocation, true);
         applyLocationFilter(selectedLocation);
     });
+
+    // Add location badge on load if coordinates and maxDistanceFromStore are set
+    if (coordinates) {
+        // Split the coordinates string into latitude and longitude
+        var coordArray = coordinates.split(';');
+        
+        // Check if we successfully split the coordinates
+        if (coordArray.length === 2) {
+            coordinates = {
+                lat: parseFloat(coordArray[0]),  // Convert latitude to a float
+                lng: parseFloat(coordArray[1])   // Convert longitude to a float
+            };
+
+            // Ensure both lat and lng are valid and maxDistanceFromStore is set
+            if (!isNaN(coordinates.lat) && !isNaN(coordinates.lng) && maxDistanceFromStore) {
+                // Add a non-removable location badge with the maxDistanceFromStore
+                addLocationBadge(coordinates, false, maxDistanceFromStore);
+                applyLocationFilter(coordinates);
+            }
+        }
+    }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Calculate Distance
+|--------------------------------------------------------------------------
+*/
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
     var R = 6371; // Radius of the earth in km
@@ -1021,6 +1048,12 @@ document.querySelectorAll('.check-button').forEach(button => {
     });
 });
 
+/*
+|--------------------------------------------------------------------------
+| Badge Exists
+|--------------------------------------------------------------------------
+*/
+
 function badgeExists(value, containerId) {
     const badges = document.querySelectorAll(`#${containerId} .badge`);
     for (let badge of badges) {
@@ -1039,15 +1072,50 @@ function badgeExists(value, containerId) {
     return false;
 }
 
-function addLocationBadge(location) {
-    const badgeContainer = document.getElementById('filterBadges');
-    const selectedRadius = parseFloat(slider.noUiSlider.get());
-    const badgeLabel = `${selectedRadius}km from: (${location.lat.toFixed(2)}, ${location.lng.toFixed(2)})`;
+/*
+|--------------------------------------------------------------------------
+| Add Location Badge
+|--------------------------------------------------------------------------
+*/
 
+function addLocationBadge(location, removable = true, radius = null) {
+    const badgeContainer = document.getElementById('filterBadges');
+    
+    // Use the provided radius if passed, otherwise fall back to the slider's value
+    const selectedRadius = radius ? radius : parseFloat(slider.noUiSlider.get());
+
+    // Format coordinates to higher precision for more accuracy
+    const badgeLabel = `${selectedRadius}km from: (${location.lat}, ${location.lng})`;
+
+    // Check if the badge already exists
     if (!badgeExists(badgeLabel, 'filterBadges')) {
-        addBadge("coordinates", badgeLabel, badgeLabel);
+        const badge = document.createElement('span');
+        badge.className = "badge bg-primary d-flex align-items-center";
+        badge.setAttribute('data-key', "coordinates");
+        badge.setAttribute('data-value', badgeLabel);
+        badge.innerHTML = `
+            ${badgeLabel}
+            ${removable ? `
+            <span class="border-start border-light mx-1" style="height: 16px;"></span>
+            <button class="btn-close btn-close-white" type="button" aria-label="Close"></button>
+            ` : ''}
+        `;
+
+        if (removable) {
+            badge.querySelector('.btn-close').addEventListener('click', function() {
+                badgeContainer.removeChild(badge);
+            });
+        }
+
+        badgeContainer.appendChild(badge);
     }
 }
+
+/*
+|--------------------------------------------------------------------------
+| Add Badge
+|--------------------------------------------------------------------------
+*/
 
 function addBadge(key, value, label, isCheck = false) {
     const badgeContainer = isCheck ? document.getElementById('checkBadges') : document.getElementById('filterBadges');
@@ -1089,7 +1157,7 @@ const activeFilters = {};
 
 function applyLocationFilter(location) {
     const selectedRadius = parseFloat(slider.noUiSlider.get());
-    const formattedLocation = `${selectedRadius}km from: (${location.lat.toFixed(2)}, ${location.lng.toFixed(2)})`;
+    const formattedLocation = `${selectedRadius}km from: (${location.lat}, ${location.lng})`;
     activeFilters["coordinates"] = formattedLocation;
 }
 

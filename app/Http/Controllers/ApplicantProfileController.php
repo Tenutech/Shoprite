@@ -114,6 +114,7 @@ class ApplicantProfileController extends Controller
 
             //Vacancy ID
             $vacancyId = optional($applicant->shortlist)->vacancy_id;
+            $vacancy = collect();
 
             // If vacancyId exists, reload the interviews relationship with the specific vacancy filter
             if ($vacancyId) {
@@ -122,6 +123,8 @@ class ApplicantProfileController extends Controller
                         ->latest('scheduled_date') // Get the latest interview based on scheduled date
                         ->take(1); // Limit to one result
                 }]);
+
+                $vacancy = Vacancy::find($vacancyId);
             }
 
             //Completion Percentage
@@ -149,19 +152,16 @@ class ApplicantProfileController extends Controller
 
             // Check each step in sequence, ensuring previous steps are completed
             if ($completion >= 100) {
-                // Check for applied vacancies
-                if ($applicant->user && $applicant->user->appliedVacancies->count() > 0) {
-                    $progressBarWidth = max($progressBarWidth, 40); // Second step
-                }
+                $progressBarWidth = 25;
 
                 // Check for shortlist
                 if ($applicant->shortlist_id) {
-                    $progressBarWidth = max($progressBarWidth, 60); // Third step
+                    $progressBarWidth = max($progressBarWidth, 50); // Third step
                 }
 
                 // Check for interviews
                 if ($applicant->interviews && $applicant->interviews->count() > 0) {
-                    $progressBarWidth = max($progressBarWidth, 80); // Fourth step
+                    $progressBarWidth = max($progressBarWidth, 75); // Fourth step
 
                     // Check for interview score
                     $firstInterview = $applicant->interviews->first();
@@ -183,7 +183,8 @@ class ApplicantProfileController extends Controller
                 'completion' => $completion,
                 'questions' => $questions,
                 'progressBarWidth' => $progressBarWidth,
-                'vacancyId' => $vacancyId
+                'vacancyId' => $vacancyId,
+                'vacancy' => $vacancy
             ]);
         }
         return view('404');

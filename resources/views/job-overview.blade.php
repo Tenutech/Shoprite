@@ -33,7 +33,7 @@
                                             <div class="vr"></div>
                                             <div>
                                                 <i class="ri-map-pin-2-line align-bottom me-1"></i> 
-                                                {{ optional($vacancy->store->town)->name ?? 'N/A' }}, {{ optional($vacancy->store->town)->district ?? 'N/A' }}
+                                                {{ optional($vacancy->store)->name ?? 'N/A' }}, {{ optional($vacancy->store->town)->name ?? 'N/A' }}
                                             </div>
                                             <div class="vr"></div>
                                             <div>
@@ -288,7 +288,7 @@
                             </tr>
                             <tr>
                                 <td class="fw-semibold">
-                                    Company Name
+                                    Brand
                                 </td>
                                 <td>
                                     {{ optional($vacancy->store->brand)->name ?? 'N/A' }}
@@ -312,15 +312,7 @@
                                     </span>
                                 </td>
                             </tr>
-                            @if ($user->role_id <= 6)                   
-                                <tr>
-                                    <td class="fw-semibold">
-                                        Applications
-                                    </td>
-                                    <td>
-                                        {{ $vacancy->applicants->count() ?? 'N/A' }}
-                                    </td>
-                                </tr>
+                            @if ($user->role_id <= 6)
                                 <tr>
                                     <td class="fw-semibold">
                                         Available
@@ -356,14 +348,6 @@
                                     </td>
                                 </tr>
                             @endif
-                            <tr>
-                                <td class="fw-semibold">
-                                    Experience
-                                </td>
-                                <td>
-                                    {{ optional(optional($vacancy->position->experienceRequirements)[0] ?? null)->description ?? 'N/A' }}
-                                </td>
-                            </tr>
                         </tbody>
                     </table>
                     <!--end table-->
@@ -409,7 +393,7 @@
                 </div>
                 <div class="text-center">
                     <p class="text-muted">
-                        {{ $vacancy->store->town->name }}
+                        {{ optional($vacancy->store)->name ?: 'N/A' }}
                     </p>
                 </div>
 
@@ -422,14 +406,6 @@
                                 </td>
                                 <td>
                                     Retail
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">
-                                    Founded in
-                                </td>
-                                <td>
-                                    2016
                                 </td>
                             </tr>
                             <tr>

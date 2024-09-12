@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Store;
 use App\Models\Message;
 use App\Models\Vacancy;
 use App\Models\Position;
@@ -57,6 +58,16 @@ class ManagerController extends Controller
 
             //Auth User
             $authUser = User::find($authUserId);
+
+            //Store
+            $store = Store::with([
+                'brand',
+                'town',
+                'region',
+                'division'
+            ])
+            ->where('id', $authUser->store_id)
+            ->first();
 
             //Vacancies
             $vacancies = Vacancy::with([
@@ -322,6 +333,7 @@ class ManagerController extends Controller
             }
 
             return view('manager/home', [
+                'store' => $store,
                 'vacancies' => $vacancies,
                 'shortlist' => $shortlist,
                 'currentYearData' => $currentYearData,
