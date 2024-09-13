@@ -76,10 +76,9 @@ jobs:
       - name: Deploy to QA Server
         env:
           SSH_USER: ${{ secrets.SSH_QA_DEPLOYER_USERNAME }}
-          SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
           SERVER_IP: ${{ secrets.QA_SERVER_IP }}
         run: |
-          sshpass -p "$SSH_PASSWORD" ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP_1 << 'EOF'
+          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
             export TZ="Africa/Johannesburg"
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/qa.apply.shoprite.jobs/releases/$TIMESTAMP"
@@ -87,7 +86,8 @@ jobs:
             SHARED_DIR="/var/www/qa.apply.shoprite.jobs/shared"
 
             # Create the release directory
-            sudo mkdir -p $RELEASE_DIR
+            sudo -u www-data mkdir -p $RELEASE_DIR
+            
             sudo chown www-data:www-data -R /var/www/qa.apply.shoprite.jobs/
 
             # Clone the repository
