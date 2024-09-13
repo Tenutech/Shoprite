@@ -112,6 +112,12 @@
                             </a>
                         </li>
                     </ul>
+                    <div class="flex-shrink-0">
+                        <a href="{{ route('shortlist.index') }}?id={{ Crypt::encryptString($vacancyId) }}" class="btn btn-success">
+                            <i class="ri-arrow-left-line align-bottom"></i> 
+                            Shortlist
+                        </a>
+                    </div>
                 </div>
                 <!-- Tab panes -->
                 <div class="tab-content pt-4 text-muted">
