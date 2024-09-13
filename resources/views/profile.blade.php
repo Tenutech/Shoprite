@@ -79,10 +79,12 @@
                             <i class="ri-edit-box-line align-bottom"></i> 
                             Edit Profile
                         </a>
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#profileDeleteModal">
-                            <i class="ri-delete-bin-6-line align-bottom"></i> 
-                            Delete Profile
-                        </button>
+                        @if ($user->role_id > 6)
+                            <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#profileDeleteModal">
+                                <i class="ri-delete-bin-6-line align-bottom"></i> 
+                                Delete Profile
+                            </button>
+                        @endif
                     </div>
                 </div>
                 <!-- Tab panes -->
@@ -1987,34 +1989,36 @@
         Modals
     -------------------------------------------------------------------------------------->
 
-    <!-- Profile delete modal -->
-    <div class="modal fade flip" id="profileDeleteModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-body p-5 text-center">
-                    <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px"></lord-icon>
-                    <div class="mt-4 text-center">
-                        <h4>
-                            You are about to delete your profile ?
-                        </h4>
-                        <p class="text-muted fs-14 mb-4">
-                            Deleting your profile will remove all of your information from our database.
-                        </p>
-                        <div class="hstack gap-2 justify-content-center remove">
-                            <button class="btn btn-link btn-ghost-dark fw-medium text-decoration-none" data-bs-dismiss="modal" id="profileDelete-close">
-                                <i class="ri-close-line me-1 align-middle"></i> 
-                                Close
-                            </button>                       
-                            <button class="btn btn-danger" id="profile-delete">
-                                Yes, Delete It
-                            </button>
+    @if ($user->role_id > 6)
+        <!-- Profile delete modal -->
+        <div class="modal fade flip" id="profileDeleteModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-body p-5 text-center">
+                        <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px"></lord-icon>
+                        <div class="mt-4 text-center">
+                            <h4>
+                                You are about to delete your profile ?
+                            </h4>
+                            <p class="text-muted fs-14 mb-4">
+                                Deleting your profile will remove all of your information from our database.
+                            </p>
+                            <div class="hstack gap-2 justify-content-center remove">
+                                <button class="btn btn-link btn-ghost-dark fw-medium text-decoration-none" data-bs-dismiss="modal" id="profileDelete-close">
+                                    <i class="ri-close-line me-1 align-middle"></i> 
+                                    Close
+                                </button>                       
+                                <button class="btn btn-danger" id="profile-delete">
+                                    Yes, Delete It
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- end profile delete modal -->
+        <!-- end profile delete modal -->
+    @endif
 @endsection
 @section('script')
     <script>

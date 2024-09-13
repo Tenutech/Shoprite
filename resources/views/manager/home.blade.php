@@ -196,7 +196,7 @@
                                                 <th class="sort" data-sort="type">Type</th>
                                                 <th class="sort" data-sort="open">Open</th>
                                                 <th class="sort" data-sort="filled">Filled</th>
-                                                <th class="sort" data-sort="applicants">Applicants</th>
+                                                <th class="sort" data-sort="applicants">Appointed</th>
                                                 <th class="sort" data-sort="location">Location</th>
                                                 <th class="sort" data-sort="date">Posted</th>
                                                 <th class="sort" data-sort="status">Status</th> 
@@ -237,7 +237,7 @@
                                                         </td>
                                                         <td class="open">{{ $vacancy->open_positions }}</td>
                                                         <td class="filled">{{ $vacancy->filled_positions }}</td>
-                                                        <td class="applicants">{{ $vacancy->applicants->count() }}</td>                                                      
+                                                        <td class="applicants">{{ $vacancy->appointed->count() }}</td>                                                      
                                                         <td class="location">{{ $vacancy->store->town->name }}</td>
                                                         <td class="date">{{ date('d M Y', strtotime($vacancy->created_at)) }}</td>
                                                         <td class="status">
@@ -277,7 +277,7 @@
                                                             <div class="accordion-body">
                                                                 <div class="row gy-2 mb-2">
                                                                     <div data-simplebar style="max-height: 250px;" class="px-3">
-                                                                        @foreach ($vacancy->applicants as $user)
+                                                                        @foreach ($vacancy->appointed as $user)
                                                                             <div class="col-md-6 col-lg-12">
                                                                                 <div class="card mb-0">
                                                                                     <div class="card-body">
@@ -285,21 +285,21 @@
                                                                                             <div class="flex-shrink-0 col-auto">
                                                                                                 <div class="avatar-sm rounded overflow-hidden">
                                                                                                     {{-- Check if avatar is null, if so use a default image --}}
-                                                                                                    <img src="{{ $user->applicant->avatar ?? URL::asset('images/avatar.jpg') }}" alt="" class="member-img img-fluid d-block rounded">
+                                                                                                    <img src="{{ $user->avatar ?? URL::asset('images/avatar.jpg') }}" alt="" class="member-img img-fluid d-block rounded">
                                                                                                 </div>
                                                                                             </div>
                                                                                             <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">
-                                                                                                <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($user->applicant->id ?? '')]) }}">
+                                                                                                <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($user->id ?? '')]) }}">
                                                                                                     <h5 class="fs-16 mb-2">
                                                                                                         {{-- Check if firstname or lastname is null --}}
-                                                                                                        {{ optional($user->applicant)->firstname }} {{ optional($user->applicant)->lastname }}
+                                                                                                        {{ $user->firstname ?? 'N/A' }} {{ $user->lastname ?? 'N/A' }}
                                                                                                     </h5>
                                                                                                 </a>
                                                                                                 <p class="text-muted mb-0">
-                                                                                                    @if (optional(optional($user->applicant)->position)->name == 'Other')
-                                                                                                        {{ optional($user->applicant)->position_specify ?? 'N/A' }}
+                                                                                                    @if (optional($user->position)->name == 'Other')
+                                                                                                        {{ $user->position_specify ?? 'N/A' }}
                                                                                                     @else
-                                                                                                        {{ optional(optional($user->applicant)->position)->name ?? 'N/A' }}
+                                                                                                        {{ optional($user->position)->name ?? 'N/A' }}
                                                                                                     @endif
                                                                                                 </p>
                                                                                             </div>
@@ -307,27 +307,22 @@
                                                                                                 <div>
                                                                                                     <i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>
                                                                                                     {{-- Safely check if town name is null --}}
-                                                                                                    {{ optional(optional($user->applicant)->town)->name ?? 'N/A' }}
+                                                                                                    {{ optional($user->town)->name ?? 'N/A' }}
                                                                                                 </div>
                                                                                             </div>
                                                                                             <div class="col-2">
-                                                                                                <i class="ri-briefcase-line text-primary me-1 align-bottom"></i>
-                                                                                                {{-- Safely check the type and handle 'Other' case --}}
-                                                                                                @if (optional(optional($user->applicant)->type)->name == 'Other')
-                                                                                                    {{ optional($user->applicant)->application_reason_specify ?? 'N/A' }}
-                                                                                                @else
-                                                                                                    {{ optional(optional($user->applicant)->type)->name ?? 'N/A' }}
-                                                                                                @endif
+                                                                                                <i class="ri-hashtag text-primary me-1 align-bottom"></i>
+                                                                                                {{ optional($user->pivot)->sap_number ?? 'N/A' }}
                                                                                             </div>                                                                                        
                                                                                             <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">
                                                                                                 <div class="badge text-bg-success">
                                                                                                     <i class="mdi mdi-star me-1"></i>
                                                                                                     {{-- Check if score is null --}}
-                                                                                                    {{ $user->applicant->score ?? 'N/A' }}                                                                                            
+                                                                                                    {{ $user->score ?? 'N/A' }}                                                                                            
                                                                                                 </div>
                                                                                             </div>
                                                                                             <div class="col-2 text-end">
-                                                                                                <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($user->applicant->id ?? '')]) }}" class="btn btn-soft-primary">
+                                                                                                <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($user->id ?? '')]) }}" class="btn btn-soft-primary">
                                                                                                     View Details
                                                                                                 </a>
                                                                                             </div>
