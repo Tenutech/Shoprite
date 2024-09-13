@@ -86,7 +86,9 @@ class Vacancy extends Model
     //Appointed
     public function appointed()
     {
-        return $this->belongsToMany(Applicant::class, 'vacancy_fills', 'vacancy_id', 'applicant_id')->withTimestamps();
+        return $this->belongsToMany(Applicant::class, 'vacancy_fills', 'vacancy_id', 'applicant_id')
+                    ->withTimestamps()
+                    ->withPivot('sap_number');
     }
 
     //Amendments
