@@ -113,7 +113,7 @@
                 
                 <div class="mb-4">
                     <h5 class="mb-3">
-                        What You Do Daily
+                        What You Do Daily 
                     </h5>
                     {!! optional(optional($vacancy->position->skills)[0] ?? null)->description ?? 'N/A' !!}
                 </div>
