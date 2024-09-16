@@ -22,11 +22,19 @@ class VacancyFactory extends Factory
     public function definition()
     {
         return [
-            'user_id' => User::factory(),
-            'position_id' => 1,
-            'store_id' => 1,
-            'type_id' => 1,
-            'status_id' => 'Any',
+            'user_id' => User::factory(), 
+            'position_id' => function () {
+                return \App\Models\Position::factory()->create()->id;
+            },
+            'store_id' => function () {
+                return \App\Models\Store::factory()->create()->id;
+            },
+            'type_id' => function () {
+                return \App\Models\Type::factory()->create()->id;
+            },
+            'status_id' => function () {
+                return \App\Models\Status::factory()->create()->id;
+            },
             'open_positions' => $this->faker->numberBetween(1, 10),
             'filled_positions' => $this->faker->numberBetween(0, 10),
             'advertisement' => $this->faker->randomElement(['Any', 'Internal', 'External']),
