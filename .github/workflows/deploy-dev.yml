@@ -86,7 +86,8 @@ jobs:
             SHARED_DIR="/var/www/dev.apply.shoprite.jobs/shared"
 
             # Create the release directory
-            sudo mkdir -p $RELEASE_DIR
+            sudo -u www-data mkdir -p $RELEASE_DIR
+
             sudo chown www-data:www-data -R /var/www/dev.apply.shoprite.jobs/
 
             # Clone the repository
