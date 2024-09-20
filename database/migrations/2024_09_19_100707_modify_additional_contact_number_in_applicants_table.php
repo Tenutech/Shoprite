@@ -14,8 +14,14 @@ return new class extends Migration
     public function up()
     {
         Schema::table('applicants', function (Blueprint $table) {
-            // Modify the additional_contact_number column to be an ENUM with Yes and No
-            $table->enum('additional_contact_number', ['Yes', 'No'])->nullable()->default(null)->change();
+            // Drop the additional_contact_number column if it exists
+            $table->dropColumn('additional_contact_number');
+
+            // Re-add the additional_contact_number column as an enum after terms_conditions
+            $table->enum('additional_contact_number', ['Yes', 'No'])
+                  ->nullable()
+                  ->default(null)
+                  ->after('terms_conditions');
         });
     }
 
