@@ -1629,7 +1629,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 // Send messages for the selected state
-                $message = "Please provide your address with every detail (e.g. street number, street name, suburb, town, postal code): 🏡";
+                $message = "Please provide your *address* with every detail (e.g. street number, street name, suburb, town, postal code): 🏡";
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
             } elseif ($body === '2' || $body === 'pin') {
                 // Update the applicant's location_type
