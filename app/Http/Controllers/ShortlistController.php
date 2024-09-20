@@ -214,6 +214,11 @@ class ShortlistController extends Controller
     public function applicants(Request $request)
     {
         try {
+            // Check if the user is authenticated
+            if (!Auth::check()) {
+                return redirect()->route('logout');  // Redirect to the logout route
+            }
+
             // Decrypt Vacancy ID with error handling
             try {
                 // Vacancy ID
@@ -270,6 +275,9 @@ class ShortlistController extends Controller
             // Use optional() to safely access the vacancy's store brand_id
             $vacancyBrandID = optional($vacancy->store)->brand_id;
 
+            // Get state ID where code = complete
+            $completeStateID = State::where('code', 'complete')->value('id');
+
             //Applicants
             $query = Applicant::with([
                 'town',
@@ -306,12 +314,14 @@ class ShortlistController extends Controller
             ->whereNull('shortlist_id')
             ->whereNull('appointed_id')
             ->where('no_show', '<=', 2)
-            ->when($vacancyBrandID, function ($query, $vacancyBrandID) {
-                // Apply the brand_id filter only if a brand_id exists
-                $query->where(function ($query) use ($vacancyBrandID) {
-                    $query->where('brand_id', 1)
-                          ->orWhere('brand_id', $vacancyBrandID);
-                });
+            ->where('state_id', '>=', $completeStateID)
+            ->whereHas('brands', function ($query) use ($vacancyBrandID) {
+                // Check if the applicant has the vacancyBrandID in their brands or brand_id = 1
+                $query->where('brand_id', 1);
+            
+                if ($vacancyBrandID) {
+                    $query->orWhere('brand_id', $vacancyBrandID);
+                }
             })
             ->orderBy('score', 'desc');
 
