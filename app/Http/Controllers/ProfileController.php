@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\State;
 use App\Models\Message;
 use App\Models\Vacancy;
 use App\Models\Position;
@@ -96,10 +97,13 @@ class ProfileController extends Controller
                 'website'
             ];
 
+            // Get the 'complete' state ID
+            $completeStateID = State::where('code', 'complete')->value('id');
+
             //Completion Percentage
             $completion = 0;
             if ($user->applicant) {
-                $completion = round(($user->applicant->state_id / 69) * 100);
+                $completion = round(($user->applicant->state_id / $completeStateID) * 100);
                 if ($completion > 100) {
                     $completion = 100;
                 }

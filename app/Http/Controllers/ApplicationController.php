@@ -7,6 +7,7 @@ use App\Models\Type;
 use App\Models\User;
 use App\Models\Race;
 use App\Models\Bank;
+use App\Models\State;
 use App\Models\Brand;
 use App\Models\Store;
 use App\Models\Gender;
@@ -359,6 +360,9 @@ class ApplicationController extends Controller
                 }
             }
 
+            // Get the 'complete' state ID
+            $completeStateID = State::where('code', 'complete')->value('id');
+
             DB::beginTransaction();
 
             // Applicant Create
@@ -428,7 +432,7 @@ class ApplicationController extends Controller
                 'numeracy_questions' => $numeracyQuestionsCount,
                 'numeracy' => "{$numeracyScore}/{$numeracyQuestionsCount}",
                 'role_id' => 8,
-                'state_id' => 69,
+                'state_id' => $completeStateID,
             ]);
 
             // Now let's verify the location using GoogleMapsService
@@ -678,6 +682,9 @@ class ApplicationController extends Controller
                 }
             }
 
+            // Get the 'complete' state ID
+            $completeStateID = State::where('code', 'complete')->value('id');
+
             DB::beginTransaction();
 
             // Applicant Create
@@ -747,7 +754,7 @@ class ApplicationController extends Controller
                 'numeracy_questions' => $numeracyQuestionsCount,
                 'numeracy' => "{$numeracyScore}/{$numeracyQuestionsCount}",
                 'role_id' => 8,
-                'state_id' => 69,
+                'state_id' => $completeStateID,
             ]);
 
             // Now let's verify the location using GoogleMapsService
