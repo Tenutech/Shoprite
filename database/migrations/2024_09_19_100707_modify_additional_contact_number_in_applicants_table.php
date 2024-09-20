@@ -14,8 +14,11 @@ return new class extends Migration
     public function up()
     {
         Schema::table('applicants', function (Blueprint $table) {
-            // Drop the additional_contact_number column if it exists
-            $table->dropColumn('additional_contact_number');
+            // Check if the column exists before attempting to drop it
+            if (Schema::hasColumn('applicants', 'additional_contact_number')) {
+                // Drop the additional_contact_number column if it exists
+                $table->dropColumn('additional_contact_number');
+            }
 
             // Re-add the additional_contact_number column as an enum after terms_conditions
             $table->enum('additional_contact_number', ['Yes', 'No'])
