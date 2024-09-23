@@ -18,9 +18,13 @@ class UserFactory extends Factory
             'firstname' => $this->faker->firstName,
             'lastname' => $this->faker->lastName,
             'email' => $this->faker->unique()->safeEmail(),
-            'status_id' => 1,
+            'status_id' => function () {
+                return \App\Models\Status::factory()->create()->id;
+            },
             'email_verified_at' => now(),
-            'role_id' => 1,
+            'role_id' => function () {
+                return \App\Models\Role::factory()->create()->id;
+            },
             'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
             'remember_token' => Str::random(10),
         ];
