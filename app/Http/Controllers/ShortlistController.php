@@ -95,7 +95,8 @@ class ShortlistController extends Controller
 
             // Decrypt the vacancy ID if it's provided
             $vacancyID = null;
-            $vacancy = collect();
+            $vacancy = null;
+            
             if ($request->has('id')) {
                 $vacancyID = Crypt::decryptString($request->query('id'));
                 $vacancy = Vacancy::find($vacancyID);
@@ -318,7 +319,7 @@ class ShortlistController extends Controller
             ->whereHas('brands', function ($query) use ($vacancyBrandID) {
                 // Check if the applicant has the vacancyBrandID in their brands or brand_id = 1
                 $query->where('brand_id', 1);
-            
+
                 if ($vacancyBrandID) {
                     $query->orWhere('brand_id', $vacancyBrandID);
                 }

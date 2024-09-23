@@ -61,7 +61,7 @@ class Applicant extends Model
         'citizen',
         'resident',
         'foreign_national',
-        'criminal',        
+        'criminal',
         'position_id',
         'position_specify',
         'school',

@@ -418,7 +418,7 @@ class ChatService
             case 'situational_start':
                 $this->handleSituationalStartState($applicant, $body, $client, $to, $from, $token);
                 break;
-    
+
             case 'situational':
                 $this->handleSituationalState($applicant, $body, $client, $to, $from, $token);
                 break;
@@ -516,17 +516,17 @@ class ChatService
             $body = strtolower(trim($body));
 
             // Check if the applicant's input is one of the valid options (1, 2, or 3)
-            if ($body === '1') {            
+            if ($body === '1') {
                 // Fetch messages for both 'employment_journey' and 'id_number' states
                 $employmentMessages = $this->fetchStateMessages('employment_journey');
                 $idNumberMessages = $this->fetchStateMessages('id_number');
-            
+
                 // Merge both message arrays
                 $combinedMessages = array_merge($employmentMessages, $idNumberMessages);
-            
+
                 // Send combined messages for both states
                 $this->sendAndLogMessages($applicant, $combinedMessages, $client, $to, $from, $token);
-            
+
                 // Finally, update to the 'id_number' state
                 $stateID = State::where('code', 'id_number')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -1081,7 +1081,7 @@ class ChatService
             } elseif ($body === '2' || $body === 'i disagree' || $body === 'disagree') {
                 // Update the applicant's terms_conditions
                 $applicant->update(['terms_conditions' => 'Yes']);
-                
+
                 // Applicant selected option 2: Navigate to 'welcome' state
                 $stateID = State::where('code', 'welcome')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -1136,7 +1136,7 @@ class ChatService
             } elseif ($body === '2' || $body === 'no') {
                 // Update the applicant's terms_conditions
                 $applicant->update(['additional_contact_number' => 'Yes']);
-                
+
                 // Applicant selected option 2: Navigate to 'contact_number' state
                 $stateID = State::where('code', 'contact_number')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -1172,7 +1172,7 @@ class ChatService
         try {
             // Remove any non-digit characters from the input
             $number = preg_replace('/\D/', '', $body);
-    
+
             // Check if the number starts with '0' and replace it with '+27'
             if (substr($number, 0, 1) === '0') {
                 // Replace the leading '0' with the South African country code '+27'
@@ -1188,16 +1188,16 @@ class ChatService
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
                 return; // Exit early
             }
-    
+
             // Now ensure the number is valid after formatting: it should be exactly 12 digits long
             if (preg_match('/^\+27\d{9}$/', $number)) {
                 // The number is valid, proceed to update the applicant's contact number
                 $applicant->update(['contact_number' => $number]);
-    
+
                 // Move to the next state ('public_holidays')
                 $stateID = State::where('code', 'public_holidays')->value('id');
                 $applicant->update(['state_id' => $stateID]);
-    
+
                 // Fetch and send the appropriate messages for the 'public_holidays' state
                 $messages = $this->fetchStateMessages('public_holidays');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
@@ -1209,10 +1209,10 @@ class ChatService
         } catch (Exception $e) {
             // Log any exceptions that occur for debugging purposes
             Log::error('Error in handleContactNumberState: ' . $e->getMessage());
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the applicant to notify them of the issue
             $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
         }
@@ -1245,7 +1245,7 @@ class ChatService
             } elseif ($body === '2' || $body === 'no') {
                 // Update the applicant's public_holidays
                 $applicant->update(['public_holidays' => 'No']);
-                
+
                 // Applicant selected option 2: Navigate to 'welcome' state
                 $stateID = State::where('code', 'welcome')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -1369,7 +1369,7 @@ class ChatService
             } elseif ($body === '2' || $body === 'no') {
                 // Update the applicant's consent
                 $applicant->update(['consent' => 'No']);
-                
+
                 // Applicant selected option 2: Navigate to 'welcome' state
                 $stateID = State::where('code', 'welcome')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -1421,7 +1421,7 @@ class ChatService
             } elseif ($body === '2' || $body === 'no') {
                 // Update the applicant's environment
                 $applicant->update(['environment' => 'No']);
-                
+
                 // Applicant selected option 2: Navigate to 'welcome' state
                 $stateID = State::where('code', 'welcome')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -1634,7 +1634,7 @@ class ChatService
             } elseif ($body === '2' || $body === 'pin') {
                 // Update the applicant's location_type
                 $applicant->update(['location_type' => 'Pin']);
-                
+
                 // Applicant selected option 2: Navigate to 'location' state
                 $stateID = State::where('code', 'location')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -1671,31 +1671,31 @@ class ChatService
             // Send an initial message to the applicant indicating that the address is being verified
             $message = "Please give me a second to verify your address...";
             $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
-    
+
             // Initialize the Google Maps service to handle geocoding or reverse geocoding
             $googleMapsService = new GoogleMapsService();
-    
+
             // Check if latitude and longitude are provided (i.e., the applicant sent their location coordinates)
             if (isset($latitude) && isset($longitude)) {
                 // Update the applicant's location with the latitude and longitude coordinates
                 $applicant->update(['location' => $latitude . ' ' . $longitude]);
-    
+
                 // Reverse geocode the coordinates to obtain the corresponding address
                 $response = $googleMapsService->reverseGeocodeCoordinates(trim($latitude), trim($longitude));
             } else {
                 // If no coordinates are provided, assume the applicant entered a text address
                 $applicant->update(['location' => $body]);
-    
+
                 // Use the Google Maps service to geocode the text address and get location details
                 $response = $googleMapsService->geocodeAddress($applicant->location);
             }
-    
+
             // Check if the Google Maps service returned a valid response
             if ($response !== null) {
                 // Extract the formatted address and city from the response
                 $formattedAddress = $response['formatted_address'];
                 $city = $response['city'] ?? null; // Use null if the city is not available
-    
+
                 // Prepare a message to confirm the applicant's address, with options for Yes or No
                 $templateMessage = [
                     [
@@ -1703,21 +1703,21 @@ class ChatService
                         'type' => "text" // Indicating this is a text message
                     ]
                 ];
-    
+
                 // Send the confirmation message to the applicant
                 $this->sendAndLogMessages($applicant, $templateMessage, $client, $to, $from, $token);
-    
+
                 // Extract latitude and longitude from the response (in case the address was geocoded)
                 $latitude = $response['latitude'];
                 $longitude = $response['longitude'];
-    
+
                 // Update the applicant's information with the confirmed address, coordinates, and town (city)
                 $applicant->update([
                     'location' => $formattedAddress, // Save the formatted address
                     'coordinates' => $latitude . ',' . $longitude, // Store coordinates as a string
                     'town_id' => $city  // Save the city as the applicant's town (if available)
                 ]);
-    
+
                 // Transition the applicant to the 'location_confirmation' state
                 $stateID = State::where('code', 'location_confirmation')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -1749,31 +1749,31 @@ class ChatService
         try {
             // Normalize the applicant's input (remove case sensitivity by converting to lowercase)
             $body = strtolower(trim($body));
-    
+
             // Check if the applicant confirmed the address (valid responses: '1', 'yes', 'that is correct', etc.)
             if ($body === '1' || $body === 'yes' || $body === 'that is correct' || $body === 'correct' || $body === "that's correct") {
                 // If the applicant confirms the address, transition to the 'contact_number' state
                 $stateID = State::where('code', 'has_email')->value('id');
                 $applicant->update(['state_id' => $stateID]); // Update the applicant's state in the database
-    
+
                 // Send a confirmation message to thank the applicant for confirming the address
                 $confirmMessage = "Thank you for confirming your address.";
                 $this->sendAndLogMessages($applicant, [$confirmMessage], $client, $to, $from, $token);
-    
+
                 // Fetch and send the next set of messages for the 'contact_number' state
                 $messages = $this->fetchStateMessages('has_email');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-    
+
             // Check if the applicant wants to re-enter the address (valid responses: '2', 'no', 're-enter address', etc.)
             } elseif ($body === '2' || $body === 'no' || $body === 're-enter address' || $body === 'incorrect') {
                 // If the applicant wants to provide a new address, send a prompt to re-enter the address or provide a new pin
                 $message = "Please re-enter your address or provide a new pin:";
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
-    
+
                 // Transition the applicant back to the 'location' state to re-enter the address
                 $stateID = State::where('code', 'location')->value('id');
                 $applicant->update(['state_id' => $stateID]);
-    
+
             // If the applicant's input is not recognized, prompt them with valid options
             } else {
                 // Send an error message listing the valid options ('1' for confirmation, '2' for re-entering)
@@ -1783,10 +1783,10 @@ class ChatService
         } catch (Exception $e) {
             // If an error occurs, log it for debugging purposes
             Log::error('Error in handleLocationConfirmationState: ' . $e->getMessage());
-    
+
             // Retrieve the generic error message to send to the applicant
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the applicant to inform them of the issue
             $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
         }
@@ -1819,7 +1819,7 @@ class ChatService
             } elseif ($body === '2' || $body === 'no') {
                 // Update the applicant's has_email
                 $applicant->update(['has_email' => 'No']);
-                
+
                 // Applicant selected option 2: Navigate to 'disability' state
                 $stateID = State::where('code', 'disability')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -1857,11 +1857,11 @@ class ChatService
             if (filter_var($body, FILTER_VALIDATE_EMAIL)) {
                 // If the email is valid, update the applicant's email in lowercase (normalize the email format)
                 $applicant->update(['email' => strtolower($body)]);
-    
+
                 // Transition the applicant to the next state, which is 'disability'
                 $stateID = State::where('code', 'disability')->value('id');
                 $applicant->update(['state_id' => $stateID]); // Update the applicant's state in the database
-    
+
                 // Send messages for the selected state
                 $messages = $this->fetchStateMessages('disability');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
@@ -1909,7 +1909,7 @@ class ChatService
             } elseif ($body === '2' || $body === 'no') {
                 // Update the applicant's has_email
                 $applicant->update(['has_email' => 'No']);
-                
+
                 // Applicant selected option 2: Navigate to 'literacy_start' state
                 $stateID = State::where('code', 'literacy_start')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -1944,42 +1944,40 @@ class ChatService
     {
         try {
             // Check if the applicant has entered the keyword 'start' (case-insensitive)
-            if (strtolower($body) == 'start') {    
+            if (strtolower($body) == 'start') {
                 // Fetch all messages associated with the 'literacy' state (representing the literacy questions)
                 $messages = $this->fetchStateMessages('literacy');
-    
+
                 // Check if any literacy questions were found
                 if (count($messages) > 0) {
-    
                     // Randomize the order of the messages (questions) to create a shuffled question pool
                     shuffle($messages);
-    
+
                     // Extract and store the sort order of the questions as a comma-separated string
                     $sortOrderValues = implode(',', array_column($messages, 'sort'));
-    
+
                     // Update the applicant's literacy info
                     $applicant->update([
                         'literacy_question_pool' => $sortOrderValues,
                         'literacy_score' => 0,
                         'literacy_questions' => count($messages)
                     ]);
-    
+
                     // Extract the first question from the shuffled message pool
                     $firstQuestionMessages = array_column($messages, 'message');
                     $firstQuestion = array_shift($firstQuestionMessages); // Get the first question
-    
+
                     // Send the first question to the applicant and log the message
                     $this->sendAndLogMessages($applicant, [$firstQuestion], $client, $to, $from, $token);
-    
+
                     // Transition the applicant to the next state, 'literacy'
                     $stateID = State::where('code', 'literacy')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-    
                 } else {
                     // If no literacy questions are found, send an error message to the applicant
                     $message = "Sorry, we could not find any questions. Please try again later.";
                     $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
-                }    
+                }
             } else {
                 // If the applicant did not respond with 'start', prompt them to do so
                 $message = "When you are ready, please reply with *Start*.";
@@ -2008,24 +2006,23 @@ class ChatService
         try {
             // Extract the order of the literacy questions from the applicant's data (stored as a comma-separated string).
             $sortOrderPool = explode(',', $applicant->literacy_question_pool);
-            
+
             // Retrieve the current question's sort order (first value from the pool).
             $currentQuestionSortOrder = array_shift($sortOrderPool);
-    
+
             // Fetch the current question based on the sort order.
             $stateID = State::where('code', 'literacy')->value('id'); // Get the state ID for the literacy state.
             $currentQuestion = ChatTemplate::where('state_id', $stateID)
                                            ->where('sort', $currentQuestionSortOrder)
                                            ->first(); // Fetch the question corresponding to the current sort order.
-    
+
             // Check if the applicant's response is one of the valid options ('a', 'b', 'c', 'd', or 'e').
             if (in_array(strtolower($body), ['a', 'b', 'c', 'd', 'e'])) {
-                
                 // If the applicant's answer matches the correct answer, increment their literacy score.
                 if (strtolower($currentQuestion->answer) == strtolower($body)) {
                     $applicant->update(['literacy_score' => $applicant->literacy_score + 1]);
                 }
-    
+
                 // Check if there are more questions left in the pool to present.
                 if (count($sortOrderPool) > 0) {
                     // Retrieve the sort order of the next question.
@@ -2033,42 +2030,39 @@ class ChatService
                     $nextQuestion = ChatTemplate::where('state_id', $stateID)
                                                 ->where('sort', $nextQuestionSortOrder)
                                                 ->first(); // Fetch the next question.
-    
+
                     // Update the applicant's question pool to reflect the remaining questions.
                     $applicant->update(['literacy_question_pool' => implode(',', $sortOrderPool)]);
-    
+
                     // Send the next question to the applicant.
                     $nextQuestionText = $nextQuestion->message; // Extract the question text.
                     $this->sendAndLogMessages($applicant, [$nextQuestionText], $client, $to, $from, $token);
-    
                 } else {
                     // If no more questions are left, calculate the final literacy score.
                     $correctAnswers = $applicant->literacy_score; // Retrieve the number of correct answers.
                     $literacyQuestions = $applicant->literacy_questions; // Retrieve the total number of questions.
-                    
+
                     // Update the applicant's final literacy score in the format correct/total.
                     $applicant->update(['literacy' => "$correctAnswers/$literacyQuestions"]);
-    
+
                     // Move the applicant to the 'numeracy_start' state for the numeracy test.
                     $stateID = State::where('code', 'numeracy_start')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-    
+
                     // Fetch and send the messages related to starting the numeracy test.
                     $messages = $this->fetchStateMessages('numeracy_start');
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
                 }
-    
             } else {
                 // If the applicant's response is not a valid option (not 'a', 'b', 'c', 'd', or 'e'),
                 // restore the current question to the pool and send an error message.
                 array_unshift($sortOrderPool, $currentQuestionSortOrder); // Prepend the current question back to the pool.
                 $applicant->update(['literacy_question_pool' => implode(',', $sortOrderPool)]); // Update the pool.
-    
+
                 // Send a message indicating the need for a valid response.
                 $invalidAnswerMessage = "Please choose a valid option (a, b, c, d, or e).";
                 $this->sendAndLogMessages($applicant, [$invalidAnswerMessage], $client, $to, $from, $token);
             }
-    
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleLiteracyState: ' . $e->getMessage());
@@ -2097,7 +2091,6 @@ class ChatService
 
                 // Check if any numeracy questions were found
                 if (count($messages) > 0) {
-
                     // Randomize the order of the messages (questions) to create a shuffled question pool
                     shuffle($messages);
 
@@ -2121,7 +2114,6 @@ class ChatService
                     // Transition the applicant to the next state, 'numeracy'
                     $stateID = State::where('code', 'numeracy')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-
                 } else {
                     // If no numeracy questions are found, send an error message to the applicant
                     $message = "Sorry, we could not find any questions. Please try again later.";
@@ -2156,24 +2148,23 @@ class ChatService
         try {
             // Extract the order of the numeracy questions from the applicant's data (stored as a comma-separated string).
             $sortOrderPool = explode(',', $applicant->numeracy_question_pool);
-    
+
             // Retrieve the current question's sort order (first value from the pool).
             $currentQuestionSortOrder = array_shift($sortOrderPool);
-    
+
             // Fetch the current question based on the sort order.
             $stateID = State::where('code', 'numeracy')->value('id'); // Get the state ID for numeracy state.
             $currentQuestion = ChatTemplate::where('state_id', $stateID)
                                            ->where('sort', $currentQuestionSortOrder)
                                            ->first(); // Fetch the question corresponding to the current sort order.
-    
+
             // Check if the applicant's response is one of the valid options ('a', 'b', 'c', 'd', or 'e').
             if (in_array(strtolower($body), ['a', 'b', 'c', 'd', 'e'])) {
-    
                 // If the applicant's answer matches the correct answer, increment their numeracy score.
                 if (strtolower($currentQuestion->answer) == strtolower($body)) {
                     $applicant->update(['numeracy_score' => $applicant->numeracy_score + 1]);
                 }
-    
+
                 // Check if there are more questions left in the pool to present.
                 if (count($sortOrderPool) > 0) {
                     // Retrieve the sort order of the next question.
@@ -2181,42 +2172,39 @@ class ChatService
                     $nextQuestion = ChatTemplate::where('state_id', $stateID)
                                                 ->where('sort', $nextQuestionSortOrder)
                                                 ->first(); // Fetch the next question.
-    
+
                     // Update the applicant's question pool to reflect the remaining questions.
                     $applicant->update(['numeracy_question_pool' => implode(',', $sortOrderPool)]);
-    
+
                     // Send the next question to the applicant.
                     $nextQuestionText = $nextQuestion->message; // Extract the question text.
                     $this->sendAndLogMessages($applicant, [$nextQuestionText], $client, $to, $from, $token);
-    
                 } else {
                     // If no more questions are left, calculate the final numeracy score.
                     $correctAnswers = $applicant->numeracy_score; // Retrieve the number of correct answers.
                     $numeracyQuestions = $applicant->numeracy_questions; // Retrieve the total number of questions.
-    
+
                     // Update the applicant's final numeracy score in the format correct/total.
                     $applicant->update(['numeracy' => "$correctAnswers/$numeracyQuestions"]);
-    
+
                     // Move the applicant to the 'situational_start' state, marking the test as finished.
                     $stateID = State::where('code', 'situational_start')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-    
+
                     // Fetch and send the situational_start messages.
                     $messages = $this->fetchStateMessages('situational_start');
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
                 }
-    
             } else {
                 // If the applicant's response is not a valid option (not 'a', 'b', 'c', 'd', or 'e'),
                 // restore the current question to the pool and send an error message.
                 array_unshift($sortOrderPool, $currentQuestionSortOrder); // Prepend the current question back to the pool.
                 $applicant->update(['numeracy_question_pool' => implode(',', $sortOrderPool)]); // Update the pool.
-    
+
                 // Send a message indicating the need for a valid response.
                 $invalidAnswerMessage = "Please choose a valid option (a, b, c, d, or e).";
                 $this->sendAndLogMessages($applicant, [$invalidAnswerMessage], $client, $to, $from, $token);
             }
-    
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleNumeracyState: ' . $e->getMessage());
@@ -2245,7 +2233,6 @@ class ChatService
 
                 // Check if any situational assessment questions were found
                 if (count($messages) > 0) {
-
                     // Randomize the order of the messages (questions) to create a shuffled question pool
                     shuffle($messages);
 
@@ -2269,7 +2256,6 @@ class ChatService
                     // Transition the applicant to the next state, 'situational'
                     $stateID = State::where('code', 'situational')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-
                 } else {
                     // If no situational assessment questions are found, send an error message to the applicant
                     $message = "Sorry, we could not find any questions. Please try again later.";
@@ -2314,7 +2300,6 @@ class ChatService
 
             // Check if the applicant's response is one of the valid options ('a', 'b', 'c', or 'd').
             if (in_array(strtolower($body), ['a', 'b', 'c', 'd'])) {
-
                 // If the applicant's answer matches the correct answer, increment their situational score.
                 if (strtolower($currentQuestion->answer) == strtolower($body)) {
                     $applicant->update(['situational_score' => $applicant->situational_score + 1]);
@@ -2334,7 +2319,6 @@ class ChatService
                     // Send the next question to the applicant.
                     $nextQuestionText = $nextQuestion->message; // Extract the question text.
                     $this->sendAndLogMessages($applicant, [$nextQuestionText], $client, $to, $from, $token);
-
                 } else {
                     // If no more questions are left, calculate the final situational score.
                     $correctAnswers = $applicant->situational_score; // Retrieve the number of correct answers.
@@ -2399,7 +2383,7 @@ class ChatService
                         $latestInterview->vacancy->position->name ?? 'N/A', // Position name
                         ($latestInterview->vacancy->store->brand->name ?? 'N/A') . ' (' . ($latestInterview->vacancy->store->town->name ?? 'N/A') . ')' // Store and town name in parentheses
                     ];
-    
+
                     // Construct the template message for interview_welcome
                     $templateMessage = [
                         [
@@ -2409,14 +2393,14 @@ class ChatService
                             'variables' => $variables
                         ]
                     ];
-    
+
                     // Send the template message
                     $this->sendAndLogMessages($applicant, $templateMessage, $client, $to, $from, $token);
-    
+
                     // Set the applicant's state to 'schedule'
                     $scheduleStateID = State::where('code', 'schedule_start')->value('id');
                     $applicant->update(['state_id' => $scheduleStateID]);
-    
+
                     return;
                 }
             }
@@ -2448,14 +2432,15 @@ class ChatService
     |--------------------------------------------------------------------------
     */
 
-    protected function handleScheduleStartState($applicant, $body, $client, $to, $from, $token) {
+    protected function handleScheduleStartState($applicant, $body, $client, $to, $from, $token)
+    {
         try {
             // Normalize the applicant's input (remove case sensitivity by converting to lowercase)
             $body = strtolower(trim($body));
 
             // Retrieve the latest interview for the applicant, ordered by the 'created_at' timestamp.
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
-        
+
             // Check if the applicant has any interviews.
             if ($latestInterview) {
                 // Handle the 'yes' response from the applicant.
@@ -2470,10 +2455,10 @@ class ChatService
                         "Interview Time" => $latestInterview->start_time->format('H:i'), // Formatted interview time
                         "Notes" => $latestInterview->notes ?? 'N/A', // Additional notes or 'N/A'
                     ];
-        
+
                     // Fetch the messages associated with the 'schedule' state.
                     $messages = $this->fetchStateMessages('schedule');
-        
+
                     // Loop through each message and replace placeholders with the corresponding applicant/interview data.
                     foreach ($messages as &$message) {
                         foreach ($dataToReplace as $key => $value) {
@@ -2485,20 +2470,20 @@ class ChatService
                             }
                         }
                     }
-        
+
                     // Send the updated messages and log the outgoing messages.
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-        
+
                     // Update the applicant's state to 'schedule' after confirming the interview.
                     $stateID = State::where('code', 'schedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                } 
+                }
                 // Handle the 'no' response from the applicant.
-                else if ($body === '2' || $body === 'no') {
+                elseif ($body === '2' || $body === 'no') {
                     // Update the interview status to 'Declined' for the latest interview.
                     $latestInterview->status = 'Declined';
                     $latestInterview->save();
-        
+
                     // If the interview status was changed and the applicant has an associated user, create a notification.
                     if ($latestInterview->wasChanged() && $applicant->user) {
                         // Create a new notification for the interviewer.
@@ -2511,7 +2496,7 @@ class ChatService
                         $notification->read = "No"; // Mark the notification as unread.
                         $notification->save();
                     }
-        
+
                     // Send a response to the applicant confirming the interview has been declined.
                     $messages = [
                         "We have received your response and your interview for the position of " .
@@ -2519,24 +2504,24 @@ class ChatService
                         " is now declined. If this was a mistake, please contact us immediately."
                     ];
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-        
+
                     // Update the applicant's state to 'complete' after declining the interview.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                } 
+                }
                 // Handle invalid responses that are neither 'yes' nor 'no'.
                 else {
                     // Send an error message listing the valid options ('1' Yes, '2' No)
                     $errorMessage = "Invalid option. Please reply with:\n\n1. Yes\n2. No";
                     $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 }
-            } 
+            }
             // If no interview was found for the applicant.
             else {
                 // Send a message indicating no interviews were found for the applicant.
                 $message = "No interviews found, have a wonderful day.";
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
-        
+
                 // Update the applicant's state to 'complete'.
                 $stateID = State::where('code', 'complete')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -2544,10 +2529,10 @@ class ChatService
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in handleScheduleStartState: ' . $e);
-    
+
             // Get the error message from the method
             $errorMessage = $this->getErrorMessage();
-    
+
             // Send the error message to the user
             $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
         }
@@ -2564,10 +2549,10 @@ class ChatService
         try {
             // Normalize the applicant's input by trimming whitespace and converting to lowercase for easier comparison.
             $body = strtolower(trim($body));
-        
+
             // Retrieve the latest interview for the applicant, ordered by 'created_at'.
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
-        
+
             // Check if an interview exists for the applicant.
             if ($latestInterview) {
                 // Handle the 'confirm' response, where the applicant confirms the interview.
@@ -2575,7 +2560,7 @@ class ChatService
                     // Update the interview status to 'Confirmed'.
                     $latestInterview->status = 'Confirmed';
                     $latestInterview->save();
-        
+
                     // If the interview status was changed and the applicant has a user, create a notification.
                     if ($latestInterview->wasChanged() && $applicant->user) {
                         // Create a new notification for the interviewer.
@@ -2588,7 +2573,7 @@ class ChatService
                         $notification->read = "No"; // Mark the notification as unread.
                         $notification->save(); // Save the notification to the database.
                     }
-        
+
                     // Send confirmation message to the applicant.
                     $messages = [
                         "Thank you, your interview for the position of *" .
@@ -2598,7 +2583,7 @@ class ChatService
                         "* has been confirmed!"
                     ];
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-        
+
                     // Update the applicant's state to 'complete' after confirmation.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
@@ -2608,7 +2593,7 @@ class ChatService
                     // Update the interview status to 'Reschedule'.
                     $latestInterview->status = 'Reschedule';
                     $latestInterview->save();
-        
+
                     // If the interview status was changed, create a notification for rescheduling.
                     if ($latestInterview->wasChanged()) {
                         $notification = new Notification();
@@ -2623,13 +2608,13 @@ class ChatService
 
                     //Get the current scheduled datew
                     $scheduledDate = $latestInterview->scheduled_date->format('d M Y'); // Format the current scheduled date
-        
+
                     // Send a message prompting the applicant to suggest a new date and time.
                     $messages = [
                         "Please suggest a new *date* and *time* for your interview after the current scheduled date: *{$scheduledDate}*. We will do our best to accommodate your schedule. For example: *{$scheduledDate} 14:00*."
                     ];
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-        
+
                     // Update the applicant's state to 'reschedule' for the next step.
                     $stateID = State::where('code', 'reschedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
@@ -2639,7 +2624,7 @@ class ChatService
                     // Update the interview status to 'Declined'.
                     $latestInterview->status = 'Declined';
                     $latestInterview->save();
-        
+
                     // If the interview status was changed and the applicant has a user, create a notification.
                     if ($latestInterview->wasChanged() && $applicant->user) {
                         $notification = new Notification();
@@ -2651,7 +2636,7 @@ class ChatService
                         $notification->read = "No"; // Mark the notification as unread.
                         $notification->save(); // Save the notification to the database.
                     }
-        
+
                     // Send a message to the applicant confirming the interview decline.
                     $messages = [
                         "We have received your response and your interview for the position of *" .
@@ -2659,7 +2644,7 @@ class ChatService
                         "* is now declined. If this was a mistake, please contact us immediately."
                     ];
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-        
+
                     // Update the applicant's state to 'complete' after declining the interview.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
@@ -2675,7 +2660,7 @@ class ChatService
             else {
                 $errorMessage = "No interviews found, have a wonderful day.";
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
-        
+
                 // Update the applicant's state to 'complete'.
                 $stateID = State::where('code', 'complete')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -2703,7 +2688,7 @@ class ChatService
         try {
             // Retrieve the latest interview for the applicant, ordered by 'created_at'.
             $latestInterview = $applicant->interviews()->latest('created_at')->first();
-        
+
             // Check if there is an interview available for the applicant.
             if ($latestInterview) {
                 try {
@@ -2736,16 +2721,16 @@ class ChatService
                         "Please provide a valid *date* and *time* for your interview. For example, '2024-02-20 14:00'."
                     ];
                 }
-        
+
                 // Send the appropriate messages (confirmation or error) to the applicant and log them.
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // If no interview is found, inform the applicant that no interviews are available.
                 $messages = ["No interviews found, have a wonderful day."];
-        
+
                 // Send the message to the applicant and log it.
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-        
+
                 // Update the applicant's state to 'complete' since no interviews are found.
                 $stateID = State::where('code', 'complete')->value('id');
                 $applicant->update(['state_id' => $stateID]);
@@ -2834,7 +2819,7 @@ class ChatService
             if ($weighting->score_type == 'education_id') {
                 // Get the education level from the applicant's data
                 $educationLevel = $applicant->{$weighting->score_type} ?? 0;
-        
+
                 // Apply custom weight distribution based on the education level
                 switch ($educationLevel) {
                     case 1: // Level 1 gets 0% of the weight
@@ -2857,15 +2842,15 @@ class ChatService
                         $percentage = 0;
                         break;
                 }
-        
+
                 // Add the weighted score to the total score
                 $totalScore += $percentage * $weighting->weight;
-        
+
             // Check if the score type is 'duration_id' and apply custom logic
-            } else if ($weighting->score_type == 'duration_id') {
+            } elseif ($weighting->score_type == 'duration_id') {
                 // Get the duration value from the applicant's data
                 $durationLevel = $applicant->{$weighting->score_type} ?? 0;
-        
+
                 // Apply custom weight distribution based on the duration level
                 switch ($durationLevel) {
                     case 1: // Level 1 gets 0% of the weight
@@ -2890,20 +2875,20 @@ class ChatService
                         $percentage = 0;
                         break;
                 }
-        
+
                 // Add the weighted score to the total score
                 $totalScore += $percentage * $weighting->weight;
-        
+
             // Check if the score type is 'literacy_score', 'numeracy_score', or 'situational_score'
-            } else if (in_array($weighting->score_type, ['literacy_score', 'numeracy_score', 'situational_score'])) {
+            } elseif (in_array($weighting->score_type, ['literacy_score', 'numeracy_score', 'situational_score'])) {
                 // Get the applicant's score for the current score type
                 $scoreValue = $applicant->{$weighting->score_type} ?? 0;
                 $maxValue = $weighting->max_value;
-        
+
                 // Calculate the percentage score
                 if ($maxValue > 0) {
                     $scorePercentage = ($scoreValue / $maxValue) * 100;
-        
+
                     // Apply weight based on the percentage score
                     if ($scorePercentage >= 0 && $scorePercentage <= 30) {
                         $percentage = 0; // 0% of the weight for 0-30% score
@@ -2916,39 +2901,38 @@ class ChatService
                     } elseif ($scorePercentage > 85) {
                         $percentage = 0.40; // 40% of the weight for >85% score
                     }
-        
+
                     // Add the weighted score to the total score
                     $totalScore += $percentage * $weighting->weight;
                 }
-        
+
             // Check if the weighting has a condition (i.e., applies to a specific field and value)
-            } else if (!empty($weighting->condition_field)) {
+            } elseif (!empty($weighting->condition_field)) {
                 // Apply conditional logic: if the applicant's field matches the condition value, use the specified weight
                 // Otherwise, use the fallback value as the score
                 $scoreValue = $applicant->{$weighting->condition_field} == $weighting->condition_value
                     ? $weighting->weight
                     : $weighting->fallback_value;
-        
+
                 // Add the calculated score value to the total score
                 $totalScore += $scoreValue;
-        
             } else {
                 // For numeric scoring (without a condition), handle the score calculation based on the score type and max value
-        
+
                 // Get the score value from the applicant's data, using the score type as the field name
                 // Default to 0 if no value is present
                 $scoreValue = $applicant->{$weighting->score_type} ?? 0;
-        
+
                 // Get the max value from the weighting record (used for percentage calculation)
                 $maxValue = $weighting->max_value;
-        
+
                 // If the max value is greater than 0, calculate the percentage score and weight it accordingly
                 if ($maxValue > 0) {
                     $percentage = ($scoreValue / $maxValue) * $weighting->weight;
                     $totalScore += $percentage; // Add the weighted score to the total score
                 }
             }
-        
+
             // Add the current weighting's weight to the total weight
             $totalWeight += $weighting->weight;
         }

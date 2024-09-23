@@ -47,7 +47,7 @@ class Brand extends Model
     {
         return $this->belongsToMany(Applicant::class, 'applicant_brand', 'brand_id', 'applicant_id');
     }
-    
+
 
     /**
      * The attributes that should be logged.
