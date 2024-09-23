@@ -9,6 +9,8 @@ use App\Models\Gender;
 use App\Models\Company;
 use App\Models\Position;
 use App\Models\Store;
+use App\Models\Division;
+use App\Models\Region;
 use App\Jobs\ProcessUserIdNumber;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -67,7 +69,9 @@ class UsersController extends Controller
                 'files',
                 'messagesFrom',
                 'messagesTo',
-                'notifications'
+                'notifications',
+                'division',
+                'region'
             ])
             ->whereIn('role_id', [7, 8])
             ->orderby('firstname')
@@ -94,13 +98,21 @@ class UsersController extends Controller
                          ->orderby('name')
                          ->get();
 
+            //Divisions
+            $divisions = Division::all();
+
+            //Regions
+            $regions = Region::all();
+
             return view('admin/users', [
                 'users' => $users,
                 'genders' => $genders,
                 'companies' => $companies,
                 'positions' => $positions,
                 'stores' => $stores,
-                'roles' => $roles
+                'roles' => $roles,
+                'divisions' => $divisions,
+                'regions' => $regions
             ]);
         }
         return view('404');
