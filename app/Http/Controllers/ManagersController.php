@@ -9,6 +9,9 @@ use App\Models\Gender;
 use App\Models\Company;
 use App\Models\Position;
 use App\Models\Store;
+use App\Models\Division;
+use App\Models\Region;
+use App\Models\Brand;
 use App\Jobs\ProcessUserIdNumber;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -67,7 +70,10 @@ class ManagersController extends Controller
                 'files',
                 'messagesFrom',
                 'messagesTo',
-                'notifications'
+                'notifications',
+                'division',
+                'region',
+                'brand'
             ])
             ->where('role_id', 6)
             ->orderby('firstname')
@@ -94,13 +100,25 @@ class ManagersController extends Controller
                          ->orderby('name')
                          ->get();
 
+            //Divisions
+            $divisions = Division::all();
+
+            //Regions
+            $regions = Region::all();
+
+            //Brands
+            $brands = Brand::all();
+
             return view('admin/managers', [
                 'users' => $users,
                 'genders' => $genders,
                 'companies' => $companies,
                 'positions' => $positions,
                 'stores' => $stores,
-                'roles' => $roles
+                'roles' => $roles,
+                'divisions' => $divisions,
+                'regions' => $regions,
+                'brands' => $brands
             ]);
         }
         return view('404');
@@ -130,6 +148,9 @@ class ManagersController extends Controller
             'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
             'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
+            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
+            'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
             'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);
 
@@ -164,6 +185,9 @@ class ManagersController extends Controller
                 'role_id' => $request->role_id,
                 'store_id' => $request->store_id,
                 'internal' => $request->internal,
+                'region_id' => $request->region_id,
+                'division_id' => $request->division_id,
+                'brand_id' => $request->brand_id,
                 'status_id' => 2,
             ]);
 
@@ -209,6 +233,9 @@ class ManagersController extends Controller
                 'position',
                 'gender',
                 'store',
+                'division',
+                'region',
+                'brand',
             ])->findOrFail($userID);
 
             return response()->json([
@@ -249,6 +276,9 @@ class ManagersController extends Controller
             'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
             'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
+            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
+            'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
             'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);
 
@@ -297,6 +327,9 @@ class ManagersController extends Controller
             $user->position_id = $request->position_id;
             $user->role_id = $request->role_id;
             $user->store_id = $request->store_id;
+            $user->region_id = $request->region_id;
+            $user->division_id = $request->division_id;
+            $user->brand_id = $request->brand_id;
             $user->internal = $request->internal;
             $user->save();
 

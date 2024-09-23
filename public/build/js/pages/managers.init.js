@@ -51,6 +51,9 @@ var options = {
         "position",
         "role",
         "store",
+        "region",
+        "division",
+        "brand",
         "internal",
         "status"
     ],
@@ -134,6 +137,9 @@ var idField = document.getElementById("field-id"),
     position = document.getElementById("position"),
     role = document.getElementById("role"),
     store = document.getElementById("store"),
+    region = document.getElementById("region"),
+    division = document.getElementById("division"),
+    brand = document.getElementById("brand"),
     internal = document.getElementById("internal"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
@@ -204,6 +210,18 @@ var storeVal = new Choices(store, {
     searchEnabled: true
 });
 
+var regionVal = new Choices(region, {
+    searchEnabled: true
+});
+
+var divisionVal = new Choices(division, {
+    searchEnabled: true
+});
+
+var brandVal = new Choices(brand, {
+    searchEnabled: true
+});
+
 var internalVal = new Choices(internal, {
     searchEnabled: false,
     shouldSort: false
@@ -268,6 +286,24 @@ addBtn.addEventListener("click", function (e) {
                         storeValue = '';
                     }
 
+                    if (region.value) {
+                        regionValue = region.options[region.selectedIndex].text;
+                    } else {
+                        regionValue = '';
+                    }
+
+                    if (division.value) {
+                        divisionValue = division.options[division.selectedIndex].text;
+                    } else {
+                        divisionValue = '';
+                    }
+
+                    if (brand.value) {
+                        brandValue = brand.options[brand.selectedIndex].text;
+                    } else {
+                        brandValue = '';
+                    }
+
                     if (internal.value) {
                         internalValue = internal.options[internal.selectedIndex].text;
                     } else {
@@ -291,6 +327,9 @@ addBtn.addEventListener("click", function (e) {
                         position: positionValue,
                         role: roleValue,
                         store: storeValue,
+                        region: regionValue,
+                        division: divisionValue,
+                        brand: brandValue,
                         internal: internalValue,
                         status: '<span class="badge bg-danger-subtle text-danger text-uppercase">\
                                     Offline\
@@ -407,6 +446,24 @@ editBtn.addEventListener("click", function (e) {
                             } else {
                                 storeValue = '';
                             }
+
+                            if (region.value) {
+                                regionValue = region.options[region.selectedIndex].text;
+                            } else {
+                                regionValue = '';
+                            }
+
+                            if (division.value) {
+                                divisionValue = division.options[division.selectedIndex].text;
+                            } else {
+                                divisionValue = '';
+                            }
+
+                            if (brand.value) {
+                                brandValue = brand.options[brand.selectedIndex].text;
+                            } else {
+                                brandValue = '';
+                            }
         
                             if (internal.value) {
                                 internalValue = internal.options[internal.selectedIndex].text;
@@ -431,6 +488,9 @@ editBtn.addEventListener("click", function (e) {
                                 position: positionValue,
                                 role: roleValue,
                                 store: storeValue,
+                                region: regionValue,
+                                division: divisionValue,
+                                brand: brandValue,
                                 internal: internalValue
                             });
                         }
@@ -622,6 +682,18 @@ function refreshCallbacks() {
                     storeVal.setChoiceByValue(data.user.store_id.toString());
                 }
 
+                if(data.user.region_id) {
+                    regionVal.setChoiceByValue(data.user.region_id.toString());
+                }
+
+                if(data.user.division_id) {
+                    divisionVal.setChoiceByValue(data.user.division_id.toString());
+                }
+
+                if(data.user.brand_id) {
+                    brandVal.setChoiceByValue(data.user.brand_id.toString());
+                }
+
                 if(data.user.internal) {
                     internalVal.setChoiceByValue(data.user.internal.toString());
                 }
@@ -702,6 +774,18 @@ function refreshCallbacks() {
                                             <td>${x._values.store}</td>
                                         </tr>
                                         <tr>
+                                            <td class="fw-medium" scope="row">Region</td>
+                                            <td>${x._values.region}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Division</td>
+                                            <td>${x._values.division}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Brand</td>
+                                            <td>${x._values.brand}</td>
+                                        </tr>
+                                        <tr>
                                             <td class="fw-medium d-none" scope="row">Internal</td>
                                             <td class="d-none">${x._values.internal}</td>
                                         </tr>
@@ -753,6 +837,15 @@ function clearFields() {
 
     storeVal.removeActiveItems();
     storeVal.setChoiceByValue("");
+
+    regionVal.removeActiveItems();
+    regionVal.setChoiceByValue("");
+
+    divisionVal.removeActiveItems();
+    divisionVal.setChoiceByValue("");
+    
+    brandVal.removeActiveItems();
+    brandVal.setChoiceByValue("");
 
     internalVal.removeActiveItems();
     internalVal.setChoiceByValue("");

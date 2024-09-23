@@ -9,6 +9,9 @@ use App\Models\Gender;
 use App\Models\Company;
 use App\Models\Position;
 use App\Models\Store;
+use App\Models\Division;
+use App\Models\Region;
+use App\Models\Brand;
 use App\Jobs\ProcessUserIdNumber;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -67,12 +70,15 @@ class SuperAdminsController extends Controller
                 'files',
                 'messagesFrom',
                 'messagesTo',
-                'notifications'
+                'notifications',
+                'division',
+                'region',
+                'brand'
             ])
-            ->where('role_id', 1)
-            ->orderby('firstname')
-            ->orderby('lastname')
-            ->get();
+                ->where('role_id', 1)
+                ->orderby('firstname')
+                ->orderby('lastname')
+                ->get();
 
             //Genders
             $genders = Gender::all();
@@ -91,7 +97,16 @@ class SuperAdminsController extends Controller
 
             //Roles
             $roles = Role::orderby('name')
-                         ->get();
+                ->get();
+
+            //Divisions
+            $divisions = Division::all();
+
+            //Regions
+            $regions = Region::all();
+
+            //Brands
+            $brands = Brand::all();
 
             return view('admin/super-admins', [
                 'users' => $users,
@@ -99,7 +114,10 @@ class SuperAdminsController extends Controller
                 'companies' => $companies,
                 'positions' => $positions,
                 'stores' => $stores,
-                'roles' => $roles
+                'roles' => $roles,
+                'divisions' => $divisions,
+                'regions' => $regions,
+                'brands' => $brands
             ]);
         }
         return view('404');
@@ -115,12 +133,12 @@ class SuperAdminsController extends Controller
     {
         //Validate
         $request->validate([
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
+            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
             'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
-            'id_number' => ['required', 'string',  'digits:13', 'unique:users'],
+            'id_number' => ['required', 'string', 'digits:13', 'unique:users'],
             'id_verified' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
@@ -129,6 +147,9 @@ class SuperAdminsController extends Controller
             'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
             'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
+            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
+            'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
             'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);
 
@@ -162,6 +183,9 @@ class SuperAdminsController extends Controller
                 'position_id' => $request->position_id,
                 'role_id' => $request->role_id,
                 'store_id' => $request->store_id,
+                'region_id' => $request->region_id,
+                'division_id' => $request->division_id,
+                'brand_id' => $request->brand_id,
                 'internal' => $request->internal,
                 'status_id' => 2,
             ]);
@@ -208,6 +232,9 @@ class SuperAdminsController extends Controller
                 'position',
                 'gender',
                 'store',
+                'division',
+                'region',
+                'brand',
             ])->findOrFail($userID);
 
             return response()->json([
@@ -234,12 +261,12 @@ class SuperAdminsController extends Controller
 
         //Validate
         $request->validate([
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
+            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
             'email' => ['required', 'string', 'email', 'max:191', Rule::unique('users')->ignore($userID)],
             'phone' => ['required', 'string', 'max:191', Rule::unique('users')->ignore($userID)],
-            'id_number' => ['required', 'string',  'digits:13', Rule::unique('users')->ignore($userID)],
+            'id_number' => ['required', 'string', 'digits:13', Rule::unique('users')->ignore($userID)],
             'id_verified' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
@@ -248,6 +275,9 @@ class SuperAdminsController extends Controller
             'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
             'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
+            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
+            'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
             'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
         ]);
 
@@ -296,6 +326,9 @@ class SuperAdminsController extends Controller
             $user->position_id = $request->position_id;
             $user->role_id = $request->role_id;
             $user->store_id = $request->store_id;
+            $user->region_id = $request->region_id;
+            $user->division_id = $request->division_id;
+            $user->brand_id = $request->brand_id;
             $user->internal = $request->internal;
             $user->save();
 
