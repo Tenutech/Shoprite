@@ -4,7 +4,7 @@ namespace Database\Factories;
 
 use App\Models\Role;
 use App\Models\User;
-se Illuminate\Database\Eloquent\Factories\Factory;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
 class RoleFactory extends Factory
 {
@@ -15,6 +15,7 @@ class RoleFactory extends Factory
         return [
             'name' => $this->faker->firstName,
             'icon' => $this->faker->word,
+            'color' => 'primary',
         ];
     }
 }

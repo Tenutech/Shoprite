@@ -12,6 +12,9 @@ use App\Models\Application;
 use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
+use App\Models\Language;
+use App\Services\DataService\VacancyDataService;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -20,10 +23,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
-use Spatie\Activitylog\Models\Activity;
-use App\Models\Language;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 class AdminController extends Controller
 {
@@ -32,9 +33,10 @@ class AdminController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(VacancyDataService $vacancyDataService)
     {
         $this->middleware(['auth', 'verified']);
+        $this->vacancyDataService = $vacancyDataService;
     }
 
     /**
@@ -561,6 +563,13 @@ class AdminController extends Controller
                 ];
             })->all();
 
+            // Nationwide average
+            $nationwideAverage = $this->vacancyDataService->getNationwideAverageTimeToShortlist();
+
+            // Store-specific average (assuming the user has a store_id)
+            $storeId = auth()->user()->store_id;
+            $storeAverage = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId);
+
             return view('admin/home', [
                 'activities' => $activities,
                 'positions' => $positions,
@@ -582,6 +591,8 @@ class AdminController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                'nationwideAverage' => $nationwideAverage,
+                'storeAverage' => $storeAverage,
             ]);
         }
         return view('404');

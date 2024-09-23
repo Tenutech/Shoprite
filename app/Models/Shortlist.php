@@ -18,13 +18,11 @@ class Shortlist extends Model
         'applicant_ids'
     ];
 
-    //User
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    //Vacancy
     public function vacancy()
     {
         return $this->belongsTo(Vacancy::class);
@@ -36,7 +34,6 @@ class Shortlist extends Model
      */
     protected static $logAttributes = ['*'];
 
-    //Activity Log
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()

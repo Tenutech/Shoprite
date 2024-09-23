@@ -16,6 +16,7 @@ use App\Models\ReminderSetting;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
 use App\Models\ApplicantMonthlyStoreData;
+use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -33,9 +34,10 @@ class ManagerController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(VacancyDataService $vacancyDataService)
     {
         $this->middleware(['auth', 'verified']);
+        $this->vacancyDataService = $vacancyDataService;
     }
 
     /**
@@ -332,6 +334,8 @@ class ManagerController extends Controller
                 }
             }
 
+            $storeAverage = $this->vacancyDataService->getStoreAverageTimeToShortlist(Auth::user()->store_id);
+
             return view('manager/home', [
                 'store' => $store,
                 'vacancies' => $vacancies,
@@ -350,6 +354,7 @@ class ManagerController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                'storeAverage' => $storeAverage,
             ]);
         }
         return view('404');

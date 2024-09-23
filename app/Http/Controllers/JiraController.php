@@ -34,6 +34,9 @@ class JiraController extends Controller
             'In Progress' => 'In Progress'
         ];
 
+        // Retrieve the query from the database based on the issue key (or any other unique identifier)
+        $query = Query::where('jira_issue_id', $issueKey)->first();
+
         if ($query) {
             if ($newStatus && isset($statusMap[$newStatus])) {
                 // Update the status of the query based on the new status from Jira

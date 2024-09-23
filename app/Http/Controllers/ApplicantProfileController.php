@@ -127,8 +127,11 @@ class ApplicantProfileController extends Controller
                 $vacancy = Vacancy::find($vacancyId);
             }
 
+            // Get the 'complete' state ID
+            $completeStateID = State::where('code', 'complete')->value('id');
+
             //Completion Percentage
-            $completion = round(($applicant->state_id / 69) * 100);
+            $completion = round(($applicant->state_id / $completeStateID) * 100);
             if ($completion > 100) {
                 $completion = 100;
             }

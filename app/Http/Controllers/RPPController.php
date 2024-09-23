@@ -12,6 +12,7 @@ use App\Models\Application;
 use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
+use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Spatie\Activitylog\Models\Activity;
@@ -29,9 +30,10 @@ class RPPController extends Controller
      *
      * @return void
      */
-    public function __construct(ActivityLogService $activityLogService)
+    public function __construct(ActivityLogService $activityLogService, VacancyDataService $vacancyDataService)
     {
         $this->activityLogService = $activityLogService;
+        $this->vacancyDataService = $vacancyDataService;
     }
 
     public function index()
@@ -490,6 +492,8 @@ class RPPController extends Controller
                 }
             }
 
+            $regionWideAverage = $this->vacancyDataService->getRegionWideAverageTimeToShortlist(Auth::user()->region_id);
+
             // Fetch applicants positions
             $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
             ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
@@ -525,6 +529,7 @@ class RPPController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                'regionWideAverage' => $regionWideAverage,
             ]);
         }
         return view('404');

@@ -14,10 +14,6 @@ class RolesTableSeeder extends Seeder
      */
     public function run(): void
     {
-        Schema::disableForeignKeyConstraints();
-        Role::truncate();
-        Schema::enableForeignKeyConstraints();
-
         Role::create(['name' => 'Super Admin', 'icon' => 'ri-user-settings-fill', 'color' => 'primary']);
         Role::create(['name' => 'Admin', 'icon' => 'ri-admin-fill', 'color' => 'secondary']);
         Role::create(['name' => 'Regional People Partner', 'icon' => 'ri-admin-fill', 'color' => 'secondary']);
