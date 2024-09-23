@@ -50,9 +50,9 @@ var options = {
         "resident",
         "position",
         "role",
-        "store",
-        "internal",
-        "status"
+        "status",
+        "type",
+        "state"
     ],
     page: perPage,
     pagination: true,
@@ -65,7 +65,7 @@ var options = {
 };
 
 // Init list
-var userList = new List("userList", options).on("updated", function (list) {
+var applicantList = new List("applicantList", options).on("updated", function (list) {
     list.matchingItems.length == 0 ?
         (document.getElementsByClassName("noresult")[0].style.display = "block") :
         (document.getElementsByClassName("noresult")[0].style.display = "none");
@@ -96,12 +96,12 @@ var userList = new List("userList", options).on("updated", function (list) {
 var perPageSelect = document.getElementById("per-page-select");
 perPageSelect.addEventListener("change", function() {
     perPage = parseInt(this.value);
-    userList.page = perPage;
-    userList.update();
+    applicantList.page = perPage;
+    applicantList.update();
 });
 
 isCount = new DOMParser().parseFromString(
-    userList.items.slice(-1)[0]._values.id,
+    applicantList.items.slice(-1)[0]._values.id,
     "text/html"
 );
 
@@ -133,8 +133,8 @@ var idField = document.getElementById("field-id"),
     resident = document.getElementById("resident"),
     position = document.getElementById("position"),
     role = document.getElementById("role"),
-    store = document.getElementById("store"),
-    internal = document.getElementById("internal"),
+    type = document.getElementById("type"),
+    state = document.getElementById("state"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
@@ -142,34 +142,34 @@ var idField = document.getElementById("field-id"),
     viewBtns = document.getElementsByClassName("view-item-btn");
 refreshCallbacks();
 
-document.getElementById("usersModal").addEventListener("show.bs.modal", function (e) {
+document.getElementById("applicantsModal").addEventListener("show.bs.modal", function (e) {
     if (e.relatedTarget.classList.contains("edit-item-btn")) {
-        document.getElementById("exampleModalLabel").innerHTML = "Edit User";
-        document.getElementById("usersModal").querySelector(".modal-footer").style.display = "block";
+        document.getElementById("exampleModalLabel").innerHTML = "Edit Applicant";
+        document.getElementById("applicantsModal").querySelector(".modal-footer").style.display = "block";
         document.getElementById("add-btn").style.display = "none";
         document.getElementById("edit-btn").style.display = "block";
     } else if (e.relatedTarget.classList.contains("add-btn")) {
-        document.getElementById("exampleModalLabel").innerHTML = "Add User";
-        document.getElementById("usersModal").querySelector(".modal-footer").style.display = "block";
+        document.getElementById("exampleModalLabel").innerHTML = "Add Applicant";
+        document.getElementById("applicantsModal").querySelector(".modal-footer").style.display = "block";
         document.getElementById("edit-btn").style.display = "none";
         document.getElementById("add-btn").style.display = "block";
     } else {
-        document.getElementById("exampleModalLabel").innerHTML = "List User";
-        document.getElementById("usersModal").querySelector(".modal-footer").style.display = "none";
+        document.getElementById("exampleModalLabel").innerHTML = "List Applicant";
+        document.getElementById("applicantsModal").querySelector(".modal-footer").style.display = "none";
     }
 });
 ischeckboxcheck();
 
-document.getElementById("usersModal").addEventListener("hidden.bs.modal", function (e) {
+document.getElementById("applicantsModal").addEventListener("hidden.bs.modal", function (e) {
     clearFields();
 });
 
-document.querySelector("#userList").addEventListener("click", function () {
+document.querySelector("#applicantList").addEventListener("click", function () {
     refreshCallbacks();
     ischeckboxcheck();
 });
 
-var table = document.getElementById("userTable");
+var table = document.getElementById("applicantTable");
 // save all tr
 var tr = table.getElementsByTagName("tr");
 var trlist = table.querySelectorAll(".list tr");
@@ -200,28 +200,29 @@ var roleVal = new Choices(role, {
     searchEnabled: false
 });
 
-var storeVal = new Choices(store, {
-    searchEnabled: true
+var typeVal = new Choices(type, {
+    searchEnabled: false,
+    shouldSort: false
 });
 
-var internalVal = new Choices(internal, {
+var stateVal = new Choices(state, {
     searchEnabled: false,
     shouldSort: false
 });
 
 /*
 |--------------------------------------------------------------------------
-| Add User
+| Add Applicant
 |--------------------------------------------------------------------------
 */
 
 addBtn.addEventListener("click", function (e) {
     e.preventDefault();
-    var form = document.getElementById("formUser");
+    var form = document.getElementById("formApplicant");
     if (form.checkValidity()) {
-        var formData = new FormData($('#formUser')[0]);
+        var formData = new FormData($('#formApplicant')[0]);
         $.ajax({
-            url: route('users.store'),
+            url: route('applicants.store'),
             type: 'POST',
             data: formData,
             async: false,
@@ -262,19 +263,19 @@ addBtn.addEventListener("click", function (e) {
                         roleValue = '';
                     }
 
-                    if (store.value) {
-                        storeValue = store.options[store.selectedIndex].text;
+                    if (type.value) {
+                        typeValue = type.options[type.selectedIndex].text;
                     } else {
-                        storeValue = '';
+                        typeValue = '';
                     }
 
-                    if (internal.value) {
-                        internalValue = internal.options[internal.selectedIndex].text;
+                    if (state.value) {
+                        stateValue = state.options[state.selectedIndex].text;
                     } else {
-                        internalValue = '';
+                        stateValue = '';
                     }
 
-                    userList.add({
+                    applicantList.add({
                         id: data.encID,
                         name: '<div class="d-flex align-items-center">\
                                 <div class="flex-shrink-0"><img src="'+ profileImg.src + '" alt="" class="avatar-xs rounded-circle object-cover"></div>\
@@ -290,13 +291,13 @@ addBtn.addEventListener("click", function (e) {
                         resident: residentValue,
                         position: positionValue,
                         role: roleValue,
-                        store: storeValue,
-                        internal: internalValue,
                         status: '<span class="badge bg-danger-subtle text-danger text-uppercase">\
                                     Offline\
-                                </span>'
+                                </span>',
+                        type: type,
+                        state: stateValue
                     });
-                    userList.sort('name', { order: "asc" });
+                    applicantList.sort('name', { order: "asc" });
                     Swal.fire({
                         position: 'top-end',
                         icon: 'success',
@@ -343,21 +344,21 @@ addBtn.addEventListener("click", function (e) {
 
 /*
 |--------------------------------------------------------------------------
-| Update User
+| Update Applicant
 |--------------------------------------------------------------------------
 */
 
 editBtn.addEventListener("click", function (e) {
-    document.getElementById("exampleModalLabel").innerHTML = "Edit User";
-    var editValues = userList.get({
+    document.getElementById("exampleModalLabel").innerHTML = "Edit Applicant";
+    var editValues = applicantList.get({
         id: idField.value,
     });
-    var form = document.getElementById("formUser");
+    var form = document.getElementById("formApplicant");
     if (form.checkValidity()) {
-        var formData = new FormData($('#formUser')[0]);
+        var formData = new FormData($('#formApplicant')[0]);
 
         $.ajax({
-            url: route('users.update'),
+            url: route('applicants.update'),
             type: 'POST',
             data: formData,
             async: false,
@@ -402,16 +403,16 @@ editBtn.addEventListener("click", function (e) {
                                 roleValue = '';
                             }
 
-                            if (store.value) {
-                                storeValue = store.options[store.selectedIndex].text;
+                            if (type.value) {
+                                typeValue = type.options[type.selectedIndex].text;
                             } else {
-                                storeValue = '';
+                                typeValue = '';
                             }
 
-                            if (internal.value) {
-                                internalValue = internal.options[internal.selectedIndex].text;
+                            if (state.value) {
+                                stateValue = state.options[state.selectedIndex].text;
                             } else {
-                                internalValue = '';
+                                stateValue = '';
                             }
 
                             x.values({
@@ -430,8 +431,8 @@ editBtn.addEventListener("click", function (e) {
                                 resident: residentValue,
                                 position: positionValue,
                                 role: roleValue,
-                                store: storeValue,
-                                internal: internalValue
+                                type: typeValue,
+                                state: stateValue
                             });
                         }
                     });
@@ -503,7 +504,7 @@ function refreshCallbacks() {
         btn.onclick = function (e) {
             e.target.closest("tr").children[1].innerText;
             itemId = e.target.closest("tr").children[1].innerText;
-            var itemValues = userList.get({
+            var itemValues = applicantList.get({
                 id: itemId,
             });
 
@@ -513,16 +514,16 @@ function refreshCallbacks() {
                 var isdeleteid = deleteid.body.innerHTML;
 
                 if (isdeleteid == itemId) {
-                    document.getElementById("delete-user").onclick = function () {
+                    document.getElementById("delete-applicant").onclick = function () {
                         $.ajax({
-                            url: route('users.destroy', {id: isdeleteid}),
+                            url: route('applicants.destroy', {id: isdeleteid}),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
                             success:function(data) {
                                 if(data.success === true) {
-                                    userList.remove("id", isdeleteid);
+                                    applicantList.remove("id", isdeleteid);
                                     document.getElementById("deleteRecord-close").click();
                                     Swal.fire({
                                         position: 'top-end',
@@ -570,7 +571,7 @@ function refreshCallbacks() {
             itemId = e.target.closest("tr").children[1].innerText;
 
             $.ajax({
-                url: route('users.details', {id: itemId}),
+                url: route('applicants.details', {id: itemId}),
                 type: 'get',
                 data: {
                     "id": itemId
@@ -582,48 +583,48 @@ function refreshCallbacks() {
             }).done(function(data) {
                 idField.value = data.encID;
 
-                profileImg.src = 'images/' + data.user.avatar;
+                profileImg.src = 'images/' + data.applicant.avatar;
 
-                firstname.value = data.user.firstname;
+                firstname.value = data.applicant.firstname;
 
-                lastname.value = data.user.lastname;
+                lastname.value = data.applicant.lastname;
 
-                email.value = data.user.email;
+                email.value = data.applicant.email;
 
-                phone.value = data.user.phone;
+                phone.value = data.applicant.phone;
 
-                idNumber.value = data.user.id_number;
+                idNumber.value = data.applicant.id_number;
 
-                if(data.user.id_verified) {
-                    idVerifiedVal.setChoiceByValue(data.user.id_verified.toString());
+                if(data.applicant.id_verified) {
+                    idVerifiedVal.setChoiceByValue(data.applicant.id_verified.toString());
                 }
 
-                birthDate.value = data.user.birth_date;
+                birthDate.value = data.applicant.birth_date;
 
-                age.value = data.user.age;
+                age.value = data.applicant.age;
 
-                if(data.user.gender_id) {
-                    genderVal.setChoiceByValue(data.user.gender_id.toString());
+                if(data.applicant.gender_id) {
+                    genderVal.setChoiceByValue(data.applicant.gender_id.toString());
                 }
 
-                if (data.user.resident !== null) {
-                    residentVal.setChoiceByValue(data.user.resident.toString());
+                if (data.applicant.resident !== null) {
+                    residentVal.setChoiceByValue(data.applicant.resident.toString());
                 }
 
-                if(data.user.position_id) {
-                    positionVal.setChoiceByValue(data.user.position_id.toString());
+                if(data.applicant.position_id) {
+                    positionVal.setChoiceByValue(data.applicant.position_id.toString());
                 }
 
-                if(data.user.role_id) {
-                    roleVal.setChoiceByValue(data.user.role_id.toString());
+                if(data.applicant.role_id) {
+                    roleVal.setChoiceByValue(data.applicant.role_id.toString());
                 }
 
-                if(data.user.store_id) {
-                    storeVal.setChoiceByValue(data.user.store_id.toString());
+                if(data.applicant.type_id) {
+                    typeVal.setChoiceByValue(data.applicant.type_id.toString());
                 }
 
-                if(data.user.internal) {
-                    internalVal.setChoiceByValue(data.user.internal.toString());
+                if(data.applicant.state_id) {
+                    stateVal.setChoiceByValue(data.applicant.state_id.toString());
                 }
             });
         }
@@ -633,12 +634,13 @@ function refreshCallbacks() {
         btn.addEventListener("click", function (e) {
             e.target.closest("tr").children[1].innerText;
             itemId = e.target.closest("tr").children[1].innerText;
-            var itemValues = userList.get({
+            var itemValues = applicantList.get({
                 id: itemId,
             });
 
             Array.from(itemValues).forEach(function (x) {
                 isid = new DOMParser().parseFromString(x._values.id, "text/html");
+
                 var selectedid = isid.body.innerHTML;
                 if (selectedid == itemId) {
                     var codeBlock = `
@@ -694,16 +696,12 @@ function refreshCallbacks() {
                                             <td class="d-none">${x._values.position}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Role</td>
-                                            <td>${x._values.role}</td>
+                                            <td class="fw-medium" scope="row">Type</td>
+                                            <td>${x._values.type}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Store</td>
-                                            <td>${x._values.store}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium d-none" scope="row">Internal</td>
-                                            <td class="d-none">${x._values.internal}</td>
+                                            <td class="fw-medium" scope="row">State</td>
+                                            <td>${x._values.state}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -751,11 +749,11 @@ function clearFields() {
     roleVal.removeActiveItems();
     roleVal.setChoiceByValue("");
 
-    storeVal.removeActiveItems();
-    storeVal.setChoiceByValue("");
+    typeVal.removeActiveItems();
+    typeVal.setChoiceByValue("");
 
-    internalVal.removeActiveItems();
-    internalVal.setChoiceByValue("");
+    stateVal.removeActiveItems();
+    stateVal.setChoiceByValue("");
 }
 
 // Delete All Records
@@ -772,7 +770,7 @@ function deleteMultiple(){
 
     if(typeof ids_array !== 'undefined' && ids_array.length > 0){
         Swal.fire({
-            html: '<div class="mt-3">' + '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' + '<div class="mt-4 pt-2 fs-15 mx-5">' + '<h4>You are about to delete these users ?</h4>' + '<p class="text-muted mx-4 mb-0">Deleting these users will remove all of their information from the database.</p>' + '</div>' + '</div>',
+            html: '<div class="mt-3">' + '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' + '<div class="mt-4 pt-2 fs-15 mx-5">' + '<h4>You are about to delete these applicants ?</h4>' + '<p class="text-muted mx-4 mb-0">Deleting these applicants will remove all of their information from the database.</p>' + '</div>' + '</div>',
             showCancelButton: true,
             confirmButtonClass: 'btn btn-primary w-xs me-2 mt-2',
             cancelButtonClass: 'btn btn-danger w-xs mt-2',
@@ -782,11 +780,11 @@ function deleteMultiple(){
         }).then(function (result) {
             if (result.value) {
                 for (i = 0; i < ids_array.length; i++) {
-                    userList.remove("id", `${ids_array[i]}`);
+                    applicantList.remove("id", `${ids_array[i]}`);
                 }
 
                 $.ajax({
-                    url: route('users.destroyMultiple'),
+                    url: route('applicants.destroyMultiple'),
                     type: 'post',
                     data: {
                         ids: ids_array
@@ -836,7 +834,7 @@ function deleteMultiple(){
         });
     }else{
         Swal.fire({
-            title: 'Please select at least one user',
+            title: 'Please select at least one applicant',
             confirmButtonClass: 'btn btn-info',
             buttonsStyling: false,
             showCloseButton: true
