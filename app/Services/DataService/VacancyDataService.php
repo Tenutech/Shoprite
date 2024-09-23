@@ -91,4 +91,86 @@ class VacancyDataService
         return $query->select(DB::raw('AVG(TIMESTAMPDIFF(HOUR, vacancies.created_at, shortlists.created_at)) as avg_time_to_shortlist'))
             ->value('avg_time_to_shortlist');
     }
+
+    /**
+     * Calculate the nationwide average time to hire.
+     *
+     * @return float|null
+     */
+    public function getNationwideAverageTimeToHire()
+    {
+        return DB::table('vacancies')
+            ->join('vacancy_fills', 'vacancies.id', '=', 'vacancy_fills.vacancy_id')
+            ->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, vacancy_fills.created_at))) as avg_time_to_hire'))
+            ->value('avg_time_to_hire');
+    }
+
+    /**
+     * Calculate the time to hire for all vacancies in a specific region.
+     *
+     * @param int $regionId
+     * @return float|null
+     */
+    public function getRegionWideAverageTimeToHire(int $regionId)
+    {
+        return DB::table('vacancies')
+            ->join('vacancy_fills', 'vacancies.id', '=', 'vacancy_fills.vacancy_id')
+            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
+            ->where('stores.region_id', $regionId)
+            ->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, vacancy_fills.created_at))) as avg_time_to_hire'))
+            ->value('avg_time_to_hire');
+    }
+
+    /**
+     * Calculate the time to hire for a specific division.
+     *
+     * @param int $divisionId
+     * @return float|null
+     */
+    public function getDivisionWideAverageTimeToHire(int $divisionId)
+    {
+        return DB::table('vacancies')
+            ->join('vacancy_fills', 'vacancies.id', '=', 'vacancy_fills.vacancy_id')
+            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
+            ->where('stores.division_id', $divisionId)
+            ->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, vacancy_fills.created_at))) as avg_time_to_hire'))
+            ->value('avg_time_to_hire');
+    }
+
+    /**
+     * Calculate the time to hire for a specific store.
+     *
+     * @param int $storeId
+     * @return float|null
+     */
+    public function getStoreAverageTimeToHire(int $storeId)
+    {
+        return DB::table('vacancies')
+            ->join('vacancy_fills', 'vacancies.id', '=', 'vacancy_fills.vacancy_id')
+            ->where('vacancies.store_id', $storeId)
+            ->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, vacancy_fills.created_at))) as avg_time_to_hire'))
+            ->value('avg_time_to_hire');
+    }
+
+    /**
+     * Calculate the average time to hire for a specific time range (e.g., current month).
+     *
+     * @param Carbon $startDate
+     * @param Carbon $endDate
+     * @param int|null $storeId (optional, if you want to filter by store as well)
+     * @return float
+     */
+    public function getTimeFilteredAverageToHire(Carbon $startDate, Carbon $endDate, int $storeId = null)
+    {
+        $query = DB::table('vacancies')
+            ->join('vacancy_fills', 'vacancies.id', '=', 'vacancy_fills.vacancy_id')
+            ->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
+
+        if ($storeId) {
+            $query->where('vacancies.store_id', $storeId);
+        }
+
+        return $query->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, vacancy_fills.created_at))) as avg_time_to_hire'))
+            ->value('avg_time_to_hire');
+    }
 }

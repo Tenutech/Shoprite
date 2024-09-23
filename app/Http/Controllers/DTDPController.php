@@ -491,14 +491,16 @@ class DTDPController extends Controller
                 }
             }
 
-            $divisionWideAverage = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist(Auth::user()->division_id);
+            $divisionWideAveragetimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist(Auth::user()->division_id);
+
+            $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire(Auth::user()->division_id);
 
             // Fetch applicants positions
             $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
-            ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
-            ->where('applicant_monthly_data.category_type', 'Position')
-            ->groupBy('positions.name')
-            ->get();
+                ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
+                ->where('applicant_monthly_data.category_type', 'Position')
+                ->groupBy('positions.name')
+                ->get();
 
             $applicantsByPosition = $positionsTotals->map(function ($item) {
                 return [
@@ -528,7 +530,8 @@ class DTDPController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
-                'divisionWideAverage' => $divisionWideAverage,
+                'divisionWideAveragetimeToShortlist' => $divisionWideAveragetimeToShortlist,
+                'divisionWideTimeToHire' =>  $divisionWideTimeToHire,
             ]);
         }
         return view('404');

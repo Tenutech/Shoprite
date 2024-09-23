@@ -492,7 +492,7 @@ class RPPController extends Controller
                 }
             }
 
-            $regionWideAverage = $this->vacancyDataService->getRegionWideAverageTimeToShortlist(Auth::user()->region_id);
+            $regionWideAverageShortlistTime = $this->vacancyDataService->getRegionWideAverageTimeToShortlist(Auth::user()->region_id);
 
             // Fetch applicants positions
             $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
@@ -529,7 +529,7 @@ class RPPController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
-                'regionWideAverage' => $regionWideAverage,
+                'regionWideAverageShortlistTime' => $regionWideAverageShortlistTime,
             ]);
         }
         return view('404');

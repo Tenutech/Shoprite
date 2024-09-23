@@ -96,7 +96,7 @@ class ShortlistController extends Controller
             // Decrypt the vacancy ID if it's provided
             $vacancyID = null;
             $vacancy = null;
-            
+
             if ($request->has('id')) {
                 $vacancyID = Crypt::decryptString($request->query('id'));
                 $vacancy = Vacancy::find($vacancyID);
