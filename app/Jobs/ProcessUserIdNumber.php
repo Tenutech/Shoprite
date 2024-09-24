@@ -85,6 +85,12 @@ class ProcessUserIdNumber implements ShouldQueue
                 $person->age = $age;
             }
 
+            if ($age < 18) {
+                $person->under_18 = 'Yes';
+            } else {
+                $person->under_18 = 'No';
+            }
+
             if (empty($person->gender_id)) {
                 $person->gender_id = $genderId;
             }

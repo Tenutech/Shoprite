@@ -134,6 +134,8 @@ class ChatService
                 $applicant = new Applicant([
                     'phone' => $phone,
                     'role_id' => 8,
+                    'applicant_type_id' => 2,
+                    'application_type' => 'WhatsApp',
                     'state_id' => 1,
                 ]);
                 $applicant->save();

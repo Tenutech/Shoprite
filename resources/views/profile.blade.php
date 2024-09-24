@@ -31,7 +31,7 @@
                         </div>
                         <div>
                             <i class="ri-building-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
-                            {{ optional($user->company)->name ?? 'N/A' }}
+                            {{ optional($user->applicant->brand)->name ?? optional($user->company)->name ?? 'N/A' }}
                         </div>
                     </div>
                 </div>
@@ -1062,18 +1062,6 @@
                                                                     </div>
                                                                 </div>
 
-                                                                <!-- Additional Contact Number -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-6">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Additional Contact Number
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-6">
-                                                                        {{ $user->applicant->additional_contact_number ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-
                                                                 <!-- Email Address -->
                                                                 <div class="row mb-3">
                                                                     <div class="col-lg-6">
@@ -1110,7 +1098,8 @@
                                                                         {{ optional($user->applicant->town)->name ?? 'N/A' }}
                                                                     </div>
                                                                 </div>
-
+                                                            </div>
+                                                            <div class="col-lg-4">
                                                                 <!-- Gender -->
                                                                 <div class="row mb-3">
                                                                     <div class="col-lg-6">
@@ -1133,76 +1122,7 @@
                                                                     <div class="col-lg-6">
                                                                         {{ optional($user->applicant->race)->name ?? 'N/A' }}
                                                                     </div>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-4">
-                                                                <!-- Tax Number -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-6">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Tax Number
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-6">
-                                                                        {{ $user->applicant->tax_number ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Citizenship -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-6">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Citizenship
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-6">
-                                                                        @if ($user->applicant->citizen)
-                                                                            {{ $user->applicant->citizen == 'Yes' ? 'Citizen' : 'Foreign National' }}
-                                                                        @else
-                                                                            N/A
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Criminal Record -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-6">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Criminal Record
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-6">
-                                                                        @if ($user->applicant->criminal)
-                                                                            @if ($user->applicant->criminal == 'Yes')
-                                                                                <span class="badge bg-danger-subtle text-danger">
-                                                                                    Yes
-                                                                                </span>
-                                                                            @else
-                                                                                <span class="badge bg-success-subtle text-success">
-                                                                                    No
-                                                                                </span>
-                                                                            @endif
-                                                                        @else
-                                                                            N/A
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Position -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-6">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Position
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-6">
-                                                                        @if (optional($user->applicant->position)->name == 'Other')
-                                                                            {{ $user->applicant->position_specify ?? 'N/A' }}
-                                                                        @else
-                                                                            {{ optional($user->applicant->position)->name ?? 'N/A' }}
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
+                                                                </div>                                                                
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1210,36 +1130,24 @@
                                             </div>
 
                                             <!-------------------------------------------------------------------------------------
-                                                Qualifications
+                                                Job Information
                                             -------------------------------------------------------------------------------------->
 
                                             <div class="accordion-item mt-2">
                                                 <h2 class="accordion-header" id="accordionborderedExample2">
                                                     <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accor_borderedExamplecollapse2" aria-expanded="false" aria-controls="accor_borderedExamplecollapse2">
-                                                        Qualifications
+                                                        Job Information
                                                     </button>
                                                 </h2>
                                                 <div id="accor_borderedExamplecollapse2" class="accordion-collapse collapse" aria-labelledby="accordionborderedExample2" data-bs-parent="#accordionBordered">
                                                     <div class="accordion-body">
                                                         <div class="row">
-                                                            <div class="col-lg-12">
-                                                                <!-- High School -->
+                                                            <div class="col-lg-6">
+                                                                <!-- Highest Qualification -->
                                                                 <div class="row mb-3">
                                                                     <div class="col-lg-3">
                                                                         <h6 class="fs-15 mb-0">
-                                                                            School
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-9">
-                                                                        {{ $user->applicant->school ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Highest Education -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-3">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Highest Education
+                                                                            Highest Qualification
                                                                         </h6>
                                                                     </div>
                                                                     <div class="col-lg-9">
@@ -1247,329 +1155,53 @@
                                                                     </div>
                                                                 </div>
 
-                                                                <!-- Currenly Training -->
+                                                                <!-- Retail Experience -->
                                                                 <div class="row mb-3">
                                                                     <div class="col-lg-3">
                                                                         <h6 class="fs-15 mb-0">
-                                                                            Currenly Training
+                                                                            Retail Experience
                                                                         </h6>
                                                                     </div>
                                                                     <div class="col-lg-9">
-                                                                        {{ $user->applicant->training ?? 'N/A' }}
+                                                                        {{ optional($user->applicant->duration)->name ?? 'N/A' }}
                                                                     </div>
                                                                 </div>
 
-                                                                <!-- Additional Achievements -->
+                                                                <!-- Type of Store -->
                                                                 <div class="row mb-3">
                                                                     <div class="col-lg-3">
                                                                         <h6 class="fs-15 mb-0">
-                                                                            Additional Achievements
+                                                                            Type of Store
                                                                         </h6>
                                                                     </div>
                                                                     <div class="col-lg-9">
-                                                                        {{ $user->applicant->other_training ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Drivers License -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-3">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Drivers License
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-9">
-                                                                        @if ($user->applicant->drivers_license)
-                                                                            @if ($user->applicant->drivers_license == 'Yes')
-                                                                                {{ $user->applicant->drivers_license_code }}
-                                                                            @else
-                                                                                {{ $user->applicant->drivers_license }}
-                                                                            @endif
-                                                                        @else
-                                                                            N/A
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Read Languages -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-3">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Read Languages
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-9">
-                                                                        @if ($user->applicant->readLanguages)
-                                                                            @foreach ($user->applicant->readLanguages as $language)
-                                                                                <span class="badge bg-primary-subtle text-primary">
-                                                                                    {{ $language->name }}
-                                                                                </span>
-                                                                            @endforeach
-                                                                        @else
-                                                                            N/A
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Speak Languages -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-3">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Speak Languages
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-9">
-                                                                        @if ($user->applicant->speakLanguages)
-                                                                            @foreach ($user->applicant->speakLanguages as $language)
-                                                                                <span class="badge bg-primary-subtle text-primary">
-                                                                                    {{ $language->name }}
-                                                                                </span>
-                                                                            @endforeach
-                                                                        @else
-                                                                            N/A
-                                                                        @endif
+                                                                        {{ optional($user->applicant->brand)->name ?? 'N/A' }}
                                                                     </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
 
-                                            <!-------------------------------------------------------------------------------------
-                                                Experience
-                                            -------------------------------------------------------------------------------------->
-
-                                            <div class="accordion-item mt-2">
-                                                <h2 class="accordion-header" id="accordionborderedExample3">
-                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accor_borderedExamplecollapse3" aria-expanded="false" aria-controls="accor_borderedExamplecollapse3">
-                                                        Experience
-                                                    </button>
-                                                </h2>
-                                                <div id="accor_borderedExamplecollapse3" class="accordion-collapse collapse" aria-labelledby="accordionborderedExample3" data-bs-parent="#accordionBordered">
-                                                    <div class="accordion-body">
-                                                        <div class="row">
-                                                            <div class="col-lg-4">
-                                                                <!-- Previously Employed -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-6">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Previously Employed
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-6">
-                                                                        {{ $user->applicant->job_previous ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-
-                                                                @if ($user->applicant->job_previous == 'Yes')
-                                                                    <!-- Previous Employer -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-6">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Previous Employer
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-6">
-                                                                            {{ $user->applicant->job_business ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Previous Position -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-6">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Previous Position
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-6">
-                                                                            {{ $user->applicant->job_position ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Previous Duration -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-6">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Previous Job Duration
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-6">
-                                                                            {{ optional($user->applicant->duration)->name ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Previous Salary -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-6">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Previous Salary
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-6">
-                                                                            {{ $user->applicant->job_salary ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Employer Reference -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-6">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Employer Reference
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-6">
-                                                                            {{ $user->applicant->job_reference_name ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Employer Contact -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-6">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Employer Contact Number
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-6">
-                                                                            {{ $user->applicant->job_reference_phone ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Previous Job Leave -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-6">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Previous Job Leave
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-6">
-                                                                            @if ($user->applicant->reason)
-                                                                                @if ($user->applicant->reason->name == 'Other')
-                                                                                    {{ $user->applicant->job_leave_specify }}
-                                                                                @else
-                                                                                    {{ $user->applicant->reason->name }}
-                                                                                @endif
-                                                                            @else
-                                                                                N/A
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
-                                                                @endif
-                                                            </div>
-                                                            <div class="col-lg-4">
-                                                                <!-- Dismissal -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-6">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Dismissal
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-6">
-                                                                        {{ optional($user->applicant->retrenchment)->name ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-
-                                                                @if ($user->applicant->retrenchment_id < 3)
-                                                                    <!-- Dismissal Details -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-6">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Dismissal Details
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-6">
-                                                                            {{ $user->applicant->job_retrenched_specify ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-                                                                @endif
-                                                            </div>
-                                                            <div class="col-lg-4">
-                                                                <!-- Previously Employed Shoprite-->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-6">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Previously Employed Shoprite
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-6">
-                                                                        @if ($user->applicant->brand)
-                                                                            @if ($user->applicant->brand->id > 0)
-                                                                                {{ $user->applicant->brand->name }}
-                                                                            @else
-                                                                                No
-                                                                            @endif
-                                                                        @else
-                                                                            N/A
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-
-                                                                @if ($user->applicant->brand_id > 0)
-                                                                    <!-- Previous Shoprite Position -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-6">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Previous Shoprite Position
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-6">
-                                                                            @if (optional($user->applicant->previousPosition)->name == 'Other')
-                                                                                {{ $user->applicant->job_shoprite_position_specify ?? 'N/A' }}
-                                                                            @else
-                                                                                {{ optional($user->applicant->previousPosition)->name ?? 'N/A' }}
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Shoprite Leave -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-6">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Shoprite Leave
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-6">
-                                                                            {{ $user->applicant->job_shoprite_leave ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-                                                                @endif
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <!-------------------------------------------------------------------------------------
-                                                Punctuality
-                                            -------------------------------------------------------------------------------------->
-
-                                            <div class="accordion-item mt-2">
-                                                <h2 class="accordion-header" id="accordionborderedExample4">
-                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accor_borderedExamplecollapse4" aria-expanded="false" aria-controls="accor_borderedExamplecollapse4">
-                                                        Punctuality
-                                                    </button>
-                                                </h2>
-                                                <div id="accor_borderedExamplecollapse4" class="accordion-collapse collapse" aria-labelledby="accordionborderedExample4" data-bs-parent="#accordionBordered">
-                                                    <div class="accordion-body">
-                                                        <div class="row">
-                                                            <div class="col-lg-12">
-                                                                <!-- Transport -->
+                                                            <div class="col-lg-6">
+                                                                <!-- Rotational Shift -->
                                                                 <div class="row mb-3">
                                                                     <div class="col-lg-3">
                                                                         <h6 class="fs-15 mb-0">
-                                                                            Transport
+                                                                            Rotational Shift 
                                                                         </h6>
                                                                     </div>
                                                                     <div class="col-lg-9">
-                                                                        @if ($user->applicant->transport)
-                                                                            @if ($user->applicant->transport->name == 'Other')
-                                                                                {{ $user->applicant->transport_specify }}
-                                                                            @else
-                                                                                {{ $user->applicant->transport->name }}
-                                                                            @endif
-                                                                        @else
-                                                                            N/A
-                                                                        @endif
+                                                                        {{ optional($user->applicant)->public_holidays ?? 'N/A' }}
+                                                                    </div>
+                                                                </div>
+
+                                                                <!-- Heavy Lifting -->
+                                                                <div class="row mb-3">
+                                                                    <div class="col-lg-3">
+                                                                        <h6 class="fs-15 mb-0">
+                                                                            Heavy Lifting 
+                                                                        </h6>
+                                                                    </div>
+                                                                    <div class="col-lg-9">
+                                                                        {{ optional($user->applicant)->environment ?? 'N/A' }}
                                                                     </div>
                                                                 </div>
 
@@ -1577,191 +1209,18 @@
                                                                 <div class="row mb-3">
                                                                     <div class="col-lg-3">
                                                                         <h6 class="fs-15 mb-0">
-                                                                            Disability
+                                                                            Disability 
                                                                         </h6>
                                                                     </div>
                                                                     <div class="col-lg-9">
-                                                                        {{ optional($user->applicant->disability)->name ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-
-                                                                @if ($user->applicant->disability_id < 4)
-                                                                    <!-- Disability Details -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-3">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Disability Details
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-9">
-                                                                            {{ $user->applicant->illness_specify ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-                                                                @endif
-
-                                                                <!-- Commencement -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-3">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Commencement
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-9">
-                                                                        {{ $user->applicant->commencement ? date('d M Y', strtotime($user->applicant->commencement)) : 'N/A' }}
+                                                                        {{ optional($user->applicant)->disability ?? 'N/A' }}
                                                                     </div>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-
-                                            <!-------------------------------------------------------------------------------------
-                                                Reason for Application
-                                            -------------------------------------------------------------------------------------->
-
-                                            <div class="accordion-item mt-2">
-                                                <h2 class="accordion-header" id="accordionborderedExample5">
-                                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#accor_borderedExamplecollapse5" aria-expanded="false" aria-controls="accor_borderedExamplecollapse5">
-                                                        Reason for Application
-                                                    </button>
-                                                </h2>
-                                                <div id="accor_borderedExamplecollapse5" class="accordion-collapse collapse" aria-labelledby="accordionborderedExample5" data-bs-parent="#accordionBordered">
-                                                    <div class="accordion-body">
-                                                        <div class="row">
-                                                            <div class="col-lg-12">
-                                                                <!-- Reason -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-3">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Reason
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-9">
-                                                                        @if ($user->applicant->type)
-                                                                            @if ($user->applicant->type->name == 'Other')
-                                                                                {{ $user->applicant->application_reason_specify }}
-                                                                            @else
-                                                                                {{ $user->applicant->type->name }}
-                                                                            @endif
-                                                                        @else
-                                                                            N/A
-                                                                        @endif
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Relocate -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-3">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Relocate
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-9">
-                                                                        {{ $user->applicant->relocate ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-
-                                                                @if ($user->applicant->relocate == 'Yes')
-                                                                    <!-- Relocate Town -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-3">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Relocate Town
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-9">
-                                                                            {{ $user->applicant->relocate_town ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-                                                                @endif
-
-                                                                <!-- Lower Position -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-3">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Lower Position
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-9">
-                                                                        {{ $user->applicant->vacancy ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Shift Basis -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-3">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Shift Basis
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-9">
-                                                                        {{ $user->applicant->shift ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-
-                                                                <!-- Bank Account -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-3">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Bank Account
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-9">
-                                                                        {{ $user->applicant->has_bank_account ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-
-                                                                @if ($user->applicant->has_bank_account == 'Yes')
-                                                                    <!-- Bank -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-3">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Bank
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-9">
-                                                                            @if ($user->applicant->bank)
-                                                                                @if ($user->applicant->bank->name == 'Other')
-                                                                                    {{ $user->applicant->bank_specify }}
-                                                                                @else
-                                                                                    {{ $user->applicant->bank->name }}
-                                                                                @endif
-                                                                            @else
-                                                                                N/A
-                                                                            @endif
-                                                                        </div>
-                                                                    </div>
-
-                                                                    <!-- Bank Number -->
-                                                                    <div class="row mb-3">
-                                                                        <div class="col-lg-3">
-                                                                            <h6 class="fs-15 mb-0">
-                                                                                Account Number
-                                                                            </h6>
-                                                                        </div>
-                                                                        <div class="col-lg-9">
-                                                                            {{ $user->applicant->bank_number ?? 'N/A' }}
-                                                                        </div>
-                                                                    </div>
-                                                                @endif
-
-                                                                <!-- Expected Salary -->
-                                                                <div class="row mb-3">
-                                                                    <div class="col-lg-3">
-                                                                        <h6 class="fs-15 mb-0">
-                                                                            Expected Salary
-                                                                        </h6>
-                                                                    </div>
-                                                                    <div class="col-lg-9">
-                                                                        {{ $user->applicant->expected_salary ?? 'N/A' }}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </div>                                                                
-                                                    </div>
-                                                </div>
-                                            </div>    
+                                            </div>   
                                         </div>                               
                                     </div>
                                     <!--end row-->

@@ -315,6 +315,7 @@ class ShortlistController extends Controller
             ->whereNull('shortlist_id')
             ->whereNull('appointed_id')
             ->where('no_show', '<=', 2)
+            ->where('delete', '!=', 'Yes')
             ->where('state_id', '>=', $completeStateID)
             ->whereHas('brands', function ($query) use ($vacancyBrandID) {
                 // Check if the applicant has the vacancyBrandID in their brands or brand_id = 1

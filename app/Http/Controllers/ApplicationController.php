@@ -65,13 +65,13 @@ class ApplicationController extends Controller
     {
         if (view()->exists('application')) {
             //User ID
-            $userID = Auth::id();
+            $userId = Auth::id();
 
             //User
             $user = User::with([
                 'applicant.readLanguages',
                 'applicant.speakLanguages',
-            ])->findOrFail($userID);
+            ])->findOrFail($userId);
 
             // Type
             $types = Type::get();
@@ -79,44 +79,14 @@ class ApplicationController extends Controller
             // Race
             $races = Race::get();
 
-            // Bank
-            $banks = Bank::get();
-
             // Brand
             $brands = Brand::get();
-
-            // Store
-            $stores = Store::get();
-
-            // Gender
-            $genders = Gender::get();
-
-            // Reason
-            $reasons = Reason::get();
-
-            // Language
-            $languages = Language::get();
-
-            // Position
-            $positions = Position::get();
 
             // Duration
             $durations = Duration::get();
 
             // Education
             $educations = Education::get();
-
-            // Applicant
-            $applicants = Applicant::get();
-
-            // Transport
-            $transports = Transport::get();
-
-            // Disability
-            $disabilities = Disability::get();
-
-            // Retrenchment
-            $retrenchments = Retrenchment::get();
 
             //Literacy
             $literacyQuestions = ChatTemplate::whereHas('state', function ($query) {
@@ -132,65 +102,26 @@ class ApplicationController extends Controller
             ->inRandomOrder()
             ->get();
 
+            //Situational
+            $situationalQuestions = ChatTemplate::whereHas('state', function ($query) {
+                $query->whereIn('name', ['situational']);
+            })
+            ->inRandomOrder()
+            ->get();
+
             return view('application', [
                 'user' => $user,
                 'types' => $types,
                 'races' => $races,
-                'banks' => $banks,
                 'brands' => $brands,
-                'stores' => $stores,
-                'genders' => $genders,
-                'reasons' => $reasons,
-                'languages' => $languages,
-                'positions' => $positions,
                 'durations' => $durations,
                 'educations' => $educations,
-                'applicants' => $applicants,
-                'transports' => $transports,
-                'disabilities' => $disabilities,
-                'retrenchments' => $retrenchments,
                 'literacyQuestions' => $literacyQuestions,
-                'numeracyQuestions' => $numeracyQuestions
+                'numeracyQuestions' => $numeracyQuestions,
+                'situationalQuestions' => $situationalQuestions
             ]);
         }
         return view('404');
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Calculate Score
-    |--------------------------------------------------------------------------
-    */
-
-    protected function calculateScore($applicant)
-    {
-        $totalScore = 0;
-        $totalWeight = 0;
-        $weightings = ScoreWeighting::all(); // Fetch all weightings
-
-        foreach ($weightings as $weighting) {
-            // Check if this weighting involves a condition
-            if (!empty($weighting->condition_field)) {
-                // Handle conditional logic
-                $scoreValue = $applicant->{$weighting->condition_field} == $weighting->condition_value ? $weighting->weight : $weighting->fallback_value;
-                $totalScore += $scoreValue;
-            } else {
-                // Handle numeric scoring as before
-                $scoreValue = $applicant->{$weighting->score_type} ?? 0;
-                $maxValue = $weighting->max_value;
-                if ($maxValue > 0) {
-                    $percentage = ($scoreValue / $maxValue) * $weighting->weight;
-                    $totalScore += $percentage;
-                }
-            }
-
-            $totalWeight += $weighting->weight;
-        }
-
-        // Normalize the score to a scale of 0 to 5
-        $normalizedScore = $totalWeight > 0 ? ($totalScore / $totalWeight) * 5 : ($totalScore / 100) * 5;
-
-        return round($normalizedScore, 2); // Round to 2 decimal places
     }
 
     /*
@@ -201,139 +132,69 @@ class ApplicationController extends Controller
 
     public function store(Request $request)
     {
-        $commencementDate = Carbon::createFromFormat('d M, Y', $request->commencement);
-        $commencementDate = $commencementDate->format('Y-m-d');
-
-        $request->merge(['commencement' => $commencementDate]);
-
-        //Validate Input
+        // Validate Input
         $request->validate([
-            'avatar' => ['sometimes', 'image' ,'mimes:jpg,jpeg,png','max:1024'],
+            'consent' => ['accepted'], // Validate consent checkbox
+            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:1024'], // Avatar validation
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'id_number' => ['required', 'string', 'max:191'],
+            'id_number' => ['required', 'string', 'max:13'],
             'phone' => ['required', 'string', 'max:191'],
             'location' => ['required', 'string'],
-            'gender_id' => ['required', 'integer'],
-            'race_id' => ['required', 'integer'],
+            'race_id' => ['required', 'integer', 'exists:races,id'],
             'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
-            'tax_number' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'citizen' => ['sometimes', 'required', 'in:Yes,No'],
-            'criminal' => ['sometimes', 'required', 'in:Yes,No'],
-            'position_id' => ['required', 'integer'],
-            'position_specify' => ['sometimes', 'nullable', 'string'],
-            'school' => ['required', 'string', 'max:191'],
-            'education_id' => ['required', 'integer'],
-            'training' => ['sometimes', 'required', 'in:Yes,No'],
-            'other_training' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'drivers_license_code' => ['sometimes', 'nullable', 'string', 'max:10'],
-            'read' => ['required', 'array'],
-            'speak' => ['required', 'array'],
-            'job_previous' => ['sometimes', 'required', 'in:Yes,No'],
-            'reason_id' => ['sometimes', 'integer'],
-            'job_leave_specify' => ['sometimes', 'nullable', 'string'],
-            'job_business' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'job_position' => ['sometimes', 'nullable', 'string'],
-            'duration_id' => ['sometimes', 'integer'],
-            'job_salary' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'job_reference_name' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'job_reference_phone' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'retrenchment_id' => ['required', 'integer'],
-            'job_retrenched_specify' => ['sometimes', 'nullable', 'string'],
-            'brand_id' => ['sometimes', 'nullable', 'integer'],
-            'previous_job_position_id' => ['sometimes', 'nullable', 'integer'],
-            'job_shoprite_position_specify' => ['sometimes', 'nullable', 'string'],
-            'job_shoprite_leave' => ['sometimes', 'nullable', 'string'],
-            'transport_id' => ['required', 'integer'],
-            'transport_specify' => ['sometimes', 'nullable', 'string'],
-            'disability_id' => ['required', 'integer'],
-            'illness_specify' => ['sometimes', 'nullable', 'string'],
-            'commencement' => ['required', 'date', 'date_format:Y-m-d'],
-            'type_id' => ['required', 'integer'],
-            'application_reason_specify' => ['sometimes', 'nullable', 'string'],
-            'relocate' => ['sometimes', 'required', 'in:Yes,No'],
-            'relocate_town' => ['sometimes', 'nullable', 'string'],
-            'vacancy' => ['sometimes', 'required', 'in:Yes,No'],
-            'shift' => ['sometimes', 'required', 'in:Yes,No'],
-            'bank_id' => ['required', 'integer'],
-            'bank_specify' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'bank_number' => ['sometimes', 'nullable', 'string', 'max:20'],
-            'expected_salary' => ['required', 'numeric', 'min:0']
+            'education_id' => ['required', 'integer', 'exists:educations,id'],
+            'duration_id' => ['required', 'integer', 'exists:durations,id'],
+            'public_holidays' => ['required', 'in:Yes,No'],
+            'environment' => ['required', 'in:Yes,No'],
+            'brand_id' => ['required', 'integer', 'exists:brands,id'],
+            'disability' => ['required', 'in:Yes,No'],
+            'literacy_answers' => ['required', 'array'], // Ensure literacy answers array
+            'literacy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each literacy answer
+            'numeracy_answers' => ['required', 'array'],
+            'numeracy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each numeracy answer
+            'situational_answers' => ['required', 'array'],
+            'situational_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each situational answer
         ]);
 
         try {
-            //User ID
-            $userID = Auth::id();
+            // Get the current authenticated user
+            $userId = Auth::id();
+            $user = User::find($userId);
 
-            //User
-            $user = User::find($userID);
-
-            //Form Fields
+            // Handle avatar upload (if present)
             if ($request->avatar) {
                 $avatar = request()->file('avatar');
                 $avatarName = '/images/' . $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
-                if ($user && $user->avatar) {
-                    $avatarName = $user->avatar;
-                } else {
-                    $avatarName = '/images/avatar.jpg';
-                }
+                // Use existing avatar if available, otherwise fallback to default
+                $avatarName = $user && $user->avatar ? '/images/' . $user->avatar : '/images/avatar.jpg';
             }
+
+            // Determine the value of avatar_upload based on the avatar
+            $avatarUpload = $avatarName == '/images/avatar.jpg' ? 'No' : 'Yes'; // If avatar is the default one, set 'No', otherwise 'Yes'
+
+            // Get form data from the request
             $firstname = $request->firstname;
             $lastname = $request->lastname;
             $idNumber = $request->id_number;
             $phone = $request->phone;
             $location = $request->location;
-            $genderID = $request->gender_id;
             $raceID = $request->race_id;
             $email = $request->email;
-            $taxNumber = $request->tax_number;
-            $citizen = $request->citizen;
-            $criminal = $request->criminal;
-            $positionID = $request->position_id;
-            $positionSpecify = $request->position_specify;
-            $school = $request->school;
-            $educationID = $request->education_id;
-            $training = $request->training;
-            $otherTraining = $request->other_training;
-            $driversLicenseCode = $request->drivers_license_code;
-            $readLanguages = $request->read;
-            $speakLanguages = $request->speak;
-            $jobPrevious = $request->job_previous;
-            $reasonID = $request->reason_id;
-            $jobLeaveSpecify = $request->job_leave_specify;
-            $jobBusiness = $request->job_business;
-            $jobPosition = $request->job_position;
-            $durationID = $request->duration_id;
-            $jobSalary = $request->job_salary;
-            $jobReferenceName = $request->job_reference_name;
-            $jobReferencePhone = $request->job_reference_phone;
-            $retrenchmentID = $request->retrenchment_id;
-            $jobRetrenchedSpecify = $request->job_retrenched_specify;
-            $brandID = $request->brand_id;
-            $previousJobPositionID = $request->previous_job_position_id;
-            $jobShopritePositionSpecify = $request->job_shoprite_position_specify;
-            $jobShopriteLeave = $request->job_shoprite_leave;
-            $transportID = $request->transport_id;
-            $transportSpecify = $request->transport_specify;
-            $disabilityID = $request->disability_id;
-            $illnessSpecify = $request->illness_specify;
-            $commencement = $request->commencement;
-            $typeID = $request->type_id;
-            $applicationReasonSpecify = $request->application_reason_specify;
-            $relocate = $request->relocate;
-            $relocateTown = $request->relocate_town;
-            $vacancy = $request->vacancy;
-            $shift = $request->shift;
-            $bankID = $request->bank_id;
-            $bankSpecify = $request->bank_specify;
-            $bankNumber = $request->bank_number;
-            $expectedSalary = $request->expected_salary;
+            $educationId = $request->education_id;
+            $durationId = $request->duration_id;
+            $publicHolidays = $request->public_holidays;
+            $environment = $request->environment;
+            $brandId = $request->brand_id;
+            $disability = $request->disability;
             $literacyAnswers = $request->literacy_answers;
             $numeracyAnswers = $request->numeracy_answers;
+            $situationalAnswers = $request->situational_answers;
 
+            // Fetch questions for literacy, numeracy, and situational assessments
             $literacyQuestions = ChatTemplate::whereHas('state', function ($query) {
                 $query->whereIn('name', ['literacy']);
             })->get();
@@ -342,105 +203,84 @@ class ApplicationController extends Controller
                 $query->whereIn('name', ['numeracy']);
             })->get();
 
+            $situationalQuestions = ChatTemplate::whereHas('state', function ($query) {
+                $query->whereIn('name', ['situational']);
+            })->get();
+
+            // Calculate scores for literacy, numeracy, and situational assessments
             $literacyScore = 0;
             $literacyQuestionsCount = $literacyQuestions->count();
-
-            $numeracyScore = 0;
-            $numeracyQuestionsCount = $numeracyQuestions->count();
-
             foreach ($literacyQuestions as $question) {
                 if (isset($literacyAnswers[$question->id]) && $literacyAnswers[$question->id] == $question->answer) {
                     $literacyScore++;
                 }
             }
 
+            $numeracyScore = 0;
+            $numeracyQuestionsCount = $numeracyQuestions->count();
             foreach ($numeracyQuestions as $question) {
                 if (isset($numeracyAnswers[$question->id]) && $numeracyAnswers[$question->id] == $question->answer) {
                     $numeracyScore++;
                 }
             }
 
+            $situationalScore = 0;
+            $situationalQuestionsCount = $situationalQuestions->count();
+            foreach ($situationalQuestions as $question) {
+                if (isset($situationalAnswers[$question->id]) && $situationalAnswers[$question->id] == $question->answer) {
+                    $situationalScore++;
+                }
+            }
+
             // Get the 'complete' state ID
             $completeStateID = State::where('code', 'complete')->value('id');
 
-            DB::beginTransaction();
+            DB::beginTransaction(); // Begin transaction for DB operations
 
-            // Applicant Create
+            // Create the applicant record with form data
             $applicant = Applicant::create([
                 'phone' => $phone,
+                'id_number' => $idNumber,
                 'firstname' => $firstname,
                 'lastname' => $lastname,
-                'id_number' => $idNumber,
-                'location' => $location,
-                'contact_number' => $phone,
-                'additional_contact_number' => $phone,
-                'gender_id' => $genderID,
                 'race_id' => $raceID,
-                'has_email' => $email ? 'Yes' : 'No',
-                'email' => $email,
-                'has_tax' => $taxNumber ? 'Yes' : 'No',
-                'tax_number' => $taxNumber,
-                'citizen' => $citizen,
-                'foreign_national' => $citizen == 'Yes' ? 'No' : 'Yes',
-                'criminal' => $criminal,
+                'avatar_upload' => $avatarUpload, // Save avatar upload status (Yes or No)
                 'avatar' => $avatarName,
-                'position_id' => $positionID,
-                'position_specify' => $positionSpecify,
-                'school' => $school,
-                'education_id' => $educationID,
-                'training' => $training,
-                'other_training' => $otherTraining,
-                'drivers_license' => $driversLicenseCode ? 'Yes' : 'No',
-                'drivers_license_code' => $driversLicenseCode,
-                'read_languages' => $readLanguages,
-                'speak_languages' => $speakLanguages,
-                'job_previous' => $jobPrevious,
-                'reason_id' => $reasonID,
-                'job_leave_specify' => $jobLeaveSpecify,
-                'job_business' => $jobBusiness,
-                'job_position' => $jobPosition,
-                'duration_id' => $durationID,
-                'job_salary' => $jobSalary,
-                'job_reference_name' => $jobReferenceName,
-                'job_reference_phone' => $jobReferencePhone,
-                'retrenchment_id' => $retrenchmentID,
-                'job_retrenched_specify' => $jobRetrenchedSpecify,
-                'brand_id' => $brandID,
-                'previous_job_position_id' => $previousJobPositionID,
-                'job_shoprite_position_specify' => $jobShopritePositionSpecify,
-                'job_shoprite_leave' => $jobShopriteLeave,
-                'transport_id' => $transportID,
-                'transport_specify' => $transportSpecify,
-                'disability_id' => $disabilityID,
-                'illness_specify' => $illnessSpecify,
-                'commencement' => $commencement,
-                'type_id' => $typeID,
-                'application_reason_specify' => $applicationReasonSpecify,
-                'relocate' => $relocate,
-                'relocate_town' => $relocateTown,
-                'vacancy' => $vacancy,
-                'shift' => $shift,
-                'has_bank_account' => $bankID ? 'Yes' : 'No',
-                'bank_id' => $bankID,
-                'bank_specify' => $bankSpecify,
-                'bank_number' => $bankNumber,
-                'expected_salary' => $expectedSalary,
-                'literacy_score' => $literacyScore,
-                'literacy_questions' => $literacyQuestionsCount,
-                'literacy' => "{$literacyScore}/{$literacyQuestionsCount}",
-                'numeracy_score' => $numeracyScore,
-                'numeracy_questions' => $numeracyQuestionsCount,
-                'numeracy' => "{$numeracyScore}/{$numeracyQuestionsCount}",
+                'terms_conditions' => $request->consent ? 'Yes' : 'No', // Check if the user accepted terms
+                'additional_contact_number' => 'No',
+                'contact_number' => $phone,
+                'public_holidays' => $publicHolidays, // Store user's answer to public holidays
+                'education_id' => $educationId,
+                'consent' => $request->consent ? 'Yes' : 'No', // Store consent status
+                'environment' => $environment, // Store user's answer to environment
+                'duration_id' => $durationId,
+                'brand_id' => $brandId,
+                'location_type' => 'Address',
+                'location' => $location,
+                'has_email' => $email ? 'Yes' : 'No', // Determine if email was provided
+                'email' => $email,
+                'disability' => $disability,
+                'literacy_score' => $literacyScore, // Save literacy score
+                'literacy_questions' => $literacyQuestionsCount, // Total literacy questions
+                'literacy' => "{$literacyScore}/{$literacyQuestionsCount}", // Format score
+                'numeracy_score' => $numeracyScore, // Save numeracy score
+                'numeracy_questions' => $numeracyQuestionsCount, // Total numeracy questions
+                'numeracy' => "{$numeracyScore}/{$numeracyQuestionsCount}", // Format score
+                'situational_score' => $situationalScore, // Save situational score
+                'situational_questions' => $situationalQuestionsCount, // Total situational questions
+                'situational' => "{$situationalScore}/{$situationalQuestionsCount}", // Format score
                 'role_id' => 8,
+                'applicant_type_id' => 2,
+                'application_type' => 'Website', // Application type set to Website
                 'state_id' => $completeStateID,
             ]);
 
-            // Now let's verify the location using GoogleMapsService
+            // Verify the applicant's location using Google Maps API
             $googleMapsService = new GoogleMapsService();
             $geocodedAddress = $googleMapsService->geocodeAddress($location);
 
             if ($geocodedAddress) {
-                // Update the applicant's location with the formatted address and town_id
+                // Update applicant location with geocoded data
                 $applicant->update([
                     'location' => $geocodedAddress['formatted_address'],
                     'town_id' => $geocodedAddress['city'],
@@ -448,50 +288,35 @@ class ApplicationController extends Controller
                 ]);
             }
 
-            // Read Languages
-            if ($request->has('read')) {
-                $read = array_fill_keys($request->read, ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-                $applicant->readLanguages()->sync($read);
-            }
-
-            // Speak Languages
-            if ($request->has('speak')) {
-                $speak = array_fill_keys($request->speak, ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-                $applicant->speakLanguages()->sync($speak);
-            }
-
-            // Calculate the score for the applicant
+            // Calculate the applicant's overall score
             $score = $this->calculateScore($applicant);
-
-            // Update the applicant with the calculated score
             $applicant->score = $score;
-            $applicant->save();
+            $applicant->save(); // Save updated applicant
 
-            //Update user applicant id
+            // Update the user's applicant ID (if applicant is created successfully)
             if ($applicant) {
-                $user = Auth::user();
                 $user->applicant_id = $applicant->id;
-                $user->save();
+                $user->save(); // Update user with applicant ID
             }
 
-            // Dispatch the job for the applicant, with no need to update a user
+            // Dispatch a background job for ID number processing
             ProcessUserIdNumber::dispatch(null, $applicant->id);
 
-            // If a new applicant was created, then create a notification
+            // Send notification if the applicant was created successfully
             if ($applicant->wasRecentlyCreated) {
-                // Create Notification
                 $notification = new Notification();
-                $notification->user_id = $userID;
+                $notification->user_id = $userId;
                 $notification->causer_id = Auth::id();
-                $notification->subject()->associate($applicant);
+                $notification->subject()->associate($applicant); // Associate applicant with the notification
                 $notification->type_id = 1;
                 $notification->notification = "Submitted application 🔔";
                 $notification->read = "No";
-                $notification->save();
+                $notification->save(); // Save notification
             }
 
-            DB::commit();
+            DB::commit(); // Commit the transaction
 
+            // Encrypt the applicant's ID before sending it in the response
             $encryptedID = Crypt::encryptString($applicant->id);
 
             return response()->json([
@@ -499,15 +324,16 @@ class ApplicationController extends Controller
                 'message' => 'Application submitted successfully!',
                 'applicant' => $applicant,
                 'encrypted_id' => $encryptedID
-            ], 201);
+            ], 201); // Return success response with applicant data
+
         } catch (Exception $e) {
-            DB::rollBack();
+            DB::rollBack(); // Rollback the transaction in case of error
 
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to submit application!',
                 'error' => $e->getMessage()
-            ], 400);
+            ], 400); // Return error response
         }
     }
 
@@ -519,143 +345,75 @@ class ApplicationController extends Controller
 
     public function update(Request $request)
     {
-        $applicantID = Crypt::decryptString($request->id);
-
-        $commencementDate = Carbon::createFromFormat('d M, Y', $request->commencement);
-        $commencementDate = $commencementDate->format('Y-m-d');
-
-        $request->merge(['commencement' => $commencementDate]);
-
         //Validate Input
         $request->validate([
-            'avatar' => ['sometimes', 'image' ,'mimes:jpg,jpeg,png','max:1024'],
+            'consent' => ['accepted'], // Validate consent checkbox
+            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:1024'], // Avatar validation
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'id_number' => ['required', 'string', 'max:191'],
+            'id_number' => ['required', 'string', 'max:13'],
             'phone' => ['required', 'string', 'max:191'],
             'location' => ['required', 'string'],
-            'gender_id' => ['required', 'integer'],
-            'race_id' => ['required', 'integer'],
-            'email' => ['sometimes','string','email','max:191',Rule::unique('applicants')->ignore($applicantID)],
-            'tax_number' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'citizen' => ['sometimes', 'required', 'in:Yes,No'],
-            'criminal' => ['sometimes', 'required', 'in:Yes,No'],
-            'position_id' => ['required', 'integer'],
-            'position_specify' => ['sometimes', 'nullable', 'string'],
-            'school' => ['required', 'string', 'max:191'],
-            'education_id' => ['required', 'integer'],
-            'training' => ['sometimes', 'required', 'in:Yes,No'],
-            'other_training' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'drivers_license_code' => ['sometimes', 'nullable', 'string', 'max:10'],
-            'read' => ['required', 'array'],
-            'speak' => ['required', 'array'],
-            'job_previous' => ['sometimes', 'required', 'in:Yes,No'],
-            'reason_id' => ['sometimes', 'integer'],
-            'job_leave_specify' => ['sometimes', 'nullable', 'string'],
-            'job_business' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'job_position' => ['sometimes', 'nullable', 'string'],
-            'duration_id' => ['sometimes', 'integer'],
-            'job_salary' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'job_reference_name' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'job_reference_phone' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'job_retrenched_specify' => ['sometimes', 'nullable', 'string'],
-            'brand_id' => ['sometimes', 'nullable', 'integer'],
-            'previous_job_position_id' => ['sometimes', 'nullable', 'integer'],
-            'job_shoprite_position_specify' => ['sometimes', 'nullable', 'string'],
-            'job_shoprite_leave' => ['sometimes', 'nullable', 'string'],
-            'transport_id' => ['required', 'integer'],
-            'transport_specify' => ['sometimes', 'nullable', 'string'],
-            'disability_id' => ['required', 'integer'],
-            'illness_specify' => ['sometimes', 'nullable', 'string'],
-            'commencement' => ['required', 'date', 'date_format:Y-m-d'],
-            'type_id' => ['required', 'integer'],
-            'application_reason_specify' => ['sometimes', 'nullable', 'string'],
-            'relocate' => ['sometimes', 'required', 'in:Yes,No'],
-            'relocate_town' => ['sometimes', 'nullable', 'string'],
-            'vacancy' => ['sometimes', 'required', 'in:Yes,No'],
-            'shift' => ['sometimes', 'required', 'in:Yes,No'],
-            'bank_id' => ['required', 'integer'],
-            'bank_specify' => ['sometimes', 'nullable', 'string', 'max:191'],
-            'bank_number' => ['sometimes', 'nullable', 'string', 'max:20'],
-            'expected_salary' => ['required', 'numeric', 'min:0']
+            'race_id' => ['required', 'integer', 'exists:races,id'],
+            'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
+            'education_id' => ['required', 'integer', 'exists:educations,id'],
+            'duration_id' => ['required', 'integer', 'exists:durations,id'],
+            'public_holidays' => ['required', 'in:Yes,No'],
+            'environment' => ['required', 'in:Yes,No'],
+            'brand_id' => ['required', 'integer', 'exists:brands,id'],
+            'disability' => ['required', 'in:Yes,No'],
+            'literacy_answers' => ['required', 'array'], // Ensure literacy answers array
+            'literacy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each literacy answer
+            'numeracy_answers' => ['required', 'array'],
+            'numeracy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each numeracy answer
+            'situational_answers' => ['required', 'array'],
+            'situational_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each situational answer
         ]);
 
         try {
-            //User ID
-            $userID = Auth::id();
+            // Get the current authenticated user
+            $userId = Auth::id();
+            $user = User::find($userId);
 
-            //User
-            $user = User::find($userID);
+            //Applicant ID
+            $applicantId = Crypt::decryptString($request->id);
 
             //Applicant
-            $applicant = Applicant::findOrFail($applicantID);
+            $applicant = Applicant::findOrFail($applicantId);
 
-            //Form Fields
-            if ($request->hasFile('avatar')) {
+            // Handle avatar upload (if present)
+            if ($request->avatar) {
                 $avatar = request()->file('avatar');
                 $avatarName = '/images/' . $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
-                if ($user && $user->avatar) {
-                    $avatarName = $user->avatar;
-                } else {
-                    $avatarName = '/images/avatar.jpg';
-                }
+                // Use existing avatar if available, otherwise fallback to default
+                $avatarName = $user && $user->avatar ? $user->avatar : '/images/avatar.jpg';
             }
+
+            // Determine the value of avatar_upload based on the avatar
+            $avatarUpload = $avatarName == '/images/avatar.jpg' ? 'No' : 'Yes'; // If avatar is the default one, set 'No', otherwise 'Yes'
+
+            // Get form data from the request
             $firstname = $request->firstname;
             $lastname = $request->lastname;
             $idNumber = $request->id_number;
             $phone = $request->phone;
             $location = $request->location;
-            $genderID = $request->gender_id;
             $raceID = $request->race_id;
             $email = $request->email;
-            $taxNumber = $request->tax_number;
-            $citizen = $request->citizen;
-            $criminal = $request->criminal;
-            $positionID = $request->position_id;
-            $positionSpecify = $request->position_specify;
-            $school = $request->school;
-            $educationID = $request->education_id;
-            $training = $request->training;
-            $otherTraining = $request->other_training;
-            $driversLicenseCode = $request->drivers_license_code;
-            $readLanguages = $request->read;
-            $speakLanguages = $request->speak;
-            $jobPrevious = $request->job_previous;
-            $reasonID = $request->reason_id;
-            $jobLeaveSpecify = $request->job_leave_specify;
-            $jobBusiness = $request->job_business;
-            $jobPosition = $request->job_position;
-            $durationID = $request->duration_id;
-            $jobSalary = $request->job_salary;
-            $jobReferenceName = $request->job_reference_name;
-            $jobReferencePhone = $request->job_reference_phone;
-            $retrenchmentID = $request->retrenchment_id;
-            $jobRetrenchedSpecify = $request->job_retrenched_specify;
-            $brandID = $request->brand_id;
-            $previousJobPositionID = $request->previous_job_position_id;
-            $jobShopritePositionSpecify = $request->job_shoprite_position_specify;
-            $jobShopriteLeave = $request->job_shoprite_leave;
-            $transportID = $request->transport_id;
-            $transportSpecify = $request->transport_specify;
-            $disabilityID = $request->disability_id;
-            $illnessSpecify = $request->illness_specify;
-            $commencement = $request->commencement;
-            $typeID = $request->type_id;
-            $applicationReasonSpecify = $request->application_reason_specify;
-            $relocate = $request->relocate;
-            $relocateTown = $request->relocate_town;
-            $vacancy = $request->vacancy;
-            $shift = $request->shift;
-            $bankID = $request->bank_id;
-            $bankSpecify = $request->bank_specify;
-            $bankNumber = $request->bank_number;
-            $expectedSalary = $request->expected_salary;
+            $educationId = $request->education_id;
+            $durationId = $request->duration_id;
+            $publicHolidays = $request->public_holidays;
+            $environment = $request->environment;
+            $brandId = $request->brand_id;
+            $disability = $request->disability;
             $literacyAnswers = $request->literacy_answers;
             $numeracyAnswers = $request->numeracy_answers;
+            $situationalAnswers = $request->situational_answers;
 
+            // Fetch questions for literacy, numeracy, and situational assessments
             $literacyQuestions = ChatTemplate::whereHas('state', function ($query) {
                 $query->whereIn('name', ['literacy']);
             })->get();
@@ -664,21 +422,32 @@ class ApplicationController extends Controller
                 $query->whereIn('name', ['numeracy']);
             })->get();
 
+            $situationalQuestions = ChatTemplate::whereHas('state', function ($query) {
+                $query->whereIn('name', ['situational']);
+            })->get();
+
+            // Calculate scores for literacy, numeracy, and situational assessments
             $literacyScore = 0;
             $literacyQuestionsCount = $literacyQuestions->count();
-
-            $numeracyScore = 0;
-            $numeracyQuestionsCount = $numeracyQuestions->count();
-
             foreach ($literacyQuestions as $question) {
                 if (isset($literacyAnswers[$question->id]) && $literacyAnswers[$question->id] == $question->answer) {
                     $literacyScore++;
                 }
             }
 
+            $numeracyScore = 0;
+            $numeracyQuestionsCount = $numeracyQuestions->count();
             foreach ($numeracyQuestions as $question) {
                 if (isset($numeracyAnswers[$question->id]) && $numeracyAnswers[$question->id] == $question->answer) {
                     $numeracyScore++;
+                }
+            }
+
+            $situationalScore = 0;
+            $situationalQuestionsCount = $situationalQuestions->count();
+            foreach ($situationalQuestions as $question) {
+                if (isset($situationalAnswers[$question->id]) && $situationalAnswers[$question->id] == $question->answer) {
+                    $situationalScore++;
                 }
             }
 
@@ -690,70 +459,38 @@ class ApplicationController extends Controller
             // Applicant Create
             $applicant->update([
                 'phone' => $phone,
+                'id_number' => $idNumber,
                 'firstname' => $firstname,
                 'lastname' => $lastname,
-                'id_number' => $idNumber,
-                'location' => $location,
-                'contact_number' => $phone,
-                'additional_contact_number' => $phone,
-                'gender_id' => $genderID,
                 'race_id' => $raceID,
-                'has_email' => $email ? 'Yes' : 'No',
-                'email' => $email,
-                'has_tax' => $taxNumber ? 'Yes' : 'No',
-                'tax_number' => $taxNumber,
-                'citizen' => $citizen,
-                'foreign_national' => $citizen == 'Yes' ? 'No' : 'Yes',
-                'criminal' => $criminal,
+                'avatar_upload' => $avatarUpload, // Save avatar upload status (Yes or No)
                 'avatar' => $avatarName,
-                'position_id' => $positionID,
-                'position_specify' => $positionSpecify,
-                'school' => $school,
-                'education_id' => $educationID,
-                'training' => $training,
-                'other_training' => $otherTraining,
-                'drivers_license' => $driversLicenseCode ? 'Yes' : 'No',
-                'drivers_license_code' => $driversLicenseCode,
-                'read_languages' => $readLanguages,
-                'speak_languages' => $speakLanguages,
-                'job_previous' => $jobPrevious,
-                'reason_id' => $reasonID,
-                'job_leave_specify' => $jobLeaveSpecify,
-                'job_business' => $jobBusiness,
-                'job_position' => $jobPosition,
-                'duration_id' => $durationID,
-                'job_salary' => $jobSalary,
-                'job_reference_name' => $jobReferenceName,
-                'job_reference_phone' => $jobReferencePhone,
-                'retrenchment_id' => $retrenchmentID,
-                'job_retrenched_specify' => $jobRetrenchedSpecify,
-                'brand_id' => $brandID,
-                'previous_job_position_id' => $previousJobPositionID,
-                'job_shoprite_position_specify' => $jobShopritePositionSpecify,
-                'job_shoprite_leave' => $jobShopriteLeave,
-                'transport_id' => $transportID,
-                'transport_specify' => $transportSpecify,
-                'disability_id' => $disabilityID,
-                'illness_specify' => $illnessSpecify,
-                'commencement' => $commencement,
-                'type_id' => $typeID,
-                'application_reason_specify' => $applicationReasonSpecify,
-                'relocate' => $relocate,
-                'relocate_town' => $relocateTown,
-                'vacancy' => $vacancy,
-                'shift' => $shift,
-                'has_bank_account' => $bankID ? 'Yes' : 'No',
-                'bank_id' => $bankID,
-                'bank_specify' => $bankSpecify,
-                'bank_number' => $bankNumber,
-                'expected_salary' => $expectedSalary,
-                'literacy_score' => $literacyScore,
-                'literacy_questions' => $literacyQuestionsCount,
-                'literacy' => "{$literacyScore}/{$literacyQuestionsCount}",
-                'numeracy_score' => $numeracyScore,
-                'numeracy_questions' => $numeracyQuestionsCount,
-                'numeracy' => "{$numeracyScore}/{$numeracyQuestionsCount}",
+                'terms_conditions' => $request->consent ? 'Yes' : 'No', // Check if the user accepted terms
+                'additional_contact_number' => 'No',
+                'contact_number' => $phone,
+                'public_holidays' => $publicHolidays, // Store user's answer to public holidays
+                'education_id' => $educationId,
+                'consent' => $request->consent ? 'Yes' : 'No', // Store consent status
+                'environment' => $environment, // Store user's answer to environment
+                'duration_id' => $durationId,
+                'brand_id' => $brandId,
+                'location_type' => 'Address',
+                'location' => $location,
+                'has_email' => $email ? 'Yes' : 'No', // Determine if email was provided
+                'email' => $email,
+                'disability' => $disability,
+                'literacy_score' => $literacyScore, // Save literacy score
+                'literacy_questions' => $literacyQuestionsCount, // Total literacy questions
+                'literacy' => "{$literacyScore}/{$literacyQuestionsCount}", // Format score
+                'numeracy_score' => $numeracyScore, // Save numeracy score
+                'numeracy_questions' => $numeracyQuestionsCount, // Total numeracy questions
+                'numeracy' => "{$numeracyScore}/{$numeracyQuestionsCount}", // Format score
+                'situational_score' => $situationalScore, // Save situational score
+                'situational_questions' => $situationalQuestionsCount, // Total situational questions
+                'situational' => "{$situationalScore}/{$situationalQuestionsCount}", // Format score
                 'role_id' => 8,
+                'applicant_type_id' => 2,
+                'application_type' => 'Website', // Application type set to Website
                 'state_id' => $completeStateID,
             ]);
 
@@ -770,37 +507,35 @@ class ApplicationController extends Controller
                 ]);
             }
 
-            // Read Languages
-            if ($request->has('read')) {
-                $read = array_fill_keys($request->read, ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-                $applicant->readLanguages()->sync($read);
+            // Verify the applicant's location using Google Maps API
+            $googleMapsService = new GoogleMapsService();
+            $geocodedAddress = $googleMapsService->geocodeAddress($location);
+
+            if ($geocodedAddress) {
+                // Update applicant location with geocoded data
+                $applicant->update([
+                    'location' => $geocodedAddress['formatted_address'],
+                    'town_id' => $geocodedAddress['city'],
+                    'coordinates' => $geocodedAddress['latitude'] . ' ' . $geocodedAddress['longitude']
+                ]);
             }
 
-            // Speak Languages
-            if ($request->has('speak')) {
-                $speak = array_fill_keys($request->speak, ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
-                $applicant->speakLanguages()->sync($speak);
-            }
-
-            // Calculate the score for the applicant
+            // Calculate the applicant's overall score
             $score = $this->calculateScore($applicant);
-
-            // Update the applicant with the calculated score
             $applicant->score = $score;
-            $applicant->save();
+            $applicant->save(); // Save updated applicant
 
-            //Update user applicant id
+            // Update the user's applicant ID (if applicant is created successfully)
             if ($applicant) {
-                $user = Auth::user();
                 $user->applicant_id = $applicant->id;
-                $user->save();
+                $user->save(); // Update user with applicant ID
             }
 
             // If a new applicant was created, then create a notification
             if ($applicant->wasRecentlyCreated) {
                 // Create Notification
                 $notification = new Notification();
-                $notification->user_id = $userID;
+                $notification->user_id = $userId;
                 $notification->causer_id = Auth::id();
                 $notification->subject()->associate($applicant);
                 $notification->type_id = 1;
@@ -809,8 +544,9 @@ class ApplicationController extends Controller
                 $notification->save();
             }
 
-            DB::commit();
+            DB::commit(); // Commit the transaction
 
+            // Encrypt the applicant's ID before sending it in the response
             $encryptedID = Crypt::encryptString($applicant->id);
 
             return response()->json([
@@ -818,15 +554,15 @@ class ApplicationController extends Controller
                 'message' => 'Application updated successfully!',
                 'applicant' => $applicant,
                 'encrypted_id' => $encryptedID
-            ], 201);
+            ], 201); // Return success response with applicant data
         } catch (Exception $e) {
-            DB::rollBack();
+            DB::rollBack(); // Rollback the transaction in case of error
 
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update application!',
                 'error' => $e->getMessage()
-            ], 400);
+            ], 400); // Return error response
         }
     }
 
@@ -839,10 +575,10 @@ class ApplicationController extends Controller
     public function destroy($id)
     {
         try {
-            $applicantID = Crypt::decryptString($id);
+            $applicantId = Crypt::decryptString($id);
 
             //Delete Application
-            Applicant::destroy($applicantID);
+            Applicant::destroy($applicantId);
 
             return response()->json([
                 'success' => true,
@@ -855,5 +591,153 @@ class ApplicationController extends Controller
                 'error' => $e->getMessage()
             ], 400);
         }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Calculate Score
+    |--------------------------------------------------------------------------
+    */
+
+    protected function calculateScore($applicant)
+    {
+        // Initialize variables to store the total score and total weight
+        $totalScore = 0;
+        $totalWeight = 0;
+
+        // Retrieve all the score weightings (likely from a database table)
+        $weightings = ScoreWeighting::all(); // Fetch all weightings
+
+        // Loop through each weighting to calculate the score
+        foreach ($weightings as $weighting) {
+            // Check if the score type is 'education_id' and apply custom logic
+            if ($weighting->score_type == 'education_id') {
+                // Get the education level from the applicant's data
+                $educationLevel = $applicant->{$weighting->score_type} ?? 0;
+
+                // Apply custom weight distribution based on the education level
+                switch ($educationLevel) {
+                    case 1: // Level 1 gets 0% of the weight
+                        $percentage = 0;
+                        break;
+                    case 2:
+                    case 3: // Levels 2 and 3 get 15% of the weight
+                        $percentage = 0.15;
+                        break;
+                    case 4: // Level 4 gets 40% of the weight
+                        $percentage = 0.40;
+                        break;
+                    case 5: // Level 5 gets 25% of the weight
+                        $percentage = 0.25;
+                        break;
+                    case 6: // Level 6 gets 20% of the weight
+                        $percentage = 0.20;
+                        break;
+                    default:
+                        $percentage = 0;
+                        break;
+                }
+
+                // Add the weighted score to the total score
+                $totalScore += $percentage * $weighting->weight;
+
+            // Check if the score type is 'duration_id' and apply custom logic
+            } elseif ($weighting->score_type == 'duration_id') {
+                // Get the duration value from the applicant's data
+                $durationLevel = $applicant->{$weighting->score_type} ?? 0;
+
+                // Apply custom weight distribution based on the duration level
+                switch ($durationLevel) {
+                    case 1: // Level 1 gets 0% of the weight
+                        $percentage = 0;
+                        break;
+                    case 2: // Level 2 gets 10% of the weight
+                        $percentage = 0.10;
+                        break;
+                    case 3: // Level 3 gets 15% of the weight
+                        $percentage = 0.15;
+                        break;
+                    case 4: // Level 4 gets 20% of the weight
+                        $percentage = 0.20;
+                        break;
+                    case 5: // Level 5 gets 25% of the weight
+                        $percentage = 0.25;
+                        break;
+                    case 6: // Level 6 gets 30% of the weight
+                        $percentage = 0.30;
+                        break;
+                    default:
+                        $percentage = 0;
+                        break;
+                }
+
+                // Add the weighted score to the total score
+                $totalScore += $percentage * $weighting->weight;
+
+            // Check if the score type is 'literacy_score', 'numeracy_score', or 'situational_score'
+            } elseif (in_array($weighting->score_type, ['literacy_score', 'numeracy_score', 'situational_score'])) {
+                // Get the applicant's score for the current score type
+                $scoreValue = $applicant->{$weighting->score_type} ?? 0;
+                $maxValue = $weighting->max_value;
+
+                // Calculate the percentage score
+                if ($maxValue > 0) {
+                    $scorePercentage = ($scoreValue / $maxValue) * 100;
+
+                    // Apply weight based on the percentage score
+                    if ($scorePercentage >= 0 && $scorePercentage <= 30) {
+                        $percentage = 0; // 0% of the weight for 0-30% score
+                    } elseif ($scorePercentage > 30 && $scorePercentage <= 55) {
+                        $percentage = 0.05; // 5% of the weight for 31-55% score
+                    } elseif ($scorePercentage > 55 && $scorePercentage <= 70) {
+                        $percentage = 0.20; // 20% of the weight for 56-70% score
+                    } elseif ($scorePercentage > 70 && $scorePercentage <= 85) {
+                        $percentage = 0.35; // 35% of the weight for 71-85% score
+                    } elseif ($scorePercentage > 85) {
+                        $percentage = 0.40; // 40% of the weight for >85% score
+                    }
+
+                    // Add the weighted score to the total score
+                    $totalScore += $percentage * $weighting->weight;
+                }
+
+            // Check if the weighting has a condition (i.e., applies to a specific field and value)
+            } elseif (!empty($weighting->condition_field)) {
+                // Apply conditional logic: if the applicant's field matches the condition value, use the specified weight
+                // Otherwise, use the fallback value as the score
+                $scoreValue = $applicant->{$weighting->condition_field} == $weighting->condition_value
+                    ? $weighting->weight
+                    : $weighting->fallback_value;
+
+                // Add the calculated score value to the total score
+                $totalScore += $scoreValue;
+            } else {
+                // For numeric scoring (without a condition), handle the score calculation based on the score type and max value
+
+                // Get the score value from the applicant's data, using the score type as the field name
+                // Default to 0 if no value is present
+                $scoreValue = $applicant->{$weighting->score_type} ?? 0;
+
+                // Get the max value from the weighting record (used for percentage calculation)
+                $maxValue = $weighting->max_value;
+
+                // If the max value is greater than 0, calculate the percentage score and weight it accordingly
+                if ($maxValue > 0) {
+                    $percentage = ($scoreValue / $maxValue) * $weighting->weight;
+                    $totalScore += $percentage; // Add the weighted score to the total score
+                }
+            }
+
+            // Add the current weighting's weight to the total weight
+            $totalWeight += $weighting->weight;
+        }
+
+        // Normalize the total score to a scale of 0 to 5
+        // If total weight is greater than 0, divide total score by total weight, then multiply by 5
+        // Otherwise, default to normalizing based on 100% scale
+        $normalizedScore = $totalWeight > 0 ? ($totalScore / $totalWeight) * 5 : ($totalScore / 100) * 5;
+
+        // Round the normalized score to 2 decimal places and return it
+        return round($normalizedScore, 2);
     }
 }

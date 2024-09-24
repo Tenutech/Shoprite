@@ -456,15 +456,9 @@ $('#formApplication, #formApplicationUpdate').on('submit', function(e) {
     phoneNumber = '+' + countryCode + phoneNumber;
     phoneNumber = phoneNumber.replace(/\s+/g, '');
 
-    var refrenceCode = $('#refrenceCountry').text().trim().replace('+', '').trim();
-    var refrenceNumber = $('#jobReferencePhone').val().trim();
-    refrenceNumber = '+' + refrenceCode + refrenceNumber;
-    refrenceNumber = refrenceNumber.replace(/\s+/g, '');
-
     var formID = $(this).attr('id');
     var formData = new FormData(this);
     formData.set('phone', phoneNumber);
-    formData.set('job_reference_phone', phoneNumber);
 
     $("#confirm").hide();
     $("#loading").removeClass("d-none");

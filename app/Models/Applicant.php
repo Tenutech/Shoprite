@@ -101,8 +101,11 @@ class Applicant extends Model
         'score',
         'role_id',
         'applicant_type_id',
+        'application_type',
         'shortlist_id',
         'appointed_id',
+        'no_show',
+        'user_delete',
         'state_id',
         'checkpoint',
     ];
