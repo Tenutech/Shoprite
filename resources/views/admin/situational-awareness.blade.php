@@ -8,7 +8,7 @@
             Assessments
         @endslot
         @slot('title')
-            Numeracy
+            Situational Awareness
         @endslot
     @endcomponent
 
@@ -16,7 +16,7 @@
         <div class="col-12">
             <div class="justify-content-between d-flex align-items-center mt-3 mb-4">
                 <h5 class="mb-0 pb-1 text-decoration-underline">
-                    Numeracy Questions
+                    Situational Awareness Questions
                 </h5>
             </div>
             <div class="row g-4 mb-3">
@@ -29,7 +29,7 @@
                     </div>
                 </div>
             </div>
-            <div class="row" id="literacy-test">
+            <div class="row" id="situational-awareness-test">
                 @foreach ($messages as $message)
                     <div class="col-xxl-12 col-lg-12" id="message-{{ $message->id }}">
                         <div class="card">
@@ -230,7 +230,7 @@
     <!--end delete modal -->
 @endsection
 @section('script')
-    <script src="{{ URL::asset('build/js/pages/numeracy.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/situational-awareness.init.js') }}"></script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection
