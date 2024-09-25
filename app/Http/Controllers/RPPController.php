@@ -492,7 +492,11 @@ class RPPController extends Controller
                 }
             }
 
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfYear();
+
             $regionWideAverageShortlistTime = $this->vacancyDataService->getRegionWideAverageTimeToShortlist(Auth::user()->region_id);
+            $adoptionRate = $this->vacancyDataService->getRegionVacancyFillRate(Auth::user()->region_id, $startDate, $endDate);
 
             // Fetch applicants positions
             $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
@@ -530,6 +534,7 @@ class RPPController extends Controller
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
                 'regionWideAverageShortlistTime' => $regionWideAverageShortlistTime,
+                'adoptionRate' => $adoptionRate,
             ]);
         }
         return view('404');

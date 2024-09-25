@@ -491,16 +491,19 @@ class DPPController extends Controller
                 }
             }
 
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfYear();
+
             $divisionWideAveragetimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist(Auth::user()->division_id);
-
             $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire(Auth::user()->division_id);
+            $adoptionRate = $this->vacancyDataService->getDivisionVacancyFillRate(Auth::user()->division_id, $startDate, $endDate);
 
-             // Fetch applicants positions
-             $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
-             ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
-             ->where('applicant_monthly_data.category_type', 'Position')
-             ->groupBy('positions.name')
-             ->get();
+            // Fetch applicants positions
+            $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
+                ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
+                ->where('applicant_monthly_data.category_type', 'Position')
+                ->groupBy('positions.name')
+                ->get();
 
              $applicantsByPosition = $positionsTotals->map(function ($item) {
                  return [
@@ -530,8 +533,7 @@ class DPPController extends Controller
                  'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                  'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                  'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
-                 'divisionWideAveragetimeToShortlist' => $divisionWideAveragetimeToShortlist,
-                 'divisionWideTimeToHire' => $divisionWideTimeToHire,
+                 'adoptionRate' => $adoptionRate,
              ]);
         }
          return view('404');

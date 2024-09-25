@@ -334,9 +334,12 @@ class ManagerController extends Controller
                 }
             }
 
-            $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist(Auth::user()->store_id);
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfYear();
 
+            $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist(Auth::user()->store_id);
             $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire(Auth::user()->store_id);
+            $adoptionRate = $this->vacancyDataService->getStoreVacancyFillRate(Auth::user()->store_id, null, $startDate, $endDate);
 
             return view('manager/home', [
                 'store' => $store,
@@ -358,6 +361,7 @@ class ManagerController extends Controller
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
                 'storeAverageTimeToShortlist' => $storeAverageTimeToShortlist,
                 'storeAverageTimeToHire' => $storeAverageTimeToHire,
+                'adoptionRate' => $adoptionRate,
             ]);
         }
         return view('404');
