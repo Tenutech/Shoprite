@@ -231,6 +231,71 @@ if(document.querySelector("#numeracy_chart")){
 
 /*
 |--------------------------------------------------------------------------
+| Situational Score
+|--------------------------------------------------------------------------
+*/
+
+// Calculate the series and labels based on the given data
+var situationalSeries = [];
+var situationalLabels = [];
+for (var i = 1; i <= situationalScore; i++) {
+    situationalSeries.push(i);
+    situationalLabels.push(i.toString());
+}
+
+var options = {
+    series: situationalSeries,
+    chart: {
+        height: 300,
+        type: 'donut',
+    },
+    labels: situationalLabels,
+    theme: {
+        monochrome: {
+            enabled: true,
+            color: '#d9aa40',
+            shadeTo: 'light',
+            shadeIntensity: 0.6
+        }
+    },
+    plotOptions: {
+        pie: {
+            dataLabels: {
+                offset: -5
+            }
+        }
+    },
+    dataLabels: {
+        formatter: function (val, opts) {
+            var name = opts.w.globals.labels[opts.seriesIndex];
+            return name; // Only return the number, not the percentage
+        },
+        dropShadow: {
+            enabled: false,
+        }
+    },
+    legend: {
+        show: false
+    },
+    title: {
+        text: situational,
+        floating: true,
+        offsetY: 125,
+        align: 'center',
+        style: {
+            fontSize: '20px',
+            fontWeight: 'bold'
+        }
+    }
+};
+
+if(document.querySelector("#situational_chart")){
+    var chart = new ApexCharts(document.querySelector("#situational_chart"), options);
+    chart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
 | File Form
 |--------------------------------------------------------------------------
 */

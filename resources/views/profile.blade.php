@@ -1175,7 +1175,11 @@
                                                                         </h6>
                                                                     </div>
                                                                     <div class="col-lg-9">
-                                                                        {{ optional($user->applicant->brand)->name ?? 'N/A' }}
+                                                                        @if($user->applicant && $user->applicant->brands && $user->applicant->brands->isNotEmpty())
+                                                                            {{ $user->applicant->brands->pluck('name')->implode(', ') }}
+                                                                        @else
+                                                                            N/A
+                                                                        @endif
                                                                     </div>
                                                                 </div>
                                                             </div>

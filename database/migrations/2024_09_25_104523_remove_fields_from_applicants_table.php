@@ -14,10 +14,21 @@ return new class extends Migration
      */
     public function up()
     {
-        // Detect if the database is SQLite
         if (DB::getDriverName() === 'sqlite') {
-            // SQLite doesn't support dropping columns or foreign keys directly, so we re-create the table
+            // Drop existing indexes if they exist (SQLite specific)
+            Schema::table('applicants', function (Blueprint $table) {
+                DB::statement('DROP INDEX IF EXISTS applicants_town_id_foreign');
+                DB::statement('DROP INDEX IF EXISTS applicants_gender_id_foreign');
+                DB::statement('DROP INDEX IF EXISTS applicants_race_id_foreign');
+                DB::statement('DROP INDEX IF EXISTS applicants_education_id_foreign');
+                DB::statement('DROP INDEX IF EXISTS applicants_role_id_foreign');
+                DB::statement('DROP INDEX IF EXISTS applicants_applicant_type_id_foreign');
+                DB::statement('DROP INDEX IF EXISTS applicants_shortlist_id_foreign');
+                DB::statement('DROP INDEX IF EXISTS applicants_appointed_id_foreign');
+                DB::statement('DROP INDEX IF EXISTS applicants_state_id_foreign');
+            });
 
+            // Recreate the new_applicants table without the dropped fields
             Schema::create('new_applicants', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->string('phone')->nullable();
@@ -26,29 +37,26 @@ return new class extends Migration
                 $table->string('id_number')->nullable();
                 $table->enum('id_verified', ['Yes', 'No'])->nullable();
                 $table->text('location')->nullable();
-                $table->unsignedBigInteger('town_id')->nullable()->index('applicants_town_id_foreign');
+                $table->unsignedBigInteger('town_id')->nullable()->index();
                 $table->string('coordinates')->nullable();
                 $table->string('contact_number')->nullable();
                 $table->enum('additional_contact_number', ['Yes', 'No'])->nullable();
                 $table->date('birth_date')->nullable();
                 $table->integer('age')->nullable();
-                $table->unsignedBigInteger('gender_id')->nullable()->index('applicants_gender_id_foreign');
-                $table->unsignedBigInteger('race_id')->nullable()->index('applicants_race_id_foreign');
+                $table->unsignedBigInteger('gender_id')->nullable()->index();
+                $table->unsignedBigInteger('race_id')->nullable()->index();
                 $table->enum('has_email', ['Yes', 'No'])->nullable();
                 $table->string('email')->nullable();
-                // Removed columns should not be here
-                $table->string('avatar', 255)->nullable();
-                $table->unsignedBigInteger('education_id')->nullable()->index('applicants_education_id_foreign');
-                $table->unsignedBigInteger('brand_id')->nullable()->index('applicants_brand_id_foreign');
+                $table->unsignedBigInteger('education_id')->nullable()->index();
+                $table->unsignedBigInteger('brand_id')->nullable()->index();
                 $table->float('score', 10, 0)->nullable();
-                $table->unsignedBigInteger('role_id')->nullable()->index('applicants_role_id_foreign');
-                $table->unsignedBigInteger('applicant_type_id')->nullable()->index('applicants_applicant_type_id_foreign');
-                $table->unsignedBigInteger('shortlist_id')->nullable()->index('applicants_shortlist_id_foreign');
-                $table->unsignedBigInteger('appointed_id')->nullable()->index('applicants_appointed_id_foreign');
-                $table->unsignedBigInteger('state_id')->nullable()->index('applicants_state_id_foreign');
+                $table->unsignedBigInteger('role_id')->nullable()->index();
+                $table->unsignedBigInteger('applicant_type_id')->nullable()->index();
+                $table->unsignedBigInteger('shortlist_id')->nullable()->index();
+                $table->unsignedBigInteger('appointed_id')->nullable()->index();
+                $table->unsignedBigInteger('state_id')->nullable()->index();
                 $table->enum('checkpoint', ['Yes', 'No'])->nullable()->default('No');
-                $table->timestamp('created_at')->nullable()->useCurrent();
-                $table->timestamp('updated_at')->nullable()->useCurrent();
+                $table->timestamps();
             });
 
             // Move data from the old table to the new one
@@ -59,12 +67,10 @@ return new class extends Migration
             // Drop the old table and rename the new table
             Schema::drop('applicants');
             Schema::rename('new_applicants', 'applicants');
-
         } else {
-            // For databases other than SQLite, we can safely drop foreign keys and columns
-
+            // For other databases, drop foreign keys and columns as usual
             Schema::table('applicants', function (Blueprint $table) {
-                // Dropping foreign key constraints before removing columns
+                // Drop foreign keys
                 $table->dropForeign(['brand_id']);
                 $table->dropForeign(['position_id']);
                 $table->dropForeign(['reason_id']);
@@ -75,7 +81,7 @@ return new class extends Migration
                 $table->dropForeign(['type_id']);
                 $table->dropForeign(['bank_id']);
 
-                // Dropping specified columns
+                // Drop columns
                 $table->dropColumn([
                     'brand_id',
                     're_enter_email',

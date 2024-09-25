@@ -474,10 +474,10 @@
                                                                     Type of Store
                                                                     <span class="text-danger">*</span>
                                                                 </label>
-                                                                <select class="form-control" id="brand" name="brand_id" data-choices data-choices-search-true>
-                                                                    <option value="">Select company</option>
+                                                                <select class="form-control" id="brands" name="brands[]" data-choices multiple data-choices-search-true data-choices-removeItem required>
+                                                                    <option value="">Select brand</option>
                                                                     @foreach ($brands as $brand)
-                                                                        <option value="{{ $brand->id }}" {{ ($user->applicant && $user->applicant->brand_id == $brand->id) ? 'selected' : '' }}>{{ $brand->name }}</option>
+                                                                        <option value="{{ $brand->id }}" {{ $user->applicant && in_array($brand->id, array_column($user->applicant->brands->toArray(), 'id')) ? 'selected' : '' }}>{{ $brand->name }}</option>
                                                                     @endforeach
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select a store type!</div>

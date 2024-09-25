@@ -82,8 +82,7 @@ class HomeController extends Controller
 
             //User
             $user = User::with([
-                'applicant.readLanguages',
-                'applicant.speakLanguages',
+                'applicant.brands',
                 'appliedVacancies'
             ])
             ->withCount('appliedVacancies')
@@ -96,7 +95,7 @@ class HomeController extends Controller
             $races = Race::get();
 
             // Brand
-            $brands = Brand::get();
+            $brands = Brand::whereIn('id', [1, 2, 5, 6])->get();
 
             // Duration
             $durations = Duration::get();

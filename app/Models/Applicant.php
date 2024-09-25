@@ -35,7 +35,6 @@ class Applicant extends Model
         'consent',
         'environment',
         'duration_id',
-        'brand_id',
         'location_type',
         'location',
         'town_id',

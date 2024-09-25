@@ -27,168 +27,6 @@ document.querySelector("#avatar").addEventListener("change", function () {
 
 /*
 |--------------------------------------------------------------------------
-| Specify Fields Show
-|--------------------------------------------------------------------------
-*/
-
-$(document).ready(function() {
-    // Cache jQuery selectors for elements
-    var $positionSelect = $("#position");
-    var $positionSpecifyColumn = $("#positionSpecifyColumn");
-    var $positionSpecifyInput = $("#positionSpecify");
-
-    var $jobPreviousSelect = $("#jobPrevious");
-    var $jobPreviousColumn = $("#jobPreviousColumn");
-    var $reasonSelect = $("#reason");
-    var $jobleaveSpecifyColumn = $("#jobleaveSpecifyColumn");
-    var $jobleaveSpecifyInput = $("#jobleaveSpecify");
-    var $jobBusinessInput = $("#jobBusiness");
-    var $jobPositionInput = $("#jobPosition");
-    var $jobDurationInput = $("#duration");
-    var $jobSalaryInput = $("#jobSalary");
-    var $jobReferenceName = $("#jobReferenceName");
-    var $jobReferencePhone = $("#jobReferencePhone");
-    var $retrenchmentSelect = $("#retrenchment");
-    var $jobRetrenchedSpecifyColumn = $("#jobRetrenchedSpecifyColumn");
-    var $jobRetrenchedSpecifyInput = $("#jobRetrenchedSpecify");
-
-    var $brandSelect = $("#brand");
-    var $jobPreviousShopriteColumn = $("#jobPreviousShopriteColumn");
-    var $previousJobPositionSelect = $("#previousJobPosition");
-    var $jobShopritePositionSpecify = $("#jobShopritePositionSpecify");
-
-    var $transportSelect = $("#transport");
-    var $transportSpecifyColumn = $("#transportSpecifyColumn");
-    var $transportSpecifyInput = $("#transportSpecify");
-
-    var $disabilitySelect = $("#disability");
-    var $illnessSpecifyColumn = $("#illnessSpecifyColumn");
-    var $illnessSpecifyInput = $("#illnessSpecify");
-
-    var $typeSelect = $("#type");
-    var $applicationReasonSpecifyColumn = $("#applicationReasonSpecifyColumn");
-    var $applicationReasonSpecifyInput = $("#applicationReasonSpecify");
-
-    var $relocateSelect = $("#relocate");
-    var $relocateTownColumn = $("#relocateTownColumn");
-    var $relocateTownInput = $("#relocateTown");
-
-    var $bankSelect = $("#bank");
-    var $bankSpecifyColumn = $("#bankSpecifyColumn");
-    var $bankSpecifyInput = $("#bankSpecify");
-    var $bankNumberColumn = $("#bankNumberColumn");
-    var $bankNumberInput = $("#bankNumber");
-
-    // Generic function to toggle the visibility and requirement of specify input fields
-    function toggleSpecifyInput(select, column, input, triggerValues) {
-        var value = select.val();
-        var shouldShow = triggerValues.includes(value);
-        column.toggleClass("d-none", !shouldShow);
-        input.prop('required', shouldShow);
-        if (!shouldShow) {
-            input.val('');
-            input.prop('required', false); // Ensure required is removed when hidden
-        }
-    }
-
-    // Event listeners for select elements that require a specify input
-    $positionSelect.change(function() {
-        toggleSpecifyInput($positionSelect, $positionSpecifyColumn, $positionSpecifyInput, ["10"]);
-    });
-
-    $reasonSelect.change(function() {
-        toggleSpecifyInput($reasonSelect, $jobleaveSpecifyColumn, $jobleaveSpecifyInput, ["8"]);
-    });
-
-    $retrenchmentSelect.change(function() {
-        toggleSpecifyInput($retrenchmentSelect, $jobRetrenchedSpecifyColumn, $jobRetrenchedSpecifyInput, ["1", "2"]);
-    });
-
-    $brandSelect.change(function() {
-        var hasValue = $(this).val() !== '';
-        $jobPreviousShopriteColumn.toggleClass("d-none", !hasValue);
-        // Make the fields required if the brand is selected
-        $previousJobPositionSelect.prop('required', hasValue);
-        $("#jobShopriteLeave").prop('required', hasValue);
-        if (!hasValue) {
-            $jobPreviousShopriteColumn.find('input, select').val('').prop('required', false);
-            $jobShopritePositionSpecify.addClass('d-none').find('input').val('').prop('required', false);
-        }
-    });
-
-    $previousJobPositionSelect.change(function() {
-        var isOtherSelected = $(this).val() === "10";
-        $jobShopritePositionSpecify.toggleClass('d-none', !isOtherSelected).find('input').prop('required', isOtherSelected);
-        if (!isOtherSelected) {
-            $jobShopritePositionSpecify.find('input').val('');
-        }
-    });
-
-    $transportSelect.change(function() {
-        toggleSpecifyInput($transportSelect, $transportSpecifyColumn, $transportSpecifyInput, ["9"]);
-    });
-
-    $disabilitySelect.change(function() {
-        toggleSpecifyInput($disabilitySelect, $illnessSpecifyColumn, $illnessSpecifyInput, ["1", "2", "3"]);
-    });
-
-    $typeSelect.change(function() {
-        toggleSpecifyInput($typeSelect, $applicationReasonSpecifyColumn, $applicationReasonSpecifyInput, ["6"]);
-    });
-
-    $relocateSelect.change(function() {
-        var shouldShow = $(this).val() === "Yes";
-        $relocateTownColumn.toggleClass("d-none", !shouldShow);
-        // Note: relocateTownInput is not required even if shown
-    });
-
-    $bankSelect.change(function() {
-        var hasValue = $(this).val() !== '';
-        $bankNumberColumn.toggleClass("d-none", !hasValue);
-        $bankNumberInput.prop('required', hasValue);
-
-        if ($(this).val() === "9") { // Assuming "9" is the ID for "Other"
-            $bankSpecifyColumn.removeClass("d-none");
-            $bankSpecifyInput.prop('required', true);
-        } else {
-            $bankSpecifyColumn.addClass("d-none");
-            $bankSpecifyInput.prop('required', false).val('');
-        }
-    });
-
-    // Function to toggle the visibility and requirement of the job previous details
-    function toggleJobPreviousDetails(isVisible) {
-        $jobPreviousColumn.toggleClass("d-none", !isVisible);
-        // Find all inputs and selects that are not excluded
-        var inputsAndSelects = $jobPreviousColumn.find('input, select').not('[data-exclude-validation], #jobReferenceName, #jobReferencePhone');
-    
-        inputsAndSelects.prop('required', isVisible);
-        if (!isVisible) {
-            inputsAndSelects.val('').prop('required', false); // Explicitly set required to false
-        }
-    }
-
-    // Event listener for when the job previous selection changes
-    $jobPreviousSelect.change(function() {
-        toggleJobPreviousDetails($(this).val() === "Yes");
-    });
-
-    // Trigger the change events on page load to ensure the UI is in the correct state
-    $positionSelect.trigger("change");
-    $jobPreviousSelect.trigger("change");
-    $reasonSelect.trigger("change");
-    $retrenchmentSelect.trigger("change");
-    $brandSelect.trigger("change");
-    $previousJobPositionSelect.trigger("change");
-    $transportSelect.trigger("change");
-    $disabilitySelect.trigger("change");
-    $typeSelect.trigger("change");
-    $relocateSelect.trigger("change");
-    $bankSelect.trigger("change");
-});
-
-/*
-|--------------------------------------------------------------------------
 | Tabs
 |--------------------------------------------------------------------------
 */
@@ -233,6 +71,24 @@ if (document.querySelectorAll(".form-steps")) {
                         }
                     }
 
+                    // Check if the brands field contains '1' (All) along with other selected options
+                    const brandsSelect = form.querySelector('select[name="brands[]"]');
+                    const selectedBrands = Array.from(brandsSelect.selectedOptions).map(option => option.value);
+
+                    // Custom validation for 'brands' (All should not be selected with others)
+                    let brandValid = true;
+                    if (selectedBrands.includes('1') && selectedBrands.length > 1) {
+                        brandValid = false;
+                        brandsSelect.classList.add('is-invalid');
+                        let feedbackDiv = brandsSelect.closest('.mb-3').querySelector('.invalid-feedback');
+                        feedbackDiv.textContent = "You cannot select specific brands with 'All'.";
+                        feedbackDiv.style.display = 'block';
+                    } else {
+                        brandsSelect.classList.remove('is-invalid');
+                        let feedbackDiv = brandsSelect.closest('.mb-3').querySelector('.invalid-feedback');
+                        feedbackDiv.style.display = 'none';
+                    }
+
                     // Check if all required fields have been filled
                     let valid = requiredFields.every(input => {
                         // Check visibility
@@ -260,6 +116,9 @@ if (document.querySelectorAll(".form-steps")) {
                         }
                         return isValid;
                     });
+
+                    // Combine with custom brand validation
+                    valid = valid && brandValid;
         
                     // If validation passed, go to the next tab
                     if (!valid) {

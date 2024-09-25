@@ -69,9 +69,11 @@ class ApplicationController extends Controller
 
             //User
             $user = User::with([
-                'applicant.readLanguages',
-                'applicant.speakLanguages',
-            ])->findOrFail($userId);
+                'applicant.brands',
+                'appliedVacancies'
+            ])
+            ->withCount('appliedVacancies')
+            ->findOrFail($userId);
 
             // Type
             $types = Type::get();
@@ -80,7 +82,7 @@ class ApplicationController extends Controller
             $races = Race::get();
 
             // Brand
-            $brands = Brand::get();
+            $brands = Brand::whereIn('id', [1, 2, 5, 6])->get();
 
             // Duration
             $durations = Duration::get();
@@ -147,7 +149,8 @@ class ApplicationController extends Controller
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
             'public_holidays' => ['required', 'in:Yes,No'],
             'environment' => ['required', 'in:Yes,No'],
-            'brand_id' => ['required', 'integer', 'exists:brands,id'],
+            'brands' => ['required', 'array'], // Ensure brands is an array
+            'brands.*' => ['required', 'integer', 'exists:brands,id'], // Validate each brand id exists in the brands table
             'disability' => ['required', 'in:Yes,No'],
             'literacy_answers' => ['required', 'array'], // Ensure literacy answers array
             'literacy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each literacy answer
@@ -155,6 +158,13 @@ class ApplicationController extends Controller
             'numeracy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each numeracy answer
             'situational_answers' => ['required', 'array'],
             'situational_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each situational answer
+            // Custom validation rule for brands
+            'brands' => ['required', 'array', function ($attribute, $value, $fail) {
+                // Check if brand ID 1 is in the array and there are other IDs selected
+                if (in_array(1, $value) && count($value) > 1) {
+                    $fail('You cannot select specific brands with "All".');
+                }
+            }],
         ]);
 
         try {
@@ -188,7 +198,7 @@ class ApplicationController extends Controller
             $durationId = $request->duration_id;
             $publicHolidays = $request->public_holidays;
             $environment = $request->environment;
-            $brandId = $request->brand_id;
+            $brands = $request->brands;
             $disability = $request->disability;
             $literacyAnswers = $request->literacy_answers;
             $numeracyAnswers = $request->numeracy_answers;
@@ -254,7 +264,6 @@ class ApplicationController extends Controller
                 'consent' => $request->consent ? 'Yes' : 'No', // Store consent status
                 'environment' => $environment, // Store user's answer to environment
                 'duration_id' => $durationId,
-                'brand_id' => $brandId,
                 'location_type' => 'Address',
                 'location' => $location,
                 'has_email' => $email ? 'Yes' : 'No', // Determine if email was provided
@@ -274,6 +283,23 @@ class ApplicationController extends Controller
                 'application_type' => 'Website', // Application type set to Website
                 'state_id' => $completeStateID,
             ]);
+
+            // Brands
+            if ($request->has('brands')) {
+                // Get the submitted brands
+                $brands = $request->brands;
+
+                // If brand with ID 2 is present, add 3 and 4 to the array
+                if (in_array(2, $brands)) {
+                    $brands = array_merge($brands, [3, 4]);
+                }
+
+                // Prepare the data to sync with timestamps
+                $brandData = array_fill_keys($brands, ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+
+                // Sync the brands with the applicant
+                $applicant->brands()->sync($brandData);
+            }
 
             // Verify the applicant's location using Google Maps API
             $googleMapsService = new GoogleMapsService();
@@ -360,7 +386,8 @@ class ApplicationController extends Controller
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
             'public_holidays' => ['required', 'in:Yes,No'],
             'environment' => ['required', 'in:Yes,No'],
-            'brand_id' => ['required', 'integer', 'exists:brands,id'],
+            'brands' => ['required', 'array'], // Ensure brands is an array
+            'brands.*' => ['required', 'integer', 'exists:brands,id'], // Validate each brand id exists in the brands table
             'disability' => ['required', 'in:Yes,No'],
             'literacy_answers' => ['required', 'array'], // Ensure literacy answers array
             'literacy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each literacy answer
@@ -368,6 +395,13 @@ class ApplicationController extends Controller
             'numeracy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each numeracy answer
             'situational_answers' => ['required', 'array'],
             'situational_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each situational answer
+            // Custom validation rule for brands
+            'brands' => ['required', 'array', function ($attribute, $value, $fail) {
+                // Check if brand ID 1 is in the array and there are other IDs selected
+                if (in_array(1, $value) && count($value) > 1) {
+                    $fail('You cannot select specific brands with "All".');
+                }
+            }],
         ]);
 
         try {
@@ -493,6 +527,23 @@ class ApplicationController extends Controller
                 'application_type' => 'Website', // Application type set to Website
                 'state_id' => $completeStateID,
             ]);
+
+            // Brands
+            if ($request->has('brands')) {
+                // Get the submitted brands
+                $brands = $request->brands;
+
+                // If brand with ID 2 is present, add 3 and 4 to the array
+                if (in_array(2, $brands)) {
+                    $brands = array_merge($brands, [3, 4]);
+                }
+
+                // Prepare the data to sync with timestamps
+                $brandData = array_fill_keys($brands, ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+
+                // Sync the brands with the applicant
+                $applicant->brands()->sync($brandData);
+            }
 
             // Now let's verify the location using GoogleMapsService
             $googleMapsService = new GoogleMapsService();

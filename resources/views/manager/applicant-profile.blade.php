@@ -398,7 +398,11 @@
                                                                                 </h6>
                                                                             </div>
                                                                             <div class="col-lg-9">
-                                                                                {{ optional($applicant->brand)->name ?? 'N/A' }}
+                                                                                @if($applicant->brands && $applicant->brands->isNotEmpty())
+                                                                                    {{ $applicant->brands->pluck('name')->implode(', ') }}
+                                                                                @else
+                                                                                    N/A
+                                                                                @endif
                                                                             </div>
                                                                         </div>
                                                                     </div>
@@ -624,6 +628,19 @@
                                 
                                                 <div class="card-body">
                                                     <div id="numeracy_chart" data-colors='["--vz-secondary"]' class="apex-charts" dir="ltr"></div>
+                                                </div><!-- end card-body -->
+                                            </div><!-- end card -->
+                                        </div>
+                                        <!-- end col -->
+
+                                        <div class="col-xl-6">
+                                            <div class="card">
+                                                <div class="card-header">
+                                                    <h4 class="card-title mb-0">Situational Score</h4>
+                                                </div><!-- end card header -->
+                                
+                                                <div class="card-body">
+                                                    <div id="situational_chart" data-colors='["--vz-danger"]' class="apex-charts" dir="ltr"></div>
                                                 </div><!-- end card-body -->
                                             </div><!-- end card -->
                                         </div>
@@ -990,19 +1007,23 @@
     <!--end row-->
 @endsection
 @section('script')
-    <script>
-        var literacyScore = {{ $applicant->literacy_score }};
-        var literacyQuestions = {{ $applicant->literacy_questions }};
-        var literacy = "{{ $applicant->literacy }}";
+    @if ($authUser->role_id <= 2)
+        <script>
+            var literacyScore = {{ $applicant->literacy_score }};
+            var literacyQuestions = {{ $applicant->literacy_questions }};
+            var literacy = "{{ $applicant->literacy }}";
 
-        var numeracyScore = {{ $applicant->numeracy_score }};
-        var numeracyQuestions = {{ $applicant->numeracy_questions }};
-        var numeracy = "{{ $applicant->numeracy }}";
-    </script>
+            var numeracyScore = {{ $applicant->numeracy_score }};
+            var numeracyQuestions = {{ $applicant->numeracy_questions }};
+            var numeracy = "{{ $applicant->numeracy }}";
 
-    <script>
-        var chatsData = @json($applicant->chats);
-    </script>
+            var situationalScore = {{ $applicant->situational_score }};
+            var situationalQuestions = {{ $applicant->situational_questions }};
+            var situational = "{{ $applicant->situational }}";
+
+            var chatsData = @json($applicant->chats);
+        </script>
+    @endif
 
     <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
