@@ -212,7 +212,7 @@
             </div> <!-- end row-->
 
             <div class="row">
-                <div class="col-md-6" id="regionWideAverageColumn">
+                <div class="col-md-6" id="regionWideAverageShortlistTimeColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -221,10 +221,41 @@
                                         Time to Shortlist (days)
                                     </p>
                                     <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="regionWideAverageValue">{{ $regionWideAverage }}</span>
+                                        <span id="regionWideAverageShortlistTimeValue">{{ $regionWideAverageShortlistTime }}</span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="regionWideAverage">
+                                        <span class="badge bg-light text-secondary mb-0" id="regionWideAverageShortlistTime">
+                                            Region Average
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
+                                            <i data-feather="watch" class="text-secondary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card-->
+                </div> <!-- end col-->
+            </div> <!-- end row-->
+
+            <div class="row">
+                <div class="col-md-6" id="regionWideAverageShortlistTimeColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Time to Shortlist (days)
+                                    </p>
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="regionWideAverageShortlistTimeValue">{{ $regionWideAverageShortlistTime }}</span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-secondary mb-0" id="regionWideAverageShortlistTime">
                                             Region Average
                                         </span>
                                     </p>

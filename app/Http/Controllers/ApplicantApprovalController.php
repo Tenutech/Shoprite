@@ -10,6 +10,7 @@ use App\Models\Race;
 use App\Models\Vacancy;
 use App\Models\Position;
 use App\Models\Province;
+use App\Models\Amendment;
 use App\Models\Applicant;
 use App\Models\Notification;
 use Carbon\Carbon;
@@ -58,19 +59,9 @@ class ApplicantApprovalController extends Controller
                 'town',
                 'gender',
                 'race',
-                'position',
                 'education',
-                'readLanguages',
-                'speakLanguages',
-                'reason',
                 'duration',
-                'retrenchment',
-                'brand',
-                'previousPosition',
-                'transport',
-                'disability',
-                'type',
-                'bank',
+                'brands',
                 'role',
                 'state',
                 'savedBy' => function ($query) use ($userID) {

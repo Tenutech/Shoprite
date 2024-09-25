@@ -137,64 +137,27 @@
                 <!--end col-->
             </div> <!-- end row-->
 
-            <!-------------------------------------------------------------------------------------
-                Applicants Time To Hire
-            -------------------------------------------------------------------------------------->
-
             <div class="row">
-                <div class="col-md-6" id="timeToHirePreviousYearColumn">
+                <div class="col-md-6" id="averageShortlistTimeColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <p class="fw-semibold text-muted mb-0">
-                                        Time to Hire
+                                        Time to Shortlist (days)
                                     </p>
                                     @php
-                                        $totalMinutes = $previousYearData->total_time_to_appointed;
+                                        $totalDays = $averageShortlistTime;
+                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
                                         $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
-                                        $formattedInterval = $interval->cascade()->format('%dD %HH %IM');
-                                    @endphp
-                                    <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="timeToHirePreviousYearValue">{{ $formattedInterval }}</span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="timeToHirePreviousYear">
-                                            {{ $previousYearData->year }}
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-
-                <div class="col-md-6" id="timeToHireCurrentYearColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Time to Hire
-                                    </p>
-                                    @php
-                                        $totalMinutes = $currentYearData->total_time_to_appointed;
-                                        $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
-                                        $formattedInterval = $interval->cascade()->format('%dD %HH %IM');
+                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
                                     @endphp
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="timeToHireCurrentYearValue">{{ $formattedInterval }}</span>
+                                        <span id="averageShortlistTimeeValue">{{ $formattedInterval }}</span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-primary mb-0" id="timeToHireCurrentYear">
-                                            {{ $currentYearData->year }}
+                                        <span class="badge bg-light text-primary mb-0" id="averageShortlistTime">
+                                            System Average
                                         </span>
                                     </p>
                                 </div>
@@ -209,23 +172,27 @@
                         </div><!-- end card body -->
                     </div> <!-- end card-->
                 </div> <!-- end col-->
-            </div> <!-- end row-->
 
-            <div class="row">
-                <div class="col-md-6" id="nationwideAverageColumn">
+                <div class="col-md-6" id="averageTimeToHireColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <p class="fw-semibold text-muted mb-0">
-                                        Time to Shortlist (days)
+                                        Time to Hire
                                     </p>
+                                    @php
+                                        $totalDays = $averageTimeToHire;
+                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
+                                        $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
+                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
+                                    @endphp
                                     <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="nationwideAverageValue">{{ $nationwideAverage }}</span>
+                                        <span id="averageTimeToHireValue">{{ $formattedInterval }}</span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="nationwideAverage">
-                                            National Average
+                                        <span class="badge bg-light text-secondary mb-0" id="averageTimeToHire">
+                                            System Average
                                         </span>
                                     </p>
                                 </div>
@@ -233,35 +200,6 @@
                                     <div class="avatar-sm flex-shrink-0">
                                         <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
                                             <i data-feather="watch" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-
-                <div class="col-md-6" id="storeAverageColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Time to Shortlist (days)
-                                    </p>
-                                    <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="storeAverageValue">{{ $storeAverage }}</span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-primary mb-0" id="storeAverage">
-                                            Store Average
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-primary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-primary"></i>
                                         </span>
                                     </div>
                                 </div>
@@ -665,7 +603,27 @@
                                                         <p class="text-muted mb-1">
                                                             {{ $applicantPositionName }}
                                                         </p>
-                                                    </div>                                                  
+                                                    </div>
+                                                @elseif ($activity->subject_type === "App\Models\User")
+                                                    @php
+                                                        $firstname = isset($activityAttributes['attributes']['firstname']) ? $activityAttributes['attributes']['firstname'] : 'N/A';
+                                                        $lastname = isset($activityAttributes['attributes']['lastname']) ? $activityAttributes['attributes']['lastname'] : 'N/A';
+                                                        $role = $activity->subject->role ? $activity->subject->role->name : 'N/A';
+                                                        $brand = $activity->subject->brand ? $activity->subject->brand->name : 'N/A';
+                                                    @endphp
+                                                    <a data-bs-toggle="collapse" href="#activity{{ $activity->id }}" role="button" aria-expanded="true" aria-controls="activity{{ $activity->id }}">
+                                                        <h6 class="mb-1 lh-base">                                                
+                                                            Created User: <span class="text-success">{{ $firstname }} {{ $lastname }}</span>
+                                                        </h6>
+                                                    </a>
+                                                    <div class="collapse show" id="activity{{ $activity->id }}">
+                                                        <p class="text-muted mb-1">
+                                                            {{ $role }}
+                                                        </p>
+                                                        <p class="text-muted mb-1">
+                                                            {{ $brand }}
+                                                        </p>
+                                                    </div>                                              
                                                 @elseif ($activity->subject_type === "App\Models\Message")
                                                     @php
                                                         $message = isset($activityAttributes['attributes']['message']) ? $activityAttributes['attributes']['message'] : 'N/A';
@@ -778,6 +736,26 @@
                                                         </p>
                                                         <p class="text-muted mb-1">
                                                             {{ $applicantPositionName }}
+                                                        </p>
+                                                    </div>
+                                                @elseif ($activity->subject_type === "App\Models\User")
+                                                    @php
+                                                        $firstname = isset($activityAttributes['attributes']['firstname']) ? $activityAttributes['attributes']['firstname'] : 'N/A';
+                                                        $lastname = isset($activityAttributes['attributes']['lastname']) ? $activityAttributes['attributes']['lastname'] : 'N/A';
+                                                        $role = $activity->subject->role ? $activity->subject->role->name : 'N/A';
+                                                        $brand = $activity->subject->brand ? $activity->subject->brand->name : 'N/A';
+                                                    @endphp
+                                                    <a data-bs-toggle="collapse" href="#activity{{ $activity->id }}" role="button" aria-expanded="true" aria-controls="activity{{ $activity->id }}">
+                                                        <h6 class="mb-1 lh-base">                                                
+                                                            Updated User: <span class="text-warning">{{ $firstname }} {{ $lastname }}</span>
+                                                        </h6>
+                                                    </a>
+                                                    <div class="collapse show" id="activity{{ $activity->id }}">
+                                                        <p class="text-muted mb-1">
+                                                            {{ $role }}
+                                                        </p>
+                                                        <p class="text-muted mb-1">
+                                                            {{ $brand }}
                                                         </p>
                                                     </div>
                                                 @elseif ($activity->subject_type === "App\Models\Application")
@@ -954,81 +932,6 @@
                                     </div>
                                 @endif
                             @endforeach
-                        </div>
-                    </div>
-
-                    <div class="p-3 mt-2">
-                        <h6 class="text-muted mb-3 text-uppercase fw-bold fs-13">Top 10 Categories
-                        </h6>
-
-                        <ol class="ps-3 text-muted">
-                            @foreach($positions as $position)
-                                <li class="py-1">
-                                    <a class="text-muted">
-                                        <div class="row">
-                                            <div class="col-9">
-                                                {{ $position->name }}
-                                            </div>
-                                            <div class="col-3 text-end">
-                                                ({{ $position->users_count }})
-                                            </div>
-                                        </div>
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ol>
-                    </div>
-
-                    <div class="card sidebar-alert bg-light border-0 text-center mx-4 mb-0 mt-3">
-                        <div class="card-body">
-                            <img src="{{ URL::asset('build/images/shoops-qr.png') }}" width="150px" alt="">
-                            <div class="mt-4">
-                                <h5>
-                                    WhatsApp
-                                </h5>
-                                <p class="text-muted lh-base">
-                                    Want to apply using WhatsApp? Scan the code now!
-                                </p>
-                                <a href="https://wa.me/message/7SVFD36YM766G1" class="btn btn-success btn-label rounded-pill" target="_blank">
-                                    <i class="ri-whatsapp-line label-icon align-middle rounded-pill fs-16 me-2"></i>
-                                    Shoops
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="card sidebar-alert bg-light border-0 text-center mx-4 mb-0 mt-3">
-                        <div class="card-body">
-                            <img src="{{ URL::asset('build/images/user-illustarator-1.png') }}" width="100px" alt="">
-                            <div class="mt-4">
-                                <h5>
-                                    Tutorial Video
-                                </h5>
-                                <p class="text-muted lh-base">
-                                    Need help? Watch the tutorial video now!
-                                </p>
-                                <a href="https://www.youtube.com/watch?v=-LFTggnuzZc" class="btn btn-primary btn-label rounded-pill" target="_blank">
-                                    <i class="ri-video-chat-fill label-icon align-middle rounded-pill fs-16 me-2"></i>
-                                    Tutorial
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="card sidebar-alert bg-light border-0 text-center mx-4 mb-0 mt-3">
-                        <div class="card-body">
-                            <img src="{{ URL::asset('build/images/giftbox.png') }}" alt="">
-                            <div class="mt-4">
-                                <h5>
-                                    Invite New User
-                                </h5>
-                                <p class="text-muted lh-base">
-                                    Refer a colleague to Orient Recruitment.</p>
-                                <a href="mailto:?subject=Invitation%20to%20Opportunity%20Bridge" class="btn btn-primary btn-label rounded-pill">
-                                    <i class="ri-mail-fill label-icon align-middle rounded-pill fs-16 me-2"></i>
-                                    Invite Now
-                                </a>
-                            </div>
                         </div>
                     </div>
                 </div>

@@ -56,7 +56,6 @@ class AdminController extends Controller
         if (view()->exists('admin/home')) {
             // Define the models that are relevant for the activity log.
             $allowedModels = [
-                'App\Models\Applicant',
                 'App\Models\Application',
                 'App\Models\Vacancy',
                 'App\Models\Message',
@@ -564,11 +563,9 @@ class AdminController extends Controller
             })->all();
 
             // Nationwide average
-            $nationwideAverage = $this->vacancyDataService->getNationwideAverageTimeToShortlist();
+            $averageShortlistTime = $this->vacancyDataService->getNationwideAverageTimeToShortlist();
 
-            // Store-specific average (assuming the user has a store_id)
-            $storeId = auth()->user()->store_id;
-            $storeAverage = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId);
+            $averageTimeToHire = $this->vacancyDataService->getNationwideAverageTimeToHire();
 
             return view('admin/home', [
                 'activities' => $activities,
@@ -591,8 +588,8 @@ class AdminController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
-                'nationwideAverage' => $nationwideAverage,
-                'storeAverage' => $storeAverage,
+                'averageShortlistTime' => $averageShortlistTime,
+                'averageTimeToHire' => $averageTimeToHire,
             ]);
         }
         return view('404');

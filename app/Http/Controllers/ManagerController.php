@@ -334,7 +334,9 @@ class ManagerController extends Controller
                 }
             }
 
-            $storeAverage = $this->vacancyDataService->getStoreAverageTimeToShortlist(Auth::user()->store_id);
+            $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist(Auth::user()->store_id);
+
+            $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire(Auth::user()->store_id);
 
             return view('manager/home', [
                 'store' => $store,
@@ -354,7 +356,8 @@ class ManagerController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
-                'storeAverage' => $storeAverage,
+                'storeAverageTimeToShortlist' => $storeAverageTimeToShortlist,
+                'storeAverageTimeToHire' => $storeAverageTimeToHire,
             ]);
         }
         return view('404');

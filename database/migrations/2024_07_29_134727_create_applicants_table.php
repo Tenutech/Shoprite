@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedBigInteger('town_id')->nullable()->index('applicants_town_id_foreign');
             $table->string('coordinates')->nullable();
             $table->string('contact_number')->nullable();
-            $table->string('additional_contact_number')->nullable();
+            $table->enum('additional_contact_number', ['Yes', 'No'])->nullable();
             $table->date('birth_date')->nullable();
             $table->integer('age')->nullable();
             $table->unsignedBigInteger('gender_id')->nullable()->index('applicants_gender_id_foreign');

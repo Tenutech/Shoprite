@@ -122,7 +122,6 @@ class ChatService
                 'user',
                 'gender',
                 'race',
-                'transport',
                 'role',
                 'interviews.vacancy.position'
             ])
@@ -134,6 +133,8 @@ class ChatService
                 $applicant = new Applicant([
                     'phone' => $phone,
                     'role_id' => 8,
+                    'applicant_type_id' => 2,
+                    'application_type' => 'WhatsApp',
                     'state_id' => 1,
                 ]);
                 $applicant->save();
@@ -2479,7 +2480,6 @@ class ChatService
                     $stateID = State::where('code', 'schedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
                 } elseif ($body === '2' || $body === 'no') {
-                    // Handle the 'no' response from the applicant.
                     // Update the interview status to 'Declined' for the latest interview.
                     $latestInterview->status = 'Declined';
                     $latestInterview->save();
@@ -2510,12 +2510,14 @@ class ChatService
                     $applicant->update(['state_id' => $stateID]);
                 } else {
                     // Handle invalid responses that are neither 'yes' nor 'no'.
+
                     // Send an error message listing the valid options ('1' Yes, '2' No)
                     $errorMessage = "Invalid option. Please reply with:\n\n1. Yes\n2. No";
                     $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 }
             } else {
                 // If no interview was found for the applicant.
+
                 // Send a message indicating no interviews were found for the applicant.
                 $message = "No interviews found, have a wonderful day.";
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
@@ -2587,6 +2589,7 @@ class ChatService
                     $applicant->update(['state_id' => $stateID]);
                 } elseif ($body == '2' || $body == 'reschedule') {
                     // Handle the 'reschedule' response, where the applicant requests to reschedule the interview.
+
                     // Update the interview status to 'Reschedule'.
                     $latestInterview->status = 'Reschedule';
                     $latestInterview->save();
@@ -2617,6 +2620,7 @@ class ChatService
                     $applicant->update(['state_id' => $stateID]);
                 } elseif ($body == '3' || $body == 'decline') {
                     // Handle the 'decline' response, where the applicant declines the interview.
+
                     // Update the interview status to 'Declined'.
                     $latestInterview->status = 'Declined';
                     $latestInterview->save();
@@ -2646,12 +2650,14 @@ class ChatService
                     $applicant->update(['state_id' => $stateID]);
                 } else {
                     // Handle invalid input if the response is not 'confirm', 'reschedule', or 'decline'.
+
                     // Send an error message listing the valid options ('1' Confirm, '2' Reschedule, '3' Decline)
                     $errorMessage = "Invalid option. Please reply with:\n\n1. Confirm\n2. Reschedule\n3. Decline";
                     $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 }
             } else {
                 // If no interview was found, send a error message to the applicant indicating no interviews are scheduled.
+
                 $errorMessage = "No interviews found, have a wonderful day.";
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
 
