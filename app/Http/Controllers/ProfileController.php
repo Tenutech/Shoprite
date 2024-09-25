@@ -504,13 +504,13 @@ class ProfileController extends Controller
 
             // Return success response with a redirect URL
             return response()->json([
-                'success' => true, 
+                'success' => true,
                 'redirect' => url('/')
             ], 200);
         } catch (\Exception $e) {
             // Handle any exceptions that occur during the process
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'Failed to delete profile: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ], 400);

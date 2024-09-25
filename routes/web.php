@@ -121,6 +121,18 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2,3,4,5', 'user.
 
     Route::delete('/numeracy/destroy/{id}', [App\Http\Controllers\NumeracyController::class, 'destroy'])->name('numeracy.destroy');
 
+    //Situational Awareness
+
+    Route::get('/situational-awareness', [App\Http\Controllers\SituationalAwarenessController::class, 'index'])->name('situational-awareness.index');
+
+    Route::post('/situational-awareness/add', [App\Http\Controllers\SituationalAwarenessController::class, 'store'])->name('situational-awareness.store');
+
+    Route::post('/situational-awareness/update', [App\Http\Controllers\SituationalAwarenessController::class, 'update'])->name('situational-awareness.update');
+
+    Route::get('/situational-awareness/details/{id}', [App\Http\Controllers\SituationalAwarenessController::class, 'details'])->name('situational-awareness.details');
+
+    Route::delete('/situational-awareness/destroy/{id}', [App\Http\Controllers\SituationalAwarenessController::class, 'destroy'])->name('situational-awareness.destroy');
+
     //Weighting
 
     Route::get('/weighting', [App\Http\Controllers\WeightingController::class, 'index'])->name('weighting.index');
@@ -656,7 +668,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::post('/files/add', [App\Http\Controllers\JobOverviewController::class, 'store'])->name('file.store');
 
-    Route::delete('/files/delete/{id}', [App\Http\Controllers\JobOverviewController::class, 'destroy'])->name('file.destroy');    
+    Route::delete('/files/delete/{id}', [App\Http\Controllers\JobOverviewController::class, 'destroy'])->name('file.destroy');
 
     //Messages
 
@@ -698,7 +710,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
     //My Profile Settings
 
     Route::get('/profile-settings', [App\Http\Controllers\ProfileSettingsController::class, 'index'])->name('profile-settings.index');
-    
+
     Route::post('/update-profile', [App\Http\Controllers\ProfileSettingsController::class, 'update'])->name('profile-settings.update');
 
     Route::post('/update-password', [App\Http\Controllers\ProfileSettingsController::class, 'updatePassword'])->name('profile-settings.updatePassword');
