@@ -2387,7 +2387,8 @@ class ChatService
                     // Construct the template message for interview_welcome
                     $templateMessage = [
                         [
-                            'message' => "Hello {$variables[0]},\n\nI have picked up that you currently have an interview scheduled for the *{$variables[1]}* at *{$variables[2]}* for the position of *{$variables[3]}* at *{$variables[4]}*.\n\nWould you like to view or edit the details of this interview?\n\n1. Yes\n2. No",
+                            'message' => "Hello {$variables[0]},\n\nI have picked up that you currently have an interview scheduled for the *{$variables[1]}* at *{$variables[2]}* for the position of *{$variables[3]}* at *{$variables[4]}*.\n\nWould " .
+                                        "you like to view or edit the details of this interview?\n\n1. Yes\n2. No",
                             'type' => "text",
                             'template' => "interview_welcome",
                             'variables' => $variables
@@ -2477,9 +2478,8 @@ class ChatService
                     // Update the applicant's state to 'schedule' after confirming the interview.
                     $stateID = State::where('code', 'schedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                }
-                // Handle the 'no' response from the applicant.
-                elseif ($body === '2' || $body === 'no') {
+                } elseif ($body === '2' || $body === 'no') {
+                    // Handle the 'no' response from the applicant.
                     // Update the interview status to 'Declined' for the latest interview.
                     $latestInterview->status = 'Declined';
                     $latestInterview->save();
@@ -2508,16 +2508,14 @@ class ChatService
                     // Update the applicant's state to 'complete' after declining the interview.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                }
-                // Handle invalid responses that are neither 'yes' nor 'no'.
-                else {
+                } else {
+                    // Handle invalid responses that are neither 'yes' nor 'no'.
                     // Send an error message listing the valid options ('1' Yes, '2' No)
                     $errorMessage = "Invalid option. Please reply with:\n\n1. Yes\n2. No";
                     $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 }
-            }
-            // If no interview was found for the applicant.
-            else {
+            } else {
+                // If no interview was found for the applicant.
                 // Send a message indicating no interviews were found for the applicant.
                 $message = "No interviews found, have a wonderful day.";
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
@@ -2587,9 +2585,8 @@ class ChatService
                     // Update the applicant's state to 'complete' after confirmation.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                }
-                // Handle the 'reschedule' response, where the applicant requests to reschedule the interview.
-                elseif ($body == '2' || $body == 'reschedule') {
+                } elseif ($body == '2' || $body == 'reschedule') {
+                    // Handle the 'reschedule' response, where the applicant requests to reschedule the interview.
                     // Update the interview status to 'Reschedule'.
                     $latestInterview->status = 'Reschedule';
                     $latestInterview->save();
@@ -2618,9 +2615,8 @@ class ChatService
                     // Update the applicant's state to 'reschedule' for the next step.
                     $stateID = State::where('code', 'reschedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                }
-                // Handle the 'decline' response, where the applicant declines the interview.
-                elseif ($body == '3' || $body == 'decline') {
+                } elseif ($body == '3' || $body == 'decline') {
+                    // Handle the 'decline' response, where the applicant declines the interview.
                     // Update the interview status to 'Declined'.
                     $latestInterview->status = 'Declined';
                     $latestInterview->save();
@@ -2648,16 +2644,14 @@ class ChatService
                     // Update the applicant's state to 'complete' after declining the interview.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                }
-                // Handle invalid input if the response is not 'confirm', 'reschedule', or 'decline'.
-                else {
+                } else {
+                    // Handle invalid input if the response is not 'confirm', 'reschedule', or 'decline'.
                     // Send an error message listing the valid options ('1' Confirm, '2' Reschedule, '3' Decline)
                     $errorMessage = "Invalid option. Please reply with:\n\n1. Confirm\n2. Reschedule\n3. Decline";
                     $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 }
-            }
-            // If no interview was found, send a error message to the applicant indicating no interviews are scheduled.
-            else {
+            } else {
+                // If no interview was found, send a error message to the applicant indicating no interviews are scheduled.
                 $errorMessage = "No interviews found, have a wonderful day.";
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
 
