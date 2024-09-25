@@ -60,7 +60,7 @@ return new class extends Migration
             });
 
             // Move data from the old table to the new one
-            DB::table('applicants')->select('*')->chunk(100, function ($applicants) {
+            DB::table('applicants')->orderBy('id')->chunk(100, function ($applicants) {
                 DB::table('new_applicants')->insert($applicants->toArray());
             });
 
