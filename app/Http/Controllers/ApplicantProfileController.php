@@ -74,23 +74,12 @@ class ApplicantProfileController extends Controller
 
             //Applicant
             $applicant = Applicant::with([
-                'user.appliedVacancies',
                 'town',
                 'gender',
                 'race',
-                'position',
                 'education',
-                'readLanguages',
-                'speakLanguages',
-                'reason',
                 'duration',
-                'retrenchment',
-                'brand',
-                'previousPosition',
-                'transport',
-                'disability',
-                'type',
-                'bank',
+                'brands',
                 'role',
                 'state',
                 'chats.applicant',
@@ -114,7 +103,7 @@ class ApplicantProfileController extends Controller
 
             //Vacancy ID
             $vacancyId = optional($applicant->shortlist)->vacancy_id;
-            $vacancy = collect();
+            $vacancy = null;
 
             // If vacancyId exists, reload the interviews relationship with the specific vacancy filter
             if ($vacancyId) {
