@@ -56,7 +56,6 @@ class AdminController extends Controller
         if (view()->exists('admin/home')) {
             // Define the models that are relevant for the activity log.
             $allowedModels = [
-                'App\Models\Applicant',
                 'App\Models\Application',
                 'App\Models\Vacancy',
                 'App\Models\Message',

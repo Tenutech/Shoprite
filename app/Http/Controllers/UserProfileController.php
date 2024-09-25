@@ -67,17 +67,9 @@ class UserProfileController extends Controller
                 'applicant.race',
                 'applicant.position',
                 'applicant.education',
-                'applicant.readLanguages',
-                'applicant.speakLanguages',
-                'applicant.reason',
                 'applicant.duration',
-                'applicant.retrenchment',
                 'applicant.brand',
-                'applicant.previousPosition',
-                'applicant.transport',
-                'applicant.disability',
                 'applicant.type',
-                'applicant.bank',
                 'applicant.role',
                 'applicant.state',
                 'appliedVacancies',
@@ -96,9 +88,7 @@ class UserProfileController extends Controller
                 'email',
                 'phone',
                 'avatar',
-                'company_id',
-                'position_id',
-                'website'
+                'company_id'
             ];
 
             // Get the 'complete' state ID
@@ -335,26 +325,11 @@ class UserProfileController extends Controller
                 ],
             ];
 
-            //Top Vacancies
-            $topVacancies = Vacancy::with([
-                'position',
-                'store.brand',
-                'store.town',
-                'type',
-                'applicants'
-            ])
-            ->withCount('applicants')
-            ->where('status_id', 2)
-            ->orderBy('applicants_count', 'desc')
-            ->take(3)
-            ->get();
-
             return view('admin/user-profile', [
                 'user' => $user,
                 'completion' => $completion,
                 'activities' => $activities,
-                'tabs' => $tabs,
-                'topVacancies' => $topVacancies,
+                'tabs' => $tabs
             ]);
         }
         return view('404');

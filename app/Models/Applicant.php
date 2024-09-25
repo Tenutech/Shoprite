@@ -55,49 +55,6 @@ class Applicant extends Model
         'situational_score',
         'situational_questions',
         'situational',
-        're_enter_email',
-        'has_tax',
-        'tax_number',
-        'citizen',
-        'resident',
-        'foreign_national',
-        'criminal',
-        'position_id',
-        'position_specify',
-        'school',
-        'training',
-        'other_training',
-        'drivers_license',
-        'drivers_license_code',
-        'job_previous',
-        'reason_id',
-        'job_leave_specify',
-        'job_business',
-        'job_position',
-        'job_salary',
-        'job_reference_name',
-        'job_reference_phone',
-        'retrenchment_id',
-        'job_retrenched_specify',
-        'previous_job_position_id',
-        'job_shoprite_position_specify',
-        'job_shoprite_leave',
-        'transport_id',
-        'transport_specify',
-        'disability_id',
-        'illness_specify',
-        'commencement',
-        'type_id',
-        'application_reason_specify',
-        'relocate',
-        'relocate_town',
-        'vacancy',
-        'shift',
-        'has_bank_account',
-        'bank_id',
-        'bank_specify',
-        'bank_number',
-        'expected_salary',
         'score',
         'role_id',
         'applicant_type_id',
@@ -128,34 +85,10 @@ class Applicant extends Model
         return $this->belongsTo(Race::class);
     }
 
-    //Applicant Position
-    public function position()
-    {
-        return $this->belongsTo(Position::class);
-    }
-
     //Applicant Race
     public function education()
     {
         return $this->belongsTo(Education::class);
-    }
-
-    //Read Languages
-    public function readLanguages()
-    {
-        return $this->belongsToMany(Language::class, 'applicant_read_languages', 'applicant_id', 'language_id');
-    }
-
-    //Speak Languages
-    public function speakLanguages()
-    {
-        return $this->belongsToMany(Language::class, 'applicant_speak_languages', 'applicant_id', 'language_id');
-    }
-
-    //Previous Job Leave Reason
-    public function reason()
-    {
-        return $this->belongsTo(Reason::class);
     }
 
     //Previous Job Duration
@@ -164,52 +97,10 @@ class Applicant extends Model
         return $this->belongsTo(Duration::class);
     }
 
-    //Retrenchment
-    public function retrenchment()
-    {
-        return $this->belongsTo(Retrenchment::class);
-    }
-
-    //Brand
-    public function brand()
-    {
-        return $this->belongsTo(Brand::class);
-    }
-
     //Brands
     public function brands()
     {
         return $this->belongsToMany(Brand::class, 'applicant_brands', 'applicant_id', 'brand_id');
-    }
-
-    //Applicant Previous Job Position
-    public function previousPosition()
-    {
-        return $this->belongsTo(Position::class, 'previous_job_position_id');
-    }
-
-    //Applicant Transport
-    public function transport()
-    {
-        return $this->belongsTo(Transport::class);
-    }
-
-    //Disability
-    public function disability()
-    {
-        return $this->belongsTo(Disability::class);
-    }
-
-    //Job Type
-    public function type()
-    {
-        return $this->belongsTo(Type::class);
-    }
-
-    //Bank
-    public function bank()
-    {
-        return $this->belongsTo(Bank::class);
     }
 
     //Applicant Role

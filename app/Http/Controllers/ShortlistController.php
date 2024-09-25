@@ -66,33 +66,6 @@ class ShortlistController extends Controller
             // Auth User ID
             $userID = Auth::id();
 
-            //Applicants
-            $applicants = Applicant::with([
-                'town',
-                'gender',
-                'race',
-                'position',
-                'education',
-                'readLanguages',
-                'speakLanguages',
-                'reason',
-                'duration',
-                'retrenchment',
-                'brand',
-                'previousPosition',
-                'transport',
-                'disability',
-                'type',
-                'bank',
-                'role',
-                'state',
-                'contracts',
-                'vacanciesFilled'
-            ])
-            ->orderBy('firstname')
-            ->orderBy('lastname')
-            ->get();
-
             // Decrypt the vacancy ID if it's provided
             $vacancyID = null;
             $vacancy = null;
@@ -130,32 +103,11 @@ class ShortlistController extends Controller
             //Education Levels
             $educations = Education::get();
 
-            //Languages
-            $languages = Language::get();
-
-            //Reasons
-            $reasons = Reason::get();
-
             //Durations
             $durations = Duration::get();
 
-            //Retrenchments
-            $retrenchments = Retrenchment::get();
-
             //Brands
             $brands = Brand::get();
-
-            //Transports
-            $transports = Transport::get();
-
-            //Disabilities
-            $disabilities = Disability::get();
-
-            //Types
-            $types = Type::get();
-
-            //Banks
-            $banks = Bank::get();
 
             //Applicant Types
             $applicantTypes = ApplicantType::get();
@@ -175,7 +127,6 @@ class ShortlistController extends Controller
             $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
 
             return view('manager/shortlist', [
-                'applicants' => $applicants,
                 'vacancyID'  => $vacancyID,
                 'vacancy'  => $vacancy,
                 'vacancies'  => $vacancies,
@@ -185,16 +136,9 @@ class ShortlistController extends Controller
                 'races' => $races,
                 'positions' => $positions,
                 'educations' => $educations,
-                'languages' => $languages,
-                'reasons' => $reasons,
                 'durations' => $durations,
-                'retrenchments' => $retrenchments,
                 'brands' => $brands,
-                'transports' => $transports,
-                'disabilities' => $disabilities,
-                'types' => $types,
                 'applicantTypes' => $applicantTypes,
-                'banks' => $banks,
                 'roles' => $roles,
                 'states' => $states,
                 'checks' => $checks,
@@ -284,19 +228,9 @@ class ShortlistController extends Controller
                 'town',
                 'gender',
                 'race',
-                'position',
                 'education',
-                'readLanguages',
-                'speakLanguages',
-                'reason',
                 'duration',
-                'retrenchment',
-                'brand',
-                'previousPosition',
-                'transport',
-                'disability',
-                'type',
-                'bank',
+                'brands',
                 'role',
                 'state',
                 'checks',
@@ -538,19 +472,9 @@ class ShortlistController extends Controller
                     'town',
                     'gender',
                     'race',
-                    'position',
                     'education',
-                    'readLanguages',
-                    'speakLanguages',
-                    'reason',
                     'duration',
-                    'retrenchment',
-                    'brand',
-                    'previousPosition',
-                    'transport',
-                    'disability',
-                    'type',
-                    'bank',
+                    'brands',
                     'role',
                     'state',
                     'checks',
