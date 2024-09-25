@@ -137,30 +137,27 @@
                 <!--end col-->
             </div> <!-- end row-->
 
-            <!-------------------------------------------------------------------------------------
-                Applicants Time To Hire
-            -------------------------------------------------------------------------------------->
-
             <div class="row">
-                <div class="col-md-6" id="timeToHirePreviousYearColumn">
+                <div class="col-md-6" id="divisionWideAveragetimeToShortlistColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <p class="fw-semibold text-muted mb-0">
-                                        Time to Hire
+                                        Time to Shortlist
                                     </p>
                                     @php
-                                        $totalMinutes = $previousYearData->total_time_to_appointed;
+                                        $totalDays = $divisionWideAveragetimeToShortlist;
+                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
                                         $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
-                                        $formattedInterval = $interval->cascade()->format('%dD %HH %IM');
+                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
                                     @endphp
                                     <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="timeToHirePreviousYearValue">{{ $formattedInterval }}</span>
+                                        <span id="divisionWideAveragetimeToShortlistValue">{{ $formattedInterval }}</span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="timeToHirePreviousYear">
-                                            {{ $previousYearData->year }}
+                                        <span class="badge bg-light text-secondary mb-0" id="divisionWideAveragetimeToShortlist">
+                                            Division Average
                                         </span>
                                     </p>
                                 </div>
@@ -175,8 +172,7 @@
                         </div><!-- end card body -->
                     </div> <!-- end card-->
                 </div> <!-- end col-->
-
-                <div class="col-md-6" id="timeToHireCurrentYearColumn">
+                <div class="col-md-6" id="divisionWideTimeToHireColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -185,46 +181,16 @@
                                         Time to Hire
                                     </p>
                                     @php
-                                        $totalMinutes = $currentYearData->total_time_to_appointed;
+                                        $totalDays = $divisionWideTimeToHire;
+                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
                                         $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
-                                        $formattedInterval = $interval->cascade()->format('%dD %HH %IM');
+                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
                                     @endphp
-                                    <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="timeToHireCurrentYearValue">{{ $formattedInterval }}</span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-primary mb-0" id="timeToHireCurrentYear">
-                                            {{ $currentYearData->year }}
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-primary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-primary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-            </div> <!-- end row-->
-
-            <div class="row">
-                <div class="col-md-6" id="divisionWideAverageColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Time to Shortlist (days)
-                                    </p>
                                     <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="divisionWideAverageValue">{{ $divisionWideAverage }}</span>
+                                        <span id="divisionWideTimeToHireValue">{{ $formattedInterval }}</span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="divisionWideAverage">
+                                        <span class="badge bg-light text-secondary mb-0" id="divisionWideTimeToHire">
                                             Division Average
                                         </span>
                                     </p>
@@ -241,7 +207,6 @@
                     </div> <!-- end card-->
                 </div> <!-- end col-->
             </div> <!-- end row-->
-            
 
             <!-------------------------------------------------------------------------------------
                 Applicants Absorption Rate

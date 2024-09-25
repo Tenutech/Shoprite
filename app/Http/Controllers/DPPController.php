@@ -491,7 +491,9 @@ class DPPController extends Controller
                 }
             }
 
-            $divisionWideAverage = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist(Auth::user()->division_id);
+            $divisionWideAveragetimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist(Auth::user()->division_id);
+
+            $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire(Auth::user()->division_id);
 
              // Fetch applicants positions
              $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
@@ -528,7 +530,8 @@ class DPPController extends Controller
                  'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                  'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                  'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
-                 'divisionWideAverage' => $divisionWideAverage,
+                 'divisionWideAveragetimeToShortlist' => $divisionWideAveragetimeToShortlist,
+                 'divisionWideTimeToHire' => $divisionWideTimeToHire,
              ]);
         }
          return view('404');

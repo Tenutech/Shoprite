@@ -137,64 +137,27 @@
                 <!--end col-->
             </div> <!-- end row-->
 
-            <!-------------------------------------------------------------------------------------
-                Applicants Time To Hire
-            -------------------------------------------------------------------------------------->
-
             <div class="row">
-                <div class="col-md-6" id="timeToHirePreviousYearColumn">
+                <div class="col-md-6" id="averageShortlistTimeColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <p class="fw-semibold text-muted mb-0">
-                                        Time to Hire
+                                        Time to Shortlist (days)
                                     </p>
                                     @php
-                                        $totalMinutes = $previousYearData->total_time_to_appointed;
+                                        $totalDays = $averageShortlistTime;
+                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
                                         $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
-                                        $formattedInterval = $interval->cascade()->format('%dD %HH %IM');
-                                    @endphp
-                                    <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="timeToHirePreviousYearValue">{{ $formattedInterval }}</span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="timeToHirePreviousYear">
-                                            {{ $previousYearData->year }}
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-
-                <div class="col-md-6" id="timeToHireCurrentYearColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Time to Hire
-                                    </p>
-                                    @php
-                                        $totalMinutes = $currentYearData->total_time_to_appointed;
-                                        $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
-                                        $formattedInterval = $interval->cascade()->format('%dD %HH %IM');
+                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
                                     @endphp
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="timeToHireCurrentYearValue">{{ $formattedInterval }}</span>
+                                        <span id="averageShortlistTimeeValue">{{ $formattedInterval }}</span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-primary mb-0" id="timeToHireCurrentYear">
-                                            {{ $currentYearData->year }}
+                                        <span class="badge bg-light text-primary mb-0" id="averageShortlistTime">
+                                            System Average
                                         </span>
                                     </p>
                                 </div>
@@ -209,23 +172,27 @@
                         </div><!-- end card body -->
                     </div> <!-- end card-->
                 </div> <!-- end col-->
-            </div> <!-- end row-->
 
-            <div class="row">
-                <div class="col-md-6" id="nationwideAverageColumn">
+                <div class="col-md-6" id="averageTimeToHireColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <p class="fw-semibold text-muted mb-0">
-                                        Time to Shortlist (days)
+                                        Time to Hire
                                     </p>
+                                    @php
+                                        $totalDays = $averageTimeToHire;
+                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
+                                        $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
+                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
+                                    @endphp
                                     <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="nationwideAverageValue">{{ $nationwideAverage }}</span>
+                                        <span id="averageTimeToHireValue">{{ $formattedInterval }}</span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="nationwideAverage">
-                                            National Average
+                                        <span class="badge bg-light text-secondary mb-0" id="averageTimeToHire">
+                                            System Average
                                         </span>
                                     </p>
                                 </div>
@@ -233,35 +200,6 @@
                                     <div class="avatar-sm flex-shrink-0">
                                         <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
                                             <i data-feather="watch" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-
-                <div class="col-md-6" id="storeAverageColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Time to Shortlist (days)
-                                    </p>
-                                    <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="storeAverageValue">{{ $storeAverage }}</span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-primary mb-0" id="storeAverage">
-                                            Store Average
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-primary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-primary"></i>
                                         </span>
                                     </div>
                                 </div>
