@@ -351,7 +351,6 @@ class ApplicationController extends Controller
                 'applicant' => $applicant,
                 'encrypted_id' => $encryptedID
             ], 201); // Return success response with applicant data
-
         } catch (Exception $e) {
             DB::rollBack(); // Rollback the transaction in case of error
 
