@@ -502,19 +502,19 @@ class ShortlistController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Shortlist generated!',
+                    'message' => 'Shortlist loaded!',
                     'applicants' => $applicants,
                 ]);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to generate shortlist.'
+                    'message' => 'Failed to load shortlist.'
                 ], 400);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate shortlist.',
+                'message' => 'Failed to load shortlist.',
                 'error' => $e->getMessage()
             ], 400);
         }

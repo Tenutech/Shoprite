@@ -130,6 +130,23 @@
             <div class="invalid-feedback">Please select a applicant type</div>
         </div>                                                       
     </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="live-preview">
+                        <div class="d-grid gap-2">
+                            <p class="lead text-muted lh-base mb-4">
+                                {{ $vacancy->open_positions }} open positions available.
+                            </p>
+                        </div>
+                    </div>
+                </div><!-- end card-body -->
+            </div><!-- end card -->
+        </div>
+        <!--end col-->
+    </div>
 </div>
 
 <!-------------------------------------------------------------------------------------
@@ -291,8 +308,8 @@
             <div class="card-body">
                 <div class="live-preview">
                     <div class="d-grid gap-2">
-                        <button class="btn btn-success" type="button" id="generate-btn">
-                            Generate Shortlist
+                        <button class="btn btn-success" type="button" id="{{ $vacancy->open_positions == 0 ? 'vacancyFilled-btn' : 'generate-btn' }}">
+                            {{ $vacancy->open_positions == 0 ? 'Vacancy Filled!' : 'Generate Shortlist' }}
                         </button>
                     </div>
                 </div>
