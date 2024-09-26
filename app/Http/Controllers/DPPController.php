@@ -12,6 +12,7 @@ use App\Models\Application;
 use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
+use App\Services\DataService\ApplicantDataService;
 use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -29,9 +30,13 @@ class DPPController extends Controller
      *
      * @return void
      */
-    public function __construct(ActivityLogService $activityLogService, VacancyDataService $vacancyDataService)
-    {
+    public function __construct(
+        ActivityLogService $activityLogService,
+        ApplicantDataService $applicantDataService,
+        VacancyDataService $vacancyDataService
+    ) {
         $this->activityLogService = $activityLogService;
+        $this->applicantDataService = $applicantDataService;
         $this->vacancyDataService = $vacancyDataService;
     }
 
@@ -516,38 +521,50 @@ class DPPController extends Controller
             $divisionWideAverageTimeToShortlist = 0;
             $divisionWideTimeToHire = 0;
             $adoptionRate = 0;
+            $averageScoresByBrand = [];
+            $averageScoresByProvince = [];
 
             if ($divisionId !== null) {
                 $divisionWideAverageTimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist($divisionId);
                 $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire($divisionId);
                 $adoptionRate = $this->vacancyDataService->getDivisionVacancyFillRate($divisionId, $startDate, $endDate);
+                $divisionWideAveragetimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist($divisionId);
+                $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire($divisionId);
+                $adoptionRate = $this->vacancyDataService->getDivisionVacancyFillRate($divisionId, $startDate, $endDate);
+                $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDivisionAndDateRange($divisionId, $startDate, $endDate);
+                $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
+                $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
             }
 
-             return view('dpp/home', [
-                 'activities' => $activities,
-                 'positions' => $positions,
-                 'currentYearData' => $currentYearData,
-                 'previousYearData' => $previousYearData,
-                 'applicantsPerProvince' => $applicantsPerProvince,
-                 'applicantsByRace' => $applicantsByRace,
-                 'totalApplicantsPerMonth' => $totalApplicantsPerMonth,
-                 'totalIncomingMessages' => $totalIncomingMessages,
-                 'totalOutgoingMessages' => $totalOutgoingMessages,
-                 'incomingMessages' => $incomingMessages,
-                 'outgoingMessages' => $outgoingMessages,
-                 'applicantsByPosition' => $applicantsByPosition,
-                 'applicationsPerMonth' => $applicationsPerMonth,
-                 'interviewedPerMonth' => $interviewedPerMonth,
-                 'appointedPerMonth' => $appointedPerMonth,
-                 'rejectedPerMonth' => $rejectedPerMonth,
-                 'percentMovementApplicationsPerMonth' => $percentMovementApplicationsPerMonth,
-                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
-                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
-                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
-                 'adoptionRate' => $adoptionRate,
-             ]);
+            return view('dpp/home', [
+                'activities' => $activities,
+                'positions' => $positions,
+                'currentYearData' => $currentYearData,
+                'previousYearData' => $previousYearData,
+                'applicantsPerProvince' => $applicantsPerProvince,
+                'applicantsByRace' => $applicantsByRace,
+                'totalApplicantsPerMonth' => $totalApplicantsPerMonth,
+                'totalIncomingMessages' => $totalIncomingMessages,
+                'totalOutgoingMessages' => $totalOutgoingMessages,
+                'incomingMessages' => $incomingMessages,
+                'outgoingMessages' => $outgoingMessages,
+                'applicantsByPosition' => $applicantsByPosition,
+                'applicationsPerMonth' => $applicationsPerMonth,
+                'interviewedPerMonth' => $interviewedPerMonth,
+                'appointedPerMonth' => $appointedPerMonth,
+                'rejectedPerMonth' => $rejectedPerMonth,
+                'percentMovementApplicationsPerMonth' => $percentMovementApplicationsPerMonth,
+                'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
+                'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
+                'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                'divisionWideAveragetimeToShortlist' => $divisionWideAveragetimeToShortlist,
+                'divisionWideTimeToHire' => $divisionWideTimeToHire,
+                'adoptionRate' => $adoptionRate,
+                'averageScoresByBrand' => $averageScoresByBrand,
+                'averageScoresByProvince' => $averageScoresByProvince,
+            ]);
         }
-         return view('404');
+        return view('404');
     }
 
      /*

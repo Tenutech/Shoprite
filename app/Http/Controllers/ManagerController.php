@@ -16,6 +16,7 @@ use App\Models\ReminderSetting;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
 use App\Models\ApplicantMonthlyStoreData;
+use App\Services\DataService\ApplicantDataService;
 use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -34,9 +35,10 @@ class ManagerController extends Controller
      *
      * @return void
      */
-    public function __construct(VacancyDataService $vacancyDataService)
+    public function __construct(ApplicantDataService $applicantDataService, VacancyDataService $vacancyDataService)
     {
         $this->middleware(['auth', 'verified']);
+        $this->applicantDataService = $applicantDataService;
         $this->vacancyDataService = $vacancyDataService;
     }
 
@@ -342,11 +344,14 @@ class ManagerController extends Controller
             $storeAverageTimeToShortlist = 0;
             $storeAverageTimeToHire = 0;
             $adoptionRate = 0;
+            $averageScores = [];
 
             if ($storeId !== null) {
                 $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId);
                 $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire($storeId);
                 $adoptionRate = $this->vacancyDataService->getStoreVacancyFillRate($storeId, null, $startDate, $endDate);
+                $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresForStoreAndDateRange($storeId, $startDate, $endDate);
+                $averageScores = $this->applicantDataService->calculateAverageScores($placedApplicants);
             }
 
             return view('manager/home', [
@@ -370,6 +375,7 @@ class ManagerController extends Controller
                 'storeAverageTimeToShortlist' => $storeAverageTimeToShortlist,
                 'storeAverageTimeToHire' => $storeAverageTimeToHire,
                 'adoptionRate' => $adoptionRate,
+                'averageScores' => $averageScores,
             ]);
         }
         return view('404');

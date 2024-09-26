@@ -12,6 +12,7 @@ use App\Models\Application;
 use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
+use App\Services\DataService\ApplicantDataService;
 use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -29,9 +30,13 @@ class DTDPController extends Controller
      *
      * @return void
      */
-    public function __construct(ActivityLogService $activityLogService, VacancyDataService $vacancyDataService)
-    {
+    public function __construct(
+        ActivityLogService $activityLogService,
+        ApplicantDataService $applicantDataService,
+        VacancyDataService $vacancyDataService
+    ) {
         $this->activityLogService = $activityLogService;
+        $this->applicantDataService = $applicantDataService;
         $this->vacancyDataService = $vacancyDataService;
     }
 
@@ -516,11 +521,19 @@ class DTDPController extends Controller
             $divisionWideAverageTimeToShortlist = 0;
             $divisionWideTimeToHire = 0;
             $adoptionRate = 0;
+            $averageScoresByBrand = [];
+            $averageScoresByProvince = [];
 
             if ($divisionId !== null) {
                 $divisionWideAverageTimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist($divisionId);
                 $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire($divisionId);
                 $adoptionRate = $this->vacancyDataService->getDivisionVacancyFillRate($divisionId, $startDate, $endDate);
+                $divisionWideAveragetimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist($divisionId);
+                $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire($divisionId);
+                $adoptionRate = $this->vacancyDataService->getDivisionVacancyFillRate($divisionId, $startDate, $endDate);
+                $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDivisionAndDateRange($divisionId, $startDate, $endDate);
+                $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
+                $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
             }
 
             return view('dtdp/home', [
@@ -547,6 +560,8 @@ class DTDPController extends Controller
                 'divisionWideAverageTimeToShortlist' => $divisionWideAverageTimeToShortlist,
                 'divisionWideTimeToHire' =>  $divisionWideTimeToHire,
                 'adoptionRate' => $adoptionRate,
+                'averageScoresByBrand' => $averageScoresByBrand,
+                'averageScoresByProvince' => $averageScoresByProvince,
             ]);
         }
         return view('404');

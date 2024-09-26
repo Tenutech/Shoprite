@@ -7,6 +7,7 @@ use App\Models\ApplicantMonthlyData;
 use App\Models\ApplicantTotalData;
 use App\Models\Province;
 use App\Models\State;
+use App\Models\Town;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -294,6 +295,230 @@ class ApplicantDataService
 
     //     return $completionByRegion;
     // }
+
+    /**
+     * Fetch placed applicants with their assessment scores, brand, and province
+     * for a given start and end date range.
+     *
+     * @param \DateTimeInterface|string $startDate The start date of the date range.
+     * @param \DateTimeInterface|string $endDate The end date of the date range.
+     *
+     * @return \Illuminate\Support\Collection
+     *     A collection containing placed applicants and their assessment scores within the date range.
+     */
+    public function getPlacedApplicantsWithScoresByDateRange($startDate, $endDate)
+    {
+        $startDate = $startDate instanceof \DateTimeInterface ? $startDate : Carbon::parse($startDate);
+        $endDate = $endDate instanceof \DateTimeInterface ? $endDate : Carbon::parse($endDate);
+
+        return DB::table('vacancy_fills')
+            ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
+            ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
+            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
+            ->join('towns', 'applicants.town_id', '=', 'towns.id')
+            ->select(
+                'applicants.literacy_score',
+                'applicants.numeracy_score',
+                'stores.brand_id',
+                'towns.province_id'
+            )
+            ->whereBetween('vacancy_fills.created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->get();
+    }
+
+    /**
+     * Fetch placed applicants with their assessment scores, brand, and division
+     * for a given start and end date range.
+     *
+     * @param int $divisionId The division ID to filter by.
+     * @param \DateTimeInterface|string $startDate The start date of the date range.
+     * @param \DateTimeInterface|string $endDate The end date of the date range.
+     *
+     * @return \Illuminate\Support\Collection
+     *     A collection containing placed applicants and their assessment scores within the date range.
+     */
+    public function getPlacedApplicantsWithScoresByDivisionAndDateRange($divisionId, $startDate, $endDate)
+    {
+        $startDate = $startDate instanceof \DateTimeInterface ? $startDate : Carbon::parse($startDate);
+        $endDate = $endDate instanceof \DateTimeInterface ? $endDate : Carbon::parse($endDate);
+
+        return DB::table('vacancy_fills')
+            ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
+            ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
+            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
+            ->join('towns', 'applicants.town_id', '=', 'towns.id')
+            ->join('divisions', 'stores.division_id', '=', 'divisions.id')
+            ->select(
+                'applicants.literacy_score',
+                'applicants.numeracy_score',
+                'stores.brand_id',
+                'stores.division_id'
+            )
+            ->where('stores.division_id', '=', $divisionId)
+            ->whereBetween('vacancy_fills.created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->get();
+    }
+
+    /**
+     * Fetch placed applicants with their assessment scores, brand, and region
+     * for a given start and end date range.
+     *
+     * @param int $regionId The region ID to filter by.
+     * @param \DateTimeInterface|string $startDate The start date of the date range.
+     * @param \DateTimeInterface|string $endDate The end date of the date range.
+     *
+     * @return \Illuminate\Support\Collection
+     *     A collection containing placed applicants and their assessment scores within the date range.
+     */
+    public function getPlacedApplicantsWithScoresByRegionAndDateRange($regionId, $startDate, $endDate)
+    {
+        $startDate = $startDate instanceof \DateTimeInterface ? $startDate : Carbon::parse($startDate);
+        $endDate = $endDate instanceof \DateTimeInterface ? $endDate : Carbon::parse($endDate);
+
+        return DB::table('vacancy_fills')
+            ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
+            ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
+            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
+            ->join('towns', 'applicants.town_id', '=', 'towns.id')
+            ->join('regions', 'stores.region_id', '=', 'regions.id')
+            ->select(
+                'applicants.literacy_score',
+                'applicants.numeracy_score',
+                'stores.brand_id',
+                'stores.region_id'
+            )
+            ->where('stores.region_id', '=', $regionId)
+            ->whereBetween('vacancy_fills.created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->get();
+    }
+
+    /**
+     * Fetch placed applicants with their assessment scores, brand, and store
+     * for a given start and end date range.
+     *
+     * @param int $storeId The store ID to filter by.
+     * @param \DateTimeInterface|string $startDate The start date of the date range.
+     * @param \DateTimeInterface|string $endDate The end date of the date range.
+     *
+     * @return \Illuminate\Support\Collection
+     *     A collection containing placed applicants and their assessment scores within the date range.
+     */
+    public function getPlacedApplicantsWithScoresForStoreAndDateRange($storeId, $startDate, $endDate)
+    {
+        $startDate = $startDate instanceof \DateTimeInterface ? $startDate : Carbon::parse($startDate);
+        $endDate = $endDate instanceof \DateTimeInterface ? $endDate : Carbon::parse($endDate);
+
+        return DB::table('vacancy_fills')
+            ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
+            ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
+            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
+            ->join('towns', 'applicants.town_id', '=', 'towns.id')
+            ->select(
+                'applicants.literacy_score',
+                'applicants.numeracy_score',
+                'stores.brand_id',
+                'stores.id'
+            )
+            ->where('stores.id', '=', $storeId)
+            ->whereBetween('vacancy_fills.created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->get();
+    }
+
+    /**
+     * This method calculates the average literacy, numeracy, and situational scores for each brand
+     * based on placed applicants' data. It also converts these averages into percentages.
+     *
+     * @param \Illuminate\Support\Collection $placedApplicants A collection of placed applicants.
+     *
+     * @return array
+     *     An array containing average literacy, numeracy, and situational percentages per brand.
+     */
+    public function calculateAverageScoresByBrand($placedApplicants)
+    {
+        $brands = DB::table('brands')->get();
+
+        $averageScoresByBrand = [];
+
+        foreach ($brands as $brand) {
+            $brandApplicants = $placedApplicants->where('brand_id', $brand->id);
+
+            if ($brandApplicants->isNotEmpty()) {
+                $avgLiteracyScore = $brandApplicants->avg('literacy_score');
+                $avgNumeracyScore = $brandApplicants->avg('numeracy_score');
+
+                $literacyPercentage = ($avgLiteracyScore / 10) * 100;
+                $numeracyPercentage = ($avgNumeracyScore / 10) * 100;
+
+                $averageScoresByBrand[$brand->name] = [
+                    'literacy_percentage' => round($literacyPercentage, 2),
+                    'numeracy_percentage' => round($numeracyPercentage, 2),
+                ];
+            }
+        }
+
+        return $averageScoresByBrand;
+    }
+
+    /**
+     * This method calculates the average literacy, numeracy, and situational scores for each province
+     * based on placed applicants' data. It also converts these averages into percentages.
+     *
+     * @param \Illuminate\Support\Collection $placedApplicants A collection of placed applicants.
+     *
+     * @return array
+     *     An array containing average literacy, numeracy, and situational percentages per province.
+     */
+    public function calculateAverageScoresByProvince($placedApplicants)
+    {
+        $provinces = Province::all();
+
+        $averageScoresByProvince = [];
+
+        foreach ($provinces as $province) {
+            $provinceApplicants = $placedApplicants->where('province_id', $province->id);
+
+            if ($provinceApplicants->isNotEmpty()) {
+                $avgLiteracyScore = $provinceApplicants->avg('literacy_score');
+                $avgNumeracyScore = $provinceApplicants->avg('numeracy_score');
+
+                $literacyPercentage = ($avgLiteracyScore / 10) * 100;
+                $numeracyPercentage = ($avgNumeracyScore / 10) * 100;
+
+                $averageScoresByProvince[$province->name] = [
+                    'literacy_percentage' => round($literacyPercentage, 2),
+                    'numeracy_percentage' => round($numeracyPercentage, 2),
+                ];
+            }
+        }
+
+        return $averageScoresByProvince;
+    }
+
+    /**
+     * Calculate the average assessment scores for all placed applicants.
+     *
+     * @param \Illuminate\Support\Collection $placedApplicants
+     *     A collection of placed applicants with their assessment scores.
+     *
+     * @return array|null
+     *     Returns an array containing the average literacy, numeracy, and situational scores.
+     *     If no applicants are found, it returns null.
+     */
+    public function calculateAverageScores($placedApplicants)
+    {
+        if ($placedApplicants->isNotEmpty()) {
+            $avgLiteracyScore = $placedApplicants->avg('literacy_score');
+            $avgNumeracyScore = $placedApplicants->avg('numeracy_score');
+            $avgSituationalScore = $placedApplicants->avg('situational_score');
+
+            return [
+                'avg_literacy_score' => round($avgLiteracyScore, 2),
+                'avg_numeracy_score' => round($avgNumeracyScore, 2),
+            ];
+        }
+
+        return null;
+    }
 
     /**
      * Fetch monthly data for a specific time frame.
