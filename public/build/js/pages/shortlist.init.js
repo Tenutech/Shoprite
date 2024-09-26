@@ -507,66 +507,71 @@ function loadCandidateListData(datas, page) {
                     cardBorder = 'border card-border-success';
                 }
 
-            document.querySelector("#candidate-list").innerHTML += 
-                '<div class="col-md-12 col-lg-12 candidate-card" data-candidate-id="' + datas[i].id + '">\
-                    <div class="card ' + cardBorder + ' mb-0">\
-                        <div class="card-body">\
-                            <div class="d-lg-flex align-items-center">\
-                                <div class="form-check">\
-                                    <input class="form-check-input" type="checkbox" name="chk_child" value="'+ datas[i].encrypted_id + '" data-bs-id="'+ datas[i].id + '" data-bs-name="'+ datas[i].firstname + ' '+ datas[i].lastname + '">\
-                                </div>\
-                                <div class="flex-shrink-0 col-auto">\
-                                    <div class="avatar-sm rounded overflow-hidden">\
-                                        '+ isUserProfile + '\
-                                    </div>\
-                                </div>\
-                                <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">\
-                                    <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'">\
-                                        <h5 class="fs-16 mb-2">\
-                                            '+ datas[i].firstname + ' '+ datas[i].lastname + '\
-                                        </h5>\
-                                    </a>\
-                                    <p class="text-muted mb-0">\
-                                        '+ (datas[i].race ? datas[i].race.name : 'N/A') + '\
-                                    </p>\
-                                </div>\
-                                <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">\
-                                    <div><i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>\
-                                        '+ (datas[i].town ? datas[i].town.name : 'N/A') + '\
-                                    </div>\
-                                </div>\
-                                <div class="col-2">\
-                                    <i class="'+ (datas[i].gender ? datas[i].gender.icon : 'ri-men-line') + ' text-primary me-1 align-bottom"></i>'+ 
-                                    (datas[i].gender ? '<span class="badge bg-' + datas[i].gender.color + '-subtle text-' + datas[i].gender.color + '">' + datas[i].gender.name + '</span>' : 'N/A') +
-                                '</div>\
-                                <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">\
-                                    <div class="badge text-bg-success">\
-                                        <i class="mdi mdi-star me-1"></i>\
-                                        '+ (datas[i].score ? datas[i].score : 'N/A') + '\
-                                    </div>\
-                                    '+ (interviewScore ? interviewScore : '') + '\
-                                </div>\
-                                <div class="col-2 text-end">\
-                                    <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'" class="btn btn-soft-primary">\
-                                        View Details\
-                                    </a>\
-                                    <a href="#!" class="btn btn-ghost-danger btn-icon custom-toggle '+ bookmark + ' save-applicant" data-bs-toggle="button" data-bs-id='+ datas[i].encrypted_id + '>\
-                                        <span class="icon-on">\
-                                            <i class="ri-bookmark-line align-bottom"></i>\
-                                        </span>\
-                                        <span class="icon-off">\
-                                            <i class="ri-bookmark-3-fill align-bottom"></i>\
-                                        </span>\
-                                    </a>\
-                                    <button class="btn btn-soft-dark candidate-close-btn" data-candidate-id="' + datas[i].id + '">\
+                var closeButton = '';
+                if (!datas[i].vacancies_filled || datas[i].vacancies_filled.length === 0) {
+                    closeButton = '<button class="btn btn-soft-dark candidate-close-btn" data-candidate-id="' + datas[i].id + '">\
                                         <i class="ri-close-circle-line align-bottom fs-16"></i>\
-                                    </button>\
+                                   </button>';
+                }
+
+                document.querySelector("#candidate-list").innerHTML += 
+                    '<div class="col-md-12 col-lg-12 candidate-card" data-candidate-id="' + datas[i].id + '">\
+                        <div class="card ' + cardBorder + ' mb-0">\
+                            <div class="card-body">\
+                                <div class="d-lg-flex align-items-center">\
+                                    <div class="form-check">\
+                                        <input class="form-check-input" type="checkbox" name="chk_child" value="'+ datas[i].encrypted_id + '" data-bs-id="'+ datas[i].id + '" data-bs-name="'+ datas[i].firstname + ' '+ datas[i].lastname + '">\
+                                    </div>\
+                                    <div class="flex-shrink-0 col-auto">\
+                                        <div class="avatar-sm rounded overflow-hidden">\
+                                            '+ isUserProfile + '\
+                                        </div>\
+                                    </div>\
+                                    <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">\
+                                        <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'">\
+                                            <h5 class="fs-16 mb-2">\
+                                                '+ datas[i].firstname + ' '+ datas[i].lastname + '\
+                                            </h5>\
+                                        </a>\
+                                        <p class="text-muted mb-0">\
+                                            '+ (datas[i].race ? datas[i].race.name : 'N/A') + '\
+                                        </p>\
+                                    </div>\
+                                    <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">\
+                                        <div><i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>\
+                                            '+ (datas[i].town ? datas[i].town.name : 'N/A') + '\
+                                        </div>\
+                                    </div>\
+                                    <div class="col-2">\
+                                        <i class="'+ (datas[i].gender ? datas[i].gender.icon : 'ri-men-line') + ' text-primary me-1 align-bottom"></i>'+ 
+                                        (datas[i].gender ? '<span class="badge bg-' + datas[i].gender.color + '-subtle text-' + datas[i].gender.color + '">' + datas[i].gender.name + '</span>' : 'N/A') +
+                                    '</div>\
+                                    <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">\
+                                        <div class="badge text-bg-success">\
+                                            <i class="mdi mdi-star me-1"></i>\
+                                            '+ (datas[i].score ? datas[i].score : 'N/A') + '\
+                                        </div>\
+                                        '+ (interviewScore ? interviewScore : '') + '\
+                                    </div>\
+                                    <div class="col-2 text-end">\
+                                        <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'" class="btn btn-soft-primary">\
+                                            View Details\
+                                        </a>\
+                                        <a href="#!" class="btn btn-ghost-danger btn-icon custom-toggle '+ bookmark + ' save-applicant" data-bs-toggle="button" data-bs-id='+ datas[i].encrypted_id + '>\
+                                            <span class="icon-on">\
+                                                <i class="ri-bookmark-line align-bottom"></i>\
+                                            </span>\
+                                            <span class="icon-off">\
+                                                <i class="ri-bookmark-3-fill align-bottom"></i>\
+                                            </span>\
+                                        </a>\
+                                        ' + closeButton + '\
+                                    </div>\
                                 </div>\
                             </div>\
+                            ' + checksHtml + '\
                         </div>\
-                        ' + checksHtml + '\
-                    </div>\
-                </div>'
+                    </div>'
         }
 
         // Add event listeners to the close buttons
@@ -1476,8 +1481,66 @@ $('#formVacancy').on('submit', function(e) {
                                 cardDiv.classList.add('border');
                                 cardDiv.classList.add('card-border-success');
                             }
+
+                            // Remove the close button
+                            var closeButton = candidateCard.querySelector('.candidate-close-btn');
+                            if (closeButton) {
+                                closeButton.remove();
+                            }
+
+                            // Check if the alert div already exists
+                            var existingAlert = candidateCard.querySelector('.alert');
+
+                            if (existingAlert) {
+                                // Remove existing status classes
+                                existingAlert.classList.remove('alert-danger', 'alert-warning', 'alert-info');
+                                // Add new status class
+                                existingAlert.classList.add('alert-success');
+
+                                // Convert time to the desired format
+                                var updatedTime = new Date(data.vacancy.vacancy.updated_at);
+                                var formattedDateTime = formatDateTime(updatedTime);
+
+                                // Update existing alert with new information
+                                existingAlert.innerHTML = '<i class="ri-open-arm-fill label-icon"></i><strong>Appointed: </strong>' + formattedDateTime;
+                            } else {
+                                // Create and append a new alert div
+                                var updatedTime = new Date(data.vacancy.vacancy.updated_at);
+                                var formattedDateTime = formatDateTime(updatedTime);
+
+                                var alertHtml = '<div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">' +
+                                                '<i class="ri-open-arm-fill label-icon"></i><strong>Appointed: </strong>' + formattedDateTime + 
+                                                '</div>';
+                                // Append the alertHtml to the card footer
+                                var cardFooter = candidateCard.querySelector('.card-footer .d-flex');
+                                if (cardFooter) {
+                                    cardFooter.insertAdjacentHTML('beforeend', alertHtml);
+                                }
+                            }
                         }
                     });
+
+                    // If no open positions remain, remove all applicants not appointed and without the card-border-success class
+                    if (data.vacancy.vacancy.open_positions === 0) {
+                        document.querySelectorAll('.candidate-card').forEach(function(candidateCard) {
+                            var cardDiv = candidateCard.querySelector('.card');
+                            var candidateId = candidateCard.getAttribute('data-candidate-id');
+
+                            // If the card does not have card-border-success and the applicant is not appointed, remove the card
+                            if (!cardDiv.classList.contains('card-border-success') && !selectedChoices.includes(candidateId)) {
+                                candidateCard.remove(); // Remove the card from the DOM
+                            }
+                        });
+
+                        // Change the Generate Shortlist button to Vacancy Filled!
+                        var generateButton = document.querySelector('#generate-btn');
+
+                        if (generateButton) {
+                            // Change the text and the button ID
+                            generateButton.textContent = 'Vacancy Filled!';
+                            generateButton.id = 'vacancyFilled-btn'; // Change the ID to vacancyFilled-btn
+                        }
+                    }
 
                     // Reload SAP Number options
                     sapNumberChoices.clearChoices(); // Clear existing choices
@@ -1540,3 +1603,20 @@ $('#formVacancy').on('submit', function(e) {
         this.reportValidity();
     }
 });
+
+/*
+|--------------------------------------------------------------------------
+| Format Date Time
+|--------------------------------------------------------------------------
+*/
+
+function formatDateTime(dateTime) {
+    const date = new Date(dateTime);
+    
+    const day = ("0" + date.getDate()).slice(-2); // Ensure two digits for day
+    const month = date.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
+    const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits for hours
+    const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits for minutes
+
+    return `${day} ${month} at ${hours}:${minutes}`;
+}

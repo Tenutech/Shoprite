@@ -9,6 +9,7 @@ use App\Models\User;
 use App\Models\Store;
 use App\Models\Position;
 use App\Models\Vacancy;
+use App\Models\Shortlist;
 use App\Models\Applicant;
 use App\Models\Interview;
 use App\Models\SapNumber;
@@ -544,6 +545,29 @@ class VacancyController extends Controller
 
             // If no open positions remain after appointments, notify unappointed applicants
             if ($vacancy->open_positions == 0) {
+                // Retrieve the shortlist for the vacancy
+                $shortlist = Shortlist::where('vacancy_id', $vacancyId)->first();
+
+                if ($shortlist) {
+                    // Decode applicant_ids if it's a JSON string or unserialize if it's serialized
+                    $applicantIds = is_array($shortlist->applicant_ids) 
+                        ? $shortlist->applicant_ids 
+                        : json_decode($shortlist->applicant_ids, true); // Adjust if using serialized data with unserialize()
+
+                    // Ensure we have an array before filtering
+                    if (is_array($applicantIds)) {
+                        // Filter out the applicant IDs who were not appointed
+                        $updatedApplicantIds = array_filter($applicantIds, function ($applicantId) use ($selectedApplicants) {
+                            // Only keep the applicant if they are in the selected applicants array (appointed)
+                            return in_array($applicantId, $selectedApplicants);
+                        });
+
+                        // Convert back to JSON or serialized if needed, then update the shortlist
+                        $shortlist->applicant_ids = json_encode($updatedApplicantIds); // or serialize() if serialized
+                        $shortlist->save();
+                    }
+                }
+
                 // Combine all applicants associated with the vacancy with interviewed applicants
                 $allApplicants = $vacancy->applicants->merge($vacancy->interviews->pluck('applicant'));
 
@@ -634,6 +658,7 @@ class VacancyController extends Controller
                 'success' => true,
                 'message' => 'Vacancy filled!',
                 'vacancy' => [
+                    'vacancy' => $vacancy,
                     'available_sap_numbers' => $availableSapNumbers
                 ]
             ], 200);
