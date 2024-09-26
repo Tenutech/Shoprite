@@ -217,7 +217,7 @@ class VacancyController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create vacancy!',
+                'message' => 'Failed to create vacancy: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -298,7 +298,7 @@ class VacancyController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update vacancy!',
+                'message' => 'Failed to update vacancy: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ], 400);
         }
