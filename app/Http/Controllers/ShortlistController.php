@@ -257,7 +257,7 @@ class ShortlistController extends Controller
                 $query->whereNull('user_delete')   // Include where user_delete is NULL
                       ->orWhere('user_delete', 'No'); // Or where user_delete equals 'No'
             })
-            ->where('state_id', '>=', $completeStateID)            
+            ->where('state_id', '>=', $completeStateID)
             ->whereHas('brands', function ($query) use ($vacancyBrandID) {
                 // Check if the applicant has the vacancyBrandID in their brands or brand_id = 1
                 $query->where('brand_id', 1);
