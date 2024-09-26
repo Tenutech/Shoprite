@@ -125,7 +125,7 @@ class VacancyController extends Controller
             ->get();
 
             //Types
-            $types = Type::whereNotIn('id', [6])->get();
+            $types = Type::get();
 
             return view('manager/vacancy', [
                 'user' => $user,

@@ -22,9 +22,6 @@ return new class extends Migration
             // Define foreign keys
             $table->foreign('applicant_id')->references('id')->on('applicants')->onDelete('cascade');
             $table->foreign('brand_id')->references('id')->on('brands')->onDelete('cascade');
-
-            // Ensure that each applicant can only be linked to a brand once
-            $table->primary(['applicant_id', 'brand_id']);
         });
     }
 

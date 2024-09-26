@@ -22,7 +22,7 @@ return new class extends Migration
             $table->timestamps(); // created_at and updated_at timestamps
 
             // Define foreign key for role_id referencing the roles table
-            $table->foreign('role_id')->references('id')->on('roles')->onDelete('set null');
+            $table->foreign('role_id')->references('id')->on('roles')->onDelete('set null')->onUpdate('cascade');
         });
     }
 
