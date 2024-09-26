@@ -491,9 +491,12 @@ class DTDPController extends Controller
                 }
             }
 
-            $divisionWideAveragetimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist(Auth::user()->division_id);
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfYear();
 
+            $divisionWideAveragetimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist(Auth::user()->division_id);
             $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire(Auth::user()->division_id);
+            $adoptionRate = $this->vacancyDataService->getDivisionVacancyFillRate(Auth::user()->division_id, $startDate, $endDate);
 
             // Fetch applicants positions
             $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
@@ -532,6 +535,7 @@ class DTDPController extends Controller
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
                 'divisionWideAveragetimeToShortlist' => $divisionWideAveragetimeToShortlist,
                 'divisionWideTimeToHire' =>  $divisionWideTimeToHire,
+                'adoptionRate' => $adoptionRate,
             ]);
         }
         return view('404');

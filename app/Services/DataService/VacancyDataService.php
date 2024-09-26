@@ -173,4 +173,128 @@ class VacancyDataService
         return $query->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, vacancy_fills.created_at))) as avg_time_to_hire'))
             ->value('avg_time_to_hire');
     }
+
+    /**
+     * Calculate the vacancy fill rate for all vacancies system-wide (nationwide).
+     *
+     * @param Carbon|null $startDate
+     * @param Carbon|null $endDate
+     * @return float
+     */
+    public function getNationwideVacancyFillRate(Carbon $startDate = null, Carbon $endDate = null): float
+    {
+        $query = DB::table('vacancies')
+            ->select(
+                DB::raw('SUM(vacancies.open_positions) as total_open_positions'),
+                DB::raw('SUM(vacancies.filled_positions) as total_filled_positions')
+            );
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('vacancies.created_at', [$startDate, $endDate]);
+        }
+
+        $result = $query->first();
+
+        if ($result && $result->total_open_positions > 0) {
+            $fillRate = ($result->total_filled_positions / $result->total_open_positions) * 100;
+            return (float) round($fillRate, 2);
+        }
+
+        return 0.0;
+    }
+
+    /**
+     * Calculate the vacancy fill rate for a specific division.
+     *
+     * @param int $divisionId
+     * @param Carbon|null $startDate
+     * @param Carbon|null $endDate
+     * @return float
+     */
+    public function getDivisionVacancyFillRate(int $divisionId, Carbon $startDate = null, Carbon $endDate = null): float
+    {
+        $query = DB::table('vacancies')
+            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
+            ->where('stores.division_id', $divisionId)
+            ->select(
+                DB::raw('SUM(vacancies.open_positions) as total_open_positions'),
+                DB::raw('SUM(vacancies.filled_positions) as total_filled_positions')
+            );
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('vacancies.created_at', [$startDate, $endDate]);
+        }
+
+        $result = $query->first();
+
+        if ($result && $result->total_open_positions > 0) {
+            $fillRate = ($result->total_filled_positions / $result->total_open_positions) * 100;
+            return (float) round($fillRate, 2);
+        }
+
+        return 0.0;
+    }
+
+    /**
+     * Calculate the vacancy fill rate for a specific region.
+     *
+     * @param int $regionId
+     * @param Carbon|null $startDate
+     * @param Carbon|null $endDate
+     * @return float
+     */
+    public function getRegionVacancyFillRate(int $regionId, Carbon $startDate = null, Carbon $endDate = null): float
+    {
+        $query = DB::table('vacancies')
+            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
+            ->where('stores.region_id', $regionId)
+            ->select(
+                DB::raw('SUM(vacancies.open_positions) as total_open_positions'),
+                DB::raw('SUM(vacancies.filled_positions) as total_filled_positions')
+            );
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('vacancies.created_at', [$startDate, $endDate]);
+        }
+
+        $result = $query->first();
+
+        if ($result && $result->total_open_positions > 0) {
+            $fillRate = ($result->total_filled_positions / $result->total_open_positions) * 100;
+            return (float) round($fillRate, 2);
+        }
+
+        return 0.0;
+    }
+
+    /**
+     * Calculate the vacancy fill rate for a specific store.
+     *
+     * @param int $storeId
+     * @param Carbon|null $startDate
+     * @param Carbon|null $endDate
+     * @return float
+     */
+    public function getStoreVacancyFillRate(int $storeId, Carbon $startDate = null, Carbon $endDate = null): float
+    {
+        $query = DB::table('vacancies')
+            ->where('vacancies.store_id', $storeId)
+            ->select(
+                DB::raw('SUM(vacancies.open_positions) as total_open_positions'),
+                DB::raw('SUM(vacancies.filled_positions) as total_filled_positions')
+            );
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('vacancies.created_at', [$startDate, $endDate]);
+        }
+
+        $result = $query->first();
+
+        if ($result && $result->total_open_positions > 0) {
+            $fillRate = ($result->total_filled_positions / $result->total_open_positions) * 100;
+            return (float) round($fillRate, 2);
+        }
+
+        return 0.0;
+    }
 }

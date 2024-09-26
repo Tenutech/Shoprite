@@ -66,6 +66,9 @@ class ShortlistController extends Controller
             // Auth User ID
             $userID = Auth::id();
 
+            //Auth User
+            $user = User::find($userID);
+
             // Decrypt the vacancy ID if it's provided
             $vacancyID = null;
             $vacancy = null;
@@ -127,6 +130,7 @@ class ShortlistController extends Controller
             $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
 
             return view('manager/shortlist', [
+                'user'  => $user,
                 'vacancyID'  => $vacancyID,
                 'vacancy'  => $vacancy,
                 'vacancies'  => $vacancies,
@@ -249,8 +253,11 @@ class ShortlistController extends Controller
             ->whereNull('shortlist_id')
             ->whereNull('appointed_id')
             ->where('no_show', '<=', 2)
-            ->where('user_delete', '!=', 'Yes')
-            ->where('state_id', '>=', $completeStateID)
+            ->where(function ($query) {
+                $query->whereNull('user_delete')   // Include where user_delete is NULL
+                      ->orWhere('user_delete', 'No'); // Or where user_delete equals 'No'
+            })
+            ->where('state_id', '>=', $completeStateID)            
             ->whereHas('brands', function ($query) use ($vacancyBrandID) {
                 // Check if the applicant has the vacancyBrandID in their brands or brand_id = 1
                 $query->where('brand_id', 1);
@@ -502,19 +509,19 @@ class ShortlistController extends Controller
 
                 return response()->json([
                     'success' => true,
-                    'message' => 'Shortlist generated!',
+                    'message' => 'Shortlist loaded!',
                     'applicants' => $applicants,
                 ]);
             } else {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Failed to generate shortlist.'
+                    'message' => 'Failed to load shortlist.'
                 ], 400);
             }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to generate shortlist.',
+                'message' => 'Failed to load shortlist.',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -544,6 +551,17 @@ class ShortlistController extends Controller
             $userID = Auth::id(); // Or however you obtain the authenticated user's ID
             $applicantIDToRemove = $request->input('applicant_id');
 
+            // Fetch the applicant
+            $applicant = Applicant::findorfail($applicantIDToRemove);
+
+            // Check if the applicant has been appointed
+            if ($applicant->appointed_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Applicant has have been appointed.',
+                ], 400);
+            }
+
             // Fetch the shortlist
             $shortlist = Shortlist::where('user_id', $userID)->where('vacancy_id', $vacancyID)->firstOrFail();
 
@@ -556,6 +574,9 @@ class ShortlistController extends Controller
             // Update the shortlist
             $shortlist->applicant_ids = $updatedApplicantIDs->toJson();
             $shortlist->save();
+
+            // Update the Applicant to set shortlist_id to null
+            $applicant->update(['shortlist_id' => null]);
 
             //Update the Applicant
             Applicant::find($applicantIDToRemove)->update(['shortlist_id' => null]);

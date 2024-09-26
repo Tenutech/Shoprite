@@ -562,10 +562,14 @@ class AdminController extends Controller
                 ];
             })->all();
 
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfYear();
+
             // Nationwide average
             $averageShortlistTime = $this->vacancyDataService->getNationwideAverageTimeToShortlist();
-
             $averageTimeToHire = $this->vacancyDataService->getNationwideAverageTimeToHire();
+
+            $adoptionRate = $this->vacancyDataService->getNationwideVacancyFillRate($startDate, $endDate);
 
             return view('admin/home', [
                 'activities' => $activities,
@@ -590,6 +594,7 @@ class AdminController extends Controller
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
                 'averageShortlistTime' => $averageShortlistTime,
                 'averageTimeToHire' => $averageTimeToHire,
+                'adoptionRate' => $adoptionRate,
             ]);
         }
         return view('404');

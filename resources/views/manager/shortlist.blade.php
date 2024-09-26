@@ -130,6 +130,17 @@
             <div class="invalid-feedback">Please select a applicant type</div>
         </div>
     </div>
+
+    <div class="col-md-12">
+        <div class="live-preview">
+            <div class="d-grid gap-2">
+                <p class="lead text-muted lh-base mb-4 text-center">
+                    {{ $vacancy->open_positions }} open {{ $vacancy->open_positions == 1 ? 'position' : 'positions' }} available.
+                </p>
+            </div>
+        </div>
+    </div>
+    <!--end col-->
 </div>
 
 <!-------------------------------------------------------------------------------------
@@ -291,8 +302,8 @@
             <div class="card-body">
                 <div class="live-preview">
                     <div class="d-grid gap-2">
-                        <button class="btn btn-success" type="button" id="generate-btn">
-                            Generate Shortlist
+                        <button class="btn btn-success" type="button" id="{{ $vacancy->open_positions == 0 ? 'vacancyFilled-btn' : 'generate-btn' }}">
+                            {{ $vacancy->open_positions == 0 ? 'Vacancy Filled!' : 'Generate Shortlist' }}
                         </button>
                     </div>
                 </div>
@@ -482,7 +493,7 @@
                             <div class="mb-3">
                                 <label class="form-label" for="location">Location</label>
                                 <div>
-                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" value="{{ $vacancy ? optional($vacancy->store)->address : '' }}" required>
+                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" value="{{ $vacancy ? optional($vacancy->store)->address : '' }}" {{ $user->role_id >= 6 ? 'readonly' : '' }} required>
                                     <div class="invalid-feedback">
                                         Please enter a location
                                     </div>
@@ -492,7 +503,7 @@
                         <div class="col-12">
                             <div class="mb-3">
                                 <label class="form-label" for="notes">Notes</label>
-                                <textarea class="form-control d-block" id="notes" name="notes" placeholder="Enter additional notes" rows="3" spellcheck="true">Please bring your ID and a copy of your ID.</textarea>
+                                <textarea class="form-control d-block" id="notes" name="notes" placeholder="Enter additional notes" rows="3" spellcheck="true" readonly>Please bring your ID and a copy of your CV.</textarea>
                             </div>
                         </div><!--end col-->
                     </div><!--end row-->
