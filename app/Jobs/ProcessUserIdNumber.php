@@ -68,7 +68,9 @@ class ProcessUserIdNumber implements ShouldQueue
             $genderId = $genderCode < 5000 ? 2 : 1; // Female: 2, Male: 1
 
             // Citizenship status (C)
-            $resident = substr($person->id_number, 10, 1);
+            if ($this->userId) {
+                $resident = substr($person->id_number, 10, 1);
+            }
 
             if (ProcessUserIdNumber::isValidSAIdNumber($person->id_number)) {
                 $verified = 'Yes';
@@ -95,7 +97,7 @@ class ProcessUserIdNumber implements ShouldQueue
                 $person->gender_id = $genderId;
             }
 
-            if (empty($person->resident)) {
+            if (empty($person->resident) && $this->userId) {
                 $person->resident = $resident;
             }
 

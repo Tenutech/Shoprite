@@ -46,13 +46,21 @@ var options = {
         "id_verified",
         "birth_date",
         "age",
+        "disability",
+        "town",
         "gender",
-        "resident",
-        "position",
+        "literacy",
+        "numeracy",
+        "situational",
+        "score",
         "role",
-        "status",
-        "type",
-        "state"
+        "state",
+        "race",
+        "location",
+        "education",
+        "duration",
+        "applicant_type",
+        "source"
     ],
     page: perPage,
     pagination: true,
@@ -129,12 +137,20 @@ var idField = document.getElementById("field-id"),
     idVerified = document.getElementById("idVerified"),
     birthDate = document.getElementById("birthDate"),
     age = document.getElementById("age"),
+    disability = document.getElementById("disability"),
+    town = document.getElementById("town"),
     gender = document.getElementById("gender"),
-    resident = document.getElementById("resident"),
-    position = document.getElementById("position"),
+    literacy = document.getElementById("literacy"),
+    numeracy = document.getElementById("numeracy"),
+    situational = document.getElementById("situational"),
+    score = document.getElementById("score"),
     role = document.getElementById("role"),
-    type = document.getElementById("type"),
     state = document.getElementById("state"),
+    race = document.getElementById("race"),
+    education = document.getElementById("education"),
+    duration = document.getElementById("duration"),
+    applicantType = document.getElementById("applicant_type"),
+    source = document.getElementById("source"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
@@ -181,18 +197,18 @@ var idVerifiedVal = new Choices(idVerified, {
     shouldSort: false
 });
 
+var disabilityVal = new Choices(disability, {
+    searchEnabled: false,
+    shouldSort: false
+});
+
 var genderVal = new Choices(gender, {
     searchEnabled: false,
     shouldSort: false
 });
 
-var residentVal = new Choices(resident, {
+var townVal = new Choices(town, {
     searchEnabled: false,
-    shouldSort: false
-});
-
-var positionVal = new Choices(position, {
-    searchEnabled: true,
     shouldSort: false
 });
 
@@ -200,16 +216,35 @@ var roleVal = new Choices(role, {
     searchEnabled: false
 });
 
-var typeVal = new Choices(type, {
-    searchEnabled: false,
-    shouldSort: false
-});
-
 var stateVal = new Choices(state, {
     searchEnabled: false,
     shouldSort: false
 });
 
+var raceVal = new Choices(race, {
+    searchEnabled: false,
+    shouldSort: false
+});
+
+var educationVal = new Choices(education, {
+    searchEnabled: false,
+    shouldSort: false
+});
+
+var durationVal = new Choices(duration, {
+    searchEnabled: false,
+    shouldSort: false
+});
+
+var applicantTypeVal = new Choices(applicantType, {
+    searchEnabled: false,
+    shouldSort: false
+});
+
+var sourceVal = new Choices(source, {
+    searchEnabled: false,
+    shouldSort: false
+});
 /*
 |--------------------------------------------------------------------------
 | Add Applicant
@@ -239,22 +274,22 @@ addBtn.addEventListener("click", function (e) {
                         idVerifiedValue = '';
                     }
 
+                    if (disability.value) {
+                        disabilityValue = disability.options[disability.selectedIndex].text;
+                    } else {
+                        disabilityValue = '';
+                    }
+
                     if (gender.value) {
                         genderValue = gender.options[gender.selectedIndex].text;
                     } else {
                         genderValue = '';
                     }
 
-                    if (resident.value) {
-                        residentValue = resident.options[resident.selectedIndex].text;
+                    if (town.value) {
+                        townValue = town.options[town.selectedIndex].text;
                     } else {
-                        residentValue = '';
-                    }
-
-                    if (position.value) {
-                        positionValue = position.options[position.selectedIndex].text;
-                    } else {
-                        positionValue = '';
+                        townValue = '';
                     }
 
                     if (role.value) {
@@ -263,16 +298,40 @@ addBtn.addEventListener("click", function (e) {
                         roleValue = '';
                     }
 
-                    if (type.value) {
-                        typeValue = type.options[type.selectedIndex].text;
-                    } else {
-                        typeValue = '';
-                    }
-
                     if (state.value) {
                         stateValue = state.options[state.selectedIndex].text;
                     } else {
                         stateValue = '';
+                    }
+
+                    if (race.value) {
+                        raceValue = race.options[race.selectedIndex].text;
+                    } else {
+                        raceValue = '';
+                    }
+
+                    if (education.value) {
+                        educationValue = education.options[education.selectedIndex].text;
+                    } else {
+                        educationValue = '';
+                    }
+
+                    if (duration.value) {
+                        durationValue = duration.options[duration.selectedIndex].text;
+                    } else {
+                        durationValue = '';
+                    }
+
+                    if (applicantType.value) {
+                        applicantTypeValue = applicantType.options[applicantType.selectedIndex].text;
+                    } else {
+                        applicantTypeValue = '';
+                    }
+
+                    if (source.value) {
+                        sourceValue = source.options[source.selectedIndex].text;
+                    } else {
+                        sourceValue = '';
                     }
 
                     applicantList.add({
@@ -286,16 +345,18 @@ addBtn.addEventListener("click", function (e) {
                         id_number: idNumber.value,
                         id_verified: idVerifiedValue,
                         birth_date: formatDate(birthDate.value),
+                        town: townValue,
                         age: age.value,
+                        disability: disabilityValue,
                         gender: genderValue,
-                        resident: residentValue,
-                        position: positionValue,
                         role: roleValue,
-                        status: '<span class="badge bg-danger-subtle text-danger text-uppercase">\
-                                    Offline\
-                                </span>',
-                        type: type,
-                        state: stateValue
+                        state: stateValue,
+                        race: race,
+                        location: location.value,
+                        education: educationValue,
+                        duration: durationValue,
+                        applicantType: applicantTypeValue,
+                        source: sourceValue,
                     });
                     applicantList.sort('name', { order: "asc" });
                     Swal.fire({
@@ -379,22 +440,22 @@ editBtn.addEventListener("click", function (e) {
                                 idVerifiedValue = '';
                             }
 
+                            if (disability.value) {
+                                disabilityValue = disability.options[disability.selectedIndex].text;
+                            } else {
+                                disabilityValue = '';
+                            }
+
                             if (gender.value) {
                                 genderValue = gender.options[gender.selectedIndex].text;
                             } else {
                                 genderValue = '';
                             }
 
-                            if (resident.value) {
-                                residentValue = resident.options[resident.selectedIndex].text;
+                            if (town.value) {
+                                townValue = town.options[town.selectedIndex].text;
                             } else {
-                                residentValue = '';
-                            }
-
-                            if (position.value) {
-                                positionValue = position.options[position.selectedIndex].text;
-                            } else {
-                                positionValue = '';
+                                townValue = '';
                             }
 
                             if (role.value) {
@@ -403,16 +464,40 @@ editBtn.addEventListener("click", function (e) {
                                 roleValue = '';
                             }
 
-                            if (type.value) {
-                                typeValue = type.options[type.selectedIndex].text;
-                            } else {
-                                typeValue = '';
-                            }
-
                             if (state.value) {
                                 stateValue = state.options[state.selectedIndex].text;
                             } else {
                                 stateValue = '';
+                            }
+
+                            if (race.value) {
+                                raceValue = race.options[race.selectedIndex].text;
+                            } else {
+                                raceValue = '';
+                            }
+
+                            if (education.value) {
+                                educationValue = education.options[education.selectedIndex].text;
+                            } else {
+                                educationValue = '';
+                            }
+
+                            if (duration.value) {
+                                durationValue = duration.options[duration.selectedIndex].text;
+                            } else {
+                                durationValue = '';
+                            }
+
+                            if (applicantType.value) {
+                                applicantTypeValue = applicantType.options[applicantType.selectedIndex].text;
+                            } else {
+                                applicantTypeValue = '';
+                            }
+
+                            if (source.value) {
+                                sourceValue = source.options[source.selectedIndex].text;
+                            } else {
+                                sourceValue = '';
                             }
 
                             x.values({
@@ -427,12 +512,17 @@ editBtn.addEventListener("click", function (e) {
                                 id_verified: idVerifiedValue,
                                 birth_date: formatDate(birthDate.value),
                                 age: age.value,
+                                town: townValue,
+                                disability: disabilityValue,
                                 gender: genderValue,
-                                resident: residentValue,
-                                position: positionValue,
                                 role: roleValue,
-                                type: typeValue,
-                                state: stateValue
+                                state: stateValue,
+                                race: raceValue,
+                                location: location.value,
+                                education: educationValue,
+                                duration: durationValue,
+                                applicantType: applicantTypeValue,
+                                source: sourceValue,
                             });
                         }
                     });
@@ -581,6 +671,7 @@ function refreshCallbacks() {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
             }).done(function(data) {
+
                 idField.value = data.encID;
 
                 profileImg.src = 'images/' + data.applicant.avatar;
@@ -603,28 +694,46 @@ function refreshCallbacks() {
 
                 age.value = data.applicant.age;
 
+                if(data.applicant.disability) {
+                    disabilityVal.setChoiceByValue(data.applicant.disability.toString());
+                }
+
                 if(data.applicant.gender_id) {
                     genderVal.setChoiceByValue(data.applicant.gender_id.toString());
                 }
 
-                if (data.applicant.resident !== null) {
-                    residentVal.setChoiceByValue(data.applicant.resident.toString());
-                }
-
-                if(data.applicant.position_id) {
-                    positionVal.setChoiceByValue(data.applicant.position_id.toString());
+                if(data.applicant.town_id) {
+                    townVal.setChoiceByValue(data.applicant.town_id.toString());
                 }
 
                 if(data.applicant.role_id) {
                     roleVal.setChoiceByValue(data.applicant.role_id.toString());
                 }
 
-                if(data.applicant.type_id) {
-                    typeVal.setChoiceByValue(data.applicant.type_id.toString());
-                }
-
                 if(data.applicant.state_id) {
                     stateVal.setChoiceByValue(data.applicant.state_id.toString());
+                }
+
+                if(data.applicant.race_id) {
+                    raceVal.setChoiceByValue(data.applicant.race_id.toString());
+                }
+
+                location.value = data.applicant.location;
+
+                if(data.applicant.education_id) {
+                    educationVal.setChoiceByValue(data.applicant.education_id.toString());
+                }
+
+                if(data.applicant.duration_id) {
+                    durationVal.setChoiceByValue(data.applicant.duration_id.toString());
+                }
+
+                if(data.applicant.applicant_type_id) {
+                    applicantTypeVal.setChoiceByValue(data.applicant.applicant_type_id.toString());
+                }
+
+                if(data.applicant.application_type) {
+                    sourceVal.setChoiceByValue(data.applicant.application_type.toString());
                 }
             });
         }
@@ -684,24 +793,64 @@ function refreshCallbacks() {
                                             <td>${x._values.age}</td>
                                         </tr>
                                         <tr>
+                                            <td class="fw-medium" scope="row">Disability</td>
+                                            <td>${x._values.disability}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Location</td>
+                                            <td>${x._values.location}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Town</td>
+                                            <td>${x._values.town}</td>
+                                        </tr>
+                                        <tr>
                                             <td class="fw-medium" scope="row">Gender</td>
                                             <td>${x._values.gender}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium d-none" scope="row">Citizen Status</td>
-                                            <td class="d-none">${x._values.resident}</td>
+                                            <td class="fw-medium" scope="row">Literacy Score</td>
+                                            <td>${x._values.literacy}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium d-none" scope="row">Position</td>
-                                            <td class="d-none">${x._values.position}</td>
+                                            <td class="fw-medium" scope="row">Numeracy Score</td>
+                                            <td>${x._values.numeracy}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Type</td>
-                                            <td>${x._values.type}</td>
+                                            <td class="fw-medium" scope="row">Situational Score</td>
+                                            <td>${x._values.situational}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Overall Score</td>
+                                            <td>${x._values.score}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Race</td>
+                                            <td>${x._values.race}</td>
                                         </tr>
                                         <tr>
                                             <td class="fw-medium" scope="row">State</td>
                                             <td>${x._values.state}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Education</td>
+                                            <td>${x._values.education}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Duration</td>
+                                            <td>${x._values.duration}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Role</td>
+                                            <td>${x._values.role}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Applicant Type</td>
+                                            <td>${x._values.applicant_type}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Source</td>
+                                            <td>${x._values.source}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -737,23 +886,35 @@ function clearFields() {
 
     age.value = "";
 
+    disabilityVal.removeActiveItems();
+    disabilityVal.setChoiceByValue("");
+
     genderVal.removeActiveItems();
     genderVal.setChoiceByValue("");
 
-    residentVal.removeActiveItems();
-    residentVal.setChoiceByValue("");
-
-    positionVal.removeActiveItems();
-    positionVal.setChoiceByValue("");
+    townVal.removeActiveItems();
+    townVal.setChoiceByValue("");
 
     roleVal.removeActiveItems();
     roleVal.setChoiceByValue("");
 
-    typeVal.removeActiveItems();
-    typeVal.setChoiceByValue("");
-
     stateVal.removeActiveItems();
     stateVal.setChoiceByValue("");
+
+    raceVal.removeActiveItems();
+    raceVal.setChoiceByValue("");
+
+    educationVal.removeActiveItems();
+    educationVal.setChoiceByValue("");
+
+    durationVal.removeActiveItems();
+    durationVal.setChoiceByValue("");
+
+    applicantTypeVal.removeActiveItems();
+    applicantTypeVal.setChoiceByValue("");
+
+    sourceVal.removeActiveItems();
+    sourceVal.setChoiceByValue("");
 }
 
 // Delete All Records

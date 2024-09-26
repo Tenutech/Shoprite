@@ -35,24 +35,28 @@ class ApplicantService
             'avatar' => $applicantData['avatarName'],
             'birth_date' => date('Y-m-d', strtotime($applicantData['birth_date'])),
             'age' => $applicantData['age'],
+            'disability' => $applicantData['disability'],
             'gender_id' => $applicantData['gender_id'],
-            'resident' => $applicantData['resident'],
-            'position_id' => $applicantData['position_id'],
+            'town_id' => $applicantData['town_id'],
+            'race_id' => $applicantData['race_id'],
             'role_id' => $applicantData['role_id'],
             'state_id' => $applicantData['state_id'],
-            'type_id' => $applicantData['type_id'],
+            'education_id' => $applicantData['education_id'],
+            'duration_id' => $applicantData['duration_id'],
+            'applicant_type_id' => $applicantData['applicant_type_id'],
+            'application_type' => $applicantData['application_type'],
         ]);
 
         return $applicant;
     }
 
     /**
-     * Update Applicant
      *
-     * @param Request $request
-     * @param User $user
+     *
+     * @param \Illuminate\Http\Request $request
+     * @param \App\Models\Applicant $applicant
      * @param string $avatarName
-     * @return Applicant
+     * @return \App\Models\Applicant
      */
     public function update(Request $request, Applicant $applicant, string $avatarName): Applicant
     {
@@ -65,12 +69,16 @@ class ApplicantService
         $applicant->avatar = $avatarName;
         $applicant->birth_date = date('Y-m-d', strtotime($request->birth_date));
         $applicant->age = $request->age;
+        $applicant->disability = $request->disability;
         $applicant->gender_id = $request->gender_id;
-        $applicant->resident = $request->resident;
-        $applicant->position_id = $request->position_id;
+        $applicant->town_id = $request->town_id;
+        $applicant->race_id = $request->race_id;
         $applicant->role_id = $request->role_id;
         $applicant->state_id = $request->state_id;
-        $applicant->type_id = $request->type_id;
+        $applicant->education_id = $request->education_id;
+        $applicant->duration_id = $request->duration_id;
+        $applicant->applicant_type_id = $request->applicant_type_id;
+        $applicant->application_type = $request->application_type;
         $applicant->save();
 
         return $applicant;
@@ -80,7 +88,7 @@ class ApplicantService
      * Retrieve Applicant Avatar
      *
      * @param array $applicantData
-     * @return String
+     * @return string
      */
     private function avatar(array $applicantData): string
     {

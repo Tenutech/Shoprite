@@ -20,10 +20,12 @@ use App\Models\Duration;
 use App\Models\Language;
 use App\Models\Applicant;
 use App\Models\Education;
+use App\Models\Shortlist;
 use App\Models\Transport;
 use App\Models\Disability;
 use App\Models\Retrenchment;
 use Illuminate\Http\Request;
+use App\Models\ApplicantType;
 use App\Jobs\ProcessUserIdNumber;
 use App\Services\ApplicantService;
 use Illuminate\Support\Facades\DB;
@@ -226,12 +228,15 @@ class ApplicantsController extends Controller
             //Applicants
             $applicants = Applicant::with([
                 'role',
-                'position',
+                'race',
                 'gender',
                 'user',
                 'state',
-                'type',
-                'savedBy'
+                'education',
+                'duration',
+                'applicantType',
+                'town',
+                'brands'
             ])
             ->orderby('firstname')
             ->orderby('lastname')
@@ -239,9 +244,6 @@ class ApplicantsController extends Controller
 
             //Genders
             $genders = Gender::all();
-
-            //Positions
-            $positions = Position::all();
 
             //Roles
             $roles = Role::where('id', '>', 1)
@@ -251,16 +253,35 @@ class ApplicantsController extends Controller
             //States
             $states = State::orderBy('sort')->get();
 
-            //Types
-            $types = Type::get();
+            //Races
+            $races = Race::all();
+
+            //Educations
+            $educations = Education::all();
+
+            //Durations
+            $durations = Duration::all();
+
+            //Applicant Types
+            $applicantTypes = ApplicantType::all();
+
+            //Towns Types
+            $towns = Town::all();
+
+            //Brands
+            $brands = Brand::all();
 
             return view('admin/applicants', [
                 'applicants' => $applicants,
                 'genders' => $genders,
-                'positions' => $positions,
                 'states' => $states,
                 'roles' => $roles,
-                'types' => $types
+                'races' => $races,
+                'educations' => $educations,
+                'durations' => $durations,
+                'applicantTypes' => $applicantTypes,
+                'towns' => $towns,
+                'brands' => $brands
             ]);
         }
         return view('404');
@@ -320,11 +341,11 @@ class ApplicantsController extends Controller
 
             $applicant = Applicant::with([
                 'role',
-                'position',
                 'gender',
                 'user',
                 'state',
-                'type'
+                'race',
+                'education'
             ])->findOrFail($applicantID);
 
             return response()->json([

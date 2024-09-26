@@ -31,14 +31,18 @@ class UpdateApplicantRequest extends FormRequest
             'phone' => ['required', 'string', 'max:191', Rule::unique('applicants', 'phone')->ignore($this->applicantID)],
             'id_number' => ['required', 'string',  'digits:13', Rule::unique('applicants')->ignore($this->applicantID)],
             'id_verified' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
+            'disability' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
             'birth_date' => ['sometimes', 'nullable', 'date'],
+            'town_id' => ['sometimes', 'nullable', 'integer', 'exists:towns,id'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
             'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
-            'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
-            'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
-            'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
-            'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
+            'state_id' => ['sometimes', 'nullable', 'integer', 'exists:states,id'],
+            'race_id' => ['sometimes', 'nullable', 'integer', 'exists:races,id'],
+            'education_id' => ['sometimes', 'nullable', 'integer', 'exists:educations,id'],
+            'duration_id' => ['sometimes', 'nullable', 'integer', 'exists:durations,id'],
+            'applicant_type_id' => ['sometimes', 'nullable', 'integer', 'exists:applicant_types,id'],
+            'application_type' => ['sometimes', 'nullable', 'string', 'in:Website,WhatsApp'],
         ];
     }
 

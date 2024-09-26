@@ -85,12 +85,17 @@
                                         <th class="sort" data-sort="id_number" scope="col">ID Number</th>
                                         <th class="sort d-none" data-sort="id_verified" scope="col">Verified</th>
                                         <th class="sort d-none" data-sort="birth_date" scope="col">Birth Date</th>
+                                        <th class="sort d-none" data-sort="town" scope="col">Town</th>
                                         <th class="sort" data-sort="age" scope="col">Age</th>
                                         <th class="sort" data-sort="gender" scope="col">Gender</th>
-                                        <th class="sort d-none" data-sort="resident" scope="col">Citizen Status</th>
-                                        <th class="sort d-none" data-sort="position" scope="col">Position</th>
+                                        <th class="sort" data-sort="race" scope="col">Race</th>
+                                        <th class="sort d-none" data-sort="disability" scope="col">Disability</th>
                                         <th class="sort d-none" data-sort="role" scope="col">Role</th>
-                                        <th class="sort" data-sort="type" scope="col">Type</th>
+                                        <th class="sort d-none" data-sort="location" scope="col">Location</th>
+                                        <th class="sort d-none" data-sort="education" scope="col">Education</th>
+                                        <th class="sort d-none" data-sort="duration" scope="col">Duration</th>
+                                        <th class="sort d-none" data-sort="applicant_type" scope="col">Applicant Type</th>
+                                        <th class="sort d-none" data-sort="source" scope="col">Source</th>
                                         <th class="sort" data-sort="state" scope="col">State</th>
                                         <th scope="col">Action</th>
                                     </tr>
@@ -123,11 +128,20 @@
                                                 <td class="id_verified d-none">{{ $applicant->id_verified }}</td>
                                                 <td class="birth_date d-none">{{ $applicant->birth_date ? date('d M, Y', strtotime($applicant->birth_date)) : '' }}</td>
                                                 <td class="age">{{ $applicant->age }}</td>
+                                                <td class="town d-none">{{ $applicant->town_id ? $applicant->town->name : '' }}</td>
                                                 <td class="gender">{{ $applicant->gender ? $applicant->gender->name : '' }}</td>
-                                                <td class="resident d-none">{{ $applicant->resident == 1 ? 'Born a Citizen' : 'Permanent Resident' }}</td>
-                                                <td class="position d-none">{{ $applicant->position ? $applicant->position->name : '' }}</td>
+                                                <td class="race">{{ $applicant->race_id ? $applicant->race->name : '' }}</td>
+                                                <td class="disability d-none">{{ $applicant->disability }}</td>
+                                                <td class="literacy d-none">{{ $applicant->literacy }}</td>
+                                                <td class="numeracy d-none">{{ $applicant->numeracy }}</td>
+                                                <td class="situational d-none">{{ $applicant->situational }}</td>
+                                                <td class="score d-none">{{ $applicant->score }}</td>
                                                 <td class="role d-none">{{ $applicant->role ? $applicant->role->name : '' }}</td>
-                                                <td class="type">{{ $applicant->type_id ? $applicant->type->name : '' }}</td>
+                                                <td class="education d-none">{{ $applicant->education_id ? $applicant->education->name : '' }}</td>
+                                                <td class="location d-none">{{ $applicant->location }}</td>
+                                                <td class="duration d-none">{{ $applicant->duration_id ? $applicant->duration->name : '' }}</td>
+                                                <td class="applicant_type d-none">{{ $applicant->applicant_type_id ? $applicant->applicantType->name : '' }}</td>
+                                                <td class="source d-none">{{ $applicant->application_type }}</td>
                                                 <td class="state">{{ $applicant->state_id ? $applicant->state->name : '' }}</td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
@@ -177,12 +191,20 @@
                                             <td class="id_verified d-none"></td>
                                             <td class="birth_date d-none"></td>
                                             <td class="age"></td>
+                                            <td class="town d-none"></td>
                                             <td class="gender"></td>
-                                            <td class="resident d-none"></td>
-                                            <td class="position d-none"></td>
+                                            <td class="race"></td>
+                                            <td class="disability d-none"></td>
+                                            <td class="literacy d-none"></td>
+                                            <td class="numeracy d-none"></td>
+                                            <td class="situational d-none"></td>
+                                            <td class="score d-none"></td>
                                             <td class="role d-none"></td>
-                                            <td class="status d-none"></td>
-                                            <td class="type"></td>
+                                            <td class="location d-none"></td>
+                                            <td class="education d-none"></td>
+                                            <td class="duration d-none"></td>
+                                            <td class="applicant_type d-none"></td>
+                                            <td class="source d-none"></td>
                                             <td class="state"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
@@ -284,7 +306,6 @@
                                                 </div>
                                             </div>
                                             <!--end col-->
-
                                             <div class="col-lg-6">
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="firstname" class="form-label">
@@ -327,14 +348,13 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="position" class="form-label">
-                                                        Position
+                                                    <label for="disability" class="form-label">
+                                                        Disability
                                                     </label>
-                                                    <select id="position" name="position_id" class="form-control">
-                                                        <option value="" selected>Select Position</option>
-                                                        @foreach ($positions as $position)
-                                                            <option value="{{ $position->id }}">{{ $position->name }}</option>
-                                                        @endforeach
+                                                    <select id="disability" name="disability" class="form-control">
+                                                        <option value="" selected>Select Option</option>
+                                                        <option value="No">No</option>
+                                                        <option value="Yes">Yes</option>
                                                     </select>
                                                 </div>
                                                 <!--end col-->
@@ -346,6 +366,30 @@
                                                         <option value="" selected>Select State</option>
                                                         @foreach ($states as $state)
                                                             <option value="{{ $state->id }}">{{ $state->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="education" class="form-label">
+                                                        Education
+                                                    </label>
+                                                    <select id="education" name="education_id" class="form-control">
+                                                        <option value="" selected>Select Education</option>
+                                                        @foreach ($educations as $education)
+                                                            <option value="{{ $education->id }}">{{ $education->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="applicant_type" class="form-label">
+                                                        Applicant Type
+                                                    </label>
+                                                    <select id="applicant_type" name="applicant_type_id" class="form-control">
+                                                        <option value="" selected>Select Applicant Type</option>
+                                                        @foreach ($applicantTypes as $applicantType)
+                                                            <option value="{{ $applicantType->id }}">{{ $applicantType->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -380,6 +424,18 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
+                                                    <label for="town" class="form-label">
+                                                        Town
+                                                    </label>
+                                                    <select id="town" name="town_id" class="form-control">
+                                                        <option value="" selected>Select Applicant Town</option>
+                                                        @foreach ($towns as $town)
+                                                            <option value="{{ $town->id }}">{{ $town->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
                                                     <label for="age" class="form-label">
                                                         Age
                                                     </label>
@@ -387,13 +443,14 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="resident" class="form-label">
-                                                        Citizen Status
+                                                    <label for="race" class="form-label">
+                                                        Race
                                                     </label>
-                                                    <select id="resident" name="resident" class="form-control">
-                                                        <option value="" selected>Select Option</option>
-                                                        <option value="0">Born a Citizen</option>
-                                                        <option value="1">Permanent Resident</option>
+                                                    <select id="race" name="race_id" class="form-control">
+                                                        <option value="" selected>Select Applicant Race</option>
+                                                        @foreach ($races as $race)
+                                                            <option value="{{ $race->id }}">{{ $race->name }}</option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
                                                 <!--end col-->
@@ -402,7 +459,7 @@
                                                         Role
                                                     </label>
                                                     <select id="role" name="role_id" class="form-control">
-                                                        <option value="" selected>Select User Role</option>
+                                                        <option value="" selected>Select Applicant Role</option>
                                                         @foreach ($roles as $role)
                                                             <option value="{{ $role->id }}">{{ $role->name }}</option>
                                                         @endforeach
@@ -410,14 +467,25 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="type" class="form-label">
-                                                        Type
+                                                    <label for="duration" class="form-label">
+                                                        Duration
                                                     </label>
-                                                    <select id="type" name="type_id" class="form-control">
-                                                        <option value="" selected>Select Applicant Type</option>
-                                                        @foreach ($types as $type)
-                                                            <option value="{{ $type->id }}">{{ $type->name }}</option>
+                                                    <select id="duration" name="duration_id" class="form-control">
+                                                        <option value="" selected>Select Duration</option>
+                                                        @foreach ($durations as $duration)
+                                                            <option value="{{ $duration->id }}">{{ $duration->name }}</option>
                                                         @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="source" class="form-label">
+                                                        Source
+                                                    </label>
+                                                    <select id="source" name="application_type" class="form-control">
+                                                        <option value="" selected>Select Option</option>
+                                                        <option value="Website">Website</option>
+                                                        <option value="WhatsApp">WhatsApp</option>
                                                     </select>
                                                 </div>
                                                 <!--end col-->
@@ -509,12 +577,20 @@
                                     <td></td>
                                 </tr>
                                 <tr>
+                                    <td class="fw-medium" scope="row">Town</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
                                     <td class="fw-medium" scope="row">Birth Date</td>
                                     <td></td>
                                 </tr>
                                 <tr>
                                     <td class="fw-medium" scope="row">Age</td>
                                     <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium d-none" scope="row">Disability</td>
+                                    <td class="d-none"></td>
                                 </tr>
                                 <tr>
                                     <td class="fw-medium" scope="row">Gender</td>
@@ -525,20 +601,36 @@
                                     <td class="d-none"></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium d-none" scope="row">Position</td>
-                                    <tdc class="d-none"></td>
+                                    <td class="fw-medium d-none" scope="row">Literacy Score</td>
+                                    <td class="d-none"></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium d-none" scope="row">Numeracy Score</td>
+                                    <td class="d-none"></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium d-none" scope="row">Situational Score</td>
+                                    <td class="d-none"></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium d-none" scope="row">Overall Score</td>
+                                    <td class="d-none"></td>
                                 </tr>
                                 <tr>
                                     <td class="fw-medium" scope="row">Role</td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">Type</td>
+                                    <td class="fw-medium" scope="row">State</td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">State</td>
+                                    <td class="fw-medium" scope="row">Race</td>
                                     <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium d-none" scope="row">Location</td>
+                                    <td class="d-none"></td>
                                 </tr>
                             </tbody>
                         </table>
