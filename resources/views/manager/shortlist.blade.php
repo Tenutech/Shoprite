@@ -95,6 +95,9 @@
             <div class="invalid-feedback">
                 Please enter a number above {{ $minShortlistNumber }} and below {{ $maxShortlistNumber}}
             </div>
+            <div class="text-muted">
+                Please select a minimum of {{ $minShortlistNumber }} and a maximum of {{ $maxShortlistNumber}} appliacnts.
+            </div>
         </div>
     </div>
 
@@ -302,8 +305,8 @@
             <div class="card-body">
                 <div class="live-preview">
                     <div class="d-grid gap-2">
-                        <button class="btn btn-success" type="button" id="{{ $vacancy->open_positions == 0 ? 'vacancyFilled-btn' : 'generate-btn' }}">
-                            {{ $vacancy->open_positions == 0 ? 'Vacancy Filled!' : 'Generate Shortlist' }}
+                        <button class="btn btn-success" type="button" id="{{ $vacancyID && $vacancy->open_positions == 0 ? 'vacancyFilled-btn' : 'generate-btn' }}">
+                            {{ $vacancyID && $vacancy->open_positions == 0 ? 'Vacancy Filled!' : 'Generate Shortlist' }}
                         </button>
                     </div>
                 </div>
