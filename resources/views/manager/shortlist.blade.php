@@ -623,7 +623,7 @@
     var minShortlistNumber = @json($minShortlistNumber);
     var maxShortlistNumber = @json($maxShortlistNumber);
     var coordinates = @json($vacancy ? optional($vacancy->store)->coordinates : '');
-    var maxDistanceFromStore = @json($maxDistanceFromStore);
+    var maxDistanceFromStore = {{ $maxDistanceFromStore }};
 </script>
 <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
