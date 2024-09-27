@@ -1456,17 +1456,17 @@
 @endsection
 @section('script')
     <script>
-        var literacyScore = {{ optional($user->applicant)->literacy_score ?? 0 }};
-        var literacyQuestions = {{ optional($user->applicant)->literacy_questions ?? 10 }};
-        var literacy = "{{ optional($user->applicant)->literacy ?? 0/10 }}";
+        var literacyScore = {{ $applicant->literacy_score ?? 0 }};            
+        var literacyQuestions = {{ $applicant->literacy_questions ?? 10 }};
+        var literacy = "{{ $applicant->literacy  ?? 0/10 }}";
 
-        var numeracyScore = {{ optional($user->applicant)->numeracy_score ?? 0 }};
-        var numeracyQuestions = {{ optional($user->applicant)->numeracy_questions ?? 10 }};
-        var numeracy = "{{ optional($user->applicant)->numeracy ?? 0/10 }}";
+        var numeracyScore = {{ $applicant->numeracy_score ?? 0 }};
+        var numeracyQuestions = {{ $applicant->numeracy_questions  ?? 10 }};
+        var numeracy = "{{ $applicant->numeracy ?? 0/10 }}";
 
-        var situationalScore = {{ $applicant->situational_score }};
-        var situationalQuestions = {{ $applicant->situational_questions }};
-        var situational = "{{ $applicant->situational }}";
+        var situationalScore = {{ $applicant->situational_score ?? 0 }};
+        var situationalQuestions = {{ $applicant->situational_questions ?? 5 }};
+        var situational = "{{ $applicant->situational ?? 0/5 }}";
     </script>
 
     <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js') }}"></script>

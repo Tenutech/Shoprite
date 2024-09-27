@@ -682,6 +682,6 @@ function clearFields() {
     $('#date').val('');
     $('#startTime').val('');
     $('#endTime').val('');
-    $('#location').val('');
-    $('#notes').val('');
+    //$('#location').val('');
+    //$('#notes').val('');
 }
