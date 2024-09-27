@@ -1556,6 +1556,11 @@ $('#formVacancy').on('submit', function(e) {
                             'value', 'label', true
                         );
                     }
+
+                    // Update open positions in the view
+                    var openPositionsElement = document.querySelector('#openPositions');
+                    var openPositionsText = data.vacancy.vacancy.open_positions + ' open ' + (data.vacancy.vacancy.open_positions === 1 ? 'position' : 'positions') + ' available.';
+                    openPositionsElement.textContent = openPositionsText;
             
                     Swal.fire({
                         position: 'top-end',

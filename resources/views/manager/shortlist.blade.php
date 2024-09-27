@@ -134,7 +134,7 @@
     <div class="col-md-12">
         <div class="live-preview">
             <div class="d-grid gap-2">
-                <p class="lead text-muted lh-base mb-4 text-center">
+                <p class="lead text-muted lh-base mb-4 text-center" id="openPositions">
                     {{ $vacancy->open_positions }} open {{ $vacancy->open_positions == 1 ? 'position' : 'positions' }} available.
                 </p>
             </div>
