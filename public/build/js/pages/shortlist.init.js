@@ -6,6 +6,66 @@ Contact: admin@tenutech.com
 File: job candidate list init js
 */
 
+/*
+|--------------------------------------------------------------------------
+| Date Fields
+|--------------------------------------------------------------------------
+*/
+
+// Restrict the date picker to not allow past dates
+flatpickr("#date", {
+    dateFormat: "d M, Y",
+    minDate: "today", // Disables past dates
+    defaultDate: "today", // Set the default date to today
+});
+
+// Set default start time to current hour + 1 and end time to +2 hours
+var currentDate = new Date();
+var currentHour = currentDate.getHours();
+var startTime = (currentHour + 1) % 24; // Start time is current hour + 1
+var endTime = (currentHour + 2) % 24; // End time is start time + 1 hour
+
+// Initialize flatpickr for start time
+var startTimePicker = flatpickr("#startTime", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    defaultDate: new Date(currentDate.setHours(startTime, 0, 0)), // Set the start time to current hour + 1
+    time_24hr: true,
+    defaultHour: startTime,
+    defaultMinute: 0, // Set default minute to 0
+    onChange: function(selectedDates, dateStr, instance) {
+        // When start time is updated, adjust the end time accordingly
+        var selectedStartTime = new Date(selectedDates[0]);
+        var minEndTime = new Date(selectedStartTime.getTime() + 30 * 60000); // Minimum end time is +30 minutes
+        var maxEndTime = new Date(selectedStartTime.getTime() + 60 * 60000); // Maximum end time is +1 hour
+
+        // Update the end time picker with the new values
+        endTimePicker.setDate(maxEndTime, true); // Set the default end time to 30 minutes after start
+        endTimePicker.set({
+            minTime: minEndTime.toTimeString().slice(0, 5), // Update minTime dynamically
+            maxTime: maxEndTime.toTimeString().slice(0, 5)  // Update maxTime dynamically
+        });
+    }
+});
+
+// Initialize flatpickr for end time with default values
+var endTimePicker = flatpickr("#endTime", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    defaultDate: new Date(currentDate.setHours(endTime, 0, 0)), // Set the end time to start time + 1 hour
+    time_24hr: true,
+    defaultHour: endTime,
+    defaultMinute: 0, // Set default minute to 0
+});
+
+/*
+|--------------------------------------------------------------------------
+| Load Data On Vacancy Change
+|--------------------------------------------------------------------------
+*/
+
 $(document).ready(function() {
     // When the vacancy select changes
     $('#vacancy').on('change', function() {
@@ -22,6 +82,12 @@ $(document).ready(function() {
 
     fetchShortlistedApplicants();
 });
+
+/*
+|--------------------------------------------------------------------------
+| Initialize Fields
+|--------------------------------------------------------------------------
+*/
 
 var selectTown = document.getElementById("selectTown");
 const filterTown = new Choices(selectTown, {
@@ -373,19 +439,15 @@ function loadCandidateListData(datas, page) {
 
                 // Check if there are interviews and set the alert based on the status
                 if (datas[i].interviews && datas[i].interviews.length > 0) {
-                    //Covert Time Function
+                    // A function to format the time part of the interview start_time string and adjust for South Africa time (UTC+2)
                     function formatTimeTo24Hour(dateTimeString) {
-                        const dateTimeParts = dateTimeString.split(" ");
-                        const timePart = dateTimeParts[1] ? dateTimeParts[1] : dateTimeParts[0];
                         const date = new Date(dateTimeString);
-                    
-                        // Assuming the server's time zone is consistent with South Africa (UTC+2)
-                        const offsetInHours = 2;
-                        date.setUTCHours(date.getUTCHours() + offsetInHours);
-                    
-                        const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits
-                        const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits
-                    
+                        
+                        const localDate = new Date(date.getTime());
+                        
+                        const hours = ("0" + localDate.getHours()).slice(-2); // Ensure two digits
+                        const minutes = ("0" + localDate.getMinutes()).slice(-2); // Ensure two digits
+                        
                         return `${hours}:${minutes}`;
                     }
                     
@@ -407,7 +469,6 @@ function loadCandidateListData(datas, page) {
                     }
 
                     var interview = datas[i].interviews[datas[i].interviews.length - 1]; // Assuming we're only interested in the last interview
-
                     var interviewDate = new Date(interview.scheduled_date);
                     var day = ("0" + interviewDate.getDate()).slice(-2); // Ensure two digits
                     var month = interviewDate.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
@@ -1275,6 +1336,9 @@ $('#formInterview').on('submit', function(e) {
     $('.invalid-feedback').hide();
     $('.choices').css('border', '');
 
+    // Get current date and time
+    var currentDateTime = new Date();
+
     // Validate each field
     $('#formInterview').find('input, select, textarea').each(function() {
         var element = $(this); // Current element
@@ -1289,13 +1353,6 @@ $('#formInterview').on('submit', function(e) {
             element.siblings('.invalid-feedback').show();
         }
 
-        // Additional validation for specific types
-        if (elementType === 'email' && value && !validateEmail(value)) {
-            isValid = false;
-            element.addClass('is-invalid');
-            element.siblings('.invalid-feedback').show();
-        }
-
         // Custom validation for Choices.js select
         if (element.hasClass('choices-select') && !value) {
             isValid = false;
@@ -1304,15 +1361,44 @@ $('#formInterview').on('submit', function(e) {
             choicesDiv.find('.invalid-feedback').show();
         }
 
-        // Custom validation for time comparison
+        // Validate interview date
+        if (element.attr('id') === 'date') {
+            var interviewDate = new Date(value);
+            if (interviewDate < currentDateTime) {
+                isValid = false;
+                element.addClass('is-invalid');
+                element.siblings('.invalid-feedback').show().text('Interview date must be in the future.');
+            }
+        }
+
+        // Validate start time (should be after the current time if today)
+        if (element.attr('id') === 'startTime') {
+            var startTime = element.val();
+            var interviewDate = $('#date').val();
+            var fullStartDateTime = new Date(interviewDate + ' ' + startTime);
+            if (fullStartDateTime <= currentDateTime) {
+                isValid = false;
+                element.addClass('is-invalid');
+                element.siblings('.invalid-feedback').show().text('Start time must be in the future.');
+            }
+        }
+
+        // Custom validation for end time
         if (element.attr('id') === 'endTime') {
             var startTime = $('#startTime').val();
             var endTime = element.val();
-            // Assuming time is in HH:mm format
-            if (startTime && endTime && startTime >= endTime) {
+
+            // Convert times to Date objects for comparison
+            var interviewDate = $('#date').val();
+            var fullStartDateTime = new Date(interviewDate + ' ' + startTime);
+            var fullEndDateTime = new Date(interviewDate + ' ' + endTime);
+
+            // Check if end time is at least 30 min and not more than 1 hour after start time
+            var diffInMinutes = (fullEndDateTime - fullStartDateTime) / (1000 * 60); // Difference in minutes
+            if (diffInMinutes < 30 || diffInMinutes > 60) {
                 isValid = false;
                 element.addClass('is-invalid');
-                element.siblings('.invalid-feedback').show().text('End time must be after start time.');
+                element.siblings('.invalid-feedback').show().text('End time must be between 30 minutes and 1 hour after start time.');
             }
         }
     });
@@ -1556,6 +1642,11 @@ $('#formVacancy').on('submit', function(e) {
                             'value', 'label', true
                         );
                     }
+
+                    // Update open positions in the view
+                    var openPositionsElement = document.querySelector('#openPositions');
+                    var openPositionsText = data.vacancy.vacancy.open_positions + ' open ' + (data.vacancy.vacancy.open_positions === 1 ? 'position' : 'positions') + ' available.';
+                    openPositionsElement.textContent = openPositionsText;
             
                     Swal.fire({
                         position: 'top-end',

@@ -125,7 +125,7 @@ class VacancyController extends Controller
             ->get();
 
             //Types
-            $types = Type::whereNotIn('id', [6])->get();
+            $types = Type::get();
 
             return view('manager/vacancy', [
                 'user' => $user,
@@ -217,7 +217,7 @@ class VacancyController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create vacancy!',
+                'message' => 'Failed to create vacancy: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -298,7 +298,7 @@ class VacancyController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update vacancy!',
+                'message' => 'Failed to update vacancy: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ], 400);
         }

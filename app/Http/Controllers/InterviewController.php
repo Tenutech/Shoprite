@@ -119,13 +119,32 @@ class InterviewController extends Controller
             'end_time' => $endTimeFormatted,
         ]);
 
-        // Validate the request data
+        // Get the current date and time
+        $currentDateTime = Carbon::now();
+
+        // Validate the date request data
         $validatedData = $request->validate([
             'vacancy_id_decrypted' => 'required|int|exists:vacancies,id',
             'applicants' => 'required|array',
-            'date' => 'required|date',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i|after:start_time',
+            'date' => ['required', 'date', function ($attribute, $value, $fail) use ($interviewDate, $currentDateTime) {
+                // Ensure the interview date is after the current date
+                if ($interviewDate->lt($currentDateTime->startOfDay())) {
+                    $fail('The interview date must be in the future.');
+                }
+            }],
+            'start_time' => ['required', 'date_format:H:i', function ($attribute, $value, $fail) use ($startTime, $interviewDate, $currentDateTime) {
+                // Ensure the start time is after the current time if the date is today
+                if ($interviewDate->isSameDay($currentDateTime) && $startTime->lt($currentDateTime)) {
+                    $fail('The interview start time must be in the future.');
+                }
+            }],
+            'end_time' => ['required', 'date_format:H:i', 'after:start_time', function ($attribute, $value, $fail) use ($startTime, $endTime) {
+                // Ensure the end time is at least 30 minutes after the start time and no more than 1 hour
+                $duration = $startTime->diffInMinutes($endTime);
+                if ($duration < 30 || $duration > 60) {
+                    $fail('The interview end time must be between 30 minutes and 1 hour after the start time.');
+                }
+            }],
             'location' => 'required|string',
             'notes' => 'nullable|string',
         ]);

@@ -1133,7 +1133,7 @@
             </div>
 
             @if ($vacancyId)
-                @include('manager.partials.interview-modal', ['vacancyId' => $vacancyId, 'vacancy' => $vacancy, 'applicantId' => $applicant->id])
+                @include('manager.partials.interview-modal', ['authUser' => $authUser, 'vacancyId' => $vacancyId, 'vacancy' => $vacancy, 'applicantId' => $applicant->id])
 
                 @if(isset($applicant->interviews) && $applicant->interviews->isNotEmpty())
                     @include('manager.partials.noshow-modal', ['vacancyId' => $vacancyId, 'applicantId' => $applicant->id, 'interviewId' => $applicant->interviews[0]->id])
@@ -1148,30 +1148,17 @@
 @section('script')
     @if ($authUser->role_id <= 2)
         <script>
-            var literacyScore = {{ $applicant->literacy_score }};
-            var literacyQuestions = {{ $applicant->literacy_questions }};
-            var literacy = "{{ $applicant->literacy }}";
+            var literacyScore = {{ $applicant->literacy_score ?? 0 }};
+            var literacyQuestions = {{ $applicant->literacy_questions ?? 10 }};
+            var literacy = "{{ $applicant->literacy  ?? 0/10 }}";
 
-            var numeracyScore = {{ $applicant->numeracy_score }};
-            var numeracyQuestions = {{ $applicant->numeracy_questions }};
-            var numeracy = "{{ $applicant->numeracy }}";
+            var numeracyScore = {{ $applicant->numeracy_score ?? 0 }};
+            var numeracyQuestions = {{ $applicant->numeracy_questions  ?? 10 }};
+            var numeracy = "{{ $applicant->numeracy ?? 0/10 }}";
 
-            var situationalScore = 0;
-            var situationalQuestions = 0;
-            var situational = 0;
-
-            @if (isset($applicant->situational_score)) {
-                situationalScore = {{ $applicant->situational_score }};
-            }
-            @endif
-            @if (isset($applicant->situational_questions)) {
-                situationalQuestions = {{ $applicant->situational_questions }};
-            }
-            @endif
-            @if (isset($applicant->situational)) {
-                situational = "{{ $applicant->situational }}";
-            }
-            @endif
+            var situationalScore = {{ $applicant->situational_score ?? 0 }};
+            var situationalQuestions = {{ $applicant->situational_questions ?? 5 }};
+            var situational = "{{ $applicant->situational ?? 0/5 }}";
 
             var chatsData = @json($applicant->chats);
         </script>
@@ -1179,7 +1166,7 @@
 
     <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/applicant-profile.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/applicant-profile.init.js') }}?v={{ filemtime(public_path('build/js/pages/applicant-profile.init.js')) }}"></script>
 
     <!-- Chat-->
     <script src="{{ URL::asset('build/libs/glightbox/js/glightbox.min.js') }}"></script>

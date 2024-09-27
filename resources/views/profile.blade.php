@@ -55,7 +55,7 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link fs-14 {{ Auth::user()->role_id > 6 ? 'active' : '' }}" data-bs-toggle="tab" href="#application-tab" role="tab">
+                            <a class="nav-link fs-14 {{ Auth::user()->role_id > 6 ? 'active' : 'd-none' }}" data-bs-toggle="tab" href="#application-tab" role="tab">
                                 <i class="ri-price-tag-line d-inline-block d-md-none"></i> 
                                 <span class="d-none d-md-inline-block">My Application</span>
                             </a>
@@ -1001,7 +1001,7 @@
                        My Application
                     -------------------------------------------------------------------------------------->
 
-                    <div class="tab-pane {{ Auth::user()->role_id > 6 ? 'active' : 'fade' }}" id="application-tab" role="tabpanel">
+                    <div class="tab-pane {{ Auth::user()->role_id > 6 ? 'active' : 'd-none' }}" id="application-tab" role="tabpanel">
                         <div class="card">
                             <div class="card-body">
                                 <div class="d-flex align-items-center mb-4">
