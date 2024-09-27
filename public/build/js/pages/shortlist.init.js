@@ -439,19 +439,15 @@ function loadCandidateListData(datas, page) {
 
                 // Check if there are interviews and set the alert based on the status
                 if (datas[i].interviews && datas[i].interviews.length > 0) {
-                    //Covert Time Function
+                    // A function to format the time part of the interview start_time string and adjust for South Africa time (UTC+2)
                     function formatTimeTo24Hour(dateTimeString) {
-                        const dateTimeParts = dateTimeString.split(" ");
-                        const timePart = dateTimeParts[1] ? dateTimeParts[1] : dateTimeParts[0];
                         const date = new Date(dateTimeString);
-                    
-                        // Assuming the server's time zone is consistent with South Africa (UTC+2)
-                        const offsetInHours = 2;
-                        date.setUTCHours(date.getUTCHours() + offsetInHours);
-                    
-                        const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits
-                        const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits
-                    
+                        
+                        const localDate = new Date(date.getTime());
+                        
+                        const hours = ("0" + localDate.getHours()).slice(-2); // Ensure two digits
+                        const minutes = ("0" + localDate.getMinutes()).slice(-2); // Ensure two digits
+                        
                         return `${hours}:${minutes}`;
                     }
                     
@@ -473,7 +469,6 @@ function loadCandidateListData(datas, page) {
                     }
 
                     var interview = datas[i].interviews[datas[i].interviews.length - 1]; // Assuming we're only interested in the last interview
-
                     var interviewDate = new Date(interview.scheduled_date);
                     var day = ("0" + interviewDate.getDate()).slice(-2); // Ensure two digits
                     var month = interviewDate.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
