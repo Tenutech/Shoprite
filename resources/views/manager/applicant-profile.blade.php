@@ -804,12 +804,12 @@
                                 
                                     @if (!$applicant->appointed_id)
                                         @if(count($applicant->interviews) <= 0 || (count($applicant->interviews) > 0 && !$applicant->interviews[0]->score))
-                                            <button class="btn btn-secondary ms-3" id="interviewBtn">
+                                            <button class="btn btn-secondary ms-3" id="interviewBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Schedule an interview with {{ $applicant->firstname }}">
                                                 <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
                                                 Interview
                                             </button>
                                             
-                                            <button class="btn btn-light ms-3" id="noShowBtn" data-bs-toggle="modal" data-bs-target="#interviewNoShowModal">
+                                            <button class="btn btn-light ms-3" id="noShowBtn" data-bs-toggle="modal" data-bs-target="#interviewNoShowModal" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $applicant->firstname }} did not show up for their interview">
                                                 <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
                                                 No Show
                                             </button>

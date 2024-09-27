@@ -344,16 +344,19 @@
             </div>
             <!--end col-->
             <div class="col-md-auto ms-auto">
-                <div class="d-flex hastck gap-2 flex-wrap">
-                    <button class="btn btn-secondary" id="interviewBtn">
+                <div class="d-flex hstack gap-2 flex-wrap">
+                    <!-- Interview Button with Tooltip -->
+                    <button class="btn btn-secondary" id="interviewBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Schedule interview with selected applicants">
                         <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
                         Interview
                     </button>
-                    <button class="btn btn-success" id="vacancyBtn">
+                
+                    <!-- Fill Vacancy Button with Tooltip -->
+                    <button class="btn btn-success" id="vacancyBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Appoint selected applicants">
                         <i class="ri-open-arm-fill align-bottom me-1"></i> 
                         Fill Vacancy
                     </button>
-                </div>
+                </div>                
             </div>
             <!--end col-->
         </div>

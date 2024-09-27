@@ -82,9 +82,9 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarVacancies">
                             <ul class="nav nav-sm flex-column">
-                                <li class="nav-item d-none">
+                                <li class="nav-item">
                                     <a class="nav-link" href="{{ route('vacancies.index') }}">
-                                        List
+                                        My Vacancies
                                     </a>
                                 </li>
                                 <li class="nav-item">

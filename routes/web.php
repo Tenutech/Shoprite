@@ -581,6 +581,12 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,5,6', 'u
 
     Route::post('/vacancy/fill', [App\Http\Controllers\VacancyController::class, 'vacancyFill'])->name('vacancy.fill');
 
+    //Vacancies
+
+    Route::get('/vacancies', [App\Http\Controllers\VacanciesController::class, 'index'])->middleware('check.user.applicant')->name('vacancies.index');
+
+    Route::get('/vacancy/jobs', [App\Http\Controllers\VacanciesController::class, 'vacancies']);
+
     //User Profile
 
     Route::get('/user-profile', [App\Http\Controllers\UserProfileController::class, 'index'])->name('user-profile.index');
@@ -688,12 +694,6 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
     Route::get('/help', [App\Http\Controllers\QueryController::class, 'index'])->name('help.index');
 
     Route::post('/queries/store', [App\Http\Controllers\QueryController::class, 'store'])->name('query.store');
-
-    //Vacancies
-
-    Route::get('/vacancies', [App\Http\Controllers\VacanciesController::class, 'index'])->middleware('check.user.applicant')->name('vacancies.index');
-
-    Route::get('/vacancy/jobs', [App\Http\Controllers\VacanciesController::class, 'vacancies']);
 
     //My Profile
 

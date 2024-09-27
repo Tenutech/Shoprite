@@ -173,7 +173,7 @@
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 
 <!-- job-candidate-grid js -->
-<script src="{{URL::asset('build/js/pages/vacancies.init.js')}}"></script>
+<script src="{{URL::asset('build/js/pages/vacancies-apply.init.js')}}"></script>
 <script src="{{ URL::asset('build/js/pages/vacancy-save.init.js') }}"></script>
 <script src="{{ URL::asset('build/js/pages/vacancy-apply.init.js') }}"></script>
 

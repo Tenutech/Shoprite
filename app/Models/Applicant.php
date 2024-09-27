@@ -156,6 +156,12 @@ class Applicant extends Model
         return $this->hasMany(Interview::class);
     }
 
+    // Latest Interview
+    public function latestInterview()
+    {
+        return $this->hasOne(Interview::class)->latestOfMany();
+    }
+
     //Checks
     public function checks()
     {

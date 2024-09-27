@@ -192,10 +192,10 @@
                                                     @if ($vacancy && $vacancy->sapNumbers->count() > 0)
                                                         @foreach ($vacancy->sapNumbers as $index => $sapNumber)
                                                             <div class="mb-3">
-                                                                <label for="sapNumber{{ $index }}" class="form-label">
+                                                                <label for="sapNumber{{ $index + 1 }}" class="form-label">
                                                                     {{ $vacancy->position ? $vacancy->position->name . ' ' . ($index + 1) : 'SAP Number ' . ($index + 1) }}
                                                                 </label>
-                                                                <input type="text" class="form-control" id="sapNumber{{ $index }}" name="sap_numbers[]" placeholder="Enter 8-digit SAP Number" value="{{ $sapNumber->sap_number }}" pattern="\d{8}" maxlength="8" required />
+                                                                <input type="text" class="form-control" id="sapNumber{{ $index + 1 }}" name="sap_numbers[]" placeholder="Enter 8-digit SAP Number" value="{{ $sapNumber->sap_number }}" pattern="\d{8}" maxlength="8" required />
                                                                 <div class="invalid-feedback">
                                                                     Please enter an 8-digit SAP number.
                                                                 </div>
