@@ -69,7 +69,7 @@ class UsersController extends Controller
                 'messagesTo',
                 'notifications'
             ])
-            ->whereIn('role_id', [7, 8])
+            ->whereIn('role_id', [7])
             ->orderby('firstname')
             ->orderby('lastname')
             ->get();

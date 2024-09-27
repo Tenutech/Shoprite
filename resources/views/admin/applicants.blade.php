@@ -8,7 +8,7 @@
             Pages
         @endslot
         @slot('title')
-            Admins
+            Applicants
         @endslot
     @endcomponent
     <div class="row">
@@ -17,9 +17,9 @@
                 <div class="card-header">
                     <div class="d-flex align-items-center flex-wrap gap-2">
                         <div class="flex-grow-1">
-                            <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#usersModal">
+                            <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#applicantsModal">
                                 <i class="ri-add-fill me-1 align-bottom"></i>
-                                Add Admin
+                                Add Applicant
                             </button>
                         </div>
                         <div class="flex-shrink-0">
@@ -35,12 +35,12 @@
         </div>
         <!--end col-->
         <div class="col-xxl-9">
-            <div class="card" id="userList">
+            <div class="card" id="applicantList">
                 <div class="card-header">
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="search-box">
-                                <input type="text" class="form-control search" placeholder="Search for user...">
+                                <input type="text" class="form-control search" placeholder="Search for applicant...">
                                 <i class="ri-search-line search-icon"></i>
                             </div>
                         </div>
@@ -61,7 +61,7 @@
                                     <option value="10" selected>10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
-                                    <option value="{{count($users)}}">All</option>
+                                    <option value="{{count($applicants)}}">All</option>
                                 </select>
                             </div>
                         </div>
@@ -70,7 +70,7 @@
                 <div class="card-body">
                     <div>
                         <div class="table-responsive table-card mb-3">
-                            <table class="table align-middle table-nowrap mb-0" id="userTable">
+                            <table class="table align-middle table-nowrap mb-0" id="applicantTable">
                                 <thead class="table-light">
                                     <tr>
                                         <th scope="col" style="width: 50px;">
@@ -85,52 +85,66 @@
                                         <th class="sort" data-sort="id_number" scope="col">ID Number</th>
                                         <th class="sort d-none" data-sort="id_verified" scope="col">Verified</th>
                                         <th class="sort d-none" data-sort="birth_date" scope="col">Birth Date</th>
+                                        <th class="sort d-none" data-sort="town" scope="col">Town</th>
                                         <th class="sort" data-sort="age" scope="col">Age</th>
                                         <th class="sort" data-sort="gender" scope="col">Gender</th>
-                                        <th class="sort d-none" data-sort="resident" scope="col">Citizen Status</th>
-                                        <th class="sort d-none" data-sort="position" scope="col">Position</th>
-                                        <th class="sort" data-sort="role" scope="col">Role</th>
-                                        <th class="sort d-none" data-sort="store" scope="col">Store</th>
-                                        <th class="sort d-none" data-sort="internal" scope="col">Internal</th>
-                                        <th class="sort" data-sort="status" scope="col">Status</th>
+                                        <th class="sort" data-sort="race" scope="col">Race</th>
+                                        <th class="sort d-none" data-sort="disability" scope="col">Disability</th>
+                                        <th class="sort d-none" data-sort="role" scope="col">Role</th>
+                                        <th class="sort d-none" data-sort="location" scope="col">Location</th>
+                                        <th class="sort d-none" data-sort="education" scope="col">Education</th>
+                                        <th class="sort d-none" data-sort="duration" scope="col">Duration</th>
+                                        <th class="sort d-none" data-sort="applicant_type" scope="col">Applicant Type</th>
+                                        <th class="sort d-none" data-sort="source" scope="col">Source</th>
+                                        <th class="sort" data-sort="state" scope="col">State</th>
+                                        <th class="sort d-none" data-sort="now_show" scope="col">No show</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
                                 <tbody class="list form-check-all" style="height:200px;">
-                                    @if($users && count($users) > 0)
-                                        @foreach ($users as $key => $user)
+                                    @if($applicants && count($applicants) > 0)
+                                        @foreach ($applicants as $key => $applicant)
                                             <tr style="vertical-align:top;">
                                                 <th scope="row">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
                                                     </div>
                                                 </th>
-                                                <td class="id d-none">{{ Crypt::encryptstring($user->id) }}</td>
+                                                <td class="id d-none">{{ Crypt::encryptstring($applicant->id) }}</td>
                                                 <td class="name">
                                                     <div class="d-flex align-items-center">
                                                         <div class="flex-shrink-0">
-                                                            <img src="{{ URL::asset('images/' . $user->avatar) }}" alt="" class="avatar-xs rounded-circle">
+                                                            @if (file_exists(URL::asset('images/' . $applicant->avatar)))
+                                                                <img src="{{ URL::asset('images/' . $applicant->avatar) }}" alt="" class="avatar-xs rounded-circle">
+                                                            @else
+                                                                <img src="{{ URL::asset('images/avatar.jpg') }}" alt="" class="avatar-xs rounded-circle">
+                                                            @endif
                                                         </div>
-                                                        <div class="flex-grow-1 ms-2 name">{{ $user->firstname }} {{ $user->lastname }}</div>
+                                                        <div class="flex-grow-1 ms-2 name">{{ $applicant->firstname }} {{ $applicant->lastname }}</div>
                                                     </div>
                                                 </td>
-                                                <td class="email">{{ $user->email }}</td>
-                                                <td class="phone">{{ $user->phone }}</td>
-                                                <td class="id_number">{{ $user->id_number }}</td>
-                                                <td class="id_verified d-none">{{ $user->id_verified }}</td>
-                                                <td class="birth_date d-none">{{ $user->birth_date ? date('d M, Y', strtotime($user->birth_date)) : '' }}</td>
-                                                <td class="age">{{ $user->age }}</td>
-                                                <td class="gender">{{ $user->gender ? $user->gender->name : '' }}</td>
-                                                <td class="resident d-none">{{ $user->resident == 1 ? 'Born a Citizen' : 'Permanent Resident' }}</td>
-                                                <td class="position d-none">{{ $user->position ? $user->position->name : '' }}</td>
-                                                <td class="role">{{ $user->role ? $user->role->name : '' }}</td>
-                                                <td class="store d-none">{{ $user->store ? optional($user->store->brand)->name.' ('.optional($user->store->town)->name.')' : '' }}</td>
-                                                <td class="internal d-none">{{ $user->internal == 1 ? 'Yes' : 'No' }}</td>
-                                                <td class="status">
-                                                    <span class="badge bg-{{ $user->status->color }}-subtle text-{{ $user->status->color }} text-uppercase">
-                                                        {{ $user->status->name }}
-                                                    </span>
-                                                </td>
+                                                <td class="email">{{ $applicant->email }}</td>
+                                                <td class="phone">{{ $applicant->phone }}</td>
+                                                <td class="id_number">{{ $applicant->id_number }}</td>
+                                                <td class="id_verified d-none">{{ $applicant->id_verified }}</td>
+                                                <td class="birth_date d-none">{{ $applicant->birth_date ? date('d M, Y', strtotime($applicant->birth_date)) : '' }}</td>
+                                                <td class="age">{{ $applicant->age }}</td>
+                                                <td class="town d-none">{{ $applicant->town_id ? $applicant->town->name : '' }}</td>
+                                                <td class="gender">{{ $applicant->gender ? $applicant->gender->name : '' }}</td>
+                                                <td class="race">{{ $applicant->race_id ? $applicant->race->name : '' }}</td>
+                                                <td class="disability d-none">{{ $applicant->disability }}</td>
+                                                <td class="literacy d-none">{{ $applicant->literacy }}</td>
+                                                <td class="numeracy d-none">{{ $applicant->numeracy }}</td>
+                                                <td class="situational d-none">{{ $applicant->situational }}</td>
+                                                <td class="score d-none">{{ $applicant->score }}</td>
+                                                <td class="role d-none">{{ $applicant->role ? $applicant->role->name : '' }}</td>
+                                                <td class="education d-none">{{ $applicant->education_id ? $applicant->education->name : '' }}</td>
+                                                <td class="location d-none">{{ $applicant->location }}</td>
+                                                <td class="duration d-none">{{ $applicant->duration_id ? $applicant->duration->name : '' }}</td>
+                                                <td class="applicant_type d-none">{{ $applicant->applicant_type_id ? $applicant->applicantType->name : '' }}</td>
+                                                <td class="source d-none">{{ $applicant->application_type }}</td>
+                                                <td class="state">{{ $applicant->state_id ? $applicant->state->name : '' }}</td>
+                                                <td class="no_show d-none">{{ $applicant->no_show }}</td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
                                                         <li class="list-inline-item">
@@ -146,7 +160,7 @@
                                                                         </a>
                                                                     </li>
                                                                     <li>
-                                                                        <a class="dropdown-item edit-item-btn" href="#usersModal" data-bs-toggle="modal">
+                                                                        <a class="dropdown-item edit-item-btn" href="#applicantsModal" data-bs-toggle="modal">
                                                                             <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                             Edit
                                                                         </a>
@@ -179,13 +193,22 @@
                                             <td class="id_verified d-none"></td>
                                             <td class="birth_date d-none"></td>
                                             <td class="age"></td>
+                                            <td class="town d-none"></td>
                                             <td class="gender"></td>
-                                            <td class="resident d-none"></td>
-                                            <td class="position d-none"></td>
-                                            <td class="role"></td>
-                                            <td class="store d-none"></td>
-                                            <td class="internal d-none"></td>
-                                            <td class="status"></td>
+                                            <td class="race"></td>
+                                            <td class="disability d-none"></td>
+                                            <td class="literacy d-none"></td>
+                                            <td class="numeracy d-none"></td>
+                                            <td class="situational d-none"></td>
+                                            <td class="score d-none"></td>
+                                            <td class="role d-none"></td>
+                                            <td class="location d-none"></td>
+                                            <td class="education d-none"></td>
+                                            <td class="duration d-none"></td>
+                                            <td class="applicant_type d-none"></td>
+                                            <td class="source d-none"></td>
+                                            <td class="state"></td>
+                                            <td class="no_show"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -201,7 +224,7 @@
                                                                     </a>
                                                                 </li>
                                                                 <li>
-                                                                    <a class="dropdown-item edit-item-btn" href="#usersModal" data-bs-toggle="modal">
+                                                                    <a class="dropdown-item edit-item-btn" href="#applicantsModal" data-bs-toggle="modal">
                                                                         <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
                                                                         Edit
                                                                     </a>
@@ -231,7 +254,7 @@
                                         Sorry! No Result Found
                                     </h5>
                                     <p class="text-muted mb-0">
-                                        We've searched all the users. We did not find any users for you search.
+                                        We've searched all the applicants. We did not find any applicants for you search.
                                     </p>
                                 </div>
                             </div>
@@ -249,17 +272,17 @@
                         </div>
                     </div>
 
-                    <!-- Modal Admin -->
-                    <div class="modal fade zoomIn" id="usersModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <!-- Modal Applicant -->
+                    <div class="modal fade zoomIn" id="applicantsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-xl">
                             <div class="modal-content border-0">
                                 <div class="modal-header p-3 bg-soft-primary-rainbow">
                                     <h5 class="modal-title" id="exampleModalLabel">
-                                        Add Admin
+                                        Add Applicant
                                     </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
                                 </div>
-                                <form id="formUser" action="post" enctype="multipart/form-data">
+                                <form id="formApplicant" action="post" enctype="multipart/form-data">
                                     @csrf
                                     <div class="modal-body">
                                         <input type="hidden" id="field-id" name="field_id"/>
@@ -286,7 +309,6 @@
                                                 </div>
                                             </div>
                                             <!--end col-->
-
                                             <div class="col-lg-6">
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="firstname" class="form-label">
@@ -321,7 +343,7 @@
                                                         Gender
                                                     </label>
                                                     <select id="gender" name="gender_id" class="form-control">
-                                                        <option value="" selected>Select Gender</option>
+                                                        <option value="" selected>Select gender</option>
                                                         @foreach ($genders as $gender)
                                                             <option value="{{ $gender->id }}">{{ $gender->name }}</option>
                                                         @endforeach
@@ -329,26 +351,62 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="position" class="form-label">
-                                                        Position
+                                                    <label for="disability" class="form-label">
+                                                        Disability
                                                     </label>
-                                                    <select id="position" name="position_id" class="form-control">
-                                                        <option value="" selected>Select Position</option>
-                                                        @foreach ($positions as $position)
-                                                            <option value="{{ $position->id }}">{{ $position->name }}</option>
+                                                    <select id="disability" name="disability" class="form-control">
+                                                        <option value="" selected>Select disability</option>
+                                                        <option value="No">No</option>
+                                                        <option value="Yes">Yes</option>
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="state" class="form-label">
+                                                        State
+                                                    </label>
+                                                    <select id="state" name="state_id" class="form-control">
+                                                        <option value="" selected>Select state</option>
+                                                        @foreach ($states as $state)
+                                                            <option value="{{ $state->id }}">{{ $state->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="store" class="form-label">
-                                                        Store
+                                                    <label for="education" class="form-label">
+                                                        Education
                                                     </label>
-                                                    <select id="store" name="store_id" class="form-control">
-                                                        <option value="" selected>Select Store</option>
-                                                        @foreach ($stores as $store)
-                                                            <option value="{{ $store->id }}">{{ optional($store->brand)->name }} ({{ optional($store->town)->name }})</option>
+                                                    <select id="education" name="education_id" class="form-control">
+                                                        <option value="" selected>Select education</option>
+                                                        @foreach ($educations as $education)
+                                                            <option value="{{ $education->id }}">{{ $education->name }}</option>
                                                         @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="applicant_type" class="form-label">
+                                                        Applicant Type
+                                                    </label>
+                                                    <select id="applicant_type" name="applicant_type_id" class="form-control">
+                                                        <option value="" selected>Select applicant type</option>
+                                                        @foreach ($applicantTypes as $applicantType)
+                                                            <option value="{{ $applicantType->id }}">{{ $applicantType->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="noShow" class="form-label">
+                                                        No Show
+                                                    </label>
+                                                    <select id="noShow" name="no_show" class="form-control">
+                                                        <option value="" selected>How many times a no show to interview?</option>
+                                                        <option value="0">0</option>
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
                                                     </select>
                                                 </div>
                                                 <!--end col-->
@@ -382,6 +440,18 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
+                                                    <label for="town" class="form-label">
+                                                        Town
+                                                    </label>
+                                                    <select id="town" name="town_id" class="form-control">
+                                                        <option value="" selected>Select town</option>
+                                                        @foreach ($towns as $town)
+                                                            <option value="{{ $town->id }}">{{ $town->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
                                                     <label for="age" class="form-label">
                                                         Age
                                                     </label>
@@ -389,13 +459,14 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="resident" class="form-label">
-                                                        Citizen Status
+                                                    <label for="race" class="form-label">
+                                                        Race
                                                     </label>
-                                                    <select id="resident" name="resident" class="form-control">
-                                                        <option value="" selected>Select Option</option>
-                                                        <option value="0">Born a Citizen</option>
-                                                        <option value="1">Permanent Resident</option>
+                                                    <select id="race" name="race_id" class="form-control">
+                                                        <option value="" selected>Select applicant race</option>
+                                                        @foreach ($races as $race)
+                                                            <option value="{{ $race->id }}">{{ $race->name }}</option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
                                                 <!--end col-->
@@ -403,8 +474,8 @@
                                                     <label for="role" class="form-label">
                                                         Role
                                                     </label>
-                                                    <select id="role" name="role_id" class="form-control" required>
-                                                        <option value="" selected>Select Admin Role</option>
+                                                    <select id="role" name="role_id" class="form-control">
+                                                        <option value="" selected>Select applicant role</option>
                                                         @foreach ($roles as $role)
                                                             <option value="{{ $role->id }}">{{ $role->name }}</option>
                                                         @endforeach
@@ -412,13 +483,25 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="internal" class="form-label">
-                                                        Internal
+                                                    <label for="duration" class="form-label">
+                                                        Duration
                                                     </label>
-                                                    <select id="internal" name="internal" class="form-control">
-                                                        <option value="" selected>Select Option</option>
-                                                        <option value="0">No</option>
-                                                        <option value="1">Yes</option>
+                                                    <select id="duration" name="duration_id" class="form-control">
+                                                        <option value="" selected>Select duration</option>
+                                                        @foreach ($durations as $duration)
+                                                            <option value="{{ $duration->id }}">{{ $duration->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="source" class="form-label">
+                                                        Source
+                                                    </label>
+                                                    <select id="source" name="application_type" class="form-control">
+                                                        <option value="" selected>Select applicant source</option>
+                                                        <option value="Website">Website</option>
+                                                        <option value="WhatsApp">WhatsApp</option>
                                                     </select>
                                                 </div>
                                                 <!--end col-->
@@ -430,8 +513,8 @@
                                     <div class="modal-footer">
                                         <div class="hstack gap-2 justify-content-end">
                                             <button type="button" class="btn btn-light" id="close-modal" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success" id="add-btn">Add Admin</button>
-                                            <button type="button" class="btn btn-success" id="edit-btn">Update Admin</button>
+                                            <button type="submit" class="btn btn-success" id="add-btn">Add Applicant</button>
+                                            <button type="button" class="btn btn-success" id="edit-btn">Update Applicant</button>
                                         </div>
                                     </div>
                                 </form>
@@ -451,17 +534,17 @@
                                     <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px"></lord-icon>
                                     <div class="mt-4 text-center">
                                         <h4 class="fs-semibold">
-                                            You are about to delete this user ?
+                                            You are about to delete this applicant ?
                                         </h4>
                                         <p class="text-muted fs-14 mb-4 pt-1">
-                                            Deleting this user will remove all of their information from the database.
+                                            Deleting this applicant will remove all of their information from the database.
                                         </p>
                                         <div class="hstack gap-2 justify-content-center remove">
                                             <button class="btn btn-danger" data-bs-dismiss="modal" id="deleteRecord-close">
                                                 <i class="ri-close-line me-1 align-middle"></i>
                                                 Close
                                             </button>
-                                            <button class="btn btn-primary" id="delete-user">
+                                            <button class="btn btn-primary" id="delete-applicant">
                                                 Yes, Delete!!
                                             </button>
                                         </div>
@@ -471,7 +554,6 @@
                         </div>
                     </div>
                     <!--end delete modal -->
-
                 </div>
             </div>
             <!--end card-->
@@ -507,14 +589,6 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">ID Verified</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium" scope="row">Birth Date</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
                                     <td class="fw-medium" scope="row">Age</td>
                                     <td></td>
                                 </tr>
@@ -523,24 +597,8 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium d-none" scope="row">Citizen Status</td>
-                                    <td class="d-none"></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Position</td>
-                                    <tdc class="d-none"></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium" scope="row">Role</td>
+                                    <td class="fw-medium" scope="row">Race</td>
                                     <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium" scope="row">Store</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Internal</td>
-                                    <td class="d-none"></td>
                                 </tr>
                             </tbody>
                         </table>
@@ -556,7 +614,7 @@
 @section('script')
     <script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/admins.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/applicants-admin.init.js') }}"></script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

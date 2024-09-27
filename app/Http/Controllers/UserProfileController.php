@@ -65,11 +65,8 @@ class UserProfileController extends Controller
                 'applicant.town',
                 'applicant.gender',
                 'applicant.race',
-                'applicant.position',
                 'applicant.education',
                 'applicant.duration',
-                'applicant.brand',
-                'applicant.type',
                 'applicant.role',
                 'applicant.state',
                 'appliedVacancies',
@@ -329,7 +326,7 @@ class UserProfileController extends Controller
                 'user' => $user,
                 'completion' => $completion,
                 'activities' => $activities,
-                'tabs' => $tabs
+                'tabs' => $tabs,
             ]);
         }
         return view('404');

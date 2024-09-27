@@ -13,33 +13,42 @@ use App\Models\Chat;
 use App\Models\State;
 use App\Models\Gender;
 use App\Models\Brand;
+use App\Models\Company;
 use App\Models\Reason;
 use App\Models\Position;
 use App\Models\Duration;
 use App\Models\Language;
 use App\Models\Applicant;
 use App\Models\Education;
+use App\Models\Shortlist;
 use App\Models\Transport;
 use App\Models\Disability;
 use App\Models\Retrenchment;
 use Illuminate\Http\Request;
+use App\Models\ApplicantType;
+use App\Jobs\ProcessUserIdNumber;
+use App\Services\ApplicantService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Response;
+use App\Http\Requests\StoreApplicantRequest;
+use App\Http\Requests\UpdateApplicantRequest;
 
 class ApplicantsController extends Controller
 {
+    private ApplicantService $applicantService;
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(ApplicantService $applicantService)
     {
         $this->middleware(['auth', 'verified']);
+        $this->applicantService = $applicantService;
     }
 
     /**
@@ -205,5 +214,268 @@ class ApplicantsController extends Controller
         return response()->json([
             'applicants' => $applicants,
         ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Admins Applicants
+    |--------------------------------------------------------------------------
+    */
+
+    public function adminsApplicants()
+    {
+        if (view()->exists('admin.applicants')) {
+            //Applicants
+            $applicants = Applicant::with([
+                'role',
+                'race',
+                'gender',
+                'user',
+                'state',
+                'education',
+                'duration',
+                'applicantType',
+                'town',
+                'brands'
+            ])
+            ->orderby('firstname')
+            ->orderby('lastname')
+            ->get();
+
+            //Genders
+            $genders = Gender::all();
+
+            //Roles
+            $roles = Role::where('id', '>', 1)
+                         ->orderby('name')
+                         ->get();
+
+            //States
+            $states = State::orderBy('sort')->get();
+
+            //Races
+            $races = Race::all();
+
+            //Educations
+            $educations = Education::all();
+
+            //Durations
+            $durations = Duration::all();
+
+            //Applicant Types
+            $applicantTypes = ApplicantType::all();
+
+            //Towns Types
+            $towns = Town::all();
+
+            //Brands
+            $brands = Brand::all();
+
+            return view('admin/applicants', [
+                'applicants' => $applicants,
+                'genders' => $genders,
+                'states' => $states,
+                'roles' => $roles,
+                'races' => $races,
+                'educations' => $educations,
+                'durations' => $durations,
+                'applicantTypes' => $applicantTypes,
+                'towns' => $towns,
+                'brands' => $brands
+            ]);
+        }
+        return view('404');
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Applicant Add
+    |--------------------------------------------------------------------------
+    */
+
+    public function store(StoreApplicantRequest $request)
+    {
+        //Validate
+        $request = $request->validated();
+
+        try {
+            DB::beginTransaction();
+
+            //Applicant Create
+            $applicant = $this->applicantService->store($request);
+
+            DB::commit();
+
+            $encID = Crypt::encryptString($applicant->id);
+
+            // Dispatch the job
+            ProcessUserIdNumber::dispatch(null, $applicant->id);
+
+            return response()->json([
+                'success' => true,
+                'user' => $applicant,
+                'encID' => $encID,
+                'message' => 'Applicant created successfully!',
+            ], 200);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to create applicant!',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Applicant Detail
+    |--------------------------------------------------------------------------
+    */
+
+    public function details($id)
+    {
+        try {
+            $applicantID = Crypt::decryptString($id);
+
+            $applicant = Applicant::with([
+                'role',
+                'gender',
+                'user',
+                'state',
+                'race',
+                'education'
+            ])->findOrFail($applicantID);
+
+            return response()->json([
+                'applicant' => $applicant,
+                'encID' => $id
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Applicant Update
+    |--------------------------------------------------------------------------
+    */
+
+    public function update(UpdateApplicantRequest $request)
+    {
+        //Applicant ID
+        $applicantID = Crypt::decryptString($request->field_id);
+
+        //Validate
+        $request->validated();
+
+        try {
+            //Applicant
+            $applicant = Applicant::findorfail($applicantID);
+
+            //Avatar
+            $avatarName = $applicant->avatar;
+            if (isset($request->avatar)) {
+                $avatarName = $this->applicantService->checkAvatar($request, $avatarName);
+            }
+
+            DB::beginTransaction();
+
+            //Applicant Update
+            $applicant = $this->applicantService->update($request, $applicant, $avatarName);
+
+            DB::commit();
+
+            //Dispatch the job
+            ProcessUserIdNumber::dispatch(null, $applicant->id);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Applicant updated successfully!'
+            ], 201);
+        } catch (Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to update applicant!',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Applicant Delete
+    |--------------------------------------------------------------------------
+    */
+
+    public function destroy($id)
+    {
+        try {
+            $applicantID = Crypt::decryptString($id);
+
+            $delete = Applicant::findOrFail($applicantID);
+            $delete->delete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Applicant deleted successfully!',
+            ], 200);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete applicant!',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Applicant Delete Multiple
+    |--------------------------------------------------------------------------
+    */
+
+    public function destroyMultiple(Request $request)
+    {
+        try {
+            $ids = $request->input('ids');
+
+            if (is_null($ids) || empty($ids)) {
+                return response()->json([
+                    'success' => false,
+                    'error' => 'No IDs provided'
+                ], 400);
+            }
+
+            // Decrypt IDs
+            $decryptedIds = array_map(function ($id) {
+                return Crypt::decryptString($id);
+            }, $ids);
+
+            DB::beginTransaction();
+
+            Applicant::destroy($decryptedIds);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Applicants deleted successfully!'
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete applicants!',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 }
