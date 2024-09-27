@@ -19,7 +19,7 @@
                             <div class="mb-3">
                                 <label class="form-label" for="date">Interview Date</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control flatpickr-input active" id="date" name="date" placeholder="Select date" data-provider="flatpickr" data-date-format="d M, Y"  value="{{ date('d M Y') }}" readonly="readonly" required>
+                                    <input type="text" class="form-control flatpickr-input active" id="date" name="date" placeholder="Select date" value="{{ date('d M Y') }}" readonly="readonly" required>
                                     <span class="input-group-text"><i class="ri-calendar-event-line"></i></span>
                                     <div class="invalid-feedback">
                                         Please select a date
@@ -33,7 +33,7 @@
                                     <div class="mb-3">
                                         <label class="form-label" for="startTime">Start Time</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control flatpickr-input active" data-provider="timepickr" id="startTime" name="start_time" data-time-hrs="true" id="timepicker-24hrs" readonly="readonly" required>
+                                            <input type="text" class="form-control flatpickr-input active" id="startTime" name="start_time" readonly="readonly" required>
                                             <span class="input-group-text"><i class="ri-time-line"></i></span>
                                             <div class="invalid-feedback">
                                                 Please select a start time
@@ -45,7 +45,7 @@
                                     <div class="mb-3">
                                         <label class="form-label" for="endTime">End Time</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control flatpickr-input active" data-provider="timepickr" id="endTime" name="end_time" data-time-hrs="true" id="timepicker-24hrs" readonly="readonly" required>
+                                            <input type="text" class="form-control flatpickr-input active" id="endTime" name="end_time" readonly="readonly" required>
                                             <span class="input-group-text"><i class="ri-time-line"></i></span>
                                             <div class="invalid-feedback">
                                                 Please select a end time
