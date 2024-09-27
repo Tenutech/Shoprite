@@ -43,6 +43,7 @@ class UpdateApplicantRequest extends FormRequest
             'duration_id' => ['sometimes', 'nullable', 'integer', 'exists:durations,id'],
             'applicant_type_id' => ['sometimes', 'nullable', 'integer', 'exists:applicant_types,id'],
             'application_type' => ['sometimes', 'nullable', 'string', 'in:Website,WhatsApp'],
+            'no_show' => ['sometimes', 'nullable', 'integer', 'in:1,2,3'],
         ];
     }
 

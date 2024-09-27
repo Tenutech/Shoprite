@@ -271,7 +271,7 @@ if(document.querySelector("#situational_chart")){
 |--------------------------------------------------------------------------
 */
 
-$(document).on('submit', '#formInterview', function(e) { 
+$(document).on('submit', '#formInterview', function(e) {
     e.preventDefault();
 
     if (!validateRatings()) {
@@ -293,7 +293,7 @@ $(document).on('submit', '#formInterview', function(e) {
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            success:function(data){                
+            success:function(data){
                 if (data.success == true) {
                     // Hide the form
                     $('#formInterview').hide();
@@ -303,7 +303,7 @@ $(document).on('submit', '#formInterview', function(e) {
                     $('#noShowBtn').hide();
 
                     $('#scoreDisplay').text(data.score).show();
-                    
+
                     // Update the alert to 'Completed' status
                     var alertElement = $('#interviewAlert .alert'); // Select the existing alert
                     var iconElement = $('#interviewAlert .label-icon'); // Select the icon element
@@ -331,7 +331,7 @@ $(document).on('submit', '#formInterview', function(e) {
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -339,7 +339,7 @@ $(document).on('submit', '#formInterview', function(e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -446,9 +446,9 @@ $('#formInterviewSchedule').on('submit', function(e) {
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            success:function(data){                
+            success:function(data){
                 if (data.success == true) {
-                    
+
                     Swal.fire({
                         position: 'top-end',
                         icon: 'success',
@@ -458,9 +458,9 @@ $('#formInterviewSchedule').on('submit', function(e) {
                         toast: true,
                         showCloseButton: true
                     });
-            
+
                     $('#interviewModal').modal('hide');
-            
+
                     // Replace the interview alert and form
                     $('#interviewAlert').html(`
                         <div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
@@ -468,7 +468,7 @@ $('#formInterviewSchedule').on('submit', function(e) {
                             <strong>Scheduled:</strong> ${data.date} at ${data.time}
                         </div>
                     `);
-            
+
                     if (data.questions.length === 0) {
                         // If no questions, show the error alert
                         $('#interviewFormContainer').html(`
@@ -486,7 +486,7 @@ $('#formInterviewSchedule').on('submit', function(e) {
                                         <label class="form-label fs-16" style="width:100%;">
                                             <div class="row" style="width:100%;">
                                                 <div class="col-sm-1">
-                                                    ${question.id}.) 
+                                                    ${question.id}.)
                                                 </div>
                                                 <div class="col-sm-11">
                                                     ${question.question}
@@ -525,7 +525,7 @@ $('#formInterviewSchedule').on('submit', function(e) {
                                 <!-- The score will be injected here -->
                             </h1>
                         `);
-            
+
                         // Initialize the rating functionality after the form is added to the DOM
                         data.questions.forEach(question => {
                             if (question.type === 'rating') {
@@ -553,7 +553,7 @@ $('#formInterviewSchedule').on('submit', function(e) {
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -561,7 +561,7 @@ $('#formInterviewSchedule').on('submit', function(e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -588,7 +588,7 @@ $('#formInterviewSchedule').on('submit', function(e) {
 $('#noShow-interview').on('click', function() {
     var interviewId = $(this).data('id');
     var url = route('interview.noShow');
-    
+
     $.ajax({
         url: url,
         type: 'POST',
@@ -630,7 +630,7 @@ $('#noShow-interview').on('click', function() {
         },
         error: function(jqXHR, textStatus, errorThrown) {
             let message = ''; // Initialize the message variable
-    
+
             if (jqXHR.status === 400 || jqXHR.status === 422) {
                 message = jqXHR.responseJSON.message;
             } else if (textStatus === 'timeout') {
@@ -638,7 +638,7 @@ $('#noShow-interview').on('click', function() {
             } else {
                 message = 'An error occurred while processing your request. Please try again later.';
             }
-        
+
             // Trigger the Swal notification with the dynamic message
             Swal.fire({
                 position: 'top-end',

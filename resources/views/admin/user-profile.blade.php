@@ -50,38 +50,38 @@
                     <ul class="nav nav-pills animation-nav profile-nav gap-2 gap-lg-3 flex-grow-1" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link fs-14 user-tab active" data-bs-toggle="tab" href="#overview-tab" role="tab">
-                                <i class="ri-airplay-fill d-inline-block d-md-none"></i> 
+                                <i class="ri-airplay-fill d-inline-block d-md-none"></i>
                                 <span class="d-none d-md-inline-block">Overview</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link fs-14 user-tab" data-bs-toggle="tab" href="#application-tab" role="tab">
-                                <i class="ri-price-tag-line d-inline-block d-md-none"></i> 
+                                <i class="ri-price-tag-line d-inline-block d-md-none"></i>
                                 <span class="d-none d-md-inline-block">My Application</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link fs-14 user-tab" data-bs-toggle="tab" href="#assessments-tab" role="tab">
-                                <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
+                                <i class="ri-folder-4-line d-inline-block d-md-none"></i>
                                 <span class="d-none d-md-inline-block">My Assessments</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link fs-14 user-tab d-none" data-bs-toggle="tab" href="#applications-tab" role="tab">
-                                <i class="ri-price-tag-line d-inline-block d-md-none"></i> 
+                                <i class="ri-price-tag-line d-inline-block d-md-none"></i>
                                 <span class="d-none d-md-inline-block">My Job Applications</span>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link fs-14 user-tab" data-bs-toggle="tab" href="#documents-tab" role="tab">
-                                <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
+                                <i class="ri-folder-4-line d-inline-block d-md-none"></i>
                                 <span class="d-none d-md-inline-block">My Documents</span>
                             </a>
                         </li>
                     </ul>
                     <div class="flex-shrink-0">
                         <a href="profile-settings" class="btn btn-success">
-                            <i class="ri-edit-box-line align-bottom"></i> 
+                            <i class="ri-edit-box-line align-bottom"></i>
                             Edit Profile
                         </a>
                     </div>
@@ -149,7 +149,7 @@
                                             </table>
                                         </div>
                                     </div><!-- end card body -->
-                                </div><!-- end card -->                                
+                                </div><!-- end card -->
                             </div>
                             <!--end col-->
 
@@ -194,7 +194,7 @@
                                                             <div class="profile-timeline" data-simplebar style="max-height: 485px;">
                                                                 <div class="accordion accordion-flush" id="{{ $tabID }}Example">
                                                                     @php
-                                                                        $activitiesSubset = $tabInfo['start'] 
+                                                                        $activitiesSubset = $tabInfo['start']
                                                                             ? $activities->whereBetween('created_at', [$tabInfo['start'], $tabInfo['end']])
                                                                             : $activities->where('created_at', '<', $tabInfo['end']);
                                                                     @endphp
@@ -204,7 +204,7 @@
                                                                             $bgClass = "";
                                                                             $subjectName = "";
                                                                             $showActivity = true;
-                                                                            
+
                                                                             switch($activity->event) {
                                                                                 case 'created':
                                                                                     switch($activity->subject_type) {
@@ -226,13 +226,13 @@
                                                                                             break;
                                                                                         case 'App\Models\User':
                                                                                             $iconClass = "ri-user-line";
-                                                                                            $bgClass = "bg-info-subtle text-info";                                                    
+                                                                                            $bgClass = "bg-info-subtle text-info";
                                                                                             break;
                                                                                         default:
                                                                                             $iconClass = "ri-stackshare-line";
-                                                                                            $bgClass = "bg-info-subtle text-info"; 
-                                                                                    }  
-                                                                                    $subjectName = "Created";                                          
+                                                                                            $bgClass = "bg-info-subtle text-info";
+                                                                                    }
+                                                                                    $subjectName = "Created";
                                                                                     break;
                                                                                 case 'deleted':
                                                                                     $iconClass = "ri-delete-bin-line";
@@ -246,7 +246,7 @@
                                                                                     break;
                                                                                 case 'accessed':
                                                                                     $iconClass = "ri-eye-line";
-                                                                                    $bgClass = "bg-info-subtle text-info"; 
+                                                                                    $bgClass = "bg-info-subtle text-info";
                                                                                     $subjectName = "Viewed";
                                                                                     break;
                                                                                 default:
@@ -264,7 +264,7 @@
 
                                                                             @if($activity->event === "created")
                                                                                 @if ($activity->subject_type === "App\Models\Vacancy")
-                                                                                    @php                                                        
+                                                                                    @php
                                                                                         $vacancy = $activity->subject; // This should be the related Vacancy model with loaded relationships
                                                                                         $positionName = $vacancy ? optional($vacancy->position)->name : 'N/A';
                                                                                         $positionDescription = $vacancy ? optional($vacancy->position)->description : 'N/A';
@@ -272,7 +272,7 @@
                                                                                         $townName = $vacancy ? optional($vacancy->store->town)->name : 'N/A';
                                                                                         $typeName = $vacancy ? optional($vacancy->type)->name : 'N/A';
                                                                                     @endphp
-                                                                                    <div class="accordion-item border-0">                                                                            
+                                                                                    <div class="accordion-item border-0">
                                                                                         <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                             <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                 <div class="d-flex">
@@ -322,7 +322,7 @@
                                                                                         $avatar = isset($activityAttributes['attributes']['avatar']) ? $activityAttributes['attributes']['avatar'] : URL::asset('images/avatar.jpg');
                                                                                     @endphp
 
-                                                                                    <div class="accordion-item border-0">                                                                            
+                                                                                    <div class="accordion-item border-0">
                                                                                         <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                             <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                 <div class="d-flex">
@@ -359,13 +359,13 @@
                                                                                         $message = isset($activityAttributes['attributes']['message']) ? $activityAttributes['attributes']['message'] : 'N/A';
                                                                                         $userFrom = $activity->subject->from ?? null;
                                                                                         $userTo = $activity->subject->to ?? null;
-                                                                                        $userFromName = $userFrom ? $userFrom->firstname . ' ' . $userFrom->lastname : 'N/A';                                                                                    
+                                                                                        $userFromName = $userFrom ? $userFrom->firstname . ' ' . $userFrom->lastname : 'N/A';
                                                                                         $userToName = $userTo ? $userTo->firstname . ' ' . $userTo->lastname : 'N/A';
                                                                                         $userFromAvatar = $userFrom ? URL::asset('images/' . $userFrom->avatar) : URL::asset('images/avatar.jpg');
                                                                                         $userToAvatar = $userTo ? URL::asset('images/' . $userTo->avatar) : URL::asset('images/avatar.jpg');
                                                                                     @endphp
 
-                                                                                    <div class="accordion-item border-0">                                                                            
+                                                                                    <div class="accordion-item border-0">
                                                                                         <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                             <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                 <div class="d-flex">
@@ -422,7 +422,7 @@
                                                                                         $vacancyUserAvatar = $vacancyUser ? URL::asset('images/' . $vacancyUser->avatar) : URL::asset('images/avatar.jpg');
                                                                                     @endphp
 
-                                                                                    <div class="accordion-item border-0">                                                                            
+                                                                                    <div class="accordion-item border-0">
                                                                                         <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                             <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                 <div class="d-flex">
@@ -486,7 +486,7 @@
 
                                                                             @elseif($activity->event === "updated")
                                                                                 @if ($activity->subject_type === "App\Models\Vacancy")
-                                                                                    @php                                                        
+                                                                                    @php
                                                                                         $vacancy = $activity->subject; // This should be the related Vacancy model with loaded relationships
                                                                                         $positionName = $vacancy ? optional($vacancy->position)->name : 'N/A';
                                                                                         $positionDescription = $vacancy ? optional($vacancy->position)->description : 'N/A';
@@ -495,7 +495,7 @@
                                                                                         $typeName = $vacancy ? optional($vacancy->type)->name : 'N/A';
                                                                                     @endphp
 
-                                                                                    <div class="accordion-item border-0">                                                                            
+                                                                                    <div class="accordion-item border-0">
                                                                                         <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                             <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                 <div class="d-flex">
@@ -543,7 +543,7 @@
                                                                                         $firstname = isset($activityAttributes['attributes']['firstname']) ? $activityAttributes['attributes']['firstname'] : 'N/A';
                                                                                         $lastname = isset($activityAttributes['attributes']['lastname']) ? $activityAttributes['attributes']['lastname'] : 'N/A';
                                                                                     @endphp
-                                                                                    <div class="accordion-item border-0">                                                                            
+                                                                                    <div class="accordion-item border-0">
                                                                                         <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                             <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                 <div class="d-flex">
@@ -583,7 +583,7 @@
                                                                                         $activityAttributes = json_decode($activity->properties, true);
                                                                                         $newApprovalStatus = $activityAttributes['attributes']['approved'] ?? null;
                                                                                         $oldApprovalStatus = $activityAttributes['old']['approved'] ?? null;
-                                                                            
+
                                                                                         $applicationUser = $activity->subject->user ?? null;
                                                                                         $applicationUserName = $applicationUser ? $applicationUser->firstname . ' ' . $applicationUser->lastname : 'N/A';
                                                                                         $applicationUserAvatar = $applicationUser ? URL::asset('images/' . $applicationUser->avatar) : URL::asset('images/avatar.jpg');
@@ -593,7 +593,7 @@
                                                                                     @endphp
 
                                                                                     @if($newApprovalStatus !== $oldApprovalStatus)
-                                                                                        <div class="accordion-item border-0">                                                                            
+                                                                                        <div class="accordion-item border-0">
                                                                                             <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                                 <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                     <div class="d-flex">
@@ -667,12 +667,12 @@
                                                                                     @php
                                                                                         // Retrieve the old attributes
                                                                                         $oldAttributes = $activityAttributes['old'] ?? [];
-                                                                            
+
                                                                                         // Find the related models using the IDs from the old attributes
                                                                                         $position = isset($oldAttributes['position_id']) ? \App\Models\Position::find($oldAttributes['position_id']) : null;
                                                                                         $store = isset($oldAttributes['store_id']) ? \App\Models\Store::with('brand', 'town')->find($oldAttributes['store_id']) : null;
                                                                                         $type = isset($oldAttributes['type_id']) ? \App\Models\Type::find($oldAttributes['type_id']) : null;
-                                                                            
+
                                                                                         // Get the names or default to 'N/A'
                                                                                         $positionName = $position ? $position->name : 'N/A';
                                                                                         $positionDescription = $position ? $position->description : 'N/A';
@@ -681,7 +681,7 @@
                                                                                         $typeName = $type ? $type->name : 'N/A';
                                                                                     @endphp
 
-                                                                                    <div class="accordion-item border-0">                                                                            
+                                                                                    <div class="accordion-item border-0">
                                                                                         <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                             <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                 <div class="d-flex">
@@ -727,7 +727,7 @@
                                                                                         $userToAvatar = $userTo ? URL::asset('images/' . $userTo->avatar) : URL::asset('images/avatar.jpg');
                                                                                     @endphp
 
-                                                                                    <div class="accordion-item border-0">                                                                            
+                                                                                    <div class="accordion-item border-0">
                                                                                         <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                             <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                 <div class="d-flex">
@@ -771,7 +771,7 @@
                                                                                         $typeName = optional($vacancy->type)->name ?? 'N/A';
                                                                                     @endphp
 
-                                                                                    <div class="accordion-item border-0">                                                                            
+                                                                                    <div class="accordion-item border-0">
                                                                                         <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                             <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                 <div class="d-flex">
@@ -822,7 +822,7 @@
                                                                                         $avatar = $applicant->avatar ?? URL::asset('images/avatar.jpg');
                                                                                     @endphp
 
-                                                                                    <div class="accordion-item border-0">                                                                            
+                                                                                    <div class="accordion-item border-0">
                                                                                         <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                             <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                 <div class="d-flex">
@@ -854,7 +854,7 @@
                                                                                         </div>
                                                                                     </div>
                                                                                 @else
-                                                                                    <div class="accordion-item border-0">                                                                            
+                                                                                    <div class="accordion-item border-0">
                                                                                         <div class="accordion-header" id="activityHeading{{ $activity->id }}">
                                                                                             <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
                                                                                                 <div class="d-flex">
@@ -884,12 +884,12 @@
                                                                             @endif
 
                                                                         @endif
-                                                                    @endforeach                                                                
+                                                                    @endforeach
                                                                 </div>
                                                                 <!--end accordion-->
                                                             </div>
                                                         </div>
-                                                    @endforeach                                                    
+                                                    @endforeach
                                                 </div>
                                             </div><!-- end card body -->
                                         </div><!-- end card -->
@@ -1026,7 +1026,7 @@
                                                                     <div class="col-lg-6">
                                                                         {{ optional($user->applicant->race)->name ?? 'N/A' }}
                                                                     </div>
-                                                                </div>                                                                
+                                                                </div>
                                                             </div>
                                                         </div>
                                                     </div>
@@ -1093,7 +1093,7 @@
                                                                 <div class="row mb-3">
                                                                     <div class="col-lg-3">
                                                                         <h6 class="fs-15 mb-0">
-                                                                            Rotational Shift 
+                                                                            Rotational Shift
                                                                         </h6>
                                                                     </div>
                                                                     <div class="col-lg-9">
@@ -1105,7 +1105,7 @@
                                                                 <div class="row mb-3">
                                                                     <div class="col-lg-3">
                                                                         <h6 class="fs-15 mb-0">
-                                                                            Heavy Lifting 
+                                                                            Heavy Lifting
                                                                         </h6>
                                                                     </div>
                                                                     <div class="col-lg-9">
@@ -1117,7 +1117,7 @@
                                                                 <div class="row mb-3">
                                                                     <div class="col-lg-3">
                                                                         <h6 class="fs-15 mb-0">
-                                                                            Disability 
+                                                                            Disability
                                                                         </h6>
                                                                     </div>
                                                                     <div class="col-lg-9">
@@ -1128,8 +1128,8 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>   
-                                        </div>                               
+                                            </div>
+                                        </div>
                                     </div>
                                     <!--end row-->
                                 @endif
@@ -1156,20 +1156,20 @@
                                             <div class="card-header">
                                                 <h4 class="card-title mb-0">Literacy Score</h4>
                                             </div><!-- end card header -->
-                            
+
                                             <div class="card-body">
                                                 <div id="literacy_chart" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
                                             </div><!-- end card-body -->
                                         </div><!-- end card -->
                                     </div>
-                                    <!-- end col -->                                    
+                                    <!-- end col -->
 
                                     <div class="col-xl-6">
                                         <div class="card">
                                             <div class="card-header">
                                                 <h4 class="card-title mb-0">Numeracy Score</h4>
                                             </div><!-- end card header -->
-                            
+
                                             <div class="card-body">
                                                 <div id="numeracy_chart" data-colors='["--vz-secondary"]' class="apex-charts" dir="ltr"></div>
                                             </div><!-- end card-body -->
@@ -1182,7 +1182,7 @@
                                             <div class="card-header">
                                                 <h4 class="card-title mb-0">Situational Score</h4>
                                             </div><!-- end card header -->
-                            
+
                                             <div class="card-body">
                                                 <div id="situational_chart" data-colors='["--vz-danger"]' class="apex-charts" dir="ltr"></div>
                                             </div><!-- end card-body -->
@@ -1197,7 +1197,7 @@
                         <!--end card-->
                     </div>
                     <!--end tab-pane-->
-                    
+
                     <!-------------------------------------------------------------------------------------
                        Job Applications
                     -------------------------------------------------------------------------------------->
@@ -1221,19 +1221,19 @@
                                                                 </a>
                                                             </h5>
                                                             <p class="text-muted text-truncate mb-2">
-                                                                Location : 
+                                                                Location :
                                                                 <span class="fw-semibold text-body">
                                                                     {{ $vacancy->store->brand->name }} ({{ $vacancy->store->town->name }})
                                                                 </span>
                                                             </p>
                                                             <p class="text-muted text-truncate mb-2">
-                                                                Type : 
+                                                                Type :
                                                                 <span class="fw-semibold text-body">
                                                                     {{ $vacancy->type->name }}
                                                                 </span>
                                                             </p>
                                                             <p class="text-muted text-truncate mb-0">
-                                                                Posted : 
+                                                                Posted :
                                                                 <span class="fw-semibold text-body">
                                                                     {{ $vacancy->created_at->diffForHumans() }}
                                                                 </span>
@@ -1259,7 +1259,7 @@
                                                                                 <img src="{{ URL::asset('images/' . $applicant->avatar) }}" class="rounded-circle img-fluid" />
                                                                             </div>
                                                                         </div>
-                                                                    @endforeach                                                                   
+                                                                    @endforeach
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -1270,7 +1270,7 @@
                                             <!-- end card -->
                                         </div>
                                         <!--end col-->
-                                    @endforeach                                    
+                                    @endforeach
                                 </div>
                                 <!--end row-->
                             </div>
@@ -1310,7 +1310,7 @@
                                                         @php
                                                             $fileIcon = '';
                                                         @endphp
-                                                        
+
                                                         @switch($file->type)
                                                             @case('png')
                                                             @case('jpg')
@@ -1319,32 +1319,32 @@
                                                                     $fileIcon = '<i class="ri-gallery-fill align-bottom text-success"></i>';
                                                                 @endphp
                                                                 @break
-                                                        
+
                                                             @case('pdf')
                                                                 @php
                                                                     $fileIcon = '<i class="ri-file-pdf-fill align-bottom text-danger"></i>';
                                                                 @endphp
                                                                 @break
-                                                        
+
                                                             @case('docx')
                                                                 @php
                                                                     $fileIcon = '<i class="ri-file-word-2-fill align-bottom text-primary"></i>';
                                                                 @endphp
                                                                 @break
-                                                        
+
                                                             @case('xls')
                                                             @case('xlsx')
                                                                 @php
                                                                     $fileIcon = '<i class="ri-file-excel-2-fill align-bottom text-success"></i>';
                                                                 @endphp
                                                                 @break
-                                                        
+
                                                             @case('csv')
                                                                 @php
                                                                     $fileIcon = '<i class="ri-file-excel-fill align-bottom text-success"></i>';
                                                                 @endphp
                                                                 @break
-                                                        
+
                                                             @case('txt')
                                                             @default
                                                                 @php
@@ -1373,7 +1373,7 @@
                                                                     $fileSizeText = "{$fileSizeInMB} MB";
                                                                 }
                                                             @endphp
-                                                            <td class="filelist-size">                                            
+                                                            <td class="filelist-size">
                                                                 {{ $fileSizeText }}
                                                             </td>
                                                             <td class="filelist-create">
@@ -1440,7 +1440,7 @@
                         </p>
                         <div class="hstack gap-2 justify-content-center remove">
                             <button class="btn btn-link btn-ghost-dark fw-medium text-decoration-none" data-bs-dismiss="modal" id="deleteFile-close">
-                                <i class="ri-close-line me-1 align-middle"></i> 
+                                <i class="ri-close-line me-1 align-middle"></i>
                                 Close
                             </button>
                             <button class="btn btn-danger" id="delete-file" data-bs-id="">
@@ -1464,9 +1464,11 @@
         var numeracyQuestions = {{ optional($user->applicant)->numeracy_questions ?? 10 }};
         var numeracy = "{{ optional($user->applicant)->numeracy ?? 0/10 }}";
 
-        var situationalScore = {{ $applicant->situational_score }};
-        var situationalQuestions = {{ $applicant->situational_questions }};
-        var situational = "{{ $applicant->situational }}";
+        if (($user->applicant)->situational_score) {
+            var situationalScore = {{ ($user->applicant)->situational_score }};
+            var situationalQuestions = {{ ($user->applicant)->situational_questions }};
+            var situational = "{{ ($user->applicant)->situational }}";
+        }
     </script>
 
     <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js') }}"></script>

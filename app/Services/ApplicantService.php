@@ -45,6 +45,7 @@ class ApplicantService
             'duration_id' => $applicantData['duration_id'],
             'applicant_type_id' => $applicantData['applicant_type_id'],
             'application_type' => $applicantData['application_type'],
+            'no_show' => $applicantData['no_show'],
         ]);
 
         return $applicant;
@@ -79,6 +80,7 @@ class ApplicantService
         $applicant->duration_id = $request->duration_id;
         $applicant->applicant_type_id = $request->applicant_type_id;
         $applicant->application_type = $request->application_type;
+        $applicant->no_show = $request->no_show;
         $applicant->save();
 
         return $applicant;

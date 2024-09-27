@@ -90,6 +90,7 @@ class ApplicantProfileController extends Controller
                 'interviews' => function ($query) {
                     $query->latest('scheduled_date')->take(1); // Get the latest interview based on scheduled date
                 },
+                'applicantType',
             ])
             ->findorfail($applicantID);
 

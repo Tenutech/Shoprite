@@ -60,7 +60,8 @@ var options = {
         "education",
         "duration",
         "applicant_type",
-        "source"
+        "source",
+        "no_show"
     ],
     page: perPage,
     pagination: true,
@@ -151,6 +152,7 @@ var idField = document.getElementById("field-id"),
     duration = document.getElementById("duration"),
     applicantType = document.getElementById("applicant_type"),
     source = document.getElementById("source"),
+    noShow = document.getElementById("noShow"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
@@ -245,6 +247,11 @@ var sourceVal = new Choices(source, {
     searchEnabled: false,
     shouldSort: false
 });
+
+var noShowVal = new Choices(noShow, {
+    searchEnabled: false,
+    shouldSort: false
+});
 /*
 |--------------------------------------------------------------------------
 | Add Applicant
@@ -334,6 +341,12 @@ addBtn.addEventListener("click", function (e) {
                         sourceValue = '';
                     }
 
+                    if (noShow.value) {
+                        noShowValue = noShow.options[noShow.selectedIndex].text;
+                    } else {
+                        noShowValue = '';
+                    }
+
                     applicantList.add({
                         id: data.encID,
                         name: '<div class="d-flex align-items-center">\
@@ -357,6 +370,7 @@ addBtn.addEventListener("click", function (e) {
                         duration: durationValue,
                         applicantType: applicantTypeValue,
                         source: sourceValue,
+                        noShow: noShowValue,
                     });
                     applicantList.sort('name', { order: "asc" });
                     Swal.fire({
@@ -500,6 +514,12 @@ editBtn.addEventListener("click", function (e) {
                                 sourceValue = '';
                             }
 
+                            if (noShow.value) {
+                                noShowValue = noShow.options[noShow.selectedIndex].text;
+                            } else {
+                                noShowValue = '';
+                            }
+
                             x.values({
                                 id: idField.value,
                                 name: '<div class="d-flex align-items-center">\
@@ -523,6 +543,7 @@ editBtn.addEventListener("click", function (e) {
                                 duration: durationValue,
                                 applicantType: applicantTypeValue,
                                 source: sourceValue,
+                                noShow: noShowValue,
                             });
                         }
                     });
@@ -735,6 +756,10 @@ function refreshCallbacks() {
                 if(data.applicant.application_type) {
                     sourceVal.setChoiceByValue(data.applicant.application_type.toString());
                 }
+
+                if(data.applicant.no_show) {
+                    noShowVal.setChoiceByValue(data.applicant.no_show.toString());
+                }
             });
         }
     });
@@ -781,82 +806,22 @@ function refreshCallbacks() {
                                             <td>${x._values.id_number}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">ID Verified</td>
-                                            <td>${x._values.id_verified}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Birth Date</td>
-                                            <td>${x._values.birth_date}</td>
-                                        </tr>
-                                        <tr>
                                             <td class="fw-medium" scope="row">Age</td>
                                             <td>${x._values.age}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Disability</td>
-                                            <td>${x._values.disability}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Location</td>
-                                            <td>${x._values.location}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Town</td>
-                                            <td>${x._values.town}</td>
                                         </tr>
                                         <tr>
                                             <td class="fw-medium" scope="row">Gender</td>
                                             <td>${x._values.gender}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Literacy Score</td>
-                                            <td>${x._values.literacy}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Numeracy Score</td>
-                                            <td>${x._values.numeracy}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Situational Score</td>
-                                            <td>${x._values.situational}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Overall Score</td>
-                                            <td>${x._values.score}</td>
-                                        </tr>
-                                        <tr>
                                             <td class="fw-medium" scope="row">Race</td>
                                             <td>${x._values.race}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">State</td>
-                                            <td>${x._values.state}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Education</td>
-                                            <td>${x._values.education}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Duration</td>
-                                            <td>${x._values.duration}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Role</td>
-                                            <td>${x._values.role}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Applicant Type</td>
-                                            <td>${x._values.applicant_type}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Source</td>
-                                            <td>${x._values.source}</td>
                                         </tr>
                                     </tbody>
                                 </table>
                             </div>
                             <div class="d-grid gap-2 mt-4" >
-                                <a href="`+ route('user-profile.index', {id: x._values.id}) +`" class="btn btn-primary" type="button">View Profile</a>
+                                <a href="`+ route('applicant-profile.index', {id: x._values.id}) +`" class="btn btn-primary" type="button">View Profile</a>
                             </div>
                         </div>`;
                     document.getElementById('contact-view-detail').innerHTML = codeBlock;
@@ -915,6 +880,9 @@ function clearFields() {
 
     sourceVal.removeActiveItems();
     sourceVal.setChoiceByValue("");
+
+    noShowVal.removeActiveItems();
+    noShowVal.setChoiceByValue("");
 }
 
 // Delete All Records

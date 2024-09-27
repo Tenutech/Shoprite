@@ -97,6 +97,7 @@
                                         <th class="sort d-none" data-sort="applicant_type" scope="col">Applicant Type</th>
                                         <th class="sort d-none" data-sort="source" scope="col">Source</th>
                                         <th class="sort" data-sort="state" scope="col">State</th>
+                                        <th class="sort d-none" data-sort="now_show" scope="col">No show</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -143,6 +144,7 @@
                                                 <td class="applicant_type d-none">{{ $applicant->applicant_type_id ? $applicant->applicantType->name : '' }}</td>
                                                 <td class="source d-none">{{ $applicant->application_type }}</td>
                                                 <td class="state">{{ $applicant->state_id ? $applicant->state->name : '' }}</td>
+                                                <td class="no_show d-none">{{ $applicant->no_show }}</td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
                                                         <li class="list-inline-item">
@@ -206,6 +208,7 @@
                                             <td class="applicant_type d-none"></td>
                                             <td class="source d-none"></td>
                                             <td class="state"></td>
+                                            <td class="no_show"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -340,7 +343,7 @@
                                                         Gender
                                                     </label>
                                                     <select id="gender" name="gender_id" class="form-control">
-                                                        <option value="" selected>Select Gender</option>
+                                                        <option value="" selected>Select gender</option>
                                                         @foreach ($genders as $gender)
                                                             <option value="{{ $gender->id }}">{{ $gender->name }}</option>
                                                         @endforeach
@@ -352,7 +355,7 @@
                                                         Disability
                                                     </label>
                                                     <select id="disability" name="disability" class="form-control">
-                                                        <option value="" selected>Select Option</option>
+                                                        <option value="" selected>Select disability</option>
                                                         <option value="No">No</option>
                                                         <option value="Yes">Yes</option>
                                                     </select>
@@ -363,7 +366,7 @@
                                                         State
                                                     </label>
                                                     <select id="state" name="state_id" class="form-control">
-                                                        <option value="" selected>Select State</option>
+                                                        <option value="" selected>Select state</option>
                                                         @foreach ($states as $state)
                                                             <option value="{{ $state->id }}">{{ $state->name }}</option>
                                                         @endforeach
@@ -375,7 +378,7 @@
                                                         Education
                                                     </label>
                                                     <select id="education" name="education_id" class="form-control">
-                                                        <option value="" selected>Select Education</option>
+                                                        <option value="" selected>Select education</option>
                                                         @foreach ($educations as $education)
                                                             <option value="{{ $education->id }}">{{ $education->name }}</option>
                                                         @endforeach
@@ -387,10 +390,23 @@
                                                         Applicant Type
                                                     </label>
                                                     <select id="applicant_type" name="applicant_type_id" class="form-control">
-                                                        <option value="" selected>Select Applicant Type</option>
+                                                        <option value="" selected>Select applicant type</option>
                                                         @foreach ($applicantTypes as $applicantType)
                                                             <option value="{{ $applicantType->id }}">{{ $applicantType->name }}</option>
                                                         @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="noShow" class="form-label">
+                                                        No Show
+                                                    </label>
+                                                    <select id="noShow" name="no_show" class="form-control">
+                                                        <option value="" selected>How many times a no show to interview?</option>
+                                                        <option value="0">0</option>
+                                                        <option value="1">1</option>
+                                                        <option value="2">2</option>
+                                                        <option value="3">3</option>
                                                     </select>
                                                 </div>
                                                 <!--end col-->
@@ -428,7 +444,7 @@
                                                         Town
                                                     </label>
                                                     <select id="town" name="town_id" class="form-control">
-                                                        <option value="" selected>Select Applicant Town</option>
+                                                        <option value="" selected>Select town</option>
                                                         @foreach ($towns as $town)
                                                             <option value="{{ $town->id }}">{{ $town->name }}</option>
                                                         @endforeach
@@ -447,7 +463,7 @@
                                                         Race
                                                     </label>
                                                     <select id="race" name="race_id" class="form-control">
-                                                        <option value="" selected>Select Applicant Race</option>
+                                                        <option value="" selected>Select applicant race</option>
                                                         @foreach ($races as $race)
                                                             <option value="{{ $race->id }}">{{ $race->name }}</option>
                                                         @endforeach
@@ -459,7 +475,7 @@
                                                         Role
                                                     </label>
                                                     <select id="role" name="role_id" class="form-control">
-                                                        <option value="" selected>Select Applicant Role</option>
+                                                        <option value="" selected>Select applicant role</option>
                                                         @foreach ($roles as $role)
                                                             <option value="{{ $role->id }}">{{ $role->name }}</option>
                                                         @endforeach
@@ -471,7 +487,7 @@
                                                         Duration
                                                     </label>
                                                     <select id="duration" name="duration_id" class="form-control">
-                                                        <option value="" selected>Select Duration</option>
+                                                        <option value="" selected>Select duration</option>
                                                         @foreach ($durations as $duration)
                                                             <option value="{{ $duration->id }}">{{ $duration->name }}</option>
                                                         @endforeach
@@ -483,7 +499,7 @@
                                                         Source
                                                     </label>
                                                     <select id="source" name="application_type" class="form-control">
-                                                        <option value="" selected>Select Option</option>
+                                                        <option value="" selected>Select applicant source</option>
                                                         <option value="Website">Website</option>
                                                         <option value="WhatsApp">WhatsApp</option>
                                                     </select>
@@ -573,64 +589,16 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">ID Verified</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium" scope="row">Town</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium" scope="row">Birth Date</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
                                     <td class="fw-medium" scope="row">Age</td>
                                     <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Disability</td>
-                                    <td class="d-none"></td>
                                 </tr>
                                 <tr>
                                     <td class="fw-medium" scope="row">Gender</td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium d-none" scope="row">Citizen Status</td>
-                                    <td class="d-none"></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Literacy Score</td>
-                                    <td class="d-none"></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Numeracy Score</td>
-                                    <td class="d-none"></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Situational Score</td>
-                                    <td class="d-none"></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Overall Score</td>
-                                    <td class="d-none"></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium" scope="row">Role</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium" scope="row">State</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
                                     <td class="fw-medium" scope="row">Race</td>
                                     <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Location</td>
-                                    <td class="d-none"></td>
                                 </tr>
                             </tbody>
                         </table>
