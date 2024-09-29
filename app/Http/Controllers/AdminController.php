@@ -35,8 +35,10 @@ class AdminController extends Controller
      *
      * @return void
      */
-    public function __construct(VacancyDataService $vacancyDataService, ApplicantDataService $applicantDataService)
-    {
+    public function __construct(
+        ApplicantDataService $applicantDataService,
+        VacancyDataService $vacancyDataService
+    ) {
         $this->middleware(['auth', 'verified']);
         $this->applicantDataService = $applicantDataService;
         $this->vacancyDataService = $vacancyDataService;
@@ -574,6 +576,7 @@ class AdminController extends Controller
             $applicationCompletionRate = $this->applicantDataService->getApplicationCompletionRate($startDate, $endDate);
             $dropOffRates = $this->applicantDataService->getDropOffRates($startDate, $endDate);
             // $completionByRegion = $this->applicantDataService->getCompletionByRegion($startDate, $endDate);
+            $channelStats =  $this->applicantDataService->getTotalAndPercentageByChannel($startDate, $endDate);
 
             $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDateRange($startDate, $endDate);
             $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
@@ -608,6 +611,7 @@ class AdminController extends Controller
                 // 'completionByRegion' => $completionByRegion,
                 'averageScoresByBrand' => $averageScoresByBrand,
                 'averageScoresByProvince' => $averageScoresByProvince,
+                'channelStats' => $channelStats,
             ]);
         }
         return view('404');

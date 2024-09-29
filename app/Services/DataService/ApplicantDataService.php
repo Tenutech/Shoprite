@@ -245,6 +245,80 @@ class ApplicantDataService
         ];
     }
 
+    /*
+     * Get total number of applications by channel (WhatsApp and Website) grouped by month
+     * within a given date range.
+     *
+     * @param \DateTimeInterface|string $startDate The start date of the date range.
+     * @param \DateTimeInterface|string $endDate The end date of the date range.
+     *
+     * @return array
+     *     An array containing the total count for WhatsApp and Website for each month.
+     */
+    public function getTotalApplicationsByChannelForDateRange($startDate, $endDate)
+    {
+        $startDate = $startDate instanceof \DateTimeInterface ? $startDate : Carbon::parse($startDate);
+        $endDate = $endDate instanceof \DateTimeInterface ? $endDate : Carbon::parse($endDate);
+
+        $applicationsByMonth = Applicant::select(
+            DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
+            'applicant_type_id',
+            DB::raw('COUNT(*) as total')
+        )
+            ->whereBetween('created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->whereIn('applicant_type_id', ['WhatsApp', 'Website'])
+            ->groupBy(DB::raw("DATE_FORMAT(created_at, '%Y-%m')"), 'application_type')
+            ->get();
+
+        $results = [];
+        foreach ($applicationsByMonth as $application) {
+            $results[$application->month][$application->application_type] = $application->total;
+        }
+
+        return $results;
+    }
+
+    /**
+     * Calculate the total and percentage of applicants by channel (WhatsApp and Website).
+     *
+     * @param \DateTimeInterface|string $startDate The start date of the date range.
+     * @param \DateTimeInterface|string $endDate The end date of the date range.
+     *
+     * @return array
+     *     An array containing the total applicants and breakdown by WhatsApp and Website.
+     */
+    public function getTotalAndPercentageByChannel($startDate, $endDate)
+    {
+        $startDate = $startDate instanceof \DateTimeInterface ? $startDate : Carbon::parse($startDate);
+        $endDate = $endDate instanceof \DateTimeInterface ? $endDate : Carbon::parse($endDate);
+
+        $totalApplicants = Applicant::whereBetween('created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->count();
+
+        $whatsappCount = Applicant::where('applicant_type_id', 'WhatsApp')
+            ->whereBetween('created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->count();
+
+        $websiteCount = Applicant::where('applicant_type_id', 'Website')
+            ->whereBetween('created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
+            ->count();
+
+        $whatsappPercentage = $totalApplicants ? ($whatsappCount / $totalApplicants) * 100 : 0;
+        $websitePercentage = $totalApplicants ? ($websiteCount / $totalApplicants) * 100 : 0;
+
+        return [
+            'total_applicants' => $totalApplicants,
+            'whatsapp' => [
+                'count' => $whatsappCount,
+                'percentage' => round($whatsappPercentage, 2),
+            ],
+            'website' => [
+                'count' => $websiteCount,
+                'percentage' => round($websitePercentage, 2),
+            ],
+        ];
+    }
+
     /**
      * Get completion and drop-off rates segmented by geographic region.
      *

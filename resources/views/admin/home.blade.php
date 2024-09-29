@@ -340,6 +340,39 @@
                 </div><!-- end col -->
             </div>
 
+            <div class="row">
+                <div class="col-xxl-12 col-md-12">
+                    <div class="card card-height-100">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">
+                            Application channels
+                            </h4>                            
+                        </div><!-- end card header -->
+                        <div class="card-header p-0 border-0 bg-soft-light">
+                            <div class="row g-0 text-center">
+                                <div class="col-6 col-sm-6">
+                                    <div class="p-3 border border-dashed border-start-0">
+                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $channelStats['whatsapp']['count'] }}" id="channleWhatsappCounter">0</span></h5>
+                                        <p class="text-muted mb-0">Whatsapp</p>
+                                    </div>
+                                </div>
+                                <!--end col-->
+                                <div class="col-6 col-sm-6">
+                                    <div class="p-3 border border-dashed border-start-0">
+                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $channelStats['website']['count'] }}" id="channleWebsiteCounter">0</span></h5>
+                                        <p class="text-muted mb-0">Website</p>
+                                    </div>
+                                </div>
+                                <!--end col-->
+                            </div>
+                        </div><!-- end card header -->
+                        <div class="card-body">
+                            <div id="application_channels" data-colors='["--vz-success", "--vz-danger"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div>
+            </div>
+
             <!-------------------------------------------------------------------------------------
                 Locations
             -------------------------------------------------------------------------------------->
@@ -1034,6 +1067,9 @@
 
     var incomingMessages = @json($incomingMessages);
     var outgoingMessages = @json($outgoingMessages);
+
+    var whatsappChannelCount = @json($channelStats['whatsapp']['count']);
+    var websiteChannelCount = @json($channelStats['website']['count']);
 
     var applicantsByPosition = @json($applicantsByPosition);
 
