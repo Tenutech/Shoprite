@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exeption;
 use App\Models\User;
 use App\Models\Race;
 use App\Models\Message;

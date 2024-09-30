@@ -39,13 +39,13 @@
     <div class="collapse" id="collapseFilters">
         <div class="card mb-0">
             <div class="card-body">
-                <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="modal" data-bs-target="#mapModal">
+                <button type="button" class="btn btn-light btn-label rounded-pill d-none" data-bs-toggle="modal" data-bs-target="#mapModal">
                     <i class="ri-map-pin-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                     Location
                 </button>
 
                 <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <button type="button" class="btn btn-light btn-label rounded-pill d-none" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="ri-building-2-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                         Town
                     </button>
@@ -86,17 +86,17 @@
                     </ul>
                 </div>
 
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="citizen;Yes">
+                <button type="button" class="btn btn-light btn-label rounded-pill filter-button d-none" data-bs-filter="citizen;Yes">
                     <i class="ri-shield-user-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                     Citizen
                 </button>
 
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="foreign_national;Yes">
+                <button type="button" class="btn btn-light btn-label rounded-pill filter-button d-none" data-bs-filter="foreign_national;Yes">
                     <i class="ri-map-pin-user-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                     Foreign National
                 </button>
 
-                <div class="btn-group" role="group">
+                <div class="btn-group d-none" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="ri-briefcase-4-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                         Position
@@ -113,7 +113,7 @@
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="ri-book-read-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                        Education
+                        Qualifications
                     </button>
                     <ul class="dropdown-menu">
                         @foreach ($educations as $education)
@@ -126,38 +126,21 @@
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-car-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                        License
+                        <i class="ri-book-read-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        Experience
                     </button>
                     <ul class="dropdown-menu">
-                        <a class="dropdown-item filter-button" data-bs-filter="drivers_license_code;A">
-                            A
-                        </a>
-                        <a class="dropdown-item filter-button" data-bs-filter="drivers_license_code;B">
-                            B
-                        </a>
-                        <a class="dropdown-item filter-button" data-bs-filter="drivers_license_code;C1">
-                            C1
-                        </a>
-                        <a class="dropdown-item filter-button" data-bs-filter="drivers_license_code;EB, EC1, EC">
-                            EB, EC1, EC
-                        </a>
+                        @foreach ($durations as $duration)
+                            <a class="dropdown-item filter-button" data-bs-filter="duration_id;{{ $duration->id }}">
+                                {{ $duration->name }}
+                            </a>
+                        @endforeach
                     </ul>
                 </div>
 
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="has_bank_account;Yes">
-                    <i class="ri-bank-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                    Bank Account
-                </button>
-
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="literacy_score;literacy"> 
-                    <i class="ri-book-open-line label-icon align-middle rounded-pill fs-16 me-2"></i>
-                    Literacy
-                </button>
-
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="numeracy_score;numeracy"> 
-                    <i class="ri-hashtag label-icon align-middle rounded-pill fs-16 me-2"></i>
-                    Numeracy
+                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="disability;Yes">
+                    <i class="ri-wheelchair-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                    Disability
                 </button>
 
                 <div class="live-preview mt-4">
@@ -239,7 +222,7 @@
 <script src="{{ URL::asset('build/libs/wnumb/wNumb.min.js') }}"></script>
 <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.googlemaps.key') }}&callback=initMap"></script>
 <!-- job-candidate-grid js -->
-<script src="{{URL::asset('build/js/pages/applicants.init.js')}}"></script>
+<script src="{{URL::asset('build/js/pages/applicants.init.js')}}?v={{ filemtime(public_path('build/js/pages/applicants.init.js')) }}"></script>
 <script src="{{ URL::asset('build/js/pages/applicant-save.init.js') }}"></script>
 
 <!-- App js -->

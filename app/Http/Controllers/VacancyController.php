@@ -535,6 +535,17 @@ class VacancyController extends Controller
 
                     // Dispatch a job to send the WhatsApp message
                     SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type);
+
+                    // Remove the appointed applicant from saved lists of other users except the Auth user
+                    $savedUsers = $applicant->savedBy()
+                                            ->where('user_id', '!=', Auth::id())
+                                            ->pluck('user_id'); // Get a list of user_ids who have saved this applicant
+
+                    // Delete records from the pivot table for the specific applicant and the filtered users
+                    DB::table('applicant_save')
+                      ->where('applicant_id', $applicant->id)
+                      ->whereIn('user_id', $savedUsers)
+                      ->delete();
                 }
             }
 
