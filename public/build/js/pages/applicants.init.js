@@ -93,12 +93,15 @@ function loadCandidateListData(datas, page) {
         if (datas[i]) {
             var bookmark = datas[i].saved_by.length > 0 ? "active" : "";
 
+            // Check if applicant is appointed and apply green border if true
+            var appointedClass = datas[i].appointed_id ? "border card-border-success" : "";
+
             var isUserProfile = datas[i].avatar ? '<img src="' + datas[i].avatar + '" alt="" class="member-img img-fluid d-block rounded" />'
                 : '<img src="/images/avatar.jpg" alt="" class="member-img img-fluid d-block rounded" />';
 
             document.querySelector("#candidate-list").innerHTML += 
                 '<div class="col-md-6 col-lg-12">\
-                    <div class="card mb-0">\
+                    <div class="card mb-0 '+ appointedClass +'">\
                         <div class="card-body">\
                             <div class="d-lg-flex align-items-center">\
                                 <div class="flex-shrink-0 col-auto">\
