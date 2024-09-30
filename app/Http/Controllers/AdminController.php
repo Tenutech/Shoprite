@@ -13,6 +13,7 @@ use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
 use App\Models\Language;
+use App\Services\DataService\ApplicantDataService;
 use App\Services\DataService\VacancyDataService;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -33,9 +34,10 @@ class AdminController extends Controller
      *
      * @return void
      */
-    public function __construct(VacancyDataService $vacancyDataService)
+    public function __construct(VacancyDataService $vacancyDataService, ApplicantDataService $applicantDataService)
     {
         $this->middleware(['auth', 'verified']);
+        $this->applicantDataService = $applicantDataService;
         $this->vacancyDataService = $vacancyDataService;
     }
 
@@ -565,11 +567,12 @@ class AdminController extends Controller
             $startDate = Carbon::now()->startOfYear();
             $endDate = Carbon::now()->endOfYear();
 
-            // Nationwide average
             $averageShortlistTime = $this->vacancyDataService->getNationwideAverageTimeToShortlist();
             $averageTimeToHire = $this->vacancyDataService->getNationwideAverageTimeToHire();
-
             $adoptionRate = $this->vacancyDataService->getNationwideVacancyFillRate($startDate, $endDate);
+            $applicationCompletionRate = $this->applicantDataService->getApplicationCompletionRate($startDate, $endDate);
+            $dropOffRates = $this->applicantDataService->getDropOffRates($startDate, $endDate);
+            // $completionByRegion = $this->applicantDataService->getCompletionByRegion($startDate, $endDate);
 
             return view('admin/home', [
                 'activities' => $activities,
@@ -595,6 +598,9 @@ class AdminController extends Controller
                 'averageShortlistTime' => $averageShortlistTime,
                 'averageTimeToHire' => $averageTimeToHire,
                 'adoptionRate' => $adoptionRate,
+                'applicationCompletionRate' => $applicationCompletionRate,
+                'dropOffRates' => $dropOffRates,
+                // 'completionByRegion' => $completionByRegion,
             ]);
         }
         return view('404');
