@@ -828,12 +828,12 @@
 <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js')}}"></script>
 <!-- home init -->
 @if ($user->applicant && Auth::id() != 54)
-    <script src="{{URL::asset('build/js/pages/home.init.js')}}"></script>
+    <script src="{{URL::asset('build/js/pages/home.init.js')}}?v={{ filemtime(public_path('build/js/pages/home.init.js')) }}"></script>
 @else
     <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/quill/quill.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/dropzone/dropzone-min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/application.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/application.init.js') }}?v={{ filemtime(public_path('build/js/pages/application.init.js')) }}"></script>
 
     <!-- input flag init -->
     <script src="{{URL::asset('build/js/pages/flag-input.init.js')}}"></script>
