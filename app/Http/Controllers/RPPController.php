@@ -13,6 +13,7 @@ use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
 use App\Services\DataService\ApplicantDataService;
+use App\Services\DataService\ApplicantProximityService;
 use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -34,10 +35,12 @@ class RPPController extends Controller
     public function __construct(
         ActivityLogService $activityLogService,
         VacancyDataService $vacancyDataService,
-        ApplicantDataService $applicantDataService
+        ApplicantDataService $applicantDataService,
+        ApplicantProximityService $applicantProximityService
     ) {
         $this->activityLogService = $activityLogService;
         $this->applicantDataService = $applicantDataService;
+        $this->applicantProximityService = $applicantProximityService;
         $this->vacancyDataService = $vacancyDataService;
     }
 
@@ -529,6 +532,15 @@ class RPPController extends Controller
                 $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByRegionAndDateRange($regionId, $startDate, $endDate);
                 $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
                 $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
+                $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForRegion(Auth::user()->region_id, $startDate, $endDate);
+                $distanceLimit = 50;
+                $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
+                    'region',
+                    $regionId,
+                    $distanceLimit,
+                    $startDate,
+                    $endDate
+                );
             }
 
             return view('rpp/home', [
@@ -556,6 +568,8 @@ class RPPController extends Controller
                 'adoptionRate' => $adoptionRate,
                 'averageScoresByBrand' => $averageScoresByBrand,
                 'averageScoresByProvince' => $averageScoresByProvince,
+                'averageDistanceSuccessfulPlacements' => $averageDistanceSuccessfulPlacements,
+                'averageTalentPoolDistance' => $averageTalentPoolDistance,
             ]);
         }
         return view('404');

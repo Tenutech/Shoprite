@@ -15,6 +15,7 @@ use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
 use App\Models\Language;
 use App\Services\DataService\ApplicantDataService;
+use App\Services\DataService\ApplicantProximityService;
 use App\Services\DataService\VacancyDataService;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -37,10 +38,12 @@ class AdminController extends Controller
      */
     public function __construct(
         ApplicantDataService $applicantDataService,
-        VacancyDataService $vacancyDataService
+        VacancyDataService $vacancyDataService,
+        ApplicantProximityService $applicantProximityService
     ) {
         $this->middleware(['auth', 'verified']);
         $this->applicantDataService = $applicantDataService;
+        $this->applicantProximityService = $applicantProximityService;
         $this->vacancyDataService = $vacancyDataService;
     }
 
@@ -593,6 +596,15 @@ class AdminController extends Controller
             $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDateRange($startDate, $endDate);
             $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
             $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
+            $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForAdmin($startDate, $endDate);
+            $distanceLimit = 50;
+            $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
+                'national',
+                null,
+                $distanceLimit,
+                $startDate,
+                $endDate
+            );
 
             return view('admin/home', [
                 'activities' => $activities,
@@ -634,6 +646,8 @@ class AdminController extends Controller
                 'interviewedRaceBreakdownPercentages' => array_values($interviewedRaceBreakdown['percentages']),
                 'interviewedGenderBreakdownPercentages' => array_values($interviewedGenderBreakdown['percentages']),
                 'interviewedAgeBreakdownPercentages' => array_values($interviewedAgeBreakdown['percentages']),
+                'averageDistanceSuccessfulPlacements' => $averageDistanceSuccessfulPlacements,
+                'averageTalentPoolDistance' => $averageTalentPoolDistance,
             ]);
         }
         return view('404');

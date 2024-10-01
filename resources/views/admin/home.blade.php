@@ -162,6 +162,59 @@
             @include('admin.dashboard.partials.demographics_interviewed_candidates_breakdown')
 
             <div class="row">
+                <div class="col-xl-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                Average proximity
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                    <span class="counter-value"  data-target="{{ $averageDistanceSuccessfulPlacements }}" id="averageDistanceSuccessfulPlacementsValue">
+                                            {{ $averageDistanceSuccessfulPlacements }}
+                                        </span>km 
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average Distance for Succesfull Placements
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col-->
+                <div class="col-xl-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                Average proximity
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                        <span class="counter-value"  data-target="{{ $averageTalentPoolDistance }}" id="averageTalentPoolDistanceValue">
+                                            {{ $averageTalentPoolDistance}} 
+                                        </span>km
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Total Average Distance
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col-->
+            </div> <!-- end row-->
+
+            <div class="row">
                 <div class="col-xl-12">
                     <div class="card">
                         <div class="card-header">
