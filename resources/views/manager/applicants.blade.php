@@ -27,7 +27,7 @@
         <div class="d-md-flex justify-content-sm-end gap-2">
             <div class="search-box ms-md-2 flex-shrink-0 mb-3 mb-md-0">
                 <button type="button" class="btn btn-secondary btn-label rounded-pill" data-bs-toggle="collapse" data-bs-target="#collapseFilters" aria-expanded="false" aria-controls="collapseFilters">
-                    <i class="ri-equalizer-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                    <i class="ri-equalizer-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                     Filters
                 </button>
             </div>
@@ -40,13 +40,13 @@
         <div class="card mb-0">
             <div class="card-body">
                 <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="modal" data-bs-target="#mapModal">
-                    <i class="ri-map-pin-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                    <i class="ri-map-pin-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                     Location
                 </button>
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-building-2-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-building-2-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Town
                     </button>
                     <div class="dropdown-menu p-2">
@@ -60,7 +60,7 @@
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-men-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-men-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Gender
                     </button>
                     <ul class="dropdown-menu">
@@ -74,7 +74,7 @@
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-user-3-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-user-3-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Race
                     </button>
                     <ul class="dropdown-menu">
@@ -87,18 +87,18 @@
                 </div>
 
                 <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="citizen;Yes">
-                    <i class="ri-shield-user-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                    <i class="ri-shield-user-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                     Citizen
                 </button>
 
                 <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="foreign_national;Yes">
-                    <i class="ri-map-pin-user-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                    <i class="ri-map-pin-user-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                     Foreign National
                 </button>
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-briefcase-4-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-briefcase-4-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Position
                     </button>
                     <ul class="dropdown-menu">
@@ -112,7 +112,7 @@
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-book-read-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-book-read-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Education
                     </button>
                     <ul class="dropdown-menu">
@@ -126,7 +126,7 @@
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-car-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-car-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         License
                     </button>
                     <ul class="dropdown-menu">
@@ -146,16 +146,16 @@
                 </div>
 
                 <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="has_bank_account;Yes">
-                    <i class="ri-bank-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                    <i class="ri-bank-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                     Bank Account
                 </button>
 
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="literacy_score;literacy"> 
+                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="literacy_score;literacy">
                     <i class="ri-book-open-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                     Literacy
                 </button>
 
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="numeracy_score;numeracy"> 
+                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="numeracy_score;numeracy">
                     <i class="ri-hashtag label-icon align-middle rounded-pill fs-16 me-2"></i>
                     Numeracy
                 </button>
@@ -224,7 +224,7 @@
             </div>
             <div class="modal-footer">
                 <a href="javascript:void(0);" class="btn btn-link link-light fw-medium" data-bs-dismiss="modal">
-                    <i class="ri-close-line me-1 align-middle"></i> 
+                    <i class="ri-close-line me-1 align-middle"></i>
                     Close
                 </a>
             </div>
