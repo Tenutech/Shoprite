@@ -4,12 +4,8 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\User;
-use App\Models\Town;
-use App\Models\Type;
-use App\Models\Brand;
+use App\Models\Store;
 use App\Models\Vacancy;
-use App\Models\Position;
-use App\Models\Province;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -37,7 +33,6 @@ class VacanciesController extends Controller
      * @return \Illuminate\Contracts\Support\Renderable
      */
 
-
     /*
     |--------------------------------------------------------------------------
     | Vacancies Index
@@ -46,54 +41,42 @@ class VacanciesController extends Controller
 
     public function index(Request $request)
     {
-        if (view()->exists('vacancies')) {
-            //Positions
-            $positions = Position::whereNotIn('id', [1, 10])->get();
+        if (view()->exists('manager/vacancies')) {
+            //User ID
+            $userID = Auth::id();
 
-            //Selected Position
-            $selectedPositionId = null;
+            //User
+            $user = User::with('vacancies')->findOrFail($userID);
 
-            if ($request->has('position')) {
-                $positionName = $request->input('position');
-                $position = Position::where('name', $positionName)->first();
+            //Vacancies
+            $vacancies = Vacancy::with([
+                'user',
+                'position',
+                'store.brand',
+                'store.town',
+                'type',
+                'status',
+                'sapNumbers',
+                'appointed.latestInterview'
+            ])
+            ->where('user_id', $userID)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-                if ($position) {
-                    $selectedPositionId = $position->id;
-                }
-            }
+            //Store
+            $store = Store::with([
+                'brand',
+                'town',
+                'region',
+                'division'
+            ])
+            ->where('id', $user->store_id)
+            ->first();
 
-            //Types
-            $types = Type::get();
-
-            //Brands
-            $brands = Brand::get();
-
-            //Towns
-            $towns = Town::get();
-
-            //Provinces
-            $provinces = Province::get();
-
-            //Selected Province
-            $selectedProvinceId = null;
-
-            if ($request->has('province')) {
-                $provinceName = $request->input('province');
-                $province = Province::where('name', $provinceName)->first();
-
-                if ($province) {
-                    $selectedProvinceId = $province->id;
-                }
-            }
-
-            return view('vacancies', [
-                'positions' => $positions,
-                'selectedPositionId' => $selectedPositionId,
-                'types' => $types,
-                'brands' => $brands,
-                'towns' => $towns,
-                'provinces' => $provinces,
-                'selectedProvinceId' => $selectedProvinceId,
+            return view('manager/vacancies', [
+                'user' => $user,
+                'vacancies' => $vacancies,
+                'store' => $store
             ]);
         }
         return view('404');

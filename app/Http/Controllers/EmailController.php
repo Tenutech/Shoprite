@@ -94,7 +94,7 @@ class EmailController extends Controller
 
             return response()->json([
                 'success' => true,
-                'weighting' => $email,
+                'email' => $email,
                 'encID' => $encID,
                 'message' => 'Email template created successfully!',
             ], 200);

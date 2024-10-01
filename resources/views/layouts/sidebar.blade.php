@@ -82,9 +82,9 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarVacancies">
                             <ul class="nav nav-sm flex-column">
-                                <li class="nav-item d-none">
+                                <li class="nav-item">
                                     <a class="nav-link" href="{{ route('vacancies.index') }}">
-                                        List
+                                        My Vacancies
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -140,20 +140,25 @@
                         <span>Templates</span>
                     </a>
                     <div class="collapse menu-dropdown" id="sidebarTemplates">
-                        <ul class="nav nav-sm flex-column">
-                            <li class="nav-item">
-                                <a class="nav-link" href="{{ route('chats.index') }}">
-                                    Shoops
-                                </a>
-                            </li>
+                        <ul class="nav nav-sm flex-column">                            
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('email.index') }}">
                                     Email
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" href="{{ route('faqs.index') }}">
+                                    FAQs
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="{{ route('guide.index') }}">
                                     Interview
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('chats.index') }}">
+                                    Shoops
                                 </a>
                             </li>
                         </ul>
@@ -282,53 +287,8 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('roles.index') }}">
-                                        Roles
-                                    </a>
-                                </li>
-                                <li class="nav-item">
                                     <a class="nav-link" href="{{ route('brands.index') }}">
                                         Brands
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('towns.index') }}">
-                                        Towns
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('stores.index') }}">
-                                        Stores
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('provinces.index') }}">
-                                        Provinces
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('banks.index') }}">
-                                        Banks
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('disabilities.index') }}">
-                                        Disabilities
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('genders.index') }}">
-                                        Genders
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('races.index') }}">
-                                        Races
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('durations.index') }}">
-                                        Duration
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -337,20 +297,40 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('languages.index') }}">
-                                        Languages
+                                    <a class="nav-link" href="{{ route('durations.index') }}">
+                                        Experience
+                                    </a>
+                                </li>                                
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('genders.index') }}">
+                                        Genders
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('reasons.index') }}">
-                                        Reasons
+                                    <a class="nav-link" href="{{ route('provinces.index') }}">
+                                        Provinces
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('transports.index') }}">
-                                        Transport
+                                    <a class="nav-link" href="{{ route('races.index') }}">
+                                        Races
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('roles.index') }}">
+                                        Roles
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('stores.index') }}">
+                                        Stores
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('towns.index') }}">
+                                        Towns
+                                    </a>
+                                </li>                                
                             </ul>
                         </div>
                     </li>

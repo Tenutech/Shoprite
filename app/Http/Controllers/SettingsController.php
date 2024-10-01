@@ -72,7 +72,8 @@ class SettingsController extends Controller
                 'shortlist_expiry',
                 'session_timeout',
                 'min_shortlist_number',
-                'max_shortlist_number'
+                'max_shortlist_number',
+                'max_distance_from_store'
             ];
 
             foreach ($settingsKeys as $key) {

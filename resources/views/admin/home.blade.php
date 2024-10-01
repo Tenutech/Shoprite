@@ -239,6 +239,34 @@
                     </div> <!-- end card-->
                 </div> <!-- end col-->
 
+                <div class="col-md-6" id="applicationCompletionRateColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Application Completion Rate
+                                    </p>
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="applicationCompletionRateValue">{{ $applicationCompletionRate }}%</span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-secondary mb-0" id="applicationCompletionRate">
+                                           Percentage
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
+                                            <i data-feather="watch" class="text-secondary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card-->
+                </div> <!-- end col-->
             </div> <!-- end row-->
 
             <!-------------------------------------------------------------------------------------
@@ -309,6 +337,86 @@
                 </div> <!-- end col-->
             </div> <!-- end row-->
 
+            <div class="row">
+                <div class="col-xl-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                Application Completion Rate
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                        <span class="counter-value" data-target="{{ $applicationCompletionRate > 0 ? $applicationCompletionRate : 0 }}" id="applicationCompletionRateValue">
+                                            {{ $applicationCompletionRate }}
+                                        </span>%
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col-->
+                <div class="col-xl-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                Drop-Off Rates
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                        <span class="counter-value" id="dropOffRateValue">
+                                            {{ $dropOffRates['dropoff_rate']['percentage'] }}
+                                        </span>%
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col-->
+            </div> <!-- end row-->
+
+            <div class="row">
+                <div class="col-xl-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                Top 5 Drop-Offs by Question
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="px-2 py-2 mt-4" id="provinceProgress">
+                                @foreach($dropOffRates['dropoff_by_stage'] as $key => $value)
+
+                                    <p class="mb-1">
+                                        {{ $key }}
+                                        <span class="float-end">{{ $value['percentage'] }}%</span>
+                                    </p>
+                                    <div class="progress mt-1 mb-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
+                                            style="width: {{ $value['percentage'] }}%" aria-valuenow="{{ $value['percentage'] }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                @endforeach
+                                </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div>
+                <!--end col-->
+            </div>
             <!-------------------------------------------------------------------------------------
                 Applicants Graph
             -------------------------------------------------------------------------------------->
