@@ -15,6 +15,7 @@ use App\Models\Interview;
 use App\Models\SapNumber;
 use App\Models\Application;
 use App\Models\Notification;
+use App\Models\ApplicantSave;
 use App\Models\VacancyFill;
 use App\Services\VacancyService;
 use Illuminate\Http\Request;
@@ -506,6 +507,18 @@ class VacancyController extends Controller
                     $applicant->appointed_id = $vacancyFill->id;
                     $applicant->save();
 
+                    // Delete applicants ids from candidate saved list
+                    $applicantSavedIds = ApplicantSave::where('applicant_id', $applicant->id)
+                                        ->where('user_id', '!=', $vacancy->user_id)
+                                        ->pluck('id');
+
+                    if (isset($applicantSavedIds) && !empty($applicantSavedIds)) {
+                        foreach ($applicantSavedIds as $deleteSavedId) {
+                            $delete = ApplicantSave::findOrFail($deleteSavedId);
+                            $delete->delete();
+                        }
+                    }
+
                     // Retrieve the user associated with the applicant
                     $userId = $applicant->user ? $applicant->user->id : null;
 
@@ -550,8 +563,8 @@ class VacancyController extends Controller
 
                 if ($shortlist) {
                     // Decode applicant_ids if it's a JSON string or unserialize if it's serialized
-                    $applicantIds = is_array($shortlist->applicant_ids) 
-                        ? $shortlist->applicant_ids 
+                    $applicantIds = is_array($shortlist->applicant_ids)
+                        ? $shortlist->applicant_ids
                         : json_decode($shortlist->applicant_ids, true); // Adjust if using serialized data with unserialize()
 
                     // Ensure we have an array before filtering
