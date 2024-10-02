@@ -7,33 +7,22 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Role extends Model
+class Faq extends Model
 {
     use HasFactory;
     use LogsActivity;
 
     protected $fillable = [
         'name',
-        'icon',
-        'color'
+        'description',
+        'role_id',
+        'type',
     ];
 
-    //User Role
-    public function users()
+    //Role
+    public function role()
     {
-        return $this->hasMany(User::class, 'role_id');
-    }
-
-    //Applicant Role
-    public function applicants()
-    {
-        return $this->hasMany(Applicant::class);
-    }
-
-    //FAQs
-    public function faqs()
-    {
-        return $this->hasMany(FAQ::class);
+        return $this->belongsTo(Role::class);
     }
 
     /**

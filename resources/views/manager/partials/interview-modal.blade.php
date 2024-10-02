@@ -19,7 +19,7 @@
                             <div class="mb-3">
                                 <label class="form-label" for="date">Interview Date</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control flatpickr-input active" id="date" name="date" placeholder="Select date" data-provider="flatpickr" data-date-format="d M, Y"  value="{{ date('d M Y') }}" readonly="readonly" required>
+                                    <input type="text" class="form-control flatpickr-input active" id="date" name="date" placeholder="Select date" value="{{ date('d M Y') }}" readonly="readonly" required>
                                     <span class="input-group-text"><i class="ri-calendar-event-line"></i></span>
                                     <div class="invalid-feedback">
                                         Please select a date
@@ -33,7 +33,7 @@
                                     <div class="mb-3">
                                         <label class="form-label" for="startTime">Start Time</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control flatpickr-input active" data-provider="timepickr" id="startTime" name="start_time" data-time-hrs="true" id="timepicker-24hrs" readonly="readonly" required>
+                                            <input type="text" class="form-control flatpickr-input active" id="startTime" name="start_time" readonly="readonly" required>
                                             <span class="input-group-text"><i class="ri-time-line"></i></span>
                                             <div class="invalid-feedback">
                                                 Please select a start time
@@ -45,7 +45,7 @@
                                     <div class="mb-3">
                                         <label class="form-label" for="endTime">End Time</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control flatpickr-input active" data-provider="timepickr" id="endTime" name="end_time" data-time-hrs="true" id="timepicker-24hrs" readonly="readonly" required>
+                                            <input type="text" class="form-control flatpickr-input active" id="endTime" name="end_time" readonly="readonly" required>
                                             <span class="input-group-text"><i class="ri-time-line"></i></span>
                                             <div class="invalid-feedback">
                                                 Please select a end time
@@ -59,7 +59,7 @@
                             <div class="mb-3">
                                 <label class="form-label" for="location">Location</label>
                                 <div>
-                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" value="{{ $vacancy ? optional($vacancy->store)->address : '' }}" required>
+                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" value="{{ $vacancy ? optional($vacancy->store)->address : '' }}" {{ $authUser->role_id >= 6 ? 'readonly' : '' }} required>
                                     <div class="invalid-feedback">
                                         Please enter a location
                                     </div>
@@ -69,7 +69,7 @@
                         <div class="col-12">
                             <div class="mb-3">
                                 <label class="form-label" for="notes">Notes</label>
-                                <textarea class="form-control d-block" id="notes" name="notes" placeholder="Enter additional notes" rows="3" spellcheck="true">Please bring your ID and a copy of your ID.</textarea>
+                                <textarea class="form-control d-block" id="notes" name="notes" placeholder="Enter additional notes" rows="3" spellcheck="true" {{ $authUser->role_id >= 6 ? 'readonly' : '' }}>Please bring your ID and a copy of your CV.</textarea>
                             </div>
                         </div><!--end col-->
                     </div><!--end row-->

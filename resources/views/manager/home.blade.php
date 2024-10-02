@@ -275,7 +275,7 @@
                                         </button>
                                         <a href="{{ route('vacancy.index') }}" type="button" class="btn btn-success add-btn">
                                             <i class="ri-add-line align-bottom me-1"></i> 
-                                            Add Vacancy
+                                            New Vacancy
                                         </a>                                        
                                     </div>
                                 </div>

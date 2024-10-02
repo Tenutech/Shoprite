@@ -125,7 +125,7 @@ class VacancyController extends Controller
             ->get();
 
             //Types
-            $types = Type::whereNotIn('id', [6])->get();
+            $types = Type::get();
 
             return view('manager/vacancy', [
                 'user' => $user,
@@ -217,7 +217,7 @@ class VacancyController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to create vacancy!',
+                'message' => 'Failed to create vacancy: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -298,7 +298,7 @@ class VacancyController extends Controller
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to update vacancy!',
+                'message' => 'Failed to update vacancy: ' . $e->getMessage(),
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -547,6 +547,7 @@ class VacancyController extends Controller
             if ($vacancy->open_positions == 0) {
                 // Retrieve the shortlist for the vacancy
                 $shortlist = Shortlist::where('vacancy_id', $vacancyId)->first();
+                Log::info($shortlist->applicant_ids);
 
                 if ($shortlist) {
                     // Decode applicant_ids if it's a JSON string or unserialize if it's serialized
@@ -554,13 +555,30 @@ class VacancyController extends Controller
                         ? $shortlist->applicant_ids
                         : json_decode($shortlist->applicant_ids, true); // Adjust if using serialized data with unserialize()
 
+                    // Get the appointed IDs from the vacancy
+                    $appointedApplicantIds = $vacancy->appointed->pluck('id')->toArray();
+
+                    // Ensure the $selectedApplicants doesn't contain duplicates from appointed IDs
+                    $filteredSelectedApplicants = array_diff($selectedApplicants, $appointedApplicantIds);
+
+                    // Merge appointed and filtered selected applicants
+                    $combinedApplicantIds = array_merge($appointedApplicantIds, $filteredSelectedApplicants);
+
                     // Ensure we have an array before filtering
                     if (is_array($applicantIds)) {
-                        // Filter out the applicant IDs who were not appointed
-                        $updatedApplicantIds = array_filter($applicantIds, function ($applicantId) use ($selectedApplicants) {
-                            // Only keep the applicant if they are in the selected applicants array (appointed)
-                            return in_array($applicantId, $selectedApplicants);
+                        // Filter out the applicant IDs who were not appointed or selected
+                        $updatedApplicantIds = array_filter($applicantIds, function ($applicantId) use ($combinedApplicantIds) {
+                            // Keep the applicant if they are in the combined list (appointed or selected)
+                            return in_array($applicantId, $combinedApplicantIds);
                         });
+
+                        // Merge appointed and updated applicant IDs (again ensuring no duplicates)
+                        $updatedApplicantIds = array_unique(array_merge($appointedApplicantIds, $updatedApplicantIds));
+
+                        // Reindex the array to reset keys
+                        $updatedApplicantIds = array_values($updatedApplicantIds);
+
+                        Log::info($updatedApplicantIds);
 
                         // Convert back to JSON or serialized if needed, then update the shortlist
                         $shortlist->applicant_ids = json_encode($updatedApplicantIds); // or serialize() if serialized

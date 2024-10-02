@@ -488,6 +488,20 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2,3,4,5', 'user.
     Route::post('/template/add', [App\Http\Controllers\InterviewTemplateController::class, 'store'])->name('template.store');
 
     Route::delete('/template/destroy/{id}', [App\Http\Controllers\InterviewTemplateController::class, 'destroy'])->name('template.destroy');
+
+    //FAQs
+
+    Route::get('/faqs', [App\Http\Controllers\FAQsController::class, 'index'])->name('faqs.index');
+
+    Route::post('/faqs/add', [App\Http\Controllers\FAQsController::class, 'store'])->name('faqs.store');
+
+    Route::post('/faqs/update', [App\Http\Controllers\FAQsController::class, 'update'])->name('faqs.update');
+
+    Route::get('/faqs/details/{id}', [App\Http\Controllers\FAQsController::class, 'details'])->name('faqs.details');
+
+    Route::delete('/faqs/destroy/{id}', [App\Http\Controllers\FAQsController::class, 'destroy'])->name('faqs.destroy');
+
+    Route::post('/faqs/destroy-multiple', [App\Http\Controllers\FAQsController::class, 'destroyMultiple'])->name('faqs.destroyMultiple');
 });
 
 /*
@@ -677,12 +691,6 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
     Route::get('/help', [App\Http\Controllers\QueryController::class, 'index'])->name('help.index');
 
     Route::post('/queries/store', [App\Http\Controllers\QueryController::class, 'store'])->name('query.store');
-
-    //Vacancies
-
-    Route::get('/vacancies', [App\Http\Controllers\VacanciesController::class, 'index'])->middleware('check.user.applicant')->name('vacancies.index');
-
-    Route::get('/vacancy/jobs', [App\Http\Controllers\VacanciesController::class, 'vacancies']);
 
     //My Profile
 

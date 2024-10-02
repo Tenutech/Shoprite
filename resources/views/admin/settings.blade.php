@@ -39,10 +39,11 @@
                                     </h5>
                                     @php
                                         $vacancyPostingDuration = $settings->firstWhere('key', 'vacancy_posting_duration');
-                                        $shortlistExpiry = $settings->firstWhere('key', 'shortlist_expiry');
-                                        $sessionTimeout = $settings->firstWhere('key', 'session_timeout');
+                                        $shortlistExpiry = $settings->firstWhere('key', 'shortlist_expiry');                                        
                                         $minShortlistNumber = $settings->firstWhere('key', 'min_shortlist_number');
                                         $maxShortlistNumber = $settings->firstWhere('key', 'max_shortlist_number');
+                                        $maxDistanceFromStore = $settings->firstWhere('key', 'max_distance_from_store');
+                                        $sessionTimeout = $settings->firstWhere('key', 'session_timeout');
                                     @endphp
                                     <div class="col-lg-6">
                                         <div class="mb-3">
@@ -124,13 +125,36 @@
                                                 </p>
                                             @endif
                                             <input type="number" class="form-control @error('max_shortlist_number') is-invalid @enderror" name="max_shortlist_number" id="maxShortlistNumber" placeholder="Enter the maximum of candidates on a shortlist" value="{{ $maxShortlistNumber ? ($maxShortlistNumber->value ? $maxShortlistNumber->value : 20) : 20 }}" max="100" required/>
-                                            @error('min_shortlist_number')
+                                            @error('max_shortlist_number')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>
                                             @enderror
                                             <div class="invalid-feedback">
                                                 Please enter the maximum shortlist number
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end col-->
+
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="maxDistanceFromStore" class="form-label">
+                                                Max Distance From Store<span class="text-danger">*</span>
+                                            </label>
+                                            @if ($maxDistanceFromStore && $maxDistanceFromStore->description)
+                                                <p class="text-muted">
+                                                    {{ $maxDistanceFromStore->description }}
+                                                </p>
+                                            @endif
+                                            <input type="number" class="form-control @error('max_distance_from_store') is-invalid @enderror" name="max_distance_from_store" id="maxDistanceFromStore" placeholder="Enter the maximum distance in km from store" value="{{ $maxDistanceFromStore ? ($maxDistanceFromStore->value ? $maxDistanceFromStore->value : 50) : 50 }}" max="100" required/>
+                                            @error('max_distance_from_store')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            <div class="invalid-feedback">
+                                                Please enter the max distance from store
                                             </div>
                                         </div>
                                     </div>
