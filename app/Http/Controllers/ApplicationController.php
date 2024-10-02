@@ -787,7 +787,10 @@ class ApplicationController extends Controller
         // Otherwise, default to normalizing based on 100% scale
         $normalizedScore = $totalWeight > 0 ? ($totalScore / $totalWeight) * 5 : ($totalScore / 100) * 5;
 
+        // Add 3 to the final score
+        $finalScore = $normalizedScore + 3;
+
         // Round the normalized score to 2 decimal places and return it
-        return round($normalizedScore, 2);
+        return round($finalScore, 2);
     }
 }

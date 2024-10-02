@@ -10,6 +10,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Log;
 
 class SendWhatsAppMessage implements ShouldQueue
 {
@@ -23,6 +24,7 @@ class SendWhatsAppMessage implements ShouldQueue
     protected $message;
     protected $type;
     protected $template;
+    protected $variables;
 
     /**
      * Create a new job instance.
@@ -31,14 +33,16 @@ class SendWhatsAppMessage implements ShouldQueue
      * @param string $message The message content
      * @param string $type The type of the message (default is 'template')
      * @param string|null $template The template name (optional)
+     * @param array $variables The variables to be sent with the template
      */
-    public function __construct(Applicant $applicant, $message, $type = 'template', $template = null)
+    public function __construct(Applicant $applicant, $message, $type = 'template', $template = null, array $variables = [])
     {
         // Initialize the properties with the provided values
         $this->applicant = $applicant;
         $this->message = $message;
         $this->type = $type;
         $this->template = $template;
+        $this->variables = $variables;
     }
 
     /**
@@ -64,7 +68,7 @@ class SendWhatsAppMessage implements ShouldQueue
                 'message' => $this->message, // The message content
                 'type' => $this->type, // The type of the message
                 'template' => $this->template, // The template name
-                'variables' => $this->template === 'free_message' ? [$this->applicant->firstname, $this->message] : [] // Variables for the template
+                'variables' => $this->variables // The variables array
             ]
         ];
 

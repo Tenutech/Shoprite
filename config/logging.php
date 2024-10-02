@@ -114,6 +114,7 @@ return [
             'path' => storage_path('logs/laravel.log'),
         ],
 
+        /*
         'email' => [
             'driver' => 'monolog',
             'level' => 'error',
@@ -122,6 +123,7 @@ return [
             'to' => 'burgerhanno@gmail.com',
             'subject' => 'Shoprite Error',
         ],
+        */
     ],
 
 ];

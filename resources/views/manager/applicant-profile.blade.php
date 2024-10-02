@@ -857,16 +857,27 @@
                                                 
                                                     // Get the status of the interview
                                                     $status = $applicant->interviews[0]->status;
-                                                
+
                                                     // Get the corresponding color and icon for the status
                                                     $statusColor = $statusMapping[$status]['class'] ?? 'warning'; // Default to 'warning' if status not found
                                                     $statusIcon = $statusMapping[$status]['icon'] ?? 'ri-calendar-todo-fill'; // Default to 'ri-calendar-todo-fill' if status not found
+
+                                                    // Format the reschedule date if the interview status is 'Reschedule'
+                                                    $rescheduledDate = null;
+                                                    if ($status === 'Reschedule' && isset($applicant->interviews[0]->reschedule_date)) {
+                                                        $rescheduledDate = \Carbon\Carbon::parse($applicant->interviews[0]->reschedule_date)->format('d M \a\\t H:i');
+                                                    }
                                                 @endphp
                                                 
-                                                <div class="alert alert-{{ $statusColor }} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert"
-                                                    data-status-color="{{ $statusColor }}" data-status-icon="{{ $statusIcon }}">
+                                                <div class="alert alert-{{ $statusColor }} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert" data-status-color="{{ $statusColor }}" data-status-icon="{{ $statusIcon }}">
                                                     <i class="{{ $statusIcon }} label-icon"></i>
-                                                    <strong>{{ $status }}:</strong> {{ $applicant->interviews[0]->scheduled_date->format('d M') }} at {{ $applicant->interviews[0]->start_time->format('H:i') }}-{{ $applicant->interviews[0]->end_time->format('H:i') }}
+                                                    <strong>{{ $status }}:</strong> 
+                                                    {{ $applicant->interviews[0]->scheduled_date->format('d M') }} at {{ $applicant->interviews[0]->start_time->format('H:i') }}
+                                                    
+                                                    @if ($rescheduledDate)
+                                                        <br>
+                                                        <strong>Suggested:</strong> {{ $rescheduledDate }}
+                                                    @endif
                                                 </div>
                                             @endif
                                         </div>
@@ -1022,6 +1033,20 @@
             var situational = "{{ $applicant->situational ?? 0/5 }}";
 
             var chatsData = @json($applicant->chats);
+        </script>
+    @else
+        <script>
+            var literacyScore = 0;            
+            var literacyQuestions = 10;
+            var literacy = "0/10";
+
+            var numeracyScore = 0;
+            var numeracyQuestions = 10;
+            var numeracy = "0/10";
+
+            var situationalScore = 0;
+            var situationalQuestions = 5;
+            var situational = "0/5";
         </script>
     @endif
 

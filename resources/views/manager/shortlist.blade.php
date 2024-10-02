@@ -79,7 +79,7 @@
             <select class="form-control" id="vacancy" name="vacancy_id" required>
                 <option value="">Select Vacancy</option>
                 @foreach ($vacancies as $vacancyOption)
-                    <option value="{{ Crypt::encryptString($vacancyOption->id) }}" {{ ($vacancyID && $vacancyID == $vacancyOption->id) ? 'selected' : '' }}>{{ $vacancyOption->position->name }}: ({{ $vacancyOption->store->brand->name }} - {{ $vacancyOption->store->name }})</option>
+                    <option value="{{ Crypt::encryptString($vacancyOption->id) }}" {{ ($vacancyID && $vacancyID == $vacancyOption->id) ? 'selected' : '' }}>{{ $vacancyOption->id }}. {{ $vacancyOption->position->name }}: ({{ $vacancyOption->store->brand->name }} - {{ $vacancyOption->store->name }})</option>
                 @endforeach
             </select>
             <div class="invalid-feedback">Please select a vacancy</div>
@@ -345,22 +345,29 @@
                 </h5>                
             </div>
             <!--end col-->
-            <div class="col-md-auto ms-auto">
-                <div class="d-flex hstack gap-2 flex-wrap">
-                    <!-- Interview Button with Tooltip -->
-                    <button class="btn btn-secondary" id="interviewBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Schedule interview with selected applicants">
-                        <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
-                        Interview
-                    </button>
-                
-                    <!-- Fill Vacancy Button with Tooltip -->
-                    <button class="btn btn-success" id="vacancyBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Appoint selected applicants">
-                        <i class="ri-open-arm-fill align-bottom me-1"></i> 
-                        Fill Vacancy
-                    </button>
-                </div>                
-            </div>
-            <!--end col-->
+            @if ($vacancyID && $vacancy->open_positions > 0)
+                <div class="col-md-auto ms-auto" id="colButtons">
+                    <div class="d-flex hstack gap-2 flex-wrap">
+                        <!-- Interview Button with Tooltip -->
+                        <button class="btn btn-secondary" id="interviewBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Schedule interview with selected applicants">
+                            <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
+                            Interview
+                        </button>
+                    
+                        <!-- Fill Vacancy Button with Tooltip -->
+                        <button class="btn btn-success" id="vacancyBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Appoint selected applicants">
+                            <i class="ri-open-arm-fill align-bottom me-1"></i> 
+                            Fill Vacancy
+                        </button>
+
+                        <!-- Refresh Button with Tooltip -->
+                        <button class="btn btn-info" id="refreshBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh page" onclick="location.reload();">
+                            <i class="ri-refresh-line align-bottom"></i>
+                        </button>
+                    </div>                
+                </div>
+                <!--end col-->
+            @endif
         </div>
         <!--end row-->
     </div>

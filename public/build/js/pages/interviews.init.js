@@ -6,6 +6,36 @@ Contact: admin@tenutech.com
 File: CRM-contact Js File
 */
 
+/*
+|--------------------------------------------------------------------------
+| Date Fields
+|--------------------------------------------------------------------------
+*/
+
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow.getDate() + 1); // Set the date to one day from today
+
+// Get the current hour and set the minutes to 00
+const now = new Date();
+const currentHour = now.getHours();
+
+// Restrict the date picker to allow time selection with the default date as tomorrow and the current hour
+flatpickr("#rescheduleTime", {
+    enableTime: true, // Enables time selection
+    dateFormat: "d M, Y H:i", // Set the format to show date and time
+    minDate: "today", // Disables past dates
+    defaultDate: tomorrow, // Set the default date to tomorrow
+    defaultHour: currentHour, // Default time is set to the current hour
+    defaultMinute: 0, // Set minutes to 00
+    time_24hr: true, // Use 24-hour time format
+});
+
+/*
+|--------------------------------------------------------------------------
+| Interviews List
+|--------------------------------------------------------------------------
+*/
+
 // list js
 var checkAll = document.getElementById("checkAll");
 if (checkAll) {
@@ -136,7 +166,7 @@ function ischeckboxcheck() {
 function getRoute(action, id) {
     switch (action) {
         case 'confirm':
-            return route('interview.approve', {id: id});
+            return route('interview.confirm', {id: id});
         case 'decline':
             return route('interview.decline', {id: id});
         case 'reschedule':
@@ -202,19 +232,47 @@ function setupActionButtons(buttons, action) {
                                         let isInterviewId = new DOMParser().parseFromString(x._values.id, "text/html").body.innerHTML;
                                         if (isInterviewId == itemId) {
                                             let newStatus = data.interview.status;
+                                            let newScheduledDate = data.interview.scheduled_date.split('T')[0]; // Extract only the date part (YYYY-MM-DD)
+                                            let newStartTime = data.interview.start_time.split('T')[1].split('.')[0]; // Extract time from full date-time format (HH:mm:ss)
                                             let newRescheduleDate = data.interview.reschedule_date;
 
-                                            let formattedDate = '';
+                                            let formattedScheduledDate = '';
+                                            let formattedRescheduleDate = '';
+
+                                            // Combine scheduled date and start time
+                                            if (newScheduledDate && newStartTime) {
+                                                // Combine date and time into a single string
+                                                let combinedDateTime = new Date(newScheduledDate + 'T' + newStartTime);
+
+                                                // Adjust for South Africa's time zone (UTC+2)
+                                                combinedDateTime.setHours(combinedDateTime.getHours() + 2);
+
+                                                // Add one day to the combined date
+                                                combinedDateTime.setDate(combinedDateTime.getDate() + 1);
+
+                                                let day = combinedDateTime.getDate().toString().padStart(2, '0'); // Ensure two digits for the day
+                                                let month = combinedDateTime.toLocaleString('default', { month: 'short' }); // 'short' for abbreviated month name
+                                                let year = combinedDateTime.getFullYear();
+
+                                                // Format the scheduled date and time for display
+                                                formattedScheduledDate = `${day} ${month} ${year}` +
+                                                                        '<small class="text-muted ms-1">' +
+                                                                        combinedDateTime.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) +
+                                                                        '</small>';
+                                            }
+
+                                            // Format the reschedule date if it exists
                                             if (newRescheduleDate) {
-                                                let date = new Date(newRescheduleDate);
-                                                let day = date.getDate().toString().padStart(2, '0'); // Ensure two digits
+                                                let date = new Date(newRescheduleDate); // Parse the full reschedule date-time string
+                                                let day = date.getDate().toString().padStart(2, '0'); // Ensure two digits for the day
                                                 let month = date.toLocaleString('default', { month: 'short' }); // 'short' for abbreviated month name
                                                 let year = date.getFullYear();
-                                            
-                                                formattedDate = `${day} ${month} ${year}` +
-                                                                '<small class="text-muted ms-1">' + 
-                                                                date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) + 
-                                                                '</small>';
+
+                                                // Format the reschedule date and time
+                                                formattedRescheduleDate = `${day} ${month} ${year}` +
+                                                                        '<small class="text-muted ms-1">' +
+                                                                        date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) +
+                                                                        '</small>';
                                             }
 
                                             let badgeClass;
@@ -247,8 +305,60 @@ function setupActionButtons(buttons, action) {
                                             // Update the status field of the item
                                             x.values({
                                                 status: '<span class="badge ' + badgeClass + ' text-uppercase">' + newStatus + '</span>',
-                                                reschedule_date: '<span>' + formattedDate + '</span>'
+                                                scheduled_date: '<span>' + formattedScheduledDate + '</span>',
+                                                reschedule_date: '<span>' + formattedRescheduleDate + '</span>'
                                             });
+
+                                            // Update the dropdown menu based only on the status
+                                            let dropdownMenu = '';
+
+                                            if (!['Completed', 'Appointed', 'Regretted', 'Cancelled', 'No Show'].includes(newStatus)) {
+                                                dropdownMenu += '<div class="dropdown">' +
+                                                                '<button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">' +
+                                                                '<i class="ri-more-fill align-middle"></i>' +
+                                                                '</button>' +
+                                                                '<ul class="dropdown-menu dropdown-menu-end">';
+
+                                                if (['Scheduled', 'Reschedule'].includes(newStatus)) {
+                                                    dropdownMenu += '<li><a class="dropdown-item confirm-item-btn" data-bs-toggle="modal" href="#interviewConfirmModal">' +
+                                                                    '<i class="ri-checkbox-circle-fill align-bottom me-2 text-success"></i>' +
+                                                                    'Confirm' +
+                                                                    '</a></li>';
+                                                }
+
+                                                if (['Scheduled', 'Reschedule', 'Confirmed'].includes(newStatus)) {
+                                                    dropdownMenu += '<li><a class="dropdown-item decline-item-btn" data-bs-toggle="modal" href="#interviewDeclineModal">' +
+                                                                    '<i class="ri-close-circle-fill align-bottom me-2 text-danger"></i>' +
+                                                                    'Decline' +
+                                                                    '</a></li>';
+                                                }
+
+                                                if (['Scheduled', 'Reschedule', 'Confirmed'].includes(newStatus)) {
+                                                    dropdownMenu += '<li><a class="dropdown-item reschedule-item-btn" data-bs-toggle="modal" href="#interviewRescheduleModal">' +
+                                                                    '<i class="ri-calendar-event-fill align-bottom me-2 text-info"></i>' +
+                                                                    'Reschedule' +
+                                                                    '</a></li>';
+                                                }
+
+                                                dropdownMenu += '<li><a class="dropdown-item cancel-item-btn" data-bs-toggle="modal" href="#interviewCancelModal">' +
+                                                                '<i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>' +
+                                                                'Cancel' +
+                                                                '</a></li>';
+
+                                                dropdownMenu += '<li><a class="dropdown-item noShow-item-btn" data-bs-toggle="modal" href="#interviewNoShowModal">' +
+                                                                '<i class="ri-user-unfollow-fill align-bottom me-2 text-danger"></i>' +
+                                                                'No Show' +
+                                                                '</a></li>';
+
+                                                dropdownMenu += '</ul></div>';
+                                            }
+
+                                            // Find the current row and update the dropdown menu
+                                            let dropdownCell = e.target.closest("tr").children[8];
+                                            dropdownCell.innerHTML = dropdownMenu;
+
+                                            // Re-initialize callbacks for the buttons
+                                            refreshCallbacks();
                                         }
                                     });
 

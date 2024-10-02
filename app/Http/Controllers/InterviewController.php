@@ -62,14 +62,15 @@ class InterviewController extends Controller
                 'interviewer',
                 'vacancy'
             ])
-            ->where(function ($query) use ($user, $userID) {
-                // Check for interviews where the current user is the applicant
-                if ($user->applicant_id) {
-                    $query->where('applicant_id', $user->applicant_id);
-                }
-                // Or where the current user is the interviewer
-                $query->orWhere('interviewer_id', $userID);
+            ->when($user->role_id > 6, function ($query) use ($user) {
+                // If user role is greater than 6, get interviews where the user is the applicant
+                return $query->where('applicant_id', $user->applicant_id);
+            }, function ($query) use ($userID) {
+                // If user role is 6 or less, get interviews where the user is the interviewer
+                return $query->where('interviewer_id', $userID);
             })
+            ->orderBy('scheduled_date', 'desc')
+            ->orderBy('updated_at', 'desc') 
             ->get();
 
             return view('interviews', [
@@ -149,42 +150,41 @@ class InterviewController extends Controller
             'notes' => 'nullable|string',
         ]);
 
-        // Get the state_id for 'scheduled'
+        // Get the state_id for 'scheduled_start'
         $scheduledStateId = State::where('code', 'schedule_start')->value('id');
-
-        $messages = ChatTemplate::where('state_id', $scheduledStateId)
-                                ->orderBy('sort')
-                                ->get();
 
         try {
             // Start a transaction
             DB::beginTransaction();
 
-            // Loop through each applicant and create an interview
+            // Initialize interview results
+            $interviewResults = [];
+
+            // Loop through each applicant and create an interview or reschedule an existing one
             foreach ($validatedData['applicants'] as $applicantID) {
-                $this->scheduleInterviewForApplicant($applicantID, $validatedData, $scheduledStateId);
-                $this->sendWhatsAppMessages($applicantID, $messages);
+                $result = $this->scheduleInterviewForApplicant($applicantID, $validatedData, $scheduledStateId);
+                $interviewResults[] = $result;
             }
 
             // Commit the transaction
             DB::commit();
 
+            // Return an error respons
             return response()->json([
                 'success' => true,
                 'message' => 'Interviews scheduled successfully.',
+                'interviews' => $interviewResults,
                 'date' => $interviewDate->format('d M'),
                 'time' => $startTime->format('H:i')
             ]);
         } catch (\Exception $e) {
             // An error occurred; cancel the transaction
-            DB::rollBack();
-
-            Log::error($e);
+            DB::rollBack();  
 
             // Return an error response
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to schedule interviews.',
+                'message' => $e->getMessage(),
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -198,92 +198,132 @@ class InterviewController extends Controller
 
     private function scheduleInterviewForApplicant($applicantID, $validatedData, $scheduledStateId)
     {
+        // Retrieve the applicant
+        $applicant = Applicant::findOrFail($applicantID);
+
+        // Check if the applicant has already been appointed
+        if ($applicant->appointed_id) {
+            // If appointed, return a 400 error with the appropriate message
+            throw new \Exception("{$applicant->firstname} {$applicant->lastname} has already been appointed.");
+        }
+
+        // Check if the applicant already has an interview for the same vacancy and is completed with a score
+        $completedInterview = Interview::where('applicant_id', $applicantID)
+            ->where('vacancy_id', $validatedData['vacancy_id_decrypted'])
+            ->where('status', 'Completed') // Assuming 'Appointed' is the status string
+            ->whereNotNull('score')        // Check if the interview has a score
+            ->first();
+
+        if ($completedInterview) {
+            // If such an interview exists, return a response with a 400 error and stop further processing
+            throw new \Exception("{$applicant->firstname} {$applicant->lastname} has already been interviewed for this position.");
+        }
+
         //User ID
         $userID = Auth::id();
 
-        // Assuming your Interview model has the appropriate fillable attributes set
-        $interview = Interview::create([
-            'applicant_id' => $applicantID,
-            'interviewer_id' => $userID,
-            'vacancy_id' => $validatedData['vacancy_id_decrypted'],
-            'scheduled_date' => $validatedData['date'],
-            'start_time' => $validatedData['start_time'],
-            'end_time' => $validatedData['end_time'],
-            'location' => $validatedData['location'],
-            'notes' => $validatedData['notes'] ?? null,
-        ]);
+        // Check if an interview already exists for the same applicant, user, and vacancy
+        $existingInterview = Interview::where('applicant_id', $applicantID)
+            ->where('interviewer_id', Auth::id())
+            ->where('vacancy_id', $validatedData['vacancy_id_decrypted'])
+            ->first();
 
-        // Assuming your Applicant model has the state_id fillable or uses property accessors
-        Applicant::where('id', $applicantID)->update(['state_id' => $scheduledStateId]);
+        if ($existingInterview) {
+            // Update the existing interview with the reschedule information
+            $existingInterview->update([
+                'status' => 'Reschedule',
+                'reschedule_by' => 'Manager',
+                'reschedule_date' => $validatedData['date'] . ' ' . $validatedData['start_time'], // Combine date and time
+            ]);
 
-        $user = User::where('applicant_id', $applicantID)->first();
+            // If a new interview was updated, then create a notification
+            if ($existingInterview->wasChanged() && $applicant->user) {
+                // Create Notification
+                $notification = new Notification();
+                $notification->user_id = $existingInterview->applicant && $existingInterview->applicant->user ? $existingInterview->applicant->user->id : null;
+                $notification->causer_id = $userID;
+                $notification->subject()->associate($existingInterview);
+                $notification->type_id = 1;
+                $notification->notification = "Requested to reschedule 📅";
+                $notification->read = "No";
+                $notification->save();
+            }
 
-        // If a new interview was updated, then create a notification
-        if ($user && $interview->wasRecentlyCreated) {
-            // Create Notification
-            $notification = new Notification();
-            $notification->user_id = $user->id;
-            $notification->causer_id = $userID;
-            $notification->subject()->associate($interview);
-            $notification->type_id = 1;
-            $notification->notification = "Interview Scheduled 📅";
-            $notification->read = "No";
-            $notification->save();
+            // If scheduled state exists then update applicant
+            if ($scheduledStateId) {
+                // Update the applicant's state
+                $applicant->update(['state_id' => $scheduledStateId]);
+            }
+    
+            // Prepare a WhatsApp message
+            $whatsappMessage = "You have a request to reschedule your interview to " .
+                Carbon::parse($existingInterview->reschedule_date)->format('d M Y \a\t H:i') .
+                ". Would you like to view the details?";
+    
+            // Define the message type and template
+            $type = 'template';
+            $template = 'interview_reschedule_view';
+    
+            // Prepare the variables for the WhatsApp template
+            $variables = [
+                $applicant->firstname ?: 'N/A',  // Applicant's first name
+                Carbon::parse($existingInterview->reschedule_date)->format('d M Y') ?: 'N/A', // Rescheduled date
+                Carbon::parse($existingInterview->reschedule_date)->format('H:i') ?: 'N/A', // Rescheduled time
+            ];
+    
+            // Dispatch WhatsApp message
+            SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
+
+            //Return Result
+            return ['applicant' => $applicant->id, 'status' => 'Reschedule', 'interview' => $existingInterview];
+        } else {
+            // Assuming your Interview model has the appropriate fillable attributes set
+            $interview = Interview::create([
+                'applicant_id' => $applicantID,
+                'interviewer_id' => $userID,
+                'vacancy_id' => $validatedData['vacancy_id_decrypted'],
+                'scheduled_date' => $validatedData['date'],
+                'start_time' => $validatedData['start_time'],
+                'end_time' => $validatedData['end_time'],
+                'location' => $validatedData['location'],
+                'notes' => $validatedData['notes'] ?? null,
+                'status' => 'Scheduled',
+            ]);
+
+            // If scheduled state exists then update applicant
+            if ($scheduledStateId) {
+                // Update the applicant's state
+                $applicant->update(['state_id' => $scheduledStateId]);
+            }
+
+            $user = User::where('applicant_id', $applicantID)->first();
+
+            // If a new interview was updated, then create a notification
+            if ($user && $interview->wasRecentlyCreated) {
+                // Create Notification
+                $notification = new Notification();
+                $notification->user_id = $user->id;
+                $notification->causer_id = $userID;
+                $notification->subject()->associate($interview);
+                $notification->type_id = 1;
+                $notification->notification = "Interview Scheduled 📅";
+                $notification->read = "No";
+                $notification->save();
+            }
+
+            //Fetch the state messages
+            $message = "You have been scheduled for an interview. 📆";
+
+            // Define the message type and template
+            $type = 'template';
+            $template = 'interview_view';
+
+            // Dispatch WhatsApp message
+            SendWhatsAppMessage::dispatch($applicant, $message, $type, $template);
+
+            //Return Result
+            return ['applicant' => $applicant->id, 'status' => 'Scheduled', 'interview' => $interview];
         }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Send Whatsapp
-    |--------------------------------------------------------------------------
-    */
-
-    private function sendWhatsAppMessages($applicantID, $messages)
-    {
-        $applicant = Applicant::with([
-            'interviews.vacancy.position',
-            'interviews.vacancy.store.brand',
-            'interviews.vacancy.store.town',
-        ])->find($applicantID);
-
-        // Reload the model to ensure all relationships are up to date.
-        $applicant->load('interviews');
-
-        $latestInterview = $applicant->interviews->sortByDesc('created_at')->first();
-
-        $dataToReplace = [
-            "Applicant Name" => $applicant->firstname . ' ' . $applicant->lastname,
-            "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A',
-            "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' ' . ($latestInterview->vacancy->store->town->name ?? 'Our Office'),
-            "Interview Location" => $latestInterview->location ?? 'N/A',
-            "Interview Date" => $latestInterview->scheduled_date->format('d M Y'),
-            "Interview Time" => $latestInterview->start_time->format('H:i'),
-            "Notes" => $latestInterview->notes ?? 'None provided',
-        ];
-
-        $type = 'template';
-
-        foreach ($messages as $message) {
-            $personalizedMessage = $this->replacePlaceholders($message->message, $dataToReplace);
-
-            // Dispatch the job to send WhatsApp messages
-            SendWhatsAppMessage::dispatch($applicant, $personalizedMessage, $type, $message->template);
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Replace Message Placeholders
-    |--------------------------------------------------------------------------
-    */
-
-    private function replacePlaceholders($template, $data)
-    {
-        foreach ($data as $key => $value) {
-            $template = str_replace('[' . $key . ']', $value, $template);
-        }
-
-        return $template;
     }
 
     /*
@@ -298,37 +338,178 @@ class InterviewController extends Controller
             // User ID
             $userID = Auth::id();
 
+            //User
+            $user = User::findOrFail($userID);
+
             //Interview
             $interviewID = Crypt::decryptString($request->id);
             $interview = Interview::findOrFail($interviewID);
 
-            //Application Update
-            $interview->update([
-                'status' => 'Confirmed'
+            // Merge decrypted IDs back into the request for validation purposes
+            $request->merge([
+                'interview_id' => $interview->id,
             ]);
 
-            // If a new interview was updated, then create a notification
-            if ($interview->wasChanged()) {
-                // Create Notification
-                $notification = new Notification();
-                $notification->user_id = $interview->interviewer_id;
-                $notification->causer_id = $userID;
-                $notification->subject()->associate($interview);
-                $notification->type_id = 1;
-                $notification->notification = "Confirmed your interview request ✅";
-                $notification->read = "No";
-                $notification->save();
+            // Validate that the request has an interview_id
+            $request->validate([
+                'interview_id' => 'required|exists:interviews,id'
+            ]);
+
+            // Check if the interview status is one of 'Scheduled', 'Confirmed', or 'Reschedule'
+            if (!in_array($interview->status, ['Scheduled', 'Confirmed', 'Reschedule'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interview can only be confirmed if it is in Scheduled or Reschedule status.',
+                ], 400);
             }
 
+            //Applicant
+            $applicant = Applicant::find($interview->applicant_id);
+
+            // Check if the interview exists, the user is the interviewer, and the status is 'Reschedule'.
+            if ($interview && $interview->interviewer_id == $userID && $interview->status == 'Reschedule'  && $interview->reschedule_by == 'Applicant') {
+                // Parse the reschedule_date
+                $rescheduleDateTime = new \Carbon\Carbon($interview->reschedule_date);
+
+                // Set the scheduled_date and start_time based on the reschedule_date
+                $scheduledDate = $rescheduleDateTime->format('Y-m-d'); // Extract only the date (e.g., '2024-10-05')
+                $startTime = $rescheduleDateTime->format('H:i:s'); // Extract only the time (e.g., '15:00:00')
+
+                // Set the end_time to 1 hour after the start_time
+                $endTime = $rescheduleDateTime->addHour()->format('H:i:s');
+
+                // Update the interview with the new scheduled_date, start_time, and end_time
+                $interview->update([
+                    'status' => 'Confirmed',
+                    'scheduled_date' => $scheduledDate,
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'reschedule_date' => null,
+                    'reschedule_by' => null
+                ]);
+
+                // If a new interview was updated, then create a notification
+                if ($interview->wasChanged() && $interview->applicant && $interview->applicant->user) {
+                    // Create Notification
+                    $notification = new Notification();
+                    $notification->user_id = $interview->applicant && $interview->applicant->user ? $interview->applicant->user->id : null;
+                    $notification->causer_id = $userID;
+                    $notification->subject()->associate($interview);
+                    $notification->type_id = 1;
+                    $notification->notification = "Confirmed your interview request ✅";
+                    $notification->read = "No";
+                    $notification->save();
+                }
+
+                // Prepare a WhatsApp message informing the applicant about the confirmed interview
+                $whatsappMessage = "Dear " . ($interview->applicant->firstname ?: 'N/A') . ", your interview for the " .
+                    optional($interview->vacancy->position)->name ?: 'N/A' . " position at " .
+                    optional($interview->vacancy->store->brand)->name ?: 'N/A' . " (" .
+                    optional($interview->vacancy->store->town)->name ?: 'N/A' . "), scheduled for " .
+                    optional($interview->scheduled_date)->format('d M Y') . " at " .
+                    optional($interview->start_time)->format('H:i') . ", has been confirmed.
+                    We look forward to seeing you. If you have any questions, feel free to reach out.";
+
+                // Define the message type
+                $type = 'template';
+
+                // Define the template for a confirmed interview
+                $template = 'interview_confirmed';
+
+                // Prepare the variables (these values will be injected into the template)
+                $variables = [
+                    $interview->applicant->firstname ?: 'N/A',  // Applicant's first name
+                    optional($interview->vacancy->position)->name ?: 'N/A',  // Position name
+                    optional($interview->vacancy->store->brand)->name ?: 'N/A',  // Store brand name
+                    optional($interview->vacancy->store->town)->name ?: 'N/A',  // Store town name
+                    optional($interview->scheduled_date)->format('d M Y') ?: 'N/A', // Interview date
+                    optional($interview->start_time)->format('H:i') ?: 'N/A', // Interview start time
+                    $interview->location ?: 'N/A', // Interview location
+                    $interview->notes ?: 'N/A' // Interview notes
+                ];
+
+                // Dispatch a job to send the WhatsApp message
+                SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
+            // Additional check if the interview exists, the user is the applicant, and the status is 'Reschedule'.
+            } else if ($interview && $interview->applicant_id == $user->applicant_id && $interview->status == 'Reschedule'  && $interview->reschedule_by == 'Manager') {
+                // Parse the reschedule_date
+                $rescheduleDateTime = new \Carbon\Carbon($interview->reschedule_date);
+
+                // Set the scheduled_date and start_time based on the reschedule_date
+                $scheduledDate = $rescheduleDateTime->format('Y-m-d'); // Extract only the date (e.g., '2024-10-05')
+                $startTime = $rescheduleDateTime->format('H:i:s'); // Extract only the time (e.g., '15:00:00')
+
+                // Set the end_time to 1 hour after the start_time
+                $endTime = $rescheduleDateTime->addHour()->format('H:i:s');
+
+                // Update the interview with the new scheduled_date, start_time, and end_time
+                $interview->update([
+                    'status' => 'Confirmed',
+                    'scheduled_date' => $scheduledDate,
+                    'start_time' => $startTime,
+                    'end_time' => $endTime,
+                    'reschedule_date' => null,
+                    'reschedule_by' => null
+                ]);
+
+                // If a new interview was updated, then create a notification
+                if ($interview->wasChanged()) {
+                    // Create Notification
+                    $notification = new Notification();
+                    $notification->user_id = $interview->interviewer_id;
+                    $notification->causer_id = $userID;
+                    $notification->subject()->associate($interview);
+                    $notification->type_id = 1;
+                    $notification->notification = "Confirmed your interview request ✅";
+                    $notification->read = "No";
+                    $notification->save();
+                }
+            // Additional check if the current user is the applicant, and confirm the interview in that case
+            } else if ($interview && $interview->applicant_id == $user->applicant_id && $interview->status == 'Manager') {
+                //Interview Update
+                $interview->update([
+                    'status' => 'Confirmed'
+                ]);
+
+                // If a new interview was updated, then create a notification
+                if ($interview->wasChanged()) {
+                    // Create Notification
+                    $notification = new Notification();
+                    $notification->user_id = $interview->interviewer_id;
+                    $notification->causer_id = $userID;
+                    $notification->subject()->associate($interview);
+                    $notification->type_id = 1;
+                    $notification->notification = "Confirmed your interview request ✅";
+                    $notification->read = "No";
+                    $notification->save();
+                }
+            } else {
+                // If the interview could not be confirmed due to failing the conditions, return a failure response
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Could not confirm interview!',
+                ], 400);
+            }
+
+            // Encrypt the interview ID again to be used in the response
             $encryptedID = Crypt::encryptString($interviewID);
 
+             // Return a success response
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
                 'encryptedID' => $encryptedID,
                 'message' => 'Interview confirmed!',
             ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation failure
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid request data.',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
+            // Return a failure response with the error message
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to confirm interview.',
@@ -349,11 +530,43 @@ class InterviewController extends Controller
             // User ID
             $userID = Auth::id();
 
+            //User
+            $user = User::findOrFail($userID);
+
+            // Check if the user is allowed to decline the interview (only applicants)
+            if ($user->role_id <= 6) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Only applicants can decline interviews, please use the cancel option.',
+                ], 400);
+            }
+
+
             //Interview
             $interviewID = Crypt::decryptString($request->id);
-            $interview = Interview::findOrFail($interviewID);
+            $interview = Interview::where('id', $interviewID)
+                                  ->where('applicant_id', $user->applicant_id) // Ensure the applicant is the current user
+                                  ->firstOrFail();
 
-            //Application Update
+            // Merge decrypted IDs back into the request for validation purposes
+            $request->merge([
+                'interview_id' => $interview->id,
+            ]);
+
+            // Validate that the request has an interview_id
+            $request->validate([
+                'interview_id' => 'required|exists:interviews,id'
+            ]);
+
+            // Check if the interview status is one of 'Scheduled', 'Confirmed', or 'Reschedule'
+            if (!in_array($interview->status, ['Scheduled', 'Confirmed', 'Reschedule'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interview can only be declined if it is in Scheduled, Confirmed, or Reschedule status.',
+                ], 400);
+            }
+
+            //Interview Update
             $interview->update([
                 'status' => 'Declined'
             ]);
@@ -376,6 +589,13 @@ class InterviewController extends Controller
                 'interview' => $interview,
                 'message' => 'Interview declined!',
             ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation failure
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid request data.',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -397,40 +617,155 @@ class InterviewController extends Controller
             // User ID
             $userID = Auth::id();
 
+            //User
+            $user = User::findOrFail($userID);
+
             //Interview
             $interviewID = Crypt::decryptString($request->id);
-            $interview = Interview::findOrFail($interviewID);
 
-            $dateTime = Carbon::parse($request->reschedule_time);
+            // Fetch the interview based on the user's role:
+            $interview = ($user->role_id <= 6)
+            ? Interview::where('id', $interviewID)->where('interviewer_id', $userID)->firstOrFail()
+            : Interview::where('id', $interviewID)->where('applicant_id', $user->applicant_id)->firstOrFail();
 
-            //Application Update
-            $interview->update([
-                'status' => 'Reschedule',
-                'reschedule_date' => $dateTime
+            // Merge decrypted IDs back into the request for validation purposes
+            $request->merge([
+                'interview_id' => $interview->id,
             ]);
 
-            // If a new interview was updated, then create a notification
-            if ($interview->wasChanged()) {
-                // Create Notification
-                $notification = new Notification();
-                $notification->user_id = $interview->interviewer_id;
-                $notification->causer_id = $userID;
-                $notification->subject()->associate($interview);
-                $notification->type_id = 1;
-                $notification->notification = "Requested to reschedule 📅";
-                $notification->read = "No";
-                $notification->save();
+            // Validate that the request has an interview_id
+            $request->validate([
+                'interview_id' => 'required|exists:interviews,id',
+                'reschedule_time' => 'required'
+            ]);
+
+            // Check if the interview status is one of 'Scheduled', 'Confirmed', or 'Reschedule'
+            if (!in_array($interview->status, ['Scheduled', 'Confirmed', 'Reschedule'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interview can only be rescheduled if it is in Scheduled, Confirmed, or Reschedule status.',
+                ], 400);
             }
 
+            // Attempt to parse the reschedule_time
+            try {
+                // Parse the date
+                $rescheduleDateTime = Carbon::createFromFormat('d M, Y H:i', $request->reschedule_time);
+            } catch (\Exception $e) {
+                // If the parsing fails, return an error
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid date time format!',
+                ], 422);
+            }
+
+            // Check if the rescheduled date is in the future
+            if ($rescheduleDateTime->isPast()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The rescheduled date must be in the future.',
+                ], 400);
+            }
+
+            // Check if the rescheduled date is after the original scheduled date
+            if ($rescheduleDateTime->lt($interview->scheduled_date)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'The rescheduled date must be after the scheduled date.',
+                ], 400);
+            }
+
+            // Determine the reschedule update based on the user's role
+            $rescheduleBy = ($user->role_id <= 6) ? 'Manager' : 'Applicant';
+
+            // Update the interview status to 'Reschedule' with the new reschedule date and reschedule_by value
+            $interview->update([
+                'status' => 'Reschedule',
+                'reschedule_date' => $rescheduleDateTime,
+                'reschedule_by' => $rescheduleBy
+            ]);
+
+            //Applicant
+            $applicant = Applicant::find($interview->applicant_id);
+
+            // Create a notification based on the user's role
+            if ($user->role_id <= 6 && $applicant) {
+                // If a new interview was updated, then create a notification
+                if ($interview->wasChanged() && $applicant->user) {
+                    // Create Notification
+                    $notification = new Notification();
+                    $notification->user_id = $interview->applicant && $interview->applicant->user ? $interview->applicant->user->id : null;
+                    $notification->causer_id = $userID;
+                    $notification->subject()->associate($interview);
+                    $notification->type_id = 1;
+                    $notification->notification = "Requested to reschedule 📅";
+                    $notification->read = "No";
+                    $notification->save();
+                }
+
+                // Get the state_id for 'scheduled_start'
+                $scheduledStateId = State::where('code', 'schedule_start')->value('id');
+
+                // If scheduled state exists then update applicant
+                if ($scheduledStateId) {
+                    // Update the applicant's state
+                    $applicant->update(['state_id' => $scheduledStateId]);
+                }
+
+                // Prepare a WhatsApp message
+                $whatsappMessage = "You have a request to reschedule your interview to " .
+                    $interview->reschedule_date->format('d M Y \a\t H:i') . 
+                    ". Would you like to view the details?";
+
+                // Define the message type
+                $type = 'template';
+
+                // Define the template for a confirmed interview
+                $template = 'interview_reschedule_view';
+
+                // Prepare the variables for the WhatsApp template
+                $variables = [
+                    $interview->applicant->firstname ?: 'N/A',  // Applicant's first name
+                    $interview->reschedule_date->format('d M Y') ?: 'N/A', // Rescheduled date (only the date)
+                    $interview->reschedule_date->format('H:i') ?: 'N/A' // Rescheduled time (only the time)
+                ];
+
+                // Dispatch WhatsApp message
+                SendWhatsAppMessage::dispatch($interview->applicant, $whatsappMessage, $type, $template, $variables);
+            } else {
+                // If a new interview was updated, then create a notification
+                if ($interview->wasChanged()) {
+                    // Create Notification
+                    $notification = new Notification();
+                    $notification->user_id = $interview->interviewer_id;
+                    $notification->causer_id = $userID;
+                    $notification->subject()->associate($interview);
+                    $notification->type_id = 1;
+                    $notification->notification = "Requested to reschedule 📅";
+                    $notification->read = "No";
+                    $notification->save();
+                }
+            }
+
+            // Encrypted interview ID
             $encryptedID = Crypt::encryptString($interviewID);
 
+            // Return a success response
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
                 'encryptedID' => $encryptedID,
                 'message' => 'Request for reschedule successful!',
             ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation failure
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid request data.',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
+            // Return a error response
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to reschedule interview.',
@@ -453,18 +788,44 @@ class InterviewController extends Controller
 
             //Interview
             $interviewID = Crypt::decryptString($request->id);
-            $interview = Interview::findOrFail($interviewID);
+            $interview = Interview::where('id', $interviewID)
+                                  ->where('interviewer_id', $userID)
+                                  ->firstOrFail();
+
+            // Merge decrypted IDs back into the request for validation purposes
+            $request->merge([
+                'interview_id' => $interview->id,
+            ]);
+
+            // Validate that the request has an interview_id
+            $request->validate([
+                'interview_id' => 'required|exists:interviews,id'
+            ]);
+
+            // Check if the interview status is one of 'Scheduled', 'Confirmed', or 'Reschedule'
+            if (!in_array($interview->status, ['Scheduled', 'Confirmed', 'Reschedule'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interview can only be completed if it is in Scheduled, Confirmed, or Reschedule status.',
+                ], 400);
+            }
+
+            //Applicant
+            $applicant = Applicant::findOrFail($interview->applicant_id);
+
+            //Vacancy
+            $vacancy = Vacancy::findOrFail($interview->vacancy_id);
 
             // Vacancy ID
-            $vacancyId = $interview->vacancy_id;
+            $vacancyId = $vacancy->id;
 
-            //Application Update
+            //Interview Update
             $interview->update([
                 'status' => 'Completed'
             ]);
 
             // If a new interview was updated, then create a notification
-            if ($interview->applicant->user && $interview->wasChanged()) {
+            if ($applicant->user && $interview->wasChanged()) {
                 // Create Notification
                 $notification = new Notification();
                 $notification->user_id = $interview->applicant->user->id;
@@ -484,6 +845,13 @@ class InterviewController extends Controller
                 'interview' => $interview,
                 'message' => 'Interview cancelled!',
             ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation failure
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid request data.',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -507,15 +875,50 @@ class InterviewController extends Controller
 
             //Interview
             $interviewID = Crypt::decryptString($request->id);
-            $interview = Interview::findOrFail($interviewID);
+            $interview = Interview::where('id', $interviewID)
+                                  ->where('interviewer_id', $userID)
+                                  ->firstOrFail();
 
-            //Application Update
+            // Check if the interview exists
+            if (!$interview) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interview not found or unauthorized access.',
+                ], 404);
+            }
+
+
+            // Merge decrypted IDs back into the request for validation purposes
+            $request->merge([
+                'interview_id' => $interview->id,
+            ]);
+
+            // Validate that the request has an interview_id
+            $request->validate([
+                'interview_id' => 'required|exists:interviews,id'
+            ]);
+
+            // Check if the interview status is one of 'Scheduled', 'Confirmed', or 'Reschedule'
+            if (!in_array($interview->status, ['Scheduled', 'Confirmed', 'Reschedule'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interview can only be canceled if it is in Scheduled, Confirmed, or Reschedule status.',
+                ], 400);
+            }
+
+            //Applicant
+            $applicant = Applicant::findOrFail($interview->applicant_id);
+
+            //Vacancy
+            $vacancy = Vacancy::findOrFail($interview->vacancy_id);
+
+            //Interview Update
             $interview->update([
                 'status' => 'Cancelled'
             ]);
 
             // If a new interview was updated, then create a notification
-            if ($interview->applicant->user && $interview->wasChanged()) {
+            if ($applicant->user && $interview->wasChanged()) {
                 // Create Notification
                 $notification = new Notification();
                 $notification->user_id = $interview->applicant->user->id;
@@ -527,11 +930,47 @@ class InterviewController extends Controller
                 $notification->save();
             }
 
+            // Prepare a congratulatory WhatsApp message for the applicant
+            $whatsappMessage = "Dear " . $applicant->firstname ?: 'N/A' . ", we regret to inform you that your scheduled interview for the " .
+                optional($vacancy->position)->name ?: 'N/A' . " position at " .
+                optional($vacancy->store->brand)->name ?: 'N/A' . " (" .
+                optional($vacancy->store->town)->name ?: 'N/A' . "), which was set for " .
+                optional($interview->scheduled_date)->format('d M Y') . " at " .
+                optional($interview->scheduled_time)->format('H:i') . ", has been canceled.
+                We apologize for any inconvenience this may cause and appreciate your understanding. If there are any changes or future opportunities, 
+                we will be sure to reach out.";
+
+                // Define the message type
+                $type = 'template';
+
+                // Define the template
+                $template = 'interview_cancel';
+
+                // Prepare the variables (you can define these as per your needs)
+                $variables = [
+                    $applicant->firstname ?: 'N/A',  // If $applicant->firstname is null, use 'N/A'
+                    optional($vacancy->position)->name ?: 'N/A',  // If $vacancy->position or its name is null, use 'N/A'
+                    optional($vacancy->store->brand)->name ?: 'N/A',  // If $vacancy->store->brand or its name is null, use 'N/A'
+                    optional($vacancy->store->town)->name ?: 'N/A',  // If $vacancy->store->town or its name is null, use 'N/A'
+                    optional($interview->scheduled_date)->format('d M Y') ?: 'N/A', // Interview date
+                    optional($interview->start_time)->format('H:i') ?: 'N/A' // Interview start time
+                ];                  
+
+                // Dispatch a job to send the WhatsApp message
+                SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
+
             return response()->json([
                 'success' => true,
                 'interview' => $interview,
                 'message' => 'Interview cancelled!',
             ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation failure
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid request data.',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
@@ -553,19 +992,48 @@ class InterviewController extends Controller
             // User ID
             $userID = Auth::id();
 
-            // Decrypt the interview ID from the request
+            //Interview
             $interviewID = Crypt::decryptString($request->id);
+            $interview = Interview::where('id', $interviewID)
+                                  ->where('interviewer_id', $userID)
+                                  ->firstOrFail();
 
-            // Find the interview using the decrypted ID
-            $interview = Interview::findOrFail($interviewID);
+            // Check if the interview exists
+            if (!$interview) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interview not found or unauthorized access.',
+                ], 404);
+            }
+
+            // Merge decrypted IDs back into the request for validation purposes
+            $request->merge([
+                'interview_id' => $interview->id,
+            ]);
+
+            // Validate that the request has an interview_id
+            $request->validate([
+                'interview_id' => 'required|exists:interviews,id'
+            ]);
+
+            // Check if the interview status is one of 'Scheduled', 'Confirmed', or 'Reschedule'
+            if (!in_array($interview->status, ['Scheduled', 'Confirmed', 'Reschedule'])) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Interview can only be marked as No Show if it is in Scheduled, Confirmed, or Reschedule status.',
+                ], 400);
+            }
+
+            //Applicant
+            $applicant = Applicant::findOrFail($interview->applicant_id);
+
+            //Vacancy
+            $vacancy = Vacancy::findOrFail($interview->vacancy_id);
 
             // Update the interview status to "No Show"
             $interview->update([
                 'status' => 'No Show'
             ]);
-
-            // Increment No Show for the applicant
-            $applicant = $interview->applicant;
 
             if ($applicant) {
                 $applicant->increment('no_show');
@@ -589,6 +1057,13 @@ class InterviewController extends Controller
                 'interview' => $interview,
                 'message' => 'Interview marked as No Show!',
             ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation failure
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid request data.',
+                'errors' => $e->errors(),
+            ], 422);
         } catch (\Exception $e) {
             // Return an error response if something goes wrong
             return response()->json([

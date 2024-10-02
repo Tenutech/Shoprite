@@ -74,12 +74,9 @@ class ShortlistController extends Controller
             $vacancy = null;
 
             if ($request->has('id')) {
-                Log::info($request->has('id'));
                 $vacancyID = Crypt::decryptString($request->query('id'));
                 $vacancy = Vacancy::find($vacancyID);
             }
-
-            Log::info($request->has('id'));
 
             //Vacancies
             $vacancies = Vacancy::with([

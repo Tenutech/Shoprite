@@ -69,7 +69,7 @@
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
                                 <i class="ri-briefcase-line"></i> 
-                                <span>Interviews</span>
+                                <span>My Interviews</span>
                             </a>
                         </li>
                     @endif
@@ -98,23 +98,23 @@
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('shortlist.index') }}">
                             <i class="ri-list-check-2"></i> 
-                            <span>Shortlist</span>
+                            <span>My Shortlists</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
+                            <i class="ri-briefcase-line"></i> 
+                            <span>My Interviews</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('applicants.index') }}">
                             <i class="ri-profile-line"></i> 
-                            <span>Saved Candidates</span>
-                        </a>
-                    </li>                    
-                    <li class="nav-item">
-                        <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
-                            <i class="ri-briefcase-line"></i> 
-                            <span>Interviews</span>
+                            <span>Saved Applicants</span>
                         </a>
                     </li>
                 @endif
-                @if ($user->role_id <= 5)
+                @if ($user->role_id <= 2)
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarApprovals" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarApprovals">
                             <i class="ri-shield-check-line"></i> 
@@ -334,6 +334,14 @@
                             </ul>
                         </div>
                     </li>
+                    @if ($user->role_id == 1)
+                        <li class="nav-item">
+                            <a class="nav-link menu-link" href="{{ url('/telescope') }}">
+                                <i class="ri-microscope-line"></i> 
+                                <span>Telescope</span>
+                            </a>
+                        </li>
+                    @endif
                 @endif
             </ul>
         </div>

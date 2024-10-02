@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
+use Illuminate\Support\Facades\Crypt;
 
 class Interview extends Model
 {
@@ -23,7 +24,8 @@ class Interview extends Model
         'notes',
         'status',
         'score',
-        'reschedule_date'
+        'reschedule_date',
+        'reschedule_by'
     ];
 
     protected $casts = [
@@ -31,6 +33,9 @@ class Interview extends Model
         'start_time' => 'datetime',
         'end_time' => 'datetime',
     ];
+
+    // Add the encrypted_id field to be included in the response
+    protected $appends = ['encrypted_id'];
 
     //Applicants
     public function applicant()
@@ -48,6 +53,12 @@ class Interview extends Model
     public function vacancy()
     {
         return $this->belongsTo(Vacancy::class);
+    }
+
+    // Eencrypted Id
+    public function getEncryptedIdAttribute()
+    {
+        return Crypt::encryptString($this->attributes['id']);
     }
 
     /**
