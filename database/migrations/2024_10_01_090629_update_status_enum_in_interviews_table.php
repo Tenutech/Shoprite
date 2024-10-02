@@ -16,14 +16,14 @@ return new class extends Migration
     {
         if (DB::getDriverName() !== 'sqlite') {
             // For MySQL or other databases
-            DB::statement("ALTER TABLE interviews MODIFY COLUMN status ENUM('Scheduled', 'Confirmed', 'Declined', 'Reschedule', 'Completed', 'Cancelled', 'No Show', 'Appointed', 'Regretted') NOT NULL");
+            DB::statement("ALTER TABLE interviews MODIFY COLUMN status ENUM('Scheduled', 'Confirmed', 'Declined', 'Reschedule', 'Completed', 'Cancelled', 'No Show', 'Appointed', 'Regretted') NULL");
         } else {
-            // For SQLite
+            // For SQLite, recreate the column
             Schema::table('interviews', function (Blueprint $table) {
-                $table->text('status_new')->nullable();
+                $table->text('status_new')->nullable(); // Create a new nullable text column for status
             });
 
-            // Copy the data from the old column to the new one (this is optional, depending on your needs)
+            // Copy the data from the old column to the new column
             DB::table('interviews')->update(['status_new' => DB::raw('status')]);
 
             // Drop the old column
@@ -36,9 +36,7 @@ return new class extends Migration
                 $table->renameColumn('status_new', 'status');
             });
 
-            // Apply the constraints for the enum manually (SQLite doesn't support enums, so use check constraints)
-            DB::statement("UPDATE interviews SET status = 'Scheduled' WHERE status IS NULL");
-            DB::statement("ALTER TABLE interviews ADD CONSTRAINT check_status CHECK (status IN ('Scheduled', 'Confirmed', 'Declined', 'Reschedule', 'Completed', 'Cancelled', 'No Show', 'Appointed', 'Regretted'))");
+            // Since SQLite doesn't support enums, you can leave the column as text and handle the enum logic in the application layer
         }
     }
 
@@ -51,11 +49,11 @@ return new class extends Migration
     {
         if (DB::getDriverName() !== 'sqlite') {
             // For MySQL or other databases
-            DB::statement("ALTER TABLE interviews MODIFY COLUMN status ENUM('Scheduled', 'Confirmed', 'Declined', 'Reschedule', 'Completed', 'Cancelled', 'No Show') NOT NULL");
+            DB::statement("ALTER TABLE interviews MODIFY COLUMN status ENUM('Scheduled', 'Confirmed', 'Declined', 'Reschedule', 'Completed', 'Cancelled', 'No Show') NULL");
         } else {
             // For SQLite (reverse the changes)
             Schema::table('interviews', function (Blueprint $table) {
-                $table->text('status_new')->nullable();
+                $table->text('status_new')->nullable(); // Create a new column to store the original data
             });
 
             DB::table('interviews')->update(['status_new' => DB::raw('status')]);
@@ -67,9 +65,6 @@ return new class extends Migration
             Schema::table('interviews', function (Blueprint $table) {
                 $table->renameColumn('status_new', 'status');
             });
-
-            DB::statement("UPDATE interviews SET status = 'Scheduled' WHERE status IS NULL");
-            DB::statement("ALTER TABLE interviews ADD CONSTRAINT check_status CHECK (status IN ('Scheduled', 'Confirmed', 'Declined', 'Reschedule', 'Completed', 'Cancelled', 'No Show'))");
         }
     }
 };
