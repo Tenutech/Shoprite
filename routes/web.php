@@ -543,11 +543,7 @@ Route::prefix('dpp')->middleware(['auth', 'verified', 'role:5', 'user.activity']
 | Manager Routes
 |--------------------------------------------------------------------------
 */
-
-Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,5,6', 'user.activity'])->group(function () {
-    //Home
-
-    Route::get('/home', [App\Http\Controllers\ManagerController::class, 'index'])->name('manager.home');
+Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,6', 'user.activity'])->group(function () {
 
     //vacancies
 
@@ -566,6 +562,13 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,5,6', 'u
     Route::post('/vacancy/destroy-multiple', [App\Http\Controllers\VacancyController::class, 'destroyMultiple'])->name('vacancy.destroyMultiple');
 
     Route::post('/vacancy/fill', [App\Http\Controllers\VacancyController::class, 'vacancyFill'])->name('vacancy.fill');
+
+});
+
+Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,5,6', 'user.activity'])->group(function () {
+    //Home
+
+    Route::get('/home', [App\Http\Controllers\ManagerController::class, 'index'])->name('manager.home');
 
     //User Profile
 
@@ -656,7 +659,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::post('/files/add', [App\Http\Controllers\JobOverviewController::class, 'store'])->name('file.store');
 
-    Route::delete('/files/delete/{id}', [App\Http\Controllers\JobOverviewController::class, 'destroy'])->name('file.destroy');    
+    Route::delete('/files/delete/{id}', [App\Http\Controllers\JobOverviewController::class, 'destroy'])->name('file.destroy');
 
     //Messages
 
@@ -698,7 +701,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
     //My Profile Settings
 
     Route::get('/profile-settings', [App\Http\Controllers\ProfileSettingsController::class, 'index'])->name('profile-settings.index');
-    
+
     Route::post('/update-profile', [App\Http\Controllers\ProfileSettingsController::class, 'update'])->name('profile-settings.update');
 
     Route::post('/update-password', [App\Http\Controllers\ProfileSettingsController::class, 'updatePassword'])->name('profile-settings.updatePassword');

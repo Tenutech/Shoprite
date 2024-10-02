@@ -550,8 +550,8 @@ class VacancyController extends Controller
 
                 if ($shortlist) {
                     // Decode applicant_ids if it's a JSON string or unserialize if it's serialized
-                    $applicantIds = is_array($shortlist->applicant_ids) 
-                        ? $shortlist->applicant_ids 
+                    $applicantIds = is_array($shortlist->applicant_ids)
+                        ? $shortlist->applicant_ids
                         : json_decode($shortlist->applicant_ids, true); // Adjust if using serialized data with unserialize()
 
                     // Ensure we have an array before filtering
