@@ -134,7 +134,7 @@
         </div>                                                       
     </div>
 
-    @if($vacancyID)
+    @if($vacancyID && $vacancy)
         <div class="col-md-12">
             <div class="live-preview">
                 <div class="d-grid gap-2">
