@@ -14,6 +14,7 @@ use App\Models\ChatTemplate;
 use App\Models\ScoreWeighting;
 use App\Models\ChatTotalData;
 use App\Models\ChatMonthlyData;
+use App\Jobs\SendIdNumberToSap;
 use App\Jobs\ProcessUserIdNumber;
 use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Client;
@@ -677,6 +678,9 @@ class ChatService
                     // Fetch messages for the 'first_name' state
                     $messages = $this->fetchStateMessages('first_name');
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
+
+                    // Dispatch the new job to process the ID number
+                    SendIdNumberToSap::dispatch($body);
                 } else {
                     // Send a message if the ID number is not valid
                     $message = "Please provide a valid *South African ID* number.";
