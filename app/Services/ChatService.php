@@ -2842,7 +2842,7 @@ class ChatService
 
                         // Send a confirmation message
                         $messages = [
-                            "Thank you, we have noted the new date and time *" . ($formattedDate) . "*. We have notified the relevant parieties and we will get back to you with as soon as possible. 📆"
+                            "Thank you, we have noted the new date and time *" . ($formattedDate) . "*. We have notified the relevant parties and we will get back to you with as soon as possible. 📆"
                         ];
 
                         // Update the applicant's state to 'complete' after noting the new interview date and time.
