@@ -307,9 +307,9 @@
             <div class="card-body">
                 <div class="live-preview">
                     <div class="d-grid gap-2">
-                        <button class="btn btn-success" type="button" id="{{ $vacancyID && $vacancy->open_positions == 0 ? 'vacancyFilled-btn' : 'generate-btn' }}">
-                            {{ $vacancyID && $vacancy->open_positions == 0 ? 'Vacancy Filled!' : 'Generate Shortlist' }}
-                        </button>
+                        <button class="btn btn-success" type="button" id="{{ $vacancyID && optional($vacancy)->open_positions == 0 ? 'vacancyFilled-btn' : 'generate-btn' }}">
+                            {{ $vacancyID && optional($vacancy)->open_positions == 0 ? 'Vacancy Filled!' : 'Generate Shortlist' }}
+                        </button>                        
                     </div>
                 </div>
             </div><!-- end card-body -->
@@ -345,7 +345,7 @@
                 </h5>                
             </div>
             <!--end col-->
-            @if ($vacancyID && $vacancy->open_positions > 0)
+            @if ($vacancyID && optional($vacancy)->open_positions > 0)
                 <div class="col-md-auto ms-auto" id="colButtons">
                     <div class="d-flex hstack gap-2 flex-wrap">
                         <!-- Interview Button with Tooltip -->
