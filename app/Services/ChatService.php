@@ -679,8 +679,8 @@ class ChatService
                     $messages = $this->fetchStateMessages('first_name');
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
 
-                    // Dispatch the new job to process the ID number
-                    SendIdNumberToSap::dispatch($body);
+                    // Dispatch the new job to process the ID number, pass the applicant object as well
+                    SendIdNumberToSap::dispatch($body, $applicant);
                 } else {
                     // Send a message if the ID number is not valid
                     $message = "Please provide a valid *South African ID* number.";
@@ -2846,7 +2846,7 @@ class ChatService
 
                         // Send a confirmation message
                         $messages = [
-                            "Thank you, we have noted the new date and time *" . ($formattedDate) . "*. We have notified the relevant parieties and we will get back to you with as soon as possible. 📆"
+                            "Thank you, we have noted the new date and time *" . ($formattedDate) . "*. We have notified the relevant parties and we will get back to you with as soon as possible. 📆"
                         ];
 
                         // Update the applicant's state to 'complete' after noting the new interview date and time.

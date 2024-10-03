@@ -61,6 +61,7 @@ class Applicant extends Model
         'shortlist_id',
         'appointed_id',
         'no_show',
+        'employment',
         'user_delete',
         'state_id',
         'checkpoint',

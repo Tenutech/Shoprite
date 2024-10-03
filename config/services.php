@@ -52,6 +52,6 @@ return [
         'endpoint' => env('SAP_ENDPOINT'),
         'username' => env('SAP_USERNAME'),
         'password' => env('SAP_PASSWORD'),
-        'contract_id' => env('SAPHR_CONTRACT_ID'),
+        'contract_id' => env('SAP_CONTRACT_ID'),
     ],
 ];

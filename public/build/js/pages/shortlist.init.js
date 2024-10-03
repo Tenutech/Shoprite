@@ -408,196 +408,200 @@ function loadCandidateListData(datas, page) {
             var isUserProfile = datas[i].avatar ? '<img src="' + datas[i].avatar + '" alt="" class="member-img img-fluid d-block rounded" />'
                 : '<img src="/images/avatar.jpg" alt="" class="member-img img-fluid d-block rounded" />';
 
-                var checksHtml = '<div class="card-footer"><div class="d-flex flex-wrap gap-2">';
-                for (var j = 0; j < datas[i].latest_checks.length; j++) {
-                    var check = datas[i].latest_checks[j];
-                    var checkID = check.id;
-                    var checkName = check.name; // Get the name of the check
-                    var checkIcon = check.icon; // Get the icon from the check data
-                    var statusResult = check.pivot.result; // Get the result of the check to determine the status class
-                
-                    var status;
-                    // Convert the result into a status class
-                    switch (statusResult) {
-                        case 'Passed':
-                            status = 'success';
-                            break;
-                        case 'Discrepancy':
-                            status = 'warning';
-                            break;
-                        case 'Failed':
-                            status = 'danger';
-                            break;
-                        default:
-                            status = 'danger';
-                            break;
-                    }
-                
-                    // Append each check as a column in the footer row
-                    checksHtml += '<a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) + '#checks-tab" class="avatar-sm flex-shrink-0" id="check-' + checkID + '" data-bs-toggle="tooltip" data-bs-placement="top" title="' + checkName + '">' +
-                                    '<span class="avatar-title bg-' + status + '-subtle text-' + status + ' rounded-circle fs-4">' +
-                                        '<i class="' + checkIcon + '"></i>' +
-                                    '</span>' +
-                                  '</a>';
+            var checksHtml = '<div class="card-footer"><div class="d-flex flex-wrap gap-2">';
+            var employment = datas[i].employment || 'I'; // Use 'I' if employment is null
+            var checkID = datas[i].encrypted_id; // Assuming you still need the ID
+            var status, tooltip;
+        
+            // Set status and tooltip based on employment
+            switch (employment) {
+                case 'A':
+                    status = 'warning';
+                    tooltip = 'Active Employee';
+                    break;
+                case 'B':
+                    status = 'danger';
+                    tooltip = 'Blacklisted';
+                    break;
+                case 'P':
+                    status = 'info';
+                    tooltip = 'Previously Employed';
+                    break;
+                case 'N':
+                    status = 'success';
+                    tooltip = 'Not an Employee';
+                    break;
+                case 'I':
+                default:
+                    status = 'dark';
+                    tooltip = 'Inconclusive';
+                    break;
+            }
+        
+            // Append each check as a column in the footer row
+            checksHtml += '<a class="avatar-sm flex-shrink-0" id="check-' + checkID + '" data-bs-toggle="tooltip" data-bs-placement="top" title="' + tooltip + '" style="cursor:pointer;">' +
+                                '<span class="avatar-title bg-' + status + '-subtle text-' + status + ' rounded-circle fs-4">' +
+                                    '<i class="ri-shield-user-line"></i>' + // Always use the same icon
+                                '</span>' +
+                           '</a>';
+
+            // Initialize interviewAlert as an empty string
+            var interviewAlert = '';
+
+            // Check if there are interviews and set the alert based on the status
+            if (datas[i].interviews && datas[i].interviews.length > 0) {
+                var interview = datas[i].interviews[datas[i].interviews.length - 1];
+                var formattedDate, formattedTime;
+
+                if (interview.status === 'Appointed' && interview.updated_at) {
+                    // Use updated_at for Appointed status
+                    var updatedAtDate = new Date(interview.updated_at);
+                    formattedDate = updatedAtDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
+                    formattedTime = formatTimeTo24Hour(interview.updated_at);
+                } else {
+                    // Use the scheduled date and time for other statuses
+                    var interviewDate = new Date(interview.scheduled_date);
+                    formattedDate = interviewDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
+                    formattedTime = formatTimeTo24Hour(interview.start_time);
                 }
 
-                // Initialize interviewAlert as an empty string
-                var interviewAlert = '';
+                const statusMapping = {
+                    'Scheduled': { class: 'alert-warning', icon: 'ri-calendar-todo-fill', text: 'Scheduled' },
+                    'Confirmed': { class: 'alert-success', icon: 'ri-calendar-check-fill', text: 'Confirmed' },
+                    'Declined': { class: 'alert-danger', icon: 'ri-calendar-2-fill', text: 'Declined' },
+                    'Reschedule': { class: 'alert-info', icon: 'ri-calendar-event-fill', text: 'Reschedule' },
+                    'Completed': { class: 'alert-success', icon: 'ri-calendar-check-fill', text: 'Completed' },
+                    'Cancelled': { class: 'alert-dark', icon: 'ri-calendar-2-fill', text: 'Cancelled' },
+                    'No Show': { class: 'alert-danger', icon: 'ri-user-unfollow-fill', text: 'No Show' },
+                    'Appointed': { class: 'alert-success', icon: 'ri-open-arm-fill', text: 'Appointed' },
+                    'Regretted': { class: 'alert-danger', icon: 'ri-user-unfollow-fill', text: 'Regretted' }
+                };
 
-                // Check if there are interviews and set the alert based on the status
-                if (datas[i].interviews && datas[i].interviews.length > 0) {
-                    var interview = datas[i].interviews[datas[i].interviews.length - 1];
-                    var formattedDate, formattedTime;
+                if (statusMapping[interview.status]) {
+                    const statusInfo = statusMapping[interview.status];
+                    let additionalText = '';
 
-                    if (interview.status === 'Appointed' && interview.updated_at) {
-                        // Use updated_at for Appointed status
-                        var updatedAtDate = new Date(interview.updated_at);
-                        formattedDate = updatedAtDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
-                        formattedTime = formatTimeTo24Hour(interview.updated_at);
-                    } else {
-                        // Use the scheduled date and time for other statuses
-                        var interviewDate = new Date(interview.scheduled_date);
-                        formattedDate = interviewDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
-                        formattedTime = formatTimeTo24Hour(interview.start_time);
+                    if (interview.status === 'Reschedule' && interview.reschedule_date) {
+                        var rescheduledDateTime = formatFullDateTime(interview.reschedule_date);
+                        additionalText = `<br><strong>Suggested:</strong> ${rescheduledDateTime}`;
                     }
 
-                    const statusMapping = {
-                        'Scheduled': { class: 'alert-warning', icon: 'ri-calendar-todo-fill', text: 'Scheduled' },
-                        'Confirmed': { class: 'alert-success', icon: 'ri-calendar-check-fill', text: 'Confirmed' },
-                        'Declined': { class: 'alert-danger', icon: 'ri-calendar-2-fill', text: 'Declined' },
-                        'Reschedule': { class: 'alert-info', icon: 'ri-calendar-event-fill', text: 'Reschedule' },
-                        'Completed': { class: 'alert-success', icon: 'ri-calendar-check-fill', text: 'Completed' },
-                        'Cancelled': { class: 'alert-dark', icon: 'ri-calendar-2-fill', text: 'Cancelled' },
-                        'No Show': { class: 'alert-danger', icon: 'ri-user-unfollow-fill', text: 'No Show' },
-                        'Appointed': { class: 'alert-success', icon: 'ri-open-arm-fill', text: 'Appointed' },
-                        'Regretted': { class: 'alert-danger', icon: 'ri-user-unfollow-fill', text: 'Regretted' }
-                    };
+                    interviewAlert = `<div class="alert ${statusInfo.class} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
+                                        <i class="${statusInfo.icon} label-icon"></i><strong>${statusInfo.text}: </strong>${formattedDate} at ${formattedTime}${additionalText}
+                                    </div>`;
 
-                    if (statusMapping[interview.status]) {
-                        const statusInfo = statusMapping[interview.status];
-                        let additionalText = '';
-
-                        if (interview.status === 'Reschedule' && interview.reschedule_date) {
-                            var rescheduledDateTime = formatFullDateTime(interview.reschedule_date);
-                            additionalText = `<br><strong>Suggested:</strong> ${rescheduledDateTime}`;
-                        }
-
-                        interviewAlert = `<div class="alert ${statusInfo.class} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
-                                            <i class="${statusInfo.icon} label-icon"></i><strong>${statusInfo.text}: </strong>${formattedDate} at ${formattedTime}${additionalText}
-                                        </div>`;
-
-                        // Add the check icon if the reschedule_by is 'Applicant'
-                        if (interview.status === 'Reschedule' && interview.reschedule_by === 'Applicant') {
-                            interviewAlert = `<div class="d-flex align-items-center">
-                                                ${interviewAlert}
-                                                <a class="ms-auto align-middle interviewConfirmBtn" data-bs-toggle="tooltip" title="Confirm interview for ${rescheduledDateTime}" data-interview-id="${interview.encrypted_id}" style="cursor: pointer;">
-                                                    <i class="ri-check-double-fill text-success" style="font-size: 25px;"></i>
-                                                </a>
-                                            </div>`;
-                        }
-                    }
-
-                    if (interview.score) {
-                        interviewScore = `<div class="badge text-bg-primary">
-                                            <i class="mdi mdi-star me-1"></i>
-                                            ${interview.score ? interview.score : 'N/A'}
+                    // Add the check icon if the reschedule_by is 'Applicant'
+                    if (interview.status === 'Reschedule' && interview.reschedule_by === 'Applicant') {
+                        interviewAlert = `<div class="d-flex align-items-center">
+                                            ${interviewAlert}
+                                            <a class="ms-auto align-middle interviewConfirmBtn" data-bs-toggle="tooltip" title="Confirm interview for ${rescheduledDateTime}" data-interview-id="${interview.encrypted_id}" style="cursor: pointer;">
+                                                <i class="ri-check-double-fill text-success" style="font-size: 25px;"></i>
+                                            </a>
                                         </div>`;
                     }
                 }
 
-                // Append the interview alert after the checksHtml if it exists
-                if (interviewAlert) {
-                    checksHtml += interviewAlert;
+                if (interview.score) {
+                    interviewScore = `<div class="badge text-bg-primary">
+                                        <i class="mdi mdi-star me-1"></i>
+                                        ${interview.score ? interview.score : 'N/A'}
+                                    </div>`;
                 }
+            }
 
-                // Initialize contractAlert as an empty string
-                var contractAlert = '';
+            // Append the interview alert after the checksHtml if it exists
+            if (interviewAlert) {
+                checksHtml += interviewAlert;
+            }
 
-                // Check if there are contract and set the alert based on the status
-                if (datas[i].contracts && datas[i].contracts.length > 0) {
-                    contractAlert = '<div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show mb-0 alert-contract" role="alert">' +
-                                        '<i class="ri-article-fill label-icon"></i><strong>Contract Sent</strong>' + 
-                                    '</div>';
-                }
+            // Initialize contractAlert as an empty string
+            var contractAlert = '';
 
-                // Append the contract alert after the checksHtml if it exists
-                if (contractAlert) {
-                    checksHtml += contractAlert;
-                }
+            // Check if there are contract and set the alert based on the status
+            if (datas[i].contracts && datas[i].contracts.length > 0) {
+                contractAlert = '<div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show mb-0 alert-contract" role="alert">' +
+                                    '<i class="ri-article-fill label-icon"></i><strong>Contract Sent</strong>' + 
+                                '</div>';
+            }
 
-                checksHtml += '</div></div>';
+            // Append the contract alert after the checksHtml if it exists
+            if (contractAlert) {
+                checksHtml += contractAlert;
+            }
 
-                var cardBorder = '';
+            checksHtml += '</div></div>';
 
-                if (datas[i].vacancies_filled && datas[i].vacancies_filled.length > 0) {
-                    cardBorder = 'border card-border-success';
-                }
+            var cardBorder = '';
 
-                var closeButton = '';
-                if (!datas[i].vacancies_filled || datas[i].vacancies_filled.length === 0) {
-                    closeButton = '<button class="btn btn-soft-dark candidate-close-btn" data-candidate-id="' + datas[i].id + '">\
-                                        <i class="ri-close-circle-line align-bottom fs-16"></i>\
-                                   </button>';
-                }
+            if (datas[i].vacancies_filled && datas[i].vacancies_filled.length > 0) {
+                cardBorder = 'border card-border-success';
+            }
 
-                document.querySelector("#candidate-list").innerHTML += 
-                    '<div class="col-md-12 col-lg-12 candidate-card" data-candidate-id="' + datas[i].id + '">\
-                        <div class="card ' + cardBorder + ' mb-0">\
-                            <div class="card-body">\
-                                <div class="d-lg-flex align-items-center">\
-                                    <div class="form-check">\
-                                        <input class="form-check-input" type="checkbox" name="chk_child" value="'+ datas[i].encrypted_id + '" data-bs-id="'+ datas[i].id + '" data-bs-name="'+ datas[i].firstname + ' '+ datas[i].lastname + '">\
-                                    </div>\
-                                    <div class="flex-shrink-0 col-auto">\
-                                        <div class="avatar-sm rounded overflow-hidden">\
-                                            '+ isUserProfile + '\
-                                        </div>\
-                                    </div>\
-                                    <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">\
-                                        <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'">\
-                                            <h5 class="fs-16 mb-2">\
-                                                '+ datas[i].firstname + ' '+ datas[i].lastname + '\
-                                            </h5>\
-                                        </a>\
-                                        <p class="text-muted mb-0">\
-                                            '+ (datas[i].race ? datas[i].race.name : 'N/A') + '\
-                                        </p>\
-                                    </div>\
-                                    <div class="col-2">\
-                                        <i class="'+ (datas[i].gender ? datas[i].gender.icon : 'ri-men-line') + ' text-'+ (datas[i].gender ? datas[i].gender.color : 'primary') + ' me-1 align-bottom"></i>'+ 
-                                        (datas[i].gender ? '<span class="badge bg-' + datas[i].gender.color + '-subtle text-' + datas[i].gender.color + '">' + datas[i].gender.name + '</span>' : 'N/A') +
-                                    '</div>\
-                                    <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">\
-                                        <div><i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>\
-                                            '+ (datas[i].town ? datas[i].town.name : 'N/A') + '\
-                                        </div>\
-                                    </div>\
-                                    <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">\
-                                        <div class="badge text-bg-success">\
-                                            <i class="mdi mdi-star me-1"></i>\
-                                            '+ (datas[i].score ? datas[i].score : 'N/A') + '\
-                                        </div>\
-                                        '+ (interviewScore ? interviewScore : '') + '\
-                                    </div>\
-                                    <div class="col-2 text-end">\
-                                        <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'" class="btn btn-soft-primary">\
-                                            View Details\
-                                        </a>\
-                                        <a href="#!" class="btn btn-ghost-danger btn-icon custom-toggle '+ bookmark + ' save-applicant" data-bs-toggle="button" data-bs-id='+ datas[i].encrypted_id + '>\
-                                            <span class="icon-on">\
-                                                <i class="ri-bookmark-line align-bottom"></i>\
-                                            </span>\
-                                            <span class="icon-off">\
-                                                <i class="ri-bookmark-3-fill align-bottom"></i>\
-                                            </span>\
-                                        </a>\
-                                        ' + closeButton + '\
+            var closeButton = '';
+            if (!datas[i].vacancies_filled || datas[i].vacancies_filled.length === 0) {
+                closeButton = '<button class="btn btn-soft-dark candidate-close-btn" data-candidate-id="' + datas[i].id + '">\
+                                    <i class="ri-close-circle-line align-bottom fs-16"></i>\
+                                </button>';
+            }
+
+            document.querySelector("#candidate-list").innerHTML += 
+                '<div class="col-md-12 col-lg-12 candidate-card" data-candidate-id="' + datas[i].id + '">\
+                    <div class="card ' + cardBorder + ' mb-0">\
+                        <div class="card-body">\
+                            <div class="d-lg-flex align-items-center">\
+                                <div class="form-check">\
+                                    <input class="form-check-input" type="checkbox" name="chk_child" value="'+ datas[i].encrypted_id + '" data-bs-id="'+ datas[i].id + '" data-bs-name="'+ datas[i].firstname + ' '+ datas[i].lastname + '">\
+                                </div>\
+                                <div class="flex-shrink-0 col-auto">\
+                                    <div class="avatar-sm rounded overflow-hidden">\
+                                        '+ isUserProfile + '\
                                     </div>\
                                 </div>\
+                                <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">\
+                                    <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'">\
+                                        <h5 class="fs-16 mb-2">\
+                                            '+ datas[i].firstname + ' '+ datas[i].lastname + '\
+                                        </h5>\
+                                    </a>\
+                                    <p class="text-muted mb-0">\
+                                        '+ (datas[i].race ? datas[i].race.name : 'N/A') + '\
+                                    </p>\
+                                </div>\
+                                <div class="col-2">\
+                                    <i class="'+ (datas[i].gender ? datas[i].gender.icon : 'ri-men-line') + ' text-'+ (datas[i].gender ? datas[i].gender.color : 'primary') + ' me-1 align-bottom"></i>'+ 
+                                    (datas[i].gender ? '<span class="badge bg-' + datas[i].gender.color + '-subtle text-' + datas[i].gender.color + '">' + datas[i].gender.name + '</span>' : 'N/A') +
+                                '</div>\
+                                <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">\
+                                    <div><i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>\
+                                        '+ (datas[i].town ? datas[i].town.name : 'N/A') + '\
+                                    </div>\
+                                </div>\
+                                <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">\
+                                    <div class="badge text-bg-success">\
+                                        <i class="mdi mdi-star me-1"></i>\
+                                        '+ (datas[i].score ? datas[i].score : 'N/A') + '\
+                                    </div>\
+                                    '+ (interviewScore ? interviewScore : '') + '\
+                                </div>\
+                                <div class="col-2 text-end">\
+                                    <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'" class="btn btn-soft-primary">\
+                                        View Details\
+                                    </a>\
+                                    <a href="#!" class="btn btn-ghost-danger btn-icon custom-toggle '+ bookmark + ' save-applicant" data-bs-toggle="button" data-bs-id='+ datas[i].encrypted_id + '>\
+                                        <span class="icon-on">\
+                                            <i class="ri-bookmark-line align-bottom"></i>\
+                                        </span>\
+                                        <span class="icon-off">\
+                                            <i class="ri-bookmark-3-fill align-bottom"></i>\
+                                        </span>\
+                                    </a>\
+                                    ' + closeButton + '\
+                                </div>\
                             </div>\
-                            ' + checksHtml + '\
                         </div>\
-                    </div>';
+                        ' + checksHtml + '\
+                    </div>\
+                </div>';
         }
 
         // Add event listeners to the close buttons
