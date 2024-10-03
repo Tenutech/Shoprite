@@ -318,8 +318,13 @@ class InterviewController extends Controller
             $type = 'template';
             $template = 'interview_view';
 
+            // Prepare the variables for the WhatsApp template
+            $variables = [
+                $applicant->firstname ?: 'N/A'
+            ];
+
             // Dispatch WhatsApp message
-            SendWhatsAppMessage::dispatch($applicant, $message, $type, $template);
+            SendWhatsAppMessage::dispatch($applicant, $message, $type, $template, $variables);
 
             //Return Result
             return ['applicant' => $applicant->id, 'status' => 'Scheduled', 'interview' => $interview];
