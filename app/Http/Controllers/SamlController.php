@@ -126,7 +126,6 @@ class SamlController extends Saml2Controller
             throw new \Exception("Could not log out");
         }
 
-        Log::info('SAML2Auth: Successfully logged out.');
         return redirect(config('saml2_settings.logoutRoute'));
     }
 

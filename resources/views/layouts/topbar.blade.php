@@ -106,7 +106,7 @@
                             <div class="tab-pane fade show active py-2 ps-2" id="all-noti-tab" role="tabpanel">
                                 <div data-simplebar style="max-height: 300px;" class="pe-2">
                                     @foreach ($notifications as $notification)
-                                        @if ($notification->causer)
+                                        @if ($notification->causer || $notification->applicant)
                                             @if ($notification->subject_type == "App\Models\Application")
                                                 <div class="text-reset notification-item d-block dropdown-item position-relative">
                                                     @if ($notification->read == 'No')
@@ -373,10 +373,16 @@
                                                             </span>
                                                         @endif
                                                         <div class="d-flex">
-                                                            <img src="{{ URL::asset('images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                                            @php
+                                                                $causer = $notification->causer; // Get the causer from the notification
+                                                                $isApplicant = is_null($causer); // Check if causer is null
+                                                                $avatarPath = $isApplicant ? optional($notification->applicant)->avatar ?? 'avatar.jpg' : 'images/' . $causer->avatar; // Avatar path
+                                                            @endphp
+                                                            <img src="{{ URL::asset($avatarPath) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                             <div class="flex-grow-1">
                                                                 <h6 class="mt-0 mb-1 fs-13 fw-semibold">
-                                                                    {{ $notification->causer->firstname }} {{ $notification->causer->lastname }}
+                                                                    {{ $isApplicant ? $notification->applicant->firstname : $causer->firstname }}
+                                                                    {{ $isApplicant ? $notification->applicant->lastname : $causer->lastname }}
                                                                 </h6>
                                                                 @if ($notification->subject)
                                                                     <div class="fs-13 text-muted">
@@ -440,10 +446,16 @@
                                                             </span>
                                                         @endif
                                                         <div class="d-flex">
-                                                            <img src="{{ URL::asset('images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                                            @php
+                                                                $causer = $notification->causer; // Get the causer from the notification
+                                                                $isApplicant = is_null($causer); // Check if causer is null
+                                                                $avatarPath = $isApplicant ? optional($notification->applicant)->avatar ?? 'avatar.jpg' : 'images/' . $causer->avatar; // Avatar path
+                                                            @endphp
+                                                            <img src="{{ URL::asset($avatarPath) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                             <div class="flex-grow-1">
                                                                 <h6 class="mt-0 mb-1 fs-13 fw-semibold">
-                                                                    {{ $notification->causer->firstname }} {{ $notification->causer->lastname }}
+                                                                    {{ $isApplicant ? $notification->applicant->firstname : $causer->firstname }}
+                                                                    {{ $isApplicant ? $notification->applicant->lastname : $causer->lastname }}
                                                                 </h6>
                                                                 @if ($notification->subject)
                                                                     <div class="fs-13 text-muted">
@@ -507,10 +519,16 @@
                                                             </span>
                                                         @endif
                                                         <div class="d-flex">
-                                                            <img src="{{ URL::asset('images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                                            @php
+                                                                $causer = $notification->causer; // Get the causer from the notification
+                                                                $isApplicant = is_null($causer); // Check if causer is null
+                                                                $avatarPath = $isApplicant ? optional($notification->applicant)->avatar ?? 'avatar.jpg' : 'images/' . $causer->avatar; // Avatar path
+                                                            @endphp
+                                                            <img src="{{ URL::asset($avatarPath) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                             <div class="flex-grow-1">
                                                                 <h6 class="mt-0 mb-1 fs-13 fw-semibold">
-                                                                    {{ $notification->causer->firstname }} {{ $notification->causer->lastname }}
+                                                                    {{ $isApplicant ? $notification->applicant->firstname : $causer->firstname }}
+                                                                    {{ $isApplicant ? $notification->applicant->lastname : $causer->lastname }}
                                                                 </h6>
                                                                 @if ($notification->subject)
                                                                     <div class="fs-13 text-muted">

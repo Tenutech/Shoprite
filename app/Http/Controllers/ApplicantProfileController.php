@@ -283,10 +283,6 @@ class ApplicantProfileController extends Controller
         // Get the state_id for 'scheduled'
         $scheduledStateId = State::where('code', 'schedule_start')->value('id');
 
-        $messages = ChatTemplate::where('state_id', $scheduledStateId)
-                                ->orderBy('sort')
-                                ->get();
-
         try {
             // Start a transaction
             DB::beginTransaction();
@@ -296,7 +292,6 @@ class ApplicantProfileController extends Controller
             // Create an interview for applicant
             if ($applicantID) {
                 $interview = $this->scheduleInterviewForApplicant($applicantID, $validatedData, $scheduledStateId);
-                $this->sendWhatsAppMessages($applicantID, $messages);
             }
 
             // Commit the transaction
@@ -316,9 +311,11 @@ class ApplicantProfileController extends Controller
             //Encrypted Interview ID
             $interviewId = Crypt::encryptstring($interview->id);
 
+            // Return success response
             return response()->json([
                 'success' => true,
-                'message' => 'Interviews scheduled successfully.',
+                'message' => 'Interview scheduled successfully!',
+                'interview' => $interview,
                 'date' => $interviewDate->format('d M'),
                 'time' => $startTime->format('H:i'),
                 'questions' => $questions,
@@ -328,12 +325,10 @@ class ApplicantProfileController extends Controller
             // An error occurred; cancel the transaction
             DB::rollBack();
 
-            Log::error($e);
-
             // Return an error response
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to schedule interviews.',
+                'message' => 'Failed to schedule interview!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -347,94 +342,131 @@ class ApplicantProfileController extends Controller
 
     private function scheduleInterviewForApplicant($applicantID, $validatedData, $scheduledStateId)
     {
+        // Retrieve the applicant
+        $applicant = Applicant::findOrFail($applicantID);
+
+        // Check if the applicant has already been appointed
+        if ($applicant->appointed_id) {
+            // If appointed, return a 400 error with the appropriate message
+            throw new \Exception("{$applicant->firstname} {$applicant->lastname} has already been appointed.");
+        }
+
+        // Check if the applicant already has an interview for the same vacancy and is completed with a score
+        $completedInterview = Interview::where('applicant_id', $applicantID)
+            ->where('vacancy_id', $validatedData['vacancy_id'])
+            ->where('status', 'Completed') // Assuming 'Appointed' is the status string
+            ->whereNotNull('score')        // Check if the interview has a score
+            ->first();
+
+        if ($completedInterview) {
+            // If such an interview exists, return a response with a 400 error and stop further processing
+            throw new \Exception("{$applicant->firstname} {$applicant->lastname} has already been interviewed for this position.");
+        }
+
         //User ID
         $userID = Auth::id();
 
-        // Assuming your Interview model has the appropriate fillable attributes set
-        $interview = Interview::create([
-            'applicant_id' => $applicantID,
-            'interviewer_id' => $userID,
-            'vacancy_id' => $validatedData['vacancy_id'],
-            'scheduled_date' => $validatedData['date'],
-            'start_time' => $validatedData['start_time'],
-            'end_time' => $validatedData['end_time'],
-            'location' => $validatedData['location'],
-            'notes' => $validatedData['notes'] ?? null,
-        ]);
+        // Check if an interview already exists for the same applicant, user, and vacancy
+        $existingInterview = Interview::where('applicant_id', $applicantID)
+            ->where('interviewer_id', Auth::id())
+            ->where('vacancy_id', $validatedData['vacancy_id'])
+            ->first();
 
-        // Assuming your Applicant model has the state_id fillable or uses property accessors
-        Applicant::where('id', $applicantID)->update(['state_id' => $scheduledStateId]);
+        if ($existingInterview) {
+            // Update the existing interview with the reschedule information
+            $existingInterview->update([
+                'status' => 'Reschedule',
+                'reschedule_by' => 'Manager',
+                'reschedule_date' => $validatedData['date'] . ' ' . $validatedData['start_time'], // Combine date and time
+            ]);
 
-        $user = User::where('applicant_id', $applicantID)->first();
+            // If a new interview was updated, then create a notification
+            if ($existingInterview->wasChanged() && $applicant->user) {
+                // Create Notification
+                $notification = new Notification();
+                $notification->user_id = $existingInterview->applicant && $existingInterview->applicant->user ? $existingInterview->applicant->user->id : null;
+                $notification->causer_id = $userID;
+                $notification->subject()->associate($existingInterview);
+                $notification->type_id = 1;
+                $notification->notification = "Requested to reschedule 📅";
+                $notification->read = "No";
+                $notification->save();
+            }
 
-        // If a new interview was updated, then create a notification
-        if ($user && $interview->wasRecentlyCreated) {
-            // Create Notification
-            $notification = new Notification();
-            $notification->user_id = $user->id;
-            $notification->causer_id = $userID;
-            $notification->subject()->associate($interview);
-            $notification->type_id = 1;
-            $notification->notification = "Interview Scheduled 📅";
-            $notification->read = "No";
-            $notification->save();
+            // If scheduled state exists then update applicant
+            if ($scheduledStateId) {
+                // Update the applicant's state
+                $applicant->update(['state_id' => $scheduledStateId]);
+            }
+
+            // Prepare a WhatsApp message
+            $whatsappMessage = "You have a request to reschedule your interview to " .
+                Carbon::parse($existingInterview->reschedule_date)->format('d M Y \a\t H:i') .
+                ". Would you like to view the details?";
+
+            // Define the message type and template
+            $type = 'template';
+            $template = 'interview_reschedule_view';
+
+            // Prepare the variables for the WhatsApp template
+            $variables = [
+                $applicant->firstname ?: 'N/A',  // Applicant's first name
+                Carbon::parse($existingInterview->reschedule_date)->format('d M Y') ?: 'N/A', // Rescheduled date
+                Carbon::parse($existingInterview->reschedule_date)->format('H:i') ?: 'N/A', // Rescheduled time
+            ];
+
+            // Dispatch WhatsApp message
+            SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
+
+            // Return the interview instance
+            return $existingInterview;
+        } else {
+            // Assuming your Interview model has the appropriate fillable attributes set
+            $interview = Interview::create([
+                'applicant_id' => $applicantID,
+                'interviewer_id' => $userID,
+                'vacancy_id' => $validatedData['vacancy_id'],
+                'scheduled_date' => $validatedData['date'],
+                'start_time' => $validatedData['start_time'],
+                'end_time' => $validatedData['end_time'],
+                'location' => $validatedData['location'],
+                'notes' => $validatedData['notes'] ?? null,
+                'status' => 'Scheduled',
+            ]);
+
+            // If scheduled state exists then update applicant
+            if ($scheduledStateId) {
+                // Update the applicant's state
+                $applicant->update(['state_id' => $scheduledStateId]);
+            }
+
+            $user = User::where('applicant_id', $applicantID)->first();
+
+            // If a new interview was updated, then create a notification
+            if ($user && $interview->wasRecentlyCreated) {
+                // Create Notification
+                $notification = new Notification();
+                $notification->user_id = $user->id;
+                $notification->causer_id = $userID;
+                $notification->subject()->associate($interview);
+                $notification->type_id = 1;
+                $notification->notification = "Interview Scheduled 📅";
+                $notification->read = "No";
+                $notification->save();
+            }
+
+            //Fetch the state messages
+            $message = "You have been scheduled for an interview. 📆";
+
+            // Define the message type and template
+            $type = 'template';
+            $template = 'interview_view';
+
+            // Dispatch WhatsApp message
+            SendWhatsAppMessage::dispatch($applicant, $message, $type, $template);
+
+            // Return the interview instance
+            return $interview;
         }
-
-         // Return the interview instance
-        return $interview;
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Send Whatsapp
-    |--------------------------------------------------------------------------
-    */
-
-    private function sendWhatsAppMessages($applicantID, $messages)
-    {
-        $applicant = Applicant::with([
-            'interviews.vacancy.position',
-            'interviews.vacancy.store.brand',
-            'interviews.vacancy.store.town',
-        ])->find($applicantID);
-
-        // Reload the model to ensure all relationships are up to date.
-        $applicant->load('interviews');
-
-        $latestInterview = $applicant->interviews->sortByDesc('created_at')->first();
-
-        $dataToReplace = [
-            "Applicant Name" => $applicant->firstname . ' ' . $applicant->lastname,
-            "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A',
-            "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' ' . ($latestInterview->vacancy->store->town->name ?? 'Our Office'),
-            "Interview Location" => $latestInterview->location ?? 'N/A',
-            "Interview Date" => $latestInterview->scheduled_date->format('d M Y'),
-            "Interview Time" => $latestInterview->start_time->format('H:i'),
-            "Notes" => $latestInterview->notes ?? 'None provided',
-        ];
-
-        $type = 'template';
-
-        foreach ($messages as $message) {
-            $personalizedMessage = $this->replacePlaceholders($message->message, $dataToReplace);
-
-            // Dispatch the job to send WhatsApp messages
-            SendWhatsAppMessage::dispatch($applicant, $personalizedMessage, $type, $message->template);
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Replace Message Placeholders
-    |--------------------------------------------------------------------------
-    */
-
-    private function replacePlaceholders($template, $data)
-    {
-        foreach ($data as $key => $value) {
-            $template = str_replace('[' . $key . ']', $value, $template);
-        }
-
-        return $template;
     }
 }

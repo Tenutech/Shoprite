@@ -93,12 +93,15 @@ function loadCandidateListData(datas, page) {
         if (datas[i]) {
             var bookmark = datas[i].saved_by.length > 0 ? "active" : "";
 
+            // Check if applicant is appointed and apply green border if true
+            var appointedClass = datas[i].appointed_id ? "border card-border-success" : "";
+
             var isUserProfile = datas[i].avatar ? '<img src="' + datas[i].avatar + '" alt="" class="member-img img-fluid d-block rounded" />'
                 : '<img src="/images/avatar.jpg" alt="" class="member-img img-fluid d-block rounded" />';
 
             document.querySelector("#candidate-list").innerHTML += 
                 '<div class="col-md-6 col-lg-12">\
-                    <div class="card mb-0">\
+                    <div class="card mb-0 '+ appointedClass +'">\
                         <div class="card-body">\
                             <div class="d-lg-flex align-items-center">\
                                 <div class="flex-shrink-0 col-auto">\
@@ -113,25 +116,17 @@ function loadCandidateListData(datas, page) {
                                         </h5>\
                                     </a>\
                                     <p class="text-muted mb-0">\
-                                        '+ (datas[i].position ? 
-                                            (datas[i].position.name == 'Other' ? 
-                                                datas[i].position_specify : 
-                                                datas[i].position.name) 
-                                            : 'N/A') + '\
+                                        '+ (datas[i].race ? datas[i].race.name : 'N/A') + '\
                                     </p>\
                                 </div>\
+                                <div class="col-2">\
+                                    <i class="'+ (datas[i].gender ? datas[i].gender.icon : 'ri-men-line') + ' text-'+ (datas[i].gender ? datas[i].gender.color : 'primary') + ' me-1 align-bottom"></i>'+ 
+                                    (datas[i].gender ? '<span class="badge bg-' + datas[i].gender.color + '-subtle text-' + datas[i].gender.color + '">' + datas[i].gender.name + '</span>' : 'N/A') +
+                                '</div>\
                                 <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">\
                                     <div><i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>\
                                         '+ (datas[i].town ? datas[i].town.name : 'N/A') + '\
                                     </div>\
-                                </div>\
-                                <div class="col-2">\
-                                    <i class="ri-briefcase-line text-primary me-1 align-bottom"></i>\
-                                    '+ (datas[i].type ? 
-                                        (datas[i].type.name == 'Other' ? 
-                                            '<span class="badge bg-' + datas[i].type.color + '-subtle text-' + datas[i].type.color + '">' + datas[i].application_reason_specify + '</span>' : 
-                                            '<span class="badge bg-' + datas[i].type.color + '-subtle text-' + datas[i].type.color + '">' + datas[i].type.name + '</span>') 
-                                        : 'N/A') + '\
                                 </div>\
                                 <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">\
                                     <div class="badge text-bg-success">\

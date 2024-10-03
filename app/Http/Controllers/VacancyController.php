@@ -491,6 +491,13 @@ class VacancyController extends Controller
                     $application->save();
                 }
 
+                // Retrieve the latest interview for the applicant where vacancy_id = $vacancyId and interviewer_id = Auth::id()
+                $latestInterview = Interview::where('applicant_id', $applicant->id)
+                    ->where('vacancy_id', $vacancy->id)
+                    ->where('interviewer_id', Auth::id())
+                    ->orderBy('updated_at', 'desc') // Fetch the latest interview
+                    ->first();
+
                 // Check if the applicant has not already been appointed to the vacancy
                 if (!$vacancy->appointed->contains($applicantId)) {
                     // Create a new VacancyFill record to associate applicant with vacancy and SAP number
@@ -505,6 +512,12 @@ class VacancyController extends Controller
                     // Update the applicant's appointed_id to reference the new VacancyFill record
                     $applicant->appointed_id = $vacancyFill->id;
                     $applicant->save();
+
+                    // Update the interview status to 'Appointed'
+                    if ($latestInterview) {
+                        $latestInterview->status = 'Appointed';
+                        $latestInterview->save();
+                    }
 
                     // Retrieve the user associated with the applicant
                     $userId = $applicant->user ? $applicant->user->id : null;
@@ -525,16 +538,39 @@ class VacancyController extends Controller
                     UpdateApplicantData::dispatch($applicant->id, 'updated', 'Appointed', $vacancyId)->onQueue('default');
 
                     // Prepare a congratulatory WhatsApp message for the applicant
-                    $whatsappMessage = "Congratulations {$applicant->firstname}! You have been appointed for the position of " .
-                        "{$vacancy->position->name} at " .
-                        "{$vacancy->store->brand->name} ({$vacancy->store->town->name}). " .
+                    $whatsappMessage = "Congratulations " . $applicant->firstname ?: 'N/A' . "! You have been appointed for the position of " .
+                        optional($vacancy->position)->name ?: 'N/A' . " at " .
+                        optional($vacancy->store->brand)->name ?: 'N/A' . " (" .
+                        optional($vacancy->store->town)->name ?: 'N/A' . "). " .
                         "We are excited to have you join our team!";
 
                     // Define the message type
-                    $type = 'text';
+                    $type = 'template';
+
+                    // Define the template
+                    $template = 'appointed';
+
+                    // Prepare the variables (you can define these as per your needs)
+                    $variables = [
+                        $applicant->firstname ?: 'N/A',  // If $applicant->firstname is null, use 'N/A'
+                        optional($vacancy->position)->name ?: 'N/A',  // If $vacancy->position or its name is null, use 'N/A'
+                        optional($vacancy->store->brand)->name ?: 'N/A',  // If $vacancy->store->brand or its name is null, use 'N/A'
+                        optional($vacancy->store->town)->name ?: 'N/A'  // If $vacancy->store->town or its name is null, use 'N/A'
+                    ];
 
                     // Dispatch a job to send the WhatsApp message
-                    SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type);
+                    SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
+
+                    // Remove the appointed applicant from saved lists of other users except the Auth user
+                    $savedUsers = $applicant->savedBy()
+                                            ->where('user_id', '!=', Auth::id())
+                                            ->pluck('user_id'); // Get a list of user_ids who have saved this applicant
+
+                    // Delete records from the pivot table for the specific applicant and the filtered users
+                    DB::table('applicant_save')
+                      ->where('applicant_id', $applicant->id)
+                      ->whereIn('user_id', $savedUsers)
+                      ->delete();
                 }
             }
 
@@ -547,7 +583,6 @@ class VacancyController extends Controller
             if ($vacancy->open_positions == 0) {
                 // Retrieve the shortlist for the vacancy
                 $shortlist = Shortlist::where('vacancy_id', $vacancyId)->first();
-                Log::info($shortlist->applicant_ids);
 
                 if ($shortlist) {
                     // Decode applicant_ids if it's a JSON string or unserialize if it's serialized
@@ -578,8 +613,6 @@ class VacancyController extends Controller
                         // Reindex the array to reset keys
                         $updatedApplicantIds = array_values($updatedApplicantIds);
 
-                        Log::info($updatedApplicantIds);
-
                         // Convert back to JSON or serialized if needed, then update the shortlist
                         $shortlist->applicant_ids = json_encode($updatedApplicantIds); // or serialize() if serialized
                         $shortlist->save();
@@ -592,7 +625,7 @@ class VacancyController extends Controller
                 // Loop through all applicants associated with the vacancy
                 foreach ($allApplicants as $applicant) {
                     // Skip applicants who have been appointed
-                    if (in_array($applicant->id, $selectedApplicants)) {
+                    if (in_array($applicant->id, $selectedApplicants) || $applicant->appointed_id) {
                         continue;
                     }
 
@@ -604,6 +637,7 @@ class VacancyController extends Controller
                     // Check if the applicant has been interviewed (interview object is available)
                     $interview = Interview::where('applicant_id', $applicant->id)
                         ->where('vacancy_id', $vacancy->id)
+                        ->where('interviewer_id', Auth::id())
                         ->first();
 
                     // If application exists, update its approval status to 'No'
@@ -630,6 +664,12 @@ class VacancyController extends Controller
                             }
                         }
                     } elseif ($interview) {
+                        // Update the interview status to 'Regretted' only if the current status is not 'Appointed'
+                        if ($interview->status !== 'Appointed') {
+                            $interview->status = 'Regretted';
+                            $interview->save();
+                        }
+
                         // If no application but an interview exists, create a notification associated with the interview
                         // Check if the applicant has a user and the user exists in the users table
                         if ($applicant->user && User::where('id', $applicant->user->id)->exists()) {
@@ -650,6 +690,32 @@ class VacancyController extends Controller
                             // Dispatch a job to update the applicant's monthly data as 'Rejected'
                             UpdateApplicantData::dispatch($applicant->id, 'updated', 'Rejected', $vacancyId)->onQueue('default');
                         }
+
+                        // Prepare a congratulatory WhatsApp message for the applicant
+                        $whatsappMessage = "Dear " . $applicant->firstname ?: 'N/A' . ", thank you for your interest in the " .
+                            optional($vacancy->position)->name ?: 'N/A' . " position at " .
+                            optional($vacancy->store->brand)->name ?: 'N/A' . " (" .
+                            optional($vacancy->store->town)->name ?: 'N/A' . "). We truly appreciate the time and effort you invested in your application.
+                            After careful consideration, we regret to inform you that we have selected another candidate for this role. Please know that this 
+                            decision does not diminish the value of your skills and experience.
+                            We encourage you to apply for future opportunities with us, and we wish you all the best in your job search and career journey.";
+
+                        // Define the message type
+                        $type = 'template';
+
+                        // Define the template
+                        $template = 'regretted';
+
+                        // Prepare the variables (you can define these as per your needs)
+                        $variables = [
+                            $applicant->firstname ?: 'N/A',  // If $applicant->firstname is null, use 'N/A'
+                            optional($vacancy->position)->name ?: 'N/A',  // If $vacancy->position or its name is null, use 'N/A'
+                            optional($vacancy->store->brand)->name ?: 'N/A',  // If $vacancy->store->brand or its name is null, use 'N/A'
+                            optional($vacancy->store->town)->name ?: 'N/A'  // If $vacancy->store->town or its name is null, use 'N/A'
+                        ];
+
+                        // Dispatch a job to send the WhatsApp message
+                        SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
                     }
                 }
             }

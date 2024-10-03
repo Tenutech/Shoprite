@@ -732,7 +732,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::get('/interviews', [App\Http\Controllers\InterviewController::class, 'index'])->middleware('check.user.applicant')->name('interviews.index');
 
-    Route::post('/interview-confirm', [App\Http\Controllers\InterviewController::class, 'confirm'])->name('interview.approve');
+    Route::post('/interview-confirm', [App\Http\Controllers\InterviewController::class, 'confirm'])->name('interview.confirm');
 
     Route::post('/interview-decline', [App\Http\Controllers\InterviewController::class, 'decline'])->name('interview.decline');
 

@@ -358,7 +358,7 @@
                                     Phone
                                 </td>
                                 <td>
-                                    +(27) 79 874 9789
+                                    0800 01 07 09
                                 </td>
                             </tr>
                             <tr>
@@ -366,7 +366,7 @@
                                     Email
                                 </td>
                                 <td>
-                                    info@orient.com
+                                    help@shoprite.co.za
                                 </td>
                             </tr>
                         </tbody>

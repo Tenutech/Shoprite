@@ -215,7 +215,7 @@ $(document).ready(function() {
         } else {
 
             if ($(this).hasClass('interviewConfirm')) {
-                url = route('interview.approve');
+                url = route('interview.confirm');
             } else if ($(this).hasClass('interviewDecline')) {
                 url = route('interview.decline');
             }

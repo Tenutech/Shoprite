@@ -252,9 +252,15 @@ class ChatService
                 $stateID = $applicant->state_id;
                 $state = State::where('id', $stateID)->value('code');
 
-                if ($state == 'literacy' || $state == 'numeracy') {
-                    // Get the current question from the pool without removing it.
-                    $questionPool = ($state == 'literacy') ? 'literacy_question_pool' : 'numeracy_question_pool';
+                if ($state == 'literacy' || $state == 'numeracy'  || $state == 'situational') {
+                    // Determine the correct question pool based on the state
+                    if ($state == 'literacy') {
+                        $questionPool = 'literacy_question_pool';
+                    } elseif ($state == 'numeracy') {
+                        $questionPool = 'numeracy_question_pool';
+                    } elseif ($state == 'situational') {
+                        $questionPool = 'situational_question_pool';
+                    }
                     $sortOrderPool = explode(',', $applicant->{$questionPool});
                     $currentQuestionSortOrder = $sortOrderPool[0];
 
@@ -2375,7 +2381,7 @@ class ChatService
                 // Get the latest interview details
                 $latestInterview = $applicant->interviews()->latest('created_at')->first();
 
-                if ($latestInterview) {
+                if ($latestInterview && in_array($latestInterview->status, ['Scheduled', 'Reschedule', 'Confirmed'])) {
                     // Prepare the variables for the interview welcome message
                     $variables = [
                         $applicant->firstname, // Applicant's full name
@@ -2448,42 +2454,112 @@ class ChatService
                 if ($body === '1' || $body === 'yes') {
                     // Data to replace placeholders in the scheduled interview messages.
                     $dataToReplace = [
-                        "Applicant Name" => $applicant->firstname . ' ' . $applicant->lastname,
+                        "Applicant Name" => $applicant->firstname,
                         "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A', // If no position, set 'N/A'
-                        "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' ' . ($latestInterview->vacancy->store->town->name ?? 'N/A'), // Brand and town or default 'Our Office'
+                        "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' (' . ($latestInterview->vacancy->store->town->name ?? 'N/A') . ')', // Brand and town or default 'Our Office'
                         "Interview Location" => $latestInterview->location ?? 'N/A', // Interview location or 'N/A'
-                        "Interview Date" => $latestInterview->scheduled_date->format('d M Y'), // Formatted interview date
-                        "Interview Time" => $latestInterview->start_time->format('H:i'), // Formatted interview time
+
+                        // Check if scheduled_date is an instance of Carbon or try parsing the date string
+                        "Interview Date" => $latestInterview->scheduled_date instanceof Carbon
+                                            ? $latestInterview->scheduled_date->format('d M Y')
+                                            : (strtotime($latestInterview->scheduled_date) ? date('d M Y', strtotime($latestInterview->scheduled_date)) : 'N/A'), // Fallback to strtotime if not Carbon
+
+                        // Check if start_time is an instance of Carbon or try parsing the time string
+                        "Interview Time" => $latestInterview->start_time instanceof Carbon
+                                            ? $latestInterview->start_time->format('H:i')
+                                            : (strtotime($latestInterview->start_time) ? date('H:i', strtotime($latestInterview->start_time)) : 'N/A'), // Fallback to strtotime if not Carbon
+
+                        // Check if reschedule_date is an instance of Carbon or try parsing the date string
+                        "Reschedule Date" => $latestInterview->reschedule_date instanceof Carbon
+                                            ? $latestInterview->reschedule_date->format('d M Y')
+                                            : (strtotime($latestInterview->reschedule_date) ? date('d M Y', strtotime($latestInterview->reschedule_date)) : 'N/A'), // Fallback to strtotime if not Carbon
+
+                        // Check if reschedule_date is an instance of Carbon or try parsing the time string
+                        "Reschedule Time" => $latestInterview->reschedule_date instanceof Carbon
+                                            ? $latestInterview->reschedule_date->format('H:i')
+                                            : (strtotime($latestInterview->reschedule_date) ? date('H:i', strtotime($latestInterview->reschedule_date)) : 'N/A'), // Fallback to strtotime if not Carbon
+
                         "Notes" => $latestInterview->notes ?? 'N/A', // Additional notes or 'N/A'
+                        "Status" => $latestInterview->status ?? 'N/A' // Interview status
                     ];
 
-                    // Fetch the messages associated with the 'schedule' state.
-                    $messages = $this->fetchStateMessages('schedule');
+                    // Check if interview status is "Reschedule"
+                    if ($latestInterview->status === "Reschedule") {
+                        if ($latestInterview->reschedule_by === "Applicant") {
+                            // Fetch the messages associated with the 'reschedule_applicant' state.
+                            $messages = $this->fetchStateMessages('reschedule_applicant');
 
-                    // Loop through each message and replace placeholders with the corresponding applicant/interview data.
-                    foreach ($messages as &$message) {
-                        foreach ($dataToReplace as $key => $value) {
-                            // Check if the message is an array (structured message) or a simple string.
-                            if (is_array($message)) {
-                                $message['message'] = str_replace("[$key]", $value, $message['message']); // Replace placeholders in the message.
-                            } else {
-                                $message = str_replace("[$key]", $value, $message); // Replace placeholders in plain text message.
+                            // Loop through each message and replace placeholders with the corresponding applicant/interview data.
+                            foreach ($messages as &$message) {
+                                foreach ($dataToReplace as $key => $value) {
+                                    // Check if the message is an array (structured message) or a simple string.
+                                    if (is_array($message)) {
+                                        $message['message'] = str_replace("[$key]", $value, $message['message']); // Replace placeholders in the message.
+                                    } else {
+                                        $message = str_replace("[$key]", $value, $message); // Replace placeholders in plain text message.
+                                    }
+                                }
+                            }
+
+                            // Send the updated messages and log the outgoing messages.
+                            $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
+
+                            // Update the applicant's state to 'complete'.
+                            $stateID = State::where('code', 'complete')->value('id');
+                            $applicant->update(['state_id' => $stateID]);
+                        } elseif ($latestInterview->reschedule_by === "Manager") {
+                            // Fetch the messages associated with the 'reschedule_manager' state.
+                            $messages = $this->fetchStateMessages('reschedule_manager');
+
+                            // Loop through each message and replace placeholders with the corresponding applicant/interview data.
+                            foreach ($messages as &$message) {
+                                foreach ($dataToReplace as $key => $value) {
+                                    // Check if the message is an array (structured message) or a simple string.
+                                    if (is_array($message)) {
+                                        $message['message'] = str_replace("[$key]", $value, $message['message']); // Replace placeholders in the message.
+                                    } else {
+                                        $message = str_replace("[$key]", $value, $message); // Replace placeholders in plain text message.
+                                    }
+                                }
+                            }
+
+                            // Send the updated messages and log the outgoing messages.
+                            $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
+
+                            // Update the applicant's state to 'schedule'.
+                            $stateID = State::where('code', 'schedule')->value('id');
+                            $applicant->update(['state_id' => $stateID]);
+                        }
+                    } else {
+                        // Handle the regular scheduled interview case
+                        $messages = $this->fetchStateMessages('schedule');
+
+                        // Loop through each message and replace placeholders with the corresponding applicant/interview data.
+                        foreach ($messages as &$message) {
+                            foreach ($dataToReplace as $key => $value) {
+                                // Check if the message is an array (structured message) or a simple string.
+                                if (is_array($message)) {
+                                    $message['message'] = str_replace("[$key]", $value, $message['message']); // Replace placeholders in the message.
+                                } else {
+                                    $message = str_replace("[$key]", $value, $message); // Replace placeholders in plain text message.
+                                }
                             }
                         }
+
+                        // Send the updated messages and log the outgoing messages.
+                        $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
+
+                        // Update the applicant's state to 'schedule'.
+                        $stateID = State::where('code', 'schedule')->value('id');
+                        $applicant->update(['state_id' => $stateID]);
                     }
-
-                    // Send the updated messages and log the outgoing messages.
-                    $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-
-                    // Update the applicant's state to 'schedule' after confirming the interview.
-                    $stateID = State::where('code', 'schedule')->value('id');
-                    $applicant->update(['state_id' => $stateID]);
                 } elseif ($body === '2' || $body === 'no') {
                     // Update the interview status to 'Declined' for the latest interview.
-                    $latestInterview->status = 'Declined';
-                    $latestInterview->save();
+                    //$latestInterview->status = 'Declined';
+                    //$latestInterview->save();
 
                     // If the interview status was changed and the applicant has an associated user, create a notification.
+                    /*
                     if ($latestInterview->wasChanged() && $applicant->user) {
                         // Create a new notification for the interviewer.
                         $notification = new Notification();
@@ -2494,13 +2570,16 @@ class ChatService
                         $notification->notification = "Declined your interview request 🚫"; // Notification message.
                         $notification->read = "No"; // Mark the notification as unread.
                         $notification->save();
-                    }
+                    }*/
 
                     // Send a response to the applicant confirming the interview has been declined.
-                    $messages = [
+                    /*$messages = [
                         "We have received your response and your interview for the position of " .
                         $latestInterview->vacancy->position->name .
                         " is now declined. If this was a mistake, please contact us immediately."
+                    ];*/
+                    $messages = [
+                        "Thank you for your response. Should you wish to view, reschedle or decline your interview, start by typing Hi. Have a wonderful day!"
                     ];
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
 
@@ -2554,23 +2633,66 @@ class ChatService
 
             // Check if an interview exists for the applicant.
             if ($latestInterview) {
+                // Check if the interview status is either 'Scheduled' or 'Reschedule' or 'Confirmed'
+                if (!in_array($latestInterview->status, ['Scheduled', 'Reschedule', 'Confirmed'])) {
+                    // Send a message indicating the interview can no longer be edited
+                    $errorMessage = "Sorry, but you can no longer edit this interview. Have wonderful day!";
+                    $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
+
+                    // Update the applicant's state to 'complete'
+                    $stateID = State::where('code', 'complete')->value('id');
+                    $applicant->update(['state_id' => $stateID]);
+
+                    return; // Exit the method as no further action is required
+                }
+
                 // Handle the 'confirm' response, where the applicant confirms the interview.
                 if ($body == '1' || $body == 'confirm') {
-                    // Update the interview status to 'Confirmed'.
-                    $latestInterview->status = 'Confirmed';
-                    $latestInterview->save();
+                    if (in_array($latestInterview->status, ['Scheduled', 'Reschedule']) && ($latestInterview->reschedule_by === 'Manager' || $latestInterview->reschedule_by === null)) {
+                        // Check if the interview was rescheduled by the applicant.
+                        if ($latestInterview->status === 'Reschedule' && $latestInterview->reschedule_by === 'Manager') {
+                            // Parse the rescheduled date-time.
+                            $rescheduleDateTime = Carbon::parse($latestInterview->reschedule_date);
 
-                    // If the interview status was changed and the applicant has a user, create a notification.
-                    if ($latestInterview->wasChanged() && $applicant->user) {
-                        // Create a new notification for the interviewer.
-                        $notification = new Notification();
-                        $notification->user_id = $latestInterview->interviewer_id; // Set the interviewer as the recipient.
-                        $notification->causer_id = optional($applicant->user)->id ?? $latestInterview->interviewer_id; // Set the applicant as the causer or fallback to interviewer.
-                        $notification->subject()->associate($latestInterview); // Associate the interview with the notification.
-                        $notification->type_id = 1; // Set the type (e.g., 1 for interview confirmation).
-                        $notification->notification = "Confirmed your interview request ✅"; // Set the notification message.
-                        $notification->read = "No"; // Mark the notification as unread.
-                        $notification->save(); // Save the notification to the database.
+                            // Set the scheduled_date and start_time based on the reschedule_date.
+                            $scheduledDate = $rescheduleDateTime->format('Y-m-d'); // Extract only the date.
+                            $startTime = $rescheduleDateTime->format('H:i:s'); // Extract only the time.
+
+                            // Set the end_time to 1 hour after the start_time.
+                            $endTime = $rescheduleDateTime->addHour()->format('H:i:s');
+
+                            // Update the interview with the new scheduled_date, start_time, and end_time, and reset reschedule fields.
+                            $latestInterview->update([
+                                'status' => 'Confirmed',
+                                'scheduled_date' => $scheduledDate,
+                                'start_time' => $startTime,
+                                'end_time' => $endTime,
+                                'reschedule_date' => null,
+                                'reschedule_by' => null
+                            ]);
+                        } else {
+                            // Regular confirmation flow for scheduled or manager-rescheduled interviews.
+                            $latestInterview->status = 'Confirmed';
+                            $latestInterview->save();
+                        }
+
+                        // Update the interview status to 'Confirmed'.
+                        $latestInterview->status = 'Confirmed';
+                        $latestInterview->save();
+
+                        // If the interview status was changed and the applicant has a user, create a notification.
+                        if ($latestInterview->wasChanged()) {
+                            // Create a new notification for the interviewer.
+                            $notification = new Notification();
+                            $notification->user_id = $latestInterview->interviewer_id; // Set the interviewer as the recipient.
+                            $notification->causer_id = optional($applicant->user)->id ?? null; // Set the applicant as the causer or fallback to null.
+                            $notification->applicant_id = $applicant->id; // Set the applicant as the applicant.
+                            $notification->subject()->associate($latestInterview); // Associate the interview with the notification.
+                            $notification->type_id = 1; // Set the type (e.g., 1 for interview confirmation).
+                            $notification->notification = "Confirmed your interview request ✅"; // Set the notification message.
+                            $notification->read = "No"; // Mark the notification as unread.
+                            $notification->save(); // Save the notification to the database.
+                        }
                     }
 
                     // Send confirmation message to the applicant.
@@ -2586,9 +2708,8 @@ class ChatService
                     // Update the applicant's state to 'complete' after confirmation.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
+                // Handle the 'reschedule' response, where the applicant requests to reschedule the interview.
                 } elseif ($body == '2' || $body == 'reschedule') {
-                    // Handle the 'reschedule' response, where the applicant requests to reschedule the interview.
-
                     // Update the interview status to 'Reschedule'.
                     $latestInterview->status = 'Reschedule';
                     $latestInterview->save();
@@ -2597,7 +2718,8 @@ class ChatService
                     if ($latestInterview->wasChanged()) {
                         $notification = new Notification();
                         $notification->user_id = $latestInterview->interviewer_id; // Set the interviewer as the recipient.
-                        $notification->causer_id = optional($applicant->user)->id ?? $latestInterview->interviewer_id; // Set the applicant as the causer or fallback to interviewer.
+                        $notification->causer_id = optional($applicant->user)->id ?? null; // Set the applicant as the causer or fallback to null.
+                        $notification->applicant_id = $applicant->id; // Set the applicant as the applicant.
                         $notification->subject()->associate($latestInterview); // Associate the interview with the notification.
                         $notification->type_id = 1; // Set the type (e.g., 1 for interview reschedule request).
                         $notification->notification = "Requested to reschedule 📅"; // Set the notification message.
@@ -2610,7 +2732,7 @@ class ChatService
 
                     // Send a message prompting the applicant to suggest a new date and time.
                     $messages = [
-                        "Please suggest a new *date* and *time* for your interview after the current scheduled date: *{$scheduledDate}*. We will do our best to accommodate your schedule. For example: *{$scheduledDate} 14:00*."
+                        "Please suggest a new *date* and *time* for your interview after the current scheduled date: *{$scheduledDate}*. We will do our best to accommodate your schedule. For example: *01 Sep 2024 14:00*."
                     ];
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
 
@@ -2618,29 +2740,32 @@ class ChatService
                     $stateID = State::where('code', 'reschedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
                 } elseif ($body == '3' || $body == 'decline') {
-                    // Handle the 'decline' response, where the applicant declines the interview.
+                    if (in_array($latestInterview->status, ['Scheduled', 'Reschedule'])) {
+                        // Handle the 'decline' response, where the applicant declines the interview.
 
-                    // Update the interview status to 'Declined'.
-                    $latestInterview->status = 'Declined';
-                    $latestInterview->save();
+                        // Update the interview status to 'Declined'.
+                        $latestInterview->status = 'Declined';
+                        $latestInterview->save();
 
-                    // If the interview status was changed and the applicant has a user, create a notification.
-                    if ($latestInterview->wasChanged() && $applicant->user) {
-                        $notification = new Notification();
-                        $notification->user_id = $latestInterview->interviewer_id; // Set the interviewer as the recipient.
-                        $notification->causer_id = optional($applicant->user)->id ?? $latestInterview->interviewer_id; // Set the applicant as the causer or fallback to interviewer.
-                        $notification->subject()->associate($latestInterview); // Associate the interview with the notification.
-                        $notification->type_id = 1; // Set the type (e.g., 1 for interview decline).
-                        $notification->notification = "Declined your interview request 🚫"; // Set the notification message.
-                        $notification->read = "No"; // Mark the notification as unread.
-                        $notification->save(); // Save the notification to the database.
+                        // If the interview status was changed and the applicant has a user, create a notification.
+                        if ($latestInterview->wasChanged()) {
+                            $notification = new Notification();
+                            $notification->user_id = $latestInterview->interviewer_id; // Set the interviewer as the recipient.
+                            $notification->causer_id = optional($applicant->user)->id ?? null; // Set the applicant as the causer or fallback to null.
+                            $notification->applicant_id = $applicant->id; // Set the applicant as the applicant.
+                            $notification->subject()->associate($latestInterview); // Associate the interview with the notification.
+                            $notification->type_id = 1; // Set the type (e.g., 1 for interview decline).
+                            $notification->notification = "Declined your interview request 🚫"; // Set the notification message.
+                            $notification->read = "No"; // Mark the notification as unread.
+                            $notification->save(); // Save the notification to the database.
+                        }
                     }
 
                     // Send a message to the applicant confirming the interview decline.
                     $messages = [
                         "We have received your response and your interview for the position of *" .
                         $latestInterview->vacancy->position->name .
-                        "* is now declined. If this was a mistake, please contact us immediately."
+                        "* is now declined."
                     ];
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
 
@@ -2685,8 +2810,11 @@ class ChatService
     protected function handleRescheduleState($applicant, $body, $client, $to, $from, $token)
     {
         try {
-            // Retrieve the latest interview for the applicant, ordered by 'created_at'.
-            $latestInterview = $applicant->interviews()->latest('created_at')->first();
+            // Retrieve the latest interview for the applicant where the status is 'Reschedule', ordered by 'created_at'.
+            $latestInterview = $applicant->interviews()
+                ->where('status', 'Reschedule')
+                ->latest('created_at')
+                ->first();
 
             // Check if there is an interview available for the applicant.
             if ($latestInterview) {
@@ -2703,11 +2831,15 @@ class ChatService
                     } else {
                         // If the new date is valid and later than the current scheduled date, update the interview
                         $latestInterview->reschedule_date = $newDateTime;
+                        $latestInterview->reschedule_by = 'Applicant';
                         $latestInterview->save(); // Save the changes to the interview.
+
+                        // Format the new date as "01 Sep 2024 15:00"
+                        $formattedDate = $newDateTime->format('d M Y H:i');
 
                         // Send a confirmation message
                         $messages = [
-                            "Thank you, we have noted the new date and time. We will get back to you with a newly scheduled interview."
+                            "Thank you, we have noted the new date and time *" . ($formattedDate) . "*. We have notified the relevant parieties and we will get back to you with as soon as possible. 📆"
                         ];
 
                         // Update the applicant's state to 'complete' after noting the new interview date and time.
@@ -2717,7 +2849,7 @@ class ChatService
                 } catch (\Exception $e) {
                     // If the date and time could not be parsed successfully (e.g., invalid format), inform the applicant.
                     $messages = [
-                        "Please provide a valid *date* and *time* for your interview. For example, '2024-02-20 14:00'."
+                        "Please provide a valid *date* and *time* for your interview. For example, '01 Sep 2024 14:00'."
                     ];
                 }
 
@@ -2941,8 +3073,11 @@ class ChatService
         // Otherwise, default to normalizing based on 100% scale
         $normalizedScore = $totalWeight > 0 ? ($totalScore / $totalWeight) * 5 : ($totalScore / 100) * 5;
 
+        // Add 3 to the final score
+        $finalScore = $normalizedScore + 3;
+
         // Round the normalized score to 2 decimal places and return it
-        return round($normalizedScore, 2);
+        return round($finalScore, 2);
     }
 
     /*
@@ -2993,6 +3128,7 @@ class ChatService
                     $template = null;
                     $type = null;
                     $interactiveOptions = [];
+                    $variables = [];
                 } else {  // Assume $messageData is an array
                     $body = $messageData['message'];
                     $type = $messageData['type'];
@@ -3030,21 +3166,6 @@ class ChatService
                             ]
                         ]
                     ];
-
-                    // Conditionally add the header based on the applicant's state_id
-                    if ($applicant->state_id == 4 || $applicant->state_id == 5) {
-                        $payload['template']['components'][] = [
-                            'type' => 'header',
-                            'parameters' => [
-                                [
-                                    'type' => 'image',
-                                    'image' => [
-                                        'id' => '552401560556689'
-                                    ]
-                                ]
-                            ]
-                        ];
-                    }
                 } elseif ($type == 'interactive') {
                     $interactivePayload = [
                         'type' => 'list',
