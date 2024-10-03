@@ -250,6 +250,10 @@ class ShortlistController extends Controller
                     $query->where('user_id', $userID);
                 }
             ])
+            ->where(function ($query) {
+                $query->where('employment', '!=', 'B')
+                      ->orWhereNull('employment'); // Add condition to include NULL employment
+            })
             ->whereNull('shortlist_id')
             ->whereNull('appointed_id')
             ->where('no_show', '<=', 2)

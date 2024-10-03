@@ -47,4 +47,11 @@ return [
         'secret' => env('JIRA_SECRET'),
         'token' => env('JIRA_API_TOKEN', 'ATATT3xFfGF0Hv2D5CyGjDnjGL5j9medBUqpDdy922KtUnA3BBICVROxYboITpzmWeDhIeFvj-noomSdyaPSaigvQ5QZg8EN_mfJqQ-gAI5swknj2HDYa3pNROqqvuzWn3HkpIPjQ0Z8MAMOPv5U0QtygZbxhUG73VMwzmlHEAM4Wiv_lS2pCKo=569C722C'),
     ],
+
+    'sap' => [
+        'endpoint' => env('SAP_ENDPOINT'),
+        'username' => env('SAP_USERNAME'),
+        'password' => env('SAP_PASSWORD'),
+        'contract_id' => env('SAP_CONTRACT_ID'),
+    ],
 ];
