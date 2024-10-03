@@ -114,7 +114,7 @@
                         </a>
                     </li>
                 @endif
-                @if ($user->role_id <= 5)
+                @if ($user->role_id <= 4)
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarApprovals" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarApprovals">
                             <i class="ri-shield-check-line"></i>
@@ -140,7 +140,7 @@
                         <span>Templates</span>
                     </a>
                     <div class="collapse menu-dropdown" id="sidebarTemplates">
-                        <ul class="nav nav-sm flex-column">                            
+                        <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('email.index') }}">
                                     Email
@@ -300,7 +300,7 @@
                                     <a class="nav-link" href="{{ route('durations.index') }}">
                                         Experience
                                     </a>
-                                </li>                                
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('genders.index') }}">
                                         Genders
@@ -330,7 +330,7 @@
                                     <a class="nav-link" href="{{ route('towns.index') }}">
                                         Towns
                                     </a>
-                                </li>                                
+                                </li>
                             </ul>
                         </div>
                     </li>
