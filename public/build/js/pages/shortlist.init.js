@@ -1443,6 +1443,12 @@ $('#formInterview').on('submit', function(e) {
                             
                                     // Update only the inner content of the existing alert (not the entire alert div)
                                     existingAlert.innerHTML = updatedContent;
+
+                                    // Check if the interviewConfirmBtn exists and remove it if present
+                                    var interviewConfirmBtn = candidateCard.querySelector('.interviewConfirmBtn');
+                                    if (interviewConfirmBtn) {
+                                        interviewConfirmBtn.remove();
+                                    }
                                 } else {
                                     // Create and append a new alert div for reschedule
                                     var rescheduleHtml = `<div class="alert alert-info alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">

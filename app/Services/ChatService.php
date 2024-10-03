@@ -2394,7 +2394,7 @@ class ChatService
                     // Construct the template message for interview_welcome
                     $templateMessage = [
                         [
-                            'message' => "Hello {$variables[0]},\n\nI have picked up that you currently have an interview scheduled for the *{$variables[1]}* at *{$variables[2]}* for the position of *{$variables[3]}* at *{$variables[4]}*.\n\nWould you like to view or edit the details of this interview?\n\n1. Yes\n2. No",
+                            'message' => "Dear {$variables[0]},\n\nI have picked up that you currently have an interview scheduled for the *{$variables[1]}* at *{$variables[2]}* for the position of *{$variables[3]}* at *{$variables[4]}*.\n\nWould you like to view or edit the details of this interview? 📆\n\n1. Yes\n2. No",
                             'type' => "text",
                             'template' => "interview_welcome",
                             'variables' => $variables
@@ -2712,6 +2712,7 @@ class ChatService
                 } elseif ($body == '2' || $body == 'reschedule') {
                     // Update the interview status to 'Reschedule'.
                     $latestInterview->status = 'Reschedule';
+                    $latestInterview->reschedule_by = 'Applicant';
                     $latestInterview->save();
 
                     // If the interview status was changed, create a notification for rescheduling.
@@ -2729,10 +2730,13 @@ class ChatService
 
                     //Get the current scheduled datew
                     $scheduledDate = $latestInterview->scheduled_date->format('d M Y'); // Format the current scheduled date
+                    // Add 1 day to the scheduled date using Carbon
+                    $suggestedDateTime = Carbon::parse($latestInterview->scheduled_date)->addDay();
+                    $suggestedDate = $suggestedDateTime->format('d M Y'); 
 
                     // Send a message prompting the applicant to suggest a new date and time.
                     $messages = [
-                        "Please suggest a new *date* and *time* for your interview after the current scheduled date: *{$scheduledDate}*. We will do our best to accommodate your schedule. For example: *01 Sep 2024 14:00*."
+                        "Please suggest a new *date* and *time* for your interview after the current scheduled date: *{$scheduledDate}*. We will do our best to accommodate your schedule. For example: *{$suggestedDate} 14:00*. 📆"
                     ];
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
 
@@ -2740,7 +2744,7 @@ class ChatService
                     $stateID = State::where('code', 'reschedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
                 } elseif ($body == '3' || $body == 'decline') {
-                    if (in_array($latestInterview->status, ['Scheduled', 'Reschedule'])) {
+                    if (in_array($latestInterview->status, ['Scheduled', 'Reschedule', 'Confirmed'])) {
                         // Handle the 'decline' response, where the applicant declines the interview.
 
                         // Update the interview status to 'Declined'.
@@ -2831,7 +2835,6 @@ class ChatService
                     } else {
                         // If the new date is valid and later than the current scheduled date, update the interview
                         $latestInterview->reschedule_date = $newDateTime;
-                        $latestInterview->reschedule_by = 'Applicant';
                         $latestInterview->save(); // Save the changes to the interview.
 
                         // Format the new date as "01 Sep 2024 15:00"
