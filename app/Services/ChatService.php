@@ -901,6 +901,7 @@ class ChatService
             } elseif ($body === '2') {
                 // Update the applicant's avatar_upload
                 $applicant->update(['avatar_upload' => 'No']);
+                $applicant->update(['avatar' => '/images/avatar.jpg']);
 
                 // Applicant selected option 2: Navigate to 'terms_conditions' state
                 $stateID = State::where('code', 'terms_conditions')->value('id');
