@@ -78,8 +78,8 @@
             </label>
             <select class="form-control" id="vacancy" name="vacancy_id" required>
                 <option value="">Select Vacancy</option>
-                @foreach ($vacancies as $vacancy)
-                    <option value="{{ Crypt::encryptString($vacancy->id) }}" {{ ($vacancyID && $vacancyID == $vacancy->id) ? 'selected' : '' }}>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->name }})</option>
+                @foreach ($vacancies as $vacancyOption)
+                    <option value="{{ Crypt::encryptString($vacancyOption->id) }}" {{ ($vacancyID && $vacancyID == $vacancyOption->id) ? 'selected' : '' }}>{{ $vacancyOption->id }}. {{ $vacancyOption->position->name }}: ({{ $vacancyOption->store->brand->name }} - {{ $vacancyOption->store->name }})</option>
                 @endforeach
             </select>
             <div class="invalid-feedback">Please select a vacancy</div>
@@ -94,6 +94,9 @@
             <input type="number" class="form-control" id="number" name="number" placeholder="Enter number of applicants" value="{{ ($vacancyID && $shortlistedApplicants) ? count($shortlistedApplicants) : $minShortlistNumber }}" min="{{ $minShortlistNumber }}" max="{{ $maxShortlistNumber }}" required />
             <div class="invalid-feedback">
                 Please enter a number above {{ $minShortlistNumber }} and below {{ $maxShortlistNumber}}
+            </div>
+            <div class="text-muted">
+                Please select a minimum of {{ $minShortlistNumber }} and a maximum of {{ $maxShortlistNumber}} appliacnts.
             </div>
         </div>
     </div>
@@ -130,6 +133,19 @@
             <div class="invalid-feedback">Please select a applicant type</div>
         </div>                                                       
     </div>
+
+    @if($vacancyID && $vacancy)
+        <div class="col-md-12">
+            <div class="live-preview">
+                <div class="d-grid gap-2">
+                    <p class="lead text-muted lh-base mb-4 text-center" id="openPositions">
+                        {{ optional($vacancy)->open_positions ?? 0 }} open {{ optional($vacancy)->open_positions == 1 ? 'position' : 'positions' }} available.
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!--end col-->
+    @endif
 </div>
 
 <!-------------------------------------------------------------------------------------
@@ -190,12 +206,12 @@
                     </ul>
                 </div>
 
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="citizen;Yes">
+                <button type="button" class="btn btn-light btn-label rounded-pill filter-button d-none" data-bs-filter="citizen;Yes">
                     <i class="ri-shield-user-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                     Citizen
                 </button>
 
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="foreign_national;Yes">
+                <button type="button" class="btn btn-light btn-label rounded-pill filter-button d-none" data-bs-filter="foreign_national;Yes">
                     <i class="ri-map-pin-user-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                     Foreign National
                 </button>
@@ -228,54 +244,23 @@
                     </ul>
                 </div>
 
-                <div class="btn-group d-none" role="group">
-                    <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-car-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                        License
-                    </button>
-                    <ul class="dropdown-menu">
-                        <a class="dropdown-item filter-button" data-bs-filter="drivers_license_code;A">
-                            A
-                        </a>
-                        <a class="dropdown-item filter-button" data-bs-filter="drivers_license_code;B">
-                            B
-                        </a>
-                        <a class="dropdown-item filter-button" data-bs-filter="drivers_license_code;C1">
-                            C1
-                        </a>
-                        <a class="dropdown-item filter-button" data-bs-filter="drivers_license_code;EB, EC1, EC">
-                            EB, EC1, EC
-                        </a>
-                    </ul>
-                </div>
-
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button d-none" data-bs-filter="has_bank_account;Yes">
-                    <i class="ri-bank-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                    Bank Account
-                </button>
-
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-wheelchair-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                        Disability
+                        <i class="ri-book-read-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        Experience
                     </button>
                     <ul class="dropdown-menu">
-                        @foreach ($disabilities as $disability)
-                            <a class="dropdown-item filter-button" data-bs-filter="disability_id;{{ $disability->id }}">
-                                {{ $disability->name }}
+                        @foreach ($durations as $duration)
+                            <a class="dropdown-item filter-button" data-bs-filter="duration_id;{{ $duration->id }}">
+                                {{ $duration->name }}
                             </a>
                         @endforeach
                     </ul>
                 </div>
 
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="literacy_score;literacy"> 
-                    <i class="ri-book-open-line label-icon align-middle rounded-pill fs-16 me-2"></i>
-                    Literacy
-                </button>
-
-                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="numeracy_score;numeracy"> 
-                    <i class="ri-hashtag label-icon align-middle rounded-pill fs-16 me-2"></i>
-                    Numeracy
+                <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="disability;Yes">
+                    <i class="ri-wheelchair-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                    Disability
                 </button>
 
                 <div class="live-preview mt-4">
@@ -322,9 +307,9 @@
             <div class="card-body">
                 <div class="live-preview">
                     <div class="d-grid gap-2">
-                        <button class="btn btn-success" type="button" id="generate-btn">
-                            Generate Shortlist
-                        </button>
+                        <button class="btn btn-success" type="button" id="{{ $vacancyID && optional($vacancy)->open_positions == 0 ? 'vacancyFilled-btn' : 'generate-btn' }}">
+                            {{ $vacancyID && optional($vacancy)->open_positions == 0 ? 'Vacancy Filled!' : 'Generate Shortlist' }}
+                        </button>                        
                     </div>
                 </div>
             </div><!-- end card-body -->
@@ -360,19 +345,29 @@
                 </h5>                
             </div>
             <!--end col-->
-            <div class="col-md-auto ms-auto">
-                <div class="d-flex hastck gap-2 flex-wrap">
-                    <button class="btn btn-secondary" id="interviewBtn">
-                        <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
-                        Interview
-                    </button>
-                    <button class="btn btn-success" id="vacancyBtn">
-                        <i class="ri-open-arm-fill align-bottom me-1"></i> 
-                        Fill Vacancy
-                    </button>
+            @if ($vacancyID && optional($vacancy)->open_positions > 0)
+                <div class="col-md-auto ms-auto" id="colButtons">
+                    <div class="d-flex hstack gap-2 flex-wrap">
+                        <!-- Interview Button with Tooltip -->
+                        <button class="btn btn-secondary" id="interviewBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Schedule interview with selected applicants">
+                            <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
+                            Interview
+                        </button>
+                    
+                        <!-- Fill Vacancy Button with Tooltip -->
+                        <button class="btn btn-success" id="vacancyBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Appoint selected applicants">
+                            <i class="ri-open-arm-fill align-bottom me-1"></i> 
+                            Fill Vacancy
+                        </button>
+
+                        <!-- Refresh Button with Tooltip -->
+                        <button class="btn btn-info" id="refreshBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh page" onclick="location.reload();">
+                            <i class="ri-refresh-line align-bottom"></i>
+                        </button>
+                    </div>                
                 </div>
-            </div>
-            <!--end col-->
+                <!--end col-->
+            @endif
         </div>
         <!--end row-->
     </div>
@@ -473,7 +468,7 @@
                             <div class="mb-3">
                                 <label class="form-label" for="date">Interview Date</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control flatpickr-input active" id="date" name="date" placeholder="Select date" data-provider="flatpickr" data-date-format="d M, Y"  value="{{ date('d M Y') }}" readonly="readonly" required>
+                                    <input type="text" class="form-control flatpickr-input active" id="date" name="date" placeholder="Select date" value="{{ date('d M Y') }}" readonly="readonly" required>
                                     <span class="input-group-text"><i class="ri-calendar-event-line"></i></span>
                                     <div class="invalid-feedback">
                                         Please select a date
@@ -487,7 +482,7 @@
                                     <div class="mb-3">
                                         <label class="form-label" for="startTime">Start Time</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control flatpickr-input active" data-provider="timepickr" id="startTime" name="start_time" data-time-hrs="true" id="timepicker-24hrs" readonly="readonly" required>
+                                            <input type="text" class="form-control flatpickr-input active" id="startTime" name="start_time" readonly="readonly" required>
                                             <span class="input-group-text"><i class="ri-time-line"></i></span>
                                             <div class="invalid-feedback">
                                                 Please select a start time
@@ -499,7 +494,7 @@
                                     <div class="mb-3">
                                         <label class="form-label" for="endTime">End Time</label>
                                         <div class="input-group">
-                                            <input type="text" class="form-control flatpickr-input active" data-provider="timepickr" id="endTime" name="end_time" data-time-hrs="true" id="timepicker-24hrs" readonly="readonly" required>
+                                            <input type="text" class="form-control flatpickr-input active" id="endTime" name="end_time" readonly="readonly" required>
                                             <span class="input-group-text"><i class="ri-time-line"></i></span>
                                             <div class="invalid-feedback">
                                                 Please select a end time
@@ -513,7 +508,7 @@
                             <div class="mb-3">
                                 <label class="form-label" for="location">Location</label>
                                 <div>
-                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" value="{{ $vacancy ? optional($vacancy->store)->address : '' }}" required>
+                                    <input type="text" class="form-control d-block" id="location" name="location" placeholder="Interview location" value="{{ $vacancy ? optional($vacancy->store)->address : '' }}" {{ $user->role_id >= 6 ? 'readonly' : '' }} required>
                                     <div class="invalid-feedback">
                                         Please enter a location
                                     </div>
@@ -523,7 +518,7 @@
                         <div class="col-12">
                             <div class="mb-3">
                                 <label class="form-label" for="notes">Notes</label>
-                                <textarea class="form-control d-block" id="notes" name="notes" placeholder="Enter additional notes" rows="3" spellcheck="true">Please bring your ID and a copy of your ID.</textarea>
+                                <textarea class="form-control d-block" id="notes" name="notes" placeholder="Enter additional notes" rows="3" spellcheck="true" readonly>Please bring your ID and a copy of your CV.</textarea>
                             </div>
                         </div><!--end col-->
                     </div><!--end row-->
@@ -637,7 +632,7 @@
     var minShortlistNumber = @json($minShortlistNumber);
     var maxShortlistNumber = @json($maxShortlistNumber);
     var coordinates = @json($vacancy ? optional($vacancy->store)->coordinates : '');
-    var maxDistanceFromStore = @json($maxDistanceFromStore);
+    var maxDistanceFromStore = {{ $maxDistanceFromStore }};
 </script>
 <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

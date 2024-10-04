@@ -15,7 +15,9 @@ class TownFactory extends Factory
         return [
             'name' => $this->faker->city,
             'code' => $this->faker->postcode,
-            'province_id' => Province::factory(),
+            'province_id' => function () {
+                return \App\Models\Province::factory()->create()->id;
+            },
             'district' => $this->faker->word,
             'seat' => $this->faker->boolean,
             'class' => $this->faker->randomElement(['A', 'B', 'C'])

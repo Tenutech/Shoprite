@@ -41,6 +41,63 @@ $(document).ready(function() {
 
 /*
 |--------------------------------------------------------------------------
+| Date Fields
+|--------------------------------------------------------------------------
+*/
+
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow .getDate() + 1); // Set the date to one days from today
+
+// Restrict the date picker to not allow past dates
+flatpickr("#date", {
+    dateFormat: "d M, Y",
+    minDate: "today", // Disables past dates
+    defaultDate: tomorrow, // Set the default date to today
+});
+
+// Set default start time to current hour + 1 and end time to +2 hours
+var currentDate = new Date();
+var currentHour = currentDate.getHours();
+var startTime = (currentHour + 1) % 24; // Start time is current hour + 1
+var endTime = (currentHour + 2) % 24; // End time is start time + 1 hour
+
+// Initialize flatpickr for start time
+var startTimePicker = flatpickr("#startTime", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    defaultDate: new Date(currentDate.setHours(startTime, 0, 0)), // Set the start time to current hour + 1
+    time_24hr: true,
+    defaultHour: startTime,
+    defaultMinute: 0, // Set default minute to 0
+    onChange: function(selectedDates, dateStr, instance) {
+        // When start time is updated, adjust the end time accordingly
+        var selectedStartTime = new Date(selectedDates[0]);
+        var minEndTime = new Date(selectedStartTime.getTime() + 30 * 60000); // Minimum end time is +30 minutes
+        var maxEndTime = new Date(selectedStartTime.getTime() + 60 * 60000); // Maximum end time is +1 hour
+
+        // Update the end time picker with the new values
+        endTimePicker.setDate(maxEndTime, true); // Set the default end time to 30 minutes after start
+        endTimePicker.set({
+            minTime: minEndTime.toTimeString().slice(0, 5), // Update minTime dynamically
+            maxTime: maxEndTime.toTimeString().slice(0, 5)  // Update maxTime dynamically
+        });
+    }
+});
+
+// Initialize flatpickr for end time with default values
+var endTimePicker = flatpickr("#endTime", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    defaultDate: new Date(currentDate.setHours(endTime, 0, 0)), // Set the end time to start time + 1 hour
+    time_24hr: true,
+    defaultHour: endTime,
+    defaultMinute: 0, // Set default minute to 0
+});
+
+/*
+|--------------------------------------------------------------------------
 | Colors
 |--------------------------------------------------------------------------
 */
@@ -202,6 +259,71 @@ if(document.querySelector("#numeracy_chart")){
 
 /*
 |--------------------------------------------------------------------------
+| Situational Score
+|--------------------------------------------------------------------------
+*/
+
+// Calculate the series and labels based on the given data
+var situationalSeries = [];
+var situationalLabels = [];
+for (var i = 1; i <= situationalScore; i++) {
+    situationalSeries.push(i);
+    situationalLabels.push(i.toString());
+}
+
+var options = {
+    series: situationalSeries,
+    chart: {
+        height: 300,
+        type: 'donut',
+    },
+    labels: situationalLabels,
+    theme: {
+        monochrome: {
+            enabled: true,
+            color: '#d9aa40',
+            shadeTo: 'light',
+            shadeIntensity: 0.6
+        }
+    },
+    plotOptions: {
+        pie: {
+            dataLabels: {
+                offset: -5
+            }
+        }
+    },
+    dataLabels: {
+        formatter: function (val, opts) {
+            var name = opts.w.globals.labels[opts.seriesIndex];
+            return name; // Only return the number, not the percentage
+        },
+        dropShadow: {
+            enabled: false,
+        }
+    },
+    legend: {
+        show: false
+    },
+    title: {
+        text: situational,
+        floating: true,
+        offsetY: 125,
+        align: 'center',
+        style: {
+            fontSize: '20px',
+            fontWeight: 'bold'
+        }
+    }
+};
+
+if(document.querySelector("#situational_chart")){
+    var chart = new ApexCharts(document.querySelector("#situational_chart"), options);
+    chart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
 | Form Interview
 |--------------------------------------------------------------------------
 */
@@ -323,6 +445,9 @@ $('#formInterviewSchedule').on('submit', function(e) {
     $('.invalid-feedback').hide();
     $('.choices').css('border', '');
 
+    // Get current date and time
+    var currentDateTime = new Date();
+
     // Validate each field
     $('#formInterviewSchedule').find('input, select, textarea').each(function() {
         var element = $(this); // Current element
@@ -337,13 +462,6 @@ $('#formInterviewSchedule').on('submit', function(e) {
             element.siblings('.invalid-feedback').show();
         }
 
-        // Additional validation for specific types
-        if (elementType === 'email' && value && !validateEmail(value)) {
-            isValid = false;
-            element.addClass('is-invalid');
-            element.siblings('.invalid-feedback').show();
-        }
-
         // Custom validation for Choices.js select
         if (element.hasClass('choices-select') && !value) {
             isValid = false;
@@ -352,15 +470,44 @@ $('#formInterviewSchedule').on('submit', function(e) {
             choicesDiv.find('.invalid-feedback').show();
         }
 
-        // Custom validation for time comparison
+        // Validate interview date
+        if (element.attr('id') === 'date') {
+            var interviewDate = new Date(value);
+            if (interviewDate < currentDateTime) {
+                isValid = false;
+                element.addClass('is-invalid');
+                element.siblings('.invalid-feedback').show().text('Interview date must be in the future.');
+            }
+        }
+
+        // Validate start time (should be after the current time if today)
+        if (element.attr('id') === 'startTime') {
+            var startTime = element.val();
+            var interviewDate = $('#date').val();
+            var fullStartDateTime = new Date(interviewDate + ' ' + startTime);
+            if (fullStartDateTime <= currentDateTime) {
+                isValid = false;
+                element.addClass('is-invalid');
+                element.siblings('.invalid-feedback').show().text('Start time must be in the future.');
+            }
+        }
+
+        // Custom validation for end time
         if (element.attr('id') === 'endTime') {
             var startTime = $('#startTime').val();
             var endTime = element.val();
-            // Assuming time is in HH:mm format
-            if (startTime && endTime && startTime >= endTime) {
+
+            // Convert times to Date objects for comparison
+            var interviewDate = $('#date').val();
+            var fullStartDateTime = new Date(interviewDate + ' ' + startTime);
+            var fullEndDateTime = new Date(interviewDate + ' ' + endTime);
+
+            // Check if end time is at least 30 min and not more than 1 hour after start time
+            var diffInMinutes = (fullEndDateTime - fullStartDateTime) / (1000 * 60); // Difference in minutes
+            if (diffInMinutes < 30 || diffInMinutes > 60) {
                 isValid = false;
                 element.addClass('is-invalid');
-                element.siblings('.invalid-feedback').show().text('End time must be after start time.');
+                element.siblings('.invalid-feedback').show().text('End time must be between 30 minutes and 1 hour after start time.');
             }
         }
     });
@@ -383,27 +530,49 @@ $('#formInterviewSchedule').on('submit', function(e) {
             },
             success:function(data){                
                 if (data.success == true) {
+                    // Reschedule status - update to alert-info, different icon, and additional reschedule info
+                    var scheduledDate = data.interview.scheduled_date.split('T')[0]; // Extract only the date part (YYYY-MM-DD)
+                    var startTime = data.interview.start_time.split('T')[1].split('.')[0]; // Extract time from full date-time format (HH:mm:ss)
+
+                    var formattedScheduledDate = '';
+
+                    // Combine scheduled date and start time
+                    if (scheduledDate && startTime) {
+                        // Combine date and time into a single string
+                        var combinedDateTime = new Date(scheduledDate + 'T' + startTime);
+
+                        // Adjust for South Africa's time zone (UTC+2)
+                        combinedDateTime.setHours(combinedDateTime.getHours() + 2);
+
+                        // Add one day to the combined date
+                        combinedDateTime.setDate(combinedDateTime.getDate() + 1);
+
+                        var day = combinedDateTime.getDate().toString().padStart(2, '0'); // Ensure two digits for the day
+                        var month = combinedDateTime.toLocaleString('default', { month: 'short' }); // 'short' for abbreviated month name
+
+                        // Format the scheduled date and time for display
+                        formattedScheduledDate = `${day} ${month} at ${combinedDateTime.getHours().toString().padStart(2, '0')}:${combinedDateTime.getMinutes().toString().padStart(2, '0')}`;
+                    }
+                    // Replace the interview alert
+                    if (data.interview.status === 'Reschedule') {
+                        $('#interviewAlert').html(`
+                            <div class="alert alert-info alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
+                                <i class="ri-calendar-event-fill label-icon"></i>
+                                <strong>Reschedule:</strong> ${formattedScheduledDate}
+                                <br>
+                                <strong>Suggested:</strong> ${data.date} at ${data.time}
+                            </div>
+                        `);
+                    } else {
+                        $('#interviewAlert').html(`
+                            <div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
+                                <i class="ri-calendar-todo-fill label-icon"></i>
+                                <strong>Scheduled:</strong> ${data.date} at ${data.time}
+                            </div>
+                        `);
+                    }
                     
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: data.message,
-                        showConfirmButton: false,
-                        timer: 2000,
-                        toast: true,
-                        showCloseButton: true
-                    });
-            
-                    $('#interviewModal').modal('hide');
-            
-                    // Replace the interview alert and form
-                    $('#interviewAlert').html(`
-                        <div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
-                            <i class="ri-calendar-todo-fill label-icon"></i>
-                            <strong>Scheduled:</strong> ${data.date} at ${data.time}
-                        </div>
-                    `);
-            
+                    // Replace the interview form
                     if (data.questions.length === 0) {
                         // If no questions, show the error alert
                         $('#interviewFormContainer').html(`
@@ -484,6 +653,18 @@ $('#formInterviewSchedule').on('submit', function(e) {
                             }
                         });
                     }
+
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 2000,
+                        toast: true,
+                        showCloseButton: true
+                    });
+            
+                    $('#interviewModal').modal('hide');
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
@@ -614,9 +795,9 @@ function validateRatings() {
 
 function clearFields() {
     // Reset text inputs
-    $('#date').val('');
-    $('#startTime').val('');
-    $('#endTime').val('');
-    $('#location').val('');
-    $('#notes').val('');
+    //$('#date').val('');
+    //$('#startTime').val('');
+    //$('#endTime').val('');
+    //$('#location').val('');
+    //$('#notes').val('');
 }

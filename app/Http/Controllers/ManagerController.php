@@ -16,6 +16,7 @@ use App\Models\ReminderSetting;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
 use App\Models\ApplicantMonthlyStoreData;
+use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -33,9 +34,10 @@ class ManagerController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(VacancyDataService $vacancyDataService)
     {
         $this->middleware(['auth', 'verified']);
+        $this->vacancyDataService = $vacancyDataService;
     }
 
     /**
@@ -332,6 +334,13 @@ class ManagerController extends Controller
                 }
             }
 
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfYear();
+
+            $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist(Auth::user()->store_id);
+            $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire(Auth::user()->store_id);
+            $adoptionRate = $this->vacancyDataService->getStoreVacancyFillRate(Auth::user()->store_id, null, $startDate, $endDate);
+
             return view('manager/home', [
                 'store' => $store,
                 'vacancies' => $vacancies,
@@ -350,6 +359,9 @@ class ManagerController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                'storeAverageTimeToShortlist' => $storeAverageTimeToShortlist,
+                'storeAverageTimeToHire' => $storeAverageTimeToHire,
+                'adoptionRate' => $adoptionRate,
             ]);
         }
         return view('404');

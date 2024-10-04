@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\State;
 use App\Models\Message;
 use App\Models\Vacancy;
 use App\Models\Position;
@@ -14,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
@@ -65,17 +67,9 @@ class UserProfileController extends Controller
                 'applicant.race',
                 'applicant.position',
                 'applicant.education',
-                'applicant.readLanguages',
-                'applicant.speakLanguages',
-                'applicant.reason',
                 'applicant.duration',
-                'applicant.retrenchment',
                 'applicant.brand',
-                'applicant.previousPosition',
-                'applicant.transport',
-                'applicant.disability',
                 'applicant.type',
-                'applicant.bank',
                 'applicant.role',
                 'applicant.state',
                 'appliedVacancies',
@@ -94,15 +88,16 @@ class UserProfileController extends Controller
                 'email',
                 'phone',
                 'avatar',
-                'company_id',
-                'position_id',
-                'website'
+                'company_id'
             ];
+
+            // Get the 'complete' state ID
+            $completeStateID = State::where('code', 'complete')->value('id');
 
             //Completion Percentage
             $completion = 0;
             if ($user->applicant) {
-                $completion = round(($user->applicant->state_id / 69) * 100);
+                $completion = round(($user->applicant->state_id / $completeStateID) * 100);
                 if ($completion > 100) {
                     $completion = 100;
                 }
@@ -330,26 +325,11 @@ class UserProfileController extends Controller
                 ],
             ];
 
-            //Top Vacancies
-            $topVacancies = Vacancy::with([
-                'position',
-                'store.brand',
-                'store.town',
-                'type',
-                'applicants'
-            ])
-            ->withCount('applicants')
-            ->where('status_id', 2)
-            ->orderBy('applicants_count', 'desc')
-            ->take(3)
-            ->get();
-
             return view('admin/user-profile', [
                 'user' => $user,
                 'completion' => $completion,
                 'activities' => $activities,
-                'tabs' => $tabs,
-                'topVacancies' => $topVacancies,
+                'tabs' => $tabs
             ]);
         }
         return view('404');
@@ -481,7 +461,7 @@ class UserProfileController extends Controller
 
             // Check if the file exists and delete it from the storage
             if (file_exists($filePath)) {
-                \File::delete($filePath);
+                File::delete($filePath);
             }
 
             // Delete the file record from the database

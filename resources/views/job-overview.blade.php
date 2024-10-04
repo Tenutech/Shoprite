@@ -53,7 +53,7 @@
                         </div>
                         <div class="col-md-auto">
                             <div class="hstack gap-1 flex-wrap mt-4 mt-md-0">
-                                @if ($user->role_id == 1)
+                                @if ($user->role_id <= 6 && $vacancy->open_positions > 0)
                                     <a type="button" href="{{ route('vacancy.index', ['id' => Crypt::encryptString($vacancy->id)]) }}" class="btn btn-icon btn-sm btn-ghost-primary fs-16 custom-toggle">
                                         <span class="icon-on">
                                             <i class="ri-edit-box-line"></i>
@@ -62,6 +62,8 @@
                                             <i class="ri-edit-box-fill"></i>
                                         </span>
                                     </a>
+                                @endif
+                                @if ($user->role_id == 1 && $vacancy->open_positions > 0)
                                     <button type="button" class="btn btn-icon btn-sm btn-ghost-primary fs-16" href="#vacancyDeleteModal" data-bs-toggle="modal" data-bs-id="{{ Crypt::encryptString($vacancy->id) }}">
                                         <span class="icon-on">
                                             <i class="ri-delete-bin-6-line"></i>
@@ -125,137 +127,80 @@
                     {!! optional(optional($vacancy->position->successFactors)[0] ?? null)->description ?? 'N/A' !!}
                 </div>                
 
-                @if ($vacancy->position->files && $vacancy->position->files->count() > 0 || $user->role_id <= 2)
+                @if ($vacancy->appointed && $vacancy->appointed->count() > 0 || $user->role_id <= 6)
                     <div class="mb-4">
                         <div class="d-flex align-items-center justify-content-between mb-3"> <!-- Flex container -->
                             <h5 class="fs-17 mb-0" id="filetype-title">
-                                Documentation
-                            </h5>
-                            @if ($user->role_id == 1)
-                                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#fileUploadModal">
-                                    <i class="ri-upload-2-fill me-1 align-bottom"></i> 
-                                    Upload File
-                                </button>
-                            @endif
+                                Appointed
+                            </h5>                            
                         </div>
-                        <div class="table-responsive">
-                            <table class="table align-middle table-nowrap mb-0" id="fileTable">
-                                <thead class="table-active">
-                                    <tr>
-                                        <th scope="col">Name</th>
-                                        <th scope="col">Type</th>
-                                        <th scope="col">Size</th>
-                                        <th scope="col">Upload Date</th>
-                                        <th scope="col" class="text-center">Action</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="file-list">
-                                    @foreach ($vacancy->position->files as $file)
-                                        @php
-                                            $fileIcon = '';
-                                        @endphp
-                                        
-                                        @switch($file->type)
-                                            @case('png')
-                                            @case('jpg')
-                                            @case('jpeg')
-                                                @php
-                                                    $fileIcon = '<i class="ri-gallery-fill align-bottom text-success"></i>';
-                                                @endphp
-                                                @break
-                                        
-                                            @case('pdf')
-                                                @php
-                                                    $fileIcon = '<i class="ri-file-pdf-fill align-bottom text-danger"></i>';
-                                                @endphp
-                                                @break
-                                        
-                                            @case('docx')
-                                                @php
-                                                    $fileIcon = '<i class="ri-file-word-2-fill align-bottom text-primary"></i>';
-                                                @endphp
-                                                @break
-                                        
-                                            @case('xls')
-                                            @case('xlsx')
-                                                @php
-                                                    $fileIcon = '<i class="ri-file-excel-2-fill align-bottom text-success"></i>';
-                                                @endphp
-                                                @break
-                                        
-                                            @case('csv')
-                                                @php
-                                                    $fileIcon = '<i class="ri-file-excel-fill align-bottom text-success"></i>';
-                                                @endphp
-                                                @break
-                                        
-                                            @case('txt')
-                                            @default
-                                                @php
-                                                    $fileIcon = '<i class="ri-file-text-fill align-bottom text-secondary"></i>';
-                                                @endphp
-                                        @endswitch
-                                        <tr data-file-id="{{ $file->id }}">
-                                            <td>
-                                                <a href="{{ route('file.view', ['id' => Crypt::encryptString($file->id)]) }}" target="_blank">
-                                                    <div class="d-flex align-items-center">
-                                                        <div class="flex-shrink-0 fs-17 me-2 filelist-icon">{!! $fileIcon !!}</div>
-                                                        <div class="flex-grow-1 filelist-name">{{ substr($file->name, 0, strrpos($file->name, '-')) }}</div>
+                        <div class="row gy-2 mb-2">
+                            <div data-simplebar style="max-height: 250px;" class="px-3">
+                                @foreach ($vacancy->appointed as $applicant)
+                                    <div class="col-md-6 col-lg-12">
+                                        <div class="card mb-0">
+                                            <div class="card-body">
+                                                <div class="d-lg-flex align-items-center">
+                                                    <div class="flex-shrink-0 col-auto">
+                                                        <div class="avatar-sm rounded overflow-hidden">
+                                                            {{-- Check if avatar is null, if so use a default image --}}
+                                                            <img src="{{ $applicant->avatar ?? URL::asset('images/avatar.jpg') }}" alt="" class="member-img img-fluid d-block rounded">
+                                                        </div>
                                                     </div>
-                                                </a>
-                                            </td>
-                                            <td>
-                                                {{ $file->type }}
-                                            </td>
-                                            @php
-                                                $fileSizeInMB = $file->size / (1024 * 1024);
-                                                if ($fileSizeInMB < 0.1) {
-                                                    $fileSizeInKB = number_format($file->size / 1024, 1);
-                                                    $fileSizeText = "{$fileSizeInKB} KB";
-                                                } else {
-                                                    $fileSizeInMB = number_format($fileSizeInMB, 1);
-                                                    $fileSizeText = "{$fileSizeInMB} MB";
-                                                }
-                                            @endphp
-                                            <td class="filelist-size">                                            
-                                                {{ $fileSizeText }}
-                                            </td>
-                                            <td class="filelist-create">
-                                                {{ date('d M Y', strtotime($file->created_at)) }}
-                                            </td>
-                                            <td>
-                                                <div class="d-flex gap-3 justify-content-center">
-                                                    <div class="dropdown">
-                                                        <button class="btn btn-light btn-icon btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="ri-more-fill align-bottom"></i>
-                                                        </button>
-                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                        <li>
-                                                            <a class="dropdown-item viewfile-list" href="{{ route('file.view', ['id' => Crypt::encryptString($file->id)]) }}" target="_blank">
-                                                                View
-                                                            </a>
-                                                        </li>
-                                                        <li>
-                                                            <a class="dropdown-item downloadfile-list" href="{{ route('file.download', ['id' => Crypt::encryptString($file->id)]) }}">
-                                                                Download
-                                                            </a>
-                                                        </li>
-                                                        @if ($user->role_id == 1)
-                                                            <li class="dropdown-divider"></li>
-                                                            <li>
-                                                                <button class="dropdown-item downloadfile-list" href="#fileDeleteModal" data-bs-toggle="modal" data-bs-id="{{ $file->id }}">
-                                                                    Delete
-                                                                </button>
-                                                            </li>
+                                                    <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">
+                                                        <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($applicant->id ?? '')]) }}">
+                                                            <h5 class="fs-16 mb-2">
+                                                                {{-- Check if firstname or lastname is null --}}
+                                                                {{ $applicant->firstname ?? 'N/A' }} {{ $applicant->lastname ?? 'N/A' }}
+                                                            </h5>
+                                                        </a>
+                                                        <p class="text-muted mb-0">
+                                                            {{-- Safely check if race name is null --}}
+                                                            {{ optional($applicant->race)->name ?? 'N/A' }}
+                                                        </p>
+                                                    </div>
+                                                    <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">
+                                                        <div>
+                                                            <i class="{{ optional($applicant->gender)->icon ?? 'ri-men-line' }} text-{{ optional($applicant->gender)->color ?? 'primary' }} me-1 align-bottom"></i>
+                                                            {{-- Safely check if gender name is null --}}
+                                                            <span class="badge bg-{{ optional($applicant->gender)->color ?? 'primary' }}-subtle text-{{ optional($applicant->gender)->color ?? 'primary' }}">
+                                                                {{ optional($applicant->gender)->name ?? 'N/A' }}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-2">
+                                                        <i class="ri-hashtag text-primary me-1 align-bottom"></i>
+                                                        {{ optional($applicant->pivot)->sap_number ?? 'N/A' }}
+                                                    </div>                                                                                        
+                                                    <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">
+                                                        <div class="badge text-bg-success">
+                                                            <i class="mdi mdi-star me-1"></i>
+                                                            {{-- Check if score is null --}}
+                                                            {{ $applicant->score ?? 'N/A' }}                                                                                            
+                                                        </div>
+                                                        @if($applicant->interviews && $applicant->interviews->count() > 0)
+                                                            @php
+                                                                $latestInterview = $applicant->interviews->last(); // Get the latest interview
+                                                            @endphp
+                                                            @if($applicant->latestInterview && $applicant->latestInterview->score)
+                                                                <div class="badge text-bg-primary">
+                                                                    <i class="mdi mdi-star me-1"></i>
+                                                                    {{ $applicant->latestInterview->score ?? 'N/A' }}
+                                                                </div>
+                                                            @endif
                                                         @endif
-                                                    </ul>
+                                                    </div>
+                                                    <div class="col-2 text-end">
+                                                        <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($applicant->id ?? '')]) }}" class="btn btn-soft-primary">
+                                                            View Details
+                                                        </a>
                                                     </div>
                                                 </div>
-                                            </td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
                     </div>
                 @endif
@@ -278,6 +223,16 @@
                 <div class="table-responsive table-card">
                     <table class="table mb-0">
                         <tbody>
+                            @if ($user->role_id <= 6)
+                                <tr>
+                                    <td class="fw-semibold">
+                                        Identifier
+                                    </td>
+                                    <td>
+                                        {{ $vacancy->id ?? 'N/A' }}
+                                    </td>
+                                </tr>
+                            @endif
                             <tr>
                                 <td class="fw-semibold">
                                     Title
@@ -338,16 +293,6 @@
                                     {{ $vacancy->created_at ? date('d M, Y', strtotime($vacancy->created_at)) : 'N/A' }}
                                 </td>
                             </tr>
-                            @if ($user->role_id == 1)
-                                <tr>
-                                    <td class="fw-semibold">
-                                        Salary
-                                    </td>
-                                    <td>
-                                        {{ optional(optional($vacancy->position->salaryBenefits)[0] ?? null)->salary ?? 'N/A' }}
-                                    </td>
-                                </tr>
-                            @endif
                         </tbody>
                     </table>
                     <!--end table-->
@@ -413,7 +358,7 @@
                                     Phone
                                 </td>
                                 <td>
-                                    +(27) 79 874 9789
+                                    0800 01 07 09
                                 </td>
                             </tr>
                             <tr>
@@ -421,7 +366,7 @@
                                     Email
                                 </td>
                                 <td>
-                                    info@orient.com
+                                    help@shoprite.co.za
                                 </td>
                             </tr>
                         </tbody>

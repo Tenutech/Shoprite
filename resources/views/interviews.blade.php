@@ -59,7 +59,7 @@
                                 <tbody class="list form-check-all" style="height:200px;">
                                     @if($interviews && count($interviews) > 0)
                                         @foreach ($interviews as $interview)
-                                            <tr style="vertical-align:middle;">
+                                            <tr class="{{ $interview->status == 'Appointed' ? 'border border-success' : '' }}" style="vertical-align:middle; {{ $interview->status == 'Appointed' ? 'border-top: 2px solid rgba(103, 177, 115, 1) !important;' : '' }}">
                                                 <th scope="row">
                                                     <div class="form-check">
                                                         <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
@@ -133,63 +133,69 @@
                                                         case 'No Show':
                                                             $color = 'bg-danger-subtle text-danger';
                                                             break;
+                                                        case 'Appointed':
+                                                            $color = 'bg-success-subtle text-success';
+                                                            break;
+                                                        case 'Regretted':
+                                                            $color = 'bg-danger-subtle text-danger';
+                                                            break;
                                                         default:
                                                             $color = 'bg-secondary-primary text-primary';
                                                     }
                                                 @endphp
                                                 <td class="status"><span class="badge {{ $color }} text-uppercase">{{ $interview->status }}</span></td>
                                                 <td>
-                                                    <ul class="list-inline hstack gap-2 mb-0">
-                                                        <li class="list-inline-item">
-                                                            <div class="dropdown">
-                                                                <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                    <i class="ri-more-fill align-middle"></i>
-                                                                </button>
-                                                                <ul class="dropdown-menu dropdown-menu-end">
-                                                                    <li>
-                                                                        <a class="dropdown-item confirm-item-btn" data-bs-toggle="modal" href="#interviewConfirmModal">
-                                                                            <i class="ri-checkbox-circle-fill align-bottom me-2 text-success"></i>
-                                                                            Confirm
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a class="dropdown-item decline-item-btn" data-bs-toggle="modal" href="#interviewDeclineModal">
-                                                                            <i class="ri-close-circle-fill align-bottom me-2 text-danger"></i>
-                                                                            Decline
-                                                                        </a>
-                                                                    </li>
-                                                                    <li>
-                                                                        <a class="dropdown-item reschedule-item-btn" data-bs-toggle="modal" href="#interviewRescheduleModal">
-                                                                            <i class="ri-calendar-event-fill align-bottom me-2 text-info"></i>
-                                                                            Reschedule
-                                                                        </a>
-                                                                    </li>
-                                                                    @if ($user->role_id < 6)
-                                                                        <li>
-                                                                            <a class="dropdown-item complete-item-btn" data-bs-toggle="modal" href="#interviewCompleteModal">
-                                                                                <i class="ri-calendar-check-fill align-bottom me-2 text-success"></i>
-                                                                                Complete
-                                                                            </a>
-                                                                        </li>
-                                                                        <li>
-                                                                            <a class="dropdown-item cancel-item-btn" data-bs-toggle="modal" href="#interviewCancelModal">
-                                                                                <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
-                                                                                Cancel
-                                                                            </a>
-                                                                        </li>
-                                                                    @endif
-                                                                    @if ($user->role_id <= 6)
-                                                                        <li>
-                                                                            <a class="dropdown-item noShow-item-btn" data-bs-toggle="modal" href="#interviewNoShowModal">
-                                                                                <i class="ri-user-unfollow-fill align-bottom me-2 text-danger"></i>
-                                                                                No Show
-                                                                            </a>
-                                                                        </li>
-                                                                    @endif
-                                                                </ul>
-                                                            </div>
-                                                        </li>
-                                                    </ul>
+                                                    @if (!in_array($interview->status, ['Completed', 'Appointed', 'Regretted', 'Cancelled', 'No Show']))
+                                                        <ul class="list-inline hstack gap-2 mb-0">
+                                                            <li class="list-inline-item">
+                                                                <div class="dropdown">
+                                                                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                        <i class="ri-more-fill align-middle"></i>
+                                                                    </button>
+                                                                    <ul class="dropdown-menu dropdown-menu-end">
+                                                                        @if (($user->role_id <= 6 && $interview->status == 'Reschedule' && $interview->reschedule_by == 'Applicant') || ($user->role_id > 6 && ($interview->status == 'Scheduled' || ($interview->status == 'Reschedule' && $interview->reschedule_by == 'Manager'))))
+                                                                            <li>
+                                                                                <a class="dropdown-item confirm-item-btn" data-bs-toggle="modal" href="#interviewConfirmModal">
+                                                                                    <i class="ri-checkbox-circle-fill align-bottom me-2 text-success"></i>
+                                                                                    Confirm
+                                                                                </a>
+                                                                            </li>
+                                                                        @endif
+                                                                        @if ($user->role_id > 6 && in_array($interview->status, ['Scheduled', 'Reschedule', 'Confirmed']))
+                                                                            <li>
+                                                                                <a class="dropdown-item decline-item-btn" data-bs-toggle="modal" href="#interviewDeclineModal">
+                                                                                    <i class="ri-close-circle-fill align-bottom me-2 text-danger"></i>
+                                                                                    Decline
+                                                                                </a>
+                                                                            </li>
+                                                                        @endif
+                                                                        @if (in_array($interview->status, ['Scheduled', 'Reschedule', 'Confirmed']))
+                                                                            <li>
+                                                                                <a class="dropdown-item reschedule-item-btn" data-bs-toggle="modal" href="#interviewRescheduleModal">
+                                                                                    <i class="ri-calendar-event-fill align-bottom me-2 text-info"></i>
+                                                                                    Reschedule
+                                                                                </a>
+                                                                            </li>
+                                                                        @endif
+                                                                        @if ($user->role_id <= 6)
+                                                                            <li>
+                                                                                <a class="dropdown-item cancel-item-btn" data-bs-toggle="modal" href="#interviewCancelModal">
+                                                                                    <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
+                                                                                    Cancel
+                                                                                </a>
+                                                                            </li>
+                                                                            <li>
+                                                                                <a class="dropdown-item noShow-item-btn" data-bs-toggle="modal" href="#interviewNoShowModal">
+                                                                                    <i class="ri-user-unfollow-fill align-bottom me-2 text-danger"></i>
+                                                                                    No Show
+                                                                                </a>
+                                                                            </li>
+                                                                        @endif
+                                                                    </ul>
+                                                                </div>
+                                                            </li>
+                                                        </ul>
+                                                    @endif
                                                 </td>
                                             </tr>
                                         @endforeach
@@ -221,25 +227,21 @@
                                                                         Confirm
                                                                     </a>
                                                                 </li>
-                                                                <li>
-                                                                    <a class="dropdown-item decline-item-btn" data-bs-toggle="modal" href="#interviewDeclineModal">
-                                                                        <i class="ri-close-circle-fill align-bottom me-2 text-danger"></i>
-                                                                        Decline
-                                                                    </a>
-                                                                </li>
+                                                                @if ($user->role_id > 6)
+                                                                    <li>
+                                                                        <a class="dropdown-item decline-item-btn" data-bs-toggle="modal" href="#interviewDeclineModal">
+                                                                            <i class="ri-close-circle-fill align-bottom me-2 text-danger"></i>
+                                                                            Decline
+                                                                        </a>
+                                                                    </li>
+                                                                @endif
                                                                 <li>
                                                                     <a class="dropdown-item reschedule-item-btn" data-bs-toggle="modal" href="#interviewRescheduleModal">
                                                                         <i class="ri-calendar-event-fill align-bottom me-2 text-info"></i>
                                                                         Reschedule
                                                                     </a>
                                                                 </li>
-                                                                @if ($user->role_id < 6)
-                                                                    <li>
-                                                                        <a class="dropdown-item complete-item-btn" data-bs-toggle="modal" href="#interviewCompleteModal">
-                                                                            <i class="ri-calendar-check-fill align-bottom me-2 text-success"></i>
-                                                                            Complete
-                                                                        </a>
-                                                                    </li>
+                                                                @if ($user->role_id <= 6)
                                                                     <li>
                                                                         <a class="dropdown-item cancel-item-btn" data-bs-toggle="modal" href="#interviewCancelModal">
                                                                             <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
@@ -290,79 +292,6 @@
                         </div>
                     </div>
 
-                    <!-- Modal Interview -->
-                    <div class="modal fade zoomIn" id="interviewModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered modal-lg">
-                            <div class="modal-content border-0">
-                                <div class="modal-header bg-light p-3">
-                                    <h5 class="modal-title" id="exampleModalLabel"></h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
-                                </div>
-                                <form id="formInterview" enctype="multipart/form-data">
-                                    @csrf
-                                    <input type="hidden" id="field-id" name="field_id"/>
-                                    <div class="modal-body">
-                                        <div class="col-lg-12 mb-3">
-                                            <div class="mb-3">
-                                                <label for="scoreType" class="form-label">
-                                                    Score Type
-                                                </label>
-                                                <select id="scoreType" name="score_type" class="form-control" required>
-                                                    <option value="" selected>Select Message State</option>
-                                                </select>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="weight" class="form-label">
-                                                    Weight
-                                                </label>
-                                                <input type="number" class="form-control" id="weight" name="weight" step="0.01" value="0.00" required/>
-                                            </div>
-    
-                                            <div class="mb-3">
-                                                <label for="maxValue" class="form-label">
-                                                    Max Value
-                                                </label>
-                                                <input type="number" class="form-control" id="maxValue" name="max_value" value="0.00" step="0.01"/>
-                                            </div>
-    
-                                            <div class="mb-3">
-                                                <label for="conditionField" class="form-label">
-                                                    Condition Field
-                                                </label>
-                                                <select id="conditionField" name="condition_field" class="form-control">
-                                                    <option value="" selected>Select Condition Field</option>
-                                                </select>
-                                            </div>
-    
-                                            <div class="mb-3">
-                                                <label for="conditionValue" class="form-label">
-                                                    Condition Value
-                                                </label>
-                                                <input type="text" class="form-control" id="conditionValue" name="condition_value"/>
-                                            </div>
-    
-                                            <div class="mb-3">
-                                                <label for="fallbackValue" class="form-label">
-                                                    Fallback Value
-                                                </label>
-                                                <input type="number" class="form-control" id="fallbackValue" name="fallback_value" value="0.00" step="0.01"/>
-                                            </div>
-                                        </div>                                        
-                                    </div>
-                                    <div class="modal-footer">                                        
-                                        <div class="hstack gap-2 justify-content-end">
-                                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success" id="add-btn">Add interview</button>
-                                            <button type="button" class="btn btn-success" id="edit-btn">Update</button>
-                                        </div>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                    <!--end modal-->
-
                     <!-- Interview Confirm Modal -->
                     <div class="modal fade zoomIn" id="interviewConfirmModal" tabindex="-1" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered">
@@ -374,7 +303,7 @@
                                     <lord-icon src="https://cdn.lordicon.com/bgebyztw.json" trigger="loop" style="width:90px;height:90px"></lord-icon>
                                     <div class="mt-4 text-center">
                                         <h4 class="fs-semibold">
-                                            You are about to confirm this interview ?
+                                            You are about to confirm this interview?
                                         </h4>
                                         <p class="text-muted fs-14 mb-4 pt-1">
                                             Confirming this interview will finalize the schedule and notify all relevant parties involved. Please ensure that the date and time are correct before proceeding.
@@ -385,7 +314,7 @@
                                                 Close
                                             </button>
                                             <button class="btn btn-success" id="confirm-interview">
-                                                Yes, Confirm!!
+                                                Yes, Confirm!
                                             </button>
                                         </div>
                                     </div>
@@ -406,7 +335,7 @@
                                     <lord-icon src="https://cdn.lordicon.com/urmrbzpi.json" trigger="loop" style="width:90px;height:90px"></lord-icon>
                                     <div class="mt-4 text-center">
                                         <h4 class="fs-semibold">
-                                            You are about to decline this interview ?
+                                            You are about to decline this interview?
                                         </h4>
                                         <p class="text-muted fs-14 mb-4 pt-1">
                                             Declining this interview will notify all relevant parties that you are unable to attend the scheduled meeting. Are you sure you wish to proceed with declining the interview?
@@ -417,7 +346,7 @@
                                                 Close
                                             </button>
                                             <button class="btn btn-danger" id="decline-interview">
-                                                Yes, Decline!!
+                                                Yes, Decline!
                                             </button>
                                         </div>
                                     </div>
@@ -438,12 +367,12 @@
                                     <lord-icon src="https://cdn.lordicon.com/wzrwaorf.json" trigger="loop" style="width:90px;height:90px"></lord-icon>
                                     <div class="mt-4 text-center">
                                         <h4 class="fs-semibold">
-                                            You are about to reschedule this interview ?
+                                            You are about to reschedule this interview?
                                         </h4>
                                         <p class="text-muted fs-14 mb-2 pt-1">
                                             Please select a new date and time to proceed with rescheduling. This action will notify all relevant parties of the change.
                                         </p>
-                                        <input type="datetime-local" class="form-control datetime-input" id="rescheduleTime" name="reschedule_time" />
+                                        <input type="text" class="form-control flatpickr-input active" id="rescheduleTime" name="reschedule_time" readonly="readonly" required>
                                         <span class="invalid-feedback d-none" role="alert"><strong>Please select a date and time.</strong></span>
                                         <div class="hstack gap-2 justify-content-center remove mt-4">
                                             <button class="btn btn-light" data-bs-dismiss="modal" id="rescheduleInterview-close">
@@ -451,7 +380,7 @@
                                                 Close
                                             </button>
                                             <button class="btn btn-info" id="reschedule-interview">
-                                                Yes, Reschedule!!
+                                                Yes, Reschedule!
                                             </button>
                                         </div>
                                     </div>
@@ -461,101 +390,71 @@
                     </div>
                     <!--end reschedule modal -->
 
-                    <!-- Interview Complete Modal -->
-                    <div class="modal fade zoomIn" id="interviewCompleteModal" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="btn-close" id="completeInterview-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
-                                </div>
-                                <div class="modal-body p-5 text-center">
-                                    <lord-icon src="https://cdn.lordicon.com/wzwygmng.json" trigger="loop" style="width:90px;height:90px"></lord-icon>
-                                    <div class="mt-4 text-center">
-                                        <h4 class="fs-semibold">
-                                            You are about to mark this interview as complete ?
-                                        </h4>
-                                        <p class="text-muted fs-14 mb-4 pt-1">
-                                            Confirming this interview as complete will update its status and notify all relevant parties involved. Please ensure all necessary post-interview actions have been taken before proceeding.
-                                        </p>                                        
-                                        <div class="hstack gap-2 justify-content-center remove">
-                                            <button class="btn btn-light" data-bs-dismiss="modal" id="completeInterview-close">
-                                                <i class="ri-close-line me-1 align-middle"></i>
-                                                Close
-                                            </button>
-                                            <button class="btn btn-success" id="complete-interview">
-                                                Yes, Complete!!
-                                            </button>
+                    @if ($user->role_id <= 6)
+                        <!-- Interview Cancel Modal -->
+                        <div class="modal fade zoomIn" id="interviewCancelModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="btn-close" id="cancelInterview-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
+                                    </div>
+                                    <div class="modal-body p-5 text-center">
+                                        <lord-icon src="https://cdn.lordicon.com/crithpny.json" trigger="loop" style="width:90px;height:90px"></lord-icon>
+                                        <div class="mt-4 text-center">
+                                            <h4 class="fs-semibold">
+                                                You are about to cancel this interview?
+                                            </h4>
+                                            <p class="text-muted fs-14 mb-4 pt-1">
+                                                Cancelling this interview will remove it from the schedule and notify all relevant parties of the cancellation. Please confirm if you wish to proceed with this action.
+                                            </p>                                      
+                                            <div class="hstack gap-2 justify-content-center remove">
+                                                <button class="btn btn-light" data-bs-dismiss="modal" id="cancelInterview-close">
+                                                    <i class="ri-close-line me-1 align-middle"></i>
+                                                    Close
+                                                </button>
+                                                <button class="btn btn-danger" id="cancel-interview">
+                                                    Yes, Cancel!
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!--end complete modal -->
+                        <!--end cancel modal -->
 
-                    <!-- Interview Cancel Modal -->
-                    <div class="modal fade zoomIn" id="interviewCancelModal" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="btn-close" id="cancelInterview-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
-                                </div>
-                                <div class="modal-body p-5 text-center">
-                                    <lord-icon src="https://cdn.lordicon.com/crithpny.json" trigger="loop" style="width:90px;height:90px"></lord-icon>
-                                    <div class="mt-4 text-center">
-                                        <h4 class="fs-semibold">
-                                            You are about to cancel this interview ?
-                                        </h4>
-                                        <p class="text-muted fs-14 mb-4 pt-1">
-                                            Cancelling this interview will remove it from the schedule and notify all relevant parties of the cancellation. Please confirm if you wish to proceed with this action.
-                                        </p>                                      
-                                        <div class="hstack gap-2 justify-content-center remove">
-                                            <button class="btn btn-light" data-bs-dismiss="modal" id="cancelInterview-close">
-                                                <i class="ri-close-line me-1 align-middle"></i>
-                                                Close
-                                            </button>
-                                            <button class="btn btn-danger" id="cancel-interview">
-                                                Yes, Cancel!!
-                                            </button>
+                        <!-- Interview NoShow Modal -->
+                        <div class="modal fade zoomIn" id="interviewNoShowModal" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <button type="button" class="btn-close" id="noShowInterview-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
+                                    </div>
+                                    <div class="modal-body p-5 text-center">
+                                        <lord-icon src="https://cdn.lordicon.com/xzybfbcm.json" trigger="loop" style="width:90px;height:90px"></lord-icon>
+                                        <div class="mt-4 text-center">
+                                            <h4 class="fs-semibold">
+                                                You are about to mark this interview as a no show?
+                                            </h4>
+                                            <p class="text-muted fs-14 mb-4 pt-1">
+                                                Marking the interview as a no show will record the candidate's absence and notify relevant parties. Please confirm if you wish to proceed with marking the interviewee as a no show.
+                                            </p>                                   
+                                            <div class="hstack gap-2 justify-content-center remove">
+                                                <button class="btn btn-light" data-bs-dismiss="modal" id="noShowInterview-close">
+                                                    <i class="ri-close-line me-1 align-middle"></i>
+                                                    Close
+                                                </button>
+                                                <button class="btn btn-danger" id="noShow-interview">
+                                                    Yes, No Show!
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <!--end cancel modal -->
-
-                    <!-- Interview NoShow Modal -->
-                    <div class="modal fade zoomIn" id="interviewNoShowModal" tabindex="-1" aria-hidden="true">
-                        <div class="modal-dialog modal-dialog-centered">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <button type="button" class="btn-close" id="noShowInterview-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
-                                </div>
-                                <div class="modal-body p-5 text-center">
-                                    <lord-icon src="https://cdn.lordicon.com/xzybfbcm.json" trigger="loop" style="width:90px;height:90px"></lord-icon>
-                                    <div class="mt-4 text-center">
-                                        <h4 class="fs-semibold">
-                                            You are about to mark this interview as a no show ?
-                                        </h4>
-                                        <p class="text-muted fs-14 mb-4 pt-1">
-                                            Marking the interview as a no show will record the candidate's absence and notify relevant parties. Please confirm if you wish to proceed with marking the interviewee as a no show.
-                                        </p>                                   
-                                        <div class="hstack gap-2 justify-content-center remove">
-                                            <button class="btn btn-light" data-bs-dismiss="modal" id="noShowInterview-close">
-                                                <i class="ri-close-line me-1 align-middle"></i>
-                                                Close
-                                            </button>
-                                            <button class="btn btn-danger" id="noShow-interview">
-                                                Yes, No Show!!
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <!--end noShow modal -->
+                        <!--end noShow modal -->
+                    @endif
                 </div>
             </div>
             <!--end card-->
@@ -565,6 +464,7 @@
     <!--end row-->
 @endsection
 @section('script')
+    <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/pages/interviews.init.js') }}"></script>

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Exeption;
 use App\Models\User;
 use App\Models\Race;
 use App\Models\Message;
@@ -12,6 +13,10 @@ use App\Models\Application;
 use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
+use App\Models\Language;
+use App\Services\DataService\ApplicantDataService;
+use App\Services\DataService\VacancyDataService;
+use Carbon\Carbon;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
@@ -20,10 +25,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
-use Spatie\Activitylog\Models\Activity;
-use App\Models\Language;
 use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
+use Spatie\Activitylog\Models\Activity;
 
 class AdminController extends Controller
 {
@@ -32,9 +35,11 @@ class AdminController extends Controller
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(VacancyDataService $vacancyDataService, ApplicantDataService $applicantDataService)
     {
         $this->middleware(['auth', 'verified']);
+        $this->applicantDataService = $applicantDataService;
+        $this->vacancyDataService = $vacancyDataService;
     }
 
     /**
@@ -54,7 +59,6 @@ class AdminController extends Controller
         if (view()->exists('admin/home')) {
             // Define the models that are relevant for the activity log.
             $allowedModels = [
-                'App\Models\Applicant',
                 'App\Models\Application',
                 'App\Models\Vacancy',
                 'App\Models\Message',
@@ -561,6 +565,16 @@ class AdminController extends Controller
                 ];
             })->all();
 
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfYear();
+
+            $averageShortlistTime = $this->vacancyDataService->getNationwideAverageTimeToShortlist();
+            $averageTimeToHire = $this->vacancyDataService->getNationwideAverageTimeToHire();
+            $adoptionRate = $this->vacancyDataService->getNationwideVacancyFillRate($startDate, $endDate);
+            $applicationCompletionRate = $this->applicantDataService->getApplicationCompletionRate($startDate, $endDate);
+            $dropOffRates = $this->applicantDataService->getDropOffRates($startDate, $endDate);
+            // $completionByRegion = $this->applicantDataService->getCompletionByRegion($startDate, $endDate);
+
             return view('admin/home', [
                 'activities' => $activities,
                 'positions' => $positions,
@@ -582,6 +596,12 @@ class AdminController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                'averageShortlistTime' => $averageShortlistTime,
+                'averageTimeToHire' => $averageTimeToHire,
+                'adoptionRate' => $adoptionRate,
+                'applicationCompletionRate' => $applicationCompletionRate,
+                'dropOffRates' => $dropOffRates,
+                // 'completionByRegion' => $completionByRegion,
             ]);
         }
         return view('404');

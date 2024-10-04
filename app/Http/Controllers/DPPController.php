@@ -12,6 +12,7 @@ use App\Models\Application;
 use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
+use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
@@ -28,9 +29,10 @@ class DPPController extends Controller
      *
      * @return void
      */
-    public function __construct(ActivityLogService $activityLogService)
+    public function __construct(ActivityLogService $activityLogService, VacancyDataService $vacancyDataService)
     {
         $this->activityLogService = $activityLogService;
+        $this->vacancyDataService = $vacancyDataService;
     }
 
     public function index()
@@ -489,12 +491,19 @@ class DPPController extends Controller
                 }
             }
 
-             // Fetch applicants positions
-             $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
-             ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
-             ->where('applicant_monthly_data.category_type', 'Position')
-             ->groupBy('positions.name')
-             ->get();
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfYear();
+
+            $divisionWideAveragetimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist(Auth::user()->division_id);
+            $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire(Auth::user()->division_id);
+            $adoptionRate = $this->vacancyDataService->getDivisionVacancyFillRate(Auth::user()->division_id, $startDate, $endDate);
+
+            // Fetch applicants positions
+            $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
+                ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
+                ->where('applicant_monthly_data.category_type', 'Position')
+                ->groupBy('positions.name')
+                ->get();
 
              $applicantsByPosition = $positionsTotals->map(function ($item) {
                  return [
@@ -524,6 +533,7 @@ class DPPController extends Controller
                  'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                  'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                  'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                 'adoptionRate' => $adoptionRate,
              ]);
         }
          return view('404');

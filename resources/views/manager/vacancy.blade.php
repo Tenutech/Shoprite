@@ -192,10 +192,10 @@
                                                     @if ($vacancy && $vacancy->sapNumbers->count() > 0)
                                                         @foreach ($vacancy->sapNumbers as $index => $sapNumber)
                                                             <div class="mb-3">
-                                                                <label for="sapNumber{{ $index }}" class="form-label">
+                                                                <label for="sapNumber{{ $index + 1 }}" class="form-label">
                                                                     {{ $vacancy->position ? $vacancy->position->name . ' ' . ($index + 1) : 'SAP Number ' . ($index + 1) }}
                                                                 </label>
-                                                                <input type="text" class="form-control" id="sapNumber{{ $index }}" name="sap_numbers[]" placeholder="Enter 8-digit SAP Number" value="{{ $sapNumber->sap_number }}" pattern="\d{8}" maxlength="8" required />
+                                                                <input type="text" class="form-control" id="sapNumber{{ $index + 1 }}" name="sap_numbers[]" placeholder="Enter 8-digit SAP Number" value="{{ $sapNumber->sap_number }}" pattern="\d{8}" maxlength="8" required />
                                                                 <div class="invalid-feedback">
                                                                     Please enter an 8-digit SAP number.
                                                                 </div>
@@ -465,7 +465,7 @@
                                                     <div class="mb-4">
                                                         <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="loop" colors="primary:#0ab39c,secondary:#405189" id="lordicon" style="width:120px;height:120px"></lord-icon>
                                                     </div>
-                                                    <h5 id="completeHeading">Would you like to update this vacancy ?</h5>
+                                                    <h5 id="completeHeading">Would you like to update this vacancy?</h5>
                                                     <p class="text-muted" id="completeText">
                                                         You are about to update this vacancy with new information.
                                                     </p>
@@ -497,9 +497,9 @@
                                                     <div class="mb-4">
                                                         <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="loop" state="hover-2" colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
                                                     </div>
-                                                    <h5>Would you like to create this vacancy ?</h5>
+                                                    <h5>Would you like to create this vacancy?</h5>
                                                     <p class="text-muted">
-                                                        You will receive an email confirmation with details of the new vacancy.
+                                                        After creating the vacancy, you can proceed to create your shortlist.
                                                     </p>
                                                     <button type="button" id="cancelBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-position-tab">
                                                         <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
@@ -523,9 +523,9 @@
                                                     <div class="mb-4">
                                                         <lord-icon src="https://cdn.lordicon.com/lupuorrc.json" trigger="loop" colors="primary:#0ab39c,secondary:#405189" id="lordicon" style="width:120px;height:120px"></lord-icon>
                                                     </div>
-                                                    <h5 id="completeHeading">New Vacancy Created !</h5>
+                                                    <h5 id="completeHeading">New Vacancy Created!</h5>
                                                     <p class="text-muted" id="completeText">
-                                                        You will receive an confirmation email with details of the vacancy opportunity.
+                                                        The vacancy has been successfully created. You can now proceed to create your shortlist.
                                                     </p>
                                                     @if ($user->role_id == 1)
                                                         <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-position-tab">

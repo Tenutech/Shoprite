@@ -65,19 +65,9 @@ class ApplicantsController extends Controller
                 'town',
                 'gender',
                 'race',
-                'position',
                 'education',
-                'readLanguages',
-                'speakLanguages',
-                'reason',
                 'duration',
-                'retrenchment',
-                'brand',
-                'previousPosition',
-                'transport',
-                'disability',
-                'type',
-                'bank',
+                'brands',
                 'role',
                 'state',
             ])
@@ -183,19 +173,9 @@ class ApplicantsController extends Controller
             'town',
             'gender',
             'race',
-            'position',
             'education',
-            'readLanguages',
-            'speakLanguages',
-            'reason',
             'duration',
-            'retrenchment',
-            'brand',
-            'previousPosition',
-            'transport',
-            'disability',
-            'type',
-            'bank',
+            'brands',
             'role',
             'state',
             'savedBy' => function ($query) use ($userID) {
@@ -203,13 +183,6 @@ class ApplicantsController extends Controller
             }
         ])
         ->where('no_show', '<=', 2)
-        ->whereNull('appointed_id')
-        ->where(function ($query) use ($userID) {
-            $query->whereNull('shortlist_id')
-                ->orWhereHas('shortlist', function ($subQuery) use ($userID) {
-                    $subQuery->where('user_id', $userID);
-                });
-        })
         ->whereHas('savedBy', function ($query) use ($userID) {
             $query->where('user_id', $userID);
         })

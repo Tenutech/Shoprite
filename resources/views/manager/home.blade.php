@@ -146,6 +146,107 @@
                 <!--end col-->
             </div> <!-- end row-->
 
+            <div class="row">
+                <div class="col-md-6" id="storeAverageTimeToShortlistColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Time to Shortlist (days)
+                                    </p>
+                                    @php
+                                        $totalDays = $storeAverageTimeToShortlist;
+                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
+                                        $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
+                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
+                                    @endphp
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="storeAverageTimeToShortlistValue">{{ $formattedInterval }}</span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-secondary mb-0" id="storeAverageTimeToShortlist">
+                                            Store Average
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
+                                            <i data-feather="watch" class="text-secondary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card-->
+                </div> <!-- end col-->
+
+                <div class="col-md-6" id="storeAverageTimeToHireColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Time to Hire (days)
+                                    </p>
+                                    @php
+                                        $totalDays = $storeAverageTimeToHire;
+                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
+                                        $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
+                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
+                                    @endphp
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="storeAverageTimeToHireValue">{{ $formattedInterval }}</span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-secondary mb-0" id="storeAverageTimeToHire">
+                                            Store Average
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
+                                            <i data-feather="watch" class="text-secondary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card-->
+                </div> <!-- end col-->
+
+                <div class="col-md-6" id="adoptionRateColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Adoption Rate
+                                    </p>
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="adoptionRateValue">{{ $adoptionRate }}%</span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-secondary mb-0" id="adoptionRate">
+                                           Percentage
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
+                                            <i data-feather="watch" class="text-secondary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card-->
+                </div> <!-- end col-->
+            </div> <!-- end row-->
+
             <!-------------------------------------------------------------------------------------
                 Vacancies
             -------------------------------------------------------------------------------------->
@@ -174,7 +275,7 @@
                                         </button>
                                         <a href="{{ route('vacancy.index') }}" type="button" class="btn btn-success add-btn">
                                             <i class="ri-add-line align-bottom me-1"></i> 
-                                            Add Vacancy
+                                            New Vacancy
                                         </a>                                        
                                     </div>
                                 </div>

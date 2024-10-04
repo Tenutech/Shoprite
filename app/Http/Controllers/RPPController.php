@@ -12,6 +12,8 @@ use App\Models\Application;
 use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
+use App\Services\DataService\ApplicantDataService;
+use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Spatie\Activitylog\Models\Activity;
@@ -29,9 +31,14 @@ class RPPController extends Controller
      *
      * @return void
      */
-    public function __construct(ActivityLogService $activityLogService)
-    {
+    public function __construct(
+        ActivityLogService $activityLogService,
+        VacancyDataService $vacancyDataService,
+        ApplicantDataService $applicantDataService
+    ) {
         $this->activityLogService = $activityLogService;
+        $this->applicantDataService = $applicantDataService;
+        $this->vacancyDataService = $vacancyDataService;
     }
 
     public function index()
@@ -504,6 +511,12 @@ class RPPController extends Controller
                 ];
             })->all();
 
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfYear();
+
+            $regionWideAverageShortlistTime = $this->vacancyDataService->getRegionWideAverageTimeToShortlist(Auth::user()->region_id);
+            $adoptionRate = $this->vacancyDataService->getRegionVacancyFillRate(Auth::user()->region_id, $startDate, $endDate);
+
             return view('rpp/home', [
                 'activities' => $activities,
                 'positions' => $positions,
@@ -525,6 +538,8 @@ class RPPController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                'regionWideAverageShortlistTime' => $regionWideAverageShortlistTime,
+                'adoptionRate' => $adoptionRate,
             ]);
         }
         return view('404');

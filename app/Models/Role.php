@@ -30,6 +30,12 @@ class Role extends Model
         return $this->hasMany(Applicant::class);
     }
 
+    //FAQs
+    public function faqs()
+    {
+        return $this->hasMany(FAQ::class);
+    }
+
     /**
      * The attributes that should be logged.
      * @var bool

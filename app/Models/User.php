@@ -277,7 +277,7 @@ class User extends Authenticatable implements MustVerifyEmail
             $this->notify($notification);
         } else {
             // Optionally log or handle cases where the user has opted out
-            Log::info("User ({$this->id}) has opted out of {$notificationType} notifications.");
+            //Log::info("User ({$this->id}) has opted out of {$notificationType} notifications.");
         }
     }
 

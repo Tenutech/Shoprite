@@ -88,7 +88,6 @@ class TwilioChatService
                 'user',
                 'gender',
                 'race',
-                'transport',
                 'role',
                 'interviews.vacancy.position'
             ])

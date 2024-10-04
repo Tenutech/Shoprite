@@ -492,17 +492,27 @@ document.getElementById('profile-delete').addEventListener('click', function() {
                 window.location.href = response.redirect;
             }
         },
-        error: function(xhr, status, error) {
+        error: function(jqXHR, textStatus, errorThrown) {
+            let message = ''; // Initialize the message variable
+    
+            if (jqXHR.status === 400 || jqXHR.status === 422) {
+                message = jqXHR.responseJSON.message;
+            } else if (textStatus === 'timeout') {
+                message = 'The request timed out. Please try again later.';
+            } else {
+                message = 'An error occurred while processing your request. Please try again later.';
+            }
+        
+            // Trigger the Swal notification with the dynamic message
             Swal.fire({
                 position: 'top-end',
                 icon: 'error',
-                title: 'Failed to delete profile',
+                title: message,
                 showConfirmButton: false,
                 timer: 5000,
                 showCloseButton: true,
                 toast: true
             });
-            console.error(error);
         }
     });
 });

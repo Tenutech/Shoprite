@@ -6,6 +6,69 @@ Contact: admin@tenutech.com
 File: job candidate list init js
 */
 
+/*
+|--------------------------------------------------------------------------
+| Date Fields
+|--------------------------------------------------------------------------
+*/
+
+const tomorrow = new Date();
+tomorrow.setDate(tomorrow .getDate() + 1); // Set the date to one days from today
+
+// Restrict the date picker to not allow past date
+flatpickr("#date", {
+    dateFormat: "d M, Y",
+    minDate: "today", // Disables past dates
+    defaultDate: tomorrow, // Set the default date to tomorrow
+});
+
+// Set default start time to current hour + 1 and end time to +2 hours
+var currentDate = new Date();
+var currentHour = currentDate.getHours();
+var startTime = (currentHour + 1) % 24; // Start time is current hour + 1
+var endTime = (currentHour + 2) % 24; // End time is start time + 1 hour
+
+// Initialize flatpickr for start time
+var startTimePicker = flatpickr("#startTime", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    defaultDate: new Date(currentDate.setHours(startTime, 0, 0)), // Set the start time to current hour + 1
+    time_24hr: true,
+    defaultHour: startTime,
+    defaultMinute: 0, // Set default minute to 0
+    onChange: function(selectedDates, dateStr, instance) {
+        // When start time is updated, adjust the end time accordingly
+        var selectedStartTime = new Date(selectedDates[0]);
+        var minEndTime = new Date(selectedStartTime.getTime() + 30 * 60000); // Minimum end time is +30 minutes
+        var maxEndTime = new Date(selectedStartTime.getTime() + 60 * 60000); // Maximum end time is +1 hour
+
+        // Update the end time picker with the new values
+        endTimePicker.setDate(maxEndTime, true); // Set the default end time to 30 minutes after start
+        endTimePicker.set({
+            minTime: minEndTime.toTimeString().slice(0, 5), // Update minTime dynamically
+            maxTime: maxEndTime.toTimeString().slice(0, 5)  // Update maxTime dynamically
+        });
+    }
+});
+
+// Initialize flatpickr for end time with default values
+var endTimePicker = flatpickr("#endTime", {
+    enableTime: true,
+    noCalendar: true,
+    dateFormat: "H:i",
+    defaultDate: new Date(currentDate.setHours(endTime, 0, 0)), // Set the end time to start time + 1 hour
+    time_24hr: true,
+    defaultHour: endTime,
+    defaultMinute: 0, // Set default minute to 0
+});
+
+/*
+|--------------------------------------------------------------------------
+| Load Data On Vacancy Change
+|--------------------------------------------------------------------------
+*/
+
 $(document).ready(function() {
     // When the vacancy select changes
     $('#vacancy').on('change', function() {
@@ -22,6 +85,12 @@ $(document).ready(function() {
 
     fetchShortlistedApplicants();
 });
+
+/*
+|--------------------------------------------------------------------------
+| Initialize Fields
+|--------------------------------------------------------------------------
+*/
 
 var selectTown = document.getElementById("selectTown");
 const filterTown = new Choices(selectTown, {
@@ -65,9 +134,13 @@ var nextButton = document.getElementById('page-next');
 var currentPage = 1;
 var itemsPerPage = 8;
 
-document.getElementById('generate-btn').addEventListener('click', function() {
-    fetchData();
-});
+var generateButton = document.getElementById('generate-btn');
+
+if (generateButton) {
+    generateButton.addEventListener('click', function() {
+        fetchData();
+    });
+}
 
 /*
 |--------------------------------------------------------------------------
@@ -335,177 +408,141 @@ function loadCandidateListData(datas, page) {
             var isUserProfile = datas[i].avatar ? '<img src="' + datas[i].avatar + '" alt="" class="member-img img-fluid d-block rounded" />'
                 : '<img src="/images/avatar.jpg" alt="" class="member-img img-fluid d-block rounded" />';
 
-                var checksHtml = '<div class="card-footer"><div class="d-flex flex-wrap gap-2">';
-                for (var j = 0; j < datas[i].latest_checks.length; j++) {
-                    var check = datas[i].latest_checks[j];
-                    var checkID = check.id;
-                    var checkName = check.name; // Get the name of the check
-                    var checkIcon = check.icon; // Get the icon from the check data
-                    var statusResult = check.pivot.result; // Get the result of the check to determine the status class
-                
-                    var status;
-                    // Convert the result into a status class
-                    switch (statusResult) {
-                        case 'Passed':
-                            status = 'success';
-                            break;
-                        case 'Discrepancy':
-                            status = 'warning';
-                            break;
-                        case 'Failed':
-                            status = 'danger';
-                            break;
-                        default:
-                            status = 'danger';
-                            break;
-                    }
-                
-                    // Append each check as a column in the footer row
-                    checksHtml += '<a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) + '#checks-tab" class="avatar-sm flex-shrink-0" id="check-' + checkID + '" data-bs-toggle="tooltip" data-bs-placement="top" title="' + checkName + '">' +
-                                    '<span class="avatar-title bg-' + status + '-subtle text-' + status + ' rounded-circle fs-4">' +
-                                        '<i class="' + checkIcon + '"></i>' +
-                                    '</span>' +
-                                  '</a>';
-                }
+            var checksHtml = '<div class="card-footer"><div class="d-flex flex-wrap gap-2">';
+            var employment = datas[i].employment || 'I'; // Use 'I' if employment is null
+            var checkID = datas[i].encrypted_id; // Assuming you still need the ID
+            var status, tooltip;
+        
+            // Set status and tooltip based on employment
+            switch (employment) {
+                case 'A':
+                    status = 'warning';
+                    tooltip = 'Active Employee';
+                    break;
+                case 'B':
+                    status = 'danger';
+                    tooltip = 'Blacklisted';
+                    break;
+                case 'P':
+                    status = 'info';
+                    tooltip = 'Previously Employed';
+                    break;
+                case 'N':
+                    status = 'success';
+                    tooltip = 'Not an Employee';
+                    break;
+                case 'I':
+                default:
+                    status = 'dark';
+                    tooltip = 'Inconclusive';
+                    break;
+            }
+        
+            // Append each check as a column in the footer row
+            checksHtml += '<a class="avatar-sm flex-shrink-0" id="check-' + checkID + '" data-bs-toggle="tooltip" data-bs-placement="top" title="' + tooltip + '" style="cursor:pointer;">' +
+                                '<span class="avatar-title bg-' + status + '-subtle text-' + status + ' rounded-circle fs-4">' +
+                                    '<i class="ri-shield-user-line"></i>' + // Always use the same icon
+                                '</span>' +
+                           '</a>';
 
-                // Initialize interviewAlert as an empty string
-                var interviewAlert = '';
+            // Initialize interviewAlert as an empty string
+            var interviewAlert = '';
 
-                // Check if there are interviews and set the alert based on the status
-                if (datas[i].interviews && datas[i].interviews.length > 0) {
-                    //Covert Time Function
-                    function formatTimeTo24Hour(dateTimeString) {
-                        const dateTimeParts = dateTimeString.split(" ");
-                        const timePart = dateTimeParts[1] ? dateTimeParts[1] : dateTimeParts[0];
-                        const date = new Date(dateTimeString);
-                    
-                        // Assuming the server's time zone is consistent with South Africa (UTC+2)
-                        const offsetInHours = 2;
-                        date.setUTCHours(date.getUTCHours() + offsetInHours);
-                    
-                        const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits
-                        const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits
-                    
-                        return `${hours}:${minutes}`;
-                    }
-                    
-                    // A function to format full date-time strings for the reschedule scenario
-                    function formatFullDateTime(dateTimeString) {
-                        const date = new Date(dateTimeString);
+            // Check if there are interviews and set the alert based on the status
+            if (datas[i].interviews && datas[i].interviews.length > 0) {
+                var interview = datas[i].interviews[datas[i].interviews.length - 1];
+                var formattedDate, formattedTime;
 
-                        // Adjust for the time zone, similar to the formatTimeTo24Hour function
-                        const offsetInHours = 2; // Adjust for South Africa's time zone
-                        date.setUTCHours(date.getUTCHours() + offsetInHours);
-
-                        const day = ("0" + date.getDate()).slice(-2); // Ensure two digits
-                        const month = date.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
-                        const year = date.getFullYear();
-                        const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits
-                        const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits
-
-                        return `${day} ${month} at ${hours}:${minutes}`;
-                    }
-
-                    var interview = datas[i].interviews[datas[i].interviews.length - 1]; // Assuming we're only interested in the last interview
-
+                if (interview.status === 'Appointed' && interview.updated_at) {
+                    // Use updated_at for Appointed status
+                    var updatedAtDate = new Date(interview.updated_at);
+                    formattedDate = updatedAtDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
+                    formattedTime = formatTimeTo24Hour(interview.updated_at);
+                } else {
+                    // Use the scheduled date and time for other statuses
                     var interviewDate = new Date(interview.scheduled_date);
-                    var day = ("0" + interviewDate.getDate()).slice(-2); // Ensure two digits
-                    var month = interviewDate.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
-                    var formattedDate = `${day} ${month}`;
-                    var formattedTime = formatTimeTo24Hour(interview.start_time);
+                    formattedDate = interviewDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
+                    formattedTime = formatTimeTo24Hour(interview.start_time);
+                }
 
-                    const statusMapping = {
-                        'Scheduled': {
-                            class: 'alert-warning',
-                            icon: 'ri-calendar-todo-fill',
-                            text: 'Scheduled'
-                        },
-                        'Confirmed': {
-                            class: 'alert-success',
-                            icon: 'ri-calendar-check-fill',
-                            text: 'Confirmed'
-                        },
-                        'Declined': {
-                            class: 'alert-danger',
-                            icon: 'ri-calendar-2-fill',
-                            text: 'Declined'
-                        },
-                        'Reschedule': {
-                            class: 'alert-info',
-                            icon: 'ri-calendar-event-fill',
-                            text: 'Reschedule'
-                        },
-                        'Completed': {
-                            class: 'alert-success',
-                            icon: 'ri-calendar-check-fill',
-                            text: 'Completed'
-                        },
-                        'Cancelled': {
-                            class: 'alert-dark',
-                            icon: 'ri-calendar-2-fill',
-                            text: 'Cancelled'
-                        },
-                        'No Show': {
-                            class: 'alert-danger',
-                            icon: 'ri-user-unfollow-fill',
-                            text: 'No Show'
-                        }
-                    };
+                const statusMapping = {
+                    'Scheduled': { class: 'alert-warning', icon: 'ri-calendar-todo-fill', text: 'Scheduled' },
+                    'Confirmed': { class: 'alert-success', icon: 'ri-calendar-check-fill', text: 'Confirmed' },
+                    'Declined': { class: 'alert-danger', icon: 'ri-calendar-2-fill', text: 'Declined' },
+                    'Reschedule': { class: 'alert-info', icon: 'ri-calendar-event-fill', text: 'Reschedule' },
+                    'Completed': { class: 'alert-success', icon: 'ri-calendar-check-fill', text: 'Completed' },
+                    'Cancelled': { class: 'alert-dark', icon: 'ri-calendar-2-fill', text: 'Cancelled' },
+                    'No Show': { class: 'alert-danger', icon: 'ri-user-unfollow-fill', text: 'No Show' },
+                    'Appointed': { class: 'alert-success', icon: 'ri-open-arm-fill', text: 'Appointed' },
+                    'Regretted': { class: 'alert-danger', icon: 'ri-user-unfollow-fill', text: 'Regretted' }
+                };
 
-                    // Build the interviewAlert based on the interview status
-                    if (statusMapping[interview.status]) {
-                        const statusInfo = statusMapping[interview.status];
-                        let additionalText = '';
-                    
-                        if (interview.status === 'Reschedule' && interview.reschedule_date) {
-                            const rescheduledDateTime = formatFullDateTime(interview.reschedule_date);
-                            additionalText = `<br><strong>Suggested:</strong> ${rescheduledDateTime}`;
-                        }
-                    
-                        interviewAlert = `<div class="alert ${statusInfo.class} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
-                                            <i class="${statusInfo.icon} label-icon"></i><strong>${statusInfo.text}: </strong>${formattedDate} at ${formattedTime}${additionalText}
-                                          </div>`;
-                    } else {
-                        interviewAlert = `<div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
-                                            <i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>${formattedDate} at ${formattedTime}
-                                          </div>`;
+                if (statusMapping[interview.status]) {
+                    const statusInfo = statusMapping[interview.status];
+                    let additionalText = '';
+
+                    if (interview.status === 'Reschedule' && interview.reschedule_date) {
+                        var rescheduledDateTime = formatFullDateTime(interview.reschedule_date);
+                        additionalText = `<br><strong>Suggested:</strong> ${rescheduledDateTime}`;
                     }
 
-                    if (interview.score) {
-                        var interviewScore = '<div class="badge text-bg-primary">\
-                                                <i class="mdi mdi-star me-1"></i>\
-                                                '+ (interview.score ? interview.score : 'N/A') + '\
-                                            </div>';         
+                    interviewAlert = `<div class="alert ${statusInfo.class} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
+                                        <i class="${statusInfo.icon} label-icon"></i><strong>${statusInfo.text}: </strong>${formattedDate} at ${formattedTime}${additionalText}
+                                    </div>`;
+
+                    // Add the check icon if the reschedule_by is 'Applicant'
+                    if (interview.status === 'Reschedule' && interview.reschedule_by === 'Applicant') {
+                        interviewAlert = `<div class="d-flex align-items-center">
+                                            ${interviewAlert}
+                                            <a class="ms-auto align-middle interviewConfirmBtn" data-bs-toggle="tooltip" title="Confirm interview for ${rescheduledDateTime}" data-interview-id="${interview.encrypted_id}" style="cursor: pointer;">
+                                                <i class="ri-check-double-fill text-success" style="font-size: 25px;"></i>
+                                            </a>
+                                        </div>`;
                     }
                 }
 
-                // Append the interview alert after the checksHtml if it exists
-                if (interviewAlert) {
-                    checksHtml += interviewAlert;
+                if (interview.score) {
+                    interviewScore = `<div class="badge text-bg-primary">
+                                        <i class="mdi mdi-star me-1"></i>
+                                        ${interview.score ? interview.score : 'N/A'}
+                                    </div>`;
                 }
+            }
 
-                // Initialize contractAlert as an empty string
-                var contractAlert = '';
+            // Append the interview alert after the checksHtml if it exists
+            if (interviewAlert) {
+                checksHtml += interviewAlert;
+            }
 
-                // Check if there are contract and set the alert based on the status
-                if (datas[i].contracts && datas[i].contracts.length > 0) {
-                    contractAlert = '<div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show mb-0 alert-contract" role="alert">' +
-                                        '<i class="ri-article-fill label-icon"></i><strong>Contract Sent</strong>' + 
-                                    '</div>';
-                }
+            // Initialize contractAlert as an empty string
+            var contractAlert = '';
 
-                // Append the contract alert after the checksHtml if it exists
-                if (interviewAlert) {
-                    checksHtml += contractAlert;
-                }
+            // Check if there are contract and set the alert based on the status
+            if (datas[i].contracts && datas[i].contracts.length > 0) {
+                contractAlert = '<div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show mb-0 alert-contract" role="alert">' +
+                                    '<i class="ri-article-fill label-icon"></i><strong>Contract Sent</strong>' + 
+                                '</div>';
+            }
 
-                checksHtml += '</div></div>';
+            // Append the contract alert after the checksHtml if it exists
+            if (contractAlert) {
+                checksHtml += contractAlert;
+            }
 
-                var cardBorder = '';
+            checksHtml += '</div></div>';
 
-                if (datas[i].vacancies_filled && datas[i].vacancies_filled.length > 0) {
-                    cardBorder = 'border card-border-success';
-                }
+            var cardBorder = '';
+
+            if (datas[i].vacancies_filled && datas[i].vacancies_filled.length > 0) {
+                cardBorder = 'border card-border-success';
+            }
+
+            var closeButton = '';
+            if (!datas[i].vacancies_filled || datas[i].vacancies_filled.length === 0) {
+                closeButton = '<button class="btn btn-soft-dark candidate-close-btn" data-candidate-id="' + datas[i].id + '">\
+                                    <i class="ri-close-circle-line align-bottom fs-16"></i>\
+                                </button>';
+            }
 
             document.querySelector("#candidate-list").innerHTML += 
                 '<div class="col-md-12 col-lg-12 candidate-card" data-candidate-id="' + datas[i].id + '">\
@@ -527,18 +564,18 @@ function loadCandidateListData(datas, page) {
                                         </h5>\
                                     </a>\
                                     <p class="text-muted mb-0">\
-                                        '+ (datas[i].position ? datas[i].position.name : 'N/A') + '\
+                                        '+ (datas[i].race ? datas[i].race.name : 'N/A') + '\
                                     </p>\
                                 </div>\
+                                <div class="col-2">\
+                                    <i class="'+ (datas[i].gender ? datas[i].gender.icon : 'ri-men-line') + ' text-'+ (datas[i].gender ? datas[i].gender.color : 'primary') + ' me-1 align-bottom"></i>'+ 
+                                    (datas[i].gender ? '<span class="badge bg-' + datas[i].gender.color + '-subtle text-' + datas[i].gender.color + '">' + datas[i].gender.name + '</span>' : 'N/A') +
+                                '</div>\
                                 <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">\
                                     <div><i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>\
                                         '+ (datas[i].town ? datas[i].town.name : 'N/A') + '\
                                     </div>\
                                 </div>\
-                                <div class="col-2">\
-                                    <i class="ri-time-line text-primary me-1 align-bottom"></i>'+ 
-                                    (datas[i].type ? '<span class="badge bg-' + datas[i].type.color + '-subtle text-' + datas[i].type.color + '">' + datas[i].type.name + '</span>' : 'N/A') +
-                                '</div>\
                                 <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">\
                                     <div class="badge text-bg-success">\
                                         <i class="mdi mdi-star me-1"></i>\
@@ -558,15 +595,13 @@ function loadCandidateListData(datas, page) {
                                             <i class="ri-bookmark-3-fill align-bottom"></i>\
                                         </span>\
                                     </a>\
-                                    <button class="btn btn-soft-dark candidate-close-btn" data-candidate-id="' + datas[i].id + '">\
-                                        <i class="ri-close-circle-line align-bottom fs-16"></i>\
-                                    </button>\
+                                    ' + closeButton + '\
                                 </div>\
                             </div>\
                         </div>\
                         ' + checksHtml + '\
                     </div>\
-                </div>'
+                </div>';
         }
 
         // Add event listeners to the close buttons
@@ -577,6 +612,9 @@ function loadCandidateListData(datas, page) {
             });
         });
     }
+
+    // Call the function to bind the event listener
+    interviewConfirm();
 
     selectedPage();
     currentPage == 1 ? prevButton.parentNode.classList.add('disabled') : prevButton.parentNode.classList.remove('disabled');
@@ -1270,6 +1308,9 @@ $('#formInterview').on('submit', function(e) {
     $('.invalid-feedback').hide();
     $('.choices').css('border', '');
 
+    // Get current date and time
+    var currentDateTime = new Date();
+
     // Validate each field
     $('#formInterview').find('input, select, textarea').each(function() {
         var element = $(this); // Current element
@@ -1284,13 +1325,6 @@ $('#formInterview').on('submit', function(e) {
             element.siblings('.invalid-feedback').show();
         }
 
-        // Additional validation for specific types
-        if (elementType === 'email' && value && !validateEmail(value)) {
-            isValid = false;
-            element.addClass('is-invalid');
-            element.siblings('.invalid-feedback').show();
-        }
-
         // Custom validation for Choices.js select
         if (element.hasClass('choices-select') && !value) {
             isValid = false;
@@ -1299,15 +1333,44 @@ $('#formInterview').on('submit', function(e) {
             choicesDiv.find('.invalid-feedback').show();
         }
 
-        // Custom validation for time comparison
+        // Validate interview date
+        if (element.attr('id') === 'date') {
+            var interviewDate = new Date(value);
+            if (interviewDate < currentDateTime) {
+                isValid = false;
+                element.addClass('is-invalid');
+                element.siblings('.invalid-feedback').show().text('Interview date must be in the future.');
+            }
+        }
+
+        // Validate start time (should be after the current time if today)
+        if (element.attr('id') === 'startTime') {
+            var startTime = element.val();
+            var interviewDate = $('#date').val();
+            var fullStartDateTime = new Date(interviewDate + ' ' + startTime);
+            if (fullStartDateTime <= currentDateTime) {
+                isValid = false;
+                element.addClass('is-invalid');
+                element.siblings('.invalid-feedback').show().text('Start time must be in the future.');
+            }
+        }
+
+        // Custom validation for end time
         if (element.attr('id') === 'endTime') {
             var startTime = $('#startTime').val();
             var endTime = element.val();
-            // Assuming time is in HH:mm format
-            if (startTime && endTime && startTime >= endTime) {
+
+            // Convert times to Date objects for comparison
+            var interviewDate = $('#date').val();
+            var fullStartDateTime = new Date(interviewDate + ' ' + startTime);
+            var fullEndDateTime = new Date(interviewDate + ' ' + endTime);
+
+            // Check if end time is at least 30 min and not more than 1 hour after start time
+            var diffInMinutes = (fullEndDateTime - fullStartDateTime) / (1000 * 60); // Difference in minutes
+            if (diffInMinutes < 30 || diffInMinutes > 60) {
                 isValid = false;
                 element.addClass('is-invalid');
-                element.siblings('.invalid-feedback').show().text('End time must be after start time.');
+                element.siblings('.invalid-feedback').show().text('End time must be between 30 minutes and 1 hour after start time.');
             }
         }
     });
@@ -1336,26 +1399,91 @@ $('#formInterview').on('submit', function(e) {
                     selectedChoices.forEach(function(applicantID) {
                         var candidateCard = document.querySelector('.candidate-card[data-candidate-id="' + applicantID + '"]');
                         if (candidateCard) {
+                            // Find the corresponding interview for the applicant in the response data
+                            var interview = data.interviews.find(function(interviewResult) {
+                                return interviewResult.applicant == applicantID;
+                            });
+
                             // Check if the alert div already exists
                             var existingAlert = candidateCard.querySelector('.alert');
 
-                            if (existingAlert) {
-                                // Remove existing status classes
-                                existingAlert.classList.remove('alert-danger', 'alert-success', 'alert-info');
-                                // Add new status class
-                                existingAlert.classList.add('alert-warning');
+                            // Check if interview exists and if status = Reschedule
+                            if (interview && interview.status === 'Reschedule') {
+                                // Reschedule status - update to alert-info, different icon, and additional reschedule info
+                                var scheduledDate = interview.interview.scheduled_date.split('T')[0]; // Extract only the date part (YYYY-MM-DD)
+                                var startTime = interview.interview.start_time.split('T')[1].split('.')[0]; // Extract time from full date-time format (HH:mm:ss)
 
-                                // Update existing alert with new information
-                                existingAlert.innerHTML = '<i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>' + data.date + ' at ' + data.time;
+                                var formattedScheduledDate = '';
+
+                                // Combine scheduled date and start time
+                                if (scheduledDate && startTime) {
+                                    // Combine date and time into a single string
+                                    var combinedDateTime = new Date(scheduledDate + 'T' + startTime);
+
+                                    // Adjust for South Africa's time zone (UTC+2)
+                                    combinedDateTime.setHours(combinedDateTime.getHours() + 2);
+
+                                    // Add one day to the combined date
+                                    combinedDateTime.setDate(combinedDateTime.getDate() + 1);
+
+                                    var day = combinedDateTime.getDate().toString().padStart(2, '0'); // Ensure two digits for the day
+                                    var month = combinedDateTime.toLocaleString('default', { month: 'short' }); // 'short' for abbreviated month name
+
+                                    // Format the scheduled date and time for display
+                                    formattedScheduledDate = `${day} ${month} at ${combinedDateTime.getHours().toString().padStart(2, '0')}:${combinedDateTime.getMinutes().toString().padStart(2, '0')}`;
+                                }
+
+                                var rescheduledDateTime = formatFullDateTime(interview.interview.reschedule_date);
+                                var additionalText = `<br><strong>Suggested:</strong> ${rescheduledDateTime}`;
+                                
+                                // Construct the content to be updated
+                                var updatedContent = `<i class="ri-calendar-event-fill label-icon"></i><strong>Reschedule: </strong>${formattedScheduledDate}${additionalText}`;
+                            
+                                if (existingAlert) {
+                                    // Remove existing status classes
+                                    existingAlert.classList.remove('alert-danger', 'alert-success', 'alert-warning');
+                                    // Add new status class
+                                    existingAlert.classList.add('alert-info');
+                            
+                                    // Update only the inner content of the existing alert (not the entire alert div)
+                                    existingAlert.innerHTML = updatedContent;
+
+                                    // Check if the interviewConfirmBtn exists and remove it if present
+                                    var interviewConfirmBtn = candidateCard.querySelector('.interviewConfirmBtn');
+                                    if (interviewConfirmBtn) {
+                                        interviewConfirmBtn.remove();
+                                    }
+                                } else {
+                                    // Create and append a new alert div for reschedule
+                                    var rescheduleHtml = `<div class="alert alert-info alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
+                                                            ${updatedContent}
+                                                          </div>`;
+                                    
+                                    var cardFooter = candidateCard.querySelector('.card-footer .d-flex');
+                                    if (cardFooter) {
+                                        cardFooter.insertAdjacentHTML('beforeend', rescheduleHtml);
+                                    }
+                                }
                             } else {
-                                // Create and append a new alert div
-                                var alertHtml = '<div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">' +
-                                                '<i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>' + data.date + ' at ' + data.time + 
-                                                '</div>';
-                                // Append the alertHtml to the card footer
-                                var cardFooter = candidateCard.querySelector('.card-footer .d-flex');
-                                if (cardFooter) {
-                                    cardFooter.insertAdjacentHTML('beforeend', alertHtml);
+                                // Check if the alert already exists
+                                if (existingAlert) {
+                                    // Remove existing status classes
+                                    existingAlert.classList.remove('alert-danger', 'alert-success', 'alert-info');
+                                    // Add new status class
+                                    existingAlert.classList.add('alert-warning');
+
+                                    // Update existing alert with new information
+                                    existingAlert.innerHTML = '<i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>' + data.date + ' at ' + data.time;
+                                } else {
+                                    // Create and append a new alert div
+                                    var alertHtml = '<div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">' +
+                                                    '<i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>' + data.date + ' at ' + data.time + 
+                                                    '</div>';
+                                    // Append the alertHtml to the card footer
+                                    var cardFooter = candidateCard.querySelector('.card-footer .d-flex');
+                                    if (cardFooter) {
+                                        cardFooter.insertAdjacentHTML('beforeend', alertHtml);
+                                    }
                                 }
                             }
                         }
@@ -1369,6 +1497,11 @@ $('#formInterview').on('submit', function(e) {
                         timer: 2000,
                         toast: true,
                         showCloseButton: true
+                    });
+
+                    // Deselect all checkboxes after successful submission
+                    document.querySelectorAll('input[type="checkbox"][name="chk_child"]').forEach(function(checkbox) {
+                        checkbox.checked = false;
                     });
             
                     $('#interviewModal').modal('hide');
@@ -1401,6 +1534,98 @@ $('#formInterview').on('submit', function(e) {
         this.reportValidity();
     }
 });
+
+/*
+|--------------------------------------------------------------------------
+| Interview Confirm
+|--------------------------------------------------------------------------
+*/
+
+// Function to handle the approval of the interview
+function interviewConfirm() {
+    // Add click event listener to the interviewConfirmBtn
+    document.querySelectorAll('.interviewConfirmBtn').forEach(function(button) {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            // Get the encrypted interview ID from the button's data attribute
+            var interviewId = this.getAttribute('data-interview-id');
+
+            //Set Form Data
+            let formData = new FormData();
+            formData.append('id', interviewId);
+
+            // Send an AJAX request to approve the interview
+            $.ajax({
+                url: route('interview.confirm'),
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(response) {
+                    if (response.success) {
+                        // Use the scheduled date and time for other statuses
+                        var interviewDate = new Date(response.interview.scheduled_date);
+                        formattedDate = interviewDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
+                        formattedTime = formatTimeTo24Hour(response.interview.start_time);
+
+                        // On success, update the alert to "Confirmed"
+                        var alertElement = button.closest('.d-flex').querySelector('.alert');
+                        if (alertElement) {
+                            // Update the alert class, icon, and text
+                            alertElement.classList.remove('alert-info');
+                            alertElement.classList.add('alert-success');
+                            alertElement.querySelector('.label-icon').classList.remove('ri-calendar-event-fill');
+                            alertElement.querySelector('.label-icon').classList.add('ri-calendar-check-fill');
+                            alertElement.innerHTML = '<i class="ri-calendar-check-fill label-icon"></i><strong>Confirmed: </strong>' + formattedDate + ' at ' + formattedTime;
+                        }
+
+                        // Hide the confirm button
+                        button.style.display = 'none'; // Hide the button
+
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            toast: true,
+                            showCloseButton: true
+                        });
+                    }
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    let message = ''; // Initialize the message variable
+            
+                    if (jqXHR.status === 400 || jqXHR.status === 422) {
+                        message = jqXHR.responseJSON.message;
+                    } else if (textStatus === 'timeout') {
+                        message = 'The request timed out. Please try again later.';
+                    } else {
+                        message = 'An error occurred while processing your request. Please try again later.';
+                    }
+                    
+                    // Trigger the Swal notification with the dynamic message
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'error',
+                        title: message,
+                        showConfirmButton: false,
+                        timer: 5000,
+                        showCloseButton: true,
+                        toast: true
+                    });
+                }
+            });
+        });
+    });
+}
+
+// Call the function to bind the event listener
+interviewConfirm();
 
 /*
 |--------------------------------------------------------------------------
@@ -1476,8 +1701,72 @@ $('#formVacancy').on('submit', function(e) {
                                 cardDiv.classList.add('border');
                                 cardDiv.classList.add('card-border-success');
                             }
+
+                            // Remove the close button
+                            var closeButton = candidateCard.querySelector('.candidate-close-btn');
+                            if (closeButton) {
+                                closeButton.remove();
+                            }
+
+                            // Check if the alert div already exists
+                            var existingAlert = candidateCard.querySelector('.alert');
+
+                            if (existingAlert) {
+                                // Remove existing status classes
+                                existingAlert.classList.remove('alert-danger', 'alert-warning', 'alert-info');
+                                // Add new status class
+                                existingAlert.classList.add('alert-success');
+
+                                // Convert time to the desired format
+                                var updatedTime = new Date(data.vacancy.vacancy.updated_at);
+                                var formattedDateTime = formatDateTime(updatedTime);
+
+                                // Update existing alert with new information
+                                existingAlert.innerHTML = '<i class="ri-open-arm-fill label-icon"></i><strong>Appointed: </strong>' + formattedDateTime;
+                            } else {
+                                // Create and append a new alert div
+                                var updatedTime = new Date(data.vacancy.vacancy.updated_at);
+                                var formattedDateTime = formatDateTime(updatedTime);
+
+                                var alertHtml = '<div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">' +
+                                                '<i class="ri-open-arm-fill label-icon"></i><strong>Appointed: </strong>' + formattedDateTime + 
+                                                '</div>';
+                                // Append the alertHtml to the card footer
+                                var cardFooter = candidateCard.querySelector('.card-footer .d-flex');
+                                if (cardFooter) {
+                                    cardFooter.insertAdjacentHTML('beforeend', alertHtml);
+                                }
+                            }
                         }
                     });
+
+                    // If no open positions remain, remove all applicants not appointed and without the card-border-success class
+                    if (data.vacancy.vacancy.open_positions === 0) {
+                        document.querySelectorAll('.candidate-card').forEach(function(candidateCard) {
+                            var cardDiv = candidateCard.querySelector('.card');
+                            var candidateId = candidateCard.getAttribute('data-candidate-id');
+
+                            // If the card does not have card-border-success and the applicant is not appointed, remove the card
+                            if (!cardDiv.classList.contains('card-border-success') && !selectedChoices.includes(candidateId)) {
+                                candidateCard.remove(); // Remove the card from the DOM
+                            }
+                        });
+
+                        // Change the Generate Shortlist button to Vacancy Filled!
+                        var generateButton = document.querySelector('#generate-btn');
+
+                        if (generateButton) {
+                            // Change the text and the button ID
+                            generateButton.textContent = 'Vacancy Filled!';
+                            generateButton.id = 'vacancyFilled-btn'; // Change the ID to vacancyFilled-btn
+                        }
+
+                        // Hide the column with the Interview and Fill Vacancy buttons
+                        var colButtons = document.getElementById('colButtons');
+                        if (colButtons) {
+                            colButtons.style.display = 'none'; // Hide the column
+                        }
+                    }
 
                     // Reload SAP Number options
                     sapNumberChoices.clearChoices(); // Clear existing choices
@@ -1493,6 +1782,11 @@ $('#formVacancy').on('submit', function(e) {
                             'value', 'label', true
                         );
                     }
+
+                    // Update open positions in the view
+                    var openPositionsElement = document.querySelector('#openPositions');
+                    var openPositionsText = data.vacancy.vacancy.open_positions + ' open ' + (data.vacancy.vacancy.open_positions === 1 ? 'position' : 'positions') + ' available.';
+                    openPositionsElement.textContent = openPositionsText;
             
                     Swal.fire({
                         position: 'top-end',
@@ -1502,6 +1796,11 @@ $('#formVacancy').on('submit', function(e) {
                         timer: 2000,
                         toast: true,
                         showCloseButton: true
+                    });
+
+                    // Deselect all checkboxes after successful submission
+                    document.querySelectorAll('input[type="checkbox"][name="chk_child"]').forEach(function(checkbox) {
+                        checkbox.checked = false;
                     });
 
                     $('#loading-vacancy').addClass('d-none');
@@ -1540,3 +1839,49 @@ $('#formVacancy').on('submit', function(e) {
         this.reportValidity();
     }
 });
+
+/*
+|--------------------------------------------------------------------------
+| Format Date Time
+|--------------------------------------------------------------------------
+*/
+
+function formatDateTime(dateTime) {
+    const date = new Date(dateTime);
+    
+    const day = ("0" + date.getDate()).slice(-2); // Ensure two digits for day
+    const month = date.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
+    const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits for hours
+    const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits for minutes
+
+    return `${day} ${month} at ${hours}:${minutes}`;
+}
+
+// A function to format the time part of the interview start_time string and adjust for South Africa time (UTC+2)
+function formatTimeTo24Hour(dateTimeString) {
+    const date = new Date(dateTimeString);
+    
+    const localDate = new Date(date.getTime());
+    
+    const hours = ("0" + localDate.getHours()).slice(-2); // Ensure two digits
+    const minutes = ("0" + localDate.getMinutes()).slice(-2); // Ensure two digits
+    
+    return `${hours}:${minutes}`;
+}
+
+// A function to format full date-time strings for the reschedule scenario
+function formatFullDateTime(dateTimeString) {
+    const date = new Date(dateTimeString);
+
+    // Adjust for the time zone, similar to the formatTimeTo24Hour function
+    const offsetInHours = 0; // Adjust for South Africa's time zone
+    date.setUTCHours(date.getUTCHours() + offsetInHours);
+
+    const day = ("0" + date.getDate()).slice(-2); // Ensure two digits
+    const month = date.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
+    const year = date.getFullYear();
+    const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits
+    const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits
+
+    return `${day} ${month} at ${hours}:${minutes}`;
+}

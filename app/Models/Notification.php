@@ -16,6 +16,7 @@ class Notification extends Model
     protected $fillable = [
         'user_id',
         'causer_id',
+        'applicant_id',
         'subject_type',
         'subject_id',
         'type_id',
@@ -34,6 +35,12 @@ class Notification extends Model
     public function causer()
     {
         return $this->belongsTo(User::class);
+    }
+
+    //Applicant
+    public function applicant()
+    {
+        return $this->belongsTo(Applicant::class);
     }
 
     //Notification Type

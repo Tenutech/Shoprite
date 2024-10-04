@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\State;
 use App\Models\Message;
 use App\Models\Vacancy;
 use App\Models\Position;
@@ -60,19 +61,9 @@ class ProfileController extends Controller
                 'applicant.town',
                 'applicant.gender',
                 'applicant.race',
-                'applicant.position',
                 'applicant.education',
-                'applicant.readLanguages',
-                'applicant.speakLanguages',
-                'applicant.reason',
                 'applicant.duration',
-                'applicant.retrenchment',
-                'applicant.brand',
-                'applicant.previousPosition',
-                'applicant.transport',
-                'applicant.disability',
-                'applicant.type',
-                'applicant.bank',
+                'applicant.brands',
                 'applicant.role',
                 'applicant.state',
                 'appliedVacancies',
@@ -91,15 +82,16 @@ class ProfileController extends Controller
                 'email',
                 'phone',
                 'avatar',
-                'company_id',
-                'position_id',
-                'website'
+                'company_id'
             ];
+
+            // Get the 'complete' state ID
+            $completeStateID = State::where('code', 'complete')->value('id');
 
             //Completion Percentage
             $completion = 0;
             if ($user->applicant) {
-                $completion = round(($user->applicant->state_id / 69) * 100);
+                $completion = round(($user->applicant->state_id / $completeStateID) * 100);
                 if ($completion > 100) {
                     $completion = 100;
                 }
@@ -327,26 +319,11 @@ class ProfileController extends Controller
                 ],
             ];
 
-            //Top Vacancies
-            $topVacancies = Vacancy::with([
-                'position',
-                'store.brand',
-                'store.town',
-                'type',
-                'applicants'
-            ])
-            ->withCount('applicants')
-            ->where('status_id', 2)
-            ->orderBy('applicants_count', 'desc')
-            ->take(3)
-            ->get();
-
             return view('profile', [
                 'user' => $user,
                 'completion' => $completion,
                 'activities' => $activities,
-                'tabs' => $tabs,
-                'topVacancies' => $topVacancies,
+                'tabs' => $tabs
             ]);
         }
         return view('404');
@@ -498,17 +475,43 @@ class ProfileController extends Controller
     }
 
     /*
-    |--------------------------------------------------------------------------
+    |---------------------------------------------------------------------------
     | Profile Delete
-    |--------------------------------------------------------------------------
+    |---------------------------------------------------------------------------
     */
 
     public function deleteProfile(Request $request)
     {
-        // Add logic to delete the user's profile here
+        try {
+            // Retrieve the current authenticated user
+            $userID = Auth::id();
+            $user = User::findorfail($userID);
 
-        auth()->logout(); // Logout the user
+            // Check if the user has an associated applicant and update the 'delete' column to 'Yes'
+            if ($user->applicant) {
+                $user->applicant->update([
+                    'user_delete' => 'Yes'
+                ]);
+            }
 
-        return response()->json(['success' => true, 'redirect' => url('/')]);
+            // Logout the user
+            auth()->logout();
+
+            // Delete the user's record from the users table
+            $user->delete();
+
+            // Return success response with a redirect URL
+            return response()->json([
+                'success' => true,
+                'redirect' => url('/')
+            ], 200);
+        } catch (\Exception $e) {
+            // Handle any exceptions that occur during the process
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to delete profile: ' . $e->getMessage(),
+                'error' => $e->getMessage()
+            ], 400);
+        }
     }
 }
