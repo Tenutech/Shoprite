@@ -668,7 +668,8 @@ class ChatService
                         'age' => $applicant->age ?? $age,
                         'gender_id' => $applicant->gender_id ?? $genderId,
                         'resident' => $applicant->resident ?? $resident,
-                        'id_verified' => 'Yes'
+                        'id_verified' => 'Yes',
+                        'under_18' => 'No'
                     ]);
 
                     // Move to the next state (first_name)
