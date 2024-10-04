@@ -24,6 +24,7 @@ use App\Models\Notification;
 use App\Models\ChatTemplate;
 use App\Models\ScoreWeighting;
 use App\Jobs\ProcessUserIdNumber;
+use App\Jobs\SendIdNumberToSap;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -327,6 +328,9 @@ class ApplicationController extends Controller
 
             // Dispatch a background job for ID number processing
             ProcessUserIdNumber::dispatch(null, $applicant->id);
+
+            // Dispatch the new job to process the ID number, pass the applicant object as well
+            SendIdNumberToSap::dispatch($applicant->id_number, $applicant);
 
             // Send notification if the applicant was created successfully
             if ($applicant->wasRecentlyCreated) {

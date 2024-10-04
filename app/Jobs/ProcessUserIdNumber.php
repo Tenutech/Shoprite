@@ -95,7 +95,7 @@ class ProcessUserIdNumber implements ShouldQueue
                 $person->gender_id = $genderId;
             }
 
-            if (empty($person->resident)) {
+            if (empty($person->resident) && $this->userId) {
                 $person->resident = $resident;
             }
 

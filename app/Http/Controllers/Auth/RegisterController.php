@@ -135,7 +135,7 @@ class RegisterController extends Controller
         }
 
         // Dispatch the job to process the user's ID number
-        ProcessUserIdNumber::dispatch($user->id);
+        ProcessUserIdNumber::dispatch($user->id, null);
 
         return $user;
     }
