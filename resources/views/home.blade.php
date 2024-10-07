@@ -10,6 +10,7 @@
 
 <div class="row mt-5">
     @if ($user->applicant)
+
         <div class="col">
             <div class="h-100 text-center">
                 <div class="row mb-3 pb-1">
@@ -20,10 +21,10 @@
                                     Thank You
                                 </h1>
                                 <p class="fs-16 text-muted mb-0">
-                                    We are currently reviewing your application. If you qualify for the next steps, you will receive an invitation for an interview. Please keep an eye on your email and WhatsApp for further updates.
+                                    Yor application has been submitted!
                                 </p>
                                 <p class="fs-16 text-muted mb-0">
-                                    Should you have any questions or require assistance, feel free to reach out. We're here to help!
+                                    You will be informed if you are <b>selected</b> for an interview.
                                 </p>
                             </div>
                         </div><!-- end card header -->
@@ -201,9 +202,6 @@
                                         <div class="tab-pane fade" id="v-pills-personal" role="tabpanel" aria-labelledby="v-pills-personal-tab">
                                             <div>
                                                 <h5>Personal Information</h5>
-                                                <p class="text-muted">
-                                                    Provide your basic details to help us understand your background better.
-                                                </p>
                                             </div>
 
                                             <div>
@@ -373,9 +371,6 @@
                                         <div class="tab-pane fade" id="v-pills-job" role="tabpanel" aria-labelledby="v-pills-job-tab">
                                             <div>
                                                 <h5>Job Information</h5>
-                                                <p class="text-muted">
-                                                    Please provide details regarding your job preferences and experience.
-                                                </p>
                                             </div>
 
                                             <div>
@@ -509,10 +504,6 @@
                                         <div class="tab-pane fade" id="v-pills-literacy" role="tabpanel" aria-labelledby="v-pills-literacy-tab">
                                             <div>
                                                 <h5>Literacy Assessment</h5>
-                                                <p class="text-muted">
-                                                    This assessment assesses your reading comprehension, writing skills, and ability to communicate effectively. 
-                                                    It's an opportunity to demonstrate your proficiency in understanding and using written language in a workplace context.
-                                                </p>
                                             </div>
 
                                             <div>
@@ -539,18 +530,18 @@
 
                                                         <div class="col-md-12">
                                                             <div class="mb-3">
-                                                                <label for="literacyQuestion-{{ $question->id }}" class="form-label">
-                                                                    {{ $literacyQuestionNumber }}.) {!! $formattedMessage !!} <!-- Display the literacy question number -->
+                                                                <label for="literacyQuestion-{{ $question->id }} text-bold" class="form-label">
+                                                                    {{ $literacyQuestionNumber }}. {!! $formattedMessage !!} <!-- Display the literacy question number -->
                                                                 </label>
                                                                 <select class="form-control" id="literacyQuestion-{{ $question->id }}" name="literacy_answers[{{ $question->id }}]" data-choices data-choices-search-false required>
-                                                                    <option value="">Select an option</option>
-                                                                    <option value="a" selected>a</option>
+                                                                    <option value="" selected>Select an option</option>
+                                                                    <option value="a">a</option>
                                                                     <option value="b">b</option>
                                                                     <option value="c">c</option>
                                                                     <option value="d">d</option>
                                                                     <option value="e">e</option>
                                                                 </select>
-                                                                <div class="invalid-feedback">Please select an option</div>
+                                                                <div class="invalid-feedback">Please select an answer!</div>
                                                             </div>                                                        
                                                         </div>
                                                         @php $literacyQuestionNumber++; @endphp <!-- Increment the literacy question number for the next iteration -->
@@ -581,10 +572,6 @@
                                         <div class="tab-pane fade" id="v-pills-numeracy" role="tabpanel" aria-labelledby="v-pills-numeracy-tab">
                                             <div>
                                                 <h5>Numerical Ability Assessment</h5>
-                                                <p class="text-muted">
-                                                    This assessment evaluates your ability to work with numbers. It includes tasks such as basic arithmetic, interpreting data, 
-                                                    and problem-solving with quantitative elements, reflecting the practical math skills required in everyday job tasks.
-                                                </p>
                                             </div>
 
                                             <div>
@@ -615,14 +602,14 @@
                                                                     {{ $numeracyQuestionNumber }}.) {!! $formattedMessage !!} <!-- Display the numeracy question number -->
                                                                 </label>
                                                                 <select class="form-control" id="numeracyQuestion-{{ $question->id }}" name="numeracy_answers[{{ $question->id }}]" data-choices data-choices-search-false required>
-                                                                    <option value="">Select an option</option>
-                                                                    <option value="a" selected>a</option>
+                                                                    <option value="" selected>Select an option</option>
+                                                                    <option value="a">a</option>
                                                                     <option value="b">b</option>
                                                                     <option value="c">c</option>
                                                                     <option value="d">d</option>
                                                                     <option value="e">e</option>
                                                                 </select>
-                                                                <div class="invalid-feedback">Please select an option</div>
+                                                                <div class="invalid-feedback">Please select an answer!</div>
                                                             </div>                                                        
                                                         </div>
                                                         @php $numeracyQuestionNumber++; @endphp <!-- Increment the numeracy question number for the next iteration -->
@@ -653,10 +640,6 @@
                                         <div class="tab-pane fade" id="v-pills-situational" role="tabpanel" aria-labelledby="v-pills-situational-tab">
                                             <div>
                                                 <h5>Situational Awareness Assessment</h5>
-                                                <p class="text-muted">
-                                                    This assessment tests your ability to respond appropriately to workplace scenarios, focusing on decision-making, 
-                                                    problem-solving, and handling real-life challenges in a professional environment.
-                                                </p>
                                             </div>
 
                                             <div>
@@ -688,13 +671,13 @@
                                                                     {{ $situationalQuestionNumber }}.) {!! $formattedMessage !!} <!-- Display the situational question number -->
                                                                 </label>
                                                                 <select class="form-control" id="situationalQuestion-{{ $question->id }}" name="situational_answers[{{ $question->id }}]" data-choices data-choices-search-false required>
-                                                                    <option value="">Select an option</option>
-                                                                    <option value="a" selected>a</option>
+                                                                    <option value="" selected>Select an option</option>
+                                                                    <option value="a">a</option>
                                                                     <option value="b">b</option>
                                                                     <option value="c">c</option>
                                                                     <option value="d">d</option>
                                                                 </select>
-                                                                <div class="invalid-feedback">Please select an option</div>
+                                                                <div class="invalid-feedback">Please select an answer!</div>
                                                             </div>                                                        
                                                         </div>
                                                         @php $situationalQuestionNumber++; @endphp <!-- Increment the situational question number for the next iteration -->

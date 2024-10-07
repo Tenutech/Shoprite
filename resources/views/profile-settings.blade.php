@@ -70,7 +70,7 @@
                                 Change Password
                             </a>
                         </li>
-                        <li class="nav-item">
+                        <li class="nav-item d-none">
                             <a class="nav-link" data-bs-toggle="tab" href="#notifications" role="tab">
                                 <i class="far fa-user"></i>
                                 Notifications
@@ -293,7 +293,7 @@
                             Notifications
                         -------------------------------------------------------------------------------------->
 
-                        <div class="tab-pane" id="notifications" role="tabpanel">
+                        <div class="tab-pane d-none" id="notifications" role="tabpanel">
                             <form id="formNotifications" action="post" enctype="multipart/form-data">
                                 @csrf
                                 <div class="mb-3">

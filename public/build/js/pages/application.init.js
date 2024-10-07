@@ -71,6 +71,77 @@ if (document.querySelectorAll(".form-steps")) {
                         }
                     }
 
+                    // Custom validation for 'public_holidays' and 'environment' fields
+                    const publicHolidaysSelect = form.querySelector('select[name="public_holidays"]');
+                    const environmentSelect = form.querySelector('select[name="environment"]');
+
+                    let publicHolidaysValid = true;
+                    let environmentValid = true;
+
+                    if (publicHolidaysSelect && publicHolidaysSelect.value === 'No') {
+                        publicHolidaysValid = false;
+                        publicHolidaysSelect.classList.add('is-invalid');
+                        let feedbackDiv = publicHolidaysSelect.closest('.mb-3').querySelector('.invalid-feedback');
+                        feedbackDiv.textContent = "You will not be eligible for a position unless you elect 'Yes'.";
+                        feedbackDiv.style.display = 'block';
+                    
+                        // Get the parent element with the class 'choices'
+                        let choicesDiv = publicHolidaysSelect.closest('.mb-3');
+                        
+                        // Add a border to the 'choices' div
+                        if(choicesDiv) {
+                            let choicesElement = choicesDiv.querySelector('.choices');
+                            if (choicesElement) {
+                                choicesElement.style.border = '1px solid #f17171';
+                            }
+                        }
+                    } else {
+                        publicHolidaysSelect.classList.remove('is-invalid');
+                        let feedbackDiv = publicHolidaysSelect.closest('.mb-3').querySelector('.invalid-feedback');
+                        feedbackDiv.style.display = 'none';
+                        
+                        // Reset border for the 'choices' div
+                        let choicesDiv = publicHolidaysSelect.closest('.mb-3');
+                        if(choicesDiv) {
+                            let choicesElement = choicesDiv.querySelector('.choices');
+                            if (choicesElement) {
+                                choicesElement.style.border = ''; // Reset border
+                            }
+                        }
+                    }
+
+                    if (environmentSelect && environmentSelect.value === 'No') {
+                        environmentValid = false;
+                        environmentSelect.classList.add('is-invalid');
+                        let feedbackDiv = environmentSelect.closest('.mb-3').querySelector('.invalid-feedback');
+                        feedbackDiv.textContent = "You will not be eligible for a position unless you elect 'Yes'.";
+                        feedbackDiv.style.display = 'block';
+                    
+                        // Get the parent element with the class 'choices'
+                        let choicesDiv = environmentSelect.closest('.mb-3');
+                        
+                        // Add a border to the 'choices' div
+                        if(choicesDiv) {
+                            let choicesElement = choicesDiv.querySelector('.choices');
+                            if (choicesElement) {
+                                choicesElement.style.border = '1px solid #f17171';
+                            }
+                        }
+                    } else {
+                        environmentSelect.classList.remove('is-invalid');
+                        let feedbackDiv = environmentSelect.closest('.mb-3').querySelector('.invalid-feedback');
+                        feedbackDiv.style.display = 'none';
+                    
+                        // Reset border for the 'choices' div
+                        let choicesDiv = environmentSelect.closest('.mb-3');
+                        if(choicesDiv) {
+                            let choicesElement = choicesDiv.querySelector('.choices');
+                            if (choicesElement) {
+                                choicesElement.style.border = ''; // Reset border
+                            }
+                        }
+                    }
+
                     // Check if the brands field contains '1' (All) along with other selected options
                     const brandsSelect = form.querySelector('select[name="brands[]"]');
                     const selectedBrands = Array.from(brandsSelect.selectedOptions).map(option => option.value);
@@ -81,12 +152,32 @@ if (document.querySelectorAll(".form-steps")) {
                         brandValid = false;
                         brandsSelect.classList.add('is-invalid');
                         let feedbackDiv = brandsSelect.closest('.mb-3').querySelector('.invalid-feedback');
-                        feedbackDiv.textContent = "You cannot select specific brands with 'All'.";
+                        feedbackDiv.textContent = "You cannot select specific brands with 'Any'.";
                         feedbackDiv.style.display = 'block';
+
+                        // Get the parent element with the class 'choices'
+                        let choicesDiv = brandsSelect.closest('.mb-3');
+                        
+                        // Add a border to the 'choices' div
+                        if(choicesDiv) {
+                            let choicesElement = choicesDiv.querySelector('.choices');
+                            if (choicesElement) {
+                                choicesElement.style.border = '1px solid #f17171';
+                            }
+                        }
                     } else {
                         brandsSelect.classList.remove('is-invalid');
                         let feedbackDiv = brandsSelect.closest('.mb-3').querySelector('.invalid-feedback');
                         feedbackDiv.style.display = 'none';
+
+                        // Reset border for the 'choices' div
+                        let choicesDiv = brandsSelect.closest('.mb-3');
+                        if(choicesDiv) {
+                            let choicesElement = choicesDiv.querySelector('.choices');
+                            if (choicesElement) {
+                                choicesElement.style.border = ''; // Reset border
+                            }
+                        }
                     }
 
                     // Check if all required fields have been filled
@@ -117,8 +208,8 @@ if (document.querySelectorAll(".form-steps")) {
                         return isValid;
                     });
 
-                    // Combine with custom brand validation
-                    valid = valid && brandValid;
+                    // Combine with custom public holidays , enviroment and brand validation
+                    valid = valid && publicHolidaysValid && environmentValid && brandValid;
         
                     // If validation passed, go to the next tab
                     if (!valid) {
