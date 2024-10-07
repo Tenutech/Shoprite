@@ -16,7 +16,7 @@
             <div class="auth-page-content overflow-hidden p-0">
                 <div class="container">
                     <div class="row justify-content-center">
-                        <div class="col-xl-7 col-lg-8">
+                        <div class="col-xl-7 col-lg-8"> 
                             <div class="text-center">
                                 <img src="{{ URL::asset('build/images/error400-cover.png') }}" alt="error img" class="img-fluid">
                                 <div class="mt-3">
