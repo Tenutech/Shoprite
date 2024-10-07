@@ -216,7 +216,7 @@
                                                                                 <i class="ri-image-fill"></i>
                                                                             </div>
                                                                         </div>
-                                                                    </label>
+                                                                    </label> 
                                                                     <input class="form-control d-none" value="" id="avatar" name="avatar" type="file" accept="image/png, image/gif, image/jpeg">
                                                                 </div>
                                                                 <div class="avatar-xg p-1">
