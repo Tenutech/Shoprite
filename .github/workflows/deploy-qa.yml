@@ -1,9 +1,9 @@
-name: Deploy to QA
+name: Deploy to Development
 
 on:
   push:
     branches:
-      - qa
+      - development
   workflow_dispatch:
 
 jobs:
@@ -78,7 +78,7 @@ jobs:
           SSH_USER: ${{ secrets.SSH_QA_DEPLOYER_USERNAME }}
           SERVER_IP: ${{ secrets.QA_SERVER_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
+          ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP << 'EOF'
             export TZ="Africa/Johannesburg"
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/qa.apply.shoprite.jobs/releases/$TIMESTAMP"
@@ -86,8 +86,7 @@ jobs:
             SHARED_DIR="/var/www/qa.apply.shoprite.jobs/shared"
 
             # Create the release directory
-            sudo -u www-data mkdir -p $RELEASE_DIR
-            
+            sudo mkdir -p $RELEASE_DIR
             sudo chown www-data:www-data -R /var/www/qa.apply.shoprite.jobs/
 
             # Clone the repository
