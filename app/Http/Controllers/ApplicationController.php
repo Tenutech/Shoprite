@@ -148,8 +148,16 @@ class ApplicationController extends Controller
             'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
             'education_id' => ['required', 'integer', 'exists:educations,id'],
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
-            'public_holidays' => ['required', 'in:Yes,No'],
-            'environment' => ['required', 'in:Yes,No'],
+            'public_holidays' => ['required', 'in:Yes,No', function ($attribute, $value, $fail) {
+            if ($value !== 'Yes') {
+                    $fail('You will not be eligible for a position unless you elect "Yes" for public holidays.');
+                }
+            }],
+            'environment' => ['required', 'in:Yes,No', function ($attribute, $value, $fail) {
+                if ($value !== 'Yes') {
+                    $fail('You will not be eligible for a position unless you elect "Yes" for working in different environments.');
+                }
+            }],
             'brands' => ['required', 'array'], // Ensure brands is an array
             'brands.*' => ['required', 'integer', 'exists:brands,id'], // Validate each brand id exists in the brands table
             'disability' => ['required', 'in:Yes,No'],
@@ -163,7 +171,7 @@ class ApplicationController extends Controller
             'brands' => ['required', 'array', function ($attribute, $value, $fail) {
                 // Check if brand ID 1 is in the array and there are other IDs selected
                 if (in_array(1, $value) && count($value) > 1) {
-                    $fail('You cannot select specific brands with "All".');
+                    $fail('You cannot select specific brands with "Any".');
                 }
             }],
         ]);
@@ -387,8 +395,16 @@ class ApplicationController extends Controller
             'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
             'education_id' => ['required', 'integer', 'exists:educations,id'],
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
-            'public_holidays' => ['required', 'in:Yes,No'],
-            'environment' => ['required', 'in:Yes,No'],
+            'public_holidays' => ['required', 'in:Yes,No', function ($attribute, $value, $fail) {
+                if ($value !== 'Yes') {
+                    $fail('You will not be eligible for a position unless you elect "Yes" for public holidays.');
+                    }
+            }],
+            'environment' => ['required', 'in:Yes,No', function ($attribute, $value, $fail) {
+                if ($value !== 'Yes') {
+                    $fail('You will not be eligible for a position unless you elect "Yes" for working in different environments.');
+                }
+            }],
             'brands' => ['required', 'array'], // Ensure brands is an array
             'brands.*' => ['required', 'integer', 'exists:brands,id'], // Validate each brand id exists in the brands table
             'disability' => ['required', 'in:Yes,No'],
@@ -402,7 +418,7 @@ class ApplicationController extends Controller
             'brands' => ['required', 'array', function ($attribute, $value, $fail) {
                 // Check if brand ID 1 is in the array and there are other IDs selected
                 if (in_array(1, $value) && count($value) > 1) {
-                    $fail('You cannot select specific brands with "All".');
+                    $fail('You cannot select specific brands with "Any".');
                 }
             }],
         ]);
