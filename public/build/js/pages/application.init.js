@@ -8,6 +8,91 @@ File: Form wizard Js File
 
 /*
 |--------------------------------------------------------------------------
+| Google Maps
+|--------------------------------------------------------------------------
+*/
+
+function initAutocomplete() {
+    // Get the input element with data-google-autocomplete attribute
+    const addressInput = document.querySelector('[data-google-autocomplete]');
+    
+    if (addressInput) {
+        // Initialize Google Places Autocomplete
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+            types: ['geocode'],  // Restrict to geocoding (address types)
+            componentRestrictions: { 'country': 'ZA' },  // Restrict to South Africa (optional)
+        });
+
+        // Flag to check if a valid place was selected
+        let placeSelected = false;
+
+        // When the user selects an address from the suggestions
+        autocomplete.addListener('place_changed', function () {
+            const place = autocomplete.getPlace();
+            placeSelected = true;
+
+            if (!place.geometry) {
+                // If no geometry is available, reset the input field
+                addressInput.value = '';
+                addressInput.classList.add('is-invalid');
+                
+                // Show the correct error message right after the address input
+                const feedback = addressInput.nextElementSibling;  // This gets the closest sibling
+                feedback.textContent = 'Please select a verified address!';
+                feedback.style.display = 'block';  // Show the feedback element
+            } else {
+                // Valid address selected, remove error state
+                addressInput.classList.remove('is-invalid');
+                
+                // Hide the feedback element
+                const feedback = addressInput.nextElementSibling;
+                feedback.textContent = '';
+                feedback.style.display = 'none';  // Hide the feedback
+
+                // Set lat/lng hidden fields
+                const lat = place.geometry.location.lat();
+                const lng = place.geometry.location.lng();
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+            }
+        });
+
+        // Prevent browser autocomplete by disabling autofill
+        addressInput.setAttribute('autocomplete', 'off');
+
+        // Validate on field blur that the user selected a valid address
+        addressInput.addEventListener('blur', function () {
+            if (!placeSelected) {
+                // If the user didn't select a valid address, mark the field as invalid
+                addressInput.classList.add('is-invalid');
+                document.getElementById('latitude').value = '';
+                document.getElementById('longitude').value = '';
+                
+                // Show error message and ensure display is set to block
+                const feedback = addressInput.nextElementSibling;  // Get the closest invalid-feedback
+                feedback.textContent = 'Please select a verified address!';
+                feedback.style.display = 'block';  // Force display to block
+            }
+        });
+
+        // Reset placeSelected when user starts typing again
+        addressInput.addEventListener('input', function () {
+            placeSelected = false;
+            addressInput.classList.remove('is-invalid');
+            
+            // Hide error message
+            const feedback = addressInput.nextElementSibling;
+            feedback.textContent = '';
+            feedback.style.display = 'none';  // Hide feedback
+        });
+    }
+}
+
+// Load the Google Autocomplete on page load
+window.addEventListener('load', initAutocomplete);
+
+/*
+|--------------------------------------------------------------------------
 | Avatar
 |--------------------------------------------------------------------------
 */
@@ -69,6 +154,43 @@ if (document.querySelectorAll(".form-steps")) {
                             // For other fields, use offsetParent
                             return !!element.offsetParent;
                         }
+                    }
+
+                    // Add validation for the Google Places Autocomplete field (location)
+                    let addressValid = true;
+                    const activeTab = form.querySelector(".tab-pane.show");  // Get the active tab
+
+                    // Only validate the address if the location field exists on the current tab
+                    if (activeTab.querySelector('[data-google-autocomplete]')) {
+                        const addressInput = activeTab.querySelector('[data-google-autocomplete]');
+                        const latInput = document.getElementById('latitude');
+                        const lngInput = document.getElementById('longitude');
+                        
+                        if (addressInput) {
+                            // Check if latitude and longitude are filled in (indicating a valid place was selected)
+                            if (!latInput.value || !lngInput.value) {
+                                addressValid = false;
+                                addressInput.classList.add('is-invalid');
+                                addressInput.classList.remove('was-validated');
+                                const feedback = addressInput.nextElementSibling;
+                                feedback.textContent = 'Please select a verified address!';
+                                feedback.style.display = 'block';
+
+                                // Apply custom invalid border color
+                                addressInput.style.borderColor = 'var(--vz-form-invalid-border-color)';
+                            } else {
+                                addressInput.classList.remove('is-invalid');
+                                addressInput.classList.add('was-validated'); 
+                                const feedback = addressInput.nextElementSibling;
+                                feedback.style.display = 'none';
+
+                                // Apply custom valid border color
+                                addressInput.style.borderColor = 'var(--vz-form-valid-border-color)';
+                            }
+                        }
+                    } else {
+                        // If the location field is not on the current tab, skip address validation
+                        addressValid = true;
                     }
 
                     // Custom validation for 'public_holidays' and 'environment' fields
@@ -209,7 +331,7 @@ if (document.querySelectorAll(".form-steps")) {
                     });
 
                     // Combine with custom public holidays , enviroment and brand validation
-                    valid = valid && publicHolidaysValid && environmentValid && brandValid;
+                    valid = valid && addressValid && publicHolidaysValid && environmentValid && brandValid;
         
                     // If validation passed, go to the next tab
                     if (!valid) {

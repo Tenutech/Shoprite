@@ -335,6 +335,11 @@ function fetchData() {
             if (data.success == true) {
                 allcandidateList = data.applicants;
 
+                // Set the value of the input field with id="number" to the applicantCount
+                if (data.applicantCount) {
+                    document.getElementById('number').value = data.applicantCount;
+                }
+
                 if (allcandidateList.length === 0) {
                     // Hide the candidate list container and show the no result message
                     document.querySelector("#candidate-list").style.display = 'none';
@@ -564,7 +569,7 @@ function loadCandidateListData(datas, page) {
                                         </h5>\
                                     </a>\
                                     <p class="text-muted mb-0">\
-                                        '+ (datas[i].race ? datas[i].race.name : 'N/A') + '\
+                                        '+ (datas[i].distance ? datas[i].distance : 'N/A') + '\
                                     </p>\
                                 </div>\
                                 <div class="col-2">\

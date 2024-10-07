@@ -27,6 +27,8 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use App\Jobs\SendWhatsAppMessage;
 use App\Jobs\UpdateApplicantData;
+use Illuminate\Validation\ValidationException;
+
 
 class VacancyController extends Controller
 {
@@ -159,7 +161,11 @@ class VacancyController extends Controller
             'position_id' => 'required|integer|exists:positions,id', // Ensures the position exists in the positions table
             'open_positions' => 'required|integer|min:1|max:10',     // Minimum 1 and maximum 10
             'sap_numbers' => 'required|array',                        // Should be an array
-            'sap_numbers.*' => 'digits:8',                            // Each sap_number should be exactly 8 digits
+            'sap_numbers.*' => ['digits:8', function ($attribute, $value, $fail) {
+                if (DB::table('sap_numbers')->where('sap_number', $value)->exists()) {
+                    $fail('The SAP number ' . $value . ' has already been taken.');
+                }
+            }], // Each sap_number should be exactly 8 digits
             'store_id' => 'required|integer|exists:stores,id',        // Store ID should exist in stores table
             'type_id' => 'required|integer|exists:types,id',          // Type ID should exist in types table
         ]);
@@ -212,6 +218,14 @@ class VacancyController extends Controller
                 'vacancy' => $vacancy,
                 'encrypted_id' => $encryptedID
             ], 201);
+        } catch (ValidationException $e) {
+            // Return validation errors in a structured format
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation errors occurred.',
+                'errors' => $e->errors() // This will return the validation errors in a key-value format
+            ], 422); // 422 Unprocessable Entity is standard for validation errors
+            
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -240,7 +254,11 @@ class VacancyController extends Controller
             'position_id' => 'required|integer|exists:positions,id', // Ensures the position exists in the positions table
             'open_positions' => 'required|integer|min:1|max:10',     // Minimum 1 and maximum 10
             'sap_numbers' => 'required|array',                        // Should be an array
-            'sap_numbers.*' => 'digits:8',                            // Each sap_number should be exactly 8 digits
+            'sap_numbers.*' => ['digits:8', function ($attribute, $value, $fail) {
+                if (DB::table('sap_numbers')->where('sap_number', $value)->exists()) {
+                    $fail('The SAP number ' . $value . ' has already been taken.');
+                }
+            }], // Each sap_number should be exactly 8 digits
             'store_id' => 'required|integer|exists:stores,id',        // Store ID should exist in stores table
             'type_id' => 'required|integer|exists:types,id',          // Type ID should exist in types table
         ]);
@@ -293,6 +311,14 @@ class VacancyController extends Controller
                 'vacancy' => $vacancy,
                 'encrypted_id' => $encryptedID
             ], 201);
+        } catch (ValidationException $e) {
+            // Return validation errors in a structured format
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation errors occurred.',
+                'errors' => $e->errors() // This will return the validation errors in a key-value format
+            ], 422); // 422 Unprocessable Entity is standard for validation errors
+            
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -602,6 +628,12 @@ class VacancyController extends Controller
                     // Ensure we have an array before filtering
                     if (is_array($applicantIds)) {
                         // Filter out the applicant IDs who were not appointed or selected
+                        $removedApplicantIds = array_diff($applicantIds, $combinedApplicantIds); // Get the removed applicants
+
+                        // Update `shortlist_id` to null for removed applicants
+                        Applicant::whereIn('id', $removedApplicantIds)->update(['shortlist_id' => null]);
+
+                        // Filter out the applicant IDs who were not appointed or selected
                         $updatedApplicantIds = array_filter($applicantIds, function ($applicantId) use ($combinedApplicantIds) {
                             // Keep the applicant if they are in the combined list (appointed or selected)
                             return in_array($applicantId, $combinedApplicantIds);
@@ -719,9 +751,6 @@ class VacancyController extends Controller
                     }
                 }
             }
-
-            // Send regret to Applicants that were interviewed but not selected
-            //$this->vacancyService->sendRegretInterviewedApplicants($selectedApplicants, $vacancyId);
 
             // Commit the database transaction after all operations are successful
             DB::commit();
