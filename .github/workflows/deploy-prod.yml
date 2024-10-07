@@ -23,9 +23,9 @@ jobs:
         env:
           SSH_USER: ${{ secrets.SSH_PROD_DEPLOYER_USERNAME }}
           SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
-          SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
+          SERVER_IP: ${{ secrets.PROD_SERVER_IP_1 }}
         run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP_1 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP << 'EOF'
             export TZ="Africa/Johannesburg"
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/apply.shoprite.jobs/releases/$TIMESTAMP"
@@ -76,9 +76,9 @@ jobs:
         env:
           SSH_USER: ${{ secrets.SSH_PROD_DEPLOYER_USERNAME }}
           SSH_PASSWORD: ${{ secrets.SSH_PROD_DEPLOYER_PASSWORD }}
-          SERVER_IP_1: ${{ secrets.PROD_SERVER_IP }}
+          SERVER_IP: ${{ secrets.PROD_SERVER_IP_2 }}
         run: |
-          ssh -o StrictHostKeyChecking=no -p 50001 $SSH_USER@$SERVER_IP_1 << 'EOF'
+          ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP << 'EOF'
             export TZ="Africa/Johannesburg"
             TIMESTAMP=$(date +%Y%m%d%H%M%S)
             RELEASE_DIR="/var/www/apply.shoprite.jobs/releases/$TIMESTAMP"
