@@ -1306,21 +1306,18 @@ class ChatService
                     break;
                 case '2':
                 case 'grade 10':
+                case 'grade 11':
                     $education = 2;
                     break;
                 case '3':
-                case 'grade 11':
-                    $education = 3;
-                    break;
-                case '4':
                 case 'grade 12':
                     $education = 4;
                     break;
-                case '5':
+                case '4':
                 case 'diploma':
                     $education = 5;
                     break;
-                case '6':
+                case '5':
                 case 'degree':
                     $education = 6;
                     break;
@@ -1340,7 +1337,7 @@ class ChatService
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // If the applicant's input is not a valid option, send an error message
-                $errorMessage = "Invalid option. Please reply with:\n\n1. Grade 9\n2. Grade 10\n3. Grade 11\n4. Grade 12\n5. Diploma\n6. Degree";
+                $errorMessage = "Invalid option. Please reply with:\n\n1. Grade 9\n2. Grade 10 or 11\n3. Grade 12\n4. Diploma\n5. Degree";
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
             }
         } catch (Exception $e) {
