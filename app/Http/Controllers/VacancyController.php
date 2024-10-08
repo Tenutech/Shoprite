@@ -670,6 +670,7 @@ class VacancyController extends Controller
                     $interview = Interview::where('applicant_id', $applicant->id)
                         ->where('vacancy_id', $vacancy->id)
                         ->where('interviewer_id', Auth::id())
+                        ->whereIn('status', ['Scheduled', 'Reschedule', 'Confirm', 'Completed'])
                         ->first();
 
                     // If application exists, update its approval status to 'No'
