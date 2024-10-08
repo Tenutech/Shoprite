@@ -199,7 +199,7 @@ class ShortlistController extends Controller
                     'regex:/\d+km from: \(-?\d+\.\d+, -?\d+\.\d+\)/', // Custom regex to validate the coordinates format
                 ]
             ], [
-                'filters.coordinates.required' => 'A location filter is required.',
+                'filters.coordinates.required' => 'A location filter is required. Please refresh the page.',
                 'filters.coordinates.regex' => 'The location filter must be in the correct format: {radius}km from: (latitude, longitude).'
             ]);
 
@@ -237,9 +237,7 @@ class ShortlistController extends Controller
                 'brands',
                 'role',
                 'state',
-                'checks',
-                'latestChecks',
-                'contracts',
+                'latestInterviewWithScore',
                 'vacanciesFilled' => function ($query) use ($vacancyID) {
                     $query->where('vacancy_id', $vacancyID);
                 },
@@ -312,6 +310,7 @@ class ShortlistController extends Controller
                 }
             }
 
+            // Apply location filter if it is present in the request
             if ($request->has('filters.coordinates')) {
                 $coordinatesFilter = $request->input('filters.coordinates');
                 // Extract the radius and coordinates from the filter
@@ -334,36 +333,106 @@ class ShortlistController extends Controller
                 $query->take($number);
             }
 
-            // Get the selected checks from the request
-            $selectedChecks = $request->input('checks', []);
+             // Fetch the filtered applicants based on the query
+            $filteredApplicants = $query->get();
 
-            // Execute the query and get the results
-            $applicantsCollection = $query->get();
+            // Fetch the filtered applicants based on the query
+            $filteredApplicants = $query->get();
 
-            // Perform checks and assign statuses
-            $this->performChecks($applicantsCollection, $selectedChecks);
+            // Now fetch the applicants with scheduled or rescheduled interviews
+            $interviewedApplicants = Applicant::with([
+                'town',
+                'gender',
+                'race',
+                'education',
+                'duration',
+                'brands',
+                'role',
+                'state',
+                'latestInterviewWithScore',
+                'vacanciesFilled' => function ($query) use ($vacancyID) {
+                    $query->where('vacancy_id', $vacancyID);
+                },
+                'interviews' => function ($query) use ($vacancyID) {
+                    $query->where('vacancy_id', $vacancyID);
+                },
+                'savedBy' => function ($query) use ($userID) {
+                    $query->where('user_id', $userID);
+                }
+            ])->whereHas('interviews', function ($interviewQuery) use ($vacancyID) {
+                $interviewQuery->where('vacancy_id', $vacancyID)
+                            ->whereIn('status', ['Scheduled', 'Rescheduled']);
+            })->get();
+
+            // Merge the interviewed applicants with the filtered applicants**
+            $mergedApplicants = $interviewedApplicants->merge($filteredApplicants);
+
+            // Remove duplicate applicants (just in case)
+            $applicantsCollection = $mergedApplicants->unique('id');
+
+            // Now, calculate the distance for each applicant and map it as a distance attribute
+            $applicantsCollection = $applicantsCollection->map(function ($applicant) use ($latitude, $longitude) {
+                // Extract the applicant's coordinates (assumed in 'latitude,longitude' format)
+                if (isset($applicant->coordinates) && strpos($applicant->coordinates, ',') !== false) {
+                    list($applicantLat, $applicantLng) = explode(',', $applicant->coordinates);
+
+                    // Convert strings to floats
+                    $applicantLat = (float) $applicantLat;
+                    $applicantLng = (float) $applicantLng;
+
+                    // Check if latitude, longitude, applicantLat, or applicantLng is missing
+                    if (!is_numeric($latitude) || !is_numeric($longitude) || !is_numeric($applicantLat) || !is_numeric($applicantLng)) {
+                        $applicant->distance = 'N/A';  // Set distance to 'N/A' if any coordinate is missing
+                    } else {
+                        // Calculate the distance using the Haversine formula
+                        $earthRadius = 6371;  // Earth's radius in kilometers
+                        $dLat = deg2rad($latitude - $applicantLat);
+                        $dLng = deg2rad($longitude - $applicantLng);
+
+                        $a = sin($dLat / 2) * sin($dLat / 2) +
+                            cos(deg2rad($latitude)) * cos(deg2rad($applicantLat)) *
+                            sin($dLng / 2) * sin($dLng / 2);
+
+                        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+                        $distance = $earthRadius * $c;  // Distance in kilometers
+
+                        // Round the distance to 2 decimal places and add it as an attribute
+                        $applicant->distance = round($distance, 2) . ' km';
+                    }
+                } else {
+                    $applicant->distance = 'N/A';  // Set to 'N/A' if coordinates are missing or improperly formatted
+                }
+
+                return $applicant;
+            });
 
             // Map the results to include encrypted IDs and load checks relation
             $applicantsCollection = $applicantsCollection->map(function ($applicant) use ($userID) {
                 $applicant->encrypted_id = Crypt::encryptString($applicant->id);
-                $applicant->load('latestChecks'); // Load the 'latestChecks' relation
                 return $applicant;
             });
 
+            //Aplicants Array
             $applicants = $applicantsCollection->toArray();
 
             // Convert the Collection to an array after plucking the 'id's
             $applicantIds = $applicantsCollection->pluck('id')->toArray();
 
-            $sap_numbers = SapNumber::where('vacancy_id', $vacancyID)->pluck('sap_number');
+            // Count of applicants
+            $applicantCount = $applicantsCollection->count();
+
+            //SAP Numbers
+            $sapNumbers = SapNumber::where('vacancy_id', $vacancyID)->pluck('sap_number');
 
             // Save Shortlist
             $shortlistData = [
                 'user_id' => $userID,
                 'vacancy_id' => $vacancyID,
                 'applicant_ids' => json_encode($applicantIds),
-                'sap_numbers' => $sap_numbers,
+                'sap_numbers' => $sapNumbers,
             ];
+
+            //Update or create the shortlist
             $shortlist = Shortlist::updateOrCreate(['user_id' => $userID, 'vacancy_id' => $vacancyID], $shortlistData);
 
             // Update all the applicants with the shortlist_id
@@ -373,7 +442,8 @@ class ShortlistController extends Controller
                 'success' => true,
                 'message' => 'Shortlist generated!',
                 'applicants' => $applicants,
-                'sapNumbers' => $sap_numbers,
+                'applicantCount' => $applicantCount,
+                'sapNumbers' => $sapNumbers,
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Return the validation errors
@@ -389,62 +459,6 @@ class ShortlistController extends Controller
                 'message' => 'Failed to generate shortlist.',
                 'error' => $e->getMessage()
             ], 400);
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Perform Checks
-    |--------------------------------------------------------------------------
-    */
-
-    protected function performChecks($applicants, $selectedChecks)
-    {
-        $results = ['Passed', 'Failed', 'Discrepancy']; // The possible statuses
-        $reasons = [
-            'Passed' => config('shortlist.reasons.passed'),
-            'Failed' => config('shortlist.reasons.failed'),
-            'Discrepancy' => config('shortlist.reasons.discrepancy')
-        ];
-
-        foreach ($applicants as $applicant) {
-            foreach ($selectedChecks as $checkType => $checkIds) {
-                foreach ($checkIds as $checkId) {
-                    // Special condition for applicant ID 25 and check ID 1
-                    if ($applicant->id == 1 && $checkId == 1) {
-                        $randomResult = 'Failed';
-                        $fileName = 'Burger_Johannes_IDVPlus_202311111054.pdf';
-                    } else {
-                        // Existing logic for other cases
-                        $randomResult = $applicant->id == 1 ? 'Passed' : $results[array_rand($results)];
-                        $fileName = null; // Reset fileName for other cases
-                        if ($applicant->id == 1) {
-                            switch ($checkId) {
-                                case 2:
-                                    $fileName = 'Burger_JohannesHendrik_CCR_202311111047.pdf';
-                                    break;
-                                case 3:
-                                    $fileName = 'Burger_JohannesHendrik_FPS_202311111047.pdf';
-                                    break;
-                                case 4:
-                                    $fileName = 'Burger_JohannesHendrik_DL_202311122254.pdf';
-                                    break;
-                                case 5:
-                                    $fileName = 'Burger_JohannesHendrik_BAV_202311111047.pdf';
-                                    break;
-                            }
-                        }
-                    }
-                    $dummyReason = $reasons[$randomResult]; // Get the dummy reason for the result
-
-                    // Add check to the applicant_checks table with reason
-                    $applicant->checks()->attach($checkId, [
-                        'result' => $randomResult,
-                        'reason' => $dummyReason,
-                        'file' => $fileName // Include the file name if set
-                    ]);
-                }
-            }
         }
     }
 
@@ -472,6 +486,28 @@ class ShortlistController extends Controller
                 ], 400);
             }
 
+            //Vavancy
+            $vacancy = Vacancy::findorfail($vacancyID);
+
+            // Check if store exists
+            if (!$vacancy->store || !$vacancy->store->coordinates) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Store not found!'
+                ], 400);
+            }
+
+            // Extract the store's coordinates
+            $storeCoordinates = explode(', ', $vacancy->store->coordinates);
+            if (count($storeCoordinates) !== 2) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid store coordinates!'
+                ], 400);
+            }
+            $storeLat = (float) $storeCoordinates[0];
+            $storeLng = (float) $storeCoordinates[1];
+
             //Shortlist
             $shortlist = Shortlist::where('user_id', $userID)
                                   ->where('vacancy_id', $vacancyID)
@@ -488,10 +524,7 @@ class ShortlistController extends Controller
                     'brands',
                     'role',
                     'state',
-                    'checks',
-                    'latestChecks',
-                    'contracts',
-                    'contracts',
+                    'latestInterviewWithScore',
                     'vacanciesFilled' => function ($query) use ($vacancyID) {
                         $query->where('vacancy_id', $vacancyID);
                     },
@@ -503,11 +536,42 @@ class ShortlistController extends Controller
                     }
                 ])
                 ->whereIn('id', $applicantIDs)
-                ->orderBy('score', 'desc')
+                ->orderByRaw('FIELD(id, ' . implode(',', $applicantIDs) . ')')
                 ->get();
 
-                // Encrypt the ID of each applicant
-                $applicants->each(function ($applicant) {
+                // Calculate the distance for each applicant
+                $applicants->each(function ($applicant) use ($storeLat, $storeLng) {
+                    // Check if the applicant's coordinates are valid
+                    if (isset($applicant->coordinates) && strpos($applicant->coordinates, ',') !== false) {
+                        list($applicantLat, $applicantLng) = explode(',', $applicant->coordinates);
+
+                        $applicantLat = (float) $applicantLat;
+                        $applicantLng = (float) $applicantLng;
+
+                        // Check if latitude, longitude, applicantLat, or applicantLng is missing
+                        if (!is_numeric($storeLat) || !is_numeric($storeLng) || !is_numeric($applicantLat) || !is_numeric($applicantLng)) {
+                            $applicant->distance = 'N/A';  // Set distance to 'N/A' if any coordinate is missing
+                        } else {
+                            // Calculate the distance using the Haversine formula
+                            $earthRadius = 6371;  // Earth's radius in kilometers
+                            $dLat = deg2rad($storeLat - $applicantLat);
+                            $dLng = deg2rad($storeLng - $applicantLng);
+
+                            $a = sin($dLat / 2) * sin($dLat / 2) +
+                                cos(deg2rad($storeLat)) * cos(deg2rad($applicantLat)) *
+                                sin($dLng / 2) * sin($dLng / 2);
+
+                            $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+                            $distance = $earthRadius * $c;  // Distance in kilometers
+
+                            // Round the distance to 2 decimal places and add it as an attribute
+                            $applicant->distance = round($distance, 2) . ' km';
+                        }
+                    } else {
+                        $applicant->distance = 'N/A';  // Set to 'N/A' if coordinates are missing or improperly formatted
+                    }
+
+                    // Encrypt the applicant's ID
                     $applicant->encrypted_id = Crypt::encryptString($applicant->id);
                 });
 
@@ -556,13 +620,28 @@ class ShortlistController extends Controller
             $applicantIDToRemove = $request->input('applicant_id');
 
             // Fetch the applicant
-            $applicant = Applicant::findorfail($applicantIDToRemove);
+            $applicant = Applicant::with([
+                'interviews',
+            ])
+            ->findorfail($applicantIDToRemove);
 
             // Check if the applicant has been appointed
             if ($applicant->appointed_id) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Applicant has have been appointed.',
+                ], 400);
+            }
+
+            // Check if the applicant has interviews scheduled for this vacancy
+            $interviews = $applicant->interviews()->where('vacancy_id', $vacancyID)
+                ->whereIn('status', ['Schedule', 'Reschedule', 'Confirmed'])
+                ->exists();
+
+            if ($interviews) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $applicant->firstname . ' cannot be removed, they have an interview scheduled.',
                 ], 400);
             }
 
@@ -581,9 +660,6 @@ class ShortlistController extends Controller
 
             // Update the Applicant to set shortlist_id to null
             $applicant->update(['shortlist_id' => null]);
-
-            //Update the Applicant
-            Applicant::find($applicantIDToRemove)->update(['shortlist_id' => null]);
 
             return response()->json([
                 'success' => true,

@@ -138,7 +138,7 @@
                                                             </select>
                                                             @if ($positions->isEmpty())
                                                                 <!-- Display invalid feedback if positions are empty -->
-                                                                <div class="alert alert-danger">
+                                                                <div class="invalid-feedback" style="display:block">
                                                                     You have not been assigned to a specific brand. Please contact your administrator for assistance.
                                                                 </div>
                                                             @else

@@ -144,6 +144,16 @@ class ApplicationController extends Controller
             'id_number' => ['required', 'string', 'max:13'],
             'phone' => ['required', 'string', 'max:191'],
             'location' => ['required', 'string'],
+            'latitude' => ['required', function ($attribute, $value, $fail) {
+                if (empty($value)) {
+                    $fail('Please select a verified address from the Google suggestions.');
+                }
+            }],
+            'longitude' => ['required', function ($attribute, $value, $fail) {
+                if (empty($value)) {
+                    $fail('Please select a verified address from the Google suggestions.');
+                }
+            }],
             'race_id' => ['required', 'integer', 'exists:races,id'],
             'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
             'education_id' => ['required', 'integer', 'exists:educations,id'],
@@ -201,6 +211,9 @@ class ApplicationController extends Controller
             $idNumber = $request->id_number;
             $phone = $request->phone;
             $location = $request->location;
+            $latitude = $request->latitude;
+            $longitude = $request->longitude;
+            $coordinates = $latitude . ',' . $longitude;
             $raceID = $request->race_id;
             $email = $request->email;
             $educationId = $request->education_id;
@@ -275,6 +288,7 @@ class ApplicationController extends Controller
                 'duration_id' => $durationId,
                 'location_type' => 'Address',
                 'location' => $location,
+                'coordinates' => $coordinates,
                 'has_email' => $email ? 'Yes' : 'No', // Determine if email was provided
                 'email' => $email,
                 'disability' => $disability,
@@ -391,6 +405,16 @@ class ApplicationController extends Controller
             'id_number' => ['required', 'string', 'max:13'],
             'phone' => ['required', 'string', 'max:191'],
             'location' => ['required', 'string'],
+            'latitude' => ['required', function ($attribute, $value, $fail) {
+                if (empty($value)) {
+                    $fail('Please select a verified address from the Google suggestions.');
+                }
+            }],
+            'longitude' => ['required', function ($attribute, $value, $fail) {
+                if (empty($value)) {
+                    $fail('Please select a verified address from the Google suggestions.');
+                }
+            }],
             'race_id' => ['required', 'integer', 'exists:races,id'],
             'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
             'education_id' => ['required', 'integer', 'exists:educations,id'],
@@ -454,6 +478,9 @@ class ApplicationController extends Controller
             $idNumber = $request->id_number;
             $phone = $request->phone;
             $location = $request->location;
+            $latitude = $request->latitude;
+            $longitude = $request->longitude;
+            $coordinates = $latitude . ',' . $longitude;
             $raceID = $request->race_id;
             $email = $request->email;
             $educationId = $request->education_id;
@@ -529,6 +556,7 @@ class ApplicationController extends Controller
                 'brand_id' => $brandId,
                 'location_type' => 'Address',
                 'location' => $location,
+                'coordinates' => $coordinates,
                 'has_email' => $email ? 'Yes' : 'No', // Determine if email was provided
                 'email' => $email,
                 'disability' => $disability,

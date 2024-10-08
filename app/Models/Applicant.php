@@ -163,6 +163,14 @@ class Applicant extends Model
         return $this->hasOne(Interview::class)->latestOfMany();
     }
 
+    // Latest Interview With Score
+    public function latestInterviewWithScore()
+    {
+        return $this->hasOne(Interview::class)
+                    ->whereNotNull('score')
+                    ->latestOfMany();
+    }
+
     //Checks
     public function checks()
     {

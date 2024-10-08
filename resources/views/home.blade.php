@@ -309,10 +309,12 @@
                                                                 Address
                                                                 <span class="text-danger">*</span>
                                                             </label>
-                                                            <input type="text" class="form-control" id="location" name="location" placeholder="Enter physical address" value="{{ $user->applicant ? $user->applicant->location : ($user->address ? $user->address : '') }}" required />
+                                                            <input type="text" class="form-control" id="location" name="location" placeholder="Enter physical address" value="{{ $user->applicant ? $user->applicant->location : '' }}" data-google-autocomplete autocomplete="off" required />
                                                             <div class="invalid-feedback">
                                                                 Please enter your physical address!
                                                             </div>
+                                                            <input type="hidden" id="latitude" name="latitude" value="">
+                                                            <input type="hidden" id="longitude" name="longitude" value="">
                                                         </div>
                                                     </div>
 
@@ -809,6 +811,7 @@
 <script src="{{ URL::asset('build/libs/jsvectormap/js/jsvectormap.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/jsvectormap/maps/world-merc.js') }}"></script>
 <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js')}}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.googlemaps.key') }}&libraries=places"></script>
 <!-- home init -->
 @if ($user->applicant)
     <script src="{{URL::asset('build/js/pages/home.init.js')}}?v={{ filemtime(public_path('build/js/pages/home.init.js')) }}"></script>
