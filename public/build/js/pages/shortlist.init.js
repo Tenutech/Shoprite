@@ -505,33 +505,21 @@ function loadCandidateListData(datas, page) {
                                         </div>`;
                     }
                 }
+            }
 
-                if (interview.score) {
-                    interviewScore = `<div class="badge text-bg-primary">
-                                        <i class="mdi mdi-star me-1"></i>
-                                        ${interview.score ? interview.score : 'N/A'}
-                                    </div>`;
-                }
+            //Get latest interview with score
+            var latestInterview = datas[i].latest_interview_with_score;
+
+            if (latestInterview && latestInterview.score) {
+                interviewScore = `<div class="badge text-bg-primary">
+                                    <i class="mdi mdi-star me-1"></i>
+                                    ${latestInterview.score ? latestInterview.score : 'N/A'}
+                                </div>`;
             }
 
             // Append the interview alert after the checksHtml if it exists
             if (interviewAlert) {
                 checksHtml += interviewAlert;
-            }
-
-            // Initialize contractAlert as an empty string
-            var contractAlert = '';
-
-            // Check if there are contract and set the alert based on the status
-            if (datas[i].contracts && datas[i].contracts.length > 0) {
-                contractAlert = '<div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show mb-0 alert-contract" role="alert">' +
-                                    '<i class="ri-article-fill label-icon"></i><strong>Contract Sent</strong>' + 
-                                '</div>';
-            }
-
-            // Append the contract alert after the checksHtml if it exists
-            if (contractAlert) {
-                checksHtml += contractAlert;
             }
 
             checksHtml += '</div></div>';

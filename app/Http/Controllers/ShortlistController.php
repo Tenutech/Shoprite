@@ -199,7 +199,7 @@ class ShortlistController extends Controller
                     'regex:/\d+km from: \(-?\d+\.\d+, -?\d+\.\d+\)/', // Custom regex to validate the coordinates format
                 ]
             ], [
-                'filters.coordinates.required' => 'A location filter is required.',
+                'filters.coordinates.required' => 'A location filter is required. Please refresh the page.',
                 'filters.coordinates.regex' => 'The location filter must be in the correct format: {radius}km from: (latitude, longitude).'
             ]);
 
@@ -237,9 +237,7 @@ class ShortlistController extends Controller
                 'brands',
                 'role',
                 'state',
-                'checks',
-                'latestChecks',
-                'contracts',
+                'latestInterviewWithScore',
                 'vacanciesFilled' => function ($query) use ($vacancyID) {
                     $query->where('vacancy_id', $vacancyID);
                 },
@@ -351,9 +349,7 @@ class ShortlistController extends Controller
                 'brands',
                 'role',
                 'state',
-                'checks',
-                'latestChecks',
-                'contracts',
+                'latestInterviewWithScore',
                 'vacanciesFilled' => function ($query) use ($vacancyID) {
                     $query->where('vacancy_id', $vacancyID);
                 },
@@ -468,62 +464,6 @@ class ShortlistController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Perform Checks
-    |--------------------------------------------------------------------------
-    */
-
-    protected function performChecks($applicants, $selectedChecks)
-    {
-        $results = ['Passed', 'Failed', 'Discrepancy']; // The possible statuses
-        $reasons = [
-            'Passed' => config('shortlist.reasons.passed'),
-            'Failed' => config('shortlist.reasons.failed'),
-            'Discrepancy' => config('shortlist.reasons.discrepancy')
-        ];
-
-        foreach ($applicants as $applicant) {
-            foreach ($selectedChecks as $checkType => $checkIds) {
-                foreach ($checkIds as $checkId) {
-                    // Special condition for applicant ID 25 and check ID 1
-                    if ($applicant->id == 1 && $checkId == 1) {
-                        $randomResult = 'Failed';
-                        $fileName = 'Burger_Johannes_IDVPlus_202311111054.pdf';
-                    } else {
-                        // Existing logic for other cases
-                        $randomResult = $applicant->id == 1 ? 'Passed' : $results[array_rand($results)];
-                        $fileName = null; // Reset fileName for other cases
-                        if ($applicant->id == 1) {
-                            switch ($checkId) {
-                                case 2:
-                                    $fileName = 'Burger_JohannesHendrik_CCR_202311111047.pdf';
-                                    break;
-                                case 3:
-                                    $fileName = 'Burger_JohannesHendrik_FPS_202311111047.pdf';
-                                    break;
-                                case 4:
-                                    $fileName = 'Burger_JohannesHendrik_DL_202311122254.pdf';
-                                    break;
-                                case 5:
-                                    $fileName = 'Burger_JohannesHendrik_BAV_202311111047.pdf';
-                                    break;
-                            }
-                        }
-                    }
-                    $dummyReason = $reasons[$randomResult]; // Get the dummy reason for the result
-
-                    // Add check to the applicant_checks table with reason
-                    $applicant->checks()->attach($checkId, [
-                        'result' => $randomResult,
-                        'reason' => $dummyReason,
-                        'file' => $fileName // Include the file name if set
-                    ]);
-                }
-            }
-        }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
     | Shortlist Applicants
     |--------------------------------------------------------------------------
     */
@@ -584,10 +524,7 @@ class ShortlistController extends Controller
                     'brands',
                     'role',
                     'state',
-                    'checks',
-                    'latestChecks',
-                    'contracts',
-                    'contracts',
+                    'latestInterviewWithScore',
                     'vacanciesFilled' => function ($query) use ($vacancyID) {
                         $query->where('vacancy_id', $vacancyID);
                     },
@@ -683,13 +620,28 @@ class ShortlistController extends Controller
             $applicantIDToRemove = $request->input('applicant_id');
 
             // Fetch the applicant
-            $applicant = Applicant::findorfail($applicantIDToRemove);
+            $applicant = Applicant::with([
+                'interviews',
+            ])
+            ->findorfail($applicantIDToRemove);
 
             // Check if the applicant has been appointed
             if ($applicant->appointed_id) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Applicant has have been appointed.',
+                ], 400);
+            }
+
+            // Check if the applicant has interviews scheduled for this vacancy
+            $interviews = $applicant->interviews()->where('vacancy_id', $vacancyID)
+                ->whereIn('status', ['Schedule', 'Reschedule', 'Confirmed'])
+                ->exists();
+
+            if ($interviews) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $applicant->firstname . ' cannot be removed, they have an interview scheduled.',
                 ], 400);
             }
 
@@ -708,9 +660,6 @@ class ShortlistController extends Controller
 
             // Update the Applicant to set shortlist_id to null
             $applicant->update(['shortlist_id' => null]);
-
-            //Update the Applicant
-            Applicant::find($applicantIDToRemove)->update(['shortlist_id' => null]);
 
             return response()->json([
                 'success' => true,
