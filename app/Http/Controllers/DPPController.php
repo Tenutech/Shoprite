@@ -534,6 +534,8 @@ class DPPController extends Controller
                  'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                  'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
                  'adoptionRate' => $adoptionRate,
+                 'divisionWideAveragetimeToShortlist' => $divisionWideAveragetimeToShortlist,
+                 'divisionWideTimeToHire' => $divisionWideTimeToHire,
              ]);
         }
          return view('404');
