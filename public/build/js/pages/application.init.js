@@ -474,7 +474,14 @@ if (document.querySelectorAll(".form-steps")) {
                         if (currentActiveTabButton) {
                             currentActiveTabButton.classList.add('done');
                         }
+
                         form.classList.remove('was-validated');
+
+                        // Scroll to the top of the page when moving to the next tab
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'  // Adds a smooth scrolling effect
+                        });
                     }                                 
 
                     // Call the updateNavLinks function to update the "disabled" class on the nav links
