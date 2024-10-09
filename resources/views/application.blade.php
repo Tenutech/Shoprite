@@ -39,7 +39,11 @@
                                         Yor application has been submitted!
                                     </p>
                                     <p class="fs-16 text-muted mb-0">
-                                        You will be informed if you are <b>selected</b> for an interview.
+                                        @if ($user->applicant->public_holidays === 'No' || $user->applicant->environment === 'No' || $user->applicant->education_id === 1)
+                                            You are not <b>eligible</b> for this position. Have a wonderful day!
+                                        @else
+                                            You will be informed if you are <b>selected</b> for an interview.
+                                        @endif
                                     </p>
                                 </div>
                             </div><!-- end card header -->
@@ -159,14 +163,6 @@
                                                     <p class="text-muted">
                                                         You are applying for a position at the Shoprite Group. Your answers will replace the need 
                                                         to submit a physical CV. Please set aside 30 minutes to complete the process.
-                                                    </p>
-                                                    
-                                                    <p class="text-muted">
-                                                        By proceeding, you consent to the processing of your personal information in accordance 
-                                                        with the Protection of Personal Information Act (POPIA) and accept our 
-                                                        <a href="{{ route('terms') }}" class="text-primary text-decoration-underline fst-normal fw-medium" target="_blank">
-                                                            Terms of Use
-                                                        </a>.
                                                     </p>
                                                     
                                                     <p class="text-muted">
@@ -790,6 +786,21 @@
                                                             for an interview
                                                         </p>
                                                         <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
+                                                            <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            View Application
+                                                        </a>
+                                                    </div>
+
+                                                    <!-- Regret -->
+                                                    <div class="text-center pt-4 pb-2 d-none" id="regret">
+                                                        <div class="mb-4">
+                                                            <lord-icon src="https://cdn.lordicon.com/fjvfsqea.json" trigger="loop" colors="primary:#0ab39c,secondary:#405189" id="lordicon" style="width:120px;height:120px"></lord-icon>
+                                                        </div>
+                                                        <h5 id="completeHeading">Application Submitted!</h5>
+                                                        <p class="text-muted" id="completeText">
+                                                            Thank you for your interest in a position at the Shoprite Group of Companies. You are not eligible for this position. Have a wonderful day!
+                                                        </p>
+                                                        <a type="button" href="{{ route('profile.index') }}" id="view-application-2" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
                                                             <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
                                                             View Application
                                                         </a>

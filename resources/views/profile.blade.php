@@ -26,12 +26,14 @@
                     <p class="text-white text-opacity-75">{{ optional($user->role)->name ?? 'N/A' }}</p>
                     <div class="hstack text-white-50 gap-1">
                         <div class="me-2">
-                            <i class="ri-user-2-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
-                            {{ optional($user->position)->name ?? 'N/A' }}
+                            @if($user->position)
+                                <i class="ri-user-2-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
+                                {{ optional($user->position)->name ?? 'N/A' }}
+                            @endif
                         </div>
                         <div>
                             <i class="ri-building-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
-                            {{ optional($user->applicant->brand)->name ?? optional($user->company)->name ?? 'N/A' }}
+                            {{ optional(optional($user)->applicant)->brand->name ?? optional($user->company)->name ?? 'N/A' }}
                         </div>
                     </div>
                 </div>

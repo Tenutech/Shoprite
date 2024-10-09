@@ -71,9 +71,7 @@ class RegisterController extends Controller
             }],
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
             'email' => ['nullable', 'string', 'email', 'max:191', 'unique:users'],
-            'address' => ['required', 'string', 'max:255'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024']
+            'password' => ['required', 'string', 'min:8', 'confirmed']
         ]);
     }
 
@@ -85,16 +83,6 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        // Handle avatar upload if provided
-        if (request()->has('avatar')) {
-            $avatar = request()->file('avatar');
-            $avatarName = $data['firstname'] . ' ' . $data['lastname'] . '-' . time() . '.' . $avatar->getClientOriginalExtension();
-            $avatarPath = public_path('/images/');
-            $avatar->move($avatarPath, $avatarName);
-        } else {
-            $avatarName = 'avatar.jpg'; // Default avatar
-        }
-
         // Check if an applicant exists with the given ID number
         $applicant = Applicant::where('id_number', $data['id_number'])->first();
 
@@ -103,18 +91,15 @@ class RegisterController extends Controller
             'firstname' => ucwords($data['firstname']),
             'lastname' => ucwords($data['lastname']),
             'email' => $data['email'],
+            'email_verified_at' => now(),
             'phone' => $data['phone'],
             'id_number' => $data['id_number'],
-            'address' => $data['address'],
             'password' => Hash::make($data['password']),
-            'avatar' => $avatarName,
+            'avatar' => 'avatar.jpg',
             'company_id' => 1,
             'role_id' => 7, // Default role for new users
             'applicant_id' => $applicant ? $applicant->id : null,
             'status_id' => 1, // User status (e.g., active)
-            // If email is provided, set email_verified_at to null (will trigger verification),
-            // otherwise set it to the current timestamp to consider email verified by default
-            'email_verified_at' => $data['email'] ? null : now(),
         ]);
 
         // Create default notification settings for the user

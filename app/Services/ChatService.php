@@ -458,6 +458,21 @@ class ChatService
     protected function handleWelcomeState($applicant, $client, $to, $from, $token)
     {
         try {
+            // **Check Eligibility**: public_holidays, environment, education_id, and created_at within 6 months
+            $sixMonthsAgo = now()->subMonths(6);
+
+            if (($applicant->public_holidays === 'No' || $applicant->environment === 'No' || $applicant->education_id === 1) && $applicant->updated_at > $sixMonthsAgo) {
+                // Calculate the date 6 months from applicant's creation date
+                $eligibleDate = $applicant->updated_at->addMonths(6)->format('d F Y');
+
+                // Send message indicating ineligibility and when they can try again
+                $message = "Thank you for your interest in a position with the Shoprite Group of Companies.\n\nYou are not eligible for this position. You can try again on *$eligibleDate*.\n\nHave a wonderful day!";
+                $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
+
+                // Exit the function early as the applicant is ineligible
+                return;
+            }
+
             // Get the current hour using the server's current time
             $currentHour = now()->hour;
 
@@ -607,13 +622,13 @@ class ChatService
                     'consent' => 'No',
                 ]);
 
-                // Applicant selected option 2: Navigate to 'welcome' state
-                $stateID = State::where('code', 'welcome')->value('id');
-                $applicant->update(['state_id' => $stateID]);
-
                 // Send message that they are not eligible
-                $message = "Thank you for your interest in a position at the Shoprite Group of Companies. You are not eligible for this position. Have a wonderful day!";
+                $message = "Thank you for your interest in a position with the Shoprite Group of Companies.\n\nYou cannot continue this application unless you *agree* to the terms and conditions.";
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
+
+                // Resend employment journey message
+                $messages = $this->fetchStateMessages('employment_journey');
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // If the applicant's input is not a valid option, send an error message
                 $errorMessage = "Invalid option. Please reply with:\n\n1. I agree\n2. I disagree";
@@ -1315,13 +1330,13 @@ class ChatService
                 // Update the applicant's public_holidays
                 $applicant->update(['public_holidays' => 'No']);
 
-                // Applicant selected option 2: Navigate to 'welcome' state
-                $stateID = State::where('code', 'welcome')->value('id');
+                // Applicant selected option 2: Navigate to 'highest_qualification' state
+                $stateID = State::where('code', 'highest_qualification')->value('id');
                 $applicant->update(['state_id' => $stateID]);
 
-                // Send message that they are not eligible
-                $message = "Thank you for your interest in a position at the Shoprite Group of Companies. You are not eligible for this position. Have a wonderful day!";
-                $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
+                // Send messages for the selected state
+                $messages = $this->fetchStateMessages('highest_qualification');
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // If the applicant's input is not a valid option, send an error message
                 $errorMessage = "Invalid option. Please reply with:\n\n1. Yes\n2. No";
@@ -1469,6 +1484,20 @@ class ChatService
     protected function handleEnvironmentState($applicant, $body, $client, $to, $from, $token)
     {
         try {
+            // Check if the applicant meets the exclusion criteria
+            if ($applicant->public_holidays === 'No' || $applicant->education_id === 1) {
+                // Applicant is not eligible: Navigate to 'welcome' state
+                $stateID = State::where('code', 'welcome')->value('id');
+                $applicant->update(['state_id' => $stateID]);
+
+                // Send message that they are not eligible
+                $message = "Thank you for your interest in a position at the Shoprite Group of Companies. You are not eligible for this position. Have a wonderful day!";
+                $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
+
+                // Exit the function early as the applicant is ineligible
+                return;
+            }
+
             // Normalize the applicant's input (remove case sensitivity by converting to lowercase)
             $body = strtolower(trim($body));
 
@@ -1602,7 +1631,7 @@ class ChatService
             // Prevent invalid combinations like "1, 4" or "2, 4"
             if (in_array('4', $inputs) && count($inputs) > 1) {
                 // Send an error message if "All" (4) is combined with other selections
-                $errorMessage = "Invalid option. You cannot select specific brands with 'All'. Please reply with:\n\n1. Checkers\n2. Shoprite\n3. USave\n4. All";
+                $errorMessage = "You’ve selected 'Any' along with a specific brand, which isn’t allowed. Please reply with:\n\n1. Checkers\n2. Shoprite\n3. USave\n4. Any";
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 return; // Exit early to prevent further processing
             }
