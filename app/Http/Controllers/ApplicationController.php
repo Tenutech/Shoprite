@@ -159,7 +159,7 @@ class ApplicationController extends Controller
             'education_id' => ['required', 'integer', 'exists:educations,id'],
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
             'public_holidays' => ['required', 'in:Yes,No', function ($attribute, $value, $fail) {
-            if ($value !== 'Yes') {
+                if ($value !== 'Yes') {
                     $fail('You will not be eligible for a position unless you elect "Yes" for public holidays.');
                 }
             }],
@@ -422,7 +422,7 @@ class ApplicationController extends Controller
             'public_holidays' => ['required', 'in:Yes,No', function ($attribute, $value, $fail) {
                 if ($value !== 'Yes') {
                     $fail('You will not be eligible for a position unless you elect "Yes" for public holidays.');
-                    }
+                }
             }],
             'environment' => ['required', 'in:Yes,No', function ($attribute, $value, $fail) {
                 if ($value !== 'Yes') {

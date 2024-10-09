@@ -2464,30 +2464,30 @@ class ChatService
                         "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A', // If no position, set 'N/A'
                         "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' (' . ($latestInterview->vacancy->store->town->name ?? 'N/A') . ')', // Brand and town or default 'Our Office'
                         "Interview Location" => $latestInterview->location ?? 'N/A', // Interview location or 'N/A'
-                        
+
                         // Check if scheduled_date is an instance of Carbon or try parsing the date string
                         "Interview Date" => $latestInterview->scheduled_date instanceof Carbon
                                             ? $latestInterview->scheduled_date->format('d M Y')
                                             : (strtotime($latestInterview->scheduled_date) ? date('d M Y', strtotime($latestInterview->scheduled_date)) : 'N/A'), // Fallback to strtotime if not Carbon
-                        
+
                         // Check if start_time is an instance of Carbon or try parsing the time string
                         "Interview Time" => $latestInterview->start_time instanceof Carbon
                                             ? $latestInterview->start_time->format('H:i')
                                             : (strtotime($latestInterview->start_time) ? date('H:i', strtotime($latestInterview->start_time)) : 'N/A'), // Fallback to strtotime if not Carbon
-                    
+
                         // Check if reschedule_date is an instance of Carbon or try parsing the date string
                         "Reschedule Date" => $latestInterview->reschedule_date instanceof Carbon
                                             ? $latestInterview->reschedule_date->format('d M Y')
                                             : (strtotime($latestInterview->reschedule_date) ? date('d M Y', strtotime($latestInterview->reschedule_date)) : 'N/A'), // Fallback to strtotime if not Carbon
-                    
+
                         // Check if reschedule_date is an instance of Carbon or try parsing the time string
                         "Reschedule Time" => $latestInterview->reschedule_date instanceof Carbon
                                             ? $latestInterview->reschedule_date->format('H:i')
                                             : (strtotime($latestInterview->reschedule_date) ? date('H:i', strtotime($latestInterview->reschedule_date)) : 'N/A'), // Fallback to strtotime if not Carbon
-                    
+
                         "Notes" => $latestInterview->notes ?? 'N/A', // Additional notes or 'N/A'
                         "Status" => $latestInterview->status ?? 'N/A' // Interview status
-                    ];                                       
+                    ];
 
                     // Check if interview status is "Reschedule"
                     if ($latestInterview->status === "Reschedule") {
@@ -2509,14 +2509,14 @@ class ChatService
 
                             // Send the updated messages and log the outgoing messages.
                             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-                    
+
                             // Update the applicant's state to 'complete'.
                             $stateID = State::where('code', 'complete')->value('id');
                             $applicant->update(['state_id' => $stateID]);
                         } elseif ($latestInterview->reschedule_by === "Manager") {
                             // Fetch the messages associated with the 'reschedule_manager' state.
                             $messages = $this->fetchStateMessages('reschedule_manager');
-                    
+
                             // Loop through each message and replace placeholders with the corresponding applicant/interview data.
                             foreach ($messages as &$message) {
                                 foreach ($dataToReplace as $key => $value) {
@@ -2531,7 +2531,7 @@ class ChatService
 
                             // Send the updated messages and log the outgoing messages.
                             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-                    
+
                             // Update the applicant's state to 'schedule'.
                             $stateID = State::where('code', 'schedule')->value('id');
                             $applicant->update(['state_id' => $stateID]);
@@ -2539,7 +2539,7 @@ class ChatService
                     } else {
                         // Handle the regular scheduled interview case
                         $messages = $this->fetchStateMessages('schedule');
-                    
+
                         // Loop through each message and replace placeholders with the corresponding applicant/interview data.
                         foreach ($messages as &$message) {
                             foreach ($dataToReplace as $key => $value) {
@@ -2554,7 +2554,7 @@ class ChatService
 
                         // Send the updated messages and log the outgoing messages.
                         $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-                    
+
                         // Update the applicant's state to 'schedule'.
                         $stateID = State::where('code', 'schedule')->value('id');
                         $applicant->update(['state_id' => $stateID]);
@@ -2738,7 +2738,7 @@ class ChatService
                     $scheduledDate = $latestInterview->scheduled_date->format('d M Y'); // Format the current scheduled date
                     // Add 1 day to the scheduled date using Carbon
                     $suggestedDateTime = Carbon::parse($latestInterview->scheduled_date)->addDay();
-                    $suggestedDate = $suggestedDateTime->format('d M Y'); 
+                    $suggestedDate = $suggestedDateTime->format('d M Y');
 
                     // Send a message prompting the applicant to suggest a new date and time.
                     $messages = [

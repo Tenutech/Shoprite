@@ -29,7 +29,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title mb-0">
-                        {{ $vacancy ? 'Update' : 'Post' }} Your Vacancy: 
+                        {{ $vacancy ? 'Update' : 'Post' }} Your Vacancy:
                         {{ $store && $store->brand ? $store->brand->name.' '.$store->name : '' }}
                     </h4>
                 </div><!-- end card header -->
@@ -106,11 +106,11 @@
                             <div class="col-lg-9">
                                 <div class="px-lg-4">
                                     <div class="tab-content">
-                            
+
                                         <!-------------------------------------------------------------------------------------
                                             Position
                                         -------------------------------------------------------------------------------------->
-                            
+
                                         <div class="tab-pane fade show active" id="v-pills-position" role="tabpanel"
                                             aria-labelledby="v-pills-position-tab">
                                             <div>
@@ -119,7 +119,7 @@
                                                     Choose the job position that best matches the vacancy you're looking for.
                                                 </p>
                                             </div>
-                            
+
                                             <div>
                                                 <div class="row gy-3">
                                                     <div class="col-md-12">
@@ -127,9 +127,9 @@
                                                             <select class="form-control" id="position" name="position_id" data-choices data-choices-search-true required>
                                                                 <option value="">Select Position</option>
                                                                 @foreach ($positions as $position)
-                                                                    <option value="{{ $position->id }}" 
+                                                                    <option value="{{ $position->id }}"
                                                                     {{ ($vacancy && $vacancy->position_id == $position->id) ? 'selected' : '' }}>
-                                                                    {{ $position->name }} 
+                                                                    {{ $position->name }}
                                                                     <span class="text-{{ optional($position->brand)->color ?: 'danger' }}">
                                                                         ({{ optional($position->brand)->name ?: 'N/A' }})
                                                                     </span>
@@ -146,9 +146,9 @@
                                                                     Please select a position
                                                                 </div>
                                                             @endif
-                                                        </div>                                                       
-                                                    </div>   
-                                                    
+                                                        </div>
+                                                    </div>
+
                                                     <div class="col-md-12">
                                                         <div class="mb-3">
                                                             <label for="openPositions" class="form-label">
@@ -162,7 +162,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                            
+
                                             <div class="d-flex align-items-start gap-3 mt-4">
                                                 <button type="button"
                                                     class="btn btn-secondary btn-label right ms-auto nexttab nexttab"
@@ -173,11 +173,11 @@
                                             </div>
                                         </div>
                                         <!-- end tab pane -->
-                            
+
                                         <!-------------------------------------------------------------------------------------
                                             SAP Numbers
                                         -------------------------------------------------------------------------------------->
-                            
+
                                         <div class="tab-pane fade" id="v-pills-sap-numbers" role="tabpanel"
                                             aria-labelledby="v-pills-sap-numbers-tab">
                                             <div>
@@ -186,7 +186,7 @@
                                                     Enter the SAP number associated with this job position.
                                                 </p>
                                             </div>
-                            
+
                                             <div>
                                                 <div id="sapNumbersContainer">
                                                     @if ($vacancy && $vacancy->sapNumbers->count() > 0)
@@ -212,7 +212,7 @@
                                                     @endif
                                                 </div>
                                             </div>
-                            
+
                                             <div class="d-flex align-items-start gap-3 mt-4">
                                                 <button type="button" class="btn btn-light btn-label previestab"
                                                     data-previous="v-pills-position-tab">
@@ -228,11 +228,11 @@
                                             </div>
                                         </div>
                                         <!-- end tab pane -->
-                            
+
                                         <!-------------------------------------------------------------------------------------
                                             Store
                                         -------------------------------------------------------------------------------------->
-                            
+
                                         <div class="tab-pane fade" id="v-pills-store" role="tabpanel"
                                             aria-labelledby="v-pills-store-tab">
                                             <div>
@@ -241,7 +241,7 @@
                                                     Choose the store that you are creating this vacancy for.
                                                 </p>
                                             </div>
-                            
+
                                             <div>
                                                 <div class="row gy-3">
                                                     <div class="col-md-12">
@@ -250,12 +250,12 @@
                                                                 <option value="">Select Store</option>
                                                                 @foreach ($stores as $store)
                                                                     <option value="{{$store->id}}"
-                                                                            {{ 
-                                                                                ($vacancy && $vacancy->store_id == $store->id) 
+                                                                            {{
+                                                                                ($vacancy && $vacancy->store_id == $store->id)
                                                                                 ? 'selected'
                                                                                 : ((!$vacancy && $user && $user->store_id == $store->id) ? 'selected' : '')
                                                                             }}
-                                                                            {{ 
+                                                                            {{
                                                                                 ($user && $user->store_id == $store->id) ? '' : 'disabled'
                                                                             }}>
                                                                         {{ $store->brand->name }} ({{ $store->name }})
@@ -263,11 +263,11 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select a store</div>
-                                                        </div>                                                        
-                                                    </div>                                                    
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
-                            
+
                                             <div class="d-flex align-items-start gap-3 mt-4">
                                                 <button type="button" class="btn btn-light btn-label previestab"
                                                     data-previous="v-pills-sap-numbers-tab">
@@ -283,11 +283,11 @@
                                             </div>
                                         </div>
                                         <!-- end tab pane -->
-                            
+
                                         <!-------------------------------------------------------------------------------------
                                             Type
                                         -------------------------------------------------------------------------------------->
-                            
+
                                         <div class="tab-pane fade" id="v-pills-type" role="tabpanel"
                                             aria-labelledby="v-pills-type-tab">
                                             <div>
@@ -296,13 +296,13 @@
                                                     Choose the job type that best matches the vacancy you're looking for.
                                                 </p>
                                             </div>
-                            
+
                                             <div>
                                                 <div class="row g-3">
                                                     @foreach ($types as $type)
                                                         <div class="col-xl-3 col-md-6 d-flex align-items-stretch">
                                                             <div class="form-check card-radio h-100 w-100">
-                                                                <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">                                                                
+                                                                <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">
                                                                     <input id="type-{{ $type->id }}" name="type_id" type="radio" class="form-check-input" value="{{ $type->id }}" {{ ($vacancy && $vacancy->type_id == $type->id) ? 'checked' : ($loop->first ? 'checked' : '') }} required />
                                                                     <label class="form-check-label d-flex flex-column h-100" for="type-{{ $type->id }}" style="white-space: normal;">
                                                                         <div class="card-body text-center d-flex flex-column justify-content-between">
@@ -319,15 +319,15 @@
                                                                                     {{ $type->name }}
                                                                                 </h6>
                                                                             </a>
-                                                                        </div>                                                                        
+                                                                        </div>
                                                                     </label>
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                    @endforeach                                             
+                                                    @endforeach
                                                 </div>
                                             </div>
-                            
+
                                             <div class="d-flex align-items-start gap-3 mt-4">
                                                 <button type="button" class="btn btn-light btn-label previestab"
                                                     data-previous="{{ $user->role_id == 6 ? 'v-pills-sap-numbers-tab' : 'v-pills-store-tab' }}">
@@ -343,11 +343,11 @@
                                             </div>
                                         </div>
                                         <!-- end tab pane -->
-                            
+
                                         <!-------------------------------------------------------------------------------------
                                             Advertisement
                                         -------------------------------------------------------------------------------------->
-                            
+
                                         <!--
                                         <div class="tab-pane fade" id="v-pills-advertisement" role="tabpanel"
                                             aria-labelledby="v-pills-advertisement-tab">
@@ -357,12 +357,12 @@
                                                     Choose to whom you would like to advertisement this job.
                                                 </p>
                                             </div>
-                            
+
                                             <div>
                                                 <div class="row g-3">
                                                     <div class="col-xl-3 col-md-6 d-flex align-items-stretch">
                                                         <div class="form-check card-radio h-100 w-100">
-                                                            <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">                                                                
+                                                            <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">
                                                                 <input id="advertisement-1" name="advertisement" type="radio" class="form-check-input" value="Any" {{ (empty($vacancy) || !$vacancy->advertisement || $vacancy->advertisement == 'Any') ? 'checked' : '' }} required />
                                                                 <label class="form-check-label d-flex flex-column h-100" for="advertisement-1" style="white-space: normal;">
                                                                     <div class="card-body text-center d-flex flex-column justify-content-between">
@@ -379,15 +379,15 @@
                                                                                 Any Applicants
                                                                             </h6>
                                                                         </a>
-                                                                    </div>                                                                        
+                                                                    </div>
                                                                 </label>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <div class="col-xl-3 col-md-6 d-flex align-items-stretch">
                                                         <div class="form-check card-radio h-100 w-100">
-                                                            <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">                                                                
+                                                            <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">
                                                                 <input id="advertisement-2" name="advertisement" type="radio" class="form-check-input" value="External" {{ ($vacancy && $vacancy->advertisement == 'External') ? 'checked' : '' }} required />
                                                                 <label class="form-check-label d-flex flex-column h-100" for="advertisement-2" style="white-space: normal;">
                                                                     <div class="card-body text-center d-flex flex-column justify-content-between">
@@ -404,15 +404,15 @@
                                                                                 External Applicants
                                                                             </h6>
                                                                         </a>
-                                                                    </div>                                                                        
+                                                                    </div>
                                                                 </label>
                                                             </div>
                                                         </div>
                                                     </div>
-                            
+
                                                     <div class="col-xl-3 col-md-6 d-flex align-items-stretch">
                                                         <div class="form-check card-radio h-100 w-100">
-                                                            <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">                                                                
+                                                            <div class="card card-animate card-height-100 shadow-lg d-flex flex-column">
                                                                 <input id="advertisement-3" name="advertisement" type="radio" class="form-check-input" value="Internal" {{ ($vacancy && $vacancy->advertisement == 'Internal') ? 'checked' : '' }} required />
                                                                 <label class="form-check-label d-flex flex-column h-100" for="advertisement-3" style="white-space: normal;">
                                                                     <div class="card-body text-center d-flex flex-column justify-content-between">
@@ -429,14 +429,14 @@
                                                                                 Internal Applicants
                                                                             </h6>
                                                                         </a>
-                                                                    </div>                                                                        
+                                                                    </div>
                                                                 </label>
                                                             </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
-                            
+
                                             <div class="d-flex align-items-start gap-3 mt-4">
                                                 <button type="button" class="btn btn-light btn-label previestab"
                                                     data-previous="v-pills-type-tab">
@@ -453,11 +453,11 @@
                                         </div>
                                         -->
                                         <!-- end tab pane -->
-                            
+
                                         <!-------------------------------------------------------------------------------------
                                             Finish
                                         -------------------------------------------------------------------------------------->
-                            
+
                                         <div class="tab-pane fade d-flex align-items-center justify-content-center flex-column" id="v-pills-finish" role="tabpanel" aria-labelledby="v-pills-finish-tab">
                                             @if ($vacancy)
                                                 <!-- Update -->
@@ -471,20 +471,20 @@
                                                     </p>
                                                     @if ($user->role_id == 1)
                                                         <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-position-tab">
-                                                            <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                             Edit
                                                         </button>
                                                     @endif
                                                     <button type="submit" id="updateBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         Yes, Update !
                                                     </button>
                                                     <a type="button" href="{{ route('job-overview.index', ['id' => Crypt::encryptString($vacancy->id)]) }}" id="view-vacancy" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         View Vacancy
                                                     </a>
                                                 </div>
-                            
+
                                                 <!-- Loading -->
                                                 <div class="text-center pt-4 pb-2 mt-4 d-none" id="loading">
                                                     <div class="spinner-border text-success mb-4" role="status">
@@ -502,22 +502,22 @@
                                                         After creating the vacancy, you can proceed to create your shortlist.
                                                     </p>
                                                     <button type="button" id="cancelBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-position-tab">
-                                                        <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         No, Cancel
                                                     </button>
                                                     <button type="submit" id="submitBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         Yes, Create !
                                                     </button>
-                                                </div>                                            
-                            
+                                                </div>
+
                                                 <!-- Loading -->
                                                 <div class="text-center pt-4 pb-2 d-none" id="loading">
                                                     <div class="spinner-border text-success mb-4" role="status">
                                                         <span class="sr-only">Loading...</span>
                                                     </div>
                                                 </div>
-                            
+
                                                 <!-- Complete -->
                                                 <div class="text-center pt-4 pb-2 d-none" id="complete">
                                                     <div class="mb-4">
@@ -529,17 +529,17 @@
                                                     </p>
                                                     @if ($user->role_id == 1)
                                                         <button type="button" id="editBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-position-tab">
-                                                            <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            <i class="ri-edit-box-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                             Edit
                                                         </button>
                                                     @endif
                                                     <a type="button" id="view-vacancy" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         View Vacancy
                                                     </a>
                                                 </div>
                                             @endif
-                            
+
                                             <!-- Danger Alert -->
                                             <div class="alert alert-danger alert-dismissible fade text-center mt-4" role="alert" id="requiredAlert">
                                                 <strong>Some fields are missing!</strong> Please make sure that all the required fields are filled out
@@ -547,12 +547,12 @@
                                             </div>
                                         </div>
                                         <!-- end tab pane -->
-                            
+
                                     </div>
                                     <!-- end tab content -->
                                 </div>
                             </div>
-                            <!-- end col -->                            
+                            <!-- end col -->
                         </div>
                         <!-- end row -->
                     </form>

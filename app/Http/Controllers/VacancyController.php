@@ -29,7 +29,6 @@ use App\Jobs\SendWhatsAppMessage;
 use App\Jobs\UpdateApplicantData;
 use Illuminate\Validation\ValidationException;
 
-
 class VacancyController extends Controller
 {
     protected $vacancyService;
@@ -108,23 +107,55 @@ class VacancyController extends Controller
             if (in_array($user->role_id, [1, 2])) {
                 // If role_id is 1 or 2, get all positions where id > 1
                 $positions = Position::where('id', '>', 1)->get();
-            } elseif ($user->role_id > 2 && $user->role_id < 7) {
-                // If role_id is between 3 and 6, check if the user has a brand_id
+            } elseif ($user->role_id == 3) {
+                // If role_id is 3, get all positions where region_id = user->region_id
+                $positions = Position::whereRelation('users', 'region_id', '=', $user->region_id)
+                    ->get();
+            } elseif ($user->role_id == 4) {
+                // If role_id is 4, get all positions where division_id = user->division_id
+                $positions = Position::whereRelation('users', 'division_id', '=', $user->division_id)
+                    ->get();
+            } elseif ($user->role_id == 6) {
+                // If role_id is between 5 and 6, check if the user has a brand_id
                 if ($user->brand_id) {
                     // Get positions where brand_id matches the user's brand_id
-                    $positions = Position::where('brand_id', $user->brand_id)->get();
+                    $positions = Position::where('brand_id', $user->brand_id)
+                        ->get();
                 }
-            } elseif (in_array($user->role_id, [7, 8]) || !$user->brand_id) {
+            } elseif (in_array($user->role_id, [5, 7, 8]) || !$user->brand_id) {
                 // If role_id is 7 or 8, or user does not have a brand_id, return empty collection
                 $positions = collect(); // Already set to empty, just a fallback in case
             }
 
-            //Stores
-            $stores = Store::with([
-                'brand',
-                'town',
-            ])
-            ->get();
+            //Stores logic
+            $stores = collect(); // Default to an empty collection
+
+            if (in_array($user->role_id, [1, 2])) {
+                // If role_id is 1 or 2, get all stores where id > 1
+                $stores = Store::with(['brand', 'town'])
+                    ->get();
+            } elseif ($user->role_id == 3) {
+                // If role_id is 3, get all stores where region_id = user->region_id
+                $stores = Store::with(['brand', 'town'])
+                    ->whereRelation('users', 'region_id', '=', $user->region_id)
+                    ->get();
+            } elseif ($user->role_id == 4) {
+                // If role_id is 4, get all stores where division_id = user->division_id
+                $stores = Store::with(['brand', 'town'])
+                    ->whereRelation('users', 'division_id', '=', $user->division_id)
+                    ->get();
+            } elseif ($user->role_id == 6) {
+                // If role_id is between 5 and 6, check if the user has a brand_id
+                if ($user->brand_id) {
+                    // Get stores where store_id is = user->store_id
+                    $stores = Store::with(['brand', 'town'])
+                        ->whereRelation('users', 'store_id', '=', $user->store_id)
+                        ->get();
+                }
+            } elseif (in_array($user->role_id, [5, 7, 8])) {
+                // If role_id is 7 or 8, or user does not have a brand_id, return empty collection
+                $stores = collect(); // Already set to empty, just a fallback in case
+            }
 
             //Types
             $types = Type::get();
@@ -156,6 +187,19 @@ class VacancyController extends Controller
      */
     public function store(Request $request)
     {
+        $userID = Auth::id();
+
+        $inputData = $request;
+
+        $user = User::findorfail($userID);
+
+        $stores = Store::with(['region', 'division'])
+            ->where('id', '=', $request->store_id)
+            ->first();
+
+        $regionID = $stores->region['id'];
+        $divisionID = $stores->division['id'];
+
         //Validate Input
         $request->validate([
             'position_id' => 'required|integer|exists:positions,id', // Ensures the position exists in the positions table
@@ -166,13 +210,27 @@ class VacancyController extends Controller
                     $fail('The SAP number ' . $value . ' has already been taken.');
                 }
             }], // Each sap_number should be exactly 8 digits
-            'store_id' => 'required|integer|exists:stores,id',        // Store ID should exist in stores table
+            // 'store_id' => 'required|integer|exists:stores,id',        // Store ID should exist in stores table
             'type_id' => 'required|integer|exists:types,id',          // Type ID should exist in types table
+            'store_id' => ['required', function ($request, $value, $fail) use ($inputData, $user, $regionID, $divisionID) {
+                // Check if RPP and that user region_id is equal to selected region_id
+                if ($user->role_id == 3 && $user->region_id !== $regionID) {
+                    $fail('You are not authorized to create a vacancy at the selected store.');
+                }
+                // Check if DTDP and store_id is equal to user store_id
+                if ($user->role_id == 4 && $user->division_id !== $divisionID) {
+                    $fail('You are not authorized to create a vacancy at the selected store.');
+                }
+                // Check if Manager and store_id is equal to user store_id
+                if ($user->role_id == 6 && $user->store_id !== (int) $inputData['store_id']) {
+                    $fail('You are not authorized to create a vacancy at the selected store.');
+                }
+            }],
         ]);
 
         try {
             //User ID
-            $userID = Auth::id();
+            // $userID = Auth::id();
 
             DB::beginTransaction();
 
@@ -225,7 +283,6 @@ class VacancyController extends Controller
                 'message' => 'Validation errors occurred.',
                 'errors' => $e->errors() // This will return the validation errors in a key-value format
             ], 422); // 422 Unprocessable Entity is standard for validation errors
-            
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -250,6 +307,19 @@ class VacancyController extends Controller
      */
     public function update(Request $request)
     {
+        $userID = Auth::id();
+
+        $inputData = $request;
+
+        $user = User::findorfail($userID);
+
+        $stores = Store::with(['region', 'division'])
+            ->where('id', '=', $request->store_id)
+            ->first();
+
+        $regionID = $stores->region['id'];
+        $divisionID = $stores->division['id'];
+
         $request->validate([
             'position_id' => 'required|integer|exists:positions,id', // Ensures the position exists in the positions table
             'open_positions' => 'required|integer|min:1|max:10',     // Minimum 1 and maximum 10
@@ -259,13 +329,24 @@ class VacancyController extends Controller
                     $fail('The SAP number ' . $value . ' has already been taken.');
                 }
             }], // Each sap_number should be exactly 8 digits
-            'store_id' => 'required|integer|exists:stores,id',        // Store ID should exist in stores table
             'type_id' => 'required|integer|exists:types,id',          // Type ID should exist in types table
+            'store_id' => ['required', function ($request, $value, $fail) use ($inputData, $user, $regionID, $divisionID) {
+                // Check if RPP and that user region_id is equal to selected region_id
+                if ($user->role_id == 3 && $user->region_id !== $regionID) {
+                    $fail('You are not authorized to create a vacancy at the selected store.');
+                }
+                // Check if DTDP and store_id is equal to user store_id
+                if ($user->role_id == 4 && $user->division_id !== $divisionID) {
+                    $fail('You are not authorized to create a vacancy at the selected store.');
+                }
+                // Check if Manager and store_id is equal to user store_id
+                if ($user->role_id == 6 && $user->store_id !== (int) $inputData['store_id']) {
+                    $fail('You are not authorized to create a vacancy at the selected store.');
+                }
+            }],
         ]);
 
         try {
-            $userID = Auth::id();
-
             DB::beginTransaction();
 
             // Find and decrypt the vacancy
@@ -318,7 +399,6 @@ class VacancyController extends Controller
                 'message' => 'Validation errors occurred.',
                 'errors' => $e->errors() // This will return the validation errors in a key-value format
             ], 422); // 422 Unprocessable Entity is standard for validation errors
-            
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -564,7 +644,7 @@ class VacancyController extends Controller
                     UpdateApplicantData::dispatch($applicant->id, 'updated', 'Appointed', $vacancyId)->onQueue('default');
 
                     // Prepare a congratulatory WhatsApp message for the applicant
-                    $whatsappMessage = "Congratulations ". $applicant->firstname ?: 'N/A' . "! You have been appointed for the position of " .
+                    $whatsappMessage = "Congratulations " . $applicant->firstname ?: 'N/A' . "! You have been appointed for the position of " .
                         optional($vacancy->position)->name ?: 'N/A' . " at " .
                         optional($vacancy->store->brand)->name ?: 'N/A' . " (" .
                         optional($vacancy->store->town)->name ?: 'N/A' . "). " .
@@ -582,7 +662,7 @@ class VacancyController extends Controller
                         optional($vacancy->position)->name ?: 'N/A',  // If $vacancy->position or its name is null, use 'N/A'
                         optional($vacancy->store->brand)->name ?: 'N/A',  // If $vacancy->store->brand or its name is null, use 'N/A'
                         optional($vacancy->store->town)->name ?: 'N/A'  // If $vacancy->store->town or its name is null, use 'N/A'
-                    ];                    
+                    ];
 
                     // Dispatch a job to send the WhatsApp message
                     SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
@@ -612,8 +692,8 @@ class VacancyController extends Controller
 
                 if ($shortlist) {
                     // Decode applicant_ids if it's a JSON string or unserialize if it's serialized
-                    $applicantIds = is_array($shortlist->applicant_ids) 
-                        ? $shortlist->applicant_ids 
+                    $applicantIds = is_array($shortlist->applicant_ids)
+                        ? $shortlist->applicant_ids
                         : json_decode($shortlist->applicant_ids, true); // Adjust if using serialized data with unserialize()
 
                     // Get the appointed IDs from the vacancy
@@ -728,7 +808,7 @@ class VacancyController extends Controller
                             optional($vacancy->position)->name ?: 'N/A' . " position at " .
                             optional($vacancy->store->brand)->name ?: 'N/A' . " (" .
                             optional($vacancy->store->town)->name ?: 'N/A' . "). We truly appreciate the time and effort you invested in your application.
-                            After careful consideration, we regret to inform you that we have selected another candidate for this role. Please know that this 
+                            After careful consideration, we regret to inform you that we have selected another candidate for this role. Please know that this
                             decision does not diminish the value of your skills and experience.
                             We encourage you to apply for future opportunities with us, and we wish you all the best in your job search and career journey.";
 
@@ -744,7 +824,7 @@ class VacancyController extends Controller
                             optional($vacancy->position)->name ?: 'N/A',  // If $vacancy->position or its name is null, use 'N/A'
                             optional($vacancy->store->brand)->name ?: 'N/A',  // If $vacancy->store->brand or its name is null, use 'N/A'
                             optional($vacancy->store->town)->name ?: 'N/A'  // If $vacancy->store->town or its name is null, use 'N/A'
-                        ];                    
+                        ];
 
                         // Dispatch a job to send the WhatsApp message
                         SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
