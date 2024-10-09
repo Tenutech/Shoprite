@@ -525,7 +525,7 @@ $('#formApplication, #formApplicationUpdate').on('submit', function(e) {
                     $("#confirm").remove();
 
                     // Check if applicant is not eligible
-                    if (data.applicant.public_holidays === 'No' || data.applicant.environment === 'No') {
+                    if (data.applicant.public_holidays === 'No' || data.applicant.environment === 'No' || data.applicant.education_id === 1) {
                         $("#view-application-2").attr('href', route('profile.index', {id: data.encrypted_id}));
                         $("#regret").removeClass("d-none");
                     } else {

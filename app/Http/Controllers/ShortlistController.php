@@ -336,9 +336,6 @@ class ShortlistController extends Controller
                 $query->take($number);
             }
 
-             // Fetch the filtered applicants based on the query
-            $filteredApplicants = $query->get();
-
             // Fetch the filtered applicants based on the query
             $filteredApplicants = $query->get();
 
@@ -364,7 +361,7 @@ class ShortlistController extends Controller
                 }
             ])->whereHas('interviews', function ($interviewQuery) use ($vacancyID) {
                 $interviewQuery->where('vacancy_id', $vacancyID)
-                            ->whereIn('status', ['Scheduled', 'Rescheduled']);
+                               ->whereIn('status', ['Scheduled', 'Rescheduled']);
             })->get();
 
             // Merge the interviewed applicants with the filtered applicants**

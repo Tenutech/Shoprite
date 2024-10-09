@@ -24,7 +24,7 @@
                                     Yor application has been submitted!
                                 </p>
                                 <p class="fs-16 text-muted mb-0">
-                                    @if ($user->applicant->public_holidays === 'No' || $user->applicant->environment === 'No')
+                                    @if ($user->applicant->public_holidays === 'No' || $user->applicant->environment === 'No' || $user->applicant->education_id === 1)
                                         You are not <b>eligible</b> for this position. Have a wonderful day!
                                     @else
                                         You will be informed if you are <b>selected</b> for an interview.
