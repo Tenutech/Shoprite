@@ -94,14 +94,14 @@ class HomeController extends Controller
             // Race
             $races = Race::get();
 
-            // Brand
-            $brands = Brand::whereIn('id', [1, 2, 5, 6])->get();
+            // Education
+            $educations = Education::where('id', '!=', 3)->get();
 
             // Duration
             $durations = Duration::get();
 
-            // Education
-            $educations = Education::get();
+            // Brand
+            $brands = Brand::whereIn('id', [1, 2, 5, 6])->get();
 
             //Literacy
             $literacyQuestions = ChatTemplate::whereHas('state', function ($query) {
@@ -129,9 +129,9 @@ class HomeController extends Controller
                 'user' => $user,
                 'types' => $types,
                 'races' => $races,
-                'brands' => $brands,
-                'durations' => $durations,
                 'educations' => $educations,
+                'durations' => $durations,
+                'brands' => $brands,
                 'literacyQuestions' => $literacyQuestions,
                 'numeracyQuestions' => $numeracyQuestions,
                 'situationalQuestions' => $situationalQuestions
