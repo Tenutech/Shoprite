@@ -398,10 +398,13 @@
                                                                     Highest Qualification
                                                                     <span class="text-danger">*</span>
                                                                 </label>
-                                                                <select class="form-control" id="education" name="education_id" data-choices data-choices-search-false required>
+                                                                <select class="form-control" id="education" name="education_id" required>
                                                                     <option value="">Select education Level</option>
                                                                     @foreach ($educations as $education)
-                                                                        <option value="{{ $education->id }}" {{ ($user->applicant && $user->applicant->education_id == $education->id) ? 'selected' : '' }}>{{ $education->name }}</option>
+                                                                        <option value="{{ $education->id }}" 
+                                                                            {{ ($user->applicant && $user->applicant->education_id == $education->id) ? 'selected' : '' }}>
+                                                                            {{ $education->id == 2 ? 'Grade 10 / Grade 11' : $education->name }}
+                                                                        </option>
                                                                     @endforeach
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select an qualification option!</div>
@@ -415,7 +418,7 @@
                                                                     Retail Experience
                                                                     <span class="text-danger">*</span>
                                                                 </label>
-                                                                <select class="form-control" id="duration" name="duration_id" data-choices data-choices-search-false>
+                                                                <select class="form-control" id="duration" name="duration_id" required>
                                                                     <option value="">Select duration</option>
                                                                     @foreach ($durations as $duration)
                                                                         <option value="{{ $duration->id }}" {{ ($user->applicant && $user->applicant->duration_id == $duration->id) ? 'selected' : '' }}>{{ $duration->name }}</option>
@@ -541,6 +544,7 @@
         
                                                                 // Convert line breaks to <br> tags without escaping the message
                                                                 $formattedMessage = nl2br($question->message);
+                                                                $formattedMessage = str_replace('*', '', $formattedMessage);
                                                             @endphp
         
                                                             <div class="col-md-12">
@@ -609,6 +613,7 @@
                                                         
                                                                 // Convert line breaks to <br> tags without escaping the message
                                                                 $formattedMessage = nl2br($question->message);
+                                                                $formattedMessage = str_replace('*', '', $formattedMessage);
                                                             @endphp
                                                         
                                                             <div class="col-md-12">

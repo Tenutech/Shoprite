@@ -8,6 +8,27 @@ File: Form wizard Js File
 
 /*
 |--------------------------------------------------------------------------
+| Choices
+|--------------------------------------------------------------------------
+*/
+
+$(document).ready(function() {
+    var education = $('#education')[0]; // Get the first DOM element from the jQuery object
+    var educationChoices = new Choices(education, {
+        shouldSort: false,     // Disable sorting
+        searchEnabled: false   // Disable search
+    });
+
+    var duration = $('#duration')[0]; // Get the first DOM element from the jQuery object
+    var durationChoices = new Choices(duration, {
+        shouldSort: false,     // Disable sorting
+        searchEnabled: false   // Disable search
+    });
+});
+
+
+/*
+|--------------------------------------------------------------------------
 | Google Maps
 |--------------------------------------------------------------------------
 */

@@ -66,7 +66,7 @@ class ApplicationController extends Controller
     {
         if (view()->exists('application')) {
             //User ID
-            $userId = Auth::id();
+            $userID = Auth::id();
 
             //User
             $user = User::with([
@@ -74,7 +74,7 @@ class ApplicationController extends Controller
                 'appliedVacancies'
             ])
             ->withCount('appliedVacancies')
-            ->findOrFail($userId);
+            ->findOrFail($userID);
 
             // Type
             $types = Type::get();
@@ -82,14 +82,14 @@ class ApplicationController extends Controller
             // Race
             $races = Race::get();
 
-            // Brand
-            $brands = Brand::whereIn('id', [1, 2, 5, 6])->get();
+            // Education
+            $educations = Education::where('id', '!=', 3)->get();
 
             // Duration
             $durations = Duration::get();
 
-            // Education
-            $educations = Education::get();
+            // Brand
+            $brands = Brand::whereIn('id', [1, 2, 5, 6])->get();
 
             //Literacy
             $literacyQuestions = ChatTemplate::whereHas('state', function ($query) {
@@ -113,12 +113,13 @@ class ApplicationController extends Controller
             ->get();
 
             return view('application', [
+                'userID' => $userID,
                 'user' => $user,
                 'types' => $types,
                 'races' => $races,
-                'brands' => $brands,
-                'durations' => $durations,
                 'educations' => $educations,
+                'durations' => $durations,
+                'brands' => $brands,
                 'literacyQuestions' => $literacyQuestions,
                 'numeracyQuestions' => $numeracyQuestions,
                 'situationalQuestions' => $situationalQuestions
