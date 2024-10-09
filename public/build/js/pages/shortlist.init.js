@@ -461,12 +461,12 @@ function loadCandidateListData(datas, page) {
                 if (interview.status === 'Appointed' && interview.updated_at) {
                     // Use updated_at for Appointed status
                     var updatedAtDate = new Date(interview.updated_at);
-                    formattedDate = updatedAtDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
+                    formattedDate = updatedAtDate.toLocaleString('en-GB', { day: '2-digit', month: 'short' });
                     formattedTime = formatTimeTo24Hour(interview.updated_at);
                 } else {
                     // Use the scheduled date and time for other statuses
                     var interviewDate = new Date(interview.scheduled_date);
-                    formattedDate = interviewDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
+                    formattedDate = interviewDate.toLocaleString('en-GB', { day: '2-digit', month: 'short' });
                     formattedTime = formatTimeTo24Hour(interview.start_time);
                 }
 
@@ -1562,7 +1562,7 @@ function interviewConfirm() {
                     if (response.success) {
                         // Use the scheduled date and time for other statuses
                         var interviewDate = new Date(response.interview.scheduled_date);
-                        formattedDate = interviewDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
+                        formattedDate = interviewDate.toLocaleString('en-GB', { day: '2-digit', month: 'short' });
                         formattedTime = formatTimeTo24Hour(response.interview.start_time);
 
                         // On success, update the alert to "Confirmed"
@@ -1843,7 +1843,7 @@ function formatDateTime(dateTime) {
     const date = new Date(dateTime);
     
     const day = ("0" + date.getDate()).slice(-2); // Ensure two digits for day
-    const month = date.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
+    const month = date.toLocaleString('en-GB', { month: 'short' }); // Get abbreviated month name
     const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits for hours
     const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits for minutes
 
@@ -1871,7 +1871,7 @@ function formatFullDateTime(dateTimeString) {
     date.setUTCHours(date.getUTCHours() + offsetInHours);
 
     const day = ("0" + date.getDate()).slice(-2); // Ensure two digits
-    const month = date.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
+    const month = date.toLocaleString('en-GB', { month: 'short' }); // Get abbreviated month name
     const year = date.getFullYear();
     const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits
     const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits

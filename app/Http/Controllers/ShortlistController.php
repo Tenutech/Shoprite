@@ -127,6 +127,9 @@ class ShortlistController extends Controller
             //Shortlist Limits
             $minShortlistNumber = Setting::where('key', 'min_shorlist_number')->first()->value ?? 5;
             $maxShortlistNumber = Setting::where('key', 'max_shorlist_number')->first()->value ?? 20;
+            if ($user->role_id <= 4 && $maxShortlistNumber <= 50) {
+                $maxShortlistNumber = 50; // Set to 50 if user's role_id is less than or equal to 4 and current setting is less than or equal to 50
+            }
             $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
 
             return view('manager/shortlist', [
