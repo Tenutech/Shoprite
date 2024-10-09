@@ -442,13 +442,6 @@ function loadCandidateListData(datas, page) {
                     tooltip = 'Inconclusive';
                     break;
             }
-        
-            // Append each check as a column in the footer row
-            checksHtml += '<a class="avatar-sm flex-shrink-0" id="check-' + checkID + '" data-bs-toggle="tooltip" data-bs-placement="top" title="' + tooltip + '" style="cursor:pointer;">' +
-                                '<span class="avatar-title bg-' + status + '-subtle text-' + status + ' rounded-circle fs-4">' +
-                                    '<i class="ri-shield-user-line"></i>' + // Always use the same icon
-                                '</span>' +
-                           '</a>';
 
             // Initialize interviewAlert as an empty string
             var interviewAlert = '';
@@ -561,8 +554,8 @@ function loadCandidateListData(datas, page) {
                                     </p>\
                                 </div>\
                                 <div class="col-2">\
-                                    <i class="'+ (datas[i].gender ? datas[i].gender.icon : 'ri-men-line') + ' text-'+ (datas[i].gender ? datas[i].gender.color : 'primary') + ' me-1 align-bottom"></i>'+ 
-                                    (datas[i].gender ? '<span class="badge bg-' + datas[i].gender.color + '-subtle text-' + datas[i].gender.color + '">' + datas[i].gender.name + '</span>' : 'N/A') +
+                                    <i class="ri-shield-user-line text-'+ status + ' me-1 align-bottom"></i>' + 
+                                    '<span class="badge bg-'+ status + '-subtle text-'+ status + '">' + tooltip +
                                 '</div>\
                                 <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">\
                                     <div><i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>\
