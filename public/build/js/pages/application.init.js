@@ -214,77 +214,6 @@ if (document.querySelectorAll(".form-steps")) {
                         addressValid = true;
                     }
 
-                    // Custom validation for 'public_holidays' and 'environment' fields
-                    const publicHolidaysSelect = form.querySelector('select[name="public_holidays"]');
-                    const environmentSelect = form.querySelector('select[name="environment"]');
-
-                    let publicHolidaysValid = true;
-                    let environmentValid = true;
-
-                    if (publicHolidaysSelect && publicHolidaysSelect.value === 'No') {
-                        publicHolidaysValid = false;
-                        publicHolidaysSelect.classList.add('is-invalid');
-                        let feedbackDiv = publicHolidaysSelect.closest('.mb-3').querySelector('.invalid-feedback');
-                        feedbackDiv.textContent = "You will not be eligible for a position unless you elect 'Yes'.";
-                        feedbackDiv.style.display = 'block';
-                    
-                        // Get the parent element with the class 'choices'
-                        let choicesDiv = publicHolidaysSelect.closest('.mb-3');
-                        
-                        // Add a border to the 'choices' div
-                        if(choicesDiv) {
-                            let choicesElement = choicesDiv.querySelector('.choices');
-                            if (choicesElement) {
-                                choicesElement.style.border = '1px solid #f17171';
-                            }
-                        }
-                    } else {
-                        publicHolidaysSelect.classList.remove('is-invalid');
-                        let feedbackDiv = publicHolidaysSelect.closest('.mb-3').querySelector('.invalid-feedback');
-                        feedbackDiv.style.display = 'none';
-                        
-                        // Reset border for the 'choices' div
-                        let choicesDiv = publicHolidaysSelect.closest('.mb-3');
-                        if(choicesDiv) {
-                            let choicesElement = choicesDiv.querySelector('.choices');
-                            if (choicesElement) {
-                                choicesElement.style.border = ''; // Reset border
-                            }
-                        }
-                    }
-
-                    if (environmentSelect && environmentSelect.value === 'No') {
-                        environmentValid = false;
-                        environmentSelect.classList.add('is-invalid');
-                        let feedbackDiv = environmentSelect.closest('.mb-3').querySelector('.invalid-feedback');
-                        feedbackDiv.textContent = "You will not be eligible for a position unless you elect 'Yes'.";
-                        feedbackDiv.style.display = 'block';
-                    
-                        // Get the parent element with the class 'choices'
-                        let choicesDiv = environmentSelect.closest('.mb-3');
-                        
-                        // Add a border to the 'choices' div
-                        if(choicesDiv) {
-                            let choicesElement = choicesDiv.querySelector('.choices');
-                            if (choicesElement) {
-                                choicesElement.style.border = '1px solid #f17171';
-                            }
-                        }
-                    } else {
-                        environmentSelect.classList.remove('is-invalid');
-                        let feedbackDiv = environmentSelect.closest('.mb-3').querySelector('.invalid-feedback');
-                        feedbackDiv.style.display = 'none';
-                    
-                        // Reset border for the 'choices' div
-                        let choicesDiv = environmentSelect.closest('.mb-3');
-                        if(choicesDiv) {
-                            let choicesElement = choicesDiv.querySelector('.choices');
-                            if (choicesElement) {
-                                choicesElement.style.border = ''; // Reset border
-                            }
-                        }
-                    }
-
                     // Check if the brands field contains '1' (All) along with other selected options
                     const brandsSelect = form.querySelector('select[name="brands[]"]');
                     const selectedBrands = Array.from(brandsSelect.selectedOptions).map(option => option.value);
@@ -352,7 +281,7 @@ if (document.querySelectorAll(".form-steps")) {
                     });
 
                     // Combine with custom public holidays , enviroment and brand validation
-                    valid = valid && addressValid && publicHolidaysValid && environmentValid && brandValid;
+                    valid = valid && addressValid && brandValid;
         
                     // If validation passed, go to the next tab
                     if (!valid) {
@@ -593,11 +522,18 @@ $('#formApplication, #formApplicationUpdate').on('submit', function(e) {
 
                 if (formID === 'formApplication') {
                     $('#id').val(data.encrypted_id);
-                    $('#formApplication').attr('id', 'formApplicationUpdate');
-                    $("#view-application").attr('href', route('profile.index', {id: data.encrypted_id}));
                     $("#confirm").remove();
-                    $("#complete").removeClass("d-none");
 
+                    // Check if applicant is not eligible
+                    if (data.applicant.public_holidays === 'No' || data.applicant.environment === 'No') {
+                        $("#view-application-2").attr('href', route('profile.index', {id: data.encrypted_id}));
+                        $("#regret").removeClass("d-none");
+                    } else {
+                        $('#formApplication').attr('id', 'formApplicationUpdate');
+                        $("#view-application").attr('href', route('profile.index', {id: data.encrypted_id}));
+                        $("#complete").removeClass("d-none");
+                    }
+                    
                     Swal.fire({
                         position: 'top-end',
                         icon: 'success',

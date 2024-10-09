@@ -159,16 +159,8 @@ class ApplicationController extends Controller
             'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
             'education_id' => ['required', 'integer', 'exists:educations,id'],
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
-            'public_holidays' => ['required', 'in:Yes,No', function ($attribute, $value, $fail) {
-            if ($value !== 'Yes') {
-                    $fail('You will not be eligible for a position unless you elect "Yes" for public holidays.');
-                }
-            }],
-            'environment' => ['required', 'in:Yes,No', function ($attribute, $value, $fail) {
-                if ($value !== 'Yes') {
-                    $fail('You will not be eligible for a position unless you elect "Yes" for working in different environments.');
-                }
-            }],
+            'public_holidays' => ['required', 'in:Yes,No'],
+            'environment' => ['required', 'in:Yes,No'],
             'brands' => ['required', 'array'], // Ensure brands is an array
             'brands.*' => ['required', 'integer', 'exists:brands,id'], // Validate each brand id exists in the brands table
             'disability' => ['required', 'in:Yes,No'],
@@ -420,16 +412,8 @@ class ApplicationController extends Controller
             'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
             'education_id' => ['required', 'integer', 'exists:educations,id'],
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
-            'public_holidays' => ['required', 'in:Yes,No', function ($attribute, $value, $fail) {
-                if ($value !== 'Yes') {
-                    $fail('You will not be eligible for a position unless you elect "Yes" for public holidays.');
-                    }
-            }],
-            'environment' => ['required', 'in:Yes,No', function ($attribute, $value, $fail) {
-                if ($value !== 'Yes') {
-                    $fail('You will not be eligible for a position unless you elect "Yes" for working in different environments.');
-                }
-            }],
+            'public_holidays' => ['required', 'in:Yes,No'],
+            'environment' => ['required', 'in:Yes,No'],
             'brands' => ['required', 'array'], // Ensure brands is an array
             'brands.*' => ['required', 'integer', 'exists:brands,id'], // Validate each brand id exists in the brands table
             'disability' => ['required', 'in:Yes,No'],

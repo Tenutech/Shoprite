@@ -65,7 +65,7 @@
                     </a>
                 </li>                
                 @if ($user->role_id > 6)
-                    @if ($user->applicant)
+                    @if ($user->applicant && $user->applicant->public_holidays != 'No' && $user->applicant->environment != 'No')
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
                                 <i class="ri-briefcase-line"></i> 
