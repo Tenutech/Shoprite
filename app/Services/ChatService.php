@@ -525,19 +525,13 @@ class ChatService
 
             // Check if the applicant's input is one of the valid options (1, 2, or 3)
             if ($body === '1') {
-                // Fetch messages for both 'employment_journey' and 'id_number' states
-                $employmentMessages = $this->fetchStateMessages('employment_journey');
-                $idNumberMessages = $this->fetchStateMessages('id_number');
-
-                // Merge both message arrays
-                $combinedMessages = array_merge($employmentMessages, $idNumberMessages);
-
-                // Send combined messages for both states
-                $this->sendAndLogMessages($applicant, $combinedMessages, $client, $to, $from, $token);
-
-                // Finally, update to the 'id_number' state
-                $stateID = State::where('code', 'id_number')->value('id');
+                // Update to the 'employment_journey' state
+                $stateID = State::where('code', 'employment_journey')->value('id');
                 $applicant->update(['state_id' => $stateID]);
+
+                // Send messages for the selected state
+                $messages = $this->fetchStateMessages('employment_journey');
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } elseif ($body === '2') {
                 // Applicant selected option 2: Navigate to 'career_page' state
                 $stateID = State::where('code', 'career_page')->value('id');
@@ -588,20 +582,42 @@ class ChatService
     protected function handleEmploymentJourneyState($applicant, $body, $client, $to, $from, $token)
     {
         try {
-            // Handle the 'start' keyword
-            if (strtolower($body) == 'start') {
-                $messages = $this->fetchStateMessages('employment_journey');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
+            // Normalize the applicant's input (remove case sensitivity by converting to lowercase)
+            $body = strtolower(trim($body));
 
-                $stateID = State::where('code', 'first_name')->value('id');
+            // Check if the applicant's input is one of the valid options (1)
+            if ($body === '1' || $body === 'yes' || $body === 'agree' || $body === 'i agree') {
+                // Update the applicant's consent
+                $applicant->update([
+                    'terms_conditions' => 'Yes',
+                    'consent' => 'Yes',
+                ]);
+
+                // Applicant selected option 1: Navigate to 'id_number' state
+                $stateID = State::where('code', 'id_number')->value('id');
                 $applicant->update(['state_id' => $stateID]);
 
-                $messages = $this->fetchStateMessages('first_name');
+                // Send messages for the selected state
+                $messages = $this->fetchStateMessages('id_number');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
+            } elseif ($body === '2' || $body === 'no' || $body === 'disagree' || $body === 'i disagree') {
+                // Update the applicant's consent
+                $applicant->update([
+                    'terms_conditions' => 'No',
+                    'consent' => 'No',
+                ]);
+
+                // Applicant selected option 2: Navigate to 'welcome' state
+                $stateID = State::where('code', 'welcome')->value('id');
+                $applicant->update(['state_id' => $stateID]);
+
+                // Send message that they are not eligible
+                $message = "Thank you for your interest in a position at the Shoprite Group of Companies. You are not eligible for this position. Have a wonderful day!";
+                $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
             } else {
-                $messages = $this->fetchStateMessages('welcome');
-                $lastMessage = end($messages);
-                $this->sendAndLogMessages($applicant, [$lastMessage], $client, $to, $from, $token);
+                // If the applicant's input is not a valid option, send an error message
+                $errorMessage = "Invalid option. Please reply with:\n\n1. I agree\n2. I disagree";
+                $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -903,12 +919,32 @@ class ChatService
                 $applicant->update(['avatar_upload' => 'No']);
                 $applicant->update(['avatar' => '/images/avatar.jpg']);
 
-                // Applicant selected option 2: Navigate to 'terms_conditions' state
-                $stateID = State::where('code', 'terms_conditions')->value('id');
+                // Applicant selected option 2: Navigate to 'additional_contact_number' state
+                $stateID = State::where('code', 'additional_contact_number')->value('id');
                 $applicant->update(['state_id' => $stateID]);
 
                 // Send messages for the selected state
-                $messages = $this->fetchStateMessages('terms_conditions');
+                $messages = $this->fetchStateMessages('additional_contact_number');
+
+                // Get the applicant's phone number
+                $phoneNumber = $applicant->phone;
+
+                // Replace the {current number} placeholder in each message with the applicant phone
+                foreach ($messages as &$messageSet) {
+                    if (is_array($messageSet)) {
+                        // If the messageSet is an array, loop through its elements
+                        foreach ($messageSet as &$message) {
+                            if (is_string($message)) {
+                                $message = str_replace('{current number}', $phoneNumber, $message);
+                            }
+                        }
+                    } elseif (is_string($messageSet)) {
+                        // If messageSet is a string (not an array), replace {current number}
+                        $messageSet = str_replace('{current number}', $phoneNumber, $messageSet);
+                    }
+                }
+
+                //Send the state messages
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // If the applicant's input is not a valid option, send an error message
@@ -1011,12 +1047,32 @@ class ChatService
                             // If the image was saved successfully, update the applicant's avatar field with the image path
                             $applicant->update(['avatar' => '/images/' . $fileName]);
 
-                            // Transition the applicant to the 'terms_conditions' state
-                            $stateID = State::where('code', 'terms_conditions')->value('id');
+                            // Transition the applicant to the 'additional_contact_number' state
+                            $stateID = State::where('code', 'additional_contact_number')->value('id');
                             $applicant->update(['state_id' => $stateID]);
 
-                            // Fetch and send messages for the 'terms_conditions' state
-                            $messages = $this->fetchStateMessages('terms_conditions');
+                            // Fetch and send messages for the 'additional_contact_number' state
+                            $messages = $this->fetchStateMessages('additional_contact_number');
+
+                            // Get the applicant's phone number
+                            $phoneNumber = $applicant->phone;
+
+                            // Replace the {current number} placeholder in each message with the applicant phone
+                            foreach ($messages as &$messageSet) {
+                                if (is_array($messageSet)) {
+                                    // If the messageSet is an array, loop through its elements
+                                    foreach ($messageSet as &$message) {
+                                        if (is_string($message)) {
+                                            $message = str_replace('{current number}', $phoneNumber, $message);
+                                        }
+                                    }
+                                } elseif (is_string($messageSet)) {
+                                    // If messageSet is a string (not an array), replace {current number}
+                                    $messageSet = str_replace('{current number}', $phoneNumber, $messageSet);
+                                }
+                            }
+
+                            //Send the state messages
                             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
                         } else {
                             // If the image could not be saved, send an error message to the applicant
@@ -1061,7 +1117,7 @@ class ChatService
             $body = strtolower(trim($body));
 
             // Check if the applicant's input is one of the valid options (1)
-            if ($body === '1' || $body === 'i agree' || $body === 'agree') {
+            if ($body === '1' || $body === 'yes' || $body === 'i agree' || $body === 'agree') {
                 // Update the applicant's terms_conditions
                 $applicant->update(['terms_conditions' => 'Yes']);
 
@@ -1091,9 +1147,9 @@ class ChatService
                 }
 
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-            } elseif ($body === '2' || $body === 'i disagree' || $body === 'disagree') {
+            } elseif ($body === '2' || $body === 'no' || $body === 'i disagree' || $body === 'disagree') {
                 // Update the applicant's terms_conditions
-                $applicant->update(['terms_conditions' => 'Yes']);
+                $applicant->update(['terms_conditions' => 'No']);
 
                 // Applicant selected option 2: Navigate to 'welcome' state
                 $stateID = State::where('code', 'welcome')->value('id');
@@ -1147,7 +1203,7 @@ class ChatService
                 $messages = $this->fetchStateMessages('public_holidays');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } elseif ($body === '2' || $body === 'no') {
-                // Update the applicant's terms_conditions
+                // Update the applicant's additional_contact_number
                 $applicant->update(['additional_contact_number' => 'Yes']);
 
                 // Applicant selected option 2: Navigate to 'contact_number' state
@@ -1328,12 +1384,12 @@ class ChatService
                 // Update the applicant's education_id in the database
                 $applicant->update(['education_id' => $education]);
 
-                // Transition to the next state 'consent'
-                $stateID = State::where('code', 'consent')->value('id');
+                // Transition to the next state 'environment'
+                $stateID = State::where('code', 'environment')->value('id');
                 $applicant->update(['state_id' => $stateID]);
 
-                // Fetch and send messages for the 'consent' state
-                $messages = $this->fetchStateMessages('consent');
+                // Fetch and send messages for the 'environment' state
+                $messages = $this->fetchStateMessages('environment');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // If the applicant's input is not a valid option, send an error message
@@ -1639,7 +1695,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 // Send messages for the selected state
-                $message = "Please provide your *address* with every detail (e.g. street number, street name, suburb, town, postal code): 🏡";
+                $message = "Please provide your home *address* with every detail (e.g. street number, street name, suburb, town, postal code): 🏡";
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
             } elseif ($body === '2' || $body === 'pin') {
                 // Update the applicant's location_type
