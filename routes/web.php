@@ -24,7 +24,7 @@ Auth::routes(['verify' => true]);
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2,3,4,5', 'user.activity'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activity'])->group(function () {
     //Home
 
     Route::get('/home', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.home');
@@ -558,7 +558,7 @@ Route::prefix('dpp')->middleware(['auth', 'verified', 'role:5', 'user.activity']
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,5,6', 'user.activity'])->group(function () {
+Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,6', 'user.activity'])->group(function () {
     //Home
 
     Route::get('/home', [App\Http\Controllers\ManagerController::class, 'index'])->name('manager.home');
@@ -676,7 +676,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::post('/files/add', [App\Http\Controllers\JobOverviewController::class, 'store'])->name('file.store');
 
-    Route::delete('/files/delete/{id}', [App\Http\Controllers\JobOverviewController::class, 'destroy'])->name('file.destroy');    
+    Route::delete('/files/delete/{id}', [App\Http\Controllers\JobOverviewController::class, 'destroy'])->name('file.destroy');
 
     //Messages
 
@@ -712,7 +712,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
     //My Profile Settings
 
     Route::get('/profile-settings', [App\Http\Controllers\ProfileSettingsController::class, 'index'])->name('profile-settings.index');
-    
+
     Route::post('/update-profile', [App\Http\Controllers\ProfileSettingsController::class, 'update'])->name('profile-settings.update');
 
     Route::post('/update-password', [App\Http\Controllers\ProfileSettingsController::class, 'updatePassword'])->name('profile-settings.updatePassword');

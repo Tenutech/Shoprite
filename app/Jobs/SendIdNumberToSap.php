@@ -13,7 +13,10 @@ use GuzzleHttp\Client as GuzzleClient;
 
 class SendIdNumberToSap implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $idNumber;
     protected $applicant;
