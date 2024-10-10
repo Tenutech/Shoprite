@@ -25,7 +25,6 @@ it('registers a new user and handles various aspects of registration', function 
         'id_number' => '8112045070088',
         'password' => 'password123',
         'password_confirmation' => 'password123',
-        'address' => '123 Fake Street',
         'guardian_mobile' => '0987654321',
     ];
 
@@ -38,7 +37,6 @@ it('registers a new user and handles various aspects of registration', function 
         'lastname' => 'Register',
         'email' => 'johnregister@example.com',
         'phone' => '1234567890',
-        'address' => '123 Fake Street',
     ]);
 
     $user = User::where('email', 'johnregister@example.com')->first();
