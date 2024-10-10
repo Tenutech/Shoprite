@@ -17,6 +17,7 @@ use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
 use App\Models\ApplicantMonthlyStoreData;
 use App\Services\DataService\ApplicantDataService;
+use App\Services\DataService\ApplicantProximityService;
 use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
@@ -35,10 +36,14 @@ class ManagerController extends Controller
      *
      * @return void
      */
-    public function __construct(ApplicantDataService $applicantDataService, VacancyDataService $vacancyDataService)
-    {
+    public function __construct(
+        ApplicantDataService $applicantDataService,
+        ApplicantProximityService $applicantProximityService,
+        VacancyDataService $vacancyDataService
+    ) {
         $this->middleware(['auth', 'verified']);
         $this->applicantDataService = $applicantDataService;
+        $this->applicantProximityService = $applicantProximityService;
         $this->vacancyDataService = $vacancyDataService;
     }
 
@@ -352,6 +357,18 @@ class ManagerController extends Controller
                 $adoptionRate = $this->vacancyDataService->getStoreVacancyFillRate($storeId, null, $startDate, $endDate);
                 $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresForStoreAndDateRange($storeId, $startDate, $endDate);
                 $averageScores = $this->applicantDataService->calculateAverageScores($placedApplicants);
+                $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId);
+                $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire($storeId);
+                $adoptionRate = $this->vacancyDataService->getStoreVacancyFillRate($storeId, null, $startDate, $endDate);
+                $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForStore($storeId, $startDate, $endDate);
+                $distanceLimit = 50;
+                $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
+                    'store',
+                    $storeId,
+                    $distanceLimit,
+                    $startDate,
+                    $endDate
+                );
             }
 
             return view('manager/home', [
@@ -376,6 +393,8 @@ class ManagerController extends Controller
                 'storeAverageTimeToHire' => $storeAverageTimeToHire,
                 'adoptionRate' => $adoptionRate,
                 'averageScores' => $averageScores,
+                'averageDistanceSuccessfulPlacements' => $averageDistanceSuccessfulPlacements,
+                'averageTalentPoolDistance' => $averageTalentPoolDistance,
             ]);
         }
         return view('404');

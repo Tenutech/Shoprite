@@ -13,6 +13,7 @@ use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
 use App\Services\DataService\ApplicantDataService;
+use App\Services\DataService\ApplicantProximityService;
 use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -33,10 +34,12 @@ class DTDPController extends Controller
     public function __construct(
         ActivityLogService $activityLogService,
         ApplicantDataService $applicantDataService,
+        ApplicantProximityService $applicantProximityService,
         VacancyDataService $vacancyDataService
     ) {
         $this->activityLogService = $activityLogService;
         $this->applicantDataService = $applicantDataService;
+        $this->applicantProximityService = $applicantProximityService;
         $this->vacancyDataService = $vacancyDataService;
     }
 
@@ -534,9 +537,19 @@ class DTDPController extends Controller
                 $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDivisionAndDateRange($divisionId, $startDate, $endDate);
                 $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
                 $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
+                $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForDivision(Auth::user()->division_id, $startDate, $endDate);
+                $distanceLimit = 50;
+                $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
+                    'division',
+                    Auth::user()->division_id,
+                    $distanceLimit,
+                    $startDate,
+                    $endDate
+                );
             }
 
             return view('dtdp/home', [
+                'activities' => $activities,
                 'activities' => $activities,
                 'positions' => $positions,
                 'currentYearData' => $currentYearData,
@@ -557,11 +570,13 @@ class DTDPController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
-                'divisionWideAverageTimeToShortlist' => $divisionWideAverageTimeToShortlist,
-                'divisionWideTimeToHire' =>  $divisionWideTimeToHire,
+                'divisionWideAveragetimeToShortlist' => $divisionWideAveragetimeToShortlist,
+                'divisionWideTimeToHire' => $divisionWideTimeToHire,
                 'adoptionRate' => $adoptionRate,
                 'averageScoresByBrand' => $averageScoresByBrand,
                 'averageScoresByProvince' => $averageScoresByProvince,
+                'averageDistanceSuccessfulPlacements' => $averageDistanceSuccessfulPlacements,
+                'averageTalentPoolDistance' => $averageTalentPoolDistance,
             ]);
         }
         return view('404');
