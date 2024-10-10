@@ -143,56 +143,23 @@
 
             @include('admin.dashboard.partials.rates') 
 
-            <div class="row">
-                <div class="col-xl-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex">
-                                <h5 class="card-title mb-0 flex-grow-1">
-                                Application Completion Rate
-                                </h5>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h2 class="mt-4 ff-primary fw-bold">
-                                        <span class="counter-value" data-target="{{ $applicationCompletionRate > 0 ? $applicationCompletionRate : 0 }}" id="applicationCompletionRateValue">
-                                            {{ $applicationCompletionRate }}
-                                        </span>%
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                    </p>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div>
-                </div> <!-- end col-->
-                <div class="col-xl-6">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex">
-                                <h5 class="card-title mb-0 flex-grow-1">
-                                Drop-Off Rates
-                                </h5>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h2 class="mt-4 ff-primary fw-bold">
-                                        <span class="counter-value" id="dropOffRateValue">
-                                            {{ $dropOffRates['dropoff_rate']['percentage'] }}
-                                        </span>%
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                    </p>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div>
-                </div> <!-- end col-->
-            </div> <!-- end row-->
+            <!-------------------------------------------------------------------------------------
+                Talent Pool breakdown
+            -------------------------------------------------------------------------------------->
+
+            @include('admin.dashboard.partials.demographics_talent_pool_breakdown') 
+
+            <!-------------------------------------------------------------------------------------
+                Appointed Candidates
+            -------------------------------------------------------------------------------------->
+
+            @include('admin.dashboard.partials.demographics_appointed_candidates_breakdown')
+
+            <!-------------------------------------------------------------------------------------
+                Interviewed Candidates
+            -------------------------------------------------------------------------------------->
+
+            @include('admin.dashboard.partials.demographics_interviewed_candidates_breakdown')
 
             <div class="row">
                 <div class="col-xl-12">
@@ -223,6 +190,7 @@
                 </div>
                 <!--end col-->
             </div>
+
             <!-------------------------------------------------------------------------------------
                 Applicants Graph
             -------------------------------------------------------------------------------------->
@@ -1072,6 +1040,18 @@
     var websiteChannelCount = @json($channelStats['website']['count']);
 
     var applicantsByPosition = @json($applicantsByPosition);
+
+    var raceBreakdownPercentages = @json($raceBreakdownPercentages);
+    var ageBreakdownPercentages = @json($ageBreakdownPercentages);
+    var genderBreakdownPercentages = @json($genderBreakdownPercentages);
+
+    var appointedRaceBreakdownPercentages = @json($appointedRaceBreakdownPercentages);
+    var appointedAgeBreakdownPercentages = @json($appointedAgeBreakdownPercentages);
+    var appointedGenderBreakdownPercentages = @json($appointedGenderBreakdownPercentages);
+
+    var interviewedRaceBreakdownPercentages = @json($interviewedRaceBreakdownPercentages);
+    var interviewedAgeBreakdownPercentages = @json($interviewedAgeBreakdownPercentages);
+    var interviewedGenderBreakdownPercentages = @json($interviewedGenderBreakdownPercentages);
 
     var applicantData = applicantsPerProvince.reduce((accumulator, currentValue) => {
         accumulator[currentValue.x] = currentValue.y;

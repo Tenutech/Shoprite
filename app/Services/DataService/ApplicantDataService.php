@@ -195,7 +195,7 @@ class ApplicantDataService
 
         $completedPercentage = ($totalApplicants > 0) ? ($completedCount / $totalApplicants) * 100 : 0;
 
-        return $completedPercentage;
+        return number_format($completedPercentage, 2);
     }
 
     /**
@@ -239,7 +239,7 @@ class ApplicantDataService
         return [
             'dropoff_rate' => [
                 'count' => $dropoffCount,
-                'percentage' => $dropoffPercentage,
+                'percentage' => number_format($dropoffPercentage, 2),
             ],
             'dropoff_by_stage' => $dropoffByStage,
         ];
@@ -317,6 +317,213 @@ class ApplicantDataService
                 'percentage' => round($websitePercentage, 2),
             ],
         ];
+    }
+
+    /**
+     * Get total count of applicants in the talent pool (where appointed_id is null),
+     * filtered by an optional date range.
+     *
+     * @param string|null $startDate Start date in 'Y-m-d' format
+     * @param string|null $endDate End date in 'Y-m-d' format
+     * @return int
+     */
+    public function getTotalTalentPoolCount(?string $startDate = null, ?string $endDate = null): int
+    {
+        $query = Applicant::query();
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+        }
+
+        return $query->count();
+    }
+
+    /**
+     * Get total count of applicants who were appointed
+     * filtered by an optional date range.
+     *
+     * @param string|null $startDate Start date in 'Y-m-d' format
+     * @param string|null $endDate End date in 'Y-m-d' format
+     * @return int
+     */
+    public function getTotalAppointedCount(?string $startDate = null, ?string $endDate = null): int
+    {
+        return $this->getTotalCountByType($startDate, $endDate, 'appointed');
+    }
+
+    /**
+     * Get race breakdown (counts and percentages) of the talent pool,
+     * filtered by an optional date range.
+     *
+     * @param string|null $startDate Start date in 'Y-m-d' format
+     * @param string|null $endDate End date in 'Y-m-d' format
+     * @return array
+     * [
+     *   'counts' => \Illuminate\Database\Eloquent\Collection, // Collection of race counts
+     *   'percentages' => array  // Array of race percentages with race_id as key
+     * ]
+     */
+    public function getRaceBreakdown(?string $startDate = null, ?string $endDate = null, string $type = 'talent_pool'): array
+    {
+        $totalTalentPool = $this->getTotalTalentPoolCount($startDate, $endDate);
+
+        $query = Applicant::join('races', 'applicants.race_id', '=', 'races.id')
+            ->select('races.name', DB::raw('count(*) as count'))
+            ->groupBy('races.name');
+
+        if ($type === 'talent_pool') {
+            $query->whereNull('appointed_id');
+        } elseif ($type === 'appointed') {
+            $query->whereNotNull('appointed_id');
+        } elseif ($type === 'interviewed') {
+            $query->whereHas('interviews');
+        }
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('applicants.created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+        }
+
+        $raceCounts = $query->get();
+
+        $racePercentages = [];
+        foreach ($raceCounts as $raceCount) {
+            $racePercentages[$raceCount->name] = ($raceCount->count / $totalTalentPool) * 100;
+        }
+
+        return [
+            'counts' => $raceCounts,
+            'percentages' => $racePercentages
+        ];
+    }
+
+    /**
+     * Get gender breakdown (counts and percentages) of the talent pool,
+     * filtered by an optional date range.
+     *
+     * @param string|null $startDate Start date in 'Y-m-d' format
+     * @param string|null $endDate End date in 'Y-m-d' format
+     * @return array
+     * [
+     *   'male_count' => int,  // Total count of male applicants
+     *   'female_count' => int,  // Total count of female applicants
+     *   'male_percentage' => float,  // Percentage of male applicants
+     *   'female_percentage' => float  // Percentage of female applicants
+     * ]
+     */
+    public function getGenderBreakdown(?string $startDate = null, ?string $endDate = null): array
+    {
+        $totalTalentPool = $this->getTotalTalentPoolCount($startDate, $endDate);
+
+        $maleQuery = Applicant::whereNull('appointed_id')->where('gender_id', 1);
+        $femaleQuery = Applicant::whereNull('appointed_id')->where('gender_id', 2);
+
+        if ($startDate && $endDate) {
+            $maleQuery->whereBetween('created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+            $femaleQuery->whereBetween('created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+        }
+
+        $maleCount = $maleQuery->count();
+        $femaleCount = $femaleQuery->count();
+
+        return [
+            'counts' => [
+                'male_count' => $maleCount,
+                'female_count' => $femaleCount,
+            ],
+            'percentages' => [
+                'male_percentage' => ($maleCount / $totalTalentPool) * 100,
+                'female_percentage' => ($femaleCount / $totalTalentPool) * 100
+            ],
+        ];
+    }
+
+    /**
+     * Get age breakdown (counts and percentages) of the talent pool or specific types of applicants,
+     * filtered by an optional date range and application type.
+     *
+     * @param string|null $startDate Start date in 'Y-m-d' format
+     * @param string|null $endDate End date in 'Y-m-d' format
+     * @param string $type The type of applicants to filter ('talent_pool', 'appointed', 'interviewed')
+     * @return array
+     * [
+     *   'counts' => array,  // Array of age group counts
+     *   'percentages' => array  // Array of age group percentages
+     * ]
+     */
+    public function getAgeBreakdown(?string $startDate = null, ?string $endDate = null, string $type = 'talent_pool'): array
+    {
+        $totalApplicants = $this->getTotalCountByType($startDate, $endDate, $type);
+
+        $ageGroups = [
+            '18-24' => [18, 24],
+            '25-30' => [25, 30],
+            '31-40' => [31, 40],
+            '41-50' => [41, 50],
+            '51-60' => [51, 60],
+            '60+'   => [60, 100],
+        ];
+
+        $ageCounts = [];
+        $agePercentages = [];
+
+        foreach ($ageGroups as $group => $range) {
+            $query = Applicant::query();
+
+            if ($type === 'talent_pool') {
+                $query->whereNull('appointed_id');
+            } elseif ($type === 'appointed') {
+                $query->whereNotNull('appointed_id');
+            } elseif ($type === 'interviewed') {
+                $query->whereHas('interviews');
+            }
+
+            $query->whereBetween('age', [$range[0], $range[1]]);
+
+            if ($startDate && $endDate) {
+                $query->whereBetween('created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+            }
+
+            $count = $query->count();
+            $ageCounts[$group] = $count;
+
+            if ($totalApplicants > 0) {
+                $agePercentages[$group] = ($count / $totalApplicants) * 100;
+            } else {
+                $agePercentages[$group] = 0;
+            }
+        }
+
+        return [
+            'counts' => $ageCounts,
+            'percentages' => $agePercentages
+        ];
+    }
+
+    /**
+     * Get the total count of applicants based on the type and optional date range.
+     *
+     * @param string|null $startDate Start date in 'Y-m-d' format
+     * @param string|null $endDate End date in 'Y-m-d' format
+     * @param string $type The type of applicants ('talent_pool', 'appointed', 'interviewed')
+     * @return int
+     */
+    protected function getTotalCountByType(?string $startDate = null, ?string $endDate = null, string $type): int
+    {
+        $query = Applicant::query();
+
+        if ($type === 'all') {
+            $query->whereNull('appointed_id');
+        } elseif ($type === 'appointed') {
+            $query->whereNotNull('appointed_id');
+        } elseif ($type === 'interviewed') {
+            $query->whereHas('interviews');
+        }
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+        }
+
+        return $query->count();
     }
 
     /**

@@ -567,7 +567,7 @@ class AdminController extends Controller
                 ];
             })->all();
 
-            $startDate = Carbon::now()->startOfYear();
+            $startDate = Carbon::now()->subYears(2)->startOfYear();
             $endDate = Carbon::now()->endOfYear();
 
             $averageShortlistTime = $this->vacancyDataService->getNationwideAverageTimeToShortlist($startDate, $endDate);
@@ -577,6 +577,18 @@ class AdminController extends Controller
             $dropOffRates = $this->applicantDataService->getDropOffRates($startDate, $endDate);
             // $completionByRegion = $this->applicantDataService->getCompletionByRegion($startDate, $endDate);
             $channelStats =  $this->applicantDataService->getTotalAndPercentageByChannel($startDate, $endDate);
+            $totalTalentPool = $this->applicantDataService->getTotalTalentPoolCount($startDate, $endDate);
+            $raceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate);
+            $genderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate);
+            $ageBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate);
+
+            $appointedRaceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate, 'appointed');
+            $appointedGenderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate, 'appointed');
+            $appointedAgeBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate, 'appointed');
+
+            $interviewedRaceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate, 'interveiwed');
+            $interviewedGenderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate, 'interveiwed');
+            $interviewedAgeBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate, 'interveiwed');
 
             $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDateRange($startDate, $endDate);
             $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
@@ -612,6 +624,16 @@ class AdminController extends Controller
                 'averageScoresByBrand' => $averageScoresByBrand,
                 'averageScoresByProvince' => $averageScoresByProvince,
                 'channelStats' => $channelStats,
+                'totalTalentPool' => $totalTalentPool,
+                'raceBreakdownPercentages' => array_values($raceBreakdown['percentages']),
+                'ageBreakdownPercentages' => array_values($ageBreakdown['percentages']),
+                'genderBreakdownPercentages' => array_values($genderBreakdown['percentages']),
+                'appointedRaceBreakdownPercentages' => array_values($appointedRaceBreakdown['percentages']),
+                'appointedGenderBreakdownPercentages' => array_values($appointedGenderBreakdown['percentages']),
+                'appointedAgeBreakdownPercentages' => array_values($appointedAgeBreakdown['percentages']),
+                'interviewedRaceBreakdownPercentages' => array_values($interviewedRaceBreakdown['percentages']),
+                'interviewedGenderBreakdownPercentages' => array_values($interviewedGenderBreakdown['percentages']),
+                'interviewedAgeBreakdownPercentages' => array_values($interviewedAgeBreakdown['percentages']),
             ]);
         }
         return view('404');
