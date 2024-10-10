@@ -1057,6 +1057,32 @@ class InterviewController extends Controller
                 }
             }
 
+            // Prepare a congratulatory WhatsApp message for the applicant
+            $whatsappMessage = "Dear " . $applicant->firstname ?: 'N/A' . ", thank you for your interest in the " .
+                optional($vacancy->position)->name ?: 'N/A' . " position at " .
+                optional($vacancy->store->brand)->name ?: 'N/A' . " (" .
+                optional($vacancy->store->town)->name ?: 'N/A' . "). We truly appreciate the time and effort you invested in your application.
+                After careful consideration, we regret to inform you that we have selected another candidate for this role. Please know that this 
+                decision does not diminish the value of your skills and experience.
+                We encourage you to apply for future opportunities with us, and we wish you all the best in your job search and career journey.";
+
+            // Define the message type
+            $type = 'template';
+
+            // Define the template
+            $template = 'regretted';
+
+            // Prepare the variables (you can define these as per your needs)
+            $variables = [
+                $applicant->firstname ?: 'N/A',  // If $applicant->firstname is null, use 'N/A'
+                optional($vacancy->position)->name ?: 'N/A',  // If $vacancy->position or its name is null, use 'N/A'
+                optional($vacancy->store->brand)->name ?: 'N/A',  // If $vacancy->store->brand or its name is null, use 'N/A'
+                optional($vacancy->store->town)->name ?: 'N/A'  // If $vacancy->store->town or its name is null, use 'N/A'
+            ];                    
+
+            // Dispatch a job to send the WhatsApp message
+            SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
+
             return response()->json([
                 'success' => true,
                 'interview' => $interview,

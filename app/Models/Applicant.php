@@ -192,10 +192,16 @@ class Applicant extends Model
         return $this->hasMany(Contract::class);
     }
 
-    //vacanciesFilled
+    //Vacancies Filled
     public function vacanciesFilled()
     {
         return $this->belongsToMany(Vacancy::class, 'vacancy_fills', 'applicant_id', 'vacancy_id')->withTimestamps();
+    }
+
+    //Documents
+    public function documents()
+    {
+        return $this->hasMany(Document::class);
     }
 
     //Applicant Total Data
