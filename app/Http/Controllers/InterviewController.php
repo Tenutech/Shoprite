@@ -316,7 +316,7 @@ class InterviewController extends Controller
 
             // Define the message type and template
             $type = 'template';
-            $template = 'interview_view';
+            $template = 'interview_send';
 
             // Prepare the variables for the WhatsApp template
             $variables = [

@@ -458,7 +458,7 @@ class ApplicantProfileController extends Controller
 
             // Define the message type and template
             $type = 'template';
-            $template = 'interview_view';
+            $template = 'interview_send';
 
             // Dispatch WhatsApp message
             SendWhatsAppMessage::dispatch($applicant, $message, $type, $template);
