@@ -530,6 +530,137 @@
                 </div><!-- end col -->
             </div>
 
+            <div class="row">
+                <div class="col-xl-6">
+                    <!-- card -->
+                    <div class="card card-height-100">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">
+                                Assessment Literacy Scores By Brand
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <!-- card body -->
+                        <div class="card-body">
+        
+                            <div class="px-2 py-2 mt-4" id="provinceProgress">
+                                @foreach($averageScoresByBrand as $key => $value)
+
+                                    <p class="mb-1">
+                                        {{ $key }}
+                                        <span class="float-end">{{ $value['literacy_percentage'] }}%</span>
+                                    </p>
+                                    <div class="progress mt-1 mb-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
+                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            
+                        </div>
+                        <!-- end card body -->
+                    </div>
+                    <!-- end card -->
+                </div>
+
+                <div class="col-xl-6">
+                    <!-- card -->
+                    <div class="card card-height-100">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">
+                                Assessment Numeracy Scores By Brand
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <!-- card body -->
+                        <div class="card-body">
+        
+                            <div class="px-2 py-2 mt-4" id="provinceProgress">
+                                @foreach($averageScoresByBrand as $key => $value)
+
+                                    <p class="mb-1">
+                                        {{ $key }}
+                                        <span class="float-end">{{ $value['numeracy_percentage'] }}%</span>
+                                    </p>
+                                    <div class="progress mt-1 mb-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
+                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            
+                        </div>
+                        <!-- end card body -->
+                    </div>
+                    <!-- end card -->
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-6">
+                    <!-- card -->
+                    <div class="card card-height-100">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">
+                                Assessment Literacy Scores
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <!-- card body -->
+                        <div class="card-body">
+        
+                            <div class="px-2 py-2 mt-4" id="provinceProgress">
+                                @foreach($averageScoresByProvince as $key => $value)
+
+                                    <p class="mb-1">
+                                        {{ $key }}
+                                        <span class="float-end">{{ $value['literacy_percentage'] }}%</span>
+                                    </p>
+                                    <div class="progress mt-1 mb-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
+                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            
+                        </div>
+                        <!-- end card body -->
+                    </div>
+                    <!-- end card -->
+                </div>
+
+                <div class="col-xl-6">
+                    <!-- card -->
+                    <div class="card card-height-100">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">
+                                Assessment Numeracy Scores
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <!-- card body -->
+                        <div class="card-body">
+        
+                            <div class="px-2 py-2 mt-4" id="provinceProgress">
+                                @foreach($averageScoresByProvince as $key => $value)
+
+                                    <p class="mb-1">
+                                        {{ $key }}
+                                        <span class="float-end">{{ $value['numeracy_percentage'] }}%</span>
+                                    </p>
+                                    <div class="progress mt-1 mb-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
+                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            
+                        </div>
+                        <!-- end card body -->
+                    </div>
+                    <!-- end card -->
+                </div>
+            </div>
         </div> <!-- end .h-100-->
 
     </div> <!-- end col -->

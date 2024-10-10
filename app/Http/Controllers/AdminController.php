@@ -575,6 +575,10 @@ class AdminController extends Controller
             $dropOffRates = $this->applicantDataService->getDropOffRates($startDate, $endDate);
             // $completionByRegion = $this->applicantDataService->getCompletionByRegion($startDate, $endDate);
 
+            $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDateRange($startDate, $endDate);
+            $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
+            $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
+
             return view('admin/home', [
                 'activities' => $activities,
                 'positions' => $positions,
@@ -602,6 +606,8 @@ class AdminController extends Controller
                 'applicationCompletionRate' => $applicationCompletionRate,
                 'dropOffRates' => $dropOffRates,
                 // 'completionByRegion' => $completionByRegion,
+                'averageScoresByBrand' => $averageScoresByBrand,
+                'averageScoresByProvince' => $averageScoresByProvince,
             ]);
         }
         return view('404');

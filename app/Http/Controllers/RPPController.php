@@ -520,10 +520,15 @@ class RPPController extends Controller
 
             $regionWideAverageShortlistTime = 0;
             $adoptionRate = 0;
+            $averageScoresByBrand = [];
+            $averageScoresByProvince = [];
 
             if ($regionId !== null) {
                 $regionWideAverageShortlistTime = $this->vacancyDataService->getRegionWideAverageTimeToShortlist($regionId);
                 $adoptionRate = $this->vacancyDataService->getRegionVacancyFillRate($regionId, $startDate, $endDate);
+                $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByRegionAndDateRange($regionId, $startDate, $endDate);
+                $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
+                $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
             }
 
             return view('rpp/home', [
@@ -549,6 +554,8 @@ class RPPController extends Controller
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
                 'regionWideAverageShortlistTime' => $regionWideAverageShortlistTime,
                 'adoptionRate' => $adoptionRate,
+                'averageScoresByBrand' => $averageScoresByBrand,
+                'averageScoresByProvince' => $averageScoresByProvince,
             ]);
         }
         return view('404');
