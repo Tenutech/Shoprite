@@ -26,7 +26,7 @@ class GoogleMapsService
 
     /**
      * Geocode an address by sending a request to Google Maps Geocoding API.
-     * 
+     *
      * @param string $address The address to geocode.
      * @return array|null The geocoded result or null if the request fails.
      */
@@ -38,7 +38,7 @@ class GoogleMapsService
 
     /**
      * Get the current HTTP client instance.
-     * 
+     *
      * @return \GuzzleHttp\Client
      */
     public function getClient()
@@ -48,7 +48,7 @@ class GoogleMapsService
 
     /**
      * Set a custom HTTP client instance.
-     * 
+     *
      * @param \GuzzleHttp\Client $client The HTTP client to set.
      */
     public function setClient(Client $client)
@@ -59,7 +59,7 @@ class GoogleMapsService
     /**
      * Reverse geocode coordinates (latitude and longitude) by sending a request
      * to Google Maps Geocoding API.
-     * 
+     *
      * @param float $latitude The latitude coordinate.
      * @param float $longitude The longitude coordinate.
      * @return array|null The reverse geocoded result or null if the request fails.
@@ -72,7 +72,7 @@ class GoogleMapsService
 
     /**
      * Send a request to the Google Maps API and process the response.
-     * 
+     *
      * @param string $endpoint The API endpoint (e.g., 'geocode/json').
      * @param array $parameters The parameters to send with the request.
      * @return array|null The processed geocoded data or null if the request fails.
@@ -160,7 +160,6 @@ class GoogleMapsService
             // Log a warning if the geocoding request failed
             Log::warning('Geocoding API returned status: ' . $data['status']);
             return null;
-
         } catch (\Exception $e) {
             // Log the error message for debugging
             Log::error('Geocoding API error: ' . $e->getMessage());
@@ -171,7 +170,7 @@ class GoogleMapsService
     /**
      * Determine which province the given coordinates fall into by checking
      * against predefined provincial boundaries.
-     * 
+     *
      * @param float $latitude The latitude of the coordinates.
      * @param float $longitude The longitude of the coordinates.
      * @return int|null The ID of the province in the database or null if not found.

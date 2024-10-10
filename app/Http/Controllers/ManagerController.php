@@ -334,36 +334,19 @@ class ManagerController extends Controller
                 }
             }
 
-            // Set the start date to the beginning of the current year
             $startDate = Carbon::now()->startOfYear();
-
-            // Set the end date to the end of the current year
             $endDate = Carbon::now()->endOfYear();
 
-            // Get the store ID of the authenticated user
             $storeId = $authUser->store_id;
 
-            // Check if the store ID is not null
+            $storeAverageTimeToShortlist = 0;
+            $storeAverageTimeToHire = 0;
+            $adoptionRate = 0;
+
             if ($storeId !== null) {
-                // If store ID is present, calculate the store-wide average time to shortlist
                 $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId);
-
-                // Calculate the store-wide average time to hire
                 $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire($storeId);
-
-                // Calculate the adoption rate (vacancy fill rate) for the given store within the date range
                 $adoptionRate = $this->vacancyDataService->getStoreVacancyFillRate($storeId, null, $startDate, $endDate);
-            } else {
-                // If store ID is null, handle the case by assigning default values
-
-                // Set the store-wide average time to shortlist to 0 or another default value
-                $storeAverageTimeToShortlist = 0;
-
-                // Set the store-wide average time to hire to 0 or another default value
-                $storeAverageTimeToHire = 0;
-
-                // Set the adoption rate to 0 or another default value
-                $adoptionRate = 0;
             }
 
             return view('manager/home', [

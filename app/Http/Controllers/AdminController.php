@@ -568,8 +568,8 @@ class AdminController extends Controller
             $startDate = Carbon::now()->startOfYear();
             $endDate = Carbon::now()->endOfYear();
 
-            $averageShortlistTime = $this->vacancyDataService->getNationwideAverageTimeToShortlist();
-            $averageTimeToHire = $this->vacancyDataService->getNationwideAverageTimeToHire();
+            $averageShortlistTime = $this->vacancyDataService->getNationwideAverageTimeToShortlist($startDate, $endDate);
+            $averageTimeToHire = $this->vacancyDataService->getNationwideAverageTimeToHire($startDate, $endDate);
             $adoptionRate = $this->vacancyDataService->getNationwideVacancyFillRate($startDate, $endDate);
             $applicationCompletionRate = $this->applicantDataService->getApplicationCompletionRate($startDate, $endDate);
             $dropOffRates = $this->applicantDataService->getDropOffRates($startDate, $endDate);

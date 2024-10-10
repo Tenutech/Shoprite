@@ -10,16 +10,24 @@ use Illuminate\Support\Facades\DB;
 class VacancyDataService
 {
     /**
-     * Calculate the average time to shortlist for all vacancies (nationwide).
+     * Calculate the average time to shortlist for all vacancies (nationwide),
+     * within an optional date range.
      *
-     * @return float
+     * @param string|null $startDate Start date in 'Y-m-d' format
+     * @param string|null $endDate End date in 'Y-m-d' format
+     * @return float|null The average time to shortlist
      */
-    public function getNationwideAverageTimeToShortlist()
+    public function getNationwideAverageTimeToShortlist(?string $startDate = null, ?string $endDate = null): ?float
     {
-        return DB::table('vacancies')
+        $query = DB::table('vacancies')
             ->join('shortlists', 'vacancies.id', '=', 'shortlists.vacancy_id')
-            ->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, shortlists.created_at))) as avg_time_to_shortlist'))
-            ->value('avg_time_to_shortlist');
+            ->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, shortlists.created_at))) as avg_time_to_shortlist'));
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('vacancies.created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+        }
+
+        return $query->value('avg_time_to_shortlist');
     }
 
     /**
@@ -93,16 +101,23 @@ class VacancyDataService
     }
 
     /**
-     * Calculate the nationwide average time to hire.
+     * Calculate the nationwide average time to hire, within an optional date range.
      *
-     * @return float|null
+     * @param string|null $startDate Start date in 'Y-m-d' format
+     * @param string|null $endDate End date in 'Y-m-d' format
+     * @return float|null The average time to hire
      */
-    public function getNationwideAverageTimeToHire()
+    public function getNationwideAverageTimeToHire(?string $startDate = null, ?string $endDate = null): ?float
     {
-        return DB::table('vacancies')
+        $query = DB::table('vacancies')
             ->join('vacancy_fills', 'vacancies.id', '=', 'vacancy_fills.vacancy_id')
-            ->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, vacancy_fills.created_at))) as avg_time_to_hire'))
-            ->value('avg_time_to_hire');
+            ->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, vacancy_fills.created_at))) as avg_time_to_hire'));
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('vacancies.created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+        }
+
+        return $query->value('avg_time_to_hire');
     }
 
     /**

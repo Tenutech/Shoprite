@@ -29,7 +29,6 @@ use App\Jobs\SendWhatsAppMessage;
 use App\Jobs\UpdateApplicantData;
 use Illuminate\Validation\ValidationException;
 
-
 class VacancyController extends Controller
 {
     protected $vacancyService;
@@ -225,7 +224,6 @@ class VacancyController extends Controller
                 'message' => 'Validation errors occurred.',
                 'errors' => $e->errors() // This will return the validation errors in a key-value format
             ], 422); // 422 Unprocessable Entity is standard for validation errors
-            
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -318,7 +316,6 @@ class VacancyController extends Controller
                 'message' => 'Validation errors occurred.',
                 'errors' => $e->errors() // This will return the validation errors in a key-value format
             ], 422); // 422 Unprocessable Entity is standard for validation errors
-            
         } catch (Exception $e) {
             DB::rollBack();
 
@@ -564,7 +561,7 @@ class VacancyController extends Controller
                     UpdateApplicantData::dispatch($applicant->id, 'updated', 'Appointed', $vacancyId)->onQueue('default');
 
                     // Prepare a congratulatory WhatsApp message for the applicant
-                    $whatsappMessage = "Congratulations ". $applicant->firstname ?: 'N/A' . "! You have been appointed for the position of " .
+                    $whatsappMessage = "Congratulations " . $applicant->firstname ?: 'N/A' . "! You have been appointed for the position of " .
                         optional($vacancy->position)->name ?: 'N/A' . " at " .
                         optional($vacancy->store->brand)->name ?: 'N/A' . " (" .
                         optional($vacancy->store->town)->name ?: 'N/A' . "). " .
@@ -582,7 +579,7 @@ class VacancyController extends Controller
                         optional($vacancy->position)->name ?: 'N/A',  // If $vacancy->position or its name is null, use 'N/A'
                         optional($vacancy->store->brand)->name ?: 'N/A',  // If $vacancy->store->brand or its name is null, use 'N/A'
                         optional($vacancy->store->town)->name ?: 'N/A'  // If $vacancy->store->town or its name is null, use 'N/A'
-                    ];                    
+                    ];
 
                     // Dispatch a job to send the WhatsApp message
                     SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
@@ -612,8 +609,8 @@ class VacancyController extends Controller
 
                 if ($shortlist) {
                     // Decode applicant_ids if it's a JSON string or unserialize if it's serialized
-                    $applicantIds = is_array($shortlist->applicant_ids) 
-                        ? $shortlist->applicant_ids 
+                    $applicantIds = is_array($shortlist->applicant_ids)
+                        ? $shortlist->applicant_ids
                         : json_decode($shortlist->applicant_ids, true); // Adjust if using serialized data with unserialize()
 
                     // Get the appointed IDs from the vacancy
@@ -745,7 +742,7 @@ class VacancyController extends Controller
                             optional($vacancy->position)->name ?: 'N/A',  // If $vacancy->position or its name is null, use 'N/A'
                             optional($vacancy->store->brand)->name ?: 'N/A',  // If $vacancy->store->brand or its name is null, use 'N/A'
                             optional($vacancy->store->town)->name ?: 'N/A'  // If $vacancy->store->town or its name is null, use 'N/A'
-                        ];                    
+                        ];
 
                         // Dispatch a job to send the WhatsApp message
                         SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);

@@ -254,7 +254,7 @@ class ProfileSettingsController extends Controller
                 'success' => false,
                 'message' => $e->getMessage(),
                 'errors' => $e->getMessage()
-            ], 422);            
+            ], 422);
         } catch (Exception $e) {
             DB::rollBack();
 

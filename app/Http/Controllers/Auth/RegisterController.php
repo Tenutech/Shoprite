@@ -97,7 +97,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
             'avatar' => 'avatar.jpg',
             'company_id' => 1,
-            'role_id' => 7, // Default role for new users
+            'role_id' => config('constants.new_user_role_id'), // Default role for new users
             'applicant_id' => $applicant ? $applicant->id : null,
             'status_id' => 1, // User status (e.g., active)
         ]);
