@@ -93,12 +93,10 @@ class ApplicantProfileController extends Controller
             ])
             ->findorfail($applicantID);
 
-            $user = $applicant->user;
-
             $documents = collect();
 
-            if ($user) {
-                $documents = Document::where('user_id', $user->id)->get();
+            if ($applicant) {
+                $documents = Document::where('applicant_id', $applicant->id)->get();
             }
 
             //Vacancy ID

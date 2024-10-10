@@ -262,7 +262,7 @@
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
                                                             <label for="idNumber" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Please provide your South African ID number.">
-                                                                ID number
+                                                                ID Number
                                                                 <span class="text-danger">*</span>
                                                             </label>
                                                             <input type="text" class="form-control" id="idNumber" name="id_number" placeholder="Enter ID number" value="{{ $user->applicant ? $user->applicant->id_number : ($user->id_number ? $user->id_number : '') }}" readonly />
@@ -301,13 +301,13 @@
                                                     <!-- Address -->
                                                     <div class="col-md-12">
                                                         <div class="mb-3">
-                                                            <label for="location" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="What is your current residential address where you stay/live 🏡? Please type every detail. (e.g. street number, street name, suburb, town, postal code).">
+                                                            <label for="location" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="What is your current home address where you stay/live 🏡? Please type every detail. (e.g. street number, street name, suburb, town, postal code).">
                                                                 Address
                                                                 <span class="text-danger">*</span>
                                                             </label>
-                                                            <input type="text" class="form-control" id="location" name="location" placeholder="Enter physical address" value="{{ $user->applicant ? $user->applicant->location : '' }}" data-google-autocomplete autocomplete="off" required />
+                                                            <input type="text" class="form-control" id="location" name="location" placeholder="Enter home address" value="{{ $user->applicant ? $user->applicant->location : '' }}" data-google-autocomplete autocomplete="off" required />
                                                             <div class="invalid-feedback">
-                                                                Please enter your physical address!
+                                                                Please enter your home address!
                                                             </div>
                                                             <input type="hidden" id="latitude" name="latitude" value="">
                                                             <input type="hidden" id="longitude" name="longitude" value="">
@@ -382,7 +382,7 @@
                                                                 <span class="text-danger">*</span>
                                                             </label>
                                                             <select class="form-control" id="education" name="education_id" required>
-                                                                <option value="">Select education Level</option>
+                                                                <option value="">Select education level</option>
                                                                 @foreach ($educations as $education)
                                                                     <option value="{{ $education->id }}" 
                                                                         {{ ($user->applicant && $user->applicant->education_id == $education->id) ? 'selected' : '' }}>
@@ -402,7 +402,7 @@
                                                                 <span class="text-danger">*</span>
                                                             </label>
                                                             <select class="form-control" id="duration" name="duration_id" required>
-                                                                <option value="">Select duration</option>
+                                                                <option value="">Select experience</option>
                                                                 @foreach ($durations as $duration)
                                                                     <option value="{{ $duration->id }}" {{ ($user->applicant && $user->applicant->duration_id == $duration->id) ? 'selected' : '' }}>{{ $duration->name }}</option>
                                                                 @endforeach
@@ -451,7 +451,7 @@
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
                                                             <label for="brand" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Which type of store would you like to work at and be considered for?">
-                                                                Type of Store
+                                                                Type of Store/Brand
                                                                 <span class="text-danger">*</span>
                                                             </label>
                                                             <select class="form-control" id="brands" name="brands[]" data-choices multiple data-choices-search-true data-choices-removeItem required>
@@ -460,7 +460,7 @@
                                                                     <option value="{{ $brand->id }}" {{ $user->applicant && in_array($brand->id, array_column($user->applicant->brands->toArray(), 'id')) ? 'selected' : '' }}>{{ $brand->name }}</option>
                                                                 @endforeach
                                                             </select>
-                                                            <div class="invalid-feedback">Please select a store type!</div>
+                                                            <div class="invalid-feedback">Please select a brand!</div>
                                                         </div>                                                        
                                                     </div>
 

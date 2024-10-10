@@ -7,6 +7,7 @@ use Exception;
 use Carbon\Carbon;
 use App\Models\Chat;
 use App\Models\State;
+use App\Models\Document;
 use App\Models\Language;
 use App\Models\Applicant;
 use App\Models\Notification;
@@ -920,7 +921,10 @@ class ChatService
             // Check if the applicant's input is one of the valid options (1, 2, or 3)
             if ($body === '1') {
                 // Update the applicant's avatar_upload
-                $applicant->update(['avatar_upload' => 'Yes']);
+                $applicant->update([
+                    'avatar_upload' => 'Yes',
+                    'avatar' => '/images/avatar.jpg'
+                ]);
 
                 // Applicant selected option 1 or 2: Navigate to 'avatar' state
                 $stateID = State::where('code', 'avatar')->value('id');
@@ -931,8 +935,10 @@ class ChatService
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } elseif ($body === '2') {
                 // Update the applicant's avatar_upload
-                $applicant->update(['avatar_upload' => 'No']);
-                $applicant->update(['avatar' => '/images/avatar.jpg']);
+                $applicant->update([
+                    'avatar_upload' => 'No',
+                    'avatar' => '/images/avatar.jpg'
+                ]);
 
                 // Applicant selected option 2: Navigate to 'additional_contact_number' state
                 $stateID = State::where('code', 'additional_contact_number')->value('id');
@@ -1059,8 +1065,14 @@ class ChatService
 
                         // Save the image file to the specified path
                         if (file_put_contents($filePath, $fileContent)) {
-                            // If the image was saved successfully, update the applicant's avatar field with the image path
-                            $applicant->update(['avatar' => '/images/' . $fileName]);
+                            // Create a new document record instead of updating the applicant's avatar
+                            Document::create([
+                                'applicant_id' => $applicant->id,
+                                'name' => $fileName,
+                                'type' => $fileExtension,
+                                'size' => $contentLength,
+                                'url' => '/images/' . $fileName,
+                            ]);
 
                             // Transition the applicant to the 'additional_contact_number' state
                             $stateID = State::where('code', 'additional_contact_number')->value('id');

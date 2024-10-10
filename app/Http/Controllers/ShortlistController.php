@@ -397,7 +397,7 @@ class ShortlistController extends Controller
                         $distance = $earthRadius * $c;  // Distance in kilometers
 
                         // Round the distance to 2 decimal places and add it as an attribute
-                        $applicant->distance = round($distance, 2) . ' km';
+                        $applicant->distance = round($distance, 1);
                     }
                 } else {
                     $applicant->distance = 'N/A';  // Set to 'N/A' if coordinates are missing or improperly formatted
@@ -405,6 +405,16 @@ class ShortlistController extends Controller
 
                 return $applicant;
             });
+
+            // Sort the collection by the 'distance' field, moving 'N/A' to the end
+            $applicantsCollection = $applicantsCollection->sort(function ($a, $b) {
+                // Handle 'N/A' cases by moving them to the end
+                if ($a->distance === 'N/A') return 1;
+                if ($b->distance === 'N/A') return -1;
+
+                // Compare distances when both are valid numbers
+                return $a->distance <=> $b->distance;
+            })->values(); // Re-index the collection after sorting
 
             // Map the results to include encrypted IDs and load checks relation
             $applicantsCollection = $applicantsCollection->map(function ($applicant) use ($userID) {
@@ -565,7 +575,7 @@ class ShortlistController extends Controller
                             $distance = $earthRadius * $c;  // Distance in kilometers
 
                             // Round the distance to 2 decimal places and add it as an attribute
-                            $applicant->distance = round($distance, 2) . ' km';
+                            $applicant->distance = round($distance, 1);
                         }
                     } else {
                         $applicant->distance = 'N/A';  // Set to 'N/A' if coordinates are missing or improperly formatted

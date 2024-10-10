@@ -480,10 +480,17 @@ if (document.querySelectorAll(".form-steps")) {
 $('#formApplication, #formApplicationUpdate').on('submit', function(e) {
     e.preventDefault();
 
-    var countryCode = $('#phoneCountry').text().trim().replace('+', '').trim();
+    // Get the country code and remove any spaces
+    var countryCode = $('.country-codeno').text().trim().replace(/\s+/g, '');
+
+    // Get the phone input element
     var phoneNumber = $('#phone').val().trim();
-    phoneNumber = '+' + countryCode + phoneNumber;
-    phoneNumber = phoneNumber.replace(/\s+/g, '');
+
+    // Check if the phone number already starts with the country code
+    if (!phoneNumber.startsWith(countryCode)) {
+        // If it doesn't start with the country code, add the country code
+        phoneNumber = countryCode + phoneNumber;
+    }
 
     var formID = $(this).attr('id');
     var formData = new FormData(this);
@@ -568,6 +575,10 @@ $('#formApplication, #formApplicationUpdate').on('submit', function(e) {
             } else if (formID === 'formApplicationUpdate') {
                 $("#complete").show();
             }
+
+            // Strip the country code and revert the phone input to its original format
+            var phoneNumberWithoutCode = phoneNumber.replace(countryCode, '').replace(/^0+/, '');
+            $('#phone').val(phoneNumberWithoutCode);
 
             if (jqXHR.status === 400) {
                 Swal.fire({

@@ -12,6 +12,7 @@ use App\Models\Brand;
 use App\Models\Store;
 use App\Models\Gender;
 use App\Models\Reason;
+use App\Models\Document;
 use App\Models\Language;
 use App\Models\Position;
 use App\Models\Duration;
@@ -139,7 +140,7 @@ class ApplicationController extends Controller
         // Validate Input
         $request->validate([
             'consent' => ['accepted'], // Validate consent checkbox
-            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:1024'], // Avatar validation
+            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:5120'], // Avatar validation
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
             'id_number' => ['required', 'string', 'max:13'],
@@ -161,7 +162,12 @@ class ApplicationController extends Controller
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
             'public_holidays' => ['required', 'in:Yes,No'],
             'environment' => ['required', 'in:Yes,No'],
-            'brands' => ['required', 'array'], // Ensure brands is an array
+            'brands' => ['required', 'array', function ($attribute, $value, $fail) {
+                // Check if brand ID 1 is in the array and there are other IDs selected
+                if (in_array(1, $value) && count($value) > 1) {
+                    $fail('You cannot select specific brands with "Any".');
+                }
+            }], // Ensure brands is an array
             'brands.*' => ['required', 'integer', 'exists:brands,id'], // Validate each brand id exists in the brands table
             'disability' => ['required', 'in:Yes,No'],
             'literacy_answers' => ['required', 'array'], // Ensure literacy answers array
@@ -169,14 +175,7 @@ class ApplicationController extends Controller
             'numeracy_answers' => ['required', 'array'],
             'numeracy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each numeracy answer
             'situational_answers' => ['required', 'array'],
-            'situational_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each situational answer
-            // Custom validation rule for brands
-            'brands' => ['required', 'array', function ($attribute, $value, $fail) {
-                // Check if brand ID 1 is in the array and there are other IDs selected
-                if (in_array(1, $value) && count($value) > 1) {
-                    $fail('You cannot select specific brands with "Any".');
-                }
-            }],
+            'situational_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each situational answer            
         ]);
 
         try {
@@ -190,6 +189,15 @@ class ApplicationController extends Controller
                 $avatarName = '/images/' . $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
+
+                // Create a document record for the uploaded avatar
+                Document::create([
+                    'applicant_id' => null, // This will be set later when the applicant is created
+                    'name' => $avatarName,
+                    'type' => $avatar->getClientOriginalExtension(),
+                    'size' => $avatar->getSize(),
+                    'url' => '/images/' . $avatarName,
+                ]);
             } else {
                 // Use existing avatar if available, otherwise fallback to default
                 $avatarName = $user && $user->avatar ? '/images/' . $user->avatar : '/images/avatar.jpg';
@@ -270,7 +278,7 @@ class ApplicationController extends Controller
                 'lastname' => $lastname,
                 'race_id' => $raceID,
                 'avatar_upload' => $avatarUpload, // Save avatar upload status (Yes or No)
-                'avatar' => $avatarName,
+                'avatar' => '/images/avatar.jpg',
                 'terms_conditions' => $request->consent ? 'Yes' : 'No', // Check if the user accepted terms
                 'additional_contact_number' => 'No',
                 'contact_number' => $phone,
@@ -392,7 +400,7 @@ class ApplicationController extends Controller
         //Validate Input
         $request->validate([
             'consent' => ['accepted'], // Validate consent checkbox
-            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:1024'], // Avatar validation
+            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:5120'], // Avatar validation
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
             'id_number' => ['required', 'string', 'max:13'],
@@ -414,7 +422,12 @@ class ApplicationController extends Controller
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
             'public_holidays' => ['required', 'in:Yes,No'],
             'environment' => ['required', 'in:Yes,No'],
-            'brands' => ['required', 'array'], // Ensure brands is an array
+            'brands' => ['required', 'array', function ($attribute, $value, $fail) {
+                // Check if brand ID 1 is in the array and there are other IDs selected
+                if (in_array(1, $value) && count($value) > 1) {
+                    $fail('You cannot select specific brands with "Any".');
+                }
+            }], // Ensure brands is an array
             'brands.*' => ['required', 'integer', 'exists:brands,id'], // Validate each brand id exists in the brands table
             'disability' => ['required', 'in:Yes,No'],
             'literacy_answers' => ['required', 'array'], // Ensure literacy answers array
@@ -423,13 +436,6 @@ class ApplicationController extends Controller
             'numeracy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each numeracy answer
             'situational_answers' => ['required', 'array'],
             'situational_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each situational answer
-            // Custom validation rule for brands
-            'brands' => ['required', 'array', function ($attribute, $value, $fail) {
-                // Check if brand ID 1 is in the array and there are other IDs selected
-                if (in_array(1, $value) && count($value) > 1) {
-                    $fail('You cannot select specific brands with "Any".');
-                }
-            }],
         ]);
 
         try {
@@ -449,6 +455,15 @@ class ApplicationController extends Controller
                 $avatarName = '/images/' . $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
+
+                // Create a document record for the uploaded avatar
+                Document::create([
+                    'applicant_id' => null, // This will be set later when the applicant is created
+                    'name' => $avatarName,
+                    'type' => $avatar->getClientOriginalExtension(),
+                    'size' => $avatar->getSize(),
+                    'url' => '/images/' . $avatarName,
+                ]);
             } else {
                 // Use existing avatar if available, otherwise fallback to default
                 $avatarName = $user && $user->avatar ? $user->avatar : '/images/avatar.jpg';
@@ -529,7 +544,7 @@ class ApplicationController extends Controller
                 'lastname' => $lastname,
                 'race_id' => $raceID,
                 'avatar_upload' => $avatarUpload, // Save avatar upload status (Yes or No)
-                'avatar' => $avatarName,
+                'avatar' => '/images/avatar.jpg',
                 'terms_conditions' => $request->consent ? 'Yes' : 'No', // Check if the user accepted terms
                 'additional_contact_number' => 'No',
                 'contact_number' => $phone,
