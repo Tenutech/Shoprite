@@ -396,23 +396,23 @@ class ApplicantProfileController extends Controller
                 // Update the applicant's state
                 $applicant->update(['state_id' => $scheduledStateId]);
             }
-    
+
             // Prepare a WhatsApp message
             $whatsappMessage = "You have a request to reschedule your interview to " .
                 Carbon::parse($existingInterview->reschedule_date)->format('d M Y \a\t H:i') .
                 ". Would you like to view the details?";
-    
+
             // Define the message type and template
             $type = 'template';
             $template = 'interview_reschedule_view';
-    
+
             // Prepare the variables for the WhatsApp template
             $variables = [
                 $applicant->firstname ?: 'N/A',  // Applicant's first name
                 Carbon::parse($existingInterview->reschedule_date)->format('d M Y') ?: 'N/A', // Rescheduled date
                 Carbon::parse($existingInterview->reschedule_date)->format('H:i') ?: 'N/A', // Rescheduled time
             ];
-    
+
             // Dispatch WhatsApp message
             SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
 

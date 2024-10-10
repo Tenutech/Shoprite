@@ -175,7 +175,7 @@ class ApplicationController extends Controller
             'numeracy_answers' => ['required', 'array'],
             'numeracy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each numeracy answer
             'situational_answers' => ['required', 'array'],
-            'situational_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each situational answer            
+            'situational_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each situational answer
         ]);
 
         try {

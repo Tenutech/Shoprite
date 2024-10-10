@@ -514,30 +514,16 @@ class RPPController extends Controller
                 ];
             })->all();
 
-            // Set the start date to the beginning of the current year
             $startDate = Carbon::now()->startOfYear();
-
-            // Set the end date to the end of the current year
             $endDate = Carbon::now()->endOfYear();
-
-            // Get the region ID of the authenticated user
             $regionId = $authUser->region_id;
 
-            // Check if the region ID is not null
+            $regionWideAverageShortlistTime = 0;
+            $adoptionRate = 0;
+
             if ($regionId !== null) {
-                // If region ID is present, calculate the region-wide average time to shortlist
                 $regionWideAverageShortlistTime = $this->vacancyDataService->getRegionWideAverageTimeToShortlist($regionId);
-
-                // Calculate the adoption rate (vacancy fill rate) for the given region within the date range
                 $adoptionRate = $this->vacancyDataService->getRegionVacancyFillRate($regionId, $startDate, $endDate);
-            } else {
-                // If region ID is null, handle the case by assigning default values
-
-                // Set the region-wide average time to shortlist to 0 or another default value
-                $regionWideAverageShortlistTime = 0;
-
-                // Set the adoption rate to 0 or another default value
-                $adoptionRate = 0;
             }
 
             return view('rpp/home', [

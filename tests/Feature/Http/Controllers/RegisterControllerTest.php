@@ -3,8 +3,11 @@
 use App\Http\Controllers\Auth\RegisterController;
 use App\Jobs\ProcessUserIdNumber;
 use App\Models\Applicant;
+use App\Models\Company;
 use App\Models\Consent;
 use App\Models\NotificationSetting;
+use App\Models\Role;
+use App\Models\Status;
 use App\Models\User;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Facades\Queue;
@@ -17,6 +20,10 @@ it('registers a new user and handles various aspects of registration', function 
     Queue::fake();
     Storage::fake('public');
     
+    $company = Company::factory()->create();
+    $role = Role::factory()->create(['id' => 7, 'name' => 'User']);
+    $status = Status::factory()->create(['id' => 1, 'name' => 'Online']);
+
     $data = [
         'firstname' => 'John',
         'lastname' => 'Register',
@@ -26,17 +33,19 @@ it('registers a new user and handles various aspects of registration', function 
         'password' => 'password123',
         'password_confirmation' => 'password123',
         'guardian_mobile' => '0987654321',
+        'company_id' => $company->id,
     ];
 
     Applicant::factory()->create(['id_number' => '1234567890123']);
 
     $response = $this->post(route('register'), $data);
-
+  
     $this->assertDatabaseHas('users', [
         'firstname' => 'John',
         'lastname' => 'Register',
         'email' => 'johnregister@example.com',
         'phone' => '1234567890',
+        //'address' => '123 Fake Street',
     ]);
 
     $user = User::where('email', 'johnregister@example.com')->first();

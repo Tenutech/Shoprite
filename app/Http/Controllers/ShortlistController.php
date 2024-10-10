@@ -262,7 +262,7 @@ class ShortlistController extends Controller
                 $query->whereNull('user_delete')   // Include where user_delete is NULL
                       ->orWhere('user_delete', 'No'); // Or where user_delete equals 'No'
             })
-            ->where('state_id', '>=', $completeStateID)            
+            ->where('state_id', '>=', $completeStateID)
             ->whereHas('brands', function ($query) use ($vacancyBrandID) {
                 // Check if the applicant has the vacancyBrandID in their brands or brand_id = 1
                 $query->where('brand_id', 1);
@@ -409,8 +409,12 @@ class ShortlistController extends Controller
             // Sort the collection by the 'distance' field, moving 'N/A' to the end
             $applicantsCollection = $applicantsCollection->sort(function ($a, $b) {
                 // Handle 'N/A' cases by moving them to the end
-                if ($a->distance === 'N/A') return 1;
-                if ($b->distance === 'N/A') return -1;
+                if ($a->distance === 'N/A') {
+                    return 1;
+                }
+                if ($b->distance === 'N/A') {
+                    return -1;
+                }
 
                 // Compare distances when both are valid numbers
                 return $a->distance <=> $b->distance;
