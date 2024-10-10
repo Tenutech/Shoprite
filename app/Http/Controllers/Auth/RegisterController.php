@@ -205,18 +205,22 @@ class RegisterController extends Controller
         // Extract the day of birth (DD)
         $day = substr($idNumber, 4, 2);
 
+        // Ensure valid day and month values
+        if (!checkdate($month, $day, $year)) {
+            throw new \Exception('Invalid birth date extracted from ID number.');
+        }
+
         // Get the current year in full (YYYY format)
         $currentYear = date('Y');
 
-        // If the birth year (YY) is greater than the current last two digits of the year, assume 1900s, otherwise 2000s.
-        // This is done to determine if the century is 19xx or 20xx.
+        // Determine if the century is 19xx or 20xx based on the extracted year
         $year = ($year > date('y')) ? '19' . $year : '20' . $year;
 
         // Create a DateTime object from the extracted birth date (YYYY-MM-DD format)
         $birthDate = \DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
 
-        if (!$birthDate) {
-            // Handle the error if the date is invalid
+        // Check if the birthDate is valid
+        if (!$birthDate || $birthDate->format('Y-m-d') !== "$year-$month-$day") {
             throw new \Exception('Invalid birth date extracted from ID number.');
         }
 
