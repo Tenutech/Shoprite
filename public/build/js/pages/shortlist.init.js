@@ -550,7 +550,7 @@ function loadCandidateListData(datas, page) {
                                         </h5>\
                                     </a>\
                                     <p class="text-muted mb-0">\
-                                        '+ (datas[i].distance ? datas[i].distance : 'N/A') + '\
+                                        '+ (datas[i].distance ? datas[i].distance + ' km' : 'N/A') + '\
                                     </p>\
                                 </div>\
                                 <div class="col-2">\
