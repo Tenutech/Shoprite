@@ -3,9 +3,16 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Applicant;
 use App\Models\Company;
 use App\Models\Position;
+use App\Models\Race;
+use App\Models\Type;
+use App\Models\Brand;
+use App\Models\Duration;
+use App\Models\Education;
 use App\Models\NotificationSetting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -17,6 +24,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Spatie\Activitylog\Models\Activity;
+use Illuminate\Validation\ValidationException;
 
 class ProfileSettingsController extends Controller
 {
@@ -79,10 +87,30 @@ class ProfileSettingsController extends Controller
             //User Settings
             $userSettings = NotificationSetting::where('user_id', $userID)->first();
 
+            // Type
+            $types = Type::get();
+
+            // Race
+            $races = Race::get();
+
+            // Education
+            $educations = Education::where('id', '!=', 3)->get();
+
+            // Duration
+            $durations = Duration::get();
+
+            // Brand
+            $brands = Brand::whereIn('id', [1, 2, 5, 6])->get();
+
             return view('profile-settings', [
                 'user' => $user,
                 'completionPercentage' => $completionPercentage,
-                'userSettings' => $userSettings
+                'userSettings' => $userSettings,
+                'types' => $types,
+                'races' => $races,
+                'educations' => $educations,
+                'durations' => $durations,
+                'brands' => $brands,
             ]);
         }
         return view('404');
@@ -96,23 +124,51 @@ class ProfileSettingsController extends Controller
 
     public function update(Request $request)
     {
-        //User ID
+        // User ID
         $userID = Auth::id();
 
-        //Validate
-        $request->validate([
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
+        // User
+        $user = User::findorfail($userID);
+
+        // Base validation rules
+        $validationRules = [
+            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'email' => ['required', 'string', 'email', 'max:191', 'unique:users,email,' . $userID],
             'phone' => ['required', 'string', 'max:191', 'unique:users,phone,' . $userID],
-            'address' => ['required', 'string', 'max:255'],
-        ]);
+        ];
+
+        // Conditionally validate `email` based on the `role_id`
+        if ($user->role_id < 7) {
+            $validationRules['email'] = ['required', 'string', 'email', 'max:191', 'unique:users,email,' . $userID];
+        } else {
+            $validationRules['email'] = ['nullable', 'string', 'email', 'max:191', 'unique:users,email,' . $userID];
+        }
+
+        // Additional validation if `role_id >= 7`
+        if ($user->role_id >= 7) {
+            $validationRules = array_merge($validationRules, [
+                'location' => ['required', 'string', 'max:255'],
+                'race_id' => ['required', 'integer', 'exists:races,id'],
+                'education_id' => ['required', 'integer', 'exists:educations,id'],
+                'duration_id' => ['required', 'integer', 'exists:durations,id'],
+                'public_holidays' => ['required', 'in:Yes,No'],
+                'environment' => ['required', 'in:Yes,No'],
+                'brands' => ['required', 'array', function ($attribute, $value, $fail) {
+                    // Check if brand ID 1 is in the array and there are other IDs selected
+                    if (in_array(1, $value) && count($value) > 1) {
+                        $fail('You cannot select specific brands with "Any".');
+                    }
+                }],
+                'brands.*' => ['required', 'integer', 'exists:brands,id'],
+                'disability' => ['required', 'in:Yes,No'],
+            ]);
+        }
+
+        // Validate request with the dynamically built rules
+        $request->validate($validationRules);
 
         try {
-            //User
-            $user = User::find($userID);
-
             // Avatar
             if ($request->avatar) {
                 // Check if a previous avatar exists and is not the default one
@@ -135,27 +191,76 @@ class ProfileSettingsController extends Controller
 
             DB::beginTransaction();
 
-            //User Update
+            // User Update
             $user->firstname = ucwords($request->firstname);
             $user->lastname = ucwords($request->lastname);
             $user->email = $request->email;
             $user->phone = $request->phone;
-            $user->address = $request->address;
+            $user->address = $request->has('location') ? $request->location : '';
             $user->avatar = $avatarName;
             $user->save();
+
+            // Update Applicant if the role_id is <= 7
+            if ($user->role_id >= 7) {
+                $applicant = Applicant::find($user->applicant_id);
+                $latitude = $request->latitude;
+                $longitude = $request->longitude;
+                $coordinates = $latitude . ',' . $longitude;
+                if ($applicant) {
+                    $applicant->firstname = ucwords($request->firstname);
+                    $applicant->lastname = ucwords($request->lastname);
+                    $applicant->has_email = $request->email ? 'Yes' : 'No';
+                    $applicant->email = $request->email;
+                    $applicant->phone = $request->phone;
+                    $applicant->contact_number = $request->phone;
+                    $applicant->location = $request->has('location') ? $request->location : '';
+                    $applicant->coordinates = $coordinates;
+                    $applicant->race_id = $request->race_id;
+                    $applicant->education_id = $request->education_id;
+                    $applicant->duration_id = $request->duration_id;
+                    $applicant->public_holidays = $request->public_holidays;
+                    $applicant->environment = $request->environment;
+                    $applicant->disability = $request->disability;
+                    $applicant->save();
+
+                    // Brands
+                    if ($request->has('brands')) {
+                        // Get the submitted brands
+                        $brands = $request->brands;
+
+                        // If brand with ID 2 is present, add 3 and 4 to the array
+                        if (in_array(2, $brands)) {
+                            $brands = array_merge($brands, [3, 4]);
+                        }
+
+                        // Prepare the data to sync with timestamps
+                        $brandData = array_fill_keys($brands, ['created_at' => Carbon::now(), 'updated_at' => Carbon::now()]);
+
+                        // Sync the brands with the applicant
+                        $applicant->brands()->sync($brandData);
+                    }
+                }
+            }
 
             DB::commit();
 
             return response()->json([
                 'success' => true,
-                'message' => 'Profile Updated Successfully!'
+                'message' => 'Profile updated successfully!'
             ], 201);
+        } catch (ValidationException $e) {
+            // Return validation errors with a 422 status code
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'errors' => $e->getMessage()
+            ], 422);            
         } catch (Exception $e) {
             DB::rollBack();
 
             return response()->json([
                 'success' => false,
-                'message' => 'Failed To Update Profile!',
+                'message' => 'Failed to update profile!',
                 'error' => $e->getMessage()
             ], 400);
         }
@@ -192,7 +297,7 @@ class ProfileSettingsController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Password Updated Successfully!'
+            'message' => 'Password updated successfully!'
         ]);
     }
 
@@ -242,12 +347,12 @@ class ProfileSettingsController extends Controller
             // Return a success response
             return response()->json([
                 'success' => true,
-                'message' => 'Settings Updated Successfully.'
+                'message' => 'Settings updated successfully.'
             ]);
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Failed To Update Settings!',
+                'message' => 'Failed to update settings!',
                 'error' => $e->getMessage()
             ], 400);
         }
