@@ -537,7 +537,7 @@ class DPPController extends Controller
                 $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDivisionAndDateRange($divisionId, $startDate, $endDate);
                 $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
                 $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
-                $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForDivision($divisionI, $startDate, $endDate);
+                $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForDivision($divisionId, $startDate, $endDate);
                 $distanceLimit = 50;
                 $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
                     'division',

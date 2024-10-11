@@ -3321,7 +3321,7 @@ class ChatService
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 $responseBody = $e->getResponse()->getBody()->getContents();
                 $errorData = json_decode($responseBody, true);
-    
+
                 // Check for rate limit error code (#131056)
                 if (isset($errorData['error']['code']) && $errorData['error']['code'] == 131056) {
                     // Custom rate limit message to inform the user
@@ -3330,10 +3330,10 @@ class ChatService
                 } else {
                     // Log the error for debugging purposes
                     Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
-    
+
                     // Get the error message from the method
                     $errorMessage = $this->getErrorMessage();
-    
+
                     // Send the error message to the applicant
                     $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 }
