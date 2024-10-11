@@ -4,6 +4,7 @@ use App\Models\Division;
 use App\Models\Role;
 use App\Models\Shortlist;
 use App\Models\Store;
+use App\Models\Region;
 use App\Models\User;
 use App\Models\Vacancy;
 use App\Models\VacancyFill;
@@ -164,4 +165,56 @@ it('calculates the division-wide average time to shortlist', function () {
     $averageTime = $service->getDivisionWideAverageTimeToShortlist($division->id);
 
     expect($averageTime)->toBe($expectedAverageTime);
+});
+
+it('calculates the region-wide average time to hire without date range', function () {
+    
+    $region = Region::factory()->create();
+    $store = Store::factory()->create(['region_id' => $region->id]);
+
+    $vacancies = Vacancy::factory()->count(3)->create(['store_id' => $store->id, 'created_at' => now()->subDays(10)]);
+
+    foreach ($vacancies as $vacancy) {
+        VacancyFill::factory()->create([
+            'vacancy_id' => $vacancy->id,
+            'created_at' => now()->subDays(2)
+        ]);
+    }
+
+    $service = new VacancyDataService();
+    $averageTimeToHire = $service->getRegionWideAverageTimeToHire($region->id);
+  
+    $expectedAverageTime = 8;
+
+    expect($averageTimeToHire)->toBeGreaterThanOrEqual($expectedAverageTime - 0.1);
+    expect($averageTimeToHire)->toBeLessThanOrEqual($expectedAverageTime + 0.1);
+});
+
+it('calculates the region-wide average time to hire within a date range', function () {
+
+    $region = Region::factory()->create();
+    $store = Store::factory()->create(['region_id' => $region->id]);
+
+    $vacancies = Vacancy::factory()->count(3)->create([
+        'store_id' => $store->id, 
+        'created_at' => now()->subDays(10)
+    ]);
+
+    foreach ($vacancies as $vacancy) {
+        VacancyFill::factory()->create([
+            'vacancy_id' => $vacancy->id,
+            'created_at' => now()->addDays(7)
+        ]);
+    }
+
+    $startDate = now()->subDays(20)->format('Y-m-d');
+    $endDate = now()->addDays(30)->format('Y-m-d');
+
+    $service = new VacancyDataService();
+    $averageTimeToHire = $service->getRegionWideAverageTimeToHire($region->id, $startDate, $endDate);
+
+    $expectedAverageTime = 17;
+
+    expect($averageTimeToHire)->toBeGreaterThanOrEqual($expectedAverageTime - 0.1);
+    expect($averageTimeToHire)->toBeLessThanOrEqual($expectedAverageTime + 0.1);
 });

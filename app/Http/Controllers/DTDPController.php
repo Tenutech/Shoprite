@@ -541,7 +541,7 @@ class DTDPController extends Controller
                 $distanceLimit = 50;
                 $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
                     'division',
-                    Auth::user()->division_id,
+                    $divisionId,
                     $distanceLimit,
                     $startDate,
                     $endDate

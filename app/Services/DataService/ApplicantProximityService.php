@@ -73,7 +73,6 @@ class ApplicantProximityService
             ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
             ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
             ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->whereNull('applicants.appointed_id')
             ->select(
                 'applicants.coordinates as applicant_coordinates',
                 'stores.coordinates as store_coordinates'
@@ -137,7 +136,8 @@ class ApplicantProximityService
 
         $averageDistance = ($placedCount > 0) ? ($totalDistance / $placedCount) : 0;
 
-        return number_format($averageDistance, 2);
+        return round($averageDistance, 2);
+        ;
     }
 
     /**

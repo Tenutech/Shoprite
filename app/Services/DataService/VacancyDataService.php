@@ -124,16 +124,23 @@ class VacancyDataService
      * Calculate the time to hire for all vacancies in a specific region.
      *
      * @param int $regionId
-     * @return float|null
+     * @param string|null $startDate Start date in 'Y-m-d' format
+     * @param string|null $endDate End date in 'Y-m-d' format
+     * @return float|null The average time to hire
      */
-    public function getRegionWideAverageTimeToHire(int $regionId)
+    public function getRegionWideAverageTimeToHire(int $regionId, ?string $startDate = null, ?string $endDate = null): ?float
     {
-        return DB::table('vacancies')
+        $query = DB::table('vacancies')
             ->join('vacancy_fills', 'vacancies.id', '=', 'vacancy_fills.vacancy_id')
             ->join('stores', 'vacancies.store_id', '=', 'stores.id')
             ->where('stores.region_id', $regionId)
-            ->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, vacancy_fills.created_at))) as avg_time_to_hire'))
-            ->value('avg_time_to_hire');
+            ->select(DB::raw('ROUND(AVG(TIMESTAMPDIFF(DAY, vacancies.created_at, vacancy_fills.created_at))) as avg_time_to_hire'));
+
+        if ($startDate && $endDate) {
+            $query->whereBetween('vacancies.created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+        }
+
+            return $query->value('avg_time_to_hire');
     }
 
     /**
