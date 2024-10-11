@@ -2441,6 +2441,10 @@ class ChatService
                     // Fetch and send the complete state messages.
                     $messages = $this->fetchStateMessages('complete');
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
+
+                    // Calculate and set applicants score.
+                    $score = $this->calculateScore($applicant);
+                    $applicant->update(['score' => $score]);
                 }
             } else {
                 // If the applicant's response is not a valid option (not 'a', 'b', 'c', or 'd'),
