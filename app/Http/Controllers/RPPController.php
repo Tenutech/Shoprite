@@ -525,14 +525,17 @@ class RPPController extends Controller
             $adoptionRate = 0;
             $averageScoresByBrand = [];
             $averageScoresByProvince = [];
+            $averageDistanceSuccessfulPlacements = 0;
+            $averageTalentPoolDistance = 0;
 
             if ($regionId !== null) {
-                $regionWideAverageShortlistTime = $this->vacancyDataService->getRegionWideAverageTimeToShortlist($regionId);
+                $averageShortlistTime = $this->vacancyDataService->getRegionWideAverageTimeToShortlist($regionId);
+                $averageTimeToHire = $this->vacancyDataService->getRegionWideAverageTimeToHire($regionId, $startDate, $endDate);
                 $adoptionRate = $this->vacancyDataService->getRegionVacancyFillRate($regionId, $startDate, $endDate);
                 $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByRegionAndDateRange($regionId, $startDate, $endDate);
                 $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
                 $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
-                $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForRegion(Auth::user()->region_id, $startDate, $endDate);
+                $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForRegion($regionId, $startDate, $endDate);
                 $distanceLimit = 50;
                 $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
                     'region',
@@ -564,7 +567,8 @@ class RPPController extends Controller
                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
-                'regionWideAverageShortlistTime' => $regionWideAverageShortlistTime,
+                'averageShortlistTime' => $averageShortlistTime,
+                'averageTimeToHire' => $averageTimeToHire,
                 'adoptionRate' => $adoptionRate,
                 'averageScoresByBrand' => $averageScoresByBrand,
                 'averageScoresByProvince' => $averageScoresByProvince,

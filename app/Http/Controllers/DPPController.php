@@ -541,7 +541,7 @@ class DPPController extends Controller
                 $distanceLimit = 50;
                 $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
                     'division',
-                    $divisionI,
+                    $divisionId,
                     $distanceLimit,
                     $startDate,
                     $endDate

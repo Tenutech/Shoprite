@@ -199,6 +199,33 @@ class ApplicantDataService
     }
 
     /**
+     * Get the absorb rate.
+     *
+     * @param int $regionId The region ID to filter by.
+     * @param \DateTimeInterface|string $startDate The start date of the date range.
+     * @param \DateTimeInterface|string $endDate The end date of the date range.
+     *
+     * @return float
+     */
+    public function getRegionAbsorbtionRate($regionId, $startDate = null, $endDate = null)
+    {
+        $totalApplicants = $this->getTotalTalentPoolCount([
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'regionId' => $regionId
+        ]);
+
+        $totalAppointedApplicants = $this->getTotalCountByType([
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'type' => 'appointed',
+            'regionId' => $regionId,
+        ]);
+
+        return number_format($totalAppointedApplicants / $totalApplicants * 100, 2);
+    }
+
+    /**
      * Calculate the overall drop-off rate and drop-off rate by stage.
      *
      * @param string|null $startDate Optional start date for filtering applicants.
@@ -320,25 +347,6 @@ class ApplicantDataService
     }
 
     /**
-     * Get total count of applicants in the talent pool (where appointed_id is null),
-     * filtered by an optional date range.
-     *
-     * @param string|null $startDate Start date in 'Y-m-d' format
-     * @param string|null $endDate End date in 'Y-m-d' format
-     * @return int
-     */
-    public function getTotalTalentPoolCount(?string $startDate = null, ?string $endDate = null): int
-    {
-        $query = Applicant::query();
-
-        if ($startDate && $endDate) {
-            $query->whereBetween('created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
-        }
-
-        return $query->count();
-    }
-
-    /**
      * Get total count of applicants who were appointed
      * filtered by an optional date range.
      *
@@ -348,7 +356,11 @@ class ApplicantDataService
      */
     public function getTotalAppointedCount(?string $startDate = null, ?string $endDate = null): int
     {
-        return $this->getTotalCountByType($startDate, $endDate, 'appointed');
+        return $this->getTotalCountByType([
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'type' => 'appointed'
+        ]);
     }
 
     /**
@@ -365,7 +377,10 @@ class ApplicantDataService
      */
     public function getRaceBreakdown(?string $startDate = null, ?string $endDate = null, string $type = 'talent_pool'): array
     {
-        $totalTalentPool = $this->getTotalTalentPoolCount($startDate, $endDate);
+        $totalTalentPool = $this->getTotalTalentPoolCount([
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+        ]);
 
         $query = Applicant::join('races', 'applicants.race_id', '=', 'races.id')
             ->select('races.name', DB::raw('count(*) as count'))
@@ -412,7 +427,10 @@ class ApplicantDataService
      */
     public function getGenderBreakdown(?string $startDate = null, ?string $endDate = null): array
     {
-        $totalTalentPool = $this->getTotalTalentPoolCount($startDate, $endDate);
+        $totalTalentPool = $this->getTotalTalentPoolCount([
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+        ]);
 
         $maleQuery = Applicant::whereNull('appointed_id')->where('gender_id', 1);
         $femaleQuery = Applicant::whereNull('appointed_id')->where('gender_id', 2);
@@ -452,7 +470,11 @@ class ApplicantDataService
      */
     public function getAgeBreakdown(?string $startDate = null, ?string $endDate = null, string $type = 'talent_pool'): array
     {
-        $totalApplicants = $this->getTotalCountByType($startDate, $endDate, $type);
+        $totalApplicants = $this->getTotalCountByType([
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'type' => $type
+        ]);
 
         $ageGroups = [
             '18-24' => [18, 24],
@@ -499,17 +521,59 @@ class ApplicantDataService
         ];
     }
 
-    /**
-     * Get the total count of applicants based on the type and optional date range.
+     /**
+     * Get total count of applicants in the talent pool (where appointed_id is null),
+     * filtered by an options.
      *
-     * @param string|null $startDate Start date in 'Y-m-d' format
-     * @param string|null $endDate End date in 'Y-m-d' format
-     * @param string $type The type of applicants ('talent_pool', 'appointed', 'interviewed')
+     * @param array $filters Array of filters including 'start_date', 'end_date', 'region_id', 'division_id', and 'store_id'.
      * @return int
      */
-    protected function getTotalCountByType(?string $startDate = null, ?string $endDate = null, string $type): int
+    public function getTotalTalentPoolCount(array $filters = []): int
     {
         $query = Applicant::query();
+
+        if (!empty($filters['startDate']) && !empty($filters['endDate'])) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($filters['startDate']),
+                Carbon::parse($filters['endDate'])
+            ]);
+        }
+
+        if (!empty($filters['regionId'])) {
+            $query->whereHas('store', function ($q) use ($filters) {
+                $q->where('region_id', $filters['regionId']);
+            });
+        }
+
+        if (!empty($filters['divisionId'])) {
+            $query->whereHas('store', function ($q) use ($filters) {
+                $q->where('division_id', $filters['divisionId']);
+            });
+        }
+
+        if (!empty($filters['storeId'])) {
+            $query->where('store_id', $filters['storeId']);
+        }
+
+        return $query->count();
+    }
+
+    /**
+     * Get the total count of applicants based on the type and optional date range, region, division, and store.
+     *
+     * @param array $filters Array of filters including 'start_date', 'end_date', 'type, 'region_id', 'division_id', and 'store_id'
+     * @return int
+     */
+    public function getTotalCountByType(array $filters = []): int
+    {
+        $query = Applicant::query();
+
+        $type = $filters['type'] ?? 'all';
+        $startDate = $filters['start_date'] ?? null;
+        $endDate = $filters['end_date'] ?? null;
+        $regionId = $filters['region_id'] ?? null;
+        $divisionId = $filters['division_id'] ?? null;
+        $storeId = $filters['store_id'] ?? null;
 
         if ($type === 'all') {
             $query->whereNull('appointed_id');
@@ -520,7 +584,26 @@ class ApplicantDataService
         }
 
         if ($startDate && $endDate) {
-            $query->whereBetween('created_at', [Carbon::parse($startDate), Carbon::parse($endDate)]);
+            $query->whereBetween('created_at', [
+                Carbon::parse($startDate),
+                Carbon::parse($endDate)
+            ]);
+        }
+
+        if ($regionId) {
+            $query->whereHas('store', function ($q) use ($regionId) {
+                $q->where('region_id', $regionId);
+            });
+        }
+
+        if ($divisionId) {
+            $query->whereHas('store', function ($q) use ($divisionId) {
+                $q->where('division_id', $divisionId);
+            });
+        }
+
+        if ($storeId) {
+            $query->where('store_id', $storeId);
         }
 
         return $query->count();
