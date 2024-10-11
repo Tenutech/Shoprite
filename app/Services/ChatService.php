@@ -3316,15 +3316,23 @@ class ChatService
                 $this->logMessage($applicant->id, $body, 2);
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 $responseBody = $e->getResponse()->getBody()->getContents();
-
-                // Log the error for debugging purposes
-                Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
-
-                // Get the error message from the method
-                $errorMessage = $this->getErrorMessage();
-
-                // Send the error message to the applicant
-                $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
+                $errorData = json_decode($responseBody, true);
+    
+                // Check for rate limit error code (#131056)
+                if (isset($errorData['error']['code']) && $errorData['error']['code'] == 131056) {
+                    // Custom rate limit message to inform the user
+                    $rateLimitMessage = "Rate limit reached. Please be aware of sending too many messages in quick succession. Wait 2 minutes and continue your application.";
+                    $this->sendAndLogMessages($applicant, [$rateLimitMessage], $client, $to, $from, $token);
+                } else {
+                    // Log the error for debugging purposes
+                    Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
+    
+                    // Get the error message from the method
+                    $errorMessage = $this->getErrorMessage();
+    
+                    // Send the error message to the applicant
+                    $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
+                }
             }
         }
     }
