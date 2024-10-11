@@ -58,9 +58,6 @@ class ApplicantDataService
     /**
      * Get the number of applicants per province for the current year.
      *
-     * This method retrieves the total number of applicants per province for the current year
-     * from the monthly data associated with the given current year data.
-     *
      * @param \DateTimeInterface|string $startDate The start date of the time frame.
      * @param \DateTimeInterface|string $endDate The end date of the time frame.
      *
@@ -77,15 +74,12 @@ class ApplicantDataService
                     ->groupBy('provinces.name')
                     ->get()
                     ->map(function ($item) {
-                        // Format for the chart
                         return ['x' => $item->name, 'y' => (int) $item->total_applicants];
                     })
                     ->toArray();
     }
 
     /**
-     * Fetch applicants by race.
-     *
      * This method retrieves the total number of applicants by race for the current year
      * from the monthly data associated with the given current year ID and query months.
      *
@@ -255,12 +249,19 @@ class ApplicantDataService
         $stages = State::where('code', '!=', 'complete')->limit(5)->get();
         $dropoffByStage = [];
 
-        foreach ($stages as $stage) {
-            $stageDropoffCount = $query->where('state_id', $stage->id)->count();
-            $dropoffByStage[$stage->code] = [
-                'count' => $stageDropoffCount,
-                'percentage' => $totalApplicants > 0 ? ($stageDropoffCount / $totalApplicants) * 100 : 0
-            ];
+        $applicants = $query->get();
+        foreach ($applicants as $applicant) {
+            $stageCode = $applicant->state->code;
+
+            if (isset($dropoffByStage[$stageCode])) {
+                $dropoffByStage[$stageCode]['count'] += 1;
+            } else {
+                $dropoffByStage[$stageCode]['count'] = 1;
+            }
+        }
+
+        foreach ($dropoffByStage as $key => $value) {
+            $dropoffByStage[$key]['percentage'] = ($value['count'] / $totalApplicants) * 100;
         }
 
         return [
