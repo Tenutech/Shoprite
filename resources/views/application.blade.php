@@ -158,20 +158,20 @@
                                                                 colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
                                                     </div>
                                                     
-                                                    <h5 class="mb-3">Welcome to the Shoprite Employment Application!</h5>
-                                                    
+                                                    <h5 class="mb-3">Welcome to our store <b><em>employment journey</em></b>!</h5>
+                                                
                                                     <p class="text-muted">
-                                                        You are applying for a position at the Shoprite Group. Your answers will replace the need 
-                                                        to submit a physical CV. Please set aside 30 minutes to complete the process.
+                                                        This process will take about 20 minutes, so please find a quiet spot to focus and carefully answer each question.
                                                     </p>
                                                     
                                                     <p class="text-muted">
-                                                        The Shoprite Group reserves the right to conduct Credential Verification Checks, 
-                                                        including Criminal Checks. Do you give consent for these checks?
+                                                        By continuing, you acknowledge and <b><em>consent</em></b> to our terms and conditions of employment as part of your application 
+                                                        with the Shoprite Group of Companies, and you give <b><em>consent</em></b> for credential verification checks, including 
+                                                        criminal checks, to be conducted.
                                                     </p>
                                                 
                                                     <p class="text-muted">
-                                                        By continuing this application, you acknowledge and consent to our 
+                                                        You can view the T's and C's here: 
                                                         <a href="https://bit.ly/srtscsnew" class="text-primary text-decoration-underline fst-normal fw-medium" target="_blank">
                                                             Terms and Conditions
                                                         </a>.
@@ -181,7 +181,7 @@
                                                     <div class="text-center mt-3">
                                                         <!-- Label above checkbox -->
                                                         <label class="form-check-label mb-2" for="consent">
-                                                            I agree to the Terms and Conditions, and I consent to the Credential Verification Checks.
+                                                            I agree to the terms and conditions, and I consent to the credential verification checks.
                                                             <span class="text-danger">*</span>
                                                         </label>
                                                         
