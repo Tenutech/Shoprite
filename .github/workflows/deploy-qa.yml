@@ -74,7 +74,7 @@ jobs:
           done
           
       - name: Run Migrations
-        run: php artisan migrate --database=sqlite
+        run: php artisan migrate --force
 
       - name: Run Tests with Coverage
         run: ./vendor/bin/pest --coverage-html build/coverage
