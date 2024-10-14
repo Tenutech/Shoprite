@@ -181,7 +181,7 @@ class ApplicantsController extends Controller
         $store = Store::find($user->store_id);
 
         // Check if the store has valid coordinates
-        $storeCoordinates = isset($store->coordinates) && strpos($store->coordinates, ',') !== false ? explode(',', $store->coordinates): null;
+        $storeCoordinates = isset($store->coordinates) && strpos($store->coordinates, ',') !== false ? explode(',', $store->coordinates) : null;
 
         if ($storeCoordinates) {
             list($latitude, $longitude) = [(float)$storeCoordinates[0], (float)$storeCoordinates[1]];
@@ -211,29 +211,29 @@ class ApplicantsController extends Controller
         ->map(function ($applicant) use ($latitude, $longitude, $storeCoordinates) {
             // Encrypt applicant ID
             $applicant->encrypted_id = Crypt::encryptString($applicant->id);
-    
+
             // Now, calculate the distance for each applicant if store coordinates exist
             if ($storeCoordinates && isset($applicant->coordinates) && strpos($applicant->coordinates, ',') !== false) {
                 list($applicantLat, $applicantLng) = explode(',', $applicant->coordinates);
-    
+
                 // Convert strings to floats
                 $applicantLat = (float)$applicantLat;
                 $applicantLng = (float)$applicantLng;
-    
+
                 // Check if both coordinates are numeric
                 if (is_numeric($latitude) && is_numeric($longitude) && is_numeric($applicantLat) && is_numeric($applicantLng)) {
                     // Haversine formula to calculate the distance
                     $earthRadius = 6371;  // Earth's radius in kilometers
                     $dLat = deg2rad($latitude - $applicantLat);
                     $dLng = deg2rad($longitude - $applicantLng);
-    
+
                     $a = sin($dLat / 2) * sin($dLat / 2) +
                         cos(deg2rad($latitude)) * cos(deg2rad($applicantLat)) *
                         sin($dLng / 2) * sin($dLng / 2);
-    
+
                     $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
                     $distance = $earthRadius * $c;  // Distance in kilometers
-    
+
                     // Round the distance to 1 decimal place
                     $applicant->distance = round($distance, 1);
                 } else {
@@ -242,7 +242,7 @@ class ApplicantsController extends Controller
             } else {
                 $applicant->distance = 'N/A';  // No store coordinates or applicant coordinates
             }
-    
+
             return $applicant;
         })
         ->toArray();
