@@ -28,7 +28,7 @@ it('registers a new user and handles various aspects of registration', function 
         'guardian_mobile' => '0987654321',
     ];
 
-    Applicant::factory()->create(['id_number' => '1234567890123']);
+    Applicant::factory()->create(['id_number' => '9409035129083']);
 
     $response = $this->post(route('register'), $data);
 
