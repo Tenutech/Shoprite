@@ -222,11 +222,6 @@
                         <div class="collapse menu-dropdown" id="sidebarJobs">
                             <ul class="nav nav-sm flex-column">
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('positions.index') }}">
-                                        Positions
-                                    </a>
-                                </li>
-                                <li class="nav-item">
                                     <a class="nav-link" href="{{ route('experience.index') }}">
                                         Experience
                                     </a>
@@ -234,6 +229,11 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('physical.index') }}">
                                         Physical Requirements
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('positions.index') }}">
+                                        Positions
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -266,7 +266,7 @@
                                         Working Hours
                                     </a>
                                 </li>                                
-                            </ul>
+                            </ul>                            
                         </div>
                     </li>
                     <li class="nav-item">
