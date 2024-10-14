@@ -1274,8 +1274,8 @@ function clearFields() {
     var choicesInstance = new Choices(applicantsSelect);
     choicesInstance.removeActiveItems();
 
-    sapNumberChoices.removeActiveItems();
-    sapNumberChoices.setChoiceByValue("");
+    //sapNumberChoices.removeActiveItems();
+    //sapNumberChoices.setChoiceByValue("");
 }
 
 /*
@@ -1756,18 +1756,33 @@ $('#formVacancy').on('submit', function(e) {
 
                     // Reload SAP Number options
                     sapNumberChoices.clearChoices(); // Clear existing choices
+
                     if (data.vacancy.available_sap_numbers.length > 0) {
-                        sapNumberChoices.setChoices(
-                            data.vacancy.available_sap_numbers.map(function(sap) {
-                                return {
-                                    value: sap.id, // Use ID or value field as needed
-                                    label: sap.sap_number,
-                                    selected: sapNumberChoices.getValue(true) == sap.id // Optional: set selected if needed
-                                };
-                            }),
-                            'value', 'label', true
-                        );
+                        // Add default "Select SAP Number" option first
+                        let choicesArray = [{
+                            value: '',
+                            label: 'Select SAP Number',
+                            selected: true, // Set as the default selected option
+                        }];
+                    
+                        // Add the dynamic SAP number options
+                        let sapNumberChoicesArray = data.vacancy.available_sap_numbers.map(function(sap) {
+                            return {
+                                value: sap.id, // Use ID or value field as needed
+                                label: sap.sap_number,
+                                selected: sapNumberChoices.getValue(true) == sap.id // Optional: set selected if needed
+                            };
+                        });
+                    
+                        // Combine both arrays (default option + dynamic options)
+                        choicesArray = choicesArray.concat(sapNumberChoicesArray);
+                    
+                        // Set choices in the Choices.js instance
+                        sapNumberChoices.setChoices(choicesArray, 'value', 'label', true);
                     }
+
+                    sapNumberChoices.removeActiveItems();
+                    sapNumberChoices.setChoiceByValue("");
 
                     // Update open positions in the view
                     var openPositionsElement = document.querySelector('#openPositions');
