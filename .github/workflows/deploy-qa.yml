@@ -75,60 +75,11 @@ jobs:
 
       - name: Deploy to QA Server
         env:
-          SSH_USER: ${{ secrets.SSH_QA_DEPLOYER_USERNAME }}
-          SERVER_IP: ${{ secrets.QA_SERVER_IP }}
+          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
+          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         run: |
           ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP << 'EOF'
-            export TZ="Africa/Johannesburg"
-            TIMESTAMP=$(date +%Y%m%d%H%M%S)
-            RELEASE_DIR="/var/www/qa.apply.shoprite.jobs/releases/$TIMESTAMP"
-            CURRENT_DIR="/var/www/qa.apply.shoprite.jobs/current"
-            SHARED_DIR="/var/www/qa.apply.shoprite.jobs/shared"
-
-            # Create the release directory
-            sudo mkdir -p $RELEASE_DIR
-            sudo chown www-data:www-data -R /var/www/qa.apply.shoprite.jobs/
-
-            # Clone the repository
-            sudo -u www-data git clone -b qa git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
-
-            # Change to the release directory
-            cd $RELEASE_DIR
-
-            # Link the .env file and storage directory
-            sudo rm -R $RELEASE_DIR/storage
-            sudo ln -nfs $SHARED_DIR/.env .env
-            sudo ln -nfs $SHARED_DIR/storage storage
-
-            # Install dependencies
-            sudo -u www-data composer install --no-dev --optimize-autoloader
-
-            # Change ownership to www-data
-            sudo chown www-data:www-data -R /var/www/qa.apply.shoprite.jobs/
-
-            # Cache Laravel configurations and run optimizations
-            sudo -u www-data php artisan config:cache
-            sudo -u www-data php artisan route:cache
-            sudo -u www-data php artisan view:cache
-            sudo -u www-data php artisan optimize
-
-            # Run migrations
-            sudo -u www-data php artisan migrate --force
-
-            # Install npm dependencies and build assets
-            # sudo -u www-data npm install
-            # sudo -u www-data npm run build
-
-            # Update the current symlink to the new release
-            sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
-
-            # Restart Supervisor to apply changes
-            sudo supervisorctl reread
-            sudo supervisorctl update
-            sudo supervisorctl restart laravel-queue-worker:*
-
-            # Remove old releases, keeping only the last two
-            ls -dt /var/www/qa.apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
+            cd /home/support/shoprite_deployment && ansible-playbook -i inventories/qa/hosts --extra-vars "branch=qa env=qa" playbook-code-deploy.yml
           EOF
 
           
