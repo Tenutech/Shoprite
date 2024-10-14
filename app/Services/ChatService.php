@@ -2562,30 +2562,30 @@ class ChatService
                         "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A', // If no position, set 'N/A'
                         "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' (' . ($latestInterview->vacancy->store->town->name ?? 'N/A') . ')', // Brand and town or default 'Our Office'
                         "Interview Location" => $latestInterview->location ?? 'N/A', // Interview location or 'N/A'
-
+                        
                         // Check if scheduled_date is an instance of Carbon or try parsing the date string
                         "Interview Date" => $latestInterview->scheduled_date instanceof Carbon
                                             ? $latestInterview->scheduled_date->format('d M Y')
                                             : (strtotime($latestInterview->scheduled_date) ? date('d M Y', strtotime($latestInterview->scheduled_date)) : 'N/A'), // Fallback to strtotime if not Carbon
-
+                        
                         // Check if start_time is an instance of Carbon or try parsing the time string
                         "Interview Time" => $latestInterview->start_time instanceof Carbon
                                             ? $latestInterview->start_time->format('H:i')
                                             : (strtotime($latestInterview->start_time) ? date('H:i', strtotime($latestInterview->start_time)) : 'N/A'), // Fallback to strtotime if not Carbon
-
+                    
                         // Check if reschedule_date is an instance of Carbon or try parsing the date string
                         "Reschedule Date" => $latestInterview->reschedule_date instanceof Carbon
                                             ? $latestInterview->reschedule_date->format('d M Y')
                                             : (strtotime($latestInterview->reschedule_date) ? date('d M Y', strtotime($latestInterview->reschedule_date)) : 'N/A'), // Fallback to strtotime if not Carbon
-
+                    
                         // Check if reschedule_date is an instance of Carbon or try parsing the time string
                         "Reschedule Time" => $latestInterview->reschedule_date instanceof Carbon
                                             ? $latestInterview->reschedule_date->format('H:i')
                                             : (strtotime($latestInterview->reschedule_date) ? date('H:i', strtotime($latestInterview->reschedule_date)) : 'N/A'), // Fallback to strtotime if not Carbon
-
+                    
                         "Notes" => $latestInterview->notes ?? 'N/A', // Additional notes or 'N/A'
                         "Status" => $latestInterview->status ?? 'N/A' // Interview status
-                    ];
+                    ];                                       
 
                     // Check if interview status is "Reschedule"
                     if ($latestInterview->status === "Reschedule") {
@@ -2607,14 +2607,14 @@ class ChatService
 
                             // Send the updated messages and log the outgoing messages.
                             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-
+                    
                             // Update the applicant's state to 'complete'.
                             $stateID = State::where('code', 'complete')->value('id');
                             $applicant->update(['state_id' => $stateID]);
                         } elseif ($latestInterview->reschedule_by === "Manager") {
                             // Fetch the messages associated with the 'reschedule_manager' state.
                             $messages = $this->fetchStateMessages('reschedule_manager');
-
+                    
                             // Loop through each message and replace placeholders with the corresponding applicant/interview data.
                             foreach ($messages as &$message) {
                                 foreach ($dataToReplace as $key => $value) {
@@ -2629,7 +2629,7 @@ class ChatService
 
                             // Send the updated messages and log the outgoing messages.
                             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-
+                    
                             // Update the applicant's state to 'schedule'.
                             $stateID = State::where('code', 'schedule')->value('id');
                             $applicant->update(['state_id' => $stateID]);
@@ -2637,7 +2637,7 @@ class ChatService
                     } else {
                         // Handle the regular scheduled interview case
                         $messages = $this->fetchStateMessages('schedule');
-
+                    
                         // Loop through each message and replace placeholders with the corresponding applicant/interview data.
                         foreach ($messages as &$message) {
                             foreach ($dataToReplace as $key => $value) {
@@ -2652,14 +2652,12 @@ class ChatService
 
                         // Send the updated messages and log the outgoing messages.
                         $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-
-                        // Update the applicant's state to 'schedule' after confirming the interview.
+                    
+                        // Update the applicant's state to 'schedule'.
                         $stateID = State::where('code', 'schedule')->value('id');
                         $applicant->update(['state_id' => $stateID]);
                     }
-                }
-                // Handle the 'no' response from the applicant.
-                elseif ($body === '2' || $body === 'no') {
+                } elseif ($body === '2' || $body === 'no') {
                     // Update the interview status to 'Declined' for the latest interview.
                     //$latestInterview->status = 'Declined';
                     //$latestInterview->save();
@@ -2692,16 +2690,16 @@ class ChatService
                     // Update the applicant's state to 'complete' after declining the interview.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                }
-                // Handle invalid responses that are neither 'yes' nor 'no'.
-                else {
+                } else {
+                    // Handle invalid responses that are neither 'yes' nor 'no'.
+
                     // Send an error message listing the valid options ('1' Yes, '2' No)
                     $errorMessage = "Invalid option. Please reply with:\n\n1. Yes\n2. No";
                     $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 }
-            }
-            // If no interview was found for the applicant.
-            else {
+            } else {
+                // If no interview was found for the applicant.
+
                 // Send a message indicating no interviews were found for the applicant.
                 $message = "No interviews found, have a wonderful day.";
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
@@ -2814,9 +2812,8 @@ class ChatService
                     // Update the applicant's state to 'complete' after confirmation.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                }
                 // Handle the 'reschedule' response, where the applicant requests to reschedule the interview.
-                elseif ($body == '2' || $body == 'reschedule') {
+                } elseif ($body == '2' || $body == 'reschedule') {
                     // Update the interview status to 'Reschedule'.
                     $latestInterview->status = 'Reschedule';
                     $latestInterview->reschedule_by = 'Applicant';
@@ -2839,7 +2836,7 @@ class ChatService
                     $scheduledDate = $latestInterview->scheduled_date->format('d M Y'); // Format the current scheduled date
                     // Add 1 day to the scheduled date using Carbon
                     $suggestedDateTime = Carbon::parse($latestInterview->scheduled_date)->addDay();
-                    $suggestedDate = $suggestedDateTime->format('d M Y');
+                    $suggestedDate = $suggestedDateTime->format('d M Y'); 
 
                     // Send a message prompting the applicant to suggest a new date and time.
                     $messages = [
@@ -2850,12 +2847,13 @@ class ChatService
                     // Update the applicant's state to 'reschedule' for the next step.
                     $stateID = State::where('code', 'reschedule')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                }
-                // Handle the 'decline' response, where the applicant declines the interview.
-                elseif ($body == '3' || $body == 'decline') {
-                    // Update the interview status to 'Declined'.
-                    $latestInterview->status = 'Declined';
-                    $latestInterview->save();
+                } elseif ($body == '3' || $body == 'decline') {
+                    if (in_array($latestInterview->status, ['Scheduled', 'Reschedule', 'Confirmed'])) {
+                        // Handle the 'decline' response, where the applicant declines the interview.
+
+                        // Update the interview status to 'Declined'.
+                        $latestInterview->status = 'Declined';
+                        $latestInterview->save();
 
                         // If the interview status was changed and the applicant has a user, create a notification.
                         if ($latestInterview->wasChanged()) {
@@ -2869,6 +2867,7 @@ class ChatService
                             $notification->read = "No"; // Mark the notification as unread.
                             $notification->save(); // Save the notification to the database.
                         }
+                    }
 
                     // Send a message to the applicant confirming the interview decline.
                     $messages = [
@@ -2881,16 +2880,16 @@ class ChatService
                     // Update the applicant's state to 'complete' after declining the interview.
                     $stateID = State::where('code', 'complete')->value('id');
                     $applicant->update(['state_id' => $stateID]);
-                }
-                // Handle invalid input if the response is not 'confirm', 'reschedule', or 'decline'.
-                else {
+                } else {
+                    // Handle invalid input if the response is not 'confirm', 'reschedule', or 'decline'.
+
                     // Send an error message listing the valid options ('1' Confirm, '2' Reschedule, '3' Decline)
                     $errorMessage = "Invalid option. Please reply with:\n\n1. Confirm\n2. Reschedule\n3. Decline";
                     $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 }
-            }
-            // If no interview was found, send a error message to the applicant indicating no interviews are scheduled.
-            else {
+            } else {
+                // If no interview was found, send a error message to the applicant indicating no interviews are scheduled.
+
                 $errorMessage = "No interviews found, have a wonderful day.";
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
 
@@ -3322,7 +3321,7 @@ class ChatService
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 $responseBody = $e->getResponse()->getBody()->getContents();
                 $errorData = json_decode($responseBody, true);
-
+    
                 // Check for rate limit error code (#131056)
                 if (isset($errorData['error']['code']) && $errorData['error']['code'] == 131056) {
                     // Custom rate limit message to inform the user
@@ -3331,10 +3330,10 @@ class ChatService
                 } else {
                     // Log the error for debugging purposes
                     Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
-
+    
                     // Get the error message from the method
                     $errorMessage = $this->getErrorMessage();
-
+    
                     // Send the error message to the applicant
                     $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 }
