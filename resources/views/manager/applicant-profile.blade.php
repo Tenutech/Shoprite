@@ -269,7 +269,7 @@
                                                                                 </h6>
                                                                             </div>
                                                                             <div class="col-lg-6">
-                                                                                {{ $applicant->id_number ?? 'N/A' }}
+                                                                                {{ isset($applicant->id_number) ? substr($applicant->id_number, 0, 4) . str_repeat('*', strlen($applicant->id_number) - 4) : 'N/A' }}
                                                                             </div>
                                                                         </div>
 
