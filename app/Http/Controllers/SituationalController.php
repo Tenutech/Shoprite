@@ -3,16 +3,13 @@
 namespace App\Http\Controllers;
 
 use Exception;
-use App\Models\User;
 use App\Models\State;
 use App\Models\ChatTemplate;
 use App\Models\ChatCategory;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
+use App\Http\Requests\AssessmentRequest;
 
-class NumeracyController extends Controller
+class SituationalController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -29,29 +26,29 @@ class NumeracyController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-
     /*
+
     |--------------------------------------------------------------------------
-    | Numeracy Index
+    | Situational Awareness Index
     |--------------------------------------------------------------------------
     */
 
     public function index()
     {
-        if (view()->exists('admin/numeracy')) {
+        if (view()->exists('admin/situational')) {
             //Messages
             $messages = ChatTemplate::with([
                 'state',
                 'category'
             ])
             ->whereHas('state', function ($query) {
-                $query->whereIn('name', ['numeracy']);
+                $query->whereIn('name', ['situational']);
             })
             ->orderBy('state_id')
             ->orderBy('sort')
             ->get();
 
-            return view('admin/numeracy', [
+            return view('admin/situational', [
                 'messages' => $messages
             ]);
         }
@@ -60,25 +57,25 @@ class NumeracyController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Numeracy Add
+    | Situational Awareness Add
     |--------------------------------------------------------------------------
     */
 
-    public function store(Request $request)
+    public function store(AssessmentRequest $request)
     {
         //Validate
         $request->validate([
             'message' => ['required', 'string'],
-            'answer' => ['required', 'in:a,b,c,d,e'],
+            'answer' => ['required', 'in:a,b,c,d'],
             'sort' => ['required', 'integer']
         ]);
 
         try {
             //State ID
-            $stateID = State::where('code', 'numeracy')->value('id');
+            $stateID = State::where('code', 'situational')->value('id');
 
             //Category ID
-            $categoryID = ChatCategory::where('name', 'numeracy')->value('id');
+            $categoryID = ChatCategory::where('name', 'situational')->value('id');
 
             // Message Create
             $message = ChatTemplate::create([
@@ -110,7 +107,7 @@ class NumeracyController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Numeracy Details
+    | Situational Awareness Details
     |--------------------------------------------------------------------------
     */
 
@@ -137,11 +134,11 @@ class NumeracyController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Numeracy Update
+    | Situational Awareness Update
     |--------------------------------------------------------------------------
     */
 
-    public function update(Request $request)
+    public function update(AssessmentRequest $request)
     {
         //Message ID
         $messageID = Crypt::decryptString($request->field_id);
@@ -149,7 +146,7 @@ class NumeracyController extends Controller
         //Validate
         $request->validate([
             'message' => ['required', 'string'],
-            'answer' => ['required', 'in:a,b,c,d,e'],
+            'answer' => ['required', 'in:a,b,c,d'],
             'sort' => ['required', 'integer']
         ]);
 
@@ -180,7 +177,7 @@ class NumeracyController extends Controller
 
     /*
     |--------------------------------------------------------------------------
-    | Numeracy Destroy
+    | Situational Awareness Destroy
     |--------------------------------------------------------------------------
     */
 
