@@ -2653,9 +2653,10 @@ class ChatService
                         // Send the updated messages and log the outgoing messages.
                         $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
 
-                    // Update the applicant's state to 'schedule' after confirming the interview.
-                    $stateID = State::where('code', 'schedule')->value('id');
-                    $applicant->update(['state_id' => $stateID]);
+                        // Update the applicant's state to 'schedule' after confirming the interview.
+                        $stateID = State::where('code', 'schedule')->value('id');
+                        $applicant->update(['state_id' => $stateID]);
+                    }
                 }
                 // Handle the 'no' response from the applicant.
                 elseif ($body === '2' || $body === 'no') {
@@ -2868,7 +2869,6 @@ class ChatService
                             $notification->read = "No"; // Mark the notification as unread.
                             $notification->save(); // Save the notification to the database.
                         }
-                    }
 
                     // Send a message to the applicant confirming the interview decline.
                     $messages = [
