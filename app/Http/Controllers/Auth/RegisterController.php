@@ -213,9 +213,6 @@ class RegisterController extends Controller
             throw new \Exception('Invalid birth date extracted from ID number.');
         }
 
-        // Get the current year in full (YYYY format)
-        $currentYear = (int) date('Y');
-
         // Create a DateTime object from the extracted birth date (YYYY-MM-DD format)
         $birthDate = \DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
 
