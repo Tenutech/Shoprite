@@ -5,11 +5,8 @@ use App\Models\Town;
 use GuzzleHttp\Client;
 use GuzzleHttp\Psr7\Response;
 use Illuminate\Support\Facades\Log;
-use Mockery;
-use function Pest\Laravel\mock;
-use function Pest\Laravel\assertDatabaseHas;
+use Mockery as M;
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Illuminate\Support\Facades\Config;
 
 uses(RefreshDatabase::class);
 
@@ -18,6 +15,7 @@ beforeEach(function () {
 });
 
 it('geocodes an address successfully', function () {
+    // Mocking the Guzzle response
     $mockedResponse = new Response(200, [], json_encode([
         'status' => 'OK',
         'results' => [
@@ -39,55 +37,70 @@ it('geocodes an address successfully', function () {
         ]
     ]));
 
-    $mockClient = Mockery::mock(Client::class);
-    $mockClient->shouldReceive('makeRequest')->with('geocode/json', [
-        "address" => "123 Main St"
-    ])->andReturn($mockedResponse);
+    // Mocking GuzzleHttp\Client and the get() method
+    $mockClient = M::mock(Client::class);
+    $mockClient->shouldReceive('get')
+        ->with('geocode/json', M::on(function ($params) {
+            return isset($params['query']['address']) && $params['query']['address'] === '123 Main St';
+        }))
+        ->andReturn($mockedResponse);
 
+    // Set the mocked client in the GoogleMapsService
     $service = new GoogleMapsService();
     $service->setClient($mockClient);
 
+    // Call the method to test
     $result = $service->geocodeAddress('123 Main St');
-  
-    // expect($result)->toBeArray()
-    //     ->and($result['formatted_address'])->toBe('123 Main St, Cape Town, South Africa')
-    //     ->and($result['latitude'])->toBe(-33.9249)
-    //     ->and($result['longitude'])->toBe(18.4241)
-    //     ->and($result['city'])->toBe(1);
 
-    // assertDatabaseHas('towns', ['name' => 'Cape Town']);
+    expect($result)->toBeArray()
+        ->and($result['formatted_address'])->toBe('123 Main St, Cape Town, South Africa')
+        ->and($result['latitude'])->toBe(-33.9249)
+        ->and($result['longitude'])->toBe(18.4241)
+        ->and($result['city'])->toBe(1);
+
+    // assertDatabaseHas for checking town in the database
+    assertDatabaseHas('towns', ['name' => 'Cape Town']);
 });
 
 it('returns null on API failure', function () {
-
+    // Mocking the failure response from Guzzle
     $mockedResponse = new Response(200, [], json_encode([
         'status' => 'ZERO_RESULTS',
         'results' => []
     ]));
 
-    $mockClient = Mockery::mock(Client::class);
+    // Mocking the Guzzle client
+    $mockClient = M::mock(Client::class);
     $mockClient->shouldReceive('get')->andReturn($mockedResponse);
 
+    // Set the mocked client in the service
     $service = new GoogleMapsService();
     $service->setClient($mockClient);
 
+    // Test the service returns null on failure
     $result = $service->geocodeAddress('Invalid Address');
 
     expect($result)->toBeNull();
 });
 
 it('logs an error when API call fails', function () {
-
-    $mockClient = Mockery::mock(Client::class);
+    // Mocking a failure for the API call
+    $mockClient = M::mock(Client::class);
     $mockClient->shouldReceive('get')->andThrow(new \Exception('API Error'));
 
+    // Set the mocked client in the service
     $service = new GoogleMapsService();
     $service->setClient($mockClient);
 
+    // Spy on the Log facade
     Log::spy();
 
+    // Make the call that should fail
     $result = $service->geocodeAddress('123 Main St');
 
+    // Expect the result to be null due to the failure
     expect($result)->toBeNull();
+
+    // Ensure the error was logged correctly
     Log::shouldHaveReceived('error')->with('Geocoding API error: API Error');
 });
