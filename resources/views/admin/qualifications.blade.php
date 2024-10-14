@@ -2,6 +2,9 @@
 @section('title')
     @lang('translation.contacts')
 @endsection
+@section('css')
+    <link href="{{ URL::asset('build/libs/quill/quill.snow.css') }}" rel="stylesheet" type="text/css" />
+@endsection
 @section('content')
     @component('components.breadcrumb')
         @slot('li_1')
@@ -18,7 +21,7 @@
                     <div class="d-flex align-items-center flex-wrap gap-2">
                         <div class="flex-grow-1">
                             <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#qualificationModal">
-                                <i class="ri-add-fill me-1 align-bottom"></i> 
+                                <i class="ri-add-fill me-1 align-bottom"></i>
                                 Add Qualification
                             </button>
                         </div>
@@ -43,7 +46,7 @@
                                 <input type="text" class="form-control search" placeholder="Search for qualification...">
                                 <i class="ri-search-line search-icon"></i>
                             </div>
-                        </div>                        
+                        </div>
                         <div class="col-md-auto ms-auto">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="text-muted">Display: </span>
@@ -72,7 +75,7 @@
                                         <th class="sort" data-sort="position" scope="col">Position</th>
                                         <th class="sort" data-sort="description" scope="col">Description</th>
                                         <th class="sort" data-sort="icon" scope="col">Icon</th>
-                                        <th class="sort" data-sort="color" scope="col">Color</th>               
+                                        <th class="sort" data-sort="color" scope="col">Color</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -87,7 +90,7 @@
                                                 </th>
                                                 <td class="id d-none">{{ Crypt::encryptstring($qualification->id) }}</td>
                                                 <td class="position">{{ optional($qualification->position)->name }}</td>
-                                                <td class="description" style="white-space: pre-wrap;">{{ $qualification->description }}</td>
+                                                <td class="description" style="white-space: pre-wrap;">{!! $qualification->description !!}</td>
                                                 <td class="icon"><i class="{{ $qualification->icon }} text-{{ $qualification->color }} fs-18"></i></td>
                                                 <td class="color"><span class="text-{{ $qualification->color }}">{{ $qualification->color }}</span></td>
                                                 <td>
@@ -215,7 +218,7 @@
                                                 <label for="description" class="form-label">
                                                     Description
                                                 </label>
-                                                <textarea class="form-control" id="description" name="description" rows="7" required></textarea>
+                                                <div class="snow-editor" id="description" style="height: 500px;"></div>
                                             </div>
 
                                             <div class="mb-3">
@@ -224,7 +227,7 @@
                                                     <option value="" selected>Select Icon</option>
                                                 </select>
                                             </div>
-    
+
                                             <div class="mb-3">
                                                 <label for="color" class="form-label">
                                                     Color
@@ -240,9 +243,9 @@
                                                     <option class="text-dark" value="dark">Dark</option>
                                                 </select>
                                             </div>
-                                        </div>                                        
+                                        </div>
                                     </div>
-                                    <div class="modal-footer">                                        
+                                    <div class="modal-footer">
                                         <div class="hstack gap-2 justify-content-end">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                                             <button type="submit" class="btn btn-success" id="add-btn">Add Qualification</button>

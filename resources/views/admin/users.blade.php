@@ -18,7 +18,7 @@
                     <div class="d-flex align-items-center flex-wrap gap-2">
                         <div class="flex-grow-1">
                             <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#usersModal">
-                                <i class="ri-add-fill me-1 align-bottom"></i> 
+                                <i class="ri-add-fill me-1 align-bottom"></i>
                                 Add User
                             </button>
                         </div>
@@ -92,7 +92,7 @@
                                         <th class="sort" data-sort="role" scope="col">Role</th>
                                         <th class="sort d-none" data-sort="store" scope="col">Store</th>
                                         <th class="sort d-none" data-sort="internal" scope="col">Internal</th>
-                                        <th class="sort" data-sort="status" scope="col">Status</th>                          
+                                        <th class="sort" data-sort="status" scope="col">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -283,7 +283,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>                                                    
+                                                </div>
                                             </div>
                                             <!--end col-->
 
@@ -294,7 +294,7 @@
                                                     </label>
                                                     <input type="text" id="firstname" name="firstname" class="form-control" placeholder="Enter first name" required/>
                                                 </div>
-                                                <!--end col-->                                                
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="email" class="form-label">
                                                         Email
@@ -351,7 +351,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->                             
+                                                <!--end col-->
                                             </div>
                                             <!--end col-->
 

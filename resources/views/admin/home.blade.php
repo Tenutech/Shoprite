@@ -137,205 +137,29 @@
                 <!--end col-->
             </div> <!-- end row-->
 
-            <div class="row">
-                <div class="col-md-6" id="averageShortlistTimeColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Time to Shortlist (days)
-                                    </p>
-                                    @php
-                                        $totalDays = $averageShortlistTime;
-                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
-                                        $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
-                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
-                                    @endphp
-                                    <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="averageShortlistTimeeValue">{{ $formattedInterval }}</span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-primary mb-0" id="averageShortlistTime">
-                                            System Average
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-primary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-primary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-
-                <div class="col-md-6" id="averageTimeToHireColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Time to Hire
-                                    </p>
-                                    @php
-                                        $totalDays = $averageTimeToHire;
-                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
-                                        $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
-                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
-                                    @endphp
-                                    <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="averageTimeToHireValue">{{ $formattedInterval }}</span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="averageTimeToHire">
-                                            System Average
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-            </div> <!-- end row-->
-
-            <div class="row">
-                <div class="col-md-6" id="adoptionRateColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Adoption Rate
-                                    </p>
-                                    <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="adoptionRateValue">{{ $adoptionRate }}%</span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="adoptionRate">
-                                           Percentage
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-
-                <div class="col-md-6" id="applicationCompletionRateColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Application Completion Rate
-                                    </p>
-                                    <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="applicationCompletionRateValue">{{ $applicationCompletionRate }}%</span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="applicationCompletionRate">
-                                           Percentage
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-            </div> <!-- end row-->
-
             <!-------------------------------------------------------------------------------------
-                Applicants Absorption Rate
+                Rates
             -------------------------------------------------------------------------------------->
 
-            <div class="row">
-                <div class="col-md-6" id="absorptionRatePreviousYearColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Absorption Rate
-                                    </p>
-                                    <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span class="counter-value" data-target="{{ $previousYearData->total_applicants > 0 ? round($previousYearData->total_appointed / $previousYearData->total_applicants * 100) : 0 }}" id="absorptionRatePreviousYearValue">
-                                            0
-                                        </span>%
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="absorptionRatePreviousYear">
-                                            {{ $previousYearData->year }}
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
-                                            <i data-feather="briefcase" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
+            @include('admin.dashboard.partials.rates') 
 
-                <div class="col-md-6" id="absorptionRateCurrentYearColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Absorption Rate
-                                    </p>
-                                    <h2 class="mt-4 ff-primary fw-bold">
-                                        <span class="counter-value" data-target="{{ $currentYearData->total_applicants > 0 ? round($currentYearData->total_appointed / $currentYearData->total_applicants * 100) : 0 }}" id="absorptionRateCurrentYearValue">
-                                            0
-                                        </span>%
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-primary mb-0" id="absorptionRateCurrentYear">
-                                            {{ $currentYearData->year }}
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-primary-subtle rounded-circle fs-2">
-                                            <i data-feather="briefcase" class="text-primary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-            </div> <!-- end row-->
+            <!-------------------------------------------------------------------------------------
+                Talent Pool breakdown
+            -------------------------------------------------------------------------------------->
+
+            @include('admin.dashboard.partials.demographics_talent_pool_breakdown') 
+
+            <!-------------------------------------------------------------------------------------
+                Appointed Candidates
+            -------------------------------------------------------------------------------------->
+
+            @include('admin.dashboard.partials.demographics_appointed_candidates_breakdown')
+
+            <!-------------------------------------------------------------------------------------
+                Interviewed Candidates
+            -------------------------------------------------------------------------------------->
+
+            @include('admin.dashboard.partials.demographics_interviewed_candidates_breakdown')
 
             <div class="row">
                 <div class="col-xl-6">
@@ -343,7 +167,7 @@
                         <div class="card-header">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1">
-                                Application Completion Rate
+                                Average proximity
                                 </h5>
                             </div>
                         </div>
@@ -351,11 +175,12 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span class="counter-value" data-target="{{ $applicationCompletionRate > 0 ? $applicationCompletionRate : 0 }}" id="applicationCompletionRateValue">
-                                            {{ $applicationCompletionRate }}
-                                        </span>%
+                                    <span class="counter-value"  data-target="{{ $averageDistanceSuccessfulPlacements }}" id="averageDistanceSuccessfulPlacementsValue">
+                                            {{ $averageDistanceSuccessfulPlacements }}
+                                        </span>km 
                                     </h2>
                                     <p class="mb-0 text-muted">
+                                        Average Distance for Succesfull Placements
                                     </p>
                                 </div>
                             </div>
@@ -367,7 +192,7 @@
                         <div class="card-header">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1">
-                                Drop-Off Rates
+                                Average proximity
                                 </h5>
                             </div>
                         </div>
@@ -375,11 +200,12 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span class="counter-value" id="dropOffRateValue">
-                                            {{ $dropOffRates['dropoff_rate']['percentage'] }}
-                                        </span>%
+                                        <span class="counter-value"  data-target="{{ $averageTalentPoolDistance }}" id="averageTalentPoolDistanceValue">
+                                            {{ $averageTalentPoolDistance}} 
+                                        </span>km
                                     </h2>
                                     <p class="mb-0 text-muted">
+                                        Total Average Distance
                                     </p>
                                 </div>
                             </div>
@@ -417,6 +243,7 @@
                 </div>
                 <!--end col-->
             </div>
+
             <!-------------------------------------------------------------------------------------
                 Applicants Graph
             -------------------------------------------------------------------------------------->
@@ -534,6 +361,39 @@
                 </div><!-- end col -->
             </div>
 
+            <div class="row">
+                <div class="col-xxl-12 col-md-12">
+                    <div class="card card-height-100">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">
+                            Application channels
+                            </h4>                            
+                        </div><!-- end card header -->
+                        <div class="card-header p-0 border-0 bg-soft-light">
+                            <div class="row g-0 text-center">
+                                <div class="col-6 col-sm-6">
+                                    <div class="p-3 border border-dashed border-start-0">
+                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $channelStats['whatsapp']['count'] }}" id="channleWhatsappCounter">0</span></h5>
+                                        <p class="text-muted mb-0">Whatsapp</p>
+                                    </div>
+                                </div>
+                                <!--end col-->
+                                <div class="col-6 col-sm-6">
+                                    <div class="p-3 border border-dashed border-start-0">
+                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $channelStats['website']['count'] }}" id="channleWebsiteCounter">0</span></h5>
+                                        <p class="text-muted mb-0">Website</p>
+                                    </div>
+                                </div>
+                                <!--end col-->
+                            </div>
+                        </div><!-- end card header -->
+                        <div class="card-body">
+                            <div id="application_channels" data-colors='["--vz-success", "--vz-danger"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div>
+            </div>
+
             <!-------------------------------------------------------------------------------------
                 Locations
             -------------------------------------------------------------------------------------->
@@ -600,6 +460,138 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div><!-- end col -->
+            </div>
+
+            <div class="row">
+                <div class="col-xl-6">
+                    <!-- card -->
+                    <div class="card card-height-100">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">
+                                Assessment Literacy Scores By Brand
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <!-- card body -->
+                        <div class="card-body">
+        
+                            <div class="px-2 py-2 mt-4" id="provinceProgress">
+                                @foreach($averageScoresByBrand as $key => $value)
+
+                                    <p class="mb-1">
+                                        {{ $key }}
+                                        <span class="float-end">{{ $value['literacy_percentage'] }}%</span>
+                                    </p>
+                                    <div class="progress mt-1 mb-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
+                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            
+                        </div>
+                        <!-- end card body -->
+                    </div>
+                    <!-- end card -->
+                </div>
+
+                <div class="col-xl-6">
+                    <!-- card -->
+                    <div class="card card-height-100">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">
+                                Assessment Numeracy Scores By Brand
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <!-- card body -->
+                        <div class="card-body">
+        
+                            <div class="px-2 py-2 mt-4" id="provinceProgress">
+                                @foreach($averageScoresByBrand as $key => $value)
+
+                                    <p class="mb-1">
+                                        {{ $key }}
+                                        <span class="float-end">{{ $value['numeracy_percentage'] }}%</span>
+                                    </p>
+                                    <div class="progress mt-1 mb-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
+                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            
+                        </div>
+                        <!-- end card body -->
+                    </div>
+                    <!-- end card -->
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xl-6">
+                    <!-- card -->
+                    <div class="card card-height-100">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">
+                                Assessment Literacy Scores
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <!-- card body -->
+                        <div class="card-body">
+        
+                            <div class="px-2 py-2 mt-4" id="provinceProgress">
+                                @foreach($averageScoresByProvince as $key => $value)
+
+                                    <p class="mb-1">
+                                        {{ $key }}
+                                        <span class="float-end">{{ $value['literacy_percentage'] }}%</span>
+                                    </p>
+                                    <div class="progress mt-1 mb-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
+                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            
+                        </div>
+                        <!-- end card body -->
+                    </div>
+                    <!-- end card -->
+                </div>
+
+                <div class="col-xl-6">
+                    <!-- card -->
+                    <div class="card card-height-100">
+                        <div class="card-header align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">
+                                Assessment Numeracy Scores
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <!-- card body -->
+                        <div class="card-body">
+        
+                            <div class="px-2 py-2 mt-4" id="provinceProgress">
+                                @foreach($averageScoresByProvince as $key => $value)
+
+                                    <p class="mb-1">
+                                        {{ $key }}
+                                        <span class="float-end">{{ $value['numeracy_percentage'] }}%</span>
+                                    </p>
+                                    <div class="progress mt-1 mb-3" style="height: 6px;">
+                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
+                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            
+                        </div>
+                        <!-- end card body -->
+                    </div>
+                    <!-- end card -->
+                </div>
             </div>
 
         </div> <!-- end .h-100-->
@@ -1097,7 +1089,22 @@
     var incomingMessages = @json($incomingMessages);
     var outgoingMessages = @json($outgoingMessages);
 
+    var whatsappChannelCount = @json($channelStats['whatsapp']['count']);
+    var websiteChannelCount = @json($channelStats['website']['count']);
+
     var applicantsByPosition = @json($applicantsByPosition);
+
+    var raceBreakdownPercentages = @json($raceBreakdownPercentages);
+    var ageBreakdownPercentages = @json($ageBreakdownPercentages);
+    var genderBreakdownPercentages = @json($genderBreakdownPercentages);
+
+    var appointedRaceBreakdownPercentages = @json($appointedRaceBreakdownPercentages);
+    var appointedAgeBreakdownPercentages = @json($appointedAgeBreakdownPercentages);
+    var appointedGenderBreakdownPercentages = @json($appointedGenderBreakdownPercentages);
+
+    var interviewedRaceBreakdownPercentages = @json($interviewedRaceBreakdownPercentages);
+    var interviewedAgeBreakdownPercentages = @json($interviewedAgeBreakdownPercentages);
+    var interviewedGenderBreakdownPercentages = @json($interviewedGenderBreakdownPercentages);
 
     var applicantData = applicantsPerProvince.reduce((accumulator, currentValue) => {
         accumulator[currentValue.x] = currentValue.y;

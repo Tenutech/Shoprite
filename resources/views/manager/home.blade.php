@@ -147,7 +147,7 @@
             </div> <!-- end row-->
 
             <div class="row">
-                <div class="col-md-6" id="storeAverageTimeToShortlistColumn">
+                <div class="col-md-4" id="storeAverageTimeToShortlistColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -182,7 +182,7 @@
                     </div> <!-- end card-->
                 </div> <!-- end col-->
 
-                <div class="col-md-6" id="storeAverageTimeToHireColumn">
+                <div class="col-md-4" id="storeAverageTimeToHireColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -216,8 +216,10 @@
                         </div><!-- end card body -->
                     </div> <!-- end card-->
                 </div> <!-- end col-->
+            </div> <!-- end row-->
 
-                <div class="col-md-6" id="adoptionRateColumn">
+            <div class="row">
+                <div class="col-md-4" id="adoptionRateColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -244,6 +246,120 @@
                             </div>
                         </div><!-- end card body -->
                     </div> <!-- end card-->
+                </div> <!-- end col-->
+
+                <div class="col-md-4" id="avgLiteracyScoreColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Average Store Literacy Score
+                                    </p>
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="avgLiteracyScoreValue">{{ $averageScores['avg_literacy_score'] }}%</span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-secondary mb-0" id="avgLiteracyScore">
+                                           Percentage
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
+                                            <i data-feather="watch" class="text-secondary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card-->
+                </div> <!-- end col-->
+
+                <div class="col-md-4" id="avgNumeracyScoreColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Average Store Numeracy Score
+                                    </p>
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="avgNumeracyScoreValue">{{ $averageScores['avg_numeracy_score'] }}%</span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-secondary mb-0" id="avgNumeracyScore">
+                                           Percentage
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
+                                            <i data-feather="watch" class="text-secondary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card-->
+                </div> <!-- end col-->
+            </div> <!-- end row-->
+            <!-------------------------------------------------------------------------------------
+                Proximity
+            -------------------------------------------------------------------------------------->
+
+            <div class="row">
+                <div class="col-xl-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                Average proximity
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                    <span class="counter-value"  data-target="{{ $averageDistanceSuccessfulPlacements }}" id="averageDistanceSuccessfulPlacementsValue">
+                                            {{ $averageDistanceSuccessfulPlacements }}
+                                        </span>km 
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average Distance for Succesfull Placements
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col-->
+                <div class="col-xl-6">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                Average proximity
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                        <span class="counter-value"  data-target="{{ $averageTalentPoolDistance }}" id="averageTalentPoolDistanceValue">
+                                            {{ $averageTalentPoolDistance}} 
+                                        </span>km
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Total Average Distance
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
                 </div> <!-- end col-->
             </div> <!-- end row-->
 

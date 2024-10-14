@@ -15,6 +15,7 @@ use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
 use App\Models\Language;
 use App\Services\DataService\ApplicantDataService;
+use App\Services\DataService\ApplicantProximityService;
 use App\Services\DataService\VacancyDataService;
 use Carbon\Carbon;
 use Illuminate\Support\Arr;
@@ -35,10 +36,14 @@ class AdminController extends Controller
      *
      * @return void
      */
-    public function __construct(VacancyDataService $vacancyDataService, ApplicantDataService $applicantDataService)
-    {
+    public function __construct(
+        ApplicantDataService $applicantDataService,
+        VacancyDataService $vacancyDataService,
+        ApplicantProximityService $applicantProximityService
+    ) {
         $this->middleware(['auth', 'verified']);
         $this->applicantDataService = $applicantDataService;
+        $this->applicantProximityService = $applicantProximityService;
         $this->vacancyDataService = $vacancyDataService;
     }
 
@@ -565,15 +570,44 @@ class AdminController extends Controller
                 ];
             })->all();
 
-            $startDate = Carbon::now()->startOfYear();
+            $startDate = Carbon::now()->subYears(2)->startOfYear();
             $endDate = Carbon::now()->endOfYear();
 
-            $averageShortlistTime = $this->vacancyDataService->getNationwideAverageTimeToShortlist();
-            $averageTimeToHire = $this->vacancyDataService->getNationwideAverageTimeToHire();
+            $averageShortlistTime = $this->vacancyDataService->getNationwideAverageTimeToShortlist($startDate, $endDate);
+            $averageTimeToHire = $this->vacancyDataService->getNationwideAverageTimeToHire($startDate, $endDate);
             $adoptionRate = $this->vacancyDataService->getNationwideVacancyFillRate($startDate, $endDate);
             $applicationCompletionRate = $this->applicantDataService->getApplicationCompletionRate($startDate, $endDate);
             $dropOffRates = $this->applicantDataService->getDropOffRates($startDate, $endDate);
             // $completionByRegion = $this->applicantDataService->getCompletionByRegion($startDate, $endDate);
+            $channelStats =  $this->applicantDataService->getTotalAndPercentageByChannel($startDate, $endDate);
+            $totalTalentPool = $this->getTotalTalentPoolCount([
+                'startDate' => $startDate,
+                'endDate' => $endDate,
+            ]);
+            $raceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate);
+            $genderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate);
+            $ageBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate);
+
+            $appointedRaceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate, 'appointed');
+            $appointedGenderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate, 'appointed');
+            $appointedAgeBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate, 'appointed');
+
+            $interviewedRaceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate, 'interveiwed');
+            $interviewedGenderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate, 'interveiwed');
+            $interviewedAgeBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate, 'interveiwed');
+
+            $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDateRange($startDate, $endDate);
+            $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
+            $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
+            $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForAdmin($startDate, $endDate);
+            $distanceLimit = 50;
+            $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
+                'national',
+                null,
+                $distanceLimit,
+                $startDate,
+                $endDate
+            );
 
             return view('admin/home', [
                 'activities' => $activities,
@@ -602,6 +636,21 @@ class AdminController extends Controller
                 'applicationCompletionRate' => $applicationCompletionRate,
                 'dropOffRates' => $dropOffRates,
                 // 'completionByRegion' => $completionByRegion,
+                'averageScoresByBrand' => $averageScoresByBrand,
+                'averageScoresByProvince' => $averageScoresByProvince,
+                'channelStats' => $channelStats,
+                'totalTalentPool' => $totalTalentPool,
+                'raceBreakdownPercentages' => array_values($raceBreakdown['percentages']),
+                'ageBreakdownPercentages' => array_values($ageBreakdown['percentages']),
+                'genderBreakdownPercentages' => array_values($genderBreakdown['percentages']),
+                'appointedRaceBreakdownPercentages' => array_values($appointedRaceBreakdown['percentages']),
+                'appointedGenderBreakdownPercentages' => array_values($appointedGenderBreakdown['percentages']),
+                'appointedAgeBreakdownPercentages' => array_values($appointedAgeBreakdown['percentages']),
+                'interviewedRaceBreakdownPercentages' => array_values($interviewedRaceBreakdown['percentages']),
+                'interviewedGenderBreakdownPercentages' => array_values($interviewedGenderBreakdown['percentages']),
+                'interviewedAgeBreakdownPercentages' => array_values($interviewedAgeBreakdown['percentages']),
+                'averageDistanceSuccessfulPlacements' => $averageDistanceSuccessfulPlacements,
+                'averageTalentPoolDistance' => $averageTalentPoolDistance,
             ]);
         }
         return view('404');

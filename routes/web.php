@@ -121,6 +121,18 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2,3,4,5', 'user.
 
     Route::delete('/numeracy/destroy/{id}', [App\Http\Controllers\NumeracyController::class, 'destroy'])->name('numeracy.destroy');
 
+    //Situational Awareness
+
+    Route::get('/situational', [App\Http\Controllers\SituationalController::class, 'index'])->name('situational.index');
+
+    Route::post('/situational/add', [App\Http\Controllers\SituationalController::class, 'store'])->name('situational.store');
+
+    Route::post('/situational/update', [App\Http\Controllers\SituationalController::class, 'update'])->name('situational.update');
+
+    Route::get('/situational/details/{id}', [App\Http\Controllers\SituationalController::class, 'details'])->name('situational.details');
+
+    Route::delete('/situational/destroy/{id}', [App\Http\Controllers\SituationalController::class, 'destroy'])->name('situational.destroy');
+
     //Weighting
 
     Route::get('/weighting', [App\Http\Controllers\WeightingController::class, 'index'])->name('weighting.index');
@@ -676,7 +688,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::post('/files/add', [App\Http\Controllers\JobOverviewController::class, 'store'])->name('file.store');
 
-    Route::delete('/files/delete/{id}', [App\Http\Controllers\JobOverviewController::class, 'destroy'])->name('file.destroy');    
+    Route::delete('/files/delete/{id}', [App\Http\Controllers\JobOverviewController::class, 'destroy'])->name('file.destroy');
 
     //Messages
 
@@ -712,7 +724,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
     //My Profile Settings
 
     Route::get('/profile-settings', [App\Http\Controllers\ProfileSettingsController::class, 'index'])->name('profile-settings.index');
-    
+
     Route::post('/update-profile', [App\Http\Controllers\ProfileSettingsController::class, 'update'])->name('profile-settings.update');
 
     Route::post('/update-password', [App\Http\Controllers\ProfileSettingsController::class, 'updatePassword'])->name('profile-settings.updatePassword');

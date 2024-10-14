@@ -21,14 +21,14 @@
                     <div class="d-flex align-items-center flex-wrap gap-2">
                         <div class="flex-grow-1">
                             <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#emailModal">
-                                <i class="ri-add-fill me-1 align-bottom"></i> 
+                                <i class="ri-add-fill me-1 align-bottom"></i>
                                 Add Email
                             </button>
                         </div>
                         <div class="flex-shrink-0">
                             <div class="hstack text-nowrap gap-2">
                                 <a href="{{ route('email.export') }}" type="button" class="btn btn-success btn-label">
-                                    <i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i> 
+                                    <i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i>
                                     Export
                                 </a>
                                 <button class="btn btn-soft-danger" onClick="deleteMultiple()">
@@ -50,7 +50,7 @@
                                 <input type="text" class="form-control search" placeholder="Search for email...">
                                 <i class="ri-search-line search-icon"></i>
                             </div>
-                        </div>                        
+                        </div>
                         <div class="col-md-auto ms-auto">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="text-muted">Display: </span>
@@ -80,10 +80,10 @@
                                         <th class="sort" data-sort="subject" scope="col">Subject</th>
                                         <th class="sort d-none" data-sort="greeting" scope="col">Greeting</th>
                                         <th class="sort" data-sort="intro" scope="col">Body</th>
-                                        <th class="sort d-none" data-sort="outro" scope="col">Outro</th> 
+                                        <th class="sort d-none" data-sort="outro" scope="col">Outro</th>
                                         <th class="sort d-none" data-sort="icon" scope="col">Icon</th>
                                         <th class="sort d-none" data-sort="color" scope="col">Color</th>
-                                        <th class="sort" data-sort="role" scope="col">Role</th>                 
+                                        <th class="sort" data-sort="role" scope="col">Role</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -253,7 +253,7 @@
                                             <!--end col-->
                                         </div>
                                     </div>
-                                    <div class="modal-footer">                                        
+                                    <div class="modal-footer">
                                         <div class="hstack gap-2 justify-content-end">
                                             <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
                                             <button type="submit" class="btn btn-success" id="add-btn">Add Email</button>

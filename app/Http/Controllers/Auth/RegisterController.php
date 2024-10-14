@@ -12,6 +12,7 @@ use App\Models\Applicant;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class RegisterController extends Controller
 {
@@ -97,7 +98,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
             'avatar' => 'avatar.jpg',
             'company_id' => 1,
-            'role_id' => 7, // Default role for new users
+            'role_id' => config('constants.new_user_role_id'), // Default role for new users
             'applicant_id' => $applicant ? $applicant->id : null,
             'status_id' => 1, // User status (e.g., active)
         ]);
@@ -202,6 +203,9 @@ class RegisterController extends Controller
         // Determine if the century is 19xx or 20xx based on the extracted year
         $year = ($year > (int) date('y')) ? (int) ('19' . $year) : (int) ('20' . $year);
 
+        // Determine if the century is 19xx or 20xx based on the extracted year
+        $year = ($year > (int) date('y')) ? (int) ('19' . $year) : (int) ('20' . $year);
+
         // Extract the month of birth (MM)
         $month = (int) substr($idNumber, 2, 2);
 
@@ -212,6 +216,12 @@ class RegisterController extends Controller
         if (!checkdate($month, $day, $year)) {
             throw new \Exception('Invalid birth date extracted from ID number.');
         }
+
+        // Get the current year in full (YYYY format)
+        $currentYear = (int) date('Y');
+
+        // Determine if the century is 19xx or 20xx based on the extracted year
+        $year = ($year > (int) date('y')) ? (int) ('19' . $year) : (int) ('20' . $year);
 
         // Create a DateTime object from the extracted birth date (YYYY-MM-DD format)
         $birthDate = \DateTime::createFromFormat('Y-m-d', "$year-$month-$day");

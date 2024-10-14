@@ -12,6 +12,8 @@ use App\Models\Application;
 use App\Models\ChatTotalData;
 use App\Models\ApplicantTotalData;
 use App\Models\ApplicantMonthlyData;
+use App\Services\DataService\ApplicantDataService;
+use App\Services\DataService\ApplicantProximityService;
 use App\Services\DataService\VacancyDataService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -29,9 +31,15 @@ class DPPController extends Controller
      *
      * @return void
      */
-    public function __construct(ActivityLogService $activityLogService, VacancyDataService $vacancyDataService)
-    {
+    public function __construct(
+        ActivityLogService $activityLogService,
+        ApplicantDataService $applicantDataService,
+        ApplicantProximityService $applicantProximityService,
+        VacancyDataService $vacancyDataService
+    ) {
         $this->activityLogService = $activityLogService;
+        $this->applicantDataService = $applicantDataService;
+        $this->applicantProximityService = $applicantProximityService;
         $this->vacancyDataService = $vacancyDataService;
     }
 
@@ -494,41 +502,6 @@ class DPPController extends Controller
                 }
             }
 
-            $startDate = Carbon::now()->startOfYear();
-            $endDate = Carbon::now()->endOfYear();
-
-            // Set the start date to the beginning of the current year
-            $startDate = Carbon::now()->startOfYear();
-
-            // Set the end date to the end of the current year
-            $endDate = Carbon::now()->endOfYear();
-
-            // Get the division ID of the authenticated user
-            $divisionId = $authUser->division_id;
-
-            // Check if the division ID is not null
-            if ($divisionId !== null) {
-                // If division ID is present, calculate the division-wide average time to shortlist
-                $divisionWideAverageTimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist($divisionId);
-
-                // Calculate the division-wide average time to hire
-                $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire($divisionId);
-
-                // Calculate the adoption rate (vacancy fill rate) for the given division within the date range
-                $adoptionRate = $this->vacancyDataService->getDivisionVacancyFillRate($divisionId, $startDate, $endDate);
-            } else {
-                // If division ID is null, handle the case by assigning default values
-
-                // Set the division-wide average time to shortlist to 0 or another default value
-                $divisionWideAverageTimeToShortlist = 0;
-
-                // Set the division-wide time to hire to 0 or another default value
-                $divisionWideTimeToHire = 0;
-
-                // Set the adoption rate to 0 or another default value
-                $adoptionRate = 0;
-            }
-
             // Fetch applicants positions
             $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
                 ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
@@ -543,31 +516,69 @@ class DPPController extends Controller
                  ];
              })->all();
 
-             return view('dpp/home', [
-                 'activities' => $activities,
-                 'positions' => $positions,
-                 'currentYearData' => $currentYearData,
-                 'previousYearData' => $previousYearData,
-                 'applicantsPerProvince' => $applicantsPerProvince,
-                 'applicantsByRace' => $applicantsByRace,
-                 'totalApplicantsPerMonth' => $totalApplicantsPerMonth,
-                 'totalIncomingMessages' => $totalIncomingMessages,
-                 'totalOutgoingMessages' => $totalOutgoingMessages,
-                 'incomingMessages' => $incomingMessages,
-                 'outgoingMessages' => $outgoingMessages,
-                 'applicantsByPosition' => $applicantsByPosition,
-                 'applicationsPerMonth' => $applicationsPerMonth,
-                 'interviewedPerMonth' => $interviewedPerMonth,
-                 'appointedPerMonth' => $appointedPerMonth,
-                 'rejectedPerMonth' => $rejectedPerMonth,
-                 'percentMovementApplicationsPerMonth' => $percentMovementApplicationsPerMonth,
-                 'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
-                 'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
-                 'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
-                 'adoptionRate' => $adoptionRate,
-             ]);
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfYear();
+
+            $divisionId = $authUser->division_id;
+
+            $divisionWideAverageTimeToShortlist = 0;
+            $divisionWideTimeToHire = 0;
+            $adoptionRate = 0;
+            $averageScoresByBrand = [];
+            $averageScoresByProvince = [];
+
+            if ($divisionId !== null) {
+                $divisionWideAverageTimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist($divisionId);
+                $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire($divisionId);
+                $adoptionRate = $this->vacancyDataService->getDivisionVacancyFillRate($divisionId, $startDate, $endDate);
+                $divisionWideAveragetimeToShortlist = $this->vacancyDataService->getDivisionWideAverageTimeToShortlist($divisionId);
+                $divisionWideTimeToHire = $this->vacancyDataService->getDivisionWideAverageTimeToHire($divisionId);
+                $adoptionRate = $this->vacancyDataService->getDivisionVacancyFillRate($divisionId, $startDate, $endDate);
+                $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDivisionAndDateRange($divisionId, $startDate, $endDate);
+                $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
+                $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
+                $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForDivision($divisionId, $startDate, $endDate);
+                $distanceLimit = 50;
+                $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
+                    'division',
+                    $divisionId,
+                    $distanceLimit,
+                    $startDate,
+                    $endDate
+                );
+            }
+
+            return view('dpp/home', [
+                'activities' => $activities,
+                'positions' => $positions,
+                'currentYearData' => $currentYearData,
+                'previousYearData' => $previousYearData,
+                'applicantsPerProvince' => $applicantsPerProvince,
+                'applicantsByRace' => $applicantsByRace,
+                'totalApplicantsPerMonth' => $totalApplicantsPerMonth,
+                'totalIncomingMessages' => $totalIncomingMessages,
+                'totalOutgoingMessages' => $totalOutgoingMessages,
+                'incomingMessages' => $incomingMessages,
+                'outgoingMessages' => $outgoingMessages,
+                'applicantsByPosition' => $applicantsByPosition,
+                'applicationsPerMonth' => $applicationsPerMonth,
+                'interviewedPerMonth' => $interviewedPerMonth,
+                'appointedPerMonth' => $appointedPerMonth,
+                'rejectedPerMonth' => $rejectedPerMonth,
+                'percentMovementApplicationsPerMonth' => $percentMovementApplicationsPerMonth,
+                'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
+                'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
+                'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                'divisionWideAveragetimeToShortlist' => $divisionWideAveragetimeToShortlist,
+                'divisionWideTimeToHire' => $divisionWideTimeToHire,
+                'adoptionRate' => $adoptionRate,
+                'averageScoresByBrand' => $averageScoresByBrand,
+                'averageScoresByProvince' => $averageScoresByProvince,
+                'averageDistanceSuccessfulPlacements' => $averageDistanceSuccessfulPlacements,
+                'averageTalentPoolDistance' => $averageTalentPoolDistance,
+            ]);
         }
-         return view('404');
+        return view('404');
     }
 
      /*

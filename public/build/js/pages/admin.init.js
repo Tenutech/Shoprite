@@ -423,6 +423,291 @@ function getLast5Months() {
 
 /*
 |--------------------------------------------------------------------------
+| Talent pool breakdown
+|--------------------------------------------------------------------------
+*/
+var chartDonutBasicColors = getChartColorsArray("age_breakdown_precentage_chart");
+if (chartDonutBasicColors) {
+    var options = {
+        series: ageBreakdownPercentages,
+        labels: ["18-24", "25-30", "31-40", "41-50", "51-60", "60+"],
+        chart: {
+            height: 333,
+            type: "donut",
+        },
+        legend: {
+            position: "bottom",
+        },
+        stroke: {
+            show: false
+        },
+        dataLabels: {
+            dropShadow: {
+                enabled: false,
+            },
+        },
+        colors: chartDonutBasicColors,
+    };
+
+    var age_breakdown_precentage_chart = new ApexCharts(
+        document.querySelector("#age_breakdown_precentage_chart"),
+        options
+    );
+    age_breakdown_precentage_chart.render();
+}
+
+var chartDonutBasicColors = getChartColorsArray("gender_breakdown_precentage_chart");
+if (chartDonutBasicColors) {
+    var options = {
+        series: genderBreakdownPercentages,
+        labels: ["male", "female"],
+        chart: {
+            height: 333,
+            type: "donut",
+        },
+        legend: {
+            position: "bottom",
+        },
+        stroke: {
+            show: false
+        },
+        dataLabels: {
+            dropShadow: {
+                enabled: false,
+            },
+        },
+        colors: chartDonutBasicColors,
+    };
+
+    var gender_breakdown_precentage_chart = new ApexCharts(
+        document.querySelector("#gender_breakdown_precentage_chart"),
+        options
+    );
+    gender_breakdown_precentage_chart.render();
+}
+
+var chartDonutBasicColors = getChartColorsArray("race_breakdown_precentage_chart");
+if (chartDonutBasicColors) {
+    var options = {
+        series: raceBreakdownPercentages,
+        labels: ["African", "Asian", "Coloured", "Indian", "White"],
+        chart: {
+            height: 333,
+            type: "donut",
+        },
+        legend: {
+            position: "bottom",
+        },
+        stroke: {
+            show: false
+        },
+        dataLabels: {
+            dropShadow: {
+                enabled: false,
+            },
+        },
+        colors: chartDonutBasicColors,
+    };
+
+    var race_breakdown_precentage_chart = new ApexCharts(
+        document.querySelector("#race_breakdown_precentage_chart"),
+        options
+    );
+    race_breakdown_precentage_chart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Appointed Candidates breakdown
+|--------------------------------------------------------------------------
+*/
+var chartDonutBasicColors = getChartColorsArray("appointed_age_breakdown_precentage_chart");
+if (chartDonutBasicColors) {
+    var options = {
+        series: appointedAgeBreakdownPercentages,
+        labels: ["18-24", "25-30", "31-40", "41-50", "51-60", "60+"],
+        chart: {
+            height: 333,
+            type: "donut",
+        },
+        legend: {
+            position: "bottom",
+        },
+        stroke: {
+            show: false
+        },
+        dataLabels: {
+            dropShadow: {
+                enabled: false,
+            },
+        },
+        colors: chartDonutBasicColors,
+    };
+
+    var age_breakdown_precentage_chart = new ApexCharts(
+        document.querySelector("#appointed_age_breakdown_precentage_chart"),
+        options
+    );
+    age_breakdown_precentage_chart.render();
+}
+
+var chartDonutBasicColors = getChartColorsArray("appointed_gender_breakdown_precentage_chart");
+if (chartDonutBasicColors) {
+    var options = {
+        series: appointedGenderBreakdownPercentages,
+        labels: ["male", "female"],
+        chart: {
+            height: 333,
+            type: "donut",
+        },
+        legend: {
+            position: "bottom",
+        },
+        stroke: {
+            show: false
+        },
+        dataLabels: {
+            dropShadow: {
+                enabled: false,
+            },
+        },
+        colors: chartDonutBasicColors,
+    };
+
+    var gender_breakdown_precentage_chart = new ApexCharts(
+        document.querySelector("#appointed_gender_breakdown_precentage_chart"),
+        options
+    );
+    gender_breakdown_precentage_chart.render();
+}
+
+var chartDonutBasicColors = getChartColorsArray("appointed_race_breakdown_precentage_chart");
+if (chartDonutBasicColors) {
+    var options = {
+        series: appointedRaceBreakdownPercentages,
+        labels: ["African", "Asian", "Coloured", "Indian", "White"],
+        chart: {
+            height: 333,
+            type: "donut",
+        },
+        legend: {
+            position: "bottom",
+        },
+        stroke: {
+            show: false
+        },
+        dataLabels: {
+            dropShadow: {
+                enabled: false,
+            },
+        },
+        colors: chartDonutBasicColors,
+    };
+
+    var race_breakdown_precentage_chart = new ApexCharts(
+        document.querySelector("#appointed_race_breakdown_precentage_chart"),
+        options
+    );
+    race_breakdown_precentage_chart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Interviewed Candidates breakdown
+|--------------------------------------------------------------------------
+*/
+var chartDonutBasicColors = getChartColorsArray("interviewed_age_breakdown_precentage_chart");
+if (chartDonutBasicColors) {
+    var options = {
+        series: interviewedAgeBreakdownPercentages,
+        labels: ["18-24", "25-30", "31-40", "41-50", "51-60", "60+"],
+        chart: {
+            height: 333,
+            type: "donut",
+        },
+        legend: {
+            position: "bottom",
+        },
+        stroke: {
+            show: false
+        },
+        dataLabels: {
+            dropShadow: {
+                enabled: false,
+            },
+        },
+        colors: chartDonutBasicColors,
+    };
+
+    var age_breakdown_precentage_chart = new ApexCharts(
+        document.querySelector("#interviewed_age_breakdown_precentage_chart"),
+        options
+    );
+    age_breakdown_precentage_chart.render();
+}
+
+var chartDonutBasicColors = getChartColorsArray("interviewed_gender_breakdown_precentage_chart");
+if (chartDonutBasicColors) {
+    var options = {
+        series: interviewedGenderBreakdownPercentages,
+        labels: ["male", "female"],
+        chart: {
+            height: 333,
+            type: "donut",
+        },
+        legend: {
+            position: "bottom",
+        },
+        stroke: {
+            show: false
+        },
+        dataLabels: {
+            dropShadow: {
+                enabled: false,
+            },
+        },
+        colors: chartDonutBasicColors,
+    };
+
+    var gender_breakdown_precentage_chart = new ApexCharts(
+        document.querySelector("#interviewed_gender_breakdown_precentage_chart"),
+        options
+    );
+    gender_breakdown_precentage_chart.render();
+}
+
+var chartDonutBasicColors = getChartColorsArray("interviewed_race_breakdown_precentage_chart");
+if (chartDonutBasicColors) {
+    var options = {
+        series: interviewedRaceBreakdownPercentages,
+        labels: ["African", "Asian", "Coloured", "Indian", "White"],
+        chart: {
+            height: 333,
+            type: "donut",
+        },
+        legend: {
+            position: "bottom",
+        },
+        stroke: {
+            show: false
+        },
+        dataLabels: {
+            dropShadow: {
+                enabled: false,
+            },
+        },
+        colors: chartDonutBasicColors,
+    };
+
+    var race_breakdown_precentage_chart = new ApexCharts(
+        document.querySelector("#interviewed_race_breakdown_precentage_chart"),
+        options
+    );
+    race_breakdown_precentage_chart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
 | Applications Sparkline Chart
 |--------------------------------------------------------------------------
 */
