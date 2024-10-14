@@ -123,15 +123,15 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2,3,4,5', 'user.
 
     //Situational Awareness
 
-    Route::get('/situational-awareness', [App\Http\Controllers\SituationalAwarenessController::class, 'index'])->name('situational-awareness.index');
+    Route::get('/situational', [App\Http\Controllers\SituationalController::class, 'index'])->name('situational.index');
 
-    Route::post('/situational-awareness/add', [App\Http\Controllers\SituationalAwarenessController::class, 'store'])->name('situational-awareness.store');
+    Route::post('/situational/add', [App\Http\Controllers\SituationalController::class, 'store'])->name('situational.store');
 
-    Route::post('/situational-awareness/update', [App\Http\Controllers\SituationalAwarenessController::class, 'update'])->name('situational-awareness.update');
+    Route::post('/situational/update', [App\Http\Controllers\SituationalController::class, 'update'])->name('situational.update');
 
-    Route::get('/situational-awareness/details/{id}', [App\Http\Controllers\SituationalAwarenessController::class, 'details'])->name('situational-awareness.details');
+    Route::get('/situational/details/{id}', [App\Http\Controllers\SituationalController::class, 'details'])->name('situational.details');
 
-    Route::delete('/situational-awareness/destroy/{id}', [App\Http\Controllers\SituationalAwarenessController::class, 'destroy'])->name('situational-awareness.destroy');
+    Route::delete('/situational/destroy/{id}', [App\Http\Controllers\SituationalController::class, 'destroy'])->name('situational.destroy');
 
     //Weighting
 

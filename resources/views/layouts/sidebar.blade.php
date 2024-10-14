@@ -176,7 +176,7 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('situational-awareness.index') }}">
+                                    <a class="nav-link" href="{{ route('situational.index') }}">
                                         Situational Awareness
                                     </a>
                                 </li>

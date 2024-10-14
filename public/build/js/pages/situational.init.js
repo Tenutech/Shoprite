@@ -40,7 +40,7 @@ $(document).ready(function() {
         var formData = new FormData($(this)[0]);
 
         $.ajax({
-            url: route('situational-awareness.store'),
+            url: route('situational.store'),
             type: "POST",
             data: formData,
             async: false,
@@ -168,7 +168,7 @@ $(document).ready(function() {
         var messageID = button.data('edit-id');
 
         $.ajax({
-            url: route('situational-awareness.details', {id: messageID}),
+            url: route('situational.details', {id: messageID}),
             type: 'GET',
             cache: false,
             headers: {
@@ -188,7 +188,7 @@ $(document).ready(function() {
         var formData = new FormData($(this)[0]);
 
         $.ajax({
-            url: route('situational-awareness.update'),
+            url: route('situational.update'),
             type: "post",
             data: formData,
             async: false,
@@ -267,7 +267,7 @@ $(document).ready(function() {
 
         deleteBtn.onclick = function (e) {
             $.ajax({
-                url: route('situational-awareness.destroy', {id: messageID}),
+                url: route('situational.destroy', {id: messageID}),
                 type: "DELETE",
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')

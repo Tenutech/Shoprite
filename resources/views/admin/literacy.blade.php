@@ -48,13 +48,13 @@
                                         </a>
                                         <ul class="dropdown-menu dropdown-menu-end" style="">
                                             <li>
-                                                <a class="dropdown-item edit-list" data-bs-toggle="modal" data-bs-target="#messageUpdateModal" data-edit-id="{{ Crypt::encryptstring($message->id) }}">
+                                                <a href="#" class="dropdown-item edit-list" data-bs-toggle="modal" data-bs-target="#messageUpdateModal" data-edit-id="{{ Crypt::encryptstring($message->id) }}">
                                                     <i class="ri-pencil-line me-2 align-bottom text-muted"></i>
                                                     Edit
                                                 </a>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item remove-list" data-bs-toggle="modal" data-bs-target="#messageDeleteModal" data-remove-id="{{ Crypt::encryptstring($message->id) }}">
+                                                <a href="#" class="dropdown-item remove-list" data-bs-toggle="modal" data-bs-target="#messageDeleteModal" data-remove-id="{{ Crypt::encryptstring($message->id) }}">
                                                     <i class="ri-delete-bin-5-line me-2 align-bottom text-muted"></i>
                                                     Remove
                                                 </a>

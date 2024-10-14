@@ -9,7 +9,7 @@ use App\Models\ChatCategory;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\AssessmentRequest;
 
-class SituationalAwarenessController extends Controller
+class SituationalController extends Controller
 {
     /**
      * Create a new controller instance.
@@ -35,20 +35,20 @@ class SituationalAwarenessController extends Controller
 
     public function index()
     {
-        if (view()->exists('admin/situational-awareness')) {
+        if (view()->exists('admin/situational')) {
             //Messages
             $messages = ChatTemplate::with([
                 'state',
                 'category'
             ])
             ->whereHas('state', function ($query) {
-                $query->whereIn('name', ['Situational Awareness']);
+                $query->whereIn('name', ['situational']);
             })
             ->orderBy('state_id')
             ->orderBy('sort')
             ->get();
 
-            return view('admin/situational-awareness', [
+            return view('admin/situational', [
                 'messages' => $messages
             ]);
         }
@@ -64,14 +64,18 @@ class SituationalAwarenessController extends Controller
     public function store(AssessmentRequest $request)
     {
         //Validate
-        $request->validated();
+        $request->validate([
+            'message' => ['required', 'string'],
+            'answer' => ['required', 'in:a,b,c,d'],
+            'sort' => ['required', 'integer']
+        ]);
 
         try {
             //State ID
-            $stateID = State::where('code', 'situational_awareness')->value('id');
+            $stateID = State::where('code', 'situational')->value('id');
 
             //Category ID
-            $categoryID = ChatCategory::where('name', 'situational_awareness')->value('id');
+            $categoryID = ChatCategory::where('name', 'situational')->value('id');
 
             // Message Create
             $message = ChatTemplate::create([
@@ -140,7 +144,11 @@ class SituationalAwarenessController extends Controller
         $messageID = Crypt::decryptString($request->field_id);
 
         //Validate
-        $request->validated();
+        $request->validate([
+            'message' => ['required', 'string'],
+            'answer' => ['required', 'in:a,b,c,d'],
+            'sort' => ['required', 'integer']
+        ]);
 
         try {
             //Message
