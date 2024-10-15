@@ -184,118 +184,132 @@ class VacancyController extends Controller
      */
     public function store(Request $request)
     {
+        // Authenticated user's ID
         $userID = Auth::id();
 
-        $user = User::findorfail($userID);
+        // Find the authenticated user by their ID
+        $user = User::findOrFail($userID);
 
-        $inputData = $request;
-
-        // Fetch the selected position and its brand
+        // Fetch the selected position and its associated brand information
         $position = Position::with('brand')
             ->where('id', $request->position_id)
-            ->firstOrFail(); // Fail if the position doesn't exist
+            ->firstOrFail(); // If the position doesn't exist, fail with a 404 error
 
-        // Fetch the selected store and its region and division
+        // Fetch the selected store and its associated region and division information
         $store = Store::with(['region', 'division'])
             ->where('id', '=', $request->store_id)
-            ->first();
+            ->first(); // Fetch the store, returns null if not found
 
+        // Extract the region ID and division ID from the store data
         $regionID = $store->region_id;
         $divisionID = $store->division_id;
 
-        //Validate Input
+        // Validate the input data from the request
         $request->validate([
-            'position_id' => ['required', 'integer', 'exists:positions,id', function ($attribute, $value, $fail) use ($store, $position) {
-                // Ensure the position brand_id matches the store brand_id
-                if ($position->brand_id !== $store->brand_id) {
-                    $fail('The position brand does not match the store brand.');
+            'position_id' => ['required', 'integer', 'exists:positions,id', 
+                function ($attribute, $value, $fail) use ($store, $position) {
+                    // Custom validation: Ensure the selected position's brand_id matches the store's brand_id
+                    if ($position->brand_id !== $store->brand_id) {
+                        $fail('The position brand does not match the store brand.');
+                    }
                 }
-            }],
-            'open_positions' => 'required|integer|min:1|max:10',     // Minimum 1 and maximum 10
-            'sap_numbers' => 'required|array',                        // Should be an array
-            'sap_numbers.*' => ['digits:8', function ($attribute, $value, $fail) {
-                if (DB::table('sap_numbers')->where('sap_number', $value)->exists()) {
-                    $fail('The SAP number ' . $value . ' has already been taken.');
+            ],
+            'open_positions' => 'required|integer|min:1|max:10', // Ensure open positions is a number between 1 and 10
+            'sap_numbers' => 'required|array', // Validate that sap_numbers is an array
+            'sap_numbers.*' => ['digits:8', // Each sap number must be exactly 8 digits
+                function ($attribute, $value, $fail) {
+                    // Ensure each SAP number is unique in the database
+                    if (DB::table('sap_numbers')->where('sap_number', $value)->exists()) {
+                        $fail('The SAP number ' . $value . ' has already been taken.');
+                    }
                 }
-            }], // Each sap_number should be exactly 8 digits
-            // 'store_id' => 'required|integer|exists:stores,id',        // Store ID should exist in stores table
-            'type_id' => 'required|integer|exists:types,id',          // Type ID should exist in types table
-            'store_id' => ['required', 'integer', 'exists:stores,id', function ($attribute, $value, $fail) use ($user, $regionID, $divisionID, $inputData) {
-                // Check if RPP and that user region_id is equal to the selected region_id
-                if ($user->role_id == 3 && $user->region_id !== $regionID) {
-                    $fail('You are not authorized to create a vacancy at the selected store.');
+            ],
+            'type_id' => 'required|integer|exists:types,id', // Ensure the type_id exists in the types table
+            'store_id' => ['required','integer','exists:stores,id',
+                function ($attribute, $value, $fail) use ($user, $regionID, $divisionID, $store) {
+                    // For RPP (role_id = 3), ensure the user belongs to the same region as the store
+                    if ($user->role_id == 3 && $user->region_id !== $regionID) {
+                        $fail('You are not authorized to create a vacancy at the selected store.');
+                    }
+
+                    // For DTDP (role_id = 4), ensure the user belongs to the same division as the store
+                    if ($user->role_id == 4 && $user->division_id !== $divisionID) {
+                        $fail('You are not authorized to create a vacancy at the selected store.');
+                    }
+
+                    // For Manager (role_id = 6), ensure the user is assigned to the same store as the one being selected
+                    if ($user->role_id == 6 && $user->store_id !== (int) $store->id) {
+                        $fail('You are not authorized to create a vacancy at the selected store.');
+                    }
                 }
-                // Check if DTDP and that user division_id is equal to the selected division_id
-                if ($user->role_id == 4 && $user->division_id !== $divisionID) {
-                    $fail('You are not authorized to create a vacancy at the selected store.');
-                }
-                // Check if Manager and that user store_id is equal to the selected store_id
-                if ($user->role_id == 6 && $user->store_id !== (int) $inputData['store_id']) {
-                    $fail('You are not authorized to create a vacancy at the selected store.');
-                }
-            }],
+            ],
         ]);
 
         try {
+            // Begin a database transaction to ensure data integrity
             DB::beginTransaction();
 
-            // Vacancy Create
+            // Create the new vacancy in the database
             $vacancy = Vacancy::create([
-                'user_id' => $userID,
-                'position_id' => $request->position_id,
-                'open_positions' => $request->open_positions,
-                'filled_positions' => 0,
-                'store_id' => $request->store_id,
-                'type_id' => $request->type_id,
-                'status_id' => 2,
-                'advertisement' => 'Any'
+                'user_id' => $userID, // The ID of the user creating the vacancy
+                'position_id' => $request->position_id, // The selected position ID
+                'open_positions' => $request->open_positions, // Number of open positions
+                'filled_positions' => 0, // Initially, no positions are filled
+                'store_id' => $request->store_id, // The selected store ID
+                'type_id' => $request->type_id, // The selected type ID
+                'status_id' => 2, // Vacancy status set to 2 (you may adjust this depending on your status definitions)
+                'advertisement' => 'Any' // Placeholder advertisement value
             ]);
 
-            // Create SAP Numbers
+            // Create the SAP numbers associated with the vacancy
             foreach ($request->sap_numbers as $sap) {
                 $vacancy->sapNumbers()->create([
-                    'sap_number' => $sap,
+                    'sap_number' => $sap, // Insert each SAP number
                 ]);
             }
 
-            // If a new vacancy was created, then create a notification
+            // If the vacancy was successfully created, create a notification
             if ($vacancy->wasRecentlyCreated) {
-                // Create Notification
                 $notification = new Notification();
-                $notification->user_id = $vacancy->user_id;
-                $notification->causer_id = Auth::id();
-                $notification->subject()->associate($vacancy);
-                $notification->type_id = 1;
-                $notification->notification = "Created new vacancy 🔔";
-                $notification->read = "No";
-                $notification->save();
+                $notification->user_id = $vacancy->user_id; // User receiving the notification
+                $notification->causer_id = Auth::id(); // User who triggered the notification
+                $notification->subject()->associate($vacancy); // Associate the notification with the newly created vacancy
+                $notification->type_id = 1; // Notification type ID (1, for example, may represent a vacancy creation)
+                $notification->notification = "Created new vacancy 🔔"; // Message for the notification
+                $notification->read = "No"; // Set notification status to unread
+                $notification->save(); // Save the notification
             }
 
+            // Commit the transaction (persist the changes)
             DB::commit();
 
+            // Encrypt the vacancy ID for secure use in responses
             $encryptedID = Crypt::encryptString($vacancy->id);
 
+            // Return a successful JSON response
             return response()->json([
                 'success' => true,
                 'message' => 'Vacancy created successfully!',
-                'vacancy' => $vacancy,
-                'encrypted_id' => $encryptedID
+                'vacancy' => $vacancy, // Return the newly created vacancy
+                'encrypted_id' => $encryptedID // Return the encrypted vacancy ID
             ], 201);
         } catch (ValidationException $e) {
-            // Return validation errors in a structured format
+            // Catch validation errors and return them in a structured JSON response
             return response()->json([
                 'success' => false,
                 'message' => 'Validation errors occurred.',
-                'errors' => $e->errors() // This will return the validation errors in a key-value format
-            ], 422); // 422 Unprocessable Entity is standard for validation errors
+                'errors' => $e->errors() // Return the validation errors in key-value format
+            ], 422); // HTTP 422 Unprocessable Entity
         } catch (Exception $e) {
+            // Catch any other errors and rollback the transaction
             DB::rollBack();
 
+            // Return a JSON response with the error details
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create vacancy: ' . $e->getMessage(),
-                'error' => $e->getMessage()
-            ], 400);
+                'error' => $e->getMessage() // Return the error message
+            ], 400); // HTTP 400 Bad Request
         }
     }
 
@@ -312,72 +326,98 @@ class VacancyController extends Controller
      */
     public function update(Request $request)
     {
+        // Authenticated user's ID
         $userID = Auth::id();
 
-        $inputData = $request;
+        // Find the authenticated user by their ID
+        $user = User::findOrFail($userID);
 
-        $user = User::findorfail($userID);
+        // Fetch the selected position and its associated brand information
+        $position = Position::with('brand')
+            ->where('id', $request->position_id)
+            ->firstOrFail(); // If the position doesn't exist, fail with a 404 error
 
-        $stores = Store::with(['region', 'division'])
+        // Fetch the selected store and its associated region and division information
+        $store = Store::with(['region', 'division'])
             ->where('id', '=', $request->store_id)
-            ->first();
+            ->first(); // Fetch the store, returns null if not found
 
-        $regionID = $stores->region['id'];
-        $divisionID = $stores->division['id'];
+        // Extract the region ID and division ID from the store data
+        $regionID = $store->region_id;
+        $divisionID = $store->division_id;
 
+        // Validate the input data from the request
         $request->validate([
-            'position_id' => 'required|integer|exists:positions,id', // Ensures the position exists in the positions table
-            'open_positions' => 'required|integer|min:1|max:10',     // Minimum 1 and maximum 10
-            'sap_numbers' => 'required|array',                        // Should be an array
-            'sap_numbers.*' => ['digits:8', function ($attribute, $value, $fail) {
-                if (DB::table('sap_numbers')->where('sap_number', $value)->exists()) {
-                    $fail('The SAP number ' . $value . ' has already been taken.');
+            'position_id' => ['required', 'integer', 'exists:positions,id', 
+                function ($attribute, $value, $fail) use ($store, $position) {
+                    // Custom validation: Ensure the selected position's brand_id matches the store's brand_id
+                    if ($position->brand_id !== $store->brand_id) {
+                        $fail('The position brand does not match the store brand.');
+                    }
                 }
-            }], // Each sap_number should be exactly 8 digits
-            'type_id' => 'required|integer|exists:types,id',          // Type ID should exist in types table
-            'store_id' => ['required', function ($request, $value, $fail) use ($inputData, $user, $regionID, $divisionID) {
-                // Check if RPP and that user region_id is equal to selected region_id
-                if ($user->role_id == 3 && $user->region_id !== $regionID) {
-                    $fail('You are not authorized to create a vacancy at the selected store.');
+            ],
+            'open_positions' => 'required|integer|min:1|max:10', // Ensure open positions is a number between 1 and 10
+            'sap_numbers' => 'required|array', // Validate that sap_numbers is an array
+            'sap_numbers.*' => ['digits:8', // Each sap number must be exactly 8 digits
+                function ($attribute, $value, $fail) {
+                    // Ensure each SAP number is unique in the database
+                    if (DB::table('sap_numbers')->where('sap_number', $value)->exists()) {
+                        $fail('The SAP number ' . $value . ' has already been taken.');
+                    }
                 }
-                // Check if DTDP and store_id is equal to user store_id
-                if ($user->role_id == 4 && $user->division_id !== $divisionID) {
-                    $fail('You are not authorized to create a vacancy at the selected store.');
+            ],
+            'type_id' => 'required|integer|exists:types,id', // Ensure the type_id exists in the types table
+            'store_id' => ['required','integer','exists:stores,id',
+                function ($attribute, $value, $fail) use ($user, $regionID, $divisionID, $store) {
+                    // For RPP (role_id = 3), ensure the user belongs to the same region as the store
+                    if ($user->role_id == 3 && $user->region_id !== $regionID) {
+                        $fail('You are not authorized to create a vacancy at the selected store.');
+                    }
+
+                    // For DTDP (role_id = 4), ensure the user belongs to the same division as the store
+                    if ($user->role_id == 4 && $user->division_id !== $divisionID) {
+                        $fail('You are not authorized to create a vacancy at the selected store.');
+                    }
+
+                    // For Manager (role_id = 6), ensure the user is assigned to the same store as the one being selected
+                    if ($user->role_id == 6 && $user->store_id !== (int) $store->id) {
+                        $fail('You are not authorized to create a vacancy at the selected store.');
+                    }
                 }
-                // Check if Manager and store_id is equal to user store_id
-                if ($user->role_id == 6 && $user->store_id !== (int) $inputData['store_id']) {
-                    $fail('You are not authorized to create a vacancy at the selected store.');
-                }
-            }],
+            ],
         ]);
 
         try {
+            // Start a database transaction to ensure all actions happen together or not at all
             DB::beginTransaction();
 
-            // Find and decrypt the vacancy
+            // Find and decrypt the vacancy ID
             $vacancy = Vacancy::findOrFail(Crypt::decryptString($request->id));
+
+            // Update the vacancy with the new data
             $vacancy->update([
-                'position_id' => $request->position_id,
-                'open_positions' => $request->open_positions,
-                'store_id' => $request->store_id,
-                'type_id' => $request->type_id,
-                'status_id' => 2,
-                'advertisement' => 'Any'
+                'position_id' => $request->position_id, // Update the position ID
+                'open_positions' => $request->open_positions, // Update the number of open positions
+                'store_id' => $request->store_id, // Update the store ID
+                'type_id' => $request->type_id, // Update the type ID
+                'status_id' => 2, // Update the status (assuming 2 means "active" or "open")
+                'advertisement' => 'Any' // Placeholder value for advertisement
             ]);
 
             // Get the existing SAP numbers for the vacancy
             $existingSapNumbers = $vacancy->sapNumbers;
 
-            // Convert the request SAP numbers to an associative array with their index as the key
+            // Convert the request SAP numbers to an array with their index as the key
             $newSapNumbers = array_values($request->sap_numbers);
 
-            // Iterate over the existing SAP numbers and update them
+            // Iterate over the existing SAP numbers and update them if they exist
             foreach ($existingSapNumbers as $index => $sapNumber) {
                 if (isset($newSapNumbers[$index])) {
+                    // Update the SAP number if it exists in the new SAP numbers array
                     $sapNumber->update(['sap_number' => $newSapNumbers[$index]]);
-                    unset($newSapNumbers[$index]); // Remove this from the new SAP numbers array
+                    unset($newSapNumbers[$index]); // Remove the updated SAP number from the new SAP numbers array
                 } else {
-                    // Remove SAP numbers that are no longer needed
+                    // Delete the SAP number if it is no longer needed
                     $sapNumber->delete();
                 }
             }
@@ -387,31 +427,36 @@ class VacancyController extends Controller
                 $vacancy->sapNumbers()->create(['sap_number' => $sapNumber]);
             }
 
+            // Commit the transaction to save all the changes
             DB::commit();
 
+            // Encrypt the updated vacancy ID for secure transmission
             $encryptedID = Crypt::encryptString($vacancy->id);
 
+            // Return a successful response with the updated vacancy and its encrypted ID
             return response()->json([
                 'success' => true,
                 'message' => 'Vacancy updated successfully!',
                 'vacancy' => $vacancy,
                 'encrypted_id' => $encryptedID
-            ], 201);
+            ], 201); // 201 Created status
         } catch (ValidationException $e) {
-            // Return validation errors in a structured format
+            // Catch validation errors and return them in a structured response
             return response()->json([
                 'success' => false,
                 'message' => 'Validation errors occurred.',
-                'errors' => $e->errors() // This will return the validation errors in a key-value format
-            ], 422); // 422 Unprocessable Entity is standard for validation errors
+                'errors' => $e->errors() // Return the validation errors in key-value format
+            ], 422); // 422 Unprocessable Entity status
         } catch (Exception $e) {
+            // Rollback the transaction if an exception occurs
             DB::rollBack();
 
+            // Return an error response with the exception message
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to update vacancy: ' . $e->getMessage(),
-                'error' => $e->getMessage()
-            ], 400);
+                'error' => $e->getMessage() // Return the error message
+            ], 400); // 400 Bad Request status
         }
     }
 
