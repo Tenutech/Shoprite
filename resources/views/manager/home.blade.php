@@ -257,7 +257,7 @@
                                         Average Store Literacy Score
                                     </p>
                                     <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="avgLiteracyScoreValue">{{ $averageScores['avg_literacy_score'] }}%</span>
+                                        <span id="avgLiteracyScoreValue">{{ $averageScores['avg_literacy_score'] ?? 'N/A' }}%</span>
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0" id="avgLiteracyScore">
@@ -276,7 +276,7 @@
                         </div><!-- end card body -->
                     </div> <!-- end card-->
                 </div> <!-- end col-->
-
+                
                 <div class="col-md-4" id="avgNumeracyScoreColumn">
                     <div class="card card-animate">
                         <div class="card-body">
@@ -286,7 +286,7 @@
                                         Average Store Numeracy Score
                                     </p>
                                     <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="avgNumeracyScoreValue">{{ $averageScores['avg_numeracy_score'] }}%</span>
+                                        <span id="avgNumeracyScoreValue">{{ $averageScores['avg_numeracy_score'] ?? 'N/A' }}%</span>
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0" id="avgNumeracyScore">
@@ -305,6 +305,7 @@
                         </div><!-- end card body -->
                     </div> <!-- end card-->
                 </div> <!-- end col-->
+                
             </div> <!-- end row-->
             <!-------------------------------------------------------------------------------------
                 Proximity
