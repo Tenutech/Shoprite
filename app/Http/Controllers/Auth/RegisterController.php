@@ -98,7 +98,7 @@ class RegisterController extends Controller
             'password' => Hash::make($data['password']),
             'avatar' => 'avatar.jpg',
             'company_id' => 1,
-            'role_id' => config('constants.new_user_role_id'), // Default role for new users
+            'role_id' => 7, // Default role for new users
             'applicant_id' => $applicant ? $applicant->id : null,
             'status_id' => 1, // User status (e.g., active)
         ]);
@@ -107,18 +107,6 @@ class RegisterController extends Controller
         NotificationSetting::create([
             'user_id' => $user->id,
         ]);
-
-        // Calculate the user's age from the ID number
-        $age = $this->calculateAgeFromId($data['id_number']);
-
-        // If the user is under 18, create a consent record
-        if ($age < 18) {
-            // Consent::create([
-            //     'user_id' => $user->id,
-            //     'guardian_mobile' => $data['guardian_mobile'],
-            //     'consent_status' => 'Pending',
-            // ]);
-        }
 
         // Dispatch the job to process the user's ID number
         ProcessUserIdNumber::dispatch($user->id, null);
@@ -204,22 +192,25 @@ class RegisterController extends Controller
         $currentYearShort = (int) date('y'); // Last two digits of the current year
         $year = ($year > $currentYearShort) ? (1900 + $year) : (2000 + $year);
 
-        // Extract the month of birth (MM)
-        $month = (int) substr($idNumber, 2, 2);
-
-        // Extract the day of birth (DD)
-        $day = (int) substr($idNumber, 4, 2);
+        // Extract the month and day of birth (MMDD) and pad with zero if necessary
+        $month = sprintf('%02d', (int) substr($idNumber, 2, 2)); // Add leading zero if needed
+        $day = sprintf('%02d', (int) substr($idNumber, 4, 2)); // Add leading zero if needed
 
         // Ensure valid day and month values
-        if (!checkdate($month, $day, $year)) {
+        if (!checkdate((int)$month, (int)$day, $year)) {
             throw new \Exception('Invalid birth date extracted from ID number.');
         }
 
         // Create a DateTime object from the extracted birth date (YYYY-MM-DD format)
         $birthDate = \DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
 
-        // Check if the birthDate is valid
-        if (!$birthDate || $birthDate->format('Y-m-d') !== "$year-$month-$day") {
+        // Check if the DateTime object is valid
+        if (!$birthDate) {
+            throw new \Exception('Failed to create DateTime from extracted birth date.');
+        }
+
+        // Validate the format strictly
+        if ($birthDate->format('Y-m-d') !== sprintf('%04d-%02d-%02d', $year, $month, $day)) {
             throw new \Exception('Invalid birth date extracted from ID number.');
         }
 

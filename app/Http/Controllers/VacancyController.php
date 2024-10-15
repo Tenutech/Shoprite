@@ -151,7 +151,9 @@ class VacancyController extends Controller
                     ->get();
             } elseif ($user->role_id == 6) {
                 // Get stores where store_id is = user->store_id
-                $stores = Store::with(['brand', 'town'])->find($user->store_id);
+                $stores = Store::with(['brand', 'town'])
+                    ->where('id', $user->store_id)
+                    ->get();
             }
 
             //Types
