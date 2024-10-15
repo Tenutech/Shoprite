@@ -686,6 +686,16 @@ class ChatService
                         return; // End the process here for under 18 applicants
                     }
 
+                    // Check if the ID number already exists in the applicants table
+                    $existingApplicant = Applicant::where('id_number', $body)->first();
+                    if ($existingApplicant) {
+                        // Send message that this ID number has already been registered
+                        $message = "Sorry, this ID number has already been registered. Please try again with a different ID number.";
+                        $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
+
+                        return; // End the process here if the ID is already registered
+                    }
+
                     // Determine gender (SSSS)
                     $genderCode = substr($body, 6, 4);
                     $genderId = $genderCode < 5000 ? 2 : 1; // Female: 2, Male: 1
