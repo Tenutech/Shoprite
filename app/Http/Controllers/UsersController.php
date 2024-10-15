@@ -56,38 +56,19 @@ class UsersController extends Controller
             $users = User::with([
                 'role',
                 'status',
-                'company',
-                'position',
                 'gender',
                 'store',
                 'applicant',
-                'amendments',
                 'state',
-                'vacancies',
-                'appliedVacancies',
-                'savedVacancies',
-                'savedApplicants',
-                'files',
-                'messagesFrom',
-                'messagesTo',
-                'notifications',
-                'division',
-                'region',
-                'brand'
+                'files'
             ])
-            ->whereIn('role_id', [7, 8])
+            ->where('role_id', 7)
             ->orderby('firstname')
             ->orderby('lastname')
             ->get();
 
             //Genders
             $genders = Gender::all();
-
-            //Companies
-            $companies = Company::all();
-
-            //Positions
-            $positions = Position::all();
 
             //Stores
             $stores = Store::with([
@@ -100,25 +81,11 @@ class UsersController extends Controller
                          ->orderby('name')
                          ->get();
 
-            //Divisions
-            $divisions = Division::all();
-
-            //Regions
-            $regions = Region::all();
-
-            //Brands
-            $brands = Brand::all();
-
             return view('admin/users', [
                 'users' => $users,
                 'genders' => $genders,
-                'companies' => $companies,
-                'positions' => $positions,
                 'stores' => $stores,
-                'roles' => $roles,
-                'divisions' => $divisions,
-                'regions' => $regions,
-                'brands' => $brands
+                'roles' => $roles
             ]);
         }
         return view('404');
@@ -144,14 +111,7 @@ class UsersController extends Controller
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
             'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
-            'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
-            'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
-            'role_id' => ['required', 'integer', 'exists:roles,id'],
-            'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
-            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
-            'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
-            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
-            'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
+            'role_id' => ['required', 'integer', 'exists:roles,id']
         ]);
 
         try {
@@ -180,15 +140,8 @@ class UsersController extends Controller
                 'birth_date' => date('Y-m-d', strtotime($request->birth_date)),
                 'age' => $request->age,
                 'gender_id' => $request->gender_id,
-                'resident' => $request->resident,
-                'position_id' => $request->position_id,
                 'role_id' => $request->role_id,
-                'store_id' => $request->store_id,
-                'region_id' => $request->region_id,
-                'division_id' => $request->division_id,
-                'brand_id' => $request->brand_id,
-                'internal' => $request->internal,
-                'status_id' => 2,
+                'status_id' => 2
             ]);
 
             DB::commit();
@@ -229,13 +182,7 @@ class UsersController extends Controller
             $user = User::with([
                 'role',
                 'status',
-                'company',
-                'position',
                 'gender',
-                'store',
-                'division',
-                'region',
-                'brand',
             ])->findOrFail($userID);
 
             return response()->json([
@@ -272,14 +219,7 @@ class UsersController extends Controller
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
             'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
-            'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
-            'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
-            'role_id' => ['required', 'integer', 'exists:roles,id'],
-            'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
-            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
-            'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
-            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
-            'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
+            'role_id' => ['required', 'integer', 'exists:roles,id']
         ]);
 
         try {
@@ -323,14 +263,7 @@ class UsersController extends Controller
             $user->birth_date = date('Y-m-d', strtotime($request->birth_date));
             $user->age = $request->age;
             $user->gender_id = $request->gender_id;
-            $user->resident = $request->resident;
-            $user->position_id = $request->position_id;
             $user->role_id = $request->role_id;
-            $user->store_id = $request->store_id;
-            $user->region_id = $request->region_id;
-            $user->division_id = $request->division_id;
-            $user->brand_id = $request->brand_id;
-            $user->internal = $request->internal;
             $user->save();
 
             DB::commit();

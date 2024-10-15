@@ -47,14 +47,11 @@ var options = {
         "birth_date",
         "age",
         "gender",
-        "resident",
-        "position",
         "role",
         "store",
-        "region",
         "division",
+        "region",        
         "brand",
-        "internal",
         "status"
     ],
     page: perPage,
@@ -133,14 +130,11 @@ var idField = document.getElementById("field-id"),
     birthDate = document.getElementById("birthDate"),
     age = document.getElementById("age"),
     gender = document.getElementById("gender"),
-    resident = document.getElementById("resident"),
-    position = document.getElementById("position"),
     role = document.getElementById("role"),
     store = document.getElementById("store"),
-    region = document.getElementById("region"),
     division = document.getElementById("division"),
+    region = document.getElementById("region"),    
     brand = document.getElementById("brand"),
-    internal = document.getElementById("internal"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
@@ -192,16 +186,6 @@ var genderVal = new Choices(gender, {
     shouldSort: false
 });
 
-var residentVal = new Choices(resident, {
-    searchEnabled: false,
-    shouldSort: false
-});
-
-var positionVal = new Choices(position, {
-    searchEnabled: true,
-    shouldSort: false
-});
-
 var roleVal = new Choices(role, {
     searchEnabled: false
 });
@@ -209,12 +193,11 @@ var roleVal = new Choices(role, {
 var storeVal = new Choices(store, {
     searchEnabled: true
 });
-
-var regionVal = new Choices(region, {
+var divisionVal = new Choices(division, {
     searchEnabled: true
 });
 
-var divisionVal = new Choices(division, {
+var regionVal = new Choices(region, {
     searchEnabled: true
 });
 
@@ -742,52 +725,24 @@ function refreshCallbacks() {
                                             <td>${x._values.id_number}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">ID Verified</td>
-                                            <td>${x._values.id_verified}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Birth Date</td>
-                                            <td>${x._values.birth_date}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Age</td>
-                                            <td>${x._values.age}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Gender</td>
-                                            <td>${x._values.gender}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium d-none" scope="row">Citizen Status</td>
-                                            <td class="d-none">${x._values.resident}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium d-none" scope="row">Position</td>
-                                            <td class="d-none">${x._values.position}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Role</td>
-                                            <td>${x._values.role}</td>
-                                        </tr>
-                                        <tr>
                                             <td class="fw-medium" scope="row">Store</td>
                                             <td>${x._values.store}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Region</td>
-                                            <td>${x._values.region}</td>
                                         </tr>
                                         <tr>
                                             <td class="fw-medium" scope="row">Division</td>
                                             <td>${x._values.division}</td>
                                         </tr>
                                         <tr>
+                                            <td class="fw-medium" scope="row">Region</td>
+                                            <td>${x._values.region}</td>
+                                        </tr>                                        
+                                        <tr>
                                             <td class="fw-medium" scope="row">Brand</td>
                                             <td>${x._values.brand}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium d-none" scope="row">Internal</td>
-                                            <td class="d-none">${x._values.internal}</td>
+                                            <td class="fw-medium" scope="row">Role</td>
+                                            <td>${x._values.role}</td>
                                         </tr>
                                     </tbody>
                                 </table>
