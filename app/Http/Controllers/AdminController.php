@@ -580,7 +580,7 @@ class AdminController extends Controller
             $dropOffRates = $this->applicantDataService->getDropOffRates($startDate, $endDate);
             // $completionByRegion = $this->applicantDataService->getCompletionByRegion($startDate, $endDate);
             $channelStats =  $this->applicantDataService->getTotalAndPercentageByChannel($startDate, $endDate);
-            $totalTalentPool = $this->getTotalTalentPoolCount([
+            $totalTalentPool = $this->applicantDataService->getTotalTalentPoolCount([
                 'startDate' => $startDate,
                 'endDate' => $endDate,
             ]);
