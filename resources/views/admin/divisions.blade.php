@@ -71,9 +71,7 @@ Divisions
                                         </div>
                                     </th>
                                     <th class="sort d-none" data-sort="id" scope="col">ID</th>
-                                    <th class="sort" data-sort="name" scope="col">Name</th>
-                                    <th class="sort" data-sort="icon" scope="col">Icon</th>
-                                    <th class="sort" data-sort="color" scope="col">Color</th> 
+                                    <th class="sort" data-sort="name" scope="col">Name</th> 
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
@@ -89,8 +87,6 @@ Divisions
                                             </th>
                                             <td class="id d-none">{{ Crypt::encryptstring($division->id) }}</td>
                                             <td class="name">{{ $division->name }}</td>
-                                            <td class="icon"><i class="{{ $division->icon }} text-{{ $division->color }} fs-18"></i></td>
-                                            <td class="color"><span class="text-{{ $division->color }}">{{ $division->color }}</span></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -133,8 +129,6 @@ Divisions
                                         </th>
                                         <td class="id d-none"></td>
                                         <td class="name"></td>
-                                        <td class="icon"></td>
-                                        <td class="color"></td>
                                         <td>
                                             <ul class="list-inline hstack gap-2 mb-0">
                                                 <li class="list-inline-item">
@@ -216,29 +210,6 @@ Divisions
                                                 Name
                                             </label>
                                             <input type="text" class="form-control" id="name" name="name" required>
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label for="icon" class="form-label">Icon</label>
-                                            <select id="icon" name="icon" class="form-control">
-                                                <option value="" selected>Select Icon</option>
-                                            </select>
-                                        </div>
-    
-                                        <div class="mb-3">
-                                            <label for="color" class="form-label">
-                                                Color
-                                            </label>
-                                            <select id="color" name="color" class="form-control">
-                                                <option value="" selected>Select Color</option>
-                                                <option class="text-primary" value="primary">Primary</option>
-                                                <option class="text-secondary" value="secondary">Secondary</option>
-                                                <option class="text-success" value="success">Success</option>
-                                                <option class="text-info" value="info">Info</option>
-                                                <option class="text-warning" value="warning">Warning</option>
-                                                <option class="text-danger" value="danger">Danger</option>
-                                                <option class="text-dark" value="dark">Dark</option>
-                                            </select>
                                         </div>
                                         
                                     </div>

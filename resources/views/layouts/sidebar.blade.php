@@ -297,8 +297,8 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('roles.index') }}">
-                                        Roles
+                                    <a class="nav-link" href="{{ route('banks.index') }}">
+                                        Banks
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -307,48 +307,13 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('divisions.index') }}">
-                                        Divisions
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('towns.index') }}">
-                                        Towns
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('regions.index') }}">
-                                        Regions
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('stores.index') }}">
-                                        Stores
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('provinces.index') }}">
-                                        Provinces
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('banks.index') }}">
-                                        Banks
-                                    </a>
-                                </li>
-                                <li class="nav-item">
                                     <a class="nav-link" href="{{ route('disabilities.index') }}">
                                         Disabilities
                                     </a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('genders.index') }}">
-                                        Genders
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('races.index') }}">
-                                        Races
+                                    <a class="nav-link" href="{{ route('divisions.index') }}">
+                                        Divisions
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -362,8 +327,23 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('genders.index') }}">
+                                        Genders
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" href="{{ route('languages.index') }}">
                                         Languages
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('provinces.index') }}">
+                                        Provinces
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('races.index') }}">
+                                        Races
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -372,11 +352,31 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('regions.index') }}">
+                                        Regions
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('roles.index') }}">
+                                        Roles
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('stores.index') }}">
+                                        Stores
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('towns.index') }}">
+                                        Towns
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" href="{{ route('transports.index') }}">
                                         Transport
                                     </a>
                                 </li>
-                            </ul>
+                            </ul>                            
                         </div>
                     </li>
                 @endif

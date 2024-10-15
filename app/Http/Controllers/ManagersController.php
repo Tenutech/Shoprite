@@ -277,9 +277,7 @@ class ManagersController extends Controller
 
             DB::beginTransaction();
 
-            // Check if the company exists or create a new one
-            $inputCompanyName = strtolower($request->company);
-            $company = Company::whereRaw('LOWER(name) = ?', [$inputCompanyName])->first();
+            Log::info($request->store_id);
 
             //User Update
             $user->firstname = ucwords($request->firstname);

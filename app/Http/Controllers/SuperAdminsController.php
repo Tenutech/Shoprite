@@ -56,38 +56,20 @@ class SuperAdminsController extends Controller
             $users = User::with([
                 'role',
                 'status',
-                'company',
-                'position',
                 'gender',
                 'store',
-                'applicant',
-                'amendments',
-                'state',
-                'vacancies',
-                'appliedVacancies',
-                'savedVacancies',
-                'savedApplicants',
                 'files',
-                'messagesFrom',
-                'messagesTo',
-                'notifications',
                 'division',
                 'region',
                 'brand'
             ])
-                ->where('role_id', 1)
-                ->orderby('firstname')
-                ->orderby('lastname')
-                ->get();
+            ->where('role_id', 1)
+            ->orderby('firstname')
+            ->orderby('lastname')
+            ->get();
 
             //Genders
             $genders = Gender::all();
-
-            //Companies
-            $companies = Company::all();
-
-            //Positions
-            $positions = Position::all();
 
             //Stores
             $stores = Store::with([
@@ -96,8 +78,9 @@ class SuperAdminsController extends Controller
             ])->get();
 
             //Roles
-            $roles = Role::orderby('name')
-                ->get();
+            $roles = Role::where('id', '>', 1)
+                         ->orderby('name')
+                         ->get();
 
             //Divisions
             $divisions = Division::all();
@@ -111,8 +94,6 @@ class SuperAdminsController extends Controller
             return view('admin/super-admins', [
                 'users' => $users,
                 'genders' => $genders,
-                'companies' => $companies,
-                'positions' => $positions,
                 'stores' => $stores,
                 'roles' => $roles,
                 'divisions' => $divisions,
@@ -133,24 +114,21 @@ class SuperAdminsController extends Controller
     {
         //Validate
         $request->validate([
-            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
+            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
             'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
-            'id_number' => ['required', 'string', 'digits:13', 'unique:users'],
+            'id_number' => ['required', 'string',  'digits:13', 'unique:users'],
             'id_verified' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
             'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
-            'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
-            'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
             'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
-            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
             'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
-            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
-            'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
+            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id']
         ]);
 
         try {
@@ -179,14 +157,11 @@ class SuperAdminsController extends Controller
                 'birth_date' => date('Y-m-d', strtotime($request->birth_date)),
                 'age' => $request->age,
                 'gender_id' => $request->gender_id,
-                'resident' => $request->resident,
-                'position_id' => $request->position_id,
                 'role_id' => $request->role_id,
                 'store_id' => $request->store_id,
-                'region_id' => $request->region_id,
                 'division_id' => $request->division_id,
+                'region_id' => $request->region_id,
                 'brand_id' => $request->brand_id,
-                'internal' => $request->internal,
                 'status_id' => 2,
             ]);
 
@@ -228,12 +203,10 @@ class SuperAdminsController extends Controller
             $user = User::with([
                 'role',
                 'status',
-                'company',
-                'position',
                 'gender',
                 'store',
-                'division',
                 'region',
+                'division',
                 'brand',
             ])->findOrFail($userID);
 
@@ -261,24 +234,21 @@ class SuperAdminsController extends Controller
 
         //Validate
         $request->validate([
-            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
+            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
             'email' => ['required', 'string', 'email', 'max:191', Rule::unique('users')->ignore($userID)],
             'phone' => ['required', 'string', 'max:191', Rule::unique('users')->ignore($userID)],
-            'id_number' => ['required', 'string', 'digits:13', Rule::unique('users')->ignore($userID)],
+            'id_number' => ['required', 'string',  'digits:13', Rule::unique('users')->ignore($userID)],
             'id_verified' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
             'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
-            'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
-            'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
             'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
-            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
             'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
-            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
-            'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
+            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id']
         ]);
 
         try {
@@ -307,9 +277,7 @@ class SuperAdminsController extends Controller
 
             DB::beginTransaction();
 
-            // Check if the company exists or create a new one
-            $inputCompanyName = strtolower($request->company);
-            $company = Company::whereRaw('LOWER(name) = ?', [$inputCompanyName])->first();
+            Log::info($request->store_id);
 
             //User Update
             $user->firstname = ucwords($request->firstname);
@@ -322,14 +290,11 @@ class SuperAdminsController extends Controller
             $user->birth_date = date('Y-m-d', strtotime($request->birth_date));
             $user->age = $request->age;
             $user->gender_id = $request->gender_id;
-            $user->resident = $request->resident;
-            $user->position_id = $request->position_id;
             $user->role_id = $request->role_id;
             $user->store_id = $request->store_id;
-            $user->region_id = $request->region_id;
             $user->division_id = $request->division_id;
+            $user->region_id = $request->region_id;
             $user->brand_id = $request->brand_id;
-            $user->internal = $request->internal;
             $user->save();
 
             DB::commit();

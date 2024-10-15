@@ -205,11 +205,6 @@ var brandVal = new Choices(brand, {
     searchEnabled: true
 });
 
-var internalVal = new Choices(internal, {
-    searchEnabled: false,
-    shouldSort: false
-});
-
 /*
 |--------------------------------------------------------------------------
 | Add User
@@ -222,7 +217,7 @@ addBtn.addEventListener("click", function (e) {
     if (form.checkValidity()) {
         var formData = new FormData($('#formUser')[0]);
         $.ajax({
-            url: route('users.store'),
+            url: route('managers.store'),
             type: 'POST',
             data: formData,
             async: false,
@@ -358,7 +353,7 @@ editBtn.addEventListener("click", function (e) {
         var formData = new FormData($('#formUser')[0]);
 
         $.ajax({
-            url: route('users.update'),
+            url: route('managers.update'),
             type: 'POST',
             data: formData,
             async: false,
@@ -516,7 +511,7 @@ function refreshCallbacks() {
                 if (isdeleteid == itemId) {
                     document.getElementById("delete-user").onclick = function () {                        
                         $.ajax({
-                            url: route('users.destroy', {id: isdeleteid}),
+                            url: route('managers.destroy', {id: isdeleteid}),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -571,7 +566,7 @@ function refreshCallbacks() {
             itemId = e.target.closest("tr").children[1].innerText;
            
             $.ajax({
-                url: route('users.details', {id: itemId}),
+                url: route('managers.details', {id: itemId}),
                 type: 'get',
                 data: {
                     "id": itemId
@@ -727,29 +722,20 @@ function clearFields() {
     genderVal.removeActiveItems();
     genderVal.setChoiceByValue("");
 
-    residentVal.removeActiveItems();
-    residentVal.setChoiceByValue("");
-
-    positionVal.removeActiveItems();
-    positionVal.setChoiceByValue("");
-
     roleVal.removeActiveItems();
     roleVal.setChoiceByValue("");
 
     storeVal.removeActiveItems();
     storeVal.setChoiceByValue("");
 
-    regionVal.removeActiveItems();
-    regionVal.setChoiceByValue("");
-
     divisionVal.removeActiveItems();
     divisionVal.setChoiceByValue("");
+
+    regionVal.removeActiveItems();
+    regionVal.setChoiceByValue("");
     
     brandVal.removeActiveItems();
     brandVal.setChoiceByValue("");
-
-    internalVal.removeActiveItems();
-    internalVal.setChoiceByValue("");
 }
 
 // Delete All Records
@@ -780,7 +766,7 @@ function deleteMultiple(){
                 }
     
                 $.ajax({
-                    url: route('users.destroyMultiple'),
+                    url: route('managers.destroyMultiple'),
                     type: 'post',
                     data: {
                         ids: ids_array

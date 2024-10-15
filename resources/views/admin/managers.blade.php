@@ -82,7 +82,7 @@
                                         <th class="sort" data-sort="name" scope="col">Name</th>
                                         <th class="sort" data-sort="email" scope="col">Email</th>
                                         <th class="sort" data-sort="phone" scope="col">Phone</th>
-                                        <th class="sort" data-sort="id_number" scope="col">ID Number</th>
+                                        <th class="sort d-none" data-sort="id_number" scope="col">ID Number</th>
                                         <th class="sort d-none" data-sort="id_verified" scope="col">Verified</th>
                                         <th class="sort d-none" data-sort="birth_date" scope="col">Birth Date</th>
                                         <th class="sort d-none" data-sort="age" scope="col">Age</th>
@@ -116,13 +116,13 @@
                                                 </td>
                                                 <td class="email">{{ $user->email }}</td>
                                                 <td class="phone">{{ $user->phone }}</td>
-                                                <td class="id_number">{{ $user->id_number }}</td>
+                                                <td class="id_number d-none">{{ $user->id_number }}</td>
                                                 <td class="id_verified d-none">{{ $user->id_verified }}</td>
                                                 <td class="birth_date d-none">{{ $user->birth_date ? date('d M, Y', strtotime($user->birth_date)) : '' }}</td>
                                                 <td class="age d-none">{{ $user->age }}</td>
                                                 <td class="gender d-none">{{ $user->gender ? $user->gender->name : '' }}</td>
                                                 <td class="role d-none">{{ $user->role ? $user->role->name : '' }}</td>
-                                                <td class="store">{{ $user->store ? optional($user->store->brand)->name.' ('.optional($user->store)->name.')' : '' }}</td>
+                                                <td class="store" style="white-space: pre-wrap;">{{ $user->store ? optional($user->store->brand)->name.' ('.optional($user->store)->name.')' : '' }}</td>
                                                 <td class="division d-none">{{ $user->division ? $user->division->name : '' }}</td>
                                                 <td class="region d-none">{{ $user->region ? $user->region->name : '' }}</td>
                                                 <td class="brand d-none">{{ $user->brand ? $user->brand->name : '' }}</td>
@@ -175,13 +175,13 @@
                                             <td class="name"></td>
                                             <td class="email"></td>
                                             <td class="phone"></td>
-                                            <td class="id_number"></td>
+                                            <td class="id_number d-none"></td>
                                             <td class="id_verified d-none"></td>
                                             <td class="birth_date d-none"></td>
                                             <td class="age d-none"></td>
                                             <td class="gender d-none"></td>
                                             <td class="role d-none"></td>
-                                            <td class="store"></td>                                            
+                                            <td class="store" style="white-space: pre-wrap;"></td>                                            
                                             <td class="division d-none"></td>
                                             <td class="region d-none"></td>
                                             <td class="brand d-none"></td>

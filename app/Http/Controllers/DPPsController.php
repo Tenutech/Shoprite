@@ -61,21 +61,9 @@ class DPPsController extends Controller
             $users = User::with([
                 'role',
                 'status',
-                'company',
-                'position',
                 'gender',
                 'store',
-                'applicant',
-                'amendments',
-                'state',
-                'vacancies',
-                'appliedVacancies',
-                'savedVacancies',
-                'savedApplicants',
                 'files',
-                'messagesFrom',
-                'messagesTo',
-                'notifications',
                 'division',
                 'region',
                 'brand'
@@ -87,12 +75,6 @@ class DPPsController extends Controller
 
             //Genders
             $genders = Gender::all();
-
-            //Companies
-            $companies = Company::all();
-
-            //Positions
-            $positions = Position::all();
 
             //Stores
             $stores = Store::with([
@@ -117,8 +99,6 @@ class DPPsController extends Controller
             return view('admin/dpps', [
                 'users' => $users,
                 'genders' => $genders,
-                'companies' => $companies,
-                'positions' => $positions,
                 'stores' => $stores,
                 'roles' => $roles,
                 'divisions' => $divisions,
@@ -135,16 +115,60 @@ class DPPsController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function store(StoreUserRequest $request)
+    public function store(Request $request)
     {
         //Validate
-        $request = $request->validated();
+        $request->validate([
+            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
+            'firstname' => ['required', 'string', 'max:191'],
+            'lastname' => ['required', 'string', 'max:191'],
+            'email' => ['required', 'string', 'email', 'max:191', 'unique:users'],
+            'phone' => ['required', 'string', 'max:191', 'unique:users'],
+            'id_number' => ['required', 'string',  'digits:13', 'unique:users'],
+            'id_verified' => ['sometimes', 'nullable', 'string', 'in:Yes,No'],
+            'birth_date' => ['sometimes', 'nullable', 'date'],
+            'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
+            'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
+            'role_id' => ['required', 'integer', 'exists:roles,id'],
+            'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
+            'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
+            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id']
+        ]);
 
         try {
+            // Avatar
+            if ($request->avatar) {
+                $avatar = request()->file('avatar');
+                $avatarName = $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
+                $avatarPath = public_path('/images/');
+                $avatar->move($avatarPath, $avatarName);
+            } else {
+                $avatarName = 'avatar.jpg';
+            }
+
             DB::beginTransaction();
 
             //User Create
-            $user = $this->userService->store($request);
+            $user = User::create([
+                'firstname' => ucwords($request->firstname),
+                'lastname' => ucwords($request->lastname),
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'id_number' => $request->id_number,
+                'id_verified' => $request->id_verified,
+                'password' => Hash::make("F4!pT9@gL2#dR0wZ"),
+                'avatar' => $avatarName,
+                'birth_date' => date('Y-m-d', strtotime($request->birth_date)),
+                'age' => $request->age,
+                'gender_id' => $request->gender_id,
+                'role_id' => $request->role_id,
+                'store_id' => $request->store_id,
+                'division_id' => $request->division_id,
+                'region_id' => $request->region_id,
+                'brand_id' => $request->brand_id,
+                'status_id' => 2,
+            ]);
 
             DB::commit();
 
@@ -184,12 +208,10 @@ class DPPsController extends Controller
             $user = User::with([
                 'role',
                 'status',
-                'company',
-                'position',
                 'gender',
                 'store',
-                'division',
                 'region',
+                'division',
                 'brand',
             ])->findOrFail($userID);
 
@@ -227,14 +249,11 @@ class DPPsController extends Controller
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
             'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
-            'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
-            'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
             'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
-            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
             'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
-            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
-            'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
+            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id']
         ]);
 
         try {
@@ -242,15 +261,46 @@ class DPPsController extends Controller
             $user = User::findorfail($userID);
 
             // Avatar
-            $avatarName = $user->avatar;
-            if (isset($request->avatar)) {
-                $avatarName = $this->userService->checkAvatar($request, $user->avatar);
+            if ($request->avatar) {
+                // Check if a previous avatar exists and is not the default one
+                if ($user->avatar && $user->avatar !== 'avatar.jpg') {
+                    // Construct the path to the old avatar
+                    $oldAvatarPath = public_path('/images/') . $user->avatar;
+                    // Check if the file exists and delete it
+                    if (File::exists($oldAvatarPath)) {
+                        File::delete($oldAvatarPath);
+                    }
+                }
+
+                $avatar = request()->file('avatar');
+                $avatarName = $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
+                $avatarPath = public_path('/images/');
+                $avatar->move($avatarPath, $avatarName);
+            } else {
+                $avatarName = $user->avatar;
             }
 
             DB::beginTransaction();
 
-            // Update User
-            $user = $this->userService->update($request, $user, $avatarName);
+            Log::info($request->store_id);
+
+            //User Update
+            $user->firstname = ucwords($request->firstname);
+            $user->lastname = ucwords($request->lastname);
+            $user->email = $request->email;
+            $user->phone = $request->phone;
+            $user->id_number = $request->id_number;
+            $user->id_verified = $request->id_verified;
+            $user->avatar = $avatarName;
+            $user->birth_date = date('Y-m-d', strtotime($request->birth_date));
+            $user->age = $request->age;
+            $user->gender_id = $request->gender_id;
+            $user->role_id = $request->role_id;
+            $user->store_id = $request->store_id;
+            $user->division_id = $request->division_id;
+            $user->region_id = $request->region_id;
+            $user->brand_id = $request->brand_id;
+            $user->save();
 
             DB::commit();
 

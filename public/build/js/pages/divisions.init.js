@@ -132,32 +132,6 @@ var trlist = table.querySelectorAll(".list tr");
 
 var count = 11;
 
-var iconVal = new Choices(icon, {
-    searchEnabled: true
-});
-
-// Fetch the list of Remix Icons from the JSON file
-$.getJSON('/build/json/remixicons.json', function(icons) {
-    const iconChoices = icons.map(function(icon) {
-        return {
-            value: icon,
-            label: '<i class="' + icon + ' text-primary"></i> ' + icon,
-            selected: false,
-            disabled: false,
-            customProperties: {},
-            placeholder: false,
-        };
-    });
-  
-    // Set choices using the array of icon objects
-    iconVal.setChoices(iconChoices, 'value', 'label', true);
-});
-
-var colorVal = new Choices(color, {
-    searchEnabled: true,
-    shouldSort: false
-});
-
 /*
 |--------------------------------------------------------------------------
 | Add Division
@@ -184,9 +158,7 @@ addBtn.addEventListener("click", function (e) {
                 if (data.success == true) {
                     divisionList.add({
                         id: data.encID,
-                        name: divisionName.value,
-                        icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
-                        color: '<span class="text-'+ color.value +'">'+ color.value +'</span>'
+                        name: divisionName.value
                     });
 
                     Swal.fire({
@@ -267,9 +239,7 @@ editBtn.addEventListener("click", function (e) {
                         if (selectedid == itemId) {
                             x.values({
                                 id: idField.value,
-                                name: divisionName.value,
-                                icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
-                                color: '<span class="text-'+ color.value +'">'+ color.value +'</span>'
+                                name: divisionName.value
                             });
                         }
                     });
@@ -422,14 +392,6 @@ function refreshCallbacks() {
                 idField.value = data.encID;
 
                 divisionName.value = data.division.name;
-
-                if (data.role.icon) {
-                    iconVal.setChoiceByValue(data.role.icon.toString());
-                }
-
-                if (data.role.color) {
-                    colorVal.setChoiceByValue(data.role.color.toString());
-                }
             });
         }
     });
@@ -437,12 +399,6 @@ function refreshCallbacks() {
 
 function clearFields() {
     divisionName.value = "";
-
-    iconVal.removeActiveItems();
-    iconVal.setChoiceByValue("");
-
-    colorVal.removeActiveItems();
-    colorVal.setChoiceByValue("");
 }
 
 // Delete Multiple Records
