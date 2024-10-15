@@ -248,7 +248,7 @@
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="ri-book-read-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
                         Experience
-                    </button> 
+                    </button>
                     <ul class="dropdown-menu">
                         @foreach ($durations as $duration)
                             <a class="dropdown-item filter-button" data-bs-filter="duration_id;{{ $duration->id }}">
