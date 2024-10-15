@@ -852,6 +852,14 @@
                                                         'No Show' => [
                                                             'class' => 'danger',
                                                             'icon' => 'ri-user-unfollow-fill'
+                                                        ],
+                                                        'Appointed' => [
+                                                            'class' => 'success',
+                                                            'icon' => 'ri-open-arm-fill'
+                                                        ],
+                                                        'Regretted' => [
+                                                            'class' => 'danger',
+                                                            'icon' => 'ri-user-unfollow-fill'
                                                         ]
                                                     ];
                                                 

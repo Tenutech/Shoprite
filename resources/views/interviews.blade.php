@@ -86,7 +86,7 @@
                                                         <div class="flex-grow-1">
                                                             @if ($user->id == $interview->interviewer_id)
                                                                 <h5 class="fs-14 mb-1">
-                                                                    <a href="apps-ecommerce-product-details" class="text-body">
+                                                                    <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($interview->applicant_id)]) }}" class="text-body">
                                                                         {{ optional($interview->applicant)->firstname ?? 'N/A' }} {{ optional($interview->applicant)->lastname ?? 'N/A' }}
                                                                     </a>
                                                                 </h5>
@@ -95,7 +95,7 @@
                                                                 </p>
                                                             @else
                                                                 <h5 class="fs-14 mb-1">
-                                                                    <a href="apps-ecommerce-product-details" class="text-body">
+                                                                    <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString($interview->vacancy_id)]) }}" class="text-body">
                                                                         {{ optional(optional($interview->vacancy)->position)->name ?? 'N/A' }}
                                                                     </a>
                                                                 </h5>
