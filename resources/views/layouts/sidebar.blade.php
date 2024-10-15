@@ -61,6 +61,7 @@
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ url($url.'home') }}">
                         <i class="ri-home-3-line"></i>
+                        <i class="ri-home-3-line"></i>
                         <span>Home</span>
                     </a>
                 </li>
@@ -68,13 +69,13 @@
                     @if ($user->applicant && $user->applicant->public_holidays != 'No' && $user->applicant->environment != 'No')
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
-                                <i class="ri-briefcase-line"></i> 
+                                <i class="ri-briefcase-line"></i>
                                 <span>My Interviews</span>
                             </a>
                         </li>
                     @endif
                 @endif
-                @if ($user->role_id <= 6)
+                @if (in_array($user->role_id, [1,2,3,4,6]))
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarVacancies" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarVacancies">
                             <i class="ri-briefcase-line"></i>
@@ -97,20 +98,20 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('shortlist.index') }}">
-                            <i class="ri-list-check-2"></i> 
+                            <i class="ri-list-check-2"></i>
                             <span>My Shortlists</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
-                            <i class="ri-briefcase-line"></i> 
+                            <i class="ri-briefcase-line"></i>
                             <span>My Interviews</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('applicants.index') }}">
                             <i class="ri-profile-line"></i> 
-                            <span>Saved Candidates</span>
+                            <span>Saved Applicants</span>
                         </a>
                     </li>
                 @endif
@@ -140,7 +141,7 @@
                         <span>Templates</span>
                     </a>
                     <div class="collapse menu-dropdown" id="sidebarTemplates">
-                        <ul class="nav nav-sm flex-column">                            
+                        <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('email.index') }}">
                                     Email
@@ -276,7 +277,7 @@
                                         Working Hours
                                     </a>
                                 </li>                                
-                            </ul>                            
+                            </ul>
                         </div>
                     </li>
                     <li class="nav-item">
@@ -305,7 +306,7 @@
                                     <a class="nav-link" href="{{ route('durations.index') }}">
                                         Experience
                                     </a>
-                                </li>                                
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('genders.index') }}">
                                         Genders
@@ -335,14 +336,14 @@
                                     <a class="nav-link" href="{{ route('towns.index') }}">
                                         Towns
                                     </a>
-                                </li>                                
+                                </li>
                             </ul>
                         </div>
                     </li>
                     @if ($user->role_id == 1)
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ url('/telescope') }}">
-                                <i class="ri-microscope-line"></i> 
+                                <i class="ri-microscope-line"></i>
                                 <span>Telescope</span>
                             </a>
                         </li>

@@ -1124,6 +1124,6 @@
 <script src="{{ URL::asset('build/libs/jsvectormap/maps/south-africa.js') }}"></script>
 <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js')}}"></script>
 <!-- dashboard init -->
-<script src="{{URL::asset('build/js/pages/admin.init.js')}}"></script>
+<script src="{{URL::asset('build/js/pages/admin.init.js')}}?v={{ filemtime(public_path('build/js/pages/admin.init.js')) }}"></script>
 <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection
