@@ -85,14 +85,10 @@
                                         <th class="sort" data-sort="id_number" scope="col">ID Number</th>
                                         <th class="sort d-none" data-sort="id_verified" scope="col">Verified</th>
                                         <th class="sort d-none" data-sort="birth_date" scope="col">Birth Date</th>
-                                        <th class="sort" data-sort="age" scope="col">Age</th>
-                                        <th class="sort" data-sort="gender" scope="col">Gender</th>
-                                        <th class="sort d-none" data-sort="resident" scope="col">Citizen Status</th>
-                                        <th class="sort d-none" data-sort="position" scope="col">Position</th>
-                                        <th class="sort" data-sort="role" scope="col">Role</th>
-                                        <th class="sort d-none" data-sort="store" scope="col">Store</th>
-                                        <th class="sort d-none" data-sort="internal" scope="col">Internal</th>
-                                        <th class="sort" data-sort="status" scope="col">Status</th>
+                                        <th class="sort d-none" data-sort="age" scope="col">Age</th>
+                                        <th class="sort d-none" data-sort="gender" scope="col">Gender</th>
+                                        <th class="sort d-none" data-sort="role" scope="col">Role</th>
+                                        <th class="sort" data-sort="status" scope="col">Status</th>                          
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -119,13 +115,9 @@
                                                 <td class="id_number">{{ $user->id_number }}</td>
                                                 <td class="id_verified d-none">{{ $user->id_verified }}</td>
                                                 <td class="birth_date d-none">{{ $user->birth_date ? date('d M, Y', strtotime($user->birth_date)) : '' }}</td>
-                                                <td class="age">{{ $user->age }}</td>
-                                                <td class="gender">{{ $user->gender ? $user->gender->name : '' }}</td>
-                                                <td class="resident d-none">{{ $user->resident == 1 ? 'Born a Citizen' : 'Permanent Resident' }}</td>
-                                                <td class="position d-none">{{ $user->position ? $user->position->name : '' }}</td>
-                                                <td class="role">{{ $user->role ? $user->role->name : '' }}</td>
-                                                <td class="store d-none">{{ $user->store ? optional($user->store->brand)->name.' ('.optional($user->store->town)->name.')' : '' }}</td>
-                                                <td class="internal d-none">{{ $user->internal == 1 ? 'Yes' : 'No' }}</td>
+                                                <td class="age d-none">{{ $user->age }}</td>
+                                                <td class="gender d-none">{{ $user->gender ? $user->gender->name : '' }}</td>
+                                                <td class="role d-none">{{ $user->role ? $user->role->name : '' }}</td>
                                                 <td class="status">
                                                     <span class="badge bg-{{ $user->status->color }}-subtle text-{{ $user->status->color }} text-uppercase">
                                                         {{ $user->status->name }}
@@ -178,13 +170,9 @@
                                             <td class="id_number"></td>
                                             <td class="id_verified d-none"></td>
                                             <td class="birth_date d-none"></td>
-                                            <td class="age"></td>
-                                            <td class="gender"></td>
-                                            <td class="resident d-none"></td>
-                                            <td class="position d-none"></td>
-                                            <td class="role"></td>
-                                            <td class="store d-none"></td>
-                                            <td class="internal d-none"></td>
+                                            <td class="age d-none"></td>
+                                            <td class="gender d-none"></td>
+                                            <td class="role d-none"></td>
                                             <td class="status"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
@@ -327,31 +315,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="position" class="form-label">
-                                                        Position
-                                                    </label>
-                                                    <select id="position" name="position_id" class="form-control">
-                                                        <option value="" selected>Select Position</option>
-                                                        @foreach ($positions as $position)
-                                                            <option value="{{ $position->id }}">{{ $position->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="store" class="form-label">
-                                                        Store
-                                                    </label>
-                                                    <select id="store" name="store_id" class="form-control">
-                                                        <option value="" selected>Select Store</option>
-                                                        @foreach ($stores as $store)
-                                                            <option value="{{ $store->id }}">{{ optional($store->brand)->name }} ({{ optional($store->town)->name }})</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
+                                                <!--end col-->                  
                                             </div>
                                             <!--end col-->
 
@@ -387,38 +351,16 @@
                                                     </label>
                                                     <input type="number" id="age" name="age" class="form-control" placeholder="Enter age" max="100" min="16"/>
                                                 </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="resident" class="form-label">
-                                                        Citizen Status
-                                                    </label>
-                                                    <select id="resident" name="resident" class="form-control">
-                                                        <option value="" selected>Select Option</option>
-                                                        <option value="0">Born a Citizen</option>
-                                                        <option value="1">Permanent Resident</option>
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
+                                                <!--end col-->                                                
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="role" class="form-label">
                                                         Role
                                                     </label>
                                                     <select id="role" name="role_id" class="form-control" required>
-                                                        <option value="" selected>Select User Role</option>
+                                                        <option value="" selected>Select Role</option>
                                                         @foreach ($roles as $role)
                                                             <option value="{{ $role->id }}">{{ $role->name }}</option>
                                                         @endforeach
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="internal" class="form-label">
-                                                        Internal
-                                                    </label>
-                                                    <select id="internal" name="internal" class="form-control">
-                                                        <option value="" selected>Select Option</option>
-                                                        <option value="0">No</option>
-                                                        <option value="1">Yes</option>
                                                     </select>
                                                 </div>
                                                 <!--end col-->
@@ -506,14 +448,6 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">ID Verified</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium" scope="row">Birth Date</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
                                     <td class="fw-medium" scope="row">Age</td>
                                     <td></td>
                                 </tr>
@@ -522,24 +456,12 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium d-none" scope="row">Citizen Status</td>
-                                    <td class="d-none"></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Position</td>
-                                    <tdc class="d-none"></td>
-                                </tr>
-                                <tr>
                                     <td class="fw-medium" scope="row">Role</td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">Store</td>
+                                    <td class="fw-medium" scope="row">Status</td>
                                     <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Internal</td>
-                                    <td class="d-none"></td>
                                 </tr>
                             </tbody>
                         </table>

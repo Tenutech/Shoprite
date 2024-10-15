@@ -47,11 +47,11 @@ var options = {
         "birth_date",
         "age",
         "gender",
-        "resident",
-        "position",
         "role",
         "store",
-        "internal",
+        "division",
+        "region",        
+        "brand",
         "status"
     ],
     page: perPage,
@@ -130,11 +130,11 @@ var idField = document.getElementById("field-id"),
     birthDate = document.getElementById("birthDate"),
     age = document.getElementById("age"),
     gender = document.getElementById("gender"),
-    resident = document.getElementById("resident"),
-    position = document.getElementById("position"),
     role = document.getElementById("role"),
     store = document.getElementById("store"),
-    internal = document.getElementById("internal"),
+    division = document.getElementById("division"),
+    region = document.getElementById("region"),    
+    brand = document.getElementById("brand"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
@@ -186,16 +186,6 @@ var genderVal = new Choices(gender, {
     shouldSort: false
 });
 
-var residentVal = new Choices(resident, {
-    searchEnabled: false,
-    shouldSort: false
-});
-
-var positionVal = new Choices(position, {
-    searchEnabled: true,
-    shouldSort: false
-});
-
 var roleVal = new Choices(role, {
     searchEnabled: false
 });
@@ -203,10 +193,16 @@ var roleVal = new Choices(role, {
 var storeVal = new Choices(store, {
     searchEnabled: true
 });
+var divisionVal = new Choices(division, {
+    searchEnabled: true
+});
 
-var internalVal = new Choices(internal, {
-    searchEnabled: false,
-    shouldSort: false
+var regionVal = new Choices(region, {
+    searchEnabled: true
+});
+
+var brandVal = new Choices(brand, {
+    searchEnabled: true
 });
 
 /*
@@ -221,7 +217,7 @@ addBtn.addEventListener("click", function (e) {
     if (form.checkValidity()) {
         var formData = new FormData($('#formUser')[0]);
         $.ajax({
-            url: route('users.store'),
+            url: route('managers.store'),
             type: 'POST',
             data: formData,
             async: false,
@@ -244,18 +240,6 @@ addBtn.addEventListener("click", function (e) {
                         genderValue = '';
                     }
 
-                    if (resident.value) {
-                        residentValue = resident.options[resident.selectedIndex].text;
-                    } else {
-                        residentValue = '';
-                    }
-
-                    if (position.value) {
-                        positionValue = position.options[position.selectedIndex].text;
-                    } else {
-                        positionValue = '';
-                    }
-
                     if (role.value) {
                         roleValue = role.options[role.selectedIndex].text;
                     } else {
@@ -268,10 +252,22 @@ addBtn.addEventListener("click", function (e) {
                         storeValue = '';
                     }
 
-                    if (internal.value) {
-                        internalValue = internal.options[internal.selectedIndex].text;
+                    if (division.value) {
+                        divisionValue = division.options[division.selectedIndex].text;
                     } else {
-                        internalValue = '';
+                        divisionValue = '';
+                    }
+
+                    if (region.value) {
+                        regionValue = region.options[region.selectedIndex].text;
+                    } else {
+                        regionValue = '';
+                    }
+
+                    if (brand.value) {
+                        brandValue = brand.options[brand.selectedIndex].text;
+                    } else {
+                        brandValue = '';
                     }
 
                     userList.add({
@@ -287,11 +283,11 @@ addBtn.addEventListener("click", function (e) {
                         birth_date: formatDate(birthDate.value),
                         age: age.value,
                         gender: genderValue,
-                        resident: residentValue,
-                        position: positionValue,
                         role: roleValue,
                         store: storeValue,
-                        internal: internalValue,
+                        division: divisionValue,
+                        region: regionValue,                        
+                        brand: brandValue,
                         status: '<span class="badge bg-danger-subtle text-danger text-uppercase">\
                                     Offline\
                                 </span>'                     
@@ -357,7 +353,7 @@ editBtn.addEventListener("click", function (e) {
         var formData = new FormData($('#formUser')[0]);
 
         $.ajax({
-            url: route('users.update'),
+            url: route('managers.update'),
             type: 'POST',
             data: formData,
             async: false,
@@ -384,18 +380,6 @@ editBtn.addEventListener("click", function (e) {
                                 genderValue = '';
                             }
         
-                            if (resident.value) {
-                                residentValue = resident.options[resident.selectedIndex].text;
-                            } else {
-                                residentValue = '';
-                            }
-        
-                            if (position.value) {
-                                positionValue = position.options[position.selectedIndex].text;
-                            } else {
-                                positionValue = '';
-                            }
-        
                             if (role.value) {
                                 roleValue = role.options[role.selectedIndex].text;
                             } else {
@@ -407,11 +391,23 @@ editBtn.addEventListener("click", function (e) {
                             } else {
                                 storeValue = '';
                             }
-        
-                            if (internal.value) {
-                                internalValue = internal.options[internal.selectedIndex].text;
+
+                            if (division.value) {
+                                divisionValue = division.options[division.selectedIndex].text;
                             } else {
-                                internalValue = '';
+                                divisionValue = '';
+                            }
+
+                            if (region.value) {
+                                regionValue = region.options[region.selectedIndex].text;
+                            } else {
+                                regionValue = '';
+                            }
+
+                            if (brand.value) {
+                                brandValue = brand.options[brand.selectedIndex].text;
+                            } else {
+                                brandValue = '';
                             }
         
                             x.values({
@@ -427,11 +423,11 @@ editBtn.addEventListener("click", function (e) {
                                 birth_date: formatDate(birthDate.value),
                                 age: age.value,
                                 gender: genderValue,
-                                resident: residentValue,
-                                position: positionValue,
                                 role: roleValue,
                                 store: storeValue,
-                                internal: internalValue
+                                division: divisionValue,
+                                region: regionValue,                                
+                                brand: brandValue,
                             });
                         }
                     });
@@ -515,7 +511,7 @@ function refreshCallbacks() {
                 if (isdeleteid == itemId) {
                     document.getElementById("delete-user").onclick = function () {                        
                         $.ajax({
-                            url: route('users.destroy', {id: isdeleteid}),
+                            url: route('managers.destroy', {id: isdeleteid}),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -570,7 +566,7 @@ function refreshCallbacks() {
             itemId = e.target.closest("tr").children[1].innerText;
            
             $.ajax({
-                url: route('users.details', {id: itemId}),
+                url: route('managers.details', {id: itemId}),
                 type: 'get',
                 data: {
                     "id": itemId
@@ -606,14 +602,6 @@ function refreshCallbacks() {
                     genderVal.setChoiceByValue(data.user.gender_id.toString());
                 }
 
-                if (data.user.resident !== null) {
-                    residentVal.setChoiceByValue(data.user.resident.toString());
-                }
-
-                if(data.user.position_id) {
-                    positionVal.setChoiceByValue(data.user.position_id.toString());
-                }
-
                 if(data.user.role_id) {
                     roleVal.setChoiceByValue(data.user.role_id.toString());
                 }
@@ -622,8 +610,16 @@ function refreshCallbacks() {
                     storeVal.setChoiceByValue(data.user.store_id.toString());
                 }
 
-                if(data.user.internal) {
-                    internalVal.setChoiceByValue(data.user.internal.toString());
+                if(data.user.division_id) {
+                    divisionVal.setChoiceByValue(data.user.division_id.toString());
+                }
+
+                if(data.user.region_id) {
+                    regionVal.setChoiceByValue(data.user.region_id.toString());
+                }                
+
+                if(data.user.brand_id) {
+                    brandVal.setChoiceByValue(data.user.brand_id.toString());
                 }
             });
         }
@@ -670,40 +666,24 @@ function refreshCallbacks() {
                                             <td>${x._values.id_number}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">ID Verified</td>
-                                            <td>${x._values.id_verified}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Birth Date</td>
-                                            <td>${x._values.birth_date}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Age</td>
-                                            <td>${x._values.age}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Gender</td>
-                                            <td>${x._values.gender}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium d-none" scope="row">Citizen Status</td>
-                                            <td class="d-none">${x._values.resident}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium d-none" scope="row">Position</td>
-                                            <td class="d-none">${x._values.position}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Role</td>
-                                            <td>${x._values.role}</td>
-                                        </tr>
-                                        <tr>
                                             <td class="fw-medium" scope="row">Store</td>
                                             <td>${x._values.store}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium d-none" scope="row">Internal</td>
-                                            <td class="d-none">${x._values.internal}</td>
+                                            <td class="fw-medium" scope="row">Division</td>
+                                            <td>${x._values.division}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Region</td>
+                                            <td>${x._values.region}</td>
+                                        </tr>                                        
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Brand</td>
+                                            <td>${x._values.brand}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Role</td>
+                                            <td>${x._values.role}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -742,20 +722,20 @@ function clearFields() {
     genderVal.removeActiveItems();
     genderVal.setChoiceByValue("");
 
-    residentVal.removeActiveItems();
-    residentVal.setChoiceByValue("");
-
-    positionVal.removeActiveItems();
-    positionVal.setChoiceByValue("");
-
     roleVal.removeActiveItems();
     roleVal.setChoiceByValue("");
 
     storeVal.removeActiveItems();
     storeVal.setChoiceByValue("");
 
-    internalVal.removeActiveItems();
-    internalVal.setChoiceByValue("");
+    divisionVal.removeActiveItems();
+    divisionVal.setChoiceByValue("");
+
+    regionVal.removeActiveItems();
+    regionVal.setChoiceByValue("");
+    
+    brandVal.removeActiveItems();
+    brandVal.setChoiceByValue("");
 }
 
 // Delete All Records
@@ -786,7 +766,7 @@ function deleteMultiple(){
                 }
     
                 $.ajax({
-                    url: route('users.destroyMultiple'),
+                    url: route('managers.destroyMultiple'),
                     type: 'post',
                     data: {
                         ids: ids_array

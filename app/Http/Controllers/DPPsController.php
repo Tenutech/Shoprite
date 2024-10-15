@@ -13,7 +13,9 @@ use App\Models\Division;
 use App\Models\Region;
 use App\Models\Brand;
 use App\Jobs\ProcessUserIdNumber;
+use App\Http\Requests\StoreUserRequest;
 use Illuminate\Http\Request;
+use App\Services\UserService;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
@@ -25,16 +27,19 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
 
-class AdminsController extends Controller
+class DPPsController extends Controller
 {
+    private UserService $userService;
+
     /**
      * Create a new controller instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct(UserService $userService)
     {
         $this->middleware(['auth', 'verified']);
+        $this->userService = $userService;
     }
 
     /**
@@ -51,7 +56,7 @@ class AdminsController extends Controller
 
     public function index()
     {
-        if (view()->exists('admin.admins')) {
+        if (view()->exists('admin.dpps')) {
             //Users
             $users = User::with([
                 'role',
@@ -63,7 +68,7 @@ class AdminsController extends Controller
                 'region',
                 'brand'
             ])
-            ->where('role_id', 2)
+            ->where('role_id', 5)
             ->orderby('firstname')
             ->orderby('lastname')
             ->get();
@@ -91,7 +96,7 @@ class AdminsController extends Controller
             //Brands
             $brands = Brand::all();
 
-            return view('admin/admins', [
+            return view('admin/dpps', [
                 'users' => $users,
                 'genders' => $genders,
                 'stores' => $stores,

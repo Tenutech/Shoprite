@@ -211,6 +211,21 @@
                                 </a>
                             </li>
                             <li class="nav-item">
+                                <a class="nav-link" href="{{ route('dpps.index') }}">
+                                    DPPs
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('dtdps.index') }}">
+                                    DTDPs
+                                </a>
+                            </li>                            
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('rpps.index') }}">
+                                    RPPs
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="{{ route('admins.index') }}">
                                     Admins
                                 </a>

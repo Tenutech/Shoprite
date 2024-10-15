@@ -47,11 +47,7 @@ var options = {
         "birth_date",
         "age",
         "gender",
-        "resident",
-        "position",
         "role",
-        "store",
-        "internal",
         "status"
     ],
     page: perPage,
@@ -130,11 +126,7 @@ var idField = document.getElementById("field-id"),
     birthDate = document.getElementById("birthDate"),
     age = document.getElementById("age"),
     gender = document.getElementById("gender"),
-    resident = document.getElementById("resident"),
-    position = document.getElementById("position"),
     role = document.getElementById("role"),
-    store = document.getElementById("store"),
-    internal = document.getElementById("internal"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
@@ -186,27 +178,8 @@ var genderVal = new Choices(gender, {
     shouldSort: false
 });
 
-var residentVal = new Choices(resident, {
-    searchEnabled: false,
-    shouldSort: false
-});
-
-var positionVal = new Choices(position, {
-    searchEnabled: true,
-    shouldSort: false
-});
-
 var roleVal = new Choices(role, {
     searchEnabled: false
-});
-
-var storeVal = new Choices(store, {
-    searchEnabled: true
-});
-
-var internalVal = new Choices(internal, {
-    searchEnabled: false,
-    shouldSort: false
 });
 
 /*
@@ -244,34 +217,10 @@ addBtn.addEventListener("click", function (e) {
                         genderValue = '';
                     }
 
-                    if (resident.value) {
-                        residentValue = resident.options[resident.selectedIndex].text;
-                    } else {
-                        residentValue = '';
-                    }
-
-                    if (position.value) {
-                        positionValue = position.options[position.selectedIndex].text;
-                    } else {
-                        positionValue = '';
-                    }
-
                     if (role.value) {
                         roleValue = role.options[role.selectedIndex].text;
                     } else {
                         roleValue = '';
-                    }
-
-                    if (store.value) {
-                        storeValue = store.options[store.selectedIndex].text;
-                    } else {
-                        storeValue = '';
-                    }
-
-                    if (internal.value) {
-                        internalValue = internal.options[internal.selectedIndex].text;
-                    } else {
-                        internalValue = '';
                     }
 
                     userList.add({
@@ -287,11 +236,7 @@ addBtn.addEventListener("click", function (e) {
                         birth_date: formatDate(birthDate.value),
                         age: age.value,
                         gender: genderValue,
-                        resident: residentValue,
-                        position: positionValue,
                         role: roleValue,
-                        store: storeValue,
-                        internal: internalValue,
                         status: '<span class="badge bg-danger-subtle text-danger text-uppercase">\
                                     Offline\
                                 </span>'                     
@@ -384,34 +329,10 @@ editBtn.addEventListener("click", function (e) {
                                 genderValue = '';
                             }
         
-                            if (resident.value) {
-                                residentValue = resident.options[resident.selectedIndex].text;
-                            } else {
-                                residentValue = '';
-                            }
-        
-                            if (position.value) {
-                                positionValue = position.options[position.selectedIndex].text;
-                            } else {
-                                positionValue = '';
-                            }
-        
                             if (role.value) {
                                 roleValue = role.options[role.selectedIndex].text;
                             } else {
                                 roleValue = '';
-                            }
-        
-                            if (store.value) {
-                                storeValue = store.options[store.selectedIndex].text;
-                            } else {
-                                storeValue = '';
-                            }
-        
-                            if (internal.value) {
-                                internalValue = internal.options[internal.selectedIndex].text;
-                            } else {
-                                internalValue = '';
                             }
         
                             x.values({
@@ -427,11 +348,7 @@ editBtn.addEventListener("click", function (e) {
                                 birth_date: formatDate(birthDate.value),
                                 age: age.value,
                                 gender: genderValue,
-                                resident: residentValue,
-                                position: positionValue,
-                                role: roleValue,
-                                store: storeValue,
-                                internal: internalValue
+                                role: roleValue
                             });
                         }
                     });
@@ -606,24 +523,8 @@ function refreshCallbacks() {
                     genderVal.setChoiceByValue(data.user.gender_id.toString());
                 }
 
-                if (data.user.resident !== null) {
-                    residentVal.setChoiceByValue(data.user.resident.toString());
-                }
-
-                if(data.user.position_id) {
-                    positionVal.setChoiceByValue(data.user.position_id.toString());
-                }
-
                 if(data.user.role_id) {
                     roleVal.setChoiceByValue(data.user.role_id.toString());
-                }
-
-                if(data.user.store_id) {
-                    storeVal.setChoiceByValue(data.user.store_id.toString());
-                }
-
-                if(data.user.internal) {
-                    internalVal.setChoiceByValue(data.user.internal.toString());
                 }
             });
         }
@@ -670,14 +571,6 @@ function refreshCallbacks() {
                                             <td>${x._values.id_number}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">ID Verified</td>
-                                            <td>${x._values.id_verified}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Birth Date</td>
-                                            <td>${x._values.birth_date}</td>
-                                        </tr>
-                                        <tr>
                                             <td class="fw-medium" scope="row">Age</td>
                                             <td>${x._values.age}</td>
                                         </tr>
@@ -686,24 +579,12 @@ function refreshCallbacks() {
                                             <td>${x._values.gender}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium d-none" scope="row">Citizen Status</td>
-                                            <td class="d-none">${x._values.resident}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium d-none" scope="row">Position</td>
-                                            <td class="d-none">${x._values.position}</td>
-                                        </tr>
-                                        <tr>
                                             <td class="fw-medium" scope="row">Role</td>
                                             <td>${x._values.role}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Store</td>
-                                            <td>${x._values.store}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium d-none" scope="row">Internal</td>
-                                            <td class="d-none">${x._values.internal}</td>
+                                            <td class="fw-medium" scope="row">Status</td>
+                                            <td>${x._values.status}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -742,20 +623,8 @@ function clearFields() {
     genderVal.removeActiveItems();
     genderVal.setChoiceByValue("");
 
-    residentVal.removeActiveItems();
-    residentVal.setChoiceByValue("");
-
-    positionVal.removeActiveItems();
-    positionVal.setChoiceByValue("");
-
     roleVal.removeActiveItems();
     roleVal.setChoiceByValue("");
-
-    storeVal.removeActiveItems();
-    storeVal.setChoiceByValue("");
-
-    internalVal.removeActiveItems();
-    internalVal.setChoiceByValue("");
 }
 
 // Delete All Records

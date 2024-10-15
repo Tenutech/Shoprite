@@ -217,7 +217,7 @@ addBtn.addEventListener("click", function (e) {
     if (form.checkValidity()) {
         var formData = new FormData($('#formUser')[0]);
         $.ajax({
-            url: route('admins.store'),
+            url: route('dtdps.store'),
             type: 'POST',
             data: formData,
             async: false,
@@ -353,7 +353,7 @@ editBtn.addEventListener("click", function (e) {
         var formData = new FormData($('#formUser')[0]);
 
         $.ajax({
-            url: route('admins.update'),
+            url: route('dtdps.update'),
             type: 'POST',
             data: formData,
             async: false,
@@ -511,7 +511,7 @@ function refreshCallbacks() {
                 if (isdeleteid == itemId) {
                     document.getElementById("delete-user").onclick = function () {                        
                         $.ajax({
-                            url: route('admins.destroy', {id: isdeleteid}),
+                            url: route('dtdps.destroy', {id: isdeleteid}),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -566,7 +566,7 @@ function refreshCallbacks() {
             itemId = e.target.closest("tr").children[1].innerText;
            
             $.ajax({
-                url: route('admins.details', {id: itemId}),
+                url: route('dtdps.details', {id: itemId}),
                 type: 'get',
                 data: {
                     "id": itemId
@@ -766,7 +766,7 @@ function deleteMultiple(){
                 }
     
                 $.ajax({
-                    url: route('admins.destroyMultiple'),
+                    url: route('dtdps.destroyMultiple'),
                     type: 'post',
                     data: {
                         ids: ids_array
