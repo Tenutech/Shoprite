@@ -239,7 +239,7 @@ addBtn.addEventListener("click", function (e) {
                         role: roleValue,
                         status: '<span class="badge bg-danger-subtle text-danger text-uppercase">\
                                     Offline\
-                                </span>'                     
+                                </span>'
                     });
                     userList.sort('name', { order: "asc" });
                     Swal.fire({
@@ -251,16 +251,16 @@ addBtn.addEventListener("click", function (e) {
                         showCloseButton: true,
                         toast: true
                     })
-                    
+
                     document.getElementById("close-modal").click();
                     clearFields();
                     refreshCallbacks();
-                    count++;                    
-                } 
+                    count++;
+                }
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -268,7 +268,7 @@ addBtn.addEventListener("click", function (e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -316,25 +316,25 @@ editBtn.addEventListener("click", function (e) {
                     Array.from(editValues).forEach(function (x) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
-                        if (selectedid == itemId) {    
+                        if (selectedid == itemId) {
                             if (idVerified.value) {
                                 idVerifiedValue = idVerified.options[idVerified.selectedIndex].text;
                             } else {
                                 idVerifiedValue = '';
                             }
-        
+
                             if (gender.value) {
                                 genderValue = gender.options[gender.selectedIndex].text;
                             } else {
                                 genderValue = '';
                             }
-        
+
                             if (role.value) {
                                 roleValue = role.options[role.selectedIndex].text;
                             } else {
                                 roleValue = '';
                             }
-        
+
                             x.values({
                                 id: idField.value,
                                 name: '<div class="d-flex align-items-center">\
@@ -371,7 +371,7 @@ editBtn.addEventListener("click", function (e) {
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -379,7 +379,7 @@ editBtn.addEventListener("click", function (e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -430,14 +430,14 @@ function refreshCallbacks() {
                 var isdeleteid = deleteid.body.innerHTML;
 
                 if (isdeleteid == itemId) {
-                    document.getElementById("delete-user").onclick = function () {                        
+                    document.getElementById("delete-user").onclick = function () {
                         $.ajax({
                             url: route('users.destroy', {id: isdeleteid}),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
-                            success:function(data) {            
+                            success:function(data) {
                                 if(data.success === true) {
                                     userList.remove("id", isdeleteid);
                                     document.getElementById("deleteRecord-close").click();
@@ -449,12 +449,12 @@ function refreshCallbacks() {
                                         timer: 2000,
                                         showCloseButton: true,
                                         toast: true
-                                    });                    
+                                    });
                                 }
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
                                 let message = ''; // Initialize the message variable
-                        
+
                                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                                     message = jqXHR.responseJSON.message;
                                 } else if (textStatus === 'timeout') {
@@ -462,7 +462,7 @@ function refreshCallbacks() {
                                 } else {
                                     message = 'An error occurred while processing your request. Please try again later.';
                                 }
-                            
+
                                 // Trigger the Swal notification with the dynamic message
                                 Swal.fire({
                                     position: 'top-end',
@@ -485,7 +485,7 @@ function refreshCallbacks() {
         btn.onclick = function (e) {
             e.target.closest("tr").children[1].innerText;
             itemId = e.target.closest("tr").children[1].innerText;
-           
+
             $.ajax({
                 url: route('users.details', {id: itemId}),
                 type: 'get',
@@ -653,7 +653,7 @@ function deleteMultiple(){
                 for (i = 0; i < ids_array.length; i++) {
                     userList.remove("id", `${ids_array[i]}`);
                 }
-    
+
                 $.ajax({
                     url: route('users.destroyMultiple'),
                     type: 'post',
@@ -663,7 +663,7 @@ function deleteMultiple(){
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success:function(data) {            
+                    success:function(data) {
                         if(data.success === true) {
                             document.getElementById('checkAll').checked = false;
 
@@ -675,12 +675,12 @@ function deleteMultiple(){
                                 timer: 2000,
                                 showCloseButton: true,
                                 toast: true
-                            });                  
+                            });
                         }
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         let message = ''; // Initialize the message variable
-                
+
                         if (jqXHR.status === 400 || jqXHR.status === 422) {
                             message = jqXHR.responseJSON.message;
                         } else if (textStatus === 'timeout') {
@@ -688,7 +688,7 @@ function deleteMultiple(){
                         } else {
                             message = 'An error occurred while processing your request. Please try again later.';
                         }
-                    
+
                         // Trigger the Swal notification with the dynamic message
                         Swal.fire({
                             position: 'top-end',
@@ -732,13 +732,13 @@ document.querySelector(".pagination-wrap").addEventListener("click", function(ev
             }
         }
     }
-    
+
     // If the clicked element or its parent is in the .listjs-pagination
     if (event.target.closest(".listjs-pagination")) {
         event.preventDefault();
         event.target.click();
     }
-    
+
     // If the clicked element or its parent has the class .pagination-next
     if (event.target.classList.contains("pagination-next") || (event.target.parentElement && event.target.parentElement.classList.contains("pagination-next"))) {
         event.preventDefault();

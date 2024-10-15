@@ -88,7 +88,7 @@
                                         <th class="sort d-none" data-sort="age" scope="col">Age</th>
                                         <th class="sort d-none" data-sort="gender" scope="col">Gender</th>
                                         <th class="sort d-none" data-sort="role" scope="col">Role</th>
-                                        <th class="sort" data-sort="status" scope="col">Status</th>                          
+                                        <th class="sort" data-sort="status" scope="col">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -315,7 +315,14 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->                  
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="password" class="form-label">
+                                                        Password
+                                                    </label>
+                                                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter Password" required/>
+                                                </div>
+                                                <!--end col-->
                                             </div>
                                             <!--end col-->
 
@@ -351,7 +358,7 @@
                                                     </label>
                                                     <input type="number" id="age" name="age" class="form-control" placeholder="Enter age" max="100" min="16"/>
                                                 </div>
-                                                <!--end col-->                                                
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="role" class="form-label">
                                                         Role
@@ -362,6 +369,13 @@
                                                             <option value="{{ $role->id }}">{{ $role->name }}</option>
                                                         @endforeach
                                                     </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="input-password" class="form-label">
+                                                        Confirm Password
+                                                    </label>
+                                                    <input type="password" id="input-password" placeholder="Enter confirm password" name="password_confirmation" class="form-control" autocomplete="off" required/>
                                                 </div>
                                                 <!--end col-->
                                             </div>
