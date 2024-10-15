@@ -201,6 +201,7 @@ class ApplicantsController extends Controller
                 $query->where('user_id', $userID);
             }
         ])
+        ->whereNull('appointed_id')
         ->where('no_show', '<=', 2)
         ->whereHas('savedBy', function ($query) use ($userID) {
             $query->where('user_id', $userID);
