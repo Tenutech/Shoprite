@@ -245,18 +245,6 @@ addBtn.addEventListener("click", function (e) {
                         genderValue = '';
                     }
 
-                    if (resident.value) {
-                        residentValue = resident.options[resident.selectedIndex].text;
-                    } else {
-                        residentValue = '';
-                    }
-
-                    if (position.value) {
-                        positionValue = position.options[position.selectedIndex].text;
-                    } else {
-                        positionValue = '';
-                    }
-
                     if (role.value) {
                         roleValue = role.options[role.selectedIndex].text;
                     } else {
@@ -269,28 +257,22 @@ addBtn.addEventListener("click", function (e) {
                         storeValue = '';
                     }
 
-                    if (region.value) {
-                        regionValue = region.options[region.selectedIndex].text;
-                    } else {
-                        regionValue = '';
-                    }
-
                     if (division.value) {
                         divisionValue = division.options[division.selectedIndex].text;
                     } else {
                         divisionValue = '';
                     }
 
+                    if (region.value) {
+                        regionValue = region.options[region.selectedIndex].text;
+                    } else {
+                        regionValue = '';
+                    }
+
                     if (brand.value) {
                         brandValue = brand.options[brand.selectedIndex].text;
                     } else {
                         brandValue = '';
-                    }
-
-                    if (internal.value) {
-                        internalValue = internal.options[internal.selectedIndex].text;
-                    } else {
-                        internalValue = '';
                     }
 
                     userList.add({
@@ -306,14 +288,11 @@ addBtn.addEventListener("click", function (e) {
                         birth_date: formatDate(birthDate.value),
                         age: age.value,
                         gender: genderValue,
-                        resident: residentValue,
-                        position: positionValue,
                         role: roleValue,
                         store: storeValue,
-                        region: regionValue,
                         division: divisionValue,
+                        region: regionValue,                        
                         brand: brandValue,
-                        internal: internalValue,
                         status: '<span class="badge bg-danger-subtle text-danger text-uppercase">\
                                     Offline\
                                 </span>'                     
@@ -406,18 +385,6 @@ editBtn.addEventListener("click", function (e) {
                                 genderValue = '';
                             }
         
-                            if (resident.value) {
-                                residentValue = resident.options[resident.selectedIndex].text;
-                            } else {
-                                residentValue = '';
-                            }
-        
-                            if (position.value) {
-                                positionValue = position.options[position.selectedIndex].text;
-                            } else {
-                                positionValue = '';
-                            }
-        
                             if (role.value) {
                                 roleValue = role.options[role.selectedIndex].text;
                             } else {
@@ -430,28 +397,22 @@ editBtn.addEventListener("click", function (e) {
                                 storeValue = '';
                             }
 
-                            if (region.value) {
-                                regionValue = region.options[region.selectedIndex].text;
-                            } else {
-                                regionValue = '';
-                            }
-
                             if (division.value) {
                                 divisionValue = division.options[division.selectedIndex].text;
                             } else {
                                 divisionValue = '';
                             }
 
+                            if (region.value) {
+                                regionValue = region.options[region.selectedIndex].text;
+                            } else {
+                                regionValue = '';
+                            }
+
                             if (brand.value) {
                                 brandValue = brand.options[brand.selectedIndex].text;
                             } else {
                                 brandValue = '';
-                            }
-        
-                            if (internal.value) {
-                                internalValue = internal.options[internal.selectedIndex].text;
-                            } else {
-                                internalValue = '';
                             }
         
                             x.values({
@@ -467,14 +428,11 @@ editBtn.addEventListener("click", function (e) {
                                 birth_date: formatDate(birthDate.value),
                                 age: age.value,
                                 gender: genderValue,
-                                resident: residentValue,
-                                position: positionValue,
                                 role: roleValue,
                                 store: storeValue,
-                                region: regionValue,
                                 division: divisionValue,
+                                region: regionValue,                                
                                 brand: brandValue,
-                                internal: internalValue
                             });
                         }
                     });
@@ -649,14 +607,6 @@ function refreshCallbacks() {
                     genderVal.setChoiceByValue(data.user.gender_id.toString());
                 }
 
-                if (data.user.resident !== null) {
-                    residentVal.setChoiceByValue(data.user.resident.toString());
-                }
-
-                if(data.user.position_id) {
-                    positionVal.setChoiceByValue(data.user.position_id.toString());
-                }
-
                 if(data.user.role_id) {
                     roleVal.setChoiceByValue(data.user.role_id.toString());
                 }
@@ -665,20 +615,16 @@ function refreshCallbacks() {
                     storeVal.setChoiceByValue(data.user.store_id.toString());
                 }
 
-                if(data.user.region_id) {
-                    regionVal.setChoiceByValue(data.user.region_id.toString());
-                }
-
                 if(data.user.division_id) {
                     divisionVal.setChoiceByValue(data.user.division_id.toString());
                 }
 
+                if(data.user.region_id) {
+                    regionVal.setChoiceByValue(data.user.region_id.toString());
+                }                
+
                 if(data.user.brand_id) {
                     brandVal.setChoiceByValue(data.user.brand_id.toString());
-                }
-
-                if(data.user.internal) {
-                    internalVal.setChoiceByValue(data.user.internal.toString());
                 }
             });
         }
