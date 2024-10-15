@@ -560,18 +560,6 @@ class ChatService
                 // Set state back to welcome
                 $stateID = State::where('code', 'welcome')->value('id');
                 $applicant->update(['state_id' => $stateID]);
-            } elseif ($body === '3') {
-                // Applicant selected option 3: Navigate to 'consumer_channel' state
-                $stateID = State::where('code', 'consumer_channel')->value('id');
-                $applicant->update(['state_id' => $stateID]);
-
-                // Send messages for the selected state
-                $messages = $this->fetchStateMessages('consumer_channel');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-
-                // Set state back to welcome
-                $stateID = State::where('code', 'welcome')->value('id');
-                $applicant->update(['state_id' => $stateID]);
             } else {
                 // If the applicant's input is not a valid option, send an error message
                 $errorMessage = "Invalid option. Please reply with:\n\n1. Our stores\n2. Our offices\n3. Main menu";
