@@ -127,8 +127,8 @@
                                                                     <p class="mb-1">
                                                                         {{ $notification->notification }} on
                                                                         <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString(optional($notification->subject)->vacancy->id)]) }}">
-                                                                            <b class="text-{{ optional($notification->subject)->vacancy->position->color ?? 'primary'; }}">
-                                                                                {{ optional($notification->subject)->vacancy->position->name ?? 'N/A'; }}
+                                                                            <b class="text-{{ optional($notification->subject)->vacancy->position->color ?? 'primary' }}">
+                                                                                {{ optional($notification->subject)->vacancy->position->name ?? 'N/A' }}
                                                                             </b>
                                                                         </a>
                                                                     </p>
@@ -300,10 +300,10 @@
                                                                 @if ($notification->subject)
                                                                     <div class="fs-13 text-muted">
                                                                         <p class="mb-1">
-                                                                            {{ optional($notification->subject->vacancy)->store->brand->name ?? 'N/A'; }} ({{ optional($notification->subject->vacancy)->store->town->name ?? 'N/A'; }}) for
+                                                                            {{ optional($notification->subject->vacancy)->store->brand->name ?? 'N/A' }} ({{ optional($notification->subject->vacancy)->store->town->name ?? 'N/A' }}) for
                                                                             <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString(optional($notification->subject)->vacancy->id)]) }}">
-                                                                                <b class="text-{{ optional($notification->subject)->vacancy->position->color ?? 'primary'; }}">
-                                                                                    {{ optional($notification->subject)->vacancy->position->name ?? 'N/A'; }}
+                                                                                <b class="text-{{ optional($notification->subject)->vacancy->position->color ?? 'primary' }}">
+                                                                                    {{ optional($notification->subject)->vacancy->position->name ?? 'N/A' }}
                                                                                 </b>
                                                                             </a> on
                                                                             @php
@@ -325,7 +325,7 @@
                                                                             @if ($notification->subject->status == "Scheduled")
                                                                                 <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-success waves-effect waves-light interviewConfirm">
                                                                                     Confirm
-                                                                                </button>                                                                                
+                                                                                </button>
                                                                                 <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-danger waves-effect waves-light interviewDecline">
                                                                                     Decline
                                                                                 </button>
@@ -716,8 +716,8 @@
                                                                 <p class="mb-1">
                                                                     {{ $alert->notification }} on
                                                                     <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString(optional($alert->subject)->vacancy->id)]) }}">
-                                                                        <b class="text-{{ optional($alert->subject)->vacancy->position->color ?? 'primary'; }}">
-                                                                            {{ optional($alert->subject)->vacancy->position->name ?? 'N/A'; }}
+                                                                        <b class="text-{{ optional($alert->subject)->vacancy->position->color ?? 'primary' }}">
+                                                                            {{ optional($alert->subject)->vacancy->position->name ?? 'N/A' }}
                                                                         </b>
                                                                     </a>
                                                                 </p>
@@ -824,7 +824,7 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            @endif                                        
+                                            @endif
                                         @endif
                                     @endforeach
                                 </div>

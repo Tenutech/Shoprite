@@ -109,7 +109,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('applicants.index') }}">
-                            <i class="ri-profile-line"></i> 
+                            <i class="ri-profile-line"></i>
                             <span>Saved Applicants</span>
                         </a>
                     </li>
@@ -275,7 +275,7 @@
                                     <a class="nav-link" href="{{ route('hours.index') }}">
                                         Working Hours
                                     </a>
-                                </li>                                
+                                </li>
                             </ul>
                         </div>
                     </li>
