@@ -603,6 +603,8 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,6', 'use
 
     Route::post('/vacancy/fill', [App\Http\Controllers\VacancyController::class, 'vacancyFill'])->name('vacancy.fill');
 
+    //Vacancies
+    Route::get('/vacancies', [App\Http\Controllers\VacanciesController::class, 'index'])->name('vacancies.index');
 
     //Shortlist
 
