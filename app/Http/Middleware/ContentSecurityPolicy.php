@@ -33,6 +33,8 @@ class ContentSecurityPolicy
         $csp .= "form-action 'self' https://login.microsoftonline.com; "; // Allow form actions to your SAML provider
         $csp .= "frame-src 'self' https://www.google.com https://maps.googleapis.com; "; // Allow embedding frames from Google Maps
         $csp .= "frame-ancestors 'none'; "; // Prevent the page from being embedded in frames
+        $csp .= "object-src 'none'; "; // Restrict object-src to 'none'
+        $csp .= "base-uri 'self'; ";  // Restrict the base URL to the same origin
 
         // Set the Content-Security-Policy header in the response
         $response->headers->set('Content-Security-Policy', $csp);
