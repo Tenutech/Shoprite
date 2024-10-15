@@ -61,7 +61,6 @@
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ url($url.'home') }}">
                         <i class="ri-home-3-line"></i>
-                        <i class="ri-home-3-line"></i>
                         <span>Home</span>
                     </a>
                 </li>
