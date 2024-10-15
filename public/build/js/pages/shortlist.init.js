@@ -534,7 +534,7 @@ function loadCandidateListData(datas, page) {
                 '<div class="col-md-12 col-lg-12 candidate-card" data-candidate-id="' + datas[i].id + '">\
                     <div class="card ' + cardBorder + ' mb-0">\
                         <div class="card-body">\
-                            <div class="d-lg-flex align-items-center">\
+                            <div class="d-flex flex-wrap align-items-center">\
                                 <div class="form-check">\
                                     <input class="form-check-input" type="checkbox" name="chk_child" value="'+ datas[i].encrypted_id + '" data-bs-id="'+ datas[i].id + '" data-bs-name="'+ datas[i].firstname + ' '+ datas[i].lastname + '">\
                                 </div>\
@@ -543,7 +543,7 @@ function loadCandidateListData(datas, page) {
                                         '+ isUserProfile + '\
                                     </div>\
                                 </div>\
-                                <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">\
+                                <div class="ms-lg-3 my-3 my-lg-0 col-12 col-md-3 text-start">\
                                     <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'">\
                                         <h5 class="fs-16 mb-2">\
                                             '+ datas[i].firstname + ' '+ datas[i].lastname + '\
@@ -569,10 +569,23 @@ function loadCandidateListData(datas, page) {
                                     </div>\
                                     '+ (interviewScore ? interviewScore : '') + '\
                                 </div>\
-                                <div class="col-2 text-end">\
+                                <!-- On larger screens, we make this a flex row with all buttons in one line -->\
+                                <div class="d-flex justify-content-end align-items-center col-2 text-end d-none d-md-flex">\
                                     <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'" class="btn btn-soft-primary">\
                                         View Details\
                                     </a>\
+                                    <a href="#!" class="btn btn-ghost-danger btn-icon custom-toggle '+ bookmark + ' save-applicant mx-2" data-bs-toggle="button" data-bs-id='+ datas[i].encrypted_id + '>\
+                                        <span class="icon-on">\
+                                            <i class="ri-bookmark-line align-bottom"></i>\
+                                        </span>\
+                                        <span class="icon-off">\
+                                            <i class="ri-bookmark-3-fill align-bottom"></i>\
+                                        </span>\
+                                    </a>\
+                                    ' + closeButton + '\
+                                </div>\
+                                <!-- On mobile, we keep the save and close buttons where they were -->\
+                                <div class="col-2 text-end d-md-none">\
                                     <a href="#!" class="btn btn-ghost-danger btn-icon custom-toggle '+ bookmark + ' save-applicant" data-bs-toggle="button" data-bs-id='+ datas[i].encrypted_id + '>\
                                         <span class="icon-on">\
                                             <i class="ri-bookmark-line align-bottom"></i>\

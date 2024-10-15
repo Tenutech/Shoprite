@@ -131,13 +131,13 @@ function loadCandidateListData(datas, page) {
                 '<div class="col-md-6 col-lg-12">\
                     <div class="card mb-0 '+ appointedClass +'">\
                         <div class="card-body">\
-                            <div class="d-lg-flex align-items-center">\
+                            <div class="d-flex flex-wrap align-items-center">\
                                 <div class="flex-shrink-0 col-auto">\
                                     <div class="avatar-sm rounded overflow-hidden">\
                                         '+ isUserProfile + '\
                                     </div>\
                                 </div>\
-                                <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">\
+                                <div class="ms-lg-3 my-3 my-lg-0 col-12 col-md-3 text-start">\
                                     <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'">\
                                         <h5 class="fs-16 mb-2">\
                                             '+ datas[i].firstname + ' '+ datas[i].lastname + '\
@@ -162,10 +162,22 @@ function loadCandidateListData(datas, page) {
                                         '+ (datas[i].score ? datas[i].score : 'N/A') + '\
                                     </div>\
                                 </div>\
-                                <div class="col-2 text-end">\
+                                <!-- On larger screens, we make this a flex row with View Details and Save buttons in one line -->\
+                                <div class="d-flex justify-content-end align-items-center col-2 text-end d-none d-md-flex">\
                                     <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'" class="btn btn-soft-primary">\
                                         View Details\
                                     </a>\
+                                    <a href="#!" class="btn btn-ghost-danger btn-icon custom-toggle '+ bookmark + ' save-applicant mx-2" data-bs-toggle="button" data-bs-id='+ datas[i].encrypted_id + '>\
+                                        <span class="icon-on">\
+                                            <i class="ri-bookmark-line align-bottom"></i>\
+                                        </span>\
+                                        <span class="icon-off">\
+                                            <i class="ri-bookmark-3-fill align-bottom"></i>\
+                                        </span>\
+                                    </a>\
+                                </div>\
+                                <!-- On mobile, keep the save button below the content -->\
+                                <div class="col-2 text-end d-md-none">\
                                     <a href="#!" class="btn btn-ghost-danger btn-icon custom-toggle '+ bookmark + ' save-applicant" data-bs-toggle="button" data-bs-id='+ datas[i].encrypted_id + '>\
                                         <span class="icon-on">\
                                             <i class="ri-bookmark-line align-bottom"></i>\
@@ -178,7 +190,7 @@ function loadCandidateListData(datas, page) {
                             </div>\
                         </div>\
                     </div>\
-                </div>'
+                </div>';
         }
     }
 
