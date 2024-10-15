@@ -189,7 +189,7 @@
                                     
                                         <div class="mb-4">
                                             <p class="mb-0 fs-12 text-muted fst-italic">
-                                                By registering you agree to the Orient
+                                                By registering you agree to the
                                                 <a href="https://bit.ly/srtscsnew" class="text-primary text-decoration-underline fst-normal fw-medium">
                                                     Terms & Conditions
                                                 </a>
