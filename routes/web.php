@@ -268,7 +268,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::delete('/divisions/destroy/{id}', [App\Http\Controllers\DivisionsController::class, 'destroy'])->name('divisions.destroy');
 
     Route::post('/divisions/destroy-multiple', [App\Http\Controllers\DivisionsController::class, 'destroyMultiple'])->name('divisions.destroyMultiple');
-    
+
 
     //Positions
 

@@ -18,7 +18,7 @@
                     <div class="d-flex align-items-center flex-wrap gap-2">
                         <div class="flex-grow-1">
                             <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#usersModal">
-                                <i class="ri-add-fill me-1 align-bottom"></i> 
+                                <i class="ri-add-fill me-1 align-bottom"></i>
                                 Add DPP
                             </button>
                         </div>
@@ -90,9 +90,9 @@
                                         <th class="sort d-none" data-sort="role" scope="col">Role</th>
                                         <th class="sort" data-sort="store" scope="col">Store</th>
                                         <th class="sort d-none" data-sort="division" scope="col">Division</th>
-                                        <th class="sort d-none" data-sort="region" scope="col">Region</th>                                        
+                                        <th class="sort d-none" data-sort="region" scope="col">Region</th>
                                         <th class="sort d-none" data-sort="brand" scope="col">Brand</th>
-                                        <th class="sort" data-sort="status" scope="col">Status</th>                          
+                                        <th class="sort" data-sort="status" scope="col">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -181,7 +181,7 @@
                                             <td class="age d-none"></td>
                                             <td class="gender d-none"></td>
                                             <td class="role d-none"></td>
-                                            <td class="store" style="white-space: pre-wrap;"></td>                                            
+                                            <td class="store" style="white-space: pre-wrap;"></td>
                                             <td class="division d-none"></td>
                                             <td class="region d-none"></td>
                                             <td class="brand d-none"></td>
@@ -283,7 +283,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>                                                    
+                                                </div>
                                             </div>
                                             <!--end col-->
 
@@ -294,7 +294,7 @@
                                                     </label>
                                                     <input type="text" id="firstname" name="firstname" class="form-control" placeholder="Enter first name" required/>
                                                 </div>
-                                                <!--end col-->                                                
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="email" class="form-label">
                                                         Email
@@ -351,7 +351,14 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!-- end col -->                                                                                                                      
+                                                <!-- end col -->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="password" class="form-label">
+                                                        Password
+                                                    </label>
+                                                    <input type="password" id="password" name="password" class="form-control" placeholder="Enter Password" required/>
+                                                </div>
+                                                <!--end col-->
                                             </div>
                                             <!--end col-->
 
@@ -411,7 +418,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col--> 
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="brand" class="form-label">
                                                         Brand
@@ -423,7 +430,14 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->   
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="input-password" class="form-label">
+                                                        Confirm Password
+                                                    </label>
+                                                    <input type="password" id="input-password" placeholder="Enter confirm password" name="password_confirmation" class="form-control" autocomplete="off" required/>
+                                                </div>
+                                                <!--end col-->
                                             </div>
                                             <!--end col-->
                                         </div>
@@ -511,7 +525,7 @@
                                 <tr>
                                     <td class="fw-medium" scope="row">Store</td>
                                     <td></td>
-                                </tr>                                
+                                </tr>
                                 <tr>
                                     <td class="fw-medium" scope="row">Division</td>
                                     <td></td>

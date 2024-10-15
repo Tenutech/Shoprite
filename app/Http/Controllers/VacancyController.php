@@ -111,7 +111,7 @@ class VacancyController extends Controller
                 // If role_id is 3, get all positions where brand_id is in the stores matching region_id
                 $storeBrandIds = Store::where('region_id', $user->region_id)
                     ->pluck('brand_id'); // Get the brand_ids of all stores in the user's region
-            
+
                 // Now get all positions where brand_id is in the store's brand_ids
                 $positions = Position::whereIn('brand_id', $storeBrandIds)
                     ->get();
@@ -119,7 +119,7 @@ class VacancyController extends Controller
                 // If role_id is 4, get all positions where brand_id is in the stores matching division_id
                 $storeBrandIds = Store::where('division_id', $user->division_id)
                     ->pluck('brand_id'); // Get the brand_ids of all stores in the user's division
-            
+
                 // Now get all positions where brand_id is in the store's brand_ids
                 $positions = Position::whereIn('brand_id', $storeBrandIds)
                     ->get();
@@ -208,7 +208,7 @@ class VacancyController extends Controller
 
         // Validate the input data from the request
         $request->validate([
-            'position_id' => ['required', 'integer', 'exists:positions,id', 
+            'position_id' => ['required', 'integer', 'exists:positions,id',
                 function ($attribute, $value, $fail) use ($store, $position) {
                     // Custom validation: Ensure the selected position's brand_id matches the store's brand_id
                     if ($position->brand_id !== $store->brand_id) {
@@ -302,7 +302,6 @@ class VacancyController extends Controller
                 'message' => 'Validation errors occurred.',
                 'errors' => $e->errors() // This will return the validation errors in a key-value format
             ], 422); // 422 Unprocessable Entity is standard for validation errors
-            
         } catch (Exception $e) {
             // Catch any other errors and rollback the transaction
             DB::rollBack();
@@ -351,7 +350,7 @@ class VacancyController extends Controller
 
         // Validate the input data from the request
         $request->validate([
-            'position_id' => ['required', 'integer', 'exists:positions,id', 
+            'position_id' => ['required', 'integer', 'exists:positions,id',
                 function ($attribute, $value, $fail) use ($store, $position) {
                     // Custom validation: Ensure the selected position's brand_id matches the store's brand_id
                     if ($position->brand_id !== $store->brand_id) {
@@ -450,7 +449,6 @@ class VacancyController extends Controller
                 'message' => 'Validation errors occurred.',
                 'errors' => $e->errors() // This will return the validation errors in a key-value format
             ], 422); // 422 Unprocessable Entity is standard for validation errors
-            
         } catch (Exception $e) {
             // Rollback the transaction if an exception occurs
             DB::rollBack();

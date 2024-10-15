@@ -60,7 +60,7 @@
                                                         </span>
                                                     @enderror
                                                 </div>
-                                    
+
                                                 <!-- ID Number -->
                                                 <div class="mb-3">
                                                     <label for="idNumber" class="form-label">
@@ -74,8 +74,8 @@
                                                     @enderror
                                                 </div>
                                             </div>
-                                    
-                                            <div class="col-lg-6"> 
+
+                                            <div class="col-lg-6">
                                                 <!-- Last Name -->
                                                 <div class="mb-3">
                                                     <label for="lastname" class="form-label">
@@ -88,7 +88,7 @@
                                                         </span>
                                                     @enderror
                                                 </div>
-                                    
+
                                                 <!-- Phone Number -->
                                                 <div class="mb-3">
                                                     <label for="phone" class="form-label">
@@ -128,7 +128,7 @@
                                                         </span>
                                                     @enderror
                                                 </div>
-                                            </div>                                            
+                                            </div>
 
                                             <div class="col-lg-12">
                                                 <!-- Email -->
@@ -147,7 +147,7 @@
                                                     @enderror
                                                 </div>
                                             </div>
-                                    
+
                                             <div class="col-lg-6">
                                                 <!-- Password -->
                                                 <div class="mb-2">
@@ -167,7 +167,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                    
+
                                             <div class="col-lg-6">
                                                 <!-- Confirm Password -->
                                                 <div class=" mb-4">
@@ -186,7 +186,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                    
+
                                         <div class="mb-4">
                                             <p class="mb-0 fs-12 text-muted fst-italic">
                                                 By registering you agree to the
@@ -195,7 +195,7 @@
                                                 </a>
                                             </p>
                                         </div>
-                                    
+
                                         <div class="mt-4">
                                             <button class="btn btn-success w-100" type="submit">Sign Up</button>
                                         </div>
@@ -225,8 +225,8 @@
                     <div class="col-lg-12">
                         <div class="text-center">
                             <p class="mb-0 text-muted">
-                                &copy; 
-                                <script>document.write(new Date().getFullYear())</script> 
+                                &copy;
+                                <script>document.write(new Date().getFullYear())</script>
                                 Orient. Crafted by OTB Group
                             </p>
                         </div>
