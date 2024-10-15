@@ -200,11 +200,9 @@ class RegisterController extends Controller
         // Extract the first two digits for the year of birth (YY)
         $year = (int) substr($idNumber, 0, 2);
 
-        // Determine if the century is 19xx or 20xx based on the extracted year
-        $year = ($year > (int) date('y')) ? (int) ('19' . $year) : (int) ('20' . $year);
-
-        // Determine if the century is 19xx or 20xx based on the extracted year
-        $year = ($year > (int) date('y')) ? (int) ('19' . $year) : (int) ('20' . $year);
+        // Determine if the century is 19xx or 20xx based on the current short year (last two digits of the current year)
+        $currentYearShort = (int) date('y'); // Last two digits of the current year
+        $year = ($year > $currentYearShort) ? (1900 + $year) : (2000 + $year);
 
         // Extract the month of birth (MM)
         $month = (int) substr($idNumber, 2, 2);
@@ -216,12 +214,6 @@ class RegisterController extends Controller
         if (!checkdate($month, $day, $year)) {
             throw new \Exception('Invalid birth date extracted from ID number.');
         }
-
-        // Get the current year in full (YYYY format)
-        $currentYear = (int) date('Y');
-
-        // Determine if the century is 19xx or 20xx based on the extracted year
-        $year = ($year > (int) date('y')) ? (int) ('19' . $year) : (int) ('20' . $year);
 
         // Create a DateTime object from the extracted birth date (YYYY-MM-DD format)
         $birthDate = \DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
