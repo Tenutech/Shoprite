@@ -24,7 +24,7 @@ Auth::routes(['verify' => true]);
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2,3,4,5', 'user.activity'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activity'])->group(function () {
     //Home
 
     Route::get('/home', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.home');
@@ -570,10 +570,20 @@ Route::prefix('dpp')->middleware(['auth', 'verified', 'role:5', 'user.activity']
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,5,6', 'user.activity'])->group(function () {
+Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,6', 'user.activity'])->group(function () {
     //Home
 
     Route::get('/home', [App\Http\Controllers\ManagerController::class, 'index'])->name('manager.home');
+
+    //User Profile
+
+    Route::get('/user-profile', [App\Http\Controllers\UserProfileController::class, 'index'])->name('user-profile.index');
+
+    //Applicants
+
+    Route::get('/applicants', [App\Http\Controllers\ApplicantsController::class, 'index'])->name('applicants.index');
+
+    Route::get('/applicants-data', [App\Http\Controllers\ApplicantsController::class, 'applicants'])->name('applicants.data');
 
     //vacancies
 
@@ -593,21 +603,6 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,5,6', 'u
 
     Route::post('/vacancy/fill', [App\Http\Controllers\VacancyController::class, 'vacancyFill'])->name('vacancy.fill');
 
-    //Vacancies
-
-    Route::get('/vacancies', [App\Http\Controllers\VacanciesController::class, 'index'])->middleware('check.user.applicant')->name('vacancies.index');
-
-    Route::get('/vacancy/jobs', [App\Http\Controllers\VacanciesController::class, 'vacancies']);
-
-    //User Profile
-
-    Route::get('/user-profile', [App\Http\Controllers\UserProfileController::class, 'index'])->name('user-profile.index');
-
-    //Applicants
-
-    Route::get('/applicants', [App\Http\Controllers\ApplicantsController::class, 'index'])->name('applicants.index');
-
-    Route::get('/applicants-data', [App\Http\Controllers\ApplicantsController::class, 'applicants'])->name('applicants.data');
 
     //Shortlist
 
