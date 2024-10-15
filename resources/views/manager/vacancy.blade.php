@@ -256,7 +256,7 @@
                                                                                 : ((!$vacancy && $user && $user->store_id == $store->id) ? 'selected' : '')
                                                                             }}
                                                                             {{
-                                                                                ($user && $user->store_id == $store->id) ? '' : 'disabled'
+                                                                                ($user && $user->role_id == 6 && $user->store_id != $store->id) ? 'disabled' : ''
                                                                             }}>
                                                                         {{ $store->brand->name }} ({{ $store->name }})
                                                                     </option>

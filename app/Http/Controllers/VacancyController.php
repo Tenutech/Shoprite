@@ -108,23 +108,28 @@ class VacancyController extends Controller
                 // If role_id is 1 or 2, get all positions where id > 1
                 $positions = Position::where('id', '>', 1)->get();
             } elseif ($user->role_id == 3) {
-                // If role_id is 3, get all positions where region_id = user->region_id
-                $positions = Position::whereRelation('users', 'region_id', '=', $user->region_id)
+                // If role_id is 3, get all positions where brand_id is in the stores matching region_id
+                $storeBrandIds = Store::where('region_id', $user->region_id)
+                    ->pluck('brand_id'); // Get the brand_ids of all stores in the user's region
+            
+                // Now get all positions where brand_id is in the store's brand_ids
+                $positions = Position::whereIn('brand_id', $storeBrandIds)
                     ->get();
             } elseif ($user->role_id == 4) {
-                // If role_id is 4, get all positions where division_id = user->division_id
-                $positions = Position::whereRelation('users', 'division_id', '=', $user->division_id)
+                // If role_id is 4, get all positions where brand_id is in the stores matching division_id
+                $storeBrandIds = Store::where('division_id', $user->division_id)
+                    ->pluck('brand_id'); // Get the brand_ids of all stores in the user's division
+            
+                // Now get all positions where brand_id is in the store's brand_ids
+                $positions = Position::whereIn('brand_id', $storeBrandIds)
                     ->get();
             } elseif ($user->role_id == 6) {
-                // If role_id is between 5 and 6, check if the user has a brand_id
+                // If role_id is 6, check if the user has a brand_id
                 if ($user->brand_id) {
                     // Get positions where brand_id matches the user's brand_id
                     $positions = Position::where('brand_id', $user->brand_id)
                         ->get();
                 }
-            } elseif (in_array($user->role_id, [5, 7, 8]) || !$user->brand_id) {
-                // If role_id is 7 or 8, or user does not have a brand_id, return empty collection
-                $positions = collect(); // Already set to empty, just a fallback in case
             }
 
             //Stores logic
@@ -137,24 +142,16 @@ class VacancyController extends Controller
             } elseif ($user->role_id == 3) {
                 // If role_id is 3, get all stores where region_id = user->region_id
                 $stores = Store::with(['brand', 'town'])
-                    ->whereRelation('users', 'region_id', '=', $user->region_id)
+                    ->where('region_id', $user->region_id)
                     ->get();
             } elseif ($user->role_id == 4) {
                 // If role_id is 4, get all stores where division_id = user->division_id
                 $stores = Store::with(['brand', 'town'])
-                    ->whereRelation('users', 'division_id', '=', $user->division_id)
+                    ->where('division_id', $user->division_id)
                     ->get();
             } elseif ($user->role_id == 6) {
-                // If role_id is between 5 and 6, check if the user has a brand_id
-                if ($user->brand_id) {
-                    // Get stores where store_id is = user->store_id
-                    $stores = Store::with(['brand', 'town'])
-                        ->whereRelation('users', 'store_id', '=', $user->store_id)
-                        ->get();
-                }
-            } elseif (in_array($user->role_id, [5, 7, 8])) {
-                // If role_id is 7 or 8, or user does not have a brand_id, return empty collection
-                $stores = collect(); // Already set to empty, just a fallback in case
+                // Get stores where store_id is = user->store_id
+                $stores = Store::with(['brand', 'town'])->find($user->store_id);
             }
 
             //Types
@@ -189,20 +186,31 @@ class VacancyController extends Controller
     {
         $userID = Auth::id();
 
-        $inputData = $request;
-
         $user = User::findorfail($userID);
 
-        $stores = Store::with(['region', 'division'])
+        $inputData = $request;
+
+        // Fetch the selected position and its brand
+        $position = Position::with('brand')
+            ->where('id', $request->position_id)
+            ->firstOrFail(); // Fail if the position doesn't exist
+
+        // Fetch the selected store and its region and division
+        $store = Store::with(['region', 'division'])
             ->where('id', '=', $request->store_id)
             ->first();
 
-        $regionID = $stores->region['id'];
-        $divisionID = $stores->division['id'];
+        $regionID = $store->region_id;
+        $divisionID = $store->division_id;
 
         //Validate Input
         $request->validate([
-            'position_id' => 'required|integer|exists:positions,id', // Ensures the position exists in the positions table
+            'position_id' => ['required', 'integer', 'exists:positions,id', function ($attribute, $value, $fail) use ($store, $position) {
+                // Ensure the position brand_id matches the store brand_id
+                if ($position->brand_id !== $store->brand_id) {
+                    $fail('The position brand does not match the store brand.');
+                }
+            }],
             'open_positions' => 'required|integer|min:1|max:10',     // Minimum 1 and maximum 10
             'sap_numbers' => 'required|array',                        // Should be an array
             'sap_numbers.*' => ['digits:8', function ($attribute, $value, $fail) {
@@ -212,16 +220,16 @@ class VacancyController extends Controller
             }], // Each sap_number should be exactly 8 digits
             // 'store_id' => 'required|integer|exists:stores,id',        // Store ID should exist in stores table
             'type_id' => 'required|integer|exists:types,id',          // Type ID should exist in types table
-            'store_id' => ['required', function ($request, $value, $fail) use ($inputData, $user, $regionID, $divisionID) {
-                // Check if RPP and that user region_id is equal to selected region_id
+            'store_id' => ['required', 'integer', 'exists:stores,id', function ($attribute, $value, $fail) use ($user, $regionID, $divisionID, $inputData) {
+                // Check if RPP and that user region_id is equal to the selected region_id
                 if ($user->role_id == 3 && $user->region_id !== $regionID) {
                     $fail('You are not authorized to create a vacancy at the selected store.');
                 }
-                // Check if DTDP and store_id is equal to user store_id
+                // Check if DTDP and that user division_id is equal to the selected division_id
                 if ($user->role_id == 4 && $user->division_id !== $divisionID) {
                     $fail('You are not authorized to create a vacancy at the selected store.');
                 }
-                // Check if Manager and store_id is equal to user store_id
+                // Check if Manager and that user store_id is equal to the selected store_id
                 if ($user->role_id == 6 && $user->store_id !== (int) $inputData['store_id']) {
                     $fail('You are not authorized to create a vacancy at the selected store.');
                 }
@@ -229,9 +237,6 @@ class VacancyController extends Controller
         ]);
 
         try {
-            //User ID
-            // $userID = Auth::id();
-
             DB::beginTransaction();
 
             // Vacancy Create

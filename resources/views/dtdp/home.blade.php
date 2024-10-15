@@ -147,7 +147,7 @@
                                         Time to Shortlist
                                     </p>
                                     @php
-                                        $totalDays = $divisionWideAveragetimeToShortlist;
+                                        $totalDays = 0;
                                         $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
                                         $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
                                         $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
