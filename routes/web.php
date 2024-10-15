@@ -24,7 +24,7 @@ Auth::routes(['verify' => true]);
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2,3,4', 'user.activity'])->group(function () {
+Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activity'])->group(function () {
     //Home
 
     Route::get('/home', [App\Http\Controllers\AdminController::class, 'index'])->name('admin.home');
