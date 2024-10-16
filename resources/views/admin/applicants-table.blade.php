@@ -1,0 +1,693 @@
+@extends('layouts.master')
+@section('title')
+    @lang('translation.contacts')
+@endsection
+@section('css')
+    <style>
+        .pac-container {
+            z-index: 10000;
+        }
+    </style>
+@endsection
+@section('content')
+    @component('components.breadcrumb')
+        @slot('li_1')
+            Pages
+        @endslot
+        @slot('title')
+            Applicants
+        @endslot
+    @endcomponent
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center flex-wrap gap-2">
+                        <div class="flex-grow-1">
+                            <button class="btn btn-info add-btn d-none" data-bs-toggle="modal" data-bs-target="#applicantsTableModal">
+                                <i class="ri-add-fill me-1 align-bottom"></i>
+                                Add Applicant
+                            </button>
+                        </div>
+                        <div class="flex-shrink-0">
+                            <div class="hstack text-nowrap gap-2">
+                                <button class="btn btn-soft-danger" onClick="deleteMultiple()">
+                                    <i class="ri-delete-bin-2-line"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--end col-->
+        <div class="col-xxl-9">
+            <div class="card" id="applicantsTableList">
+                <div class="card-header">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="search-box">
+                                <input type="text" class="form-control search" placeholder="Search for applicant...">
+                                <i class="ri-search-line search-icon"></i>
+                            </div>
+                        </div>
+                        <div class="col-md-auto ms-auto">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-muted">Sort by: </span>
+                                <select class="form-control mb-0" data-choices data-choices-search-false id="choices-single-default">
+                                    <option value="Name">Name</option>
+                                    <option value="Department">Department</option>
+                                    <option value="Job">Job</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-auto">
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="text-muted">Display: </span>
+                                <select class="form-control mb-0" id="per-page-select" data-choices data-choices-search-false>
+                                    <option value="10" selected>10</option>
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="{{count($applicants)}}">All</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div>
+                        <div class="table-responsive table-card mb-3">
+                            <table class="table align-middle table-nowrap mb-0" id="applicantsTable">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col" style="width: 50px;">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" id="checkAll" value="option">
+                                            </div>
+                                        </th>
+                                        <th class="sort d-none" data-sort="id" scope="col">ID</th>
+                                        <th class="sort" data-sort="name" scope="col">Name</th>
+                                        <th class="sort" data-sort="id_number" scope="col">ID Number</th>
+                                        <th class="sort" data-sort="phone" scope="col">Phone</th>
+                                        <th class="sort" data-sort="employment" scope="col">Employment</th>
+                                        <th class="sort" data-sort="state_id" scope="col">State</th>
+                                        <th class="sort d-none" data-sort="id_verified" scope="col">ID Verified</th>
+                                        <th class="sort d-none" data-sort="under_18" scope="col">Under 18</th>
+                                        <th class="sort d-none" data-sort="location" scope="col">Location</th>
+                                        <th class="sort d-none" data-sort="town" scope="col">town</th>
+                                        <th class="sort d-none" data-sort="birth_date" scope="col">Birth Date</th>
+                                        <th class="sort d-none" data-sort="age" scope="col">Age</th>
+                                        <th class="sort d-none" data-sort="gender_id" scope="col">Gender</th>
+                                        <th class="sort d-none" data-sort="race_id" scope="col">Race</th>
+                                        <th class="sort d-none" data-sort="email" scope="col">email</th>
+                                        <th class="sort d-none" data-sort="disability" scope="col">Disability</th>
+                                        <th class="sort d-none" data-sort="education_id" scope="col">Education</th>
+                                        <th class="sort d-none" data-sort="duration_id" scope="col">Duration</th>
+                                        <th class="sort d-none" data-sort="location_type" scope="col">Location Type</th>
+                                        <th class="sort d-none" data-sort="literacy_score" scope="col">Literacy Score</th>
+                                        <th class="sort d-none" data-sort="numeracy_score" scope="col">Numeracy Score</th>
+                                        <th class="sort d-none" data-sort="situational_score" scope="col">Situation Score</th>
+                                        <th class="sort d-none" data-sort="score" scope="col">Score</th>
+                                        <th class="sort d-none" data-sort="applicant_type_id" scope="col">Applicant Type</th>
+                                        <th class="sort d-none" data-sort="shortlist_id" scope="col">Shortlist</th>
+                                        <th class="sort d-none" data-sort="apointed_id" scope="col">Appointed</th>
+                                        <th class="sort d-none" data-sort="no_show" scope="col">No Show</th>
+                                        <th class="sort d-none" data-sort="checkpoint" scope="col">Checkpoint</th>
+                                        <td class="sort d-none" data-sort="role" scope="col">Role</th>
+                                        <th scope="col">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="list form-check-all" style="height:200px;">
+                                    @if($applicants && count($applicants) > 0)
+                                        @foreach ($applicants as $key => $applicant)
+                                            <tr style="vertical-align:top;">
+                                                <th scope="row">
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
+                                                    </div>
+                                                </th>
+                                                <td class="id d-none">{{ Crypt::encryptstring($applicant->id) }}</td>
+                                                @if (isset($applicant->interviews) && count($applicant->interviews) > 0)
+                                                    <td class="interview_applicant_id d-none">{{ Crypt::encryptstring($applicant->id) }}</td>
+                                                @else
+                                                    <td class="interview_applicant_id d-none"></td>
+                                                @endif
+                                                <td class="name">
+                                                    <div class="d-flex align-items-center">
+                                                        <div class="flex-shrink-0">
+                                                            <img src="{{ URL::asset('images/' . $applicant->avatar) }}" alt="" class="avatar-xs rounded-circle">
+                                                        </div>
+                                                        <div class="flex-grow-1 ms-2 name">{{ $applicant->firstname }} {{ $applicant->lastname }}</div>
+                                                    </div>
+                                                </td>
+                                                <td class="id_number">{{ $applicant->id_number }}</td>
+                                                <td class="phone">{{ $applicant->phone }}</td>
+                                                <td class="employment">
+                                                    @php
+                                                        $employment = '';
+                                                        switch ($applicant->employment) {
+                                                            case 'A':
+                                                                $employment = 'Active Employee';
+                                                                break;
+                                                            case 'B':
+                                                                $employment = 'Blacklisted';
+                                                                break;
+                                                            case 'P':
+                                                                $employment = 'Previously Employed';
+                                                                break;
+                                                            case 'N':
+                                                                $employment = 'Not an Employee';
+                                                                break;
+                                                            case 'I':
+                                                            default:
+                                                                $employment = 'Inconclusive';
+                                                                break;
+                                                        }
+                                                    @endphp
+                                                    {{ $employment }}
+                                                </td>
+                                                <td class="state">{{ $applicant->state_id ? $applicant->state->name : '' }}</td>
+                                                <td class="id_verified d-none">{{ $applicant->id_verified }}</td>
+                                                <td class="public_holidays d-none">{{ $applicant->public_holidays }}</td>
+                                                <td class="environment d-none">{{ $applicant->environment }}</td>
+                                                <td class="under_18 d-none">{{ $applicant->under_18 }}</td>
+                                                <td class="location d-none">{{ $applicant->location }}</td>
+                                                <td class="town d-none">{{ $applicant->town_id ? $applicant->town->name : '' }}</td>
+                                                <td class="birth_date d-none">{{ $applicant->birth_date }}</td>
+                                                <td class="age d-none">{{ $applicant->age }}</td>
+                                                <td class="gender d-none">{{ $applicant->gender->name }}</td>
+                                                <td class="race d-none">{{ $applicant->race_id ? $applicant->race->name : '' }}</td>
+                                                <td class="email d-none">{{ $applicant->email }}</td>
+                                                <td class="disability d-none">{{ $applicant->disability }}</td>
+                                                <td class="education d-none">{{ $applicant->education_id ? $applicant->education->name : '' }}</td>
+                                                <td class="duration d-none">{{ $applicant->duration_id ? $applicant->duration->name : '' }}</td>
+                                                <td class="location_type d-none">{{ $applicant->location_type }}</td>
+                                                @if (isset($applicant->applicantType) && !empty($applicant->applicantType))
+                                                    <td class="applicantType d-none">{{ $applicant->applicantType->name ? $applicant->applicantType->name : ''}}</td>
+                                                @else
+                                                    <td class="applicantType d-none">{{ '' }}</td>
+                                                @endif
+                                                <td class="publicHolidays d-none">{{ $applicant->public_holidays ? $applicant->public_holidays : 'N/A' }}</td>
+                                                <td class="literacyScore d-none">{{ $applicant->literacy_score ? $applicant->literacy_score : 'N/A' }}</td>
+                                                <td class="numeracyScore d-none">{{ $applicant->numeracy_score ? $applicant->numeracy_score : 'N/A' }}</td>
+                                                <td class="situationalScore d-none">{{ $applicant->situational_score ? $applicant->situational_score : 'N/A' }}</td>
+                                                <td class="overallScore d-none">{{ $applicant->score ? $applicant->score : 'N/A' }}</td>
+                                                <td class="shortlist d-none">{{ $applicant->shortlist_id ? $applicant->shortlist->id : '' }}</td>
+                                                <td class="apointed d-none" >{{ $applicant->applicant_id ? $applicant->vacancyFill->applicant_id : ''  }}</td>
+                                                <td class="no_show d-none">{{ $applicant->no_show }}</td>
+                                                <td class="checkpoint d-none">{{ $applicant->checkpoint }}</td>
+                                                <td class="role d-none">{{ $applicant->role_id ? $applicant->role->name : ''  }}</td>
+                                                <td>
+                                                    <ul class="list-inline hstack gap-2 mb-0">
+                                                        <li class="list-inline-item">
+                                                            <div class="dropdown">
+                                                                <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                    <i class="ri-more-fill align-middle"></i>
+                                                                </button>
+                                                                <ul class="dropdown-menu dropdown-menu-end">
+                                                                    <li>
+                                                                        <a class="dropdown-item view-item-btn" href="javascript:void(0);">
+                                                                            <i class="ri-eye-fill align-bottom me-2 text-muted"></i>
+                                                                            View
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item edit-item-btn" href="#applicantsTableModal" data-bs-toggle="modal">
+                                                                            <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
+                                                                            Edit
+                                                                        </a>
+                                                                    </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item remove-item-btn" data-bs-toggle="modal" href="#deleteRecordModal">
+                                                                            <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
+                                                                            Delete
+                                                                        </a>
+                                                                    </li>
+                                                                </ul>
+                                                            </div>
+                                                        </li>
+                                                    </ul>
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                    @else
+                                        <tr style="vertical-align:top;">
+                                            <th scope="row">
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
+                                                </div>
+                                            </th>
+                                            <td class="id d-none"></td>
+                                            <td class="id_number"></td>
+                                            <td class="phone"></td>
+                                            <td class="employment"></td>
+                                            <td class="state"></td>
+                                            <td class="id_verified d-none"></td>
+                                            <td class="under_18 d-none"></td>
+                                            <td class="location d-none"></td>
+                                            <td class="town_id d-none"></td>
+                                            <td class="birth_date d-none"></td>
+                                            <td class="age d-none"></td>
+                                            <td class="gender_id d-none"></td>
+                                            <td class="race_id d-none"></td>
+                                            <td class="email d-none"></td>
+                                            <td class="disability d-none"></td>
+                                            <td class="education_id d-none"></td>
+                                            <td class="duration_id d-none"></td>
+                                            <td class="location_type d-none"></td>
+                                            <td class="literacy_score d-none"></td>
+                                            <td class="numeracy_score d-none"></td>
+                                            <td class="situational_score d-none"></td>
+                                            <td class="score d-none"></td>
+                                            <td class="applicant_type_id d-none"></td>
+                                            <td class="shortlist_id d-none"></td>
+                                            <td class="apointed_id d-none" ></td>
+                                            <td class="no_show d-none"></td>
+                                            <td class="employment d-none"></td>
+                                            <td class="checkpoint d-none"></td>
+                                            <td>
+                                                <ul class="list-inline hstack gap-2 mb-0">
+                                                    <li class="list-inline-item">
+                                                        <div class="dropdown">
+                                                            <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                                                <i class="ri-more-fill align-middle"></i>
+                                                            </button>
+                                                            <ul class="dropdown-menu dropdown-menu-end">
+                                                                <li>
+                                                                    <a class="dropdown-item view-item-btn" href="javascript:void(0);">
+                                                                        <i class="ri-eye-fill align-bottom me-2 text-muted"></i>
+                                                                        View
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a class="dropdown-item edit-item-btn" href="#applicantsTableModal" data-bs-toggle="modal">
+                                                                        <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
+                                                                        Edit
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a class="dropdown-item remove-item-btn" data-bs-toggle="modal" href="#deleteRecordModal">
+                                                                        <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
+                                                                        Delete
+                                                                    </a>
+                                                                </li>
+                                                            </ul>
+                                                        </div>
+                                                    </li>
+                                                </ul>
+                                            </td>
+                                        </tr>
+                                    @endif
+                                </tbody>
+                            </table>
+                            <div class="noresult" style="display: none">
+                                <div class="text-center">
+                                    <lord-icon src="https://cdn.lordicon.com/msoeawqm.json"
+                                        trigger="loop" colors="primary:#121331,secondary:#08a88a"
+                                        style="width:75px;height:75px">
+                                    </lord-icon>
+                                    <h5 class="mt-2">
+                                        Sorry! No Result Found
+                                    </h5>
+                                    <p class="text-muted mb-0">
+                                        We've searched all the users. We did not find any users for you search.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="d-flex justify-content-end mt-3">
+                            <div class="pagination-wrap hstack gap-2">
+                                <a class="page-item pagination-prev disabled">
+                                    Previous
+                                </a>
+                                <ul class="pagination listjs-pagination mb-0"></ul>
+                                <a class="page-item pagination-next">
+                                    Next
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal Applicant -->
+                    <div class="modal fade zoomIn" id="applicantsTableModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered modal-xl">
+                            <div class="modal-content border-0">
+                                <div class="modal-header p-3 bg-soft-primary-rainbow">
+                                    <h5 class="modal-title" id="exampleModalLabel">
+                                        Add Applicant
+                                    </h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
+                                </div>
+                                <form id="formApplicant" action="post" enctype="multipart/form-data">
+                                    @csrf
+                                    <div class="modal-body">
+                                        <input type="hidden" id="field-id" name="field_id"/>
+                                        <div class="row g-3">
+                                            <div class="col-lg-12 mb-3 d-flex align-items-center justify-content-center h-100">
+                                                <div class="text-left">
+                                                    <div class="position-relative d-inline-block">
+                                                        <div class="position-absolute  bottom-0 end-0">
+                                                            <label for="avatar" class="mb-0"  data-bs-toggle="tooltip" data-bs-placement="right" title="Select Image">
+                                                                <div class="avatar-xs cursor-pointer">
+                                                                    <div class="avatar-title bg-light border rounded-circle text-muted">
+                                                                        <i class="ri-image-fill"></i>
+                                                                    </div>
+                                                                </div>
+                                                            </label>
+                                                            <input class="form-control d-none" value="" id="avatar" name="avatar" type="file" accept=".jpg, .jpeg, .png">
+                                                        </div>
+                                                        <div class="avatar-xg p-1">
+                                                            <div class="avatar-title bg-light rounded-circle">
+                                                                <img src="{{ URL::asset('build/images/users/user-dummy-img.jpg') }}" alt="" id="profile-img" class="avatar-lg rounded-circle object-cover">
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!--end col-->
+
+                                            <div class="col-lg-6">
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="firstname" class="form-label">
+                                                        Firstname
+                                                    </label>
+                                                    <input type="text" id="firstname" name="firstname" class="form-control" placeholder="Enter first name" required/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="email" class="form-label">
+                                                        Email
+                                                    </label>
+                                                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter email address" required/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="idNumber" class="form-label">
+                                                        ID Number
+                                                    </label>
+                                                    <input type="text" id="idNumber" name="id_number" class="form-control" placeholder="Enter id number" required/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="birthDate" class="form-label">
+                                                        Birth Date
+                                                    </label>
+                                                    <input type="date" id="birthDate" name="birth_date" class="form-control" placeholder="Enter date of birth"/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="gender" class="form-label">
+                                                        Gender
+                                                    </label>
+                                                    <select id="gender" name="gender_id" class="form-control">
+                                                        <option value="" selected>Select Gender</option>
+                                                        @foreach ($genders as $gender)
+                                                            <option value="{{ $gender->id }}">{{ $gender->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="location" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="What is your current home address where you stay/live 🏡? Please type every detail. (e.g. street number, street name, suburb, town, postal code).">
+                                                        Address
+                                                    </label>
+                                                    <input type="text" class="form-control" id="locationAddress" name="location" placeholder="Enter home address" data-google-autocomplete autocomplete="off" required />
+                                                    <div class="invalid-feedback">
+                                                        Please enter your home address!
+                                                    </div>
+                                                    <input type="hidden" id="latitude" name="latitude" value="">
+                                                    <input type="hidden" id="longitude" name="longitude" value="">
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="duration" class="form-label">
+                                                        Duration Type
+                                                    </label>
+                                                    <select id="duration" name="duration_id" class="form-control">
+                                                        <option value="" selected>Select Duration Type</option>
+                                                        @foreach ($durations as $duration)
+                                                            <option value="{{ $duration->id }}">{{ $duration->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="publicHolidays" class="form-label">
+                                                        Public Holidays
+                                                    </label>
+                                                    <select id="publicHolidays" name="public_holidays" class="form-control">
+                                                        <option value="" selected>Select Option</option>
+                                                        <option value="No">No</option>
+                                                        <option value="Yes">Yes</option>
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="environment" class="form-label">
+                                                        Environment
+                                                    </label>
+                                                    <select id="environment" name="environment" class="form-control">
+                                                        <option value="" selected>Select Option</option>
+                                                        <option value="No">No</option>
+                                                        <option value="Yes">Yes</option>
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="state" class="form-label">
+                                                        State
+                                                    </label>
+                                                    <select id="state" name="state_id" class="form-control">
+                                                        <option value="" selected>Select Applicant State</option>
+                                                        @foreach ($states as $state)
+                                                            <option value="{{ $state->id }}">{{ $state->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                            </div>
+
+                                            <div class="col-lg-6">
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="lastname" class="form-label">
+                                                        Lastname
+                                                    </label>
+                                                    <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Enter last name" required/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="phone" class="form-label">
+                                                        Phone
+                                                    </label>
+                                                    <input type="text" id="phone" name="phone" class="form-control" placeholder="Enter phone number" required/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="idVerified" class="form-label">
+                                                        ID Verified
+                                                    </label>
+                                                    <select id="idVerified" name="id_verified" class="form-control">
+                                                        <option value="" selected>Select Option</option>
+                                                        <option value="No">No</option>
+                                                        <option value="Yes">Yes</option>
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="age" class="form-label">
+                                                        Age
+                                                    </label>
+                                                    <input type="number" id="age" name="age" class="form-control" placeholder="Enter age" max="100" min="16"/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="race" class="form-label">
+                                                        Ethnicity
+                                                    </label>
+                                                    <select id="race" name="race_id" class="form-control">
+                                                        <option value="" selected>Select Ethnicity</option>
+                                                        @foreach ($races as $race)
+                                                            <option value="{{ $race->id }}">{{ $race->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="employment" class="form-label">
+                                                        Employment Status
+                                                    </label>
+                                                    <select id="employment" name="employment" class="form-control">
+                                                        <option value="" selected>Select Employment Status</option>
+                                                        <option value="A">Active Employee</option>
+                                                        <option value="B">Blacklisted</option>
+                                                        <option value="P">Previously Employed</option>
+                                                        <option value="N">Not an Employee</option>
+                                                        <option value="I">Inconclusive</option>
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="education" class="form-label">
+                                                        Education
+                                                    </label>
+                                                    <select id="education" name="education_id" class="form-control">
+                                                        <option value="" selected>Select Education</option>
+                                                        @foreach ($educations as $education)
+                                                            <option value="{{ $education->id }}">{{ $education->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="brand" class="form-label">
+                                                        Brand
+                                                    </label>
+                                                    <select id="brand" name="brand_id" class="form-control">
+                                                        <option value="" selected>Select Brand</option>
+                                                        @foreach ($brands as $brand)
+                                                            <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="disability" class="form-label">
+                                                        Disability
+                                                    </label>
+                                                    <select id="disability" name="disability" class="form-control">
+                                                        <option value="" selected>Select Option</option>
+                                                        <option value="No">No</option>
+                                                        <option value="Yes">Yes</option>
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="applicantType" class="form-label">
+                                                        Applicant Type
+                                                    </label>
+                                                    <select id="applicantType" name="applicant_type_id" class="form-control">
+                                                        <option value="" selected>Select Applicant Type</option>
+                                                        @foreach ($applicantTypes as $applicantType)
+                                                            <option value="{{ $applicantType->id }}">{{ $applicantType->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                            </div>
+                                            <!--end col-->
+                                        </div>
+                                        <!--end row-->
+                                    </div>
+                                    <div class="modal-footer">
+                                        <div class="hstack gap-2 justify-content-end">
+                                            <button type="button" class="btn btn-light" id="close-modal" data-bs-dismiss="modal">Close</button>
+                                            <button type="submit" class="btn btn-success" id="add-btn">Add Applicant</button>
+                                            <button type="button" class="btn btn-success" id="edit-btn">Update Applicant</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end modal-->
+
+                    <div class="modal fade zoomIn" id="deleteRecordModal" tabindex="-1"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="btn-close" id="deleteRecord-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
+                                </div>
+                                <div class="modal-body p-5 text-center">
+                                    <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px"></lord-icon>
+                                    <div class="mt-4 text-center">
+                                        <h4 class="fs-semibold">
+                                            You are about to delete this user ?
+                                        </h4>
+                                        <p class="text-muted fs-14 mb-4 pt-1">
+                                            Deleting this user will remove all of their information from the database.
+                                        </p>
+                                        <div class="hstack gap-2 justify-content-center remove">
+                                            <button class="btn btn-danger" data-bs-dismiss="modal" id="deleteRecord-close">
+                                                <i class="ri-close-line me-1 align-middle"></i>
+                                                Close
+                                            </button>
+                                            <button class="btn btn-primary" id="delete-user">
+                                                Yes, Delete!!
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!--end delete modal -->
+                </div>
+            </div>
+            <!--end card-->
+        </div>
+        <!--end col-->
+        <div class="col-xxl-3">
+            <div class="card" id="contact-view-detail">
+                <div class="card-body text-center">
+                    <div class="position-relative d-inline-block">
+                        <img src="{{ URL::asset('build/images/users/user-dummy-img.jpg') }}" alt=""
+                            class="avatar-lg rounded-circle img-thumbnail">
+                        <span class="contact-active position-absolute rounded-circle bg-success"><span
+                                class="visually-hidden"></span>
+                    </div>
+                    <h5 class="mt-4 mb-1"></h5>
+                    <p class="text-muted"></p>
+                </div>
+                <div class="card-body">
+                    <h6 class="text-muted text-uppercase fw-semibold mb-3">Personal Information</h6>
+                    <div class="table-responsive table-card">
+                        <table class="table table-borderless mb-0">
+                            <tbody>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Email</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Phone</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">ID Number</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Age</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Gender</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Role</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Status</td>
+                                    <td></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!--end card-->
+        </div>
+        <!--end col-->
+    </div>
+    <!--end row-->
+@endsection
+@section('script')
+    <script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
+    <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/applicants-table.init.js') }}"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.googlemaps.key') }}&libraries=places"></script>
+    <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+    <script src="{{ URL::asset('build/js/app.js') }}"></script>
+@endsection

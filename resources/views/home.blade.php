@@ -141,26 +141,26 @@
                                                 <div class="mb-4">
                                                     <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" state="hover-2" colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
                                                 </div>
-                                                
+
                                                 <h5 class="mb-3">Welcome to our store <b><em>employment journey</em></b>!</h5>
-                                                
+
                                                 <p class="text-muted">
                                                     This process will take about 20 minutes, so please find a quiet spot to focus and carefully answer each question.
                                                 </p>
-                                                
+
                                                 <p class="text-muted">
-                                                    By continuing, you acknowledge and <b><em>consent</em></b> to our terms and conditions of employment as part of your application 
-                                                    with the Shoprite Group of Companies, and you give <b><em>consent</em></b> for credential verification checks, including 
+                                                    By continuing, you acknowledge and <b><em>consent</em></b> to our terms and conditions of employment as part of your application
+                                                    with the Shoprite Group of Companies, and you give <b><em>consent</em></b> for credential verification checks, including
                                                     criminal checks, to be conducted.
                                                 </p>
-                                            
+
                                                 <p class="text-muted">
-                                                    You can view the T's and C's here: 
+                                                    You can view the T's and C's here:
                                                     <a href="https://bit.ly/srtscsnew" class="text-primary text-decoration-underline fst-normal fw-medium" target="_blank">
                                                         Terms and Conditions
                                                     </a>.
                                                 </p>
-                                            
+
                                                 <!-- Centered Label and Checkbox -->
                                                 <div class="text-center mt-3">
                                                     <!-- Label above checkbox -->
@@ -168,7 +168,7 @@
                                                         I agree to the terms and conditions, and I consent to the credential verification checks.
                                                         <span class="text-danger">*</span>
                                                     </label>
-                                                    
+
                                                     <!-- Larger centered checkbox on a new line -->
                                                     <div>
                                                         <input class="form-check-input" type="checkbox" id="consent" name="consent" required style="transform: scale(1.5);">
@@ -177,12 +177,12 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            
+
                                                 <!-- Start button -->
                                                 <div class="mt-4">
-                                                    <button type="button" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill nexttab" 
+                                                    <button type="button" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill nexttab"
                                                             data-nexttab="v-pills-personal-tab">
-                                                        <i class="ri-play-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-play-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         Start!
                                                     </button>
                                                 </div>
@@ -211,7 +211,7 @@
                                                                                 <i class="ri-image-fill"></i>
                                                                             </div>
                                                                         </div>
-                                                                    </label> 
+                                                                    </label>
                                                                     <input class="form-control d-none" value="" id="avatar" name="avatar" type="file" accept="image/png, image/gif, image/jpeg">
                                                                 </div>
                                                                 <div class="avatar-xg p-1">
@@ -219,14 +219,14 @@
                                                                         <img src="{{ URL::asset($user->applicant ? ($user->applicant->avatar ? $user->applicant->avatar : 'images/avatar.jpg') : ($user->avatar ? 'images/'.$user->avatar : 'images/avatar.jpg')) }}" alt="" id="preview" class="avatar-lg rounded-circle object-cover" >
                                                                     </div>
                                                                 </div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
                                                         <label for="avatar" class="form-label">
                                                             Please upload a clear picture of your South African ID. (Max 5MB)
                                                             <span class="badge bg-secondary-subtle text-secondary badge-border">
                                                                 Optional
                                                             </span>
-                                                        </label>                                                  
+                                                        </label>
                                                     </div>
 
                                                     <!-- Fistname -->
@@ -242,7 +242,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <!-- Lastname -->
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
@@ -275,7 +275,7 @@
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
                                                             <label for="phone" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Please provide the phone number that we can contact you via WhatsApp.">
-                                                                Phone Number 
+                                                                Phone Number
                                                                 <span class="text-danger">*</span>
                                                             </label>
                                                             <div class="input-group" data-input-flag>
@@ -327,7 +327,7 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select your ethnicity!</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Email -->
@@ -340,8 +340,8 @@
                                                                 </span>
                                                             </label>
                                                             <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address" value="{{ $user->applicant ? $user->applicant->email : ($user->email ? $user->email : '') }}" />
-                                                        </div>                                                        
-                                                    </div>                                                
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -372,7 +372,7 @@
 
                                             <div>
                                                 <div class="row gy-3">
-                                                    
+
                                                     <!-- Education -->
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
@@ -383,14 +383,14 @@
                                                             <select class="form-control" id="education" name="education_id" required>
                                                                 <option value="">Select education level</option>
                                                                 @foreach ($educations as $education)
-                                                                    <option value="{{ $education->id }}" 
+                                                                    <option value="{{ $education->id }}"
                                                                         {{ ($user->applicant && $user->applicant->education_id == $education->id) ? 'selected' : '' }}>
                                                                         {{ $education->id == 2 ? 'Grade 10 / Grade 11' : $education->name }}
                                                                     </option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select an qualification option!</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Experience Duration -->
@@ -407,7 +407,7 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select an experience option!</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Public Holidays -->
@@ -460,7 +460,7 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select a brand!</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Disability -->
@@ -476,7 +476,7 @@
                                                                 <option value="No" {{ ($user->applicant && $user->applicant->disability == 'No') ? 'selected' : '' }}>No</option>
                                                             </select>
                                                             <div class="invalid-feedback">Please select a answer!</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -543,7 +543,7 @@
                                                                     <option value="e">e</option>
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select an answer!</div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
                                                         @php $literacyQuestionNumber++; @endphp <!-- Increment the literacy question number for the next iteration -->
                                                     @endforeach
@@ -584,20 +584,20 @@
                                                             // Find the position of the first question mark or line break
                                                             $firstQuestionMarkPos = strpos($question->message, '?');
                                                             $firstLineBreakPos = strpos($question->message, "\n");
-                                                    
+
                                                             // Determine where to insert the <span> based on your preference
                                                             $insertPos = $firstQuestionMarkPos !== false ? $firstQuestionMarkPos + 1 : $firstLineBreakPos;
-                                                    
+
                                                             // Insert the <span> tag
                                                             if ($insertPos !== false) {
                                                                 $question->message = substr_replace($question->message, ' <span class="text-danger">*</span>', $insertPos, 0);
                                                             }
-                                                    
+
                                                             // Convert line breaks to <br> tags without escaping the message
                                                             $formattedMessage = nl2br($question->message);
                                                             $formattedMessage = str_replace('*', '', $formattedMessage);
                                                         @endphp
-                                                    
+
                                                         <div class="col-md-12">
                                                             <div class="mb-3">
                                                                 <label for="numeracyQuestion-{{ $question->id }}" class="form-label">
@@ -612,7 +612,7 @@
                                                                     <option value="e">e</option>
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select an answer!</div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
                                                         @php $numeracyQuestionNumber++; @endphp <!-- Increment the numeracy question number for the next iteration -->
                                                     @endforeach
@@ -647,26 +647,26 @@
                                             <div>
                                                 <div class="row gy-3">
                                                     @php $situationalQuestionNumber = 1; @endphp <!-- Initialize a situational question number counter outside the loop -->
-                                        
+
                                                     @foreach ($situationalQuestions as $question)
                                                         @php
                                                             // Find the position of the first question mark or line break
                                                             $firstQuestionMarkPos = strpos($question->message, '?');
                                                             $firstLineBreakPos = strpos($question->message, "\n");
-                                        
+
                                                             // Determine where to insert the <span> based on your preference
                                                             $insertPos = $firstQuestionMarkPos !== false ? $firstQuestionMarkPos + 1 : $firstLineBreakPos;
-                                        
+
                                                             // Insert the <span> tag
                                                             if ($insertPos !== false) {
                                                                 $question->message = substr_replace($question->message, ' <span class="text-danger">*</span>', $insertPos, 0);
                                                             }
-                                        
+
                                                             // Convert line breaks to <br> tags without escaping the message
                                                             $formattedMessage = nl2br($question->message);
                                                             $formattedMessage = str_replace('*', '', $formattedMessage);
                                                         @endphp
-                                        
+
                                                         <div class="col-md-12">
                                                             <div class="mb-3">
                                                                 <label for="situationalQuestion-{{ $question->id }}" class="form-label">
@@ -680,7 +680,7 @@
                                                                     <option value="d">d</option>
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select an answer!</div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
                                                         @php $situationalQuestionNumber++; @endphp <!-- Increment the situational question number for the next iteration -->
                                                     @endforeach
@@ -719,11 +719,11 @@
                                                         You are about to update your application with new information.
                                                     </p>
                                                     <button type="submit" id="updateBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         Yes, Update !
                                                     </button>
                                                     <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         View Application
                                                     </a>
                                                 </div>
@@ -745,14 +745,14 @@
                                                         After successful submission you will be notified should you qualify fo an interview.
                                                     </p>
                                                     <button type="button" id="cancelBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
-                                                        <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         No, Cancel
                                                     </button>
                                                     <button type="submit" id="submitBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         Yes, Submit!
                                                     </button>
-                                                </div>                                            
+                                                </div>
 
                                                 <!-- Loading -->
                                                 <div class="text-center pt-4 pb-2 d-none" id="loading">
@@ -768,11 +768,11 @@
                                                     </div>
                                                     <h5 id="completeHeading">Application Submitted!</h5>
                                                     <p class="text-muted" id="completeText">
-                                                        Your application has been submitted successfully, you will be notified should you qualify 
+                                                        Your application has been submitted successfully, you will be notified should you qualify
                                                         for an interview
                                                     </p>
                                                     <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         View Application
                                                     </a>
                                                 </div>
@@ -787,7 +787,7 @@
                                                         Thank you for your interest in a position at the Shoprite Group of Companies. You are not eligible for this position. Have a wonderful day!
                                                     </p>
                                                     <a type="button" href="{{ route('profile.index') }}" id="view-application-2" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         View Application
                                                     </a>
                                                 </div>
