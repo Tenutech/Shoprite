@@ -74,6 +74,10 @@ it('calculates the nationwide average time to hire within a date range', functio
 });
 
 it('it calculates the store-specific average time to shortlist', function () {
+
+    $startDate = now()->subDays(20)->format('Y-m-d');
+    $endDate = now()->format('Y-m-d');
+
     $store = Store::factory()->create(['id' => 1]);
     $user = User::factory()->create(['id' => 1]);
    
@@ -90,15 +94,15 @@ it('it calculates the store-specific average time to shortlist', function () {
     );
 
     $vacancyDataService = app(VacancyDataService::class);
-    $storeAverage = $vacancyDataService->getStoreAverageTimeToShortlist(1);
+    $storeAverage = $vacancyDataService->getStoreAverageTimeToShortlist(1, $startDate, $endDate);
   
-    $expectedAverage = 13;
+    $expectedAverage = '25D 0H 0M';
 
-    expect($storeAverage)->toBeGreaterThanOrEqual($expectedAverage - 0.1);
-    expect($storeAverage)->toBeLessThanOrEqual($expectedAverage + 0.1);
+    expect($storeAverage)->toBe($expectedAverage);
 });
 
-it('calculates the time-filtered average time to shortlist', function () {
+it('calculates the time-filtered average time to shortlist', function () { 
+    
     $store = Store::factory()->create(['id' => 1]);
     $user = User::factory()->create(['id' => 1]);
    
@@ -118,6 +122,10 @@ it('calculates the time-filtered average time to shortlist', function () {
 });
 
 it('calculates the store-specific average time to shortlist', function () {
+
+    $startDate = now()->subDays(20)->format('Y-m-d');
+    $endDate = now()->format('Y-m-d');     
+
     $store = Store::factory()->create(['id' => 1]);
     User::factory()->create(['id' => 1]);
 
@@ -128,12 +136,11 @@ it('calculates the store-specific average time to shortlist', function () {
     Shortlist::factory()->create(['vacancy_id' => $vacancy2->id, 'created_at' => now()->subDays(3)]);
 
     $vacancyDataService = app(VacancyDataService::class);
-    $storeAverage = $vacancyDataService->getStoreAverageTimeToShortlist(1);
+    $storeAverage = $vacancyDataService->getStoreAverageTimeToShortlist(1, $startDate, $endDate);
 
-    $expectedAverage = 15;
-    
-    expect($storeAverage)->toBeGreaterThanOrEqual($expectedAverage - 0.1);
-    expect($storeAverage)->toBeLessThanOrEqual($expectedAverage + 0.1);
+    $expectedAverage = '30D 0H 0M';
+
+    expect($storeAverage)->toBe($expectedAverage);
 });
 
 it('calculates the division-wide average time to shortlist', function () {

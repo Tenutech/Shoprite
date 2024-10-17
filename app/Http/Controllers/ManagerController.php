@@ -5,35 +5,28 @@ namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Store;
-use App\Models\Message;
-use App\Models\Vacancy;
-use App\Models\Position;
-use App\Models\Interview;
-use App\Models\Applicant;
-use App\Models\Application;
 use App\Models\Shortlist;
+use App\Models\Setting;
 use App\Models\ReminderSetting;
-use App\Models\ApplicantTotalData;
-use App\Models\ApplicantMonthlyData;
-use App\Models\ApplicantMonthlyStoreData;
 use App\Services\DataService\ApplicantDataService;
 use App\Services\DataService\ApplicantProximityService;
 use App\Services\DataService\VacancyDataService;
-use Illuminate\Support\Arr;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\App;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Support\Facades\Session;
-use Spatie\Activitylog\Models\Activity;
+use Illuminate\Support\Facades\Log;
 
 class ManagerController extends Controller
 {
+    protected $applicantDataService;
+    protected $applicantProximityService;
+    protected $vacancyDataService;
+
     /**
-     * Create a new controller instance.
+     * Constructor method to initialize services and apply middleware.
      *
+     * @param ApplicantDataService $applicantDataService
+     * @param ApplicantProximityService $applicantProximityService
+     * @param VacancyDataService $vacancyDataService
      * @return void
      */
     public function __construct(
@@ -41,72 +34,34 @@ class ManagerController extends Controller
         ApplicantProximityService $applicantProximityService,
         VacancyDataService $vacancyDataService
     ) {
+        // Apply 'auth' and 'verified' middleware to ensure user is authenticated and verified
         $this->middleware(['auth', 'verified']);
+
+        // Inject required services
         $this->applicantDataService = $applicantDataService;
         $this->applicantProximityService = $applicantProximityService;
         $this->vacancyDataService = $vacancyDataService;
     }
 
     /**
-     * Show the application dashboard.
+     * Display the manager dashboard.
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-
-    /*
-    |--------------------------------------------------------------------------
-    | Manager Index
-    |--------------------------------------------------------------------------
-    */
-
-    public function index(Request $request)
+    public function index()
     {
+        // Check if the 'manager/home' view exists
         if (view()->exists('manager/home')) {
-            // Retrieve the ID of the currently authenticated user.
+            // Retrieve the ID of the currently authenticated user
             $authUserId = Auth::id();
 
-            //Auth User
+            // Fetch the authenticated user
             $authUser = User::find($authUserId);
 
-            //Store
-            $store = Store::with([
-                'brand',
-                'town',
-                'region',
-                'division'
-            ])
-            ->where('id', $authUser->store_id)
-            ->first();
-
-            //Vacancies
-            $vacancies = Vacancy::with([
-                'user',
-                'position.tags',
-                'store.brand',
-                'store.town',
-                'type',
-                'status',
-                'applicants.applicant',
-                'applications',
-                'savedBy' => function ($query) use ($authUserId) {
-                    $query->where('user_id', $authUserId);
-                }
-            ])
-            ->withCount(['applications as total_applications'])
-            ->withCount(['applications as applications_approved' => function ($query) {
-                $query->where('approved', 'Yes');
-            }])
-            ->withCount(['applications as applications_rejected' => function ($query) {
-                $query->where('approved', 'No');
-            }])
-            ->where('user_id', $authUserId)
-            ->orderBy('created_at', 'desc')
-            ->get()
-            ->map(function ($vacancy) {
-                $vacancy->encrypted_id = Crypt::encryptString($vacancy->id);
-                $vacancy->encrypted_user_id = Crypt::encryptString($vacancy->user_id);
-                return $vacancy;
-            });
+            // Fetch the store with its related brand, town, region, and division
+            $store = Store::with(['brand', 'town', 'region', 'division'])
+                ->where('id', $authUser->store_id)
+                ->first();
 
             // Get the delay from ReminderSetting where type is 'shortlist_created_no_interview'
             $reminderSetting = ReminderSetting::where('type', 'shortlist_created_no_interview')->first();
@@ -131,272 +86,238 @@ class ManagerController extends Controller
             ->where('created_at', '<=', $cutoffDate)
             ->first(); // Get the first matching shortlist
 
-            //Current Year
-            $currentYear = now()->year;
-            $currentMonth = now()->month - 1;
-            $previousYear = $currentYear - 1;
-
-            $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-            // Determine months to query for the current year
-            $queryMonthsCurrentYear = array_slice($months, 0, $currentMonth + 1);
-            // Determine months to query for the previous year, excluding months overlapping with the current year
-            $queryMonthsPreviousYear = array_slice($months, $currentMonth + 1);
-
-            $currentYearData = ApplicantTotalData::where('year', $currentYear)->first();
-            $previousYearData = ApplicantTotalData::where('year', $currentYear - 1)->first();
-            $currentYearId = $currentYearData->id;
-            $previousYearId = $previousYearData->id;
-
-            $applicationsPerMonth = [];
-            $interviewedPerMonth = [];
-            $appointedPerMonth = [];
-            $rejectedPerMonth = [];
-            $percentMovementApplicationsPerMonth = 0;
-            $percentMovementInterviewedPerMonth = 0;
-            $percentMovementAppointedPerMonth = 0;
-            $percentMovementRejectedPerMonth = 0;
-
-            if ($currentYearData) {
-                if ($authUser->store_id) {
-                    // Fetch application data for the current year
-                    $applicationsCurrentYear = ApplicantMonthlyData::join('applicant_monthly_store_data', 'applicant_monthly_data.id', '=', 'applicant_monthly_store_data.applicant_monthly_data_id')
-                    ->where('applicant_monthly_data.category_type', 'Application')
-                    ->where('applicant_monthly_data.applicant_total_data_id', $currentYearId)
-                    ->where('applicant_monthly_store_data.store_id', $authUser->store_id)
-                    ->whereIn('applicant_monthly_data.month', $queryMonthsCurrentYear)
-                    ->get(['applicant_monthly_data.month', 'applicant_monthly_store_data.count']);
-
-                    // Fetch application data for the previous year
-                    $applicationsPreviousYear = ApplicantMonthlyData::join('applicant_monthly_store_data', 'applicant_monthly_data.id', '=', 'applicant_monthly_store_data.applicant_monthly_data_id')
-                    ->where('applicant_monthly_data.category_type', 'Application')
-                    ->where('applicant_monthly_data.applicant_total_data_id', $previousYearId)
-                    ->where('applicant_monthly_store_data.store_id', $authUser->store_id)
-                    ->whereIn('applicant_monthly_data.month', $queryMonthsPreviousYear)
-                    ->get(['applicant_monthly_data.month', 'applicant_monthly_store_data.count']);
-
-                    // Combine both year's data
-                    $combinedApplications = $applicationsPreviousYear->concat($applicationsCurrentYear);
-
-                    // Process the combined data for visualization
-                    $combinedApplications->groupBy('month')->each(function ($items, $month) use (&$applicationsPerMonth, $months) {
-                        $totalApplications = $items->sum('count'); // Sum up applications for the month
-
-                        $index = array_search($month, $months);
-                        if ($index !== false) {
-                            $applicationsPerMonth[] = $totalApplications;
-                        }
-                    });
-
-                    // Fetch interview data for the current year
-                    $interviewsCurrentYear = ApplicantMonthlyData::join('applicant_monthly_store_data', 'applicant_monthly_data.id', '=', 'applicant_monthly_store_data.applicant_monthly_data_id')
-                    ->where('applicant_monthly_data.category_type', 'Interviewed')
-                    ->where('applicant_monthly_data.applicant_total_data_id', $currentYearId)
-                    ->where('applicant_monthly_store_data.store_id', $authUser->store_id)
-                    ->whereIn('applicant_monthly_data.month', $queryMonthsCurrentYear)
-                    ->get(['applicant_monthly_data.month', 'applicant_monthly_store_data.count']);
-
-                    // Fetch interview data for the previous year
-                    $interviewsPreviousYear = ApplicantMonthlyData::join('applicant_monthly_store_data', 'applicant_monthly_data.id', '=', 'applicant_monthly_store_data.applicant_monthly_data_id')
-                    ->where('applicant_monthly_data.category_type', 'Interviewed')
-                    ->where('applicant_monthly_data.applicant_total_data_id', $previousYearId)
-                    ->where('applicant_monthly_store_data.store_id', $authUser->store_id)
-                    ->whereIn('applicant_monthly_data.month', $queryMonthsPreviousYear)
-                    ->get(['applicant_monthly_data.month', 'applicant_monthly_store_data.count']);
-
-                    // Combine both year's data
-                    $combinedInterviews = $interviewsPreviousYear->concat($interviewsCurrentYear);
-
-                    // Process the combined data for visualization
-                    $combinedInterviews->groupBy('month')->each(function ($items, $month) use (&$interviewedPerMonth, $months) {
-                        $totalInterviews = $items->sum('count'); // Sum up interviews for the month
-
-                        $index = array_search($month, $months);
-                        if ($index !== false) {
-                            $interviewedPerMonth[] = $totalInterviews;
-                        }
-                    });
-
-                    // Fetch appointed data for the current year
-                    $appointedCurrentYear = ApplicantMonthlyData::join('applicant_monthly_store_data', 'applicant_monthly_data.id', '=', 'applicant_monthly_store_data.applicant_monthly_data_id')
-                    ->where('applicant_monthly_data.category_type', 'Appointed')
-                    ->where('applicant_monthly_data.applicant_total_data_id', $currentYearId)
-                    ->where('applicant_monthly_store_data.store_id', $authUser->store_id)
-                    ->whereIn('applicant_monthly_data.month', $queryMonthsCurrentYear)
-                    ->get(['applicant_monthly_data.month', 'applicant_monthly_store_data.count']);
-
-                    // Fetch appointed data for the previous year
-                    $appointedPreviousYear = ApplicantMonthlyData::join('applicant_monthly_store_data', 'applicant_monthly_data.id', '=', 'applicant_monthly_store_data.applicant_monthly_data_id')
-                    ->where('applicant_monthly_data.category_type', 'Appointed')
-                    ->where('applicant_monthly_data.applicant_total_data_id', $previousYearId)
-                    ->where('applicant_monthly_store_data.store_id', $authUser->store_id)
-                    ->whereIn('applicant_monthly_data.month', $queryMonthsPreviousYear)
-                    ->get(['applicant_monthly_data.month', 'applicant_monthly_store_data.count']);
-
-                    // Combine both year's data
-                    $combinedAppointed = $appointedPreviousYear->concat($appointedCurrentYear);
-
-                    // Process the combined data for visualization
-                    $combinedAppointed->groupBy('month')->each(function ($items, $month) use (&$appointedPerMonth, $months) {
-                        $totalAppointed = $items->sum('count'); // Sum up appointed for the month
-
-                        $index = array_search($month, $months);
-                        if ($index !== false) {
-                            $appointedPerMonth[] = $totalAppointed;
-                        }
-                    });
-
-                    // Fetch rejected data for the current year
-                    $rejectedCurrentYear = ApplicantMonthlyData::join('applicant_monthly_store_data', 'applicant_monthly_data.id', '=', 'applicant_monthly_store_data.applicant_monthly_data_id')
-                    ->where('applicant_monthly_data.category_type', 'Rejected')
-                    ->where('applicant_monthly_data.applicant_total_data_id', $currentYearId)
-                    ->where('applicant_monthly_store_data.store_id', $authUser->store_id)
-                    ->whereIn('applicant_monthly_data.month', $queryMonthsCurrentYear)
-                    ->get(['applicant_monthly_data.month', 'applicant_monthly_store_data.count']);
-
-                    // Fetch rejected data for the previous year
-                    $rejectedPreviousYear = ApplicantMonthlyData::join('applicant_monthly_store_data', 'applicant_monthly_data.id', '=', 'applicant_monthly_store_data.applicant_monthly_data_id')
-                    ->where('applicant_monthly_data.category_type', 'Rejected')
-                    ->where('applicant_monthly_data.applicant_total_data_id', $previousYearId)
-                    ->where('applicant_monthly_store_data.store_id', $authUser->store_id)
-                    ->whereIn('applicant_monthly_data.month', $queryMonthsPreviousYear)
-                    ->get(['applicant_monthly_data.month', 'applicant_monthly_store_data.count']);
-
-                    // Combine both year's data
-                    $combinedRejected = $rejectedPreviousYear->concat($rejectedCurrentYear);
-
-                    // Process the combined data for visualization
-                    $combinedRejected->groupBy('month')->each(function ($items, $month) use (&$rejectedPerMonth, $months) {
-                        $totalRejected = $items->sum('count'); // Sum up rejected for the month
-
-                        $index = array_search($month, $months);
-                        if ($index !== false) {
-                            $rejectedPerMonth[] = $totalRejected;
-                        }
-                    });
-                }
-
-                //Percent movement from last month for applications
-                $sumOfApplications = array_sum($applicationsPerMonth);
-
-                if (count($applicationsPerMonth) >= 2) {
-                    $lastMonthApplications = end($applicationsPerMonth);
-                    $penultimateMonthApplications = $applicationsPerMonth[count($applicationsPerMonth) - 2];
-
-                    if ($sumOfApplications > 0) {
-                        $percentMovementApplicationsPerMonth = round((($lastMonthApplications - $penultimateMonthApplications) / $sumOfApplications) * 100, 2);
-                    } else {
-                        $percentMovementApplicationsPerMonth = 0;
-                    }
-                } else {
-                    $percentMovementApplicationsPerMonth = 0;
-                }
-
-                //Percent movement from last month for interviews
-                $sumOfInterviewed = array_sum($interviewedPerMonth);
-
-                if (count($interviewedPerMonth) >= 2) {
-                    $lastMonthInterviewed = end($interviewedPerMonth);
-                    $penultimateMonthInterviewed = $interviewedPerMonth[count($interviewedPerMonth) - 2];
-
-                    if ($sumOfInterviewed > 0) {
-                        $percentMovementInterviewedPerMonth = round((($lastMonthInterviewed - $penultimateMonthInterviewed) / $sumOfInterviewed) * 100, 2);
-                    } else {
-                        $percentMovementInterviewedPerMonth = 0;
-                    }
-                } else {
-                    $percentMovementInterviewedPerMonth = 0;
-                }
-
-                //Percent movement from last month for appointed
-                $sumOfAppointed = array_sum($appointedPerMonth);
-
-                if (count($appointedPerMonth) >= 2) {
-                    $lastMonthAppointed = end($appointedPerMonth);
-                    $penultimateMonthAppointed = $appointedPerMonth[count($appointedPerMonth) - 2];
-
-                    if ($sumOfAppointed > 0) {
-                        $percentMovementAppointedPerMonth = round((($lastMonthAppointed - $penultimateMonthAppointed) / $sumOfAppointed) * 100, 2);
-                    } else {
-                        $percentMovementAppointedPerMonth = 0;
-                    }
-                } else {
-                    $percentMovementAppointedPerMonth = 0;
-                }
-
-                //Percent movement from last month
-                $sumOfRejected = array_sum($rejectedPerMonth);
-
-                if (count($rejectedPerMonth) >= 2) {
-                    $lastMonthRejected = end($rejectedPerMonth);
-                    $penultimateMonthRejected = $rejectedPerMonth[count($rejectedPerMonth) - 2];
-
-                    if ($sumOfRejected > 0) {
-                        $percentMovementRejectedPerMonth = round((($lastMonthRejected - $penultimateMonthRejected) / $sumOfRejected) * 100, 2);
-                    } else {
-                        $percentMovementRejectedPerMonth = 0;
-                    }
-                } else {
-                    $percentMovementRejectedPerMonth = 0;
-                }
-            }
-
+            // Define the date range (from the start of the year to the end of today)
             $startDate = Carbon::now()->startOfYear();
-            $endDate = Carbon::now()->endOfYear();
+            $endDate = Carbon::now()->endOfDay();
 
+            // Get the store ID for the authenticated user
             $storeId = $authUser->store_id;
 
+            // Get the max proximity from store
+            $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
+
+            // Initialize variables to 0 or empty before the null check
+
+            // Step 1: Initialize vacancy data
+            $storeTotalVacancies = 0;
+            $storeTotalVacanciesFilled = 0;
+
+            // Step 2: Initialize interview data
+            $storeTotalInterviewsScheduled = 0;
+            $storeTotalInterviewsCompleted = 0;
+
+            // Step 3: Initialize appointed and regretted applicant data
+            $storeTotalApplicantsAppointed = 0;
+            $storeTotalApplicantsRegretted = 0;
+
+            // Step 4: Initialize time data
             $storeAverageTimeToShortlist = 0;
             $storeAverageTimeToHire = 0;
-            $adoptionRate = 0;
-            $averageScores = [];
+            $storeAdoptionRate = 0;
 
+            // Step 5: Initialize proximity data
+            $storeAverageDistanceApplicantsAppointed = 0;
+
+            // Step 6: Fetch applicant score data
+            $storeAverageScoreApplicantsAppointed = 0;
+
+            // Step 7: Fetch talent pool data
+            $storeTalentPoolApplicants = 0;
+            $storeTalentPoolApplicantsByMonth = [];
+
+            // Step 8: Fetch applicants appointed data
+            $storeApplicantsAppointed = 0;
+            $storeApplicantsAppointedByMonth = [];
+
+            // Check if the authenticated user is associated with a store
             if ($storeId !== null) {
-                $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId);
-                $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire($storeId);
-                $adoptionRate = $this->vacancyDataService->getStoreVacancyFillRate($storeId, null, $startDate, $endDate);
-                $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresForStoreAndDateRange($storeId, $startDate, $endDate);
-                $averageScores = $this->applicantDataService->calculateAverageScores($placedApplicants);
-                $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId);
-                $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire($storeId);
-                $adoptionRate = $this->vacancyDataService->getStoreVacancyFillRate($storeId, null, $startDate, $endDate);
-                $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForStore($storeId, $startDate, $endDate);
-                $distanceLimit = 50;
-                $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
-                    'store',
-                    $storeId,
-                    $distanceLimit,
-                    $startDate,
-                    $endDate
-                );
+                // Step 1: Fetch vacancy data from VacancyDataService
+                $storeTotalVacancies = $this->vacancyDataService->getStoreTotalVacancies($storeId, $startDate, $endDate);
+                $storeTotalVacanciesFilled = $this->vacancyDataService->getStoreTotalVacanciesFilled($storeId, $startDate, $endDate);
+
+                // Step 2: Fetch interview data from VacancyDataService
+                $storeTotalInterviewsScheduled = $this->vacancyDataService->getStoreTotalInterviewsScheduled($storeId, $startDate, $endDate);
+                $storeTotalInterviewsCompleted = $this->vacancyDataService->getStoreTotalInterviewsCompleted($storeId, $startDate, $endDate);
+
+                // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
+                $storeTotalApplicantsAppointed = $this->vacancyDataService->getStoreTotalApplicantsAppointed($storeId, $startDate, $endDate);
+                $storeTotalApplicantsRegretted = $this->vacancyDataService->getStoreTotalApplicantsRegretted($storeId, $startDate, $endDate);
+
+                // Step 4: Fetch time data from VacancyDataService
+                $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId, $startDate, $endDate);
+                $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire($storeId, $startDate, $endDate);
+                $storeAdoptionRate = ($storeTotalVacancies > 0) ? round($storeTotalVacanciesFilled / $storeTotalVacancies * 100) : 0;
+
+                // Step 5: Fetch proximity data from ApplicantProximityService
+                $storeAverageDistanceApplicantsAppointed = $this->applicantProximityService->getStoreAverageDistanceApplicantsAppointed($storeId, $startDate, $endDate);
+
+                // Step 6: Fetch applicant score data from ApplicantDataService
+                $storeAverageScoreApplicantsAppointed = $this->applicantDataService->getStoreAverageScoreApplicantsAppointed($storeId, $startDate, $endDate);
+
+                // Step 7: Fetch talent pool data from applicantProximityService
+                $storeTalentPoolApplicants = $this->applicantProximityService->getStoreTalentPoolApplicants($storeId, $startDate, $endDate, $maxDistanceFromStore);
+                $storeTalentPoolApplicantsByMonth = $this->applicantProximityService->getStoreTalentPoolApplicantsByMonth($storeId, $startDate, $endDate, $maxDistanceFromStore);
+
+                // Step 8: Fetch applicants appointed data from vacancyDataService
+                $storeApplicantsAppointed = $this->vacancyDataService->getStoreApplicantsAppointed($storeId, $startDate, $endDate);
+                $storeApplicantsAppointedByMonth = $this->vacancyDataService->getStoreApplicantsAppointedByMonth($storeId, $startDate, $endDate);
             }
 
+            // Return the 'manager/home' view with the calculated data
             return view('manager/home', [
                 'store' => $store,
-                'vacancies' => $vacancies,
                 'shortlist' => $shortlist,
-                'currentYearData' => $currentYearData,
-                'previousYearData' => $previousYearData,
-                'applicationsPerMonth' => $applicationsPerMonth,
-                'interviewedPerMonth' => $interviewedPerMonth,
-                'appointedPerMonth' => $appointedPerMonth,
-                'rejectedPerMonth' => $rejectedPerMonth,
-                'totalApplications' => $sumOfApplications,
-                'totalInterviews' => $sumOfInterviewed,
-                'totalAppointed' => $sumOfAppointed,
-                'totalRejected' => $sumOfRejected,
-                'percentMovementApplicationsPerMonth' => $percentMovementApplicationsPerMonth,
-                'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
-                'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
-                'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+                'storeTotalVacancies' => $storeTotalVacancies,
+                'storeTotalVacanciesFilled' => $storeTotalVacanciesFilled,
+                'storeTotalInterviewsScheduled' => $storeTotalInterviewsScheduled,
+                'storeTotalInterviewsCompleted' => $storeTotalInterviewsCompleted,
+                'storeTotalApplicantsAppointed' => $storeTotalApplicantsAppointed,
+                'storeTotalApplicantsRegretted' => $storeTotalApplicantsRegretted,
                 'storeAverageTimeToShortlist' => $storeAverageTimeToShortlist,
                 'storeAverageTimeToHire' => $storeAverageTimeToHire,
-                'adoptionRate' => $adoptionRate,
-                'averageScores' => $averageScores,
-                'averageDistanceSuccessfulPlacements' => $averageDistanceSuccessfulPlacements,
-                'averageTalentPoolDistance' => $averageTalentPoolDistance,
+                'storeAdoptionRate' => $storeAdoptionRate,
+                'storeAverageDistanceApplicantsAppointed' => $storeAverageDistanceApplicantsAppointed,
+                'storeAverageScoreApplicantsAppointed' => $storeAverageScoreApplicantsAppointed,
+                'storeTalentPoolApplicants' => $storeTalentPoolApplicants,
+                'storeTalentPoolApplicantsByMonth' => $storeTalentPoolApplicantsByMonth,
+                'storeApplicantsAppointed' => $storeApplicantsAppointed,
+                'storeApplicantsAppointedByMonth' => $storeApplicantsAppointedByMonth
             ]);
         }
+
+        // If the view 'manager/home' does not exist, return a 404 error page
         return view('404');
+    }
+
+    /**
+     * Update the manager dashboard data based on a selected date range.
+     *
+     * This method is triggered via an AJAX request and retrieves
+     * updated statistics for the manager dashboard, including vacancy,
+     * interview, applicant, and proximity data based on the selected
+     * date range (startDate to endDate).
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+    */
+    public function updateDashboard(Request $request)
+    {
+        try {
+            // Retrieve the ID of the currently authenticated user
+            $authUserId = Auth::id();
+
+            // Fetch the authenticated user
+            $authUser = User::find($authUserId);
+
+            // Define the date range (from the request data)
+            $startDate = Carbon::parse($request->input('startDate'))->startOfDay();
+            $endDate = Carbon::parse($request->input('endDate'))->endOfDay();
+
+            // Get the store ID for the authenticated user
+            $storeId = $authUser->store_id;
+
+            // Get the max proximity from store
+            $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
+
+            // Initialize variables to 0 or empty before the null check
+
+            // Step 1: Initialize vacancy data
+            $storeTotalVacancies = 0;
+            $storeTotalVacanciesFilled = 0;
+
+            // Step 2: Initialize interview data
+            $storeTotalInterviewsScheduled = 0;
+            $storeTotalInterviewsCompleted = 0;
+
+            // Step 3: Initialize appointed and regretted applicant data
+            $storeTotalApplicantsAppointed = 0;
+            $storeTotalApplicantsRegretted = 0;
+
+            // Step 4: Initialize time data
+            $storeAverageTimeToShortlist = 0;
+            $storeAverageTimeToHire = 0;
+            $storeAdoptionRate = 0;
+
+            // Step 5: Initialize proximity data
+            $storeAverageDistanceApplicantsAppointed = 0;
+
+            // Step 6: Fetch applicant score data
+            $storeAverageScoreApplicantsAppointed = 0;
+
+            // Step 7: Fetch talent pool data
+            $storeTalentPoolApplicants = 0;
+            $storeTalentPoolApplicantsByMonth = [];
+
+            // Step 8: Fetch applicants appointed data
+            $storeApplicantsAppointed = 0;
+            $storeApplicantsAppointedByMonth = [];
+
+            // Check if the authenticated user is associated with a store
+            if ($storeId !== null) {
+                // Step 1: Fetch vacancy data from VacancyDataService
+                $storeTotalVacancies = $this->vacancyDataService->getStoreTotalVacancies($storeId, $startDate, $endDate);
+                $storeTotalVacanciesFilled = $this->vacancyDataService->getStoreTotalVacanciesFilled($storeId, $startDate, $endDate);
+
+                // Step 2: Fetch interview data from VacancyDataService
+                $storeTotalInterviewsScheduled = $this->vacancyDataService->getStoreTotalInterviewsScheduled($storeId, $startDate, $endDate);
+                $storeTotalInterviewsCompleted = $this->vacancyDataService->getStoreTotalInterviewsCompleted($storeId, $startDate, $endDate);
+
+                // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
+                $storeTotalApplicantsAppointed = $this->vacancyDataService->getStoreTotalApplicantsAppointed($storeId, $startDate, $endDate);
+                $storeTotalApplicantsRegretted = $this->vacancyDataService->getStoreTotalApplicantsRegretted($storeId, $startDate, $endDate);
+
+                // Step 4: Fetch time data from VacancyDataService
+                $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId, $startDate, $endDate);
+                $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire($storeId, $startDate, $endDate);
+                $storeAdoptionRate = ($storeTotalVacancies > 0) ? round($storeTotalVacanciesFilled / $storeTotalVacancies * 100) : 0;
+
+                // Step 5: Fetch proximity data from ApplicantProximityService
+                $storeAverageDistanceApplicantsAppointed = $this->applicantProximityService->getStoreAverageDistanceApplicantsAppointed($storeId, $startDate, $endDate);
+
+                // Step 6: Fetch applicant score data from ApplicantDataService
+                $storeAverageScoreApplicantsAppointed = $this->applicantDataService->getStoreAverageScoreApplicantsAppointed($storeId, $startDate, $endDate);
+
+                // Step 7: Fetch talent pool data from applicantProximityService
+                $storeTalentPoolApplicants = $this->applicantProximityService->getStoreTalentPoolApplicants($storeId, $startDate, $endDate, $maxDistanceFromStore);
+                $storeTalentPoolApplicantsByMonth = $this->applicantProximityService->getStoreTalentPoolApplicantsByMonth($storeId, $startDate, $endDate, $maxDistanceFromStore);
+
+                // Step 8: Fetch applicants appointed data from vacancyDataService
+                $storeApplicantsAppointed = $this->vacancyDataService->getStoreApplicantsAppointed($storeId, $startDate, $endDate);
+                $storeApplicantsAppointedByMonth = $this->vacancyDataService->getStoreApplicantsAppointedByMonth($storeId, $startDate, $endDate);
+            }
+
+            //Data to return
+            $data = [
+                'storeTotalVacancies' => $storeTotalVacancies,
+                'storeTotalVacanciesFilled' => $storeTotalVacanciesFilled,
+                'storeTotalInterviewsScheduled' => $storeTotalInterviewsScheduled,
+                'storeTotalInterviewsCompleted' => $storeTotalInterviewsCompleted,
+                'storeTotalApplicantsAppointed' => $storeTotalApplicantsAppointed,
+                'storeTotalApplicantsRegretted' => $storeTotalApplicantsRegretted,
+                'storeAverageTimeToShortlist' => $storeAverageTimeToShortlist,
+                'storeAverageTimeToHire' => $storeAverageTimeToHire,
+                'storeAdoptionRate' => $storeAdoptionRate,
+                'storeAverageDistanceApplicantsAppointed' => $storeAverageDistanceApplicantsAppointed,
+                'storeAverageScoreApplicantsAppointed' => $storeAverageScoreApplicantsAppointed,
+                'storeTalentPoolApplicants' => $storeTalentPoolApplicants,
+                'storeTalentPoolApplicantsByMonth' => $storeTalentPoolApplicantsByMonth,
+                'storeApplicantsAppointed' => $storeApplicantsAppointed,
+                'storeApplicantsAppointedByMonth' => $storeApplicantsAppointedByMonth
+            ];
+
+            // Return the updated data as JSON
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'message' => 'Data updated successfully!'
+            ]);
+        } catch (\Exception $e) {
+            // Return other errors
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve data!',
+                'error' => $e->getMessage()
+            ], 400);
+        }
     }
 }

@@ -18,7 +18,7 @@
                                 Hello, {{ Auth::user()->firstname }}!
                             </h4>
                             <p class="text-muted mb-0">
-                                Here's what's happening with Orient today.
+                                Here's what's happening with Shoprite today.
                             </p>
                         </div>
                         <div class="mt-3 mt-lg-0" style="width: 40%;">
