@@ -52,7 +52,7 @@ class ApplicantDataService
         } else {
             return 0; // Return 0 if no applicants with a score are found
         }
-    }    
+    }
 
     /**
      * Retrieve the total number of applicants per month.

@@ -57,7 +57,7 @@ class VacancyDataService
         // Retrieve all interviews where interview->vacancy->store_id = $storeId and created_at falls within the date range
         return Interview::whereHas('vacancy', function ($query) use ($storeId) {
                 $query->where('store_id', $storeId);
-            })
+        })
             ->whereBetween('created_at', [$startDate, $endDate])
             ->count();
     }
@@ -75,7 +75,7 @@ class VacancyDataService
         // Retrieve all interviews where interview->vacancy->store_id = $storeId, score is not null, and created_at falls within the date range
         return Interview::whereHas('vacancy', function ($query) use ($storeId) {
                 $query->where('store_id', $storeId);
-            })
+        })
             ->whereNotNull('score')
             ->whereBetween('created_at', [$startDate, $endDate])
             ->count();
@@ -94,7 +94,7 @@ class VacancyDataService
         // Retrieve all applicants where vacancy->store_id = $storeId, status is 'Appointed', and created_at falls within the date range
         return Interview::whereHas('vacancy', function ($query) use ($storeId) {
                 $query->where('store_id', $storeId);
-            })
+        })
             ->where('status', 'Appointed') // Filter by status 'Appointed'
             ->whereBetween('created_at', [$startDate, $endDate])
             ->count();
@@ -113,7 +113,7 @@ class VacancyDataService
         // Retrieve all applicants where vacancy->store_id = $storeId, status is 'Regretted', and created_at falls within the date range
         return Interview::whereHas('vacancy', function ($query) use ($storeId) {
                 $query->where('store_id', $storeId);
-            })
+        })
             ->where('status', 'Regretted') // Filter by status 'Regretted'
             ->whereBetween('created_at', [$startDate, $endDate])
             ->count();
@@ -198,7 +198,7 @@ class VacancyDataService
         // Retrieve all vacancies for the store within the specified date range
         $vacancies = Vacancy::where('store_id', $storeId)
             ->whereBetween('created_at', [$startDate, $endDate])
-            ->with(['appointed' => function($query) {
+            ->with(['appointed' => function ($query) {
                 $query->orderBy('vacancy_fills.created_at', 'asc');
             }]) // Load the appointed relationship, ordered by the first appointment
             ->get();

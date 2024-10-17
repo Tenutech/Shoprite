@@ -14,6 +14,7 @@ use App\Services\DataService\VacancyDataService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+
 class ManagerController extends Controller
 {
     protected $applicantDataService;
@@ -50,7 +51,7 @@ class ManagerController extends Controller
     public function index()
     {
         // Check if the 'manager/home' view exists
-        if (view()->exists('manager/home')) {            
+        if (view()->exists('manager/home')) {
             // Retrieve the ID of the currently authenticated user
             $authUserId = Auth::id();
 
@@ -119,14 +120,14 @@ class ManagerController extends Controller
 
             // Step 6: Fetch applicant score data
             $storeAverageScoreApplicantsAppointed = 0;
-            
+
             // Step 7: Fetch talent pool data
             $storeTalentPoolApplicants = 0;
             $storeTalentPoolApplicantsByMonth = [];
-            
+
             // Step 8: Fetch applicants appointed data
             $storeApplicantsAppointed = 0;
-            $storeApplicantsAppointedByMonth = [];  
+            $storeApplicantsAppointedByMonth = [];
 
             // Check if the authenticated user is associated with a store
             if ($storeId !== null) {
@@ -192,7 +193,7 @@ class ManagerController extends Controller
      * Update the manager dashboard data based on a selected date range.
      *
      * This method is triggered via an AJAX request and retrieves
-     * updated statistics for the manager dashboard, including vacancy, 
+     * updated statistics for the manager dashboard, including vacancy,
      * interview, applicant, and proximity data based on the selected
      * date range (startDate to endDate).
      *
@@ -242,14 +243,14 @@ class ManagerController extends Controller
 
             // Step 6: Fetch applicant score data
             $storeAverageScoreApplicantsAppointed = 0;
-            
+
             // Step 7: Fetch talent pool data
             $storeTalentPoolApplicants = 0;
             $storeTalentPoolApplicantsByMonth = [];
-            
+
             // Step 8: Fetch applicants appointed data
             $storeApplicantsAppointed = 0;
-            $storeApplicantsAppointedByMonth = [];  
+            $storeApplicantsAppointedByMonth = [];
 
             // Check if the authenticated user is associated with a store
             if ($storeId !== null) {
@@ -308,7 +309,7 @@ class ManagerController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $data,
-                'message' => 'Data updated successfully!'      
+                'message' => 'Data updated successfully!'
             ]);
         } catch (\Exception $e) {
             // Return other errors
