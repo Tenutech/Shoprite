@@ -2,10 +2,204 @@
 
 namespace App\Services\DataService;
 
+use App\Models\State;
+use App\Models\Store;
+use App\Models\Vacancy;
+use App\Models\Interview;
+use App\Models\Shortlist;
+use App\Models\Applicant;
 use Illuminate\Support\Facades\DB;
 
 class ApplicantProximityService
 {
+    /**
+     * Calculate the average distance between the store's coordinates and appointed applicants' coordinates.
+     *
+     * @param int $storeId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return float
+     */
+    public function getStoreAverageDistanceApplicantsAppointed(int $storeId, $startDate, $endDate)
+    {
+        // Retrieve the store with coordinates
+        $store = Store::find($storeId);
+        if (!$store || !$store->coordinates) {
+            return 0; // Return 0 if store or coordinates are not available
+        }
+
+        $storeCoordinates = explode(',', $store->coordinates); // Assuming coordinates are stored as "latitude,longitude"
+        $storeLat = floatval($storeCoordinates[0]);
+        $storeLng = floatval($storeCoordinates[1]);
+
+        $totalDistance = 0;
+        $applicantCount = 0;
+
+        // Retrieve all vacancies for the store within the specified date range
+        $vacancies = Vacancy::where('store_id', $storeId)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->with('appointed') // Load the appointed relationship
+            ->get();
+
+        // Loop through each vacancy and its appointed applicants
+        foreach ($vacancies as $vacancy) {
+            foreach ($vacancy->appointed as $applicant) {
+                // Assuming applicants have a 'coordinates' field in the format "latitude,longitude"
+                if ($applicant->coordinates) {
+                    $applicantCoordinates = explode(',', $applicant->coordinates);
+                    $applicantLat = floatval($applicantCoordinates[0]);
+                    $applicantLng = floatval($applicantCoordinates[1]);
+
+                    // Calculate the distance between the store and the applicant in kilometers
+                    $distance = $this->calculateDistance($storeLat, $storeLng, $applicantLat, $applicantLng);
+                    $totalDistance += $distance;
+                    $applicantCount++;
+                }
+            }
+        }
+
+        // Calculate the average distance and round it to 1 decimal place
+        if ($applicantCount > 0) {
+            return round($totalDistance / $applicantCount, 1);
+        } else {
+            return 0; // Return 0 if no appointed applicants are found
+        }
+    }
+
+    /**
+     * Calculate the distance between two coordinates (latitude and longitude) in kilometers.
+     *
+     * @param float $lat1
+     * @param float $lng1
+     * @param float $lat2
+     * @param float $lng2
+     * @return float
+     */
+    private function calculateDistance($lat1, $lng1, $lat2, $lng2)
+    {
+        $earthRadius = 6371; // Radius of the Earth in kilometers
+
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
+
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLng / 2) * sin($dLng / 2);
+
+        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+
+        return $earthRadius * $c; // Distance in kilometers
+    }
+
+    /**
+     * Count the number of talent pool applicants within a given distance from the store.
+     *
+     * @param int $storeId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param float $maxDistanceFromStore
+     * @return int
+     */
+    public function getStoreTalentPoolApplicants(int $storeId, $startDate, $endDate, $maxDistanceFromStore)
+    {
+        // Retrieve the store's coordinates
+        $store = Store::find($storeId);
+        if (!$store || !$store->coordinates) {
+            return 0; // Return 0 if store or coordinates are not available
+        }
+
+        $storeCoordinates = explode(',', $store->coordinates);
+        $storeLat = floatval($storeCoordinates[0]);
+        $storeLng = floatval($storeCoordinates[1]);
+
+        // Retrieve the complete state id
+        $completeStateID = State::where('code', 'complete')->value('id');
+
+        if (!$completeStateID) {
+            return 0; // Handle case where 'complete' state does not exist
+        }
+
+        // Count the applicants within the distance range using MySQL ST_Distance_Sphere
+        $applicantCount = Applicant::whereBetween('created_at', [$startDate, $endDate])
+            ->where('state_id', '>=', $completeStateID)
+            ->whereRaw("
+                ST_Distance_Sphere(
+                    point(
+                        SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
+                        SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                    ), 
+                    point(?, ?)
+                ) <= ?
+            ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
+            ->count();
+
+        return $applicantCount;
+    }
+
+    /**
+     * Get the number of talent pool applicants by month within a given distance from the store.
+     *
+     * @param int $storeId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param float $maxDistanceFromStore
+     * @return array
+     */
+    public function getStoreTalentPoolApplicantsByMonth(int $storeId, $startDate, $endDate, $maxDistanceFromStore)
+    {
+        // Retrieve the store's coordinates
+        $store = Store::find($storeId);
+        if (!$store || !$store->coordinates) {
+            return []; // Return empty if store or coordinates are not available
+        }
+
+        $storeCoordinates = explode(',', $store->coordinates);
+        $storeLat = floatval($storeCoordinates[0]);
+        $storeLng = floatval($storeCoordinates[1]);
+
+        // Initialize an array to hold the results, with months set to 0 from startDate to endDate
+        $applicantsByMonth = [];
+        $currentDate = $startDate->copy();
+
+        // Loop to populate only the months between startDate and endDate
+        while ($currentDate->lte($endDate)) {
+            $monthName = $currentDate->format('M');
+            $applicantsByMonth[$monthName] = 0;
+            $currentDate->addMonth();
+        }
+
+        // Retrieve the complete state id
+        $completeStateID = State::where('code', 'complete')->value('id');
+
+        if (!$completeStateID) {
+            return []; // Handle case where 'complete' state does not exist
+        }
+
+        // Retrieve applicants within the distance range using MySQL ST_Distance_Sphere
+        $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+            ->where('state_id', '>=', $completeStateID)
+            ->whereRaw("
+                ST_Distance_Sphere(
+                    point(
+                        SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
+                        SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                    ), 
+                    point(?, ?)
+                ) <= ?
+            ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
+            ->get();
+
+        // Group applicants by the month of their creation date and count them
+        foreach ($applicants as $applicant) {
+            // Get the month name from the created_at date (e.g., 'Jan', 'Feb', etc.)
+            $month = $applicant->created_at->format('M');
+            // Increment the count for the corresponding month
+            $applicantsByMonth[$month]++;
+        }
+
+        return $applicantsByMonth;
+    }
+
     /**
      * Calculate the average proximity for all applicants for Admin view.
      *

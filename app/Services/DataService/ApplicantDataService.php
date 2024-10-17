@@ -2,17 +2,58 @@
 
 namespace App\Services\DataService;
 
+use Carbon\Carbon;
+use App\Models\Town;
+use App\Models\State;
+use App\Models\Vacancy;
+use App\Models\Province;
 use App\Models\Applicant;
 use App\Models\ApplicantMonthlyData;
 use App\Models\ApplicantTotalData;
-use App\Models\Province;
-use App\Models\State;
-use App\Models\Town;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ApplicantDataService
 {
+    /**
+     * Calculate the average score for all appointed applicants in vacancies where store_id = $storeId.
+     *
+     * @param int $storeId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return float
+     */
+    public function getStoreAverageScoreApplicantsAppointed(int $storeId, $startDate, $endDate)
+    {
+        // Retrieve all vacancies for the store within the specified date range
+        $vacancies = Vacancy::where('store_id', $storeId)
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->with(['appointed' => function ($query) {
+                $query->whereNotNull('score'); // Ensure that only applicants with a score are considered
+            }])
+            ->get();
+
+        $totalScore = 0;
+        $applicantCount = 0;
+
+        // Loop through each vacancy and its appointed applicants
+        foreach ($vacancies as $vacancy) {
+            foreach ($vacancy->appointed as $applicant) {
+                // Assuming the applicant model has a 'score' field
+                if ($applicant->score !== null) {
+                    $totalScore += $applicant->score;
+                    $applicantCount++;
+                }
+            }
+        }
+
+        // Calculate the average score
+        if ($applicantCount > 0) {
+            return round($totalScore / $applicantCount, 2); // Return the average score rounded to 1 decimal
+        } else {
+            return 0; // Return 0 if no applicants with a score are found
+        }
+    }    
+
     /**
      * Retrieve the total number of applicants per month.
      *

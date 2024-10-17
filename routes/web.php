@@ -676,6 +676,8 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,6', 'use
 
     Route::get('/home', [App\Http\Controllers\ManagerController::class, 'index'])->name('manager.home');
 
+    Route::get('/update-dashboard', [App\Http\Controllers\ManagerController::class, 'updateDashboard'])->name('manager.updateDashboard');
+
     //User Profile
 
     Route::get('/user-profile', [App\Http\Controllers\UserProfileController::class, 'index'])->name('user-profile.index');

@@ -41,7 +41,7 @@
                             <div class="card-body p-4">
                                 <div class="text-center mt-2">
                                     <h5 class="text-primary">Create New Account</h5>
-                                    <p class="text-muted">Get your free Orient account now</p>
+                                    <p class="text-muted">Get your free Shoprite Job Opportunities account now</p>
                                 </div>
                                 <div class="p-2 mt-4">
                                     <form class="needs-validation form-steps" id="formRegister" validate method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
