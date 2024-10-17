@@ -146,7 +146,7 @@ class ManagerController extends Controller
                 // Step 4: Fetch time data from VacancyDataService
                 $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId, $startDate, $endDate);
                 $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire($storeId, $startDate, $endDate);
-                $storeAdoptionRate = ($storeTotalVacanciesFilled > 0) ? round($storeTotalVacancies / $storeTotalVacanciesFilled * 100) : 0;
+                $storeAdoptionRate = ($storeTotalVacancies > 0) ? round($storeTotalVacanciesFilled / $storeTotalVacancies * 100) : 0;
 
                 // Step 5: Fetch proximity data from ApplicantProximityService
                 $storeAverageDistanceApplicantsAppointed = $this->applicantProximityService->getStoreAverageDistanceApplicantsAppointed($storeId, $startDate, $endDate);
@@ -269,7 +269,7 @@ class ManagerController extends Controller
                 // Step 4: Fetch time data from VacancyDataService
                 $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId, $startDate, $endDate);
                 $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire($storeId, $startDate, $endDate);
-                $storeAdoptionRate = ($storeTotalVacanciesFilled > 0) ? round($storeTotalVacancies / $storeTotalVacanciesFilled * 100) : 0;
+                $storeAdoptionRate = ($storeTotalVacancies > 0) ? round($storeTotalVacanciesFilled / $storeTotalVacancies * 100) : 0;
 
                 // Step 5: Fetch proximity data from ApplicantProximityService
                 $storeAverageDistanceApplicantsAppointed = $this->applicantProximityService->getStoreAverageDistanceApplicantsAppointed($storeId, $startDate, $endDate);
