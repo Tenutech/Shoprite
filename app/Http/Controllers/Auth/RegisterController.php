@@ -80,8 +80,8 @@ class RegisterController extends Controller
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
             'email' => ['nullable', 'string', 'email', 'max:191', 'unique:users'],
             'password' => [
-                'required', 
-                'string', 
+                'required',
+                'string',
                 'min:8', // Increase the minimum length to 12 characters
                 'regex:/[a-z]/', // At least one lowercase letter
                 'regex:/[A-Z]/', // At least one uppercase letter

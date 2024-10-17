@@ -3,6 +3,37 @@
 @section('css')
 <link href="{{ URL::asset('build/libs/jsvectormap/css/jsvectormap.min.css')}}" rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('build/libs/swiper/swiper-bundle.min.css')}}" rel="stylesheet" type="text/css" />
+<style>
+.s0 {
+    opacity: .05;
+    fill: var(--vz-primary)
+}
+
+.s1 {
+    opacity: .05;
+    fill: var(--vz-secondary)
+}
+
+.s2 {
+    opacity: .05;
+    fill: var(--vz-success)
+}
+
+.s3 {
+    opacity: .05;
+    fill: var(--vz-danger)
+}
+
+.s4 {
+    opacity: .05;
+    fill: var(--vz-warning)
+}
+
+.s5 {
+    opacity: .05;
+    fill: var(--vz-info)
+}
+</style>
 @endsection
 @section('content')
 
@@ -13,491 +44,453 @@
             <div class="row mb-3 pb-1">
                 <div class="col-12">
                     <div class="d-flex align-items-lg-center flex-lg-row flex-column">
-                        <div class="flex-grow-1" style="width: 60%;">
+                        <div class="flex-grow-1">
                             <h4 class="fs-16 mb-1">
                                 Hello, {{ Auth::user()->firstname }}!
                             </h4>
                             <p class="text-muted mb-0">
-                                Here's what's happening with your stores today.
+                                Here's what's happening with your region
+                                @if (isset($region))
+                                    {{ $region->name }}
+                                @endif
+                                today.
                             </p>
                         </div>
-                        <div class="mt-3 mt-lg-0" style="width: 40%;">
+                        <div class="mt-3 mt-lg-0">
                             <form action="javascript:void(0);">
-                                <div class="row g-3 mb-0 align-items-end justify-content-end">
-                                    <div class="col-8">
+                                <div class="row g-3 mb-0 align-items-center">
+                                    <div class="col-sm-auto">
                                         <div class="input-group">
-                                            <input type="text" id="dateFilter" class="form-control border-0 dash-filter-picker shadow flatpickr-input">
-                                            <div class="input-group-text bg-primary border-primary text-white" id="dateFilterIcon">
+                                            <input type="text" id="dateFilter" class="form-control border-0 dash-filter-picker shadow">
+                                            <div class="input-group-text bg-primary border-primary text-white">
                                                 <i class="ri-calendar-2-line"></i>
                                             </div>
                                         </div>
-                                    </div>
-                                    <!--end col-->
-                                </div>
-                                <!--end row-->
-                            </form>
+                                    </div> <!--end col-->
+                                </div> <!--end row -->
+                            </form>                            
                         </div>
                     </div><!-- end card header -->
-                </div>
-                <!--end col-->
-            </div>
+                </div> <!--end col -->
+            </div> <!--end row -->
 
             <!-------------------------------------------------------------------------------------
-                Information
+                Vacancies
             -------------------------------------------------------------------------------------->
 
-            <div class="row">
-                <div class="col-xl-3 col-md-6">
-                    <div class="card card-height-100">
-                        <div class="d-flex">
-                            <div class="flex-grow-1 p-3">
-                                <h5 class="mb-3">
-                                    Applications
-                                </h5>
-                                <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementApplicationsPerMonth > 0 ? 'success' : 'danger' }} mb-0" id="percentMovementApplicationsPerMonthBadge"> 
-                                        <i class="ri-arrow-{{ $percentMovementApplicationsPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
-                                        {{ abs($percentMovementApplicationsPerMonth) }} % 
-                                    </span>vs. previous month
-                                </p>
-                            </div>
-                            <div>
-                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementApplicationsPerMonth > 0 ? 'success' : 'danger' }}" , "--vz-transparent"]' dir="ltr" id="applications_sparkline_chart"></div>
-                            </div>
+            <div class="row g-3">
+                <!-- Total Vacancies -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
                         </div>
-                    </div>
-                </div>
-                <!--end col-->
-                <div class="col-xl-3 col-md-6">
-                    <div class="card card-height-100">
-                        <div class="d-flex">
-                            <div class="flex-grow-1 p-3">
-                                <h5 class="mb-3">
-                                    Interviewed
-                                </h5>
-                                <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementInterviewedPerMonth > 0 ? 'success' : 'danger' }} mb-0" id="percentMovementInterviewedPerMonthBadge"> 
-                                        <i class="ri-arrow-{{ $percentMovementInterviewedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
-                                        {{ abs($percentMovementInterviewedPerMonth) }} % 
-                                    </span>vs. previous month
-                                </p>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Total Vacancies
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalVacanciesValue" class="counter-value" data-target="{{ $regionTotalVacancies }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
                             </div>
-                            <div>
-                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementInterviewedPerMonth > 0 ? 'success' : 'danger' }}" , "--vz-transparent"]' dir="ltr" id="interviewed_sparkline_chart"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--end col-->
-                <div class="col-xl-3 col-md-6">
-                    <div class="card card-height-100">
-                        <div class="d-flex">
-                            <div class="flex-grow-1 p-3">
-                                <h5 class="mb-3">
-                                    Hired
-                                </h5>
-                                <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementAppointedPerMonth > 0 ? 'success' : 'danger' }} mb-0" id="percentMovementHiredPerMonthBadge"> 
-                                        <i class="ri-arrow-{{ $percentMovementAppointedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
-                                        {{ abs($percentMovementAppointedPerMonth) }} % 
-                                    </span>vs. previous month
-                                </p>
-                            </div>
-                            <div>
-                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementAppointedPerMonth > 0 ? 'success' : 'danger' }}" , "--vz-transparent"]' dir="ltr" id="hired_sparkline_chart"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--end col-->
-                <div class="col-xl-3 col-md-6">
-                    <div class="card card-height-100">
-                        <div class="d-flex">
-                            <div class="flex-grow-1 p-3">
-                                <h5 class="mb-3">
-                                    Rejected
-                                </h5>
-                                <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementRejectedPerMonth > 0 ? 'success' : 'danger' }} mb-0" id="percentMovementRejectedPerMonthBadge"> 
-                                        <i class="ri-arrow-{{ $percentMovementRejectedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
-                                        {{ abs($percentMovementRejectedPerMonth) }} % 
-                                    </span>vs. previous month
-                                </p>
-                            </div>
-                            <div>
-                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementRejectedPerMonth > 0 ? 'success' : 'danger' }}", "--vz-transparent"]' dir="ltr" id="rejected_sparkline_chart"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <!--end col-->
-            </div> <!-- end row-->
-
-
-            <!-------------------------------------------------------------------------------------
-                Rates
-            -------------------------------------------------------------------------------------->
-
-            @include('rpp.dashboard.partials.rates') 
-
-            <!-------------------------------------------------------------------------------------
-                Applicants Graph
-            -------------------------------------------------------------------------------------->
-            
-            <div class="row">
-                <div class="col-xl-8">
-                    <div class="card">
-                        <div class="card-header">
-                            <div class="d-flex">
-                                <h5 class="card-title mb-0 flex-grow-1">
-                                    Applicants Location
-                                </h5>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div id="applicants_treemap" data-colors='["--vz-danger", "--vz-success", "--vz-warning", "--vz-info","--vz-secondary", "--vz-primary"]' class="apex-charts" dir="ltr"></div>
-                        </div>
-                    </div>
-                </div>
-                <!--end col-->
-                <div class="col-xl-4">
-                    <div class="card card-height-100">
-                        <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">Applicant Ethnicity</h4>                            
-                        </div><!-- end card header -->
-                        <div class="card-body">
-                            <div id="applicant_race" data-colors='["--vz-warning", "--vz-info", "--vz-primary", "--vz-secondary", "--vz-danger"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card body -->
                     </div><!-- end card -->
-                </div>
-            </div>
-            <!--end row-->
+                </div> <!--end col -->
+            
+                <!-- Total Vacancies Filled -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Total Vacancies Filled
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalVacanciesFilledValue" class="counter-value" data-target="{{ $regionTotalVacanciesFilled }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_vacancies_filled" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            </div> <!--end row -->
+            
+            <!-------------------------------------------------------------------------------------
+                Interviews
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Total Interviews Scheduled -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Interviews Scheduled
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalInterviewsScheduledValue"  class="counter-value" data-target="{{ $regionTotalInterviewsScheduled }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            
+                <!-- Total Interviews Completed -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Interviews Completed
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalInterviewsCompletedValue" class="counter-value" data-target="{{ $regionTotalInterviewsCompleted }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_interviews_completed" data-colors='["--vz-secondary"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            </div> <!--end row -->
 
             <!-------------------------------------------------------------------------------------
-                Totals
+                Applicants
             -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Total Applicants Appointed -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s2" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Applicants Appointed
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalApplicantsAppointedValue" class="counter-value" data-target="{{ $regionTotalApplicantsAppointed }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_applicants_appointed" data-colors='["--vz-success"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
             
-            <div class="row">
-                <div class="col-xl-6">
-                    <div class="card">
+                <!-- Total Applicants Regretted -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s3" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Applicants Regretted
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalApplicantsRegrettedValue" class="counter-value" data-target="{{ $regionTotalApplicantsRegretted }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_applicants_regretted" data-colors='["--vz-danger"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            </div> <!--end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Time
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Time to Shortlist -->
+                <div class="col-xl-4 col-md-4" id="regionAverageTimeToShortlistColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Time to Shortlist
+                                    </p>
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="averageTimeToShortlistValue">
+                                            {{ $regionAverageTimeToShortlist }}
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-secondary mb-0">
+                                            region Average
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
+                                            <i data-feather="watch" class="text-secondary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+
+                <!-- Time to Hire -->
+                <div class="col-xl-4 col-md-4" id="regionAverageTimeToHireColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Time to Hire
+                                    </p>
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="averageTimeToHireValue">
+                                            {{ $regionAverageTimeToHire }}
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-secondary mb-0">
+                                            region Average
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
+                                            <i data-feather="watch" class="text-secondary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+
+                <!-- Adoption Rate -->
+                <div class="col-xl-4 col-md-4" id="adoptionRateColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Adoption Rate
+                                    </p>
+                                    <h2 class="mt-4 ff-success fw-bold">
+                                        <span id="adoptionRateValue">
+                                            {{ $regionAdoptionRate }}%
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-success mb-0" id="adoptionRate">
+                                           Percentage
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-success-subtle rounded-circle fs-2">
+                                            <i data-feather="user-check" class="text-success"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Proximity & Score
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Average Proximity -->
+                <div class="col-xl-6 col-md-6">
+                    <div class="card card-animate">
                         <div class="card-header">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1">
-                                    Total Applicants
+                                    Average Proximity
                                 </h5>
                             </div>
-                        </div>                        
-                        <div class="card-body">
-                            <div id="total_applicants" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
                         </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                    <span id="regionAverageDistanceApplicantsAppointed" class="counter-value"  data-target="{{ $regionAverageDistanceApplicantsAppointed }}">
+                                        0
+                                    </span>km 
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average distance for succesfull placements
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
                     </div>
-                </div>
-                <!--end col-->
+                </div> <!-- end col -->
 
-                <div class="col-xl-6">
-                    <div class="card card-height-100">
-                        <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">
-                                Total Messages
-                            </h4>                            
+                <!-- Average Score -->
+                <div class="col-xl-6 col-md-6">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                    Average Score
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                        <span id="regionAverageScoreApplicantsAppointed" class="counter-value"  data-target="{{ $regionAverageScoreApplicantsAppointed }}">
+                                            0
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average score for succesfull placements
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Applicants
+            -------------------------------------------------------------------------------------->
+            
+
+            <div class="row g-3">
+                <div class="col-xl-12 col-md-12">
+                    <div class="card card-animate">
+                        <div class="card-header border-0 align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">Talent Pool</h4>
                         </div><!-- end card header -->
-                        <div class="card-header p-0 border-0 bg-soft-light">
+
+                        <div class="card-header p-0 border-0 bg-white bg-opacity-10">
                             <div class="row g-0 text-center">
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
-                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $totalIncomingMessages }}" id="totalIncomingCounter">0</span></h5>
-                                        <p class="text-muted mb-0">Incoming</p>
+                                        <h5 class="mb-1">
+                                            <span id="regionTalentPoolApplicantsValue" class="counter-value" data-target="{{ $regionTalentPoolApplicants }}">
+                                                0
+                                            </span>
+                                        </h5>
+                                        <p class="text-muted mb-0">
+                                            Total Talent Pool
+                                        </p>
                                     </div>
-                                </div>
-                                <!--end col-->
+                                </div> <!--end col -->
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
-                                        <h5 class="mb-1"><span class="counter-value" data-target="{{ $totalOutgoingMessages }}" id="totalOutgoingCounter">0</span></h5>
-                                        <p class="text-muted mb-0">Outgoing</p>
+                                        <h5 class="mb-1">
+                                            <span id="regionApplicantsAppointedValue" class="counter-value" data-target="{{ $regionApplicantsAppointed }}">
+                                                0
+                                            </span>
+                                        </h5>
+                                        <p class="text-muted mb-0">
+                                            Total Appointed
+                                        </p>
                                     </div>
-                                </div>
-                                <!--end col-->
+                                </div> <!--end col -->
                             </div>
                         </div><!-- end card header -->
-                        <div class="card-body">
-                            <div id="total_messages" data-colors='["--vz-success", "--vz-danger"]' class="apex-charts" dir="ltr"></div>
-                        </div><!-- end card body -->
-                    </div><!-- end card -->
-                </div>
-            </div>
-            <!--end row-->
-
-            <!-------------------------------------------------------------------------------------
-                Jobs Summary
-            -------------------------------------------------------------------------------------->
-
-            <div class="row">
-                <div class="col-xxl-12 col-md-12">
-                    <div class="card card-height-100">
-                        <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">Jobs Summary</h4>
-                            <div class="flex-shrink-0">
-                                <div class="dropdown card-header-dropdown">
-                                    <a class="text-reset dropdown-btn" href="#" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <span class="fw-bold text-uppercase fs-12">Sort by: </span><span class="text-muted">Current Year<i class="mdi mdi-chevron-down ms-1"></i></span>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-end">
-                                        <a class="dropdown-item" href="#">Today</a>
-                                        <a class="dropdown-item" href="#">Last Week</a>
-                                        <a class="dropdown-item" href="#">Last Month</a>
-                                        <a class="dropdown-item" href="#">Current Year</a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card header -->
-                        <div class="card-body px-0">
-                            <div id="jobs_chart" data-colors='["--vz-success","--vz-primary", "--vz-info", "--vz-danger"]' class="apex-charts" dir="ltr"></div>
-                        </div>
-                    </div><!-- end card -->
-                </div><!-- end col -->
-            </div>
-
-            <!-------------------------------------------------------------------------------------
-                Locations
-            -------------------------------------------------------------------------------------->
-
-            <div class="row">
-                <div class="col-xl-8">
-                    <!-- card -->
-                    <div class="card card-height-100">
-                        <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">
-                                Applicant Locations
-                            </h4>
-                        </div><!-- end card header -->
             
-                        <!-- card body -->
                         <div class="card-body">
-            
-                            <div id="applicants-by-locations" data-colors='["#E5E8E8", "--vz-primary", "--vz-success"]' style="height: 269px" dir="ltr"></div>
-            
-                            @php
-                                // Convert $applicantsPerProvince to a collection for easier manipulation
-                                $applicantsPerProvinceCollection = collect($applicantsPerProvince);
-                                $totalApplicants = $applicantsPerProvinceCollection->sum('y');
-                                $sortedProvinces = $applicantsPerProvinceCollection->sortByDesc('y')->take(3);
-                            @endphp
+                            <div id="talent_pool_by_month" data-colors='["--vz-primary", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                        </div> 
+                        <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
 
-                            <div class="px-2 py-2 mt-4" id="provinceProgress">
-                                @foreach($sortedProvinces as $province)
-                                    @php
-                                    // Calculate the percentage of total applicants for each province
-                                    $percentage = number_format(($province['y'] / $totalApplicants) * 100, 2);
-                                    @endphp
-
-                                    <p class="mb-1">
-                                        {{ $province['x'] }}
-                                        <span class="float-end">{{ $percentage }}%</span>
-                                    </p>
-                                    <div class="progress mt-1 mb-3" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
-                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            
-                        </div>
-                        <!-- end card body -->
-                    </div>
-                    <!-- end card -->
-                </div>
-
-                <!-------------------------------------------------------------------------------------
-                    Applicant Positions
-                -------------------------------------------------------------------------------------->
-
-                <div class="col-xl-4">
-                    <div class="card card-height-100">
-                        <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">
-                                Applicant Positions
-                            </h4>
-                        </div><!-- end card header -->
-                        <div class="card-body">
-                            <div id="applicant_positions" data-colors='["#f5b041", "#1abc9c", "#3498db", "#9b59b6", "#34495e", "#f1c40f", "#e67e22", "#e74c3c", "#ecf0f1", "#2ecc71", "#95a5a6"]' class="apex-charts" dir="ltr"></div>
-                        </div><!-- end card body -->
-                    </div><!-- end card -->
-                </div><!-- end col -->
-            </div>
-
-            <div class="row">
-                <div class="col-xl-6">
-                    <!-- card -->
-                    <div class="card card-height-100">
-                        <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">
-                                Assessment Literacy Scores By Brand
-                            </h4>
-                        </div><!-- end card header -->
-            
-                        <!-- card body -->
-                        <div class="card-body">
-        
-                            <div class="px-2 py-2 mt-4" id="provinceProgress">
-                                @foreach($averageScoresByBrand as $key => $value)
-
-                                    <p class="mb-1">
-                                        {{ $key }}
-                                        <span class="float-end">{{ $value['literacy_percentage'] }}%</span>
-                                    </p>
-                                    <div class="progress mt-1 mb-3" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
-                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            
-                        </div>
-                        <!-- end card body -->
-                    </div>
-                    <!-- end card -->
-                </div>
-
-                <div class="col-xl-6">
-                    <!-- card -->
-                    <div class="card card-height-100">
-                        <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">
-                                Assessment Numeracy Scores By Brand
-                            </h4>
-                        </div><!-- end card header -->
-            
-                        <!-- card body -->
-                        <div class="card-body">
-        
-                            <div class="px-2 py-2 mt-4" id="provinceProgress">
-                                @foreach($averageScoresByBrand as $key => $value)
-
-                                    <p class="mb-1">
-                                        {{ $key }}
-                                        <span class="float-end">{{ $value['numeracy_percentage'] }}%</span>
-                                    </p>
-                                    <div class="progress mt-1 mb-3" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
-                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            
-                        </div>
-                        <!-- end card body -->
-                    </div>
-                    <!-- end card -->
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-xl-6">
-                    <!-- card -->
-                    <div class="card card-height-100">
-                        <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">
-                                Assessment Literacy Scores
-                            </h4>
-                        </div><!-- end card header -->
-            
-                        <!-- card body -->
-                        <div class="card-body">
-        
-                            <div class="px-2 py-2 mt-4" id="provinceProgress">
-                                @foreach($averageScoresByProvince as $key => $value)
-
-                                    <p class="mb-1">
-                                        {{ $key }}
-                                        <span class="float-end">{{ $value['literacy_percentage'] }}%</span>
-                                    </p>
-                                    <div class="progress mt-1 mb-3" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
-                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            
-                        </div>
-                        <!-- end card body -->
-                    </div>
-                    <!-- end card -->
-                </div>
-
-                <div class="col-xl-6">
-                    <!-- card -->
-                    <div class="card card-height-100">
-                        <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">
-                                Assessment Numeracy Scores
-                            </h4>
-                        </div><!-- end card header -->
-            
-                        <!-- card body -->
-                        <div class="card-body">
-        
-                            <div class="px-2 py-2 mt-4" id="provinceProgress">
-                                @foreach($averageScoresByProvince as $key => $value)
-
-                                    <p class="mb-1">
-                                        {{ $key }}
-                                        <span class="float-end">{{ $value['numeracy_percentage'] }}%</span>
-                                    </p>
-                                    <div class="progress mt-1 mb-3" style="height: 6px;">
-                                        <div class="progress-bar progress-bar-striped bg-primary" role="progressbar" 
-                                            style="width: {{ $percentage }}%" aria-valuenow="{{ $percentage }}" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                @endforeach
-                            </div>
-                            
-                        </div>
-                        <!-- end card body -->
-                    </div>
-                    <!-- end card -->
-                </div>
-            </div>
-        </div> <!-- end .h-100-->
+        </div> <!-- end .h-100 -->
 
     </div> <!-- end col -->
-
-</div>
+</div> <!-- end row -->
 
 
 @endsection
 @section('script')
 <script>
-    var applicantsPerProvince = @json($applicantsPerProvince);
-
-    var applicantsByRace = @json($applicantsByRace);
-    applicantsByRace.forEach(race => {
-        race.data = race.data.reverse();
-    });
-
-    var totalApplicantsPerMonth = @json($totalApplicantsPerMonth);
-
-    var incomingMessages = @json($incomingMessages);
-    var outgoingMessages = @json($outgoingMessages);
-
-    var applicantsByPosition = @json($applicantsByPosition);
-
-    var applicantData = applicantsPerProvince.reduce((accumulator, currentValue) => {
-        accumulator[currentValue.x] = currentValue.y;
-        return accumulator;
-    }, {});
-
-    var applicationsPerMonth = @json($applicationsPerMonth);
-    var interviewedPerMonth = @json($interviewedPerMonth);
-    var appointedPerMonth = @json($appointedPerMonth);
-    var rejectedPerMonth = @json($rejectedPerMonth);
+    var regionTotalVacancies = @json($regionTotalVacancies);
+    var regionTotalVacanciesFilled = @json($regionTotalVacanciesFilled);
+    var regionTotalInterviewsScheduled = @json($regionTotalInterviewsScheduled);
+    var regionTotalInterviewsCompleted = @json($regionTotalInterviewsCompleted);
+    var regionTotalApplicantsAppointed = @json($regionTotalApplicantsAppointed);
+    var regionTotalApplicantsRegretted = @json($regionTotalApplicantsRegretted);
+    var regionTalentPoolApplicants = @json($regionTalentPoolApplicants);
+    var regionTalentPoolApplicantsByMonth = @json($regionTalentPoolApplicantsByMonth);
+    var regionApplicantsAppointed = @json($regionApplicantsAppointed);
+    var regionApplicantsAppointedByMonth = @json($regionApplicantsAppointedByMonth);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 <!-- apexcharts -->
 <script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
-<script src="{{URL::asset('build/libs/jsvectormap/js/jsvectormap2.min.js')}}"></script>
-<script src="{{ URL::asset('build/libs/jsvectormap/maps/south-africa.js') }}"></script>
 <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js')}}"></script>
 <!-- dashboard init -->
-<script src="{{URL::asset('build/js/pages/rpp.init.js')}}?v={{ filemtime(public_path('build/js/pages/rpp.init.js')) }}"></script>
+<script src="{{URL::asset('build/js/pages/rpp.init.js')}}?v={{ filemtime(public_path('build/js/pages/manager.init.js')) }}"></script>
 <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

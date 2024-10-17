@@ -402,7 +402,7 @@ class ApplicationController extends Controller
 
         //Applicant
         $applicant = Applicant::findOrFail($applicantId);
-        
+
         //Validate Input
         $request->validate([
             'consent' => ['accepted'], // Validate consent checkbox

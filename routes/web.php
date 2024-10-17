@@ -658,6 +658,8 @@ Route::prefix('dtdp')->middleware(['auth', 'verified', 'role:4', 'user.activity'
 
     Route::get('/home', [App\Http\Controllers\DTDPController::class, 'index'])->name('dtdp.home');
 
+    Route::get('/update-dashboard', [App\Http\Controllers\DTDPController::class, 'updateDashboard'])->name('dtdp.updateDashboard');
+
     //Update Data
 
     Route::get('/updateData', [App\Http\Controllers\DTDPController::class, 'updateData'])->name('dtdp.updateData');
@@ -673,6 +675,9 @@ Route::prefix('dpp')->middleware(['auth', 'verified', 'role:5', 'user.activity']
     //Home
 
     Route::get('/home', [App\Http\Controllers\DPPController::class, 'index'])->name('dpp.home');
+
+    Route::get('/update-dashboard', [App\Http\Controllers\DTDPController::class, 'updateDashboard'])->name('dpp.updateDashboard');
+
 
     //Update Data
 

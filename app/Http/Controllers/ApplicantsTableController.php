@@ -158,7 +158,7 @@ class ApplicantsTableController extends Controller
 
         //Applicant
         $applicant = Applicant::findOrFail($applicantId);
-        
+
         //Validate Input
         $request->validate([
             'firstname' => ['required', 'string', 'max:191'],
@@ -198,7 +198,7 @@ class ApplicantsTableController extends Controller
         try {
             // Get form data from the request
             $firstname = $request->firstname;
-            $lastname = $request->lastname;           
+            $lastname = $request->lastname;
             $email = $request->email;
             $phone = $request->phone;
             $idNumber = $request->id_number;
@@ -208,7 +208,7 @@ class ApplicantsTableController extends Controller
             $location = $request->location;
             $latitude = $request->latitude;
             $longitude = $request->longitude;
-            $coordinates = $latitude . ',' . $longitude;            
+            $coordinates = $latitude . ',' . $longitude;
             $educationId = $request->education_id;
             $durationId = $request->duration_id;
             $publicHolidays = $request->public_holidays;
