@@ -24,34 +24,33 @@ class ApplicantDataService
      */
     public function getStoreAverageScoreApplicantsAppointed(int $storeId, $startDate, $endDate)
     {
-        // Retrieve all vacancies for the store within the specified date range
-        $vacancies = Vacancy::where('store_id', $storeId)
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->with(['appointed' => function ($query) {
-                $query->whereNotNull('score'); // Ensure that only applicants with a score are considered
-            }])
-            ->get();
+        return $this->getAverageScoreApplicantsAppointed('store', $storeId, $startDate, $endDate);
+    }
 
-        $totalScore = 0;
-        $applicantCount = 0;
+    /**
+     * Calculate the average score for all appointed applicants in vacancies where store_id = $storeId.
+     *
+     * @param int $divisionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return float
+     */
+    public function getDivisionAverageScoreApplicantsAppointed(int $divisionId, $startDate, $endDate): float
+    {
+        return $this->getAverageScoreApplicantsAppointed('division', $divisionId, $startDate, $endDate);
+    }
 
-        // Loop through each vacancy and its appointed applicants
-        foreach ($vacancies as $vacancy) {
-            foreach ($vacancy->appointed as $applicant) {
-                // Assuming the applicant model has a 'score' field
-                if ($applicant->score !== null) {
-                    $totalScore += $applicant->score;
-                    $applicantCount++;
-                }
-            }
-        }
-
-        // Calculate the average score
-        if ($applicantCount > 0) {
-            return round($totalScore / $applicantCount, 2); // Return the average score rounded to 1 decimal
-        } else {
-            return 0; // Return 0 if no applicants with a score are found
-        }
+    /**
+     * Calculate the average score for all appointed applicants in vacancies
+     *
+     * @param int $regionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return float
+     */
+    public function getRegionAverageScoreApplicantsAppointed(int $regionId, $startDate, $endDate): float
+    {
+        return $this->getAverageScoreApplicantsAppointed('region', $regionId, $startDate, $endDate);
     }
 
     /**
@@ -121,92 +120,6 @@ class ApplicantDataService
     }
 
     /**
-     * This method retrieves the total number of applicants by race for the current year
-     * from the monthly data associated with the given current year ID and query months.
-     *
-     * @param \DateTimeInterface|string $startDate The start date of the time frame.
-     * @param \DateTimeInterface|string $endDate The end date of the time frame.
-     *
-     * @return \Illuminate\Support\Collection
-     *     A collection containing the applicants by race for the current year.
-     */
-    public function getApplicantsByRace($startDate, $endDate)
-    {
-        return $this->getMonthlyDataForTimeFrame('Race', $startDate, $endDate)
-            ->join('races', 'applicant_monthly_data.category_id', '=', 'races.id')
-            ->get(['races.name as race_name', 'applicant_monthly_data.month', 'applicant_monthly_data.count']);
-    }
-
-    /**
-     * Fetch applications per month.
-     *
-     * This method retrieves the total number of applications for a time selection
-     *
-     * @param \DateTimeInterface|string $startDate The start date of the time frame.
-     * @param \DateTimeInterface|string $endDate The end date of the time frame.
-     *
-     * @return \Illuminate\Support\Collection
-     *     A collection containing the applications for the current year.
-     */
-    public function getApplicationsCountPerMonth($startDate, $endDate)
-    {
-        return $this->getMonthlyDataForTimeFrame('Application', $startDate, $endDate)
-            ->get(['month', 'count']);
-    }
-
-    /**
-     * Fetch interviews per month.
-     *
-     * This method retrieves the total number of interviews for a time selection.
-     *
-     * @param \DateTimeInterface|string $startDate The start date of the time frame.
-     * @param \DateTimeInterface|string $endDate The end date of the time frame.
-     *
-     * @return \Illuminate\Support\Collection
-     *     A collection containing the interviews for the current year.
-     */
-    public function getInterviewsCountPerMonth($startDate, $endDate)
-    {
-        return $this->getMonthlyDataForTimeFrame('Interviewed', $startDate, $endDate)
-            ->get(['month', 'count']);
-    }
-
-    /**
-     * Fetch appointed applicants for the current year.
-     *
-     * This method retrieves the total number of appointed applicants for the current year
-     * from the monthly data associated with the given current year ID and query months.
-     *
-     * @param \DateTimeInterface|string $startDate The start date of the time frame.
-     * @param \DateTimeInterface|string $endDate The end date of the time frame.
-     *
-     * @return \Illuminate\Support\Collection
-     *     A collection containing the appointed applicants for the current year.
-     */
-    public function getAppointedCountPerMonth($startDate, $endDate)
-    {
-        return $this->getMonthlyDataForTimeFrame('Appointed', $startDate, $endDate)
-            ->get(['month', 'count']);
-    }
-
-    /**
-     * Fetch rejected applicants for a time frame
-     *
-     * This method retrieves the total number of rejected applicants for the current year
-     * from the monthly data associated with the given current year ID and query months.
-     *
-     * @param \DateTimeInterface|string $startDate The start date of the time frame.
-     * @param \DateTimeInterface|string $endDate The end date of the time frame.
-     *
-     * @return \Illuminate\Support\Collection
-     *     A collection containing the rejected applicants for the current year.
-     */
-    public function getRejectedApplicants($startDate, $endDate)
-    {
-        return $this->getMonthlyDataForTimeFrame('rejected', $startDate, $endDate)->get(['month', 'count']);
-    }
-
-    /**
      * Get the overall application completion rate.
      *
      * @param string|null $startDate The start date for filtering applications (optional).
@@ -231,33 +144,6 @@ class ApplicantDataService
         $completedPercentage = ($totalApplicants > 0) ? ($completedCount / $totalApplicants) * 100 : 0;
 
         return number_format($completedPercentage, 2);
-    }
-
-    /**
-     * Get the absorb rate.
-     *
-     * @param int $regionId The region ID to filter by.
-     * @param \DateTimeInterface|string $startDate The start date of the date range.
-     * @param \DateTimeInterface|string $endDate The end date of the date range.
-     *
-     * @return float
-     */
-    public function getRegionAbsorbtionRate($regionId, $startDate = null, $endDate = null)
-    {
-        $totalApplicants = $this->getTotalTalentPoolCount([
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'regionId' => $regionId
-        ]);
-
-        $totalAppointedApplicants = $this->getTotalCountByType([
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'type' => 'appointed',
-            'regionId' => $regionId,
-        ]);
-
-        return number_format($totalAppointedApplicants / $totalApplicants * 100, 2);
     }
 
     /**
@@ -314,39 +200,6 @@ class ApplicantDataService
         ];
     }
 
-    /*
-     * Get total number of applications by channel (WhatsApp and Website) grouped by month
-     * within a given date range.
-     *
-     * @param \DateTimeInterface|string $startDate The start date of the date range.
-     * @param \DateTimeInterface|string $endDate The end date of the date range.
-     *
-     * @return array
-     *     An array containing the total count for WhatsApp and Website for each month.
-     */
-    public function getTotalApplicationsByChannelForDateRange($startDate, $endDate)
-    {
-        $startDate = $startDate instanceof \DateTimeInterface ? $startDate : Carbon::parse($startDate);
-        $endDate = $endDate instanceof \DateTimeInterface ? $endDate : Carbon::parse($endDate);
-
-        $applicationsByMonth = Applicant::select(
-            DB::raw("DATE_FORMAT(created_at, '%Y-%m') as month"),
-            'applicant_type_id',
-            DB::raw('COUNT(*) as total')
-        )
-            ->whereBetween('created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
-            ->whereIn('applicant_type_id', ['WhatsApp', 'Website'])
-            ->groupBy(DB::raw("DATE_FORMAT(created_at, '%Y-%m')"), 'application_type')
-            ->get();
-
-        $results = [];
-        foreach ($applicationsByMonth as $application) {
-            $results[$application->month][$application->application_type] = $application->total;
-        }
-
-        return $results;
-    }
-
     /**
      * Calculate the total and percentage of applicants by channel (WhatsApp and Website).
      *
@@ -386,23 +239,6 @@ class ApplicantDataService
                 'percentage' => round($websitePercentage, 2),
             ],
         ];
-    }
-
-    /**
-     * Get total count of applicants who were appointed
-     * filtered by an optional date range.
-     *
-     * @param string|null $startDate Start date in 'Y-m-d' format
-     * @param string|null $endDate End date in 'Y-m-d' format
-     * @return int
-     */
-    public function getTotalAppointedCount(?string $startDate = null, ?string $endDate = null): int
-    {
-        return $this->getTotalCountByType([
-            'startDate' => $startDate,
-            'endDate' => $endDate,
-            'type' => 'appointed'
-        ]);
     }
 
     /**
@@ -652,57 +488,6 @@ class ApplicantDataService
     }
 
     /**
-     * Get completion and drop-off rates segmented by geographic region.
-     *
-     * @param string|null $startDate The start date for filtering applicants (optional).
-     * @param string|null $endDate The end date for filtering applicants (optional).
-     *
-     * @return array An array containing completion and drop-off rates by region.
-     */
-    // public function getCompletionByRegion($startDate = null, $endDate = null)
-    // {
-    //     $completeStateID = config('constants.complete_state_id');
-
-    //     $regions = Province::all();
-
-    //     $completionByRegion = [];
-
-    //     foreach ($regions as $region) {
-    //         $query = Applicant::where('province_id', $region->id);
-
-    //         if ($startDate) {
-    //             $query->where('created_at', '>=', $startDate);
-    //         }
-    //         if ($endDate) {
-    //             $query->where('created_at', '<=', $endDate);
-    //         }
-
-    //         $totalRegionApplicants = $query->count();
-
-    //         $completedRegionCount = $query->where('state_id', '>=', $completeStateID)->count();
-
-    //         $dropoffRegionCount = $query->where('state_id', '<', $completeStateID)->count();
-
-    //         $completedPercentage = $totalRegionApplicants > 0
-    //             ? ($completedRegionCount / $totalRegionApplicants) * 100
-    //             : 0;
-
-    //         $dropoffPercentage = $totalRegionApplicants > 0
-    //             ? ($dropoffRegionCount / $totalRegionApplicants) * 100
-    //             : 0;
-
-    //         $completionByRegion[$region->name] = [
-    //             'completed_count' => $completedRegionCount,
-    //             'completed_percentage' => $completedPercentage,
-    //             'dropoff_count' => $dropoffRegionCount,
-    //             'dropoff_percentage' => $dropoffPercentage,
-    //         ];
-    //     }
-
-    //     return $completionByRegion;
-    // }
-
-    /**
      * Fetch placed applicants with their assessment scores, brand, and province
      * for a given start and end date range.
      *
@@ -728,104 +513,6 @@ class ApplicantDataService
                 'stores.brand_id',
                 'towns.province_id'
             )
-            ->whereBetween('vacancy_fills.created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
-            ->get();
-    }
-
-    /**
-     * Fetch placed applicants with their assessment scores, brand, and division
-     * for a given start and end date range.
-     *
-     * @param int $divisionId The division ID to filter by.
-     * @param \DateTimeInterface|string $startDate The start date of the date range.
-     * @param \DateTimeInterface|string $endDate The end date of the date range.
-     *
-     * @return \Illuminate\Support\Collection
-     *     A collection containing placed applicants and their assessment scores within the date range.
-     */
-    public function getPlacedApplicantsWithScoresByDivisionAndDateRange($divisionId, $startDate, $endDate)
-    {
-        $startDate = $startDate instanceof \DateTimeInterface ? $startDate : Carbon::parse($startDate);
-        $endDate = $endDate instanceof \DateTimeInterface ? $endDate : Carbon::parse($endDate);
-
-        return DB::table('vacancy_fills')
-            ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
-            ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->join('towns', 'applicants.town_id', '=', 'towns.id')
-            ->join('divisions', 'stores.division_id', '=', 'divisions.id')
-            ->select(
-                'applicants.literacy_score',
-                'applicants.numeracy_score',
-                'stores.brand_id',
-                'stores.division_id'
-            )
-            ->where('stores.division_id', '=', $divisionId)
-            ->whereBetween('vacancy_fills.created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
-            ->get();
-    }
-
-    /**
-     * Fetch placed applicants with their assessment scores, brand, and region
-     * for a given start and end date range.
-     *
-     * @param int $regionId The region ID to filter by.
-     * @param \DateTimeInterface|string $startDate The start date of the date range.
-     * @param \DateTimeInterface|string $endDate The end date of the date range.
-     *
-     * @return \Illuminate\Support\Collection
-     *     A collection containing placed applicants and their assessment scores within the date range.
-     */
-    public function getPlacedApplicantsWithScoresByRegionAndDateRange($regionId, $startDate, $endDate)
-    {
-        $startDate = $startDate instanceof \DateTimeInterface ? $startDate : Carbon::parse($startDate);
-        $endDate = $endDate instanceof \DateTimeInterface ? $endDate : Carbon::parse($endDate);
-
-        return DB::table('vacancy_fills')
-            ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
-            ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->join('towns', 'applicants.town_id', '=', 'towns.id')
-            ->join('regions', 'stores.region_id', '=', 'regions.id')
-            ->select(
-                'applicants.literacy_score',
-                'applicants.numeracy_score',
-                'stores.brand_id',
-                'stores.region_id'
-            )
-            ->where('stores.region_id', '=', $regionId)
-            ->whereBetween('vacancy_fills.created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
-            ->get();
-    }
-
-    /**
-     * Fetch placed applicants with their assessment scores, brand, and store
-     * for a given start and end date range.
-     *
-     * @param int $storeId The store ID to filter by.
-     * @param \DateTimeInterface|string $startDate The start date of the date range.
-     * @param \DateTimeInterface|string $endDate The end date of the date range.
-     *
-     * @return \Illuminate\Support\Collection
-     *     A collection containing placed applicants and their assessment scores within the date range.
-     */
-    public function getPlacedApplicantsWithScoresForStoreAndDateRange($storeId, $startDate, $endDate)
-    {
-        $startDate = $startDate instanceof \DateTimeInterface ? $startDate : Carbon::parse($startDate);
-        $endDate = $endDate instanceof \DateTimeInterface ? $endDate : Carbon::parse($endDate);
-
-        return DB::table('vacancy_fills')
-            ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
-            ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->join('towns', 'applicants.town_id', '=', 'towns.id')
-            ->select(
-                'applicants.literacy_score',
-                'applicants.numeracy_score',
-                'stores.brand_id',
-                'stores.id'
-            )
-            ->where('stores.id', '=', $storeId)
             ->whereBetween('vacancy_fills.created_at', [$startDate->startOfDay(), $endDate->endOfDay()])
             ->get();
     }
@@ -953,19 +640,56 @@ class ApplicantDataService
             ->where('applicant_monthly_data.created_at', '<=', $endDate);
     }
 
-    protected function handlePreviousYearData($currentMonth, $months, $previousYearData, &$totalApplicantsPerMonth)
+    /**
+     * Calculate the average score for all appointed applicants in vacancies where store_id = $storeId.
+     *
+     * @param string $type The type of view (e.g., national, division, area, store).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return float
+     */
+    protected function getAverageScoreApplicantsAppointed(string $type, ?int $id, Carbon $startDate, Carbon $endDate): float
     {
-        foreach (array_slice($months, $currentMonth + 1) as $month) {
-            $monthKey = strtolower($month);
-            $totalApplicantsPerMonth[] = $previousYearData->$monthKey ?? 0;
-        }
-    }
+        // Retrieve all vacancies for the store within the specified date range
+        $query = DB::table('vacancies')
+            ->join('stores', 'vacancies.store_id', '=', 'stores.id')  // Join vacancies with stores
+            ->whereBetween('vacancies.created_at', [$startDate, $endDate]);
 
-    protected function handleCurrentYearData($currentMonth, $months, $currentYearData, &$totalApplicantsPerMonth)
-    {
-        foreach (array_slice($months, 0, $currentMonth + 1) as $month) {
-            $monthKey = strtolower($month);
-            $totalApplicantsPerMonth[] = $currentYearData->$monthKey ?? 0;
+        if ($type === 'division') {
+            $query->where('stores.division_id', $id);
+        } elseif ($type === 'region') {
+            $query->where('stores.region_id', $id);
+        } elseif ($type === 'store') {
+            $query->where('stores.id', $id);
+        }
+
+        // Get the results and load the 'appointed' relationship using Eloquent
+        $vacancies = Vacancy::whereIn('id', $query->pluck('vacancies.id'))
+            ->with(['appointed' => function ($query) {
+                $query->whereNotNull('score');
+            }])
+            ->get();
+
+        $totalScore = 0;
+        $applicantCount = 0;
+
+        // Loop through each vacancy and its appointed applicants
+        foreach ($vacancies as $vacancy) {
+            foreach ($vacancy->appointed as $applicant) {
+                // Assuming the applicant model has a 'score' field
+                if ($applicant->score !== null) {
+                    $totalScore += $applicant->score;
+                    $applicantCount++;
+                }
+            }
+        }
+
+        // Calculate the average score
+        if ($applicantCount > 0) {
+            return round($totalScore / $applicantCount, 2); // Return the average score rounded to 1 decimal
+        } else {
+            return 0; // Return 0 if no applicants with a score are found
         }
     }
 }
