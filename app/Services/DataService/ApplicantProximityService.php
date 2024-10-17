@@ -8,6 +8,7 @@ use App\Models\Vacancy;
 use App\Models\Interview;
 use App\Models\Shortlist;
 use App\Models\Applicant;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ApplicantProximityService
@@ -335,6 +336,46 @@ class ApplicantProximityService
     }
 
     /**
+     * Get the number of talent pool applicants by month within a given distance from the store.
+     *
+     * @param int $divisionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return array
+     */
+    public function getDivisionPlacedApplicantsByMonth(int $divisionId, $startDate, $endDate)
+    {
+        $placedApplicants = $this->fetchPlacedApplicants('division', $divisionId, $startDate, $endDate);
+
+        // Initialize an array to hold the results, with months set to 0 from startDate to endDate
+        $applicantsByMonth = [];
+        $currentDate = $startDate->copy();
+
+        // Loop to populate only the months between startDate and endDate
+        while ($currentDate->lte($endDate)) {
+            $monthName = $currentDate->format('M');
+            $applicantsByMonth[$monthName] = 0;
+            $currentDate->addMonth();
+        }
+
+        // Group applicants by the month of their creation date and count them
+        foreach ($placedApplicants as $applicant) {
+            // Get the month name from the created_at date (e.g., 'Jan', 'Feb', etc.)
+            $date = Carbon::parse($applicant->created_at);
+            $month = $date->month;
+
+            // Increment the count for the corresponding month
+            if (isset($applicantsByMonth[$month])) {
+                $applicantsByMonth[$month]++;
+            } else {
+                $applicantsByMonth[$month] = 1;
+            }
+        }
+
+        return $applicantsByMonth;
+    }
+
+    /**
      * Fetch placed applicants along with their coordinates and the store's coordinates.
      *
      * @param string $type The type of view (e.g., national, division, area, store).
@@ -343,7 +384,7 @@ class ApplicantProximityService
      * @param string $endDate The end date for filtering applicants.
      * @return \Illuminate\Support\Collection The collection of placed applicants.
      */
-    private function fetchPlacedApplicants(string $type, ?int $id, string $startDate, string $endDate)
+    public function fetchPlacedApplicants(string $type, ?int $id, string $startDate, string $endDate)
     {
         $query = DB::table('vacancy_fills')
             ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
@@ -351,6 +392,7 @@ class ApplicantProximityService
             ->join('stores', 'vacancies.store_id', '=', 'stores.id')
             ->select(
                 'applicants.coordinates as applicant_coordinates',
+                'applicants.created_at',
                 'stores.coordinates as store_coordinates'
             )
             ->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);

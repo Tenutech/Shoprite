@@ -61,8 +61,8 @@ it('calculates the nationwide average time to hire within a date range', functio
     $vacancy3 = Vacancy::factory()->create(['created_at' => now()->subDays(10)]);
     VacancyFill::factory()->create(['vacancy_id' => $vacancy3->id, 'created_at' => now()->subDays(2)]);
 
-    $startDate = now()->subDays(20)->format('Y-m-d');
-    $endDate = now()->format('Y-m-d');
+    $startDate = Carbon::now()->subDays(20);
+    $endDate = Carbon::now();
 
     $vacancyDataService = app(VacancyDataService::class);
     $nationwideAverageTimeToHire = $vacancyDataService->getNationwideAverageTimeToHire($startDate, $endDate);
@@ -75,8 +75,8 @@ it('calculates the nationwide average time to hire within a date range', functio
 
 it('it calculates the store-specific average time to shortlist', function () {
 
-    $startDate = now()->subDays(20)->format('Y-m-d');
-    $endDate = now()->format('Y-m-d');
+    $startDate = Carbon::now()->subDays(20);
+    $endDate = Carbon::now();
 
     $store = Store::factory()->create(['id' => 1]);
     $user = User::factory()->create(['id' => 1]);
@@ -123,8 +123,8 @@ it('calculates the time-filtered average time to shortlist', function () {
 
 it('calculates the store-specific average time to shortlist', function () {
 
-    $startDate = now()->subDays(20)->format('Y-m-d');
-    $endDate = now()->format('Y-m-d');     
+    $startDate = Carbon::now()->subDays(20);
+    $endDate = Carbon::now();     
 
     $store = Store::factory()->create(['id' => 1]);
     User::factory()->create(['id' => 1]);
@@ -214,8 +214,8 @@ it('calculates the region-wide average time to hire within a date range', functi
         ]);
     }
 
-    $startDate = now()->subDays(20)->format('Y-m-d');
-    $endDate = now()->addDays(30)->format('Y-m-d');
+    $startDate = Carbon::now()->subDays(20);
+    $endDate = Carbon::now()->addDays(30);
 
     $service = new VacancyDataService();
     $averageTimeToHire = $service->getRegionWideAverageTimeToHire($region->id, $startDate, $endDate);
