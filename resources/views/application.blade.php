@@ -53,13 +53,13 @@
                     <!--end row-->
                 </div><!-- end h-100 -->
             </div><!-- end col -->
-    
+
         @else
-    
+
             <!-------------------------------------------------------------------------------------
                 Application Form
             -------------------------------------------------------------------------------------->
-        
+
             <div class="col-xl-12">
                 <div class="card">
                     <div class="card-header">
@@ -72,11 +72,11 @@
                             @csrf
                             <input type="hidden" id="id" name="id" value="{{ $user->applicant ? Crypt::encryptString($user->applicant->id) : '' }}"/>
                             <div class="row gy-5">
-        
+
                                 <!-------------------------------------------------------------------------------------
                                     Navigation Links
                                 -------------------------------------------------------------------------------------->
-        
+
                                 <div class="col-lg-3">
                                     <div class="nav flex-column custom-nav nav-pills" role="tablist" aria-orientation="vertical">
                                         <button class="nav-link active" id="v-pills-welcome-tab" data-bs-toggle="pill"
@@ -138,45 +138,45 @@
                                     </div>
                                     <!-- end nav -->
                                 </div> <!-- end col-->
-        
+
                                 <!-------------------------------------------------------------------------------------
                                     Navigation Tabs
                                 -------------------------------------------------------------------------------------->
-        
+
                                 <div class="col-lg-9">
                                     <div class="px-lg-4">
                                         <div class="tab-content">
-        
+
                                             <!-------------------------------------------------------------------------------------
                                                 Welcome
                                             -------------------------------------------------------------------------------------->
-        
+
                                             <div class="tab-pane fade show active" id="v-pills-welcome" role="tabpanel" aria-labelledby="v-pills-welcome-tab">
                                                 <div class="text-center pt-4 pb-2" id="welcome">
                                                     <div class="mb-4">
-                                                        <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" state="hover-2" 
+                                                        <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" state="hover-2"
                                                                 colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
                                                     </div>
-                                                    
+
                                                     <h5 class="mb-3">Welcome to our store <b><em>employment journey</em></b>!</h5>
-                                                
+
                                                     <p class="text-muted">
                                                         This process will take about 20 minutes, so please find a quiet spot to focus and carefully answer each question.
                                                     </p>
-                                                    
+
                                                     <p class="text-muted">
-                                                        By continuing, you acknowledge and <b><em>consent</em></b> to our terms and conditions of employment as part of your application 
-                                                        with the Shoprite Group of Companies, and you give <b><em>consent</em></b> for credential verification checks, including 
+                                                        By continuing, you acknowledge and <b><em>consent</em></b> to our terms and conditions of employment as part of your application
+                                                        with the Shoprite Group of Companies, and you give <b><em>consent</em></b> for credential verification checks, including
                                                         criminal checks, to be conducted.
                                                     </p>
-                                                
+
                                                     <p class="text-muted">
-                                                        You can view the T's and C's here: 
+                                                        You can view the T's and C's here:
                                                         <a href="https://bit.ly/srtscsnew" class="text-primary text-decoration-underline fst-normal fw-medium" target="_blank">
                                                             Terms and Conditions
                                                         </a>.
                                                     </p>
-                                                
+
                                                     <!-- Centered Label and Checkbox -->
                                                     <div class="text-center mt-3">
                                                         <!-- Label above checkbox -->
@@ -184,7 +184,7 @@
                                                             I agree to the terms and conditions, and I consent to the credential verification checks.
                                                             <span class="text-danger">*</span>
                                                         </label>
-                                                        
+
                                                         <!-- Larger centered checkbox on a new line -->
                                                         <div>
                                                             <input class="form-check-input" type="checkbox" id="consent" name="consent" required style="transform: scale(1.5);">
@@ -193,28 +193,28 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                
+
                                                     <!-- Start button -->
                                                     <div class="mt-4">
-                                                        <button type="button" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill nexttab" 
+                                                        <button type="button" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill nexttab"
                                                                 data-nexttab="v-pills-personal-tab">
-                                                            <i class="ri-play-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            <i class="ri-play-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                             Start!
                                                         </button>
                                                     </div>
                                                 </div>
                                             </div>
                                             <!-- end tab pane -->
-        
+
                                             <!-------------------------------------------------------------------------------------
                                                 Personal Information
                                             -------------------------------------------------------------------------------------->
-        
+
                                             <div class="tab-pane fade" id="v-pills-personal" role="tabpanel" aria-labelledby="v-pills-personal-tab">
                                                 <div>
                                                     <h5>Personal Information</h5>
                                                 </div>
-        
+
                                                 <div>
                                                     <div class="row gy-3">
                                                         <div class="col-lg-12 mb-3">
@@ -235,16 +235,16 @@
                                                                             <img src="{{ URL::asset($user->applicant ? ($user->applicant->avatar ? $user->applicant->avatar : 'images/avatar.jpg') : ($user->avatar ? 'images/'.$user->avatar : 'images/avatar.jpg')) }}" alt="" id="preview" class="avatar-lg rounded-circle object-cover" >
                                                                         </div>
                                                                     </div>
-                                                                </div>                                                        
+                                                                </div>
                                                             </div>
                                                             <label for="avatar" class="form-label">
                                                                 Please upload a clear picture of your South African ID. (Max 5MB)
                                                                 <span class="badge bg-secondary-subtle text-secondary badge-border">
                                                                     Optional
                                                                 </span>
-                                                            </label>                                                  
+                                                            </label>
                                                         </div>
-        
+
                                                         <!-- Fistname -->
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
@@ -258,7 +258,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-                                                        
+
                                                         <!-- Lastname -->
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
@@ -272,7 +272,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-        
+
                                                         <!-- ID Number -->
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
@@ -286,12 +286,12 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-        
+
                                                         <!-- Phone Number -->
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
                                                                 <label for="phone" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Please provide the phone number that we can contact you via WhatsApp.">
-                                                                    Phone Number 
+                                                                    Phone Number
                                                                     <span class="text-danger">*</span>
                                                                 </label>
                                                                 <div class="input-group" data-input-flag>
@@ -312,7 +312,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-        
+
                                                         <!-- Address -->
                                                         <div class="col-md-12">
                                                             <div class="mb-3">
@@ -326,7 +326,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-        
+
                                                         <!-- Ethnicity -->
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
@@ -341,9 +341,9 @@
                                                                     @endforeach
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select your ethnicity!</div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
-        
+
                                                         <!-- Email -->
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
@@ -354,11 +354,11 @@
                                                                     </span>
                                                                 </label>
                                                                 <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address" value="{{ $user->applicant ? $user->applicant->email : ($user->email ? $user->email : '') }}" />
-                                                            </div>                                                        
-                                                        </div>                                                
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                 </div>
-        
+
                                                 <div class="d-flex align-items-start gap-3 mt-4">
                                                     <button type="button" class="btn btn-light btn-label previestab"
                                                         data-previous="v-pills-welcome-tab">
@@ -374,19 +374,19 @@
                                                 </div>
                                             </div>
                                             <!-- end tab pane -->
-        
+
                                             <!-------------------------------------------------------------------------------------
                                                 Job Information
                                             -------------------------------------------------------------------------------------->
-        
+
                                             <div class="tab-pane fade" id="v-pills-job" role="tabpanel" aria-labelledby="v-pills-job-tab">
                                                 <div>
                                                     <h5>Job Information</h5>
                                                 </div>
-        
+
                                                 <div>
                                                     <div class="row gy-3">
-                                                        
+
                                                         <!-- Education -->
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
@@ -397,16 +397,16 @@
                                                                 <select class="form-control" id="education" name="education_id" required>
                                                                     <option value="">Select education level</option>
                                                                     @foreach ($educations as $education)
-                                                                        <option value="{{ $education->id }}" 
+                                                                        <option value="{{ $education->id }}"
                                                                             {{ ($user->applicant && $user->applicant->education_id == $education->id) ? 'selected' : '' }}>
                                                                             {{ $education->id == 2 ? 'Grade 10 / Grade 11' : $education->name }}
                                                                         </option>
                                                                     @endforeach
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select an qualification option!</div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
-        
+
                                                         <!-- Experience Duration -->
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
@@ -421,9 +421,9 @@
                                                                     @endforeach
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select an experience option!</div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
-        
+
                                                         <!-- Public Holidays -->
                                                         <div class="col-md-12">
                                                             <div class="mb-3">
@@ -441,7 +441,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-        
+
                                                         <!-- Environment -->
                                                         <div class="col-md-12">
                                                             <div class="mb-3">
@@ -459,7 +459,7 @@
                                                                 </div>
                                                             </div>
                                                         </div>
-        
+
                                                         <!-- Brand -->
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
@@ -474,9 +474,9 @@
                                                                     @endforeach
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select a brand!</div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
-        
+
                                                         <!-- Disability -->
                                                         <div class="col-md-6">
                                                             <div class="mb-3">
@@ -490,11 +490,11 @@
                                                                     <option value="No" {{ ($user->applicant && $user->applicant->disability == 'No') ? 'selected' : '' }}>No</option>
                                                                 </select>
                                                                 <div class="invalid-feedback">Please select a answer!</div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
-        
+
                                                 <div class="d-flex align-items-start gap-3 mt-4">
                                                     <button type="button" class="btn btn-light btn-label previestab"
                                                         data-previous="v-pills-personal-tab">
@@ -510,39 +510,39 @@
                                                 </div>
                                             </div>
                                             <!-- end tab pane -->
-        
+
                                             <!-------------------------------------------------------------------------------------
                                                 Literacy Assessment
                                             -------------------------------------------------------------------------------------->
-        
+
                                             <div class="tab-pane fade" id="v-pills-literacy" role="tabpanel" aria-labelledby="v-pills-literacy-tab">
                                                 <div>
                                                     <h5>Literacy Assessment</h5>
                                                 </div>
-        
+
                                                 <div>
                                                     <div class="row gy-3">
                                                         @php $literacyQuestionNumber = 1; @endphp <!-- Initialize a literacy question number counter outside the loop -->
-        
+
                                                         @foreach ($literacyQuestions as $question)
                                                             @php
                                                                 // Find the position of the first question mark or line break
                                                                 $firstQuestionMarkPos = strpos($question->message, '?');
                                                                 $firstLineBreakPos = strpos($question->message, "\n");
-        
+
                                                                 // Determine where to insert the <span> based on your preference
                                                                 $insertPos = $firstQuestionMarkPos !== false ? $firstQuestionMarkPos + 1 : $firstLineBreakPos;
-        
+
                                                                 // Insert the <span> tag
                                                                 if ($insertPos !== false) {
                                                                     $question->message = substr_replace($question->message, ' <span class="text-danger">*</span>', $insertPos, 0);
                                                                 }
-        
+
                                                                 // Convert line breaks to <br> tags without escaping the message
                                                                 $formattedMessage = nl2br($question->message);
                                                                 $formattedMessage = str_replace('*', '', $formattedMessage);
                                                             @endphp
-        
+
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label for="literacyQuestion-{{ $question->id }}" class="form-label">
@@ -557,13 +557,13 @@
                                                                         <option value="e">e</option>
                                                                     </select>
                                                                     <div class="invalid-feedback">Please select an option</div>
-                                                                </div>                                                        
+                                                                </div>
                                                             </div>
                                                             @php $literacyQuestionNumber++; @endphp <!-- Increment the literacy question number for the next iteration -->
                                                         @endforeach
                                                     </div>
                                                 </div>
-        
+
                                                 <div class="d-flex align-items-start gap-3 mt-4">
                                                     <button type="button" class="btn btn-light btn-label previestab"
                                                         data-previous="v-pills-job-tab">
@@ -579,39 +579,39 @@
                                                 </div>
                                             </div>
                                             <!-- end tab pane -->
-        
+
                                             <!-------------------------------------------------------------------------------------
                                                 Numeracy Assessment
                                             -------------------------------------------------------------------------------------->
-        
+
                                             <div class="tab-pane fade" id="v-pills-numeracy" role="tabpanel" aria-labelledby="v-pills-numeracy-tab">
                                                 <div>
                                                     <h5>Numerical Ability Assessment</h5>
                                                 </div>
-        
+
                                                 <div>
                                                     <div class="row gy-3">
                                                         @php $numeracyQuestionNumber = 1; @endphp <!-- Initialize a numeracy question number counter outside the loop -->
-        
+
                                                         @foreach ($numeracyQuestions as $question)
                                                             @php
                                                                 // Find the position of the first question mark or line break
                                                                 $firstQuestionMarkPos = strpos($question->message, '?');
                                                                 $firstLineBreakPos = strpos($question->message, "\n");
-                                                        
+
                                                                 // Determine where to insert the <span> based on your preference
                                                                 $insertPos = $firstQuestionMarkPos !== false ? $firstQuestionMarkPos + 1 : $firstLineBreakPos;
-                                                        
+
                                                                 // Insert the <span> tag
                                                                 if ($insertPos !== false) {
                                                                     $question->message = substr_replace($question->message, ' <span class="text-danger">*</span>', $insertPos, 0);
                                                                 }
-                                                        
+
                                                                 // Convert line breaks to <br> tags without escaping the message
                                                                 $formattedMessage = nl2br($question->message);
                                                                 $formattedMessage = str_replace('*', '', $formattedMessage);
                                                             @endphp
-                                                        
+
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label for="numeracyQuestion-{{ $question->id }}" class="form-label">
@@ -626,13 +626,13 @@
                                                                         <option value="e">e</option>
                                                                     </select>
                                                                     <div class="invalid-feedback">Please select an option</div>
-                                                                </div>                                                        
+                                                                </div>
                                                             </div>
                                                             @php $numeracyQuestionNumber++; @endphp <!-- Increment the numeracy question number for the next iteration -->
                                                         @endforeach
                                                     </div>
                                                 </div>
-        
+
                                                 <div class="d-flex align-items-start gap-3 mt-4">
                                                     <button type="button" class="btn btn-light btn-label previestab"
                                                         data-previous="v-pills-literacy-tab">
@@ -648,39 +648,39 @@
                                                 </div>
                                             </div>
                                             <!-- end tab pane -->
-        
+
                                             <!-------------------------------------------------------------------------------------
                                                 Situational Assessment
                                             -------------------------------------------------------------------------------------->
-        
+
                                             <div class="tab-pane fade" id="v-pills-situational" role="tabpanel" aria-labelledby="v-pills-situational-tab">
                                                 <div>
                                                     <h5>Situational Awareness Assessment</h5>
                                                 </div>
-        
+
                                                 <div>
                                                     <div class="row gy-3">
                                                         @php $situationalQuestionNumber = 1; @endphp <!-- Initialize a situational question number counter outside the loop -->
-                                            
+
                                                         @foreach ($situationalQuestions as $question)
                                                             @php
                                                                 // Find the position of the first question mark or line break
                                                                 $firstQuestionMarkPos = strpos($question->message, '?');
                                                                 $firstLineBreakPos = strpos($question->message, "\n");
-                                            
+
                                                                 // Determine where to insert the <span> based on your preference
                                                                 $insertPos = $firstQuestionMarkPos !== false ? $firstQuestionMarkPos + 1 : $firstLineBreakPos;
-                                            
+
                                                                 // Insert the <span> tag
                                                                 if ($insertPos !== false) {
                                                                     $question->message = substr_replace($question->message, ' <span class="text-danger">*</span>', $insertPos, 0);
                                                                 }
-                                            
+
                                                                 // Convert line breaks to <br> tags without escaping the message
                                                                 $formattedMessage = nl2br($question->message);
                                                                 $formattedMessage = str_replace('*', '', $formattedMessage);
                                                             @endphp
-                                            
+
                                                             <div class="col-md-12">
                                                                 <div class="mb-3">
                                                                     <label for="situationalQuestion-{{ $question->id }}" class="form-label">
@@ -694,13 +694,13 @@
                                                                         <option value="d">d</option>
                                                                     </select>
                                                                     <div class="invalid-feedback">Please select an option</div>
-                                                                </div>                                                        
+                                                                </div>
                                                             </div>
                                                             @php $situationalQuestionNumber++; @endphp <!-- Increment the situational question number for the next iteration -->
                                                         @endforeach
                                                     </div>
                                                 </div>
-        
+
                                                 <div class="d-flex align-items-start gap-3 mt-4">
                                                     <button type="button" class="btn btn-light btn-label previestab"
                                                         data-previous="v-pills-numeracy-tab">
@@ -716,11 +716,11 @@
                                                 </div>
                                             </div>
                                             <!-- end tab pane -->
-        
+
                                             <!-------------------------------------------------------------------------------------
                                                 Finish
                                             -------------------------------------------------------------------------------------->
-        
+
                                             <div class="tab-pane fade d-flex align-items-center justify-content-center flex-column" id="v-pills-finish" role="tabpanel" aria-labelledby="v-pills-finish-tab">
                                                 @if ($user->applicant)
                                                     <!-- Update -->
@@ -733,15 +733,15 @@
                                                             You are about to update your application with new information.
                                                         </p>
                                                         <button type="submit" id="updateBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
-                                                            <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                             Yes, Update !
                                                         </button>
                                                         <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                            <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                             View Application
                                                         </a>
                                                     </div>
-        
+
                                                     <!-- Loading -->
                                                     <div class="text-center pt-4 pb-2 mt-4 d-none" id="loading">
                                                         <div class="spinner-border text-success mb-4" role="status">
@@ -759,22 +759,22 @@
                                                             After successful submission you will be notified should you qualify fo an interview.
                                                         </p>
                                                         <button type="button" id="cancelBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
-                                                            <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                             No, Cancel
                                                         </button>
                                                         <button type="submit" id="submitBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
-                                                            <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                             Yes, Submit !
                                                         </button>
-                                                    </div>                                            
-        
+                                                    </div>
+
                                                     <!-- Loading -->
                                                     <div class="text-center pt-4 pb-2 d-none" id="loading">
                                                         <div class="spinner-border text-success mb-4" role="status">
                                                             <span class="sr-only">Loading...</span>
                                                         </div>
                                                     </div>
-        
+
                                                     <!-- Complete -->
                                                     <div class="text-center pt-4 pb-2 d-none" id="complete">
                                                         <div class="mb-4">
@@ -782,11 +782,11 @@
                                                         </div>
                                                         <h5 id="completeHeading">Application Submitted !</h5>
                                                         <p class="text-muted" id="completeText">
-                                                            Your application has been submitted successfully, you will be notified should you qualify 
+                                                            Your application has been submitted successfully, you will be notified should you qualify
                                                             for an interview
                                                         </p>
                                                         <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                            <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                             View Application
                                                         </a>
                                                     </div>
@@ -801,12 +801,12 @@
                                                             Thank you for your interest in a position at the Shoprite Group of Companies. You are not eligible for this position. Have a wonderful day!
                                                         </p>
                                                         <a type="button" href="{{ route('profile.index') }}" id="view-application-2" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                            <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                            <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                             View Application
                                                         </a>
                                                     </div>
                                                 @endif
-        
+
                                                 <!-- Danger Alert -->
                                                 <div class="alert alert-danger alert-dismissible fade text-center mt-4" role="alert" id="requiredAlert">
                                                     <strong>Some fields are missing!</strong> Please make sure that all the required fields are filled out
@@ -826,7 +826,7 @@
                 </div>
                 <!-- end -->
             </div>
-            <!-- end col -->    
+            <!-- end col -->
         @endif
     </div>
     <!-- end row -->

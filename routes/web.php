@@ -53,6 +53,18 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::put('/applicant-decline', [App\Http\Controllers\ApplicantApprovalController::class, 'decline'])->name('applicant.decline');
 
+    //Applicants Table
+
+    Route::get('/applicants-table', [App\Http\Controllers\ApplicantsTableController::class, 'index'])->name('applicants-table.index');
+
+    Route::post('/applicants-table/update', [App\Http\Controllers\ApplicantsTableController::class, 'update'])->name('applicants-table.update');
+
+    Route::get('/applicants-table/details/{id}', [App\Http\Controllers\ApplicantsTableController::class, 'details'])->name('applicants-table.details');
+
+    Route::delete('/applicants-table/destroy/{id}', [App\Http\Controllers\ApplicantsTableController::class, 'destroy'])->name('applicants-table.destroy');
+
+    Route::post('/applicants-table/destroy-multiple', [App\Http\Controllers\ApplicantsTableController::class, 'destroyMultiple'])->name('applicants-table.destroyMultiple');
+
     //Users
 
     Route::get('/users', [App\Http\Controllers\UsersController::class, 'index'])->name('users.index');
@@ -270,7 +282,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::delete('/divisions/destroy/{id}', [App\Http\Controllers\DivisionsController::class, 'destroy'])->name('divisions.destroy');
 
     Route::post('/divisions/destroy-multiple', [App\Http\Controllers\DivisionsController::class, 'destroyMultiple'])->name('divisions.destroyMultiple');
-    
+
 
     //Positions
 
@@ -775,7 +787,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     //Application
 
-    //Route::get('/application', [App\Http\Controllers\ApplicationController::class, 'index'])->name('application.index');
+    Route::get('/application', [App\Http\Controllers\ApplicationController::class, 'index'])->name('application.index');
 
     Route::post('/application/store', [App\Http\Controllers\ApplicationController::class, 'store'])->name('application.store');
 

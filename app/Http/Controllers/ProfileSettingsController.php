@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Validation\Rule;
 
 class ProfileSettingsController extends Controller
 {
@@ -135,14 +136,14 @@ class ProfileSettingsController extends Controller
             'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'phone' => ['required', 'string', 'max:191', 'unique:users,phone,' . $userID],
+            'phone' => ['required', 'string', 'max:191', Rule::unique('users')->ignore($userID)],
         ];
 
         // Conditionally validate `email` based on the `role_id`
         if ($user->role_id < 7) {
-            $validationRules['email'] = ['required', 'string', 'email', 'max:191', 'unique:users,email,' . $userID];
+            $validationRules['email'] = ['required', 'string', 'email', 'max:191', Rule::unique('users')->ignore($userID)];
         } else {
-            $validationRules['email'] = ['nullable', 'string', 'email', 'max:191', 'unique:users,email,' . $userID];
+            $validationRules['email'] = ['nullable', 'string', 'email', 'max:191', Rule::unique('users')->ignore($userID)];
         }
 
         // Additional validation if `role_id >= 7`
