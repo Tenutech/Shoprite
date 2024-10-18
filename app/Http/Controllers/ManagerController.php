@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use Carbon\Carbon;
-use App\Models\User;
+use App\Models\ReminderSetting;
 use App\Models\Store;
 use App\Models\Shortlist;
 use App\Models\Setting;
-use App\Models\ReminderSetting;
+use App\Models\User;
 use App\Services\DataService\ApplicantDataService;
 use App\Services\DataService\ApplicantProximityService;
 use App\Services\DataService\VacancyDataService;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;

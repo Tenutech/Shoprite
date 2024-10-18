@@ -8,6 +8,7 @@ use App\Models\Vacancy;
 use App\Models\Interview;
 use App\Models\Shortlist;
 use App\Models\Applicant;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ApplicantProximityService
@@ -201,6 +202,168 @@ class ApplicantProximityService
     }
 
     /**
+     * Get the number of talent pool applicants within a given distance from the store.
+     *
+     * @param int $divisionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return array
+     */
+    public function getDivisionPlacedApplicants(int $divisionId, $startDate, $endDate)
+    {
+        return count($this->fetchPlacedApplicants('division', $divisionId, $startDate, $endDate));
+    }
+
+    /**
+     * Get the number of talent pool applicants by month within a given distance from the store.
+     *
+     * @param int $divisionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return array
+     */
+    public function getDivisionPlacedApplicantsByMonth(int $divisionId, $startDate, $endDate)
+    {
+        $placedApplicants = $this->fetchPlacedApplicants('division', $divisionId, $startDate, $endDate);
+
+        // Initialize an array to hold the results, with months set to 0 from startDate to endDate
+        $applicantsByMonth = [];
+        $currentDate = $startDate->copy();
+
+        // Loop to populate only the months between startDate and endDate
+        while ($currentDate->lte($endDate)) {
+            $monthName = $currentDate->format('M');
+            $applicantsByMonth[$monthName] = 0;
+            $currentDate->addMonth();
+        }
+
+        // Group applicants by the month of their creation date and count them
+        foreach ($placedApplicants as $applicant) {
+            // Get the month name from the created_at date (e.g., 'Jan', 'Feb', etc.)
+            $date = Carbon::parse($applicant->created_at);
+            $month = $date->month;
+
+            // Increment the count for the corresponding month
+            if (isset($applicantsByMonth[$month])) {
+                $applicantsByMonth[$month]++;
+            } else {
+                $applicantsByMonth[$month] = 1;
+            }
+        }
+
+        return $applicantsByMonth;
+    }
+
+    /**
+     * Get the number of talent pool applicants for a division within a given distance from the store.
+     *
+     * @param int $divisionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param float $maxDistanceFromStore
+     * @return array
+     */
+    public function getDivisionTalentPoolApplicants(int $divisionId, $startDate, $endDate, $maxDistanceFromStore)
+    {
+        return $this->getTotalTalentPoolApplicants('division', $divisionId, $startDate, $endDate, $maxDistanceFromStore);
+    }
+
+    /**
+     * Get the number of talent pool applicants by month for a division within a given distance from the store.
+     *
+     * @param int $divisionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param float $maxDistanceFromStore
+     * @return array
+     */
+    public function getDivisionTalentPoolApplicantsByMonth(int $divisionId, $startDate, $endDate, $maxDistanceFromStore)
+    {
+        return $this->getTalentPoolApplicantsByMonth('division', $divisionId, $startDate, $endDate, $maxDistanceFromStore);
+    }
+
+    /**
+     * Get the number of talent pool applicants for a division within a given distance from the store.
+     *
+     * @param int $regionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param float $maxDistanceFromStore
+     * @return array
+     */
+    public function getRegionTalentPoolApplicants(int $regionId, $startDate, $endDate, $maxDistanceFromStore)
+    {
+        return $this->getTotalTalentPoolApplicants('region', $regionId, $startDate, $endDate, $maxDistanceFromStore);
+    }
+
+    /**
+     * Get the number of talent pool applicants by month for a region within a given distance from the store.
+     *
+     * @param int $regionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param float $maxDistanceFromStore
+     * @return array
+     */
+    public function getRegionTalentPoolApplicantsByMonth(int $regionId, $startDate, $endDate, $maxDistanceFromStore)
+    {
+        return $this->getTalentPoolApplicantsByMonth('region', $regionId, $startDate, $endDate, $maxDistanceFromStore);
+    }
+
+    /**
+     * Get the number of talent pool applicants within a given distance from the store.
+     *
+     * @param int $regionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return array
+     */
+    public function getRegionPlacedApplicants(int $regionId, $startDate, $endDate)
+    {
+        return count($this->fetchPlacedApplicants('region', $regionId, $startDate, $endDate));
+    }
+
+    /**
+     * Get the number of talent pool applicants by month within a given distance from the store.
+     *
+     * @param int $regionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return array
+     */
+    public function getRegionPlacedApplicantsByMonth(int $regionId, $startDate, $endDate)
+    {
+        $placedApplicants = $this->fetchPlacedApplicants('region', $regionId, $startDate, $endDate);
+
+        // Initialize an array to hold the results, with months set to 0 from startDate to endDate
+        $applicantsByMonth = [];
+        $currentDate = $startDate->copy();
+
+        // Loop to populate only the months between startDate and endDate
+        while ($currentDate->lte($endDate)) {
+            $monthName = $currentDate->format('M');
+            $applicantsByMonth[$monthName] = 0;
+            $currentDate->addMonth();
+        }
+
+        // Group applicants by the month of their creation date and count them
+        foreach ($placedApplicants as $applicant) {
+            // Get the month name from the created_at date (e.g., 'Jan', 'Feb', etc.)
+            $date = Carbon::parse($applicant->created_at);
+            $month = $date->month;
+
+            // Increment the count for the corresponding month
+            if (isset($applicantsByMonth[$month])) {
+                $applicantsByMonth[$month]++;
+            } else {
+                $applicantsByMonth[$month] = 1;
+            }
+        }
+
+        return $applicantsByMonth;
+    }
+
+    /**
      * Calculate the average proximity for all applicants for Admin view.
      *
      * @param string $startDate The start date for filtering applicants.
@@ -343,7 +506,7 @@ class ApplicantProximityService
      * @param string $endDate The end date for filtering applicants.
      * @return \Illuminate\Support\Collection The collection of placed applicants.
      */
-    private function fetchPlacedApplicants(string $type, ?int $id, string $startDate, string $endDate)
+    public function fetchPlacedApplicants(string $type, ?int $id, string $startDate, string $endDate)
     {
         $query = DB::table('vacancy_fills')
             ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
@@ -351,6 +514,7 @@ class ApplicantProximityService
             ->join('stores', 'vacancies.store_id', '=', 'stores.id')
             ->select(
                 'applicants.coordinates as applicant_coordinates',
+                'applicants.created_at',
                 'stores.coordinates as store_coordinates'
             )
             ->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
@@ -408,5 +572,122 @@ class ApplicantProximityService
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
         return $earthRadius * $c;
+    }
+
+    /**
+     * Get the number of talent pool applicants within a given distance.
+     *
+     * @param string $type The type of view (e.g., national, division, area, store).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param float $maxDistanceFromStore
+     * @return array
+     */
+    private function getTotalTalentPoolApplicants(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore)
+    {
+        if ($type === 'division') {
+            $stores = Store::where('division_id', $id)->get();
+        } elseif ($type === 'region') {
+            $stores = Store::where('region_id', $id)->get();
+        } else {
+            return 0;
+        }
+
+        $completeStateID = State::where('code', 'complete')->value('id');
+
+        if (!$completeStateID) {
+            return 0;
+        }
+
+        $totalApplicants = 0;
+
+        foreach ($stores as $store) {
+            $storeCoordinates = explode(',', $store->coordinates);
+            $storeLat = floatval($storeCoordinates[0]);
+            $storeLng = floatval($storeCoordinates[1]);
+
+            $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                ->where('state_id', '>=', $completeStateID)
+                ->whereRaw("
+                    ST_Distance_Sphere(
+                        point(
+                            SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
+                            SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                        ), 
+                        point(?, ?)
+                    ) <= ?
+                ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000])
+                ->get();
+
+            $totalApplicants += $applicants->count();
+        }
+
+        return $totalApplicants;
+    }
+
+    /**
+     * Get the number of talent pool applicants by month within a given distance.
+     *
+     * @param string $type The type of view (e.g., national, division, area, store).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @param float $maxDistanceFromStore
+     * @return array
+     */
+    private function getTalentPoolApplicantsByMonth(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore)
+    {
+        if ($type === 'division') {
+            $stores = Store::where('division_id', $id)->get();
+        } elseif ($type === 'region') {
+            $stores = Store::where('region_id', $id)->get();
+        } else {
+            return 0;
+        }
+
+        $applicantsByMonth = [];
+        $currentDate = $startDate->copy();
+
+        while ($currentDate->lte($endDate)) {
+            $monthName = $currentDate->format('M');
+            $applicantsByMonth[$monthName] = 0;
+            $currentDate->addMonth();
+        }
+
+        $completeStateID = State::where('code', 'complete')->value('id');
+
+        if (!$completeStateID) {
+            return [];
+        }
+
+        foreach ($stores as $store) {
+            $storeCoordinates = explode(',', $store->coordinates);
+            $storeLat = floatval($storeCoordinates[0]);
+            $storeLng = floatval($storeCoordinates[1]);
+
+            $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                ->where('state_id', '>=', $completeStateID)
+                ->whereRaw("
+                    ST_Distance_Sphere(
+                        point(
+                            SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
+                            SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                        ), 
+                        point(?, ?)
+                    ) <= ?
+                ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000])
+                ->get();
+
+            foreach ($applicants as $applicant) {
+                $month = $applicant->created_at->format('M');
+
+                if (isset($applicantsByMonth[$month])) {
+                    $applicantsByMonth[$month]++;
+                }
+            }
+        }
+
+        return $applicantsByMonth;
     }
 }
