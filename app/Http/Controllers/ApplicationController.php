@@ -143,8 +143,8 @@ class ApplicationController extends Controller
             'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:5120'], // Avatar validation
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'id_number' => ['required', 'string', 'max:13'],
-            'phone' => ['required', 'string', 'max:191'],
+            'id_number' => ['required', 'string', 'max:13', 'unique:applicants'],
+            'phone' => ['required', 'string', 'max:191', 'unique:applicants'],
             'location' => ['required', 'string'],
             'latitude' => ['required', function ($attribute, $value, $fail) {
                 if (empty($value)) {
@@ -397,14 +397,20 @@ class ApplicationController extends Controller
 
     public function update(Request $request)
     {
+        //Applicant ID
+        $applicantId = Crypt::decryptString($request->id);
+
+        //Applicant
+        $applicant = Applicant::findOrFail($applicantId);
+        
         //Validate Input
         $request->validate([
             'consent' => ['accepted'], // Validate consent checkbox
             'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:5120'], // Avatar validation
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'id_number' => ['required', 'string', 'max:13'],
-            'phone' => ['required', 'string', 'max:191'],
+            'id_number' => ['required', 'string', 'max:13', Rule::unique('applicants')->ignore($applicantId)],
+            'phone' => ['required', 'string', 'max:191', Rule::unique('applicants')->ignore($applicantId)],
             'location' => ['required', 'string'],
             'latitude' => ['required', function ($attribute, $value, $fail) {
                 if (empty($value)) {
@@ -417,7 +423,7 @@ class ApplicationController extends Controller
                 }
             }],
             'race_id' => ['required', 'integer', 'exists:races,id'],
-            'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
+            'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', Rule::unique('applicants')->ignore($applicantId)],
             'education_id' => ['required', 'integer', 'exists:educations,id'],
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
             'public_holidays' => ['required', 'in:Yes,No'],
@@ -442,12 +448,6 @@ class ApplicationController extends Controller
             // Get the current authenticated user
             $userId = Auth::id();
             $user = User::find($userId);
-
-            //Applicant ID
-            $applicantId = Crypt::decryptString($request->id);
-
-            //Applicant
-            $applicant = Applicant::findOrFail($applicantId);
 
             // Handle avatar upload (if present)
             if ($request->avatar) {
@@ -487,7 +487,6 @@ class ApplicationController extends Controller
             $durationId = $request->duration_id;
             $publicHolidays = $request->public_holidays;
             $environment = $request->environment;
-            $brandId = $request->brand_id;
             $disability = $request->disability;
             $literacyAnswers = $request->literacy_answers;
             $numeracyAnswers = $request->numeracy_answers;
@@ -553,7 +552,6 @@ class ApplicationController extends Controller
                 'consent' => $request->consent ? 'Yes' : 'No', // Store consent status
                 'environment' => $environment, // Store user's answer to environment
                 'duration_id' => $durationId,
-                'brand_id' => $brandId,
                 'location_type' => 'Address',
                 'location' => $location,
                 'coordinates' => $coordinates,

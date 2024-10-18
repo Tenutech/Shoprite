@@ -90,30 +90,13 @@
                                         <th class="sort" data-sort="id_number" scope="col">ID Number</th>
                                         <th class="sort" data-sort="phone" scope="col">Phone</th>
                                         <th class="sort" data-sort="employment" scope="col">Employment</th>
-                                        <th class="sort" data-sort="state_id" scope="col">State</th>
-                                        <th class="sort d-none" data-sort="id_verified" scope="col">ID Verified</th>
-                                        <th class="sort d-none" data-sort="under_18" scope="col">Under 18</th>
-                                        <th class="sort d-none" data-sort="location" scope="col">Location</th>
-                                        <th class="sort d-none" data-sort="town" scope="col">town</th>
-                                        <th class="sort d-none" data-sort="birth_date" scope="col">Birth Date</th>
+                                        <th class="sort" data-sort="state" scope="col">State</th>
+                                        <th class="sort d-none" data-sort="email" scope="col">Email</th>
+                                        <th class="sort d-none" data-sort="town" scope="col">Town</th>
                                         <th class="sort d-none" data-sort="age" scope="col">Age</th>
-                                        <th class="sort d-none" data-sort="gender_id" scope="col">Gender</th>
-                                        <th class="sort d-none" data-sort="race_id" scope="col">Race</th>
-                                        <th class="sort d-none" data-sort="email" scope="col">email</th>
-                                        <th class="sort d-none" data-sort="disability" scope="col">Disability</th>
-                                        <th class="sort d-none" data-sort="education_id" scope="col">Education</th>
-                                        <th class="sort d-none" data-sort="duration_id" scope="col">Duration</th>
-                                        <th class="sort d-none" data-sort="location_type" scope="col">Location Type</th>
-                                        <th class="sort d-none" data-sort="literacy_score" scope="col">Literacy Score</th>
-                                        <th class="sort d-none" data-sort="numeracy_score" scope="col">Numeracy Score</th>
-                                        <th class="sort d-none" data-sort="situational_score" scope="col">Situation Score</th>
+                                        <th class="sort d-none" data-sort="gender" scope="col">Gender</th>
+                                        <th class="sort d-none" data-sort="race" scope="col">Race</th>
                                         <th class="sort d-none" data-sort="score" scope="col">Score</th>
-                                        <th class="sort d-none" data-sort="applicant_type_id" scope="col">Applicant Type</th>
-                                        <th class="sort d-none" data-sort="shortlist_id" scope="col">Shortlist</th>
-                                        <th class="sort d-none" data-sort="apointed_id" scope="col">Appointed</th>
-                                        <th class="sort d-none" data-sort="no_show" scope="col">No Show</th>
-                                        <th class="sort d-none" data-sort="checkpoint" scope="col">Checkpoint</th>
-                                        <td class="sort d-none" data-sort="role" scope="col">Role</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -127,15 +110,10 @@
                                                     </div>
                                                 </th>
                                                 <td class="id d-none">{{ Crypt::encryptstring($applicant->id) }}</td>
-                                                @if (isset($applicant->interviews) && count($applicant->interviews) > 0)
-                                                    <td class="interview_applicant_id d-none">{{ Crypt::encryptstring($applicant->id) }}</td>
-                                                @else
-                                                    <td class="interview_applicant_id d-none"></td>
-                                                @endif
                                                 <td class="name">
                                                     <div class="d-flex align-items-center">
                                                         <div class="flex-shrink-0">
-                                                            <img src="{{ URL::asset('images/' . $applicant->avatar) }}" alt="" class="avatar-xs rounded-circle">
+                                                            <img src="{{ URL::asset($applicant->avatar) }}" alt="" class="avatar-xs rounded-circle">
                                                         </div>
                                                         <div class="flex-grow-1 ms-2 name">{{ $applicant->firstname }} {{ $applicant->lastname }}</div>
                                                     </div>
@@ -144,59 +122,43 @@
                                                 <td class="phone">{{ $applicant->phone }}</td>
                                                 <td class="employment">
                                                     @php
-                                                        $employment = '';
+                                                        $employment = 'Inconclusive';
+                                                        $status = 'dark';
                                                         switch ($applicant->employment) {
                                                             case 'A':
                                                                 $employment = 'Active Employee';
+                                                                $status = 'warning';
                                                                 break;
                                                             case 'B':
                                                                 $employment = 'Blacklisted';
+                                                                $status = 'danger';
                                                                 break;
                                                             case 'P':
                                                                 $employment = 'Previously Employed';
+                                                                $status = 'info';
                                                                 break;
                                                             case 'N':
                                                                 $employment = 'Not an Employee';
+                                                                $status = 'success';
                                                                 break;
                                                             case 'I':
                                                             default:
                                                                 $employment = 'Inconclusive';
+                                                                $status = 'dark';
                                                                 break;
                                                         }
                                                     @endphp
-                                                    {{ $employment }}
+                                                    <span class="badge bg-{{ $status }}-subtle text-{{ $status }} text-uppercase">
+                                                        {{ $employment }}
+                                                    </span>                                                    
                                                 </td>
                                                 <td class="state">{{ $applicant->state_id ? $applicant->state->name : '' }}</td>
-                                                <td class="id_verified d-none">{{ $applicant->id_verified }}</td>
-                                                <td class="public_holidays d-none">{{ $applicant->public_holidays }}</td>
-                                                <td class="environment d-none">{{ $applicant->environment }}</td>
-                                                <td class="under_18 d-none">{{ $applicant->under_18 }}</td>
-                                                <td class="location d-none">{{ $applicant->location }}</td>
-                                                <td class="town d-none">{{ $applicant->town_id ? $applicant->town->name : '' }}</td>
-                                                <td class="birth_date d-none">{{ $applicant->birth_date }}</td>
-                                                <td class="age d-none">{{ $applicant->age }}</td>
-                                                <td class="gender d-none">{{ $applicant->gender->name }}</td>
-                                                <td class="race d-none">{{ $applicant->race_id ? $applicant->race->name : '' }}</td>
                                                 <td class="email d-none">{{ $applicant->email }}</td>
-                                                <td class="disability d-none">{{ $applicant->disability }}</td>
-                                                <td class="education d-none">{{ $applicant->education_id ? $applicant->education->name : '' }}</td>
-                                                <td class="duration d-none">{{ $applicant->duration_id ? $applicant->duration->name : '' }}</td>
-                                                <td class="location_type d-none">{{ $applicant->location_type }}</td>
-                                                @if (isset($applicant->applicantType) && !empty($applicant->applicantType))
-                                                    <td class="applicantType d-none">{{ $applicant->applicantType->name ? $applicant->applicantType->name : ''}}</td>
-                                                @else
-                                                    <td class="applicantType d-none">{{ '' }}</td>
-                                                @endif
-                                                <td class="publicHolidays d-none">{{ $applicant->public_holidays ? $applicant->public_holidays : 'N/A' }}</td>
-                                                <td class="literacyScore d-none">{{ $applicant->literacy_score ? $applicant->literacy_score : 'N/A' }}</td>
-                                                <td class="numeracyScore d-none">{{ $applicant->numeracy_score ? $applicant->numeracy_score : 'N/A' }}</td>
-                                                <td class="situationalScore d-none">{{ $applicant->situational_score ? $applicant->situational_score : 'N/A' }}</td>
-                                                <td class="overallScore d-none">{{ $applicant->score ? $applicant->score : 'N/A' }}</td>
-                                                <td class="shortlist d-none">{{ $applicant->shortlist_id ? $applicant->shortlist->id : '' }}</td>
-                                                <td class="apointed d-none" >{{ $applicant->applicant_id ? $applicant->vacancyFill->applicant_id : ''  }}</td>
-                                                <td class="no_show d-none">{{ $applicant->no_show }}</td>
-                                                <td class="checkpoint d-none">{{ $applicant->checkpoint }}</td>
-                                                <td class="role d-none">{{ $applicant->role_id ? $applicant->role->name : ''  }}</td>
+                                                <td class="town d-none">{{ $applicant->town_id ? $applicant->town->name : '' }}</td>
+                                                <td class="age d-none">{{ $applicant->age }}</td>
+                                                <td class="gender d-none">{{ $applicant->gender_id ? $applicant->gender->name : '' }}</td>
+                                                <td class="race d-none">{{ $applicant->race_id ? $applicant->race->name : '' }}</td>
+                                                <td class="score d-none">{{ $applicant->score ? $applicant->score : 'N/A' }}</td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
                                                         <li class="list-inline-item">
@@ -238,33 +200,17 @@
                                                 </div>
                                             </th>
                                             <td class="id d-none"></td>
+                                            <td class="name"></td>
                                             <td class="id_number"></td>
                                             <td class="phone"></td>
                                             <td class="employment"></td>
                                             <td class="state"></td>
-                                            <td class="id_verified d-none"></td>
-                                            <td class="under_18 d-none"></td>
-                                            <td class="location d-none"></td>
-                                            <td class="town_id d-none"></td>
-                                            <td class="birth_date d-none"></td>
+                                            <td class="email d-none"></td>                                           
+                                            <td class="town d-none"></td>
                                             <td class="age d-none"></td>
-                                            <td class="gender_id d-none"></td>
-                                            <td class="race_id d-none"></td>
-                                            <td class="email d-none"></td>
-                                            <td class="disability d-none"></td>
-                                            <td class="education_id d-none"></td>
-                                            <td class="duration_id d-none"></td>
-                                            <td class="location_type d-none"></td>
-                                            <td class="literacy_score d-none"></td>
-                                            <td class="numeracy_score d-none"></td>
-                                            <td class="situational_score d-none"></td>
+                                            <td class="gender d-none"></td>
+                                            <td class="race d-none"></td>
                                             <td class="score d-none"></td>
-                                            <td class="applicant_type_id d-none"></td>
-                                            <td class="shortlist_id d-none"></td>
-                                            <td class="apointed_id d-none" ></td>
-                                            <td class="no_show d-none"></td>
-                                            <td class="employment d-none"></td>
-                                            <td class="checkpoint d-none"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -334,7 +280,7 @@
                             <div class="modal-content border-0">
                                 <div class="modal-header p-3 bg-soft-primary-rainbow">
                                     <h5 class="modal-title" id="exampleModalLabel">
-                                        Add Applicant
+                                        Update Applicant
                                     </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
                                 </div>
@@ -370,6 +316,7 @@
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="firstname" class="form-label">
                                                         Firstname
+                                                        <span class="text-danger">*</span>
                                                     </label>
                                                     <input type="text" id="firstname" name="firstname" class="form-control" placeholder="Enter first name" required/>
                                                 </div>
@@ -377,6 +324,7 @@
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="email" class="form-label">
                                                         Email
+                                                        <span class="text-danger">*</span>
                                                     </label>
                                                     <input type="email" id="email" name="email" class="form-control" placeholder="Enter email address" required/>
                                                 </div>
@@ -384,20 +332,15 @@
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="idNumber" class="form-label">
                                                         ID Number
+                                                        <span class="text-danger">*</span>
                                                     </label>
                                                     <input type="text" id="idNumber" name="id_number" class="form-control" placeholder="Enter id number" required/>
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="birthDate" class="form-label">
-                                                        Birth Date
-                                                    </label>
-                                                    <input type="date" id="birthDate" name="birth_date" class="form-control" placeholder="Enter date of birth"/>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
                                                     <label for="gender" class="form-label">
                                                         Gender
+                                                        <span class="text-danger">*</span>
                                                     </label>
                                                     <select id="gender" name="gender_id" class="form-control">
                                                         <option value="" selected>Select Gender</option>
@@ -406,12 +349,13 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->
+                                                <!--end col-->                                              
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="location" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="What is your current home address where you stay/live 🏡? Please type every detail. (e.g. street number, street name, suburb, town, postal code).">
                                                         Address
+                                                        <span class="text-danger">*</span>
                                                     </label>
-                                                    <input type="text" class="form-control" id="locationAddress" name="location" placeholder="Enter home address" data-google-autocomplete autocomplete="off" required />
+                                                    <input type="text" class="form-control" id="location" name="location" placeholder="Enter home address" data-google-autocomplete autocomplete="off" required />
                                                     <div class="invalid-feedback">
                                                         Please enter your home address!
                                                     </div>
@@ -421,10 +365,11 @@
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="duration" class="form-label">
-                                                        Duration Type
+                                                        Retail Experience
+                                                        <span class="text-danger">*</span>
                                                     </label>
                                                     <select id="duration" name="duration_id" class="form-control">
-                                                        <option value="" selected>Select Duration Type</option>
+                                                        <option value="" selected>Select Experience</option>
                                                         @foreach ($durations as $duration)
                                                             <option value="{{ $duration->id }}">{{ $duration->name }}</option>
                                                         @endforeach
@@ -432,8 +377,9 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="publicHolidays" class="form-label">
+                                                    <label for="publicHolidays" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Are you prepared to work on a rotational shift basis that may include Sundays and public holidays?">
                                                         Public Holidays
+                                                        <span class="text-danger">*</span>
                                                     </label>
                                                     <select id="publicHolidays" name="public_holidays" class="form-control">
                                                         <option value="" selected>Select Option</option>
@@ -443,10 +389,96 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
+                                                    <label for="disability" class="form-label">
+                                                        Disability
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+                                                    <select id="disability" name="disability" class="form-control">
+                                                        <option value="" selected>Select Option</option>
+                                                        <option value="No">No</option>
+                                                        <option value="Yes">Yes</option>
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                            </div>
+
+                                            <div class="col-lg-6">
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="lastname" class="form-label">
+                                                        Lastname
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Enter last name" required/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="phone" class="form-label">
+                                                        Phone
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+                                                    <input type="text" id="phone" name="phone" class="form-control" placeholder="Enter phone number" required/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="employment" class="form-label">
+                                                        Employment Status
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+                                                    <select id="employment" name="employment" class="form-control">
+                                                        <option value="" selected>Select Status</option>
+                                                        <option value="A">Active Employee</option>
+                                                        <option value="B">Blacklisted</option>
+                                                        <option value="P">Previously Employed</option>
+                                                        <option value="N">Not an Employee</option>
+                                                        <option value="I">Inconclusive</option>
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="race" class="form-label">
+                                                        Ethnicity
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+                                                    <select id="race" name="race_id" class="form-control">
+                                                        <option value="" selected>Select Ethnicity</option>
+                                                        @foreach ($races as $race)
+                                                            <option value="{{ $race->id }}">{{ $race->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->                                      
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="education" class="form-label">
+                                                        Education
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+                                                    <select id="education" name="education_id" class="form-control">
+                                                        <option value="" selected>Select Education Level</option>
+                                                        @foreach ($educations as $education)
+                                                            <option value="{{ $education->id }}">{{ $education->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="brand" class="form-label">
+                                                        Brand(s)
+                                                        <span class="text-danger">*</span>
+                                                    </label>
+                                                    <select class="form-control" id="brands" name="brands[]" multiple>
+                                                        <option value="">Select brand</option>
+                                                        @foreach ($brands as $brand)
+                                                            <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
                                                     <label for="environment" class="form-label">
                                                         Environment
+                                                        <span class="text-danger">*</span>
                                                     </label>
-                                                    <select id="environment" name="environment" class="form-control">
+                                                    <select id="environment" name="environment" class="form-control" data-bs-toggle="tooltip" data-bs-placement="top" title="Are you willing to work in an environment that may involve heavy lifting, cold areas, or standing for long periods?">
                                                         <option value="" selected>Select Option</option>
                                                         <option value="No">No</option>
                                                         <option value="Yes">Yes</option>
@@ -458,117 +490,9 @@
                                                         State
                                                     </label>
                                                     <select id="state" name="state_id" class="form-control">
-                                                        <option value="" selected>Select Applicant State</option>
+                                                        <option value="" selected>Select Chatbot State</option>
                                                         @foreach ($states as $state)
                                                             <option value="{{ $state->id }}">{{ $state->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
-                                            </div>
-
-                                            <div class="col-lg-6">
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="lastname" class="form-label">
-                                                        Lastname
-                                                    </label>
-                                                    <input type="text" id="lastname" name="lastname" class="form-control" placeholder="Enter last name" required/>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="phone" class="form-label">
-                                                        Phone
-                                                    </label>
-                                                    <input type="text" id="phone" name="phone" class="form-control" placeholder="Enter phone number" required/>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="idVerified" class="form-label">
-                                                        ID Verified
-                                                    </label>
-                                                    <select id="idVerified" name="id_verified" class="form-control">
-                                                        <option value="" selected>Select Option</option>
-                                                        <option value="No">No</option>
-                                                        <option value="Yes">Yes</option>
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="age" class="form-label">
-                                                        Age
-                                                    </label>
-                                                    <input type="number" id="age" name="age" class="form-control" placeholder="Enter age" max="100" min="16"/>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="race" class="form-label">
-                                                        Ethnicity
-                                                    </label>
-                                                    <select id="race" name="race_id" class="form-control">
-                                                        <option value="" selected>Select Ethnicity</option>
-                                                        @foreach ($races as $race)
-                                                            <option value="{{ $race->id }}">{{ $race->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="employment" class="form-label">
-                                                        Employment Status
-                                                    </label>
-                                                    <select id="employment" name="employment" class="form-control">
-                                                        <option value="" selected>Select Employment Status</option>
-                                                        <option value="A">Active Employee</option>
-                                                        <option value="B">Blacklisted</option>
-                                                        <option value="P">Previously Employed</option>
-                                                        <option value="N">Not an Employee</option>
-                                                        <option value="I">Inconclusive</option>
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="education" class="form-label">
-                                                        Education
-                                                    </label>
-                                                    <select id="education" name="education_id" class="form-control">
-                                                        <option value="" selected>Select Education</option>
-                                                        @foreach ($educations as $education)
-                                                            <option value="{{ $education->id }}">{{ $education->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="brand" class="form-label">
-                                                        Brand
-                                                    </label>
-                                                    <select id="brand" name="brand_id" class="form-control">
-                                                        <option value="" selected>Select Brand</option>
-                                                        @foreach ($brands as $brand)
-                                                            <option value="{{ $brand->id }}">{{ $brand->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="disability" class="form-label">
-                                                        Disability
-                                                    </label>
-                                                    <select id="disability" name="disability" class="form-control">
-                                                        <option value="" selected>Select Option</option>
-                                                        <option value="No">No</option>
-                                                        <option value="Yes">Yes</option>
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
-                                                    <label for="applicantType" class="form-label">
-                                                        Applicant Type
-                                                    </label>
-                                                    <select id="applicantType" name="applicant_type_id" class="form-control">
-                                                        <option value="" selected>Select Applicant Type</option>
-                                                        @foreach ($applicantTypes as $applicantType)
-                                                            <option value="{{ $applicantType->id }}">{{ $applicantType->name }}</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
@@ -581,7 +505,6 @@
                                     <div class="modal-footer">
                                         <div class="hstack gap-2 justify-content-end">
                                             <button type="button" class="btn btn-light" id="close-modal" data-bs-dismiss="modal">Close</button>
-                                            <button type="submit" class="btn btn-success" id="add-btn">Add Applicant</button>
                                             <button type="button" class="btn btn-success" id="edit-btn">Update Applicant</button>
                                         </div>
                                     </div>
@@ -665,11 +588,23 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">Role</td>
+                                    <td class="fw-medium" scope="row">Ethnicity</td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">Status</td>
+                                    <td class="fw-medium" scope="row">Town</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Score</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Employment</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">State</td>
                                     <td></td>
                                 </tr>
                             </tbody>

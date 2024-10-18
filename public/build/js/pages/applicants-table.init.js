@@ -128,29 +128,15 @@ var options = {
         "id",
         "name",
         "id_number",
-        "id_verified",
         "phone",
         "employment",
         "state",
         "email",
+        "town",
         "age",
         "gender",
         "race",
-        "disability",
-        "role",
-        "location",
-        "town",
-        "applicantType",
-        "education",
-        "duration",
-        "brand",
-        "publicHolidays",
-        "environment",
-        "interview_applicant_id",
-        "literacyScore",
-        "numeracyScore",
-        "situationalScore",
-        "overallScore",
+        "score",
     ],
     page: perPage,
     pagination: true,
@@ -224,52 +210,25 @@ var idField = document.getElementById("field-id"),
     email = document.getElementById("email"),
     phone = document.getElementById("phone"),
     idNumber = document.getElementById("idNumber"),
-    locationAddress = document.getElementById("locationAddress"),
-    idVerified = document.getElementById("idVerified"),
-    birthDate = document.getElementById("birthDate"),
-    age = document.getElementById("age"),
+    employment = document.getElementById("employment"),
     gender = document.getElementById("gender"),
     race = document.getElementById("race"),
-    disability = document.getElementById("disability"),
-    role = document.getElementById("role"),
-    employment = document.getElementById("employment"),
+    locationAddress = document.getElementById("location"),
+    latitude = document.getElementById("latitude"),
+    longitude = document.getElementById("longitude"),
     education = document.getElementById("education"),
     duration = document.getElementById("duration"),
-    state = document.getElementById("state"),
-    brand = document.getElementById("brand"),
+    brands = document.getElementById("brands"),
     publicHolidays = document.getElementById("publicHolidays"),
     environment = document.getElementById("environment"),
-    applicantType = document.getElementById("applicantType"),
-    interviewApplicantId = document.getElementsByClassName("interview_applicant_id"),
-    literacyScore = document.getElementsByClassName("literacyScore"),
-    numeracyScore = document.getElementsByClassName("numeracyScore"),
-    situationalScore = document.getElementsByClassName("situationalScore"),
-    overallScore = document.getElementsByClassName("overallScore"),
-    locationLatitude = document.getElementById("latitude"),
-    locationLongitude = document.getElementById("longitude"),
-    addBtn = document.getElementById("add-btn"),
+    disability = document.getElementById("disability"),
+    state = document.getElementById("state"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
     editBtns = document.getElementsByClassName("edit-item-btn");
     viewBtns = document.getElementsByClassName("view-item-btn");
 refreshCallbacks();
 
-document.getElementById("applicantsTableModal").addEventListener("show.bs.modal", function (e) {
-    if (e.relatedTarget.classList.contains("edit-item-btn")) {
-        document.getElementById("exampleModalLabel").innerHTML = "Edit Applicant";
-        document.getElementById("applicantsTableModal").querySelector(".modal-footer").style.display = "block";
-        document.getElementById("add-btn").style.display = "none";
-        document.getElementById("edit-btn").style.display = "block";
-    } else if (e.relatedTarget.classList.contains("add-btn")) {
-        document.getElementById("exampleModalLabel").innerHTML = "Add Applicant";
-        document.getElementById("applicantsTableModal").querySelector(".modal-footer").style.display = "block";
-        document.getElementById("edit-btn").style.display = "none";
-        document.getElementById("add-btn").style.display = "block";
-    } else {
-        document.getElementById("exampleModalLabel").innerHTML = "List Applicant";
-        document.getElementById("applicantsTableModal").querySelector(".modal-footer").style.display = "none";
-    }
-});
 ischeckboxcheck();
 
 document.getElementById("applicantsTableModal").addEventListener("hidden.bs.modal", function (e) {
@@ -288,22 +247,22 @@ var trlist = table.querySelectorAll(".list tr");
 
 var count = 11;
 
-var idVerifiedVal = new Choices(idVerified, {
+var employmentVal = new Choices(employment, {
     searchEnabled: false,
-    shouldSort: false
+    shouldSort: true
 });
 
 var genderVal = new Choices(gender, {
     searchEnabled: false,
-    shouldSort: false
+    shouldSort: true
 });
 
 var raceVal = new Choices(race, {
     searchEnabled: false,
-    shouldSort: false
+    shouldSort: true
 });
 
-var employmentVal = new Choices(employment, {
+var educationVal = new Choices(education, {
     searchEnabled: false,
     shouldSort: false
 });
@@ -313,22 +272,18 @@ var durationVal = new Choices(duration, {
     shouldSort: false
 });
 
-var stateVal = new Choices(state, {
-    searchEnabled: false,
-    shouldSort: false
-});
-
-var educationVal = new Choices(education, {
-    searchEnabled: false,
-    shouldSort: false
+var brandVal = new Choices(brands, {
+    searchEnabled: false,  // Disable search if not needed
+    shouldSort: false,     // Disable sorting
+    removeItemButton: true,  // Enable item removal by showing a remove button
+    duplicateItemsAllowed: false,  // Prevent duplicate selections
+    placeholderValue: 'Select brands',  // Optional: Add a placeholder
+    removeItems: true,   // Allow items to be removed
+    removeItemButton: true,  // Show the "x" button for removable items
+    itemSelectText: ''  // Prevent extra text appearing when selecting
 });
 
 var publicHolidaysVal = new Choices(publicHolidays, {
-    searchEnabled: false,
-    shouldSort: false
-});
-
-var applicantTypeVal = new Choices(applicantType, {
     searchEnabled: false,
     shouldSort: false
 });
@@ -338,12 +293,12 @@ var environmentVal = new Choices(environment, {
     shouldSort: false
 });
 
-var brandVal = new Choices(brand, {
+var disabilityVal = new Choices(disability, {
     searchEnabled: false,
     shouldSort: false
 });
 
-var disabilityVal = new Choices(disability, {
+var stateVal = new Choices(state, {
     searchEnabled: false,
     shouldSort: false
 });
@@ -379,10 +334,30 @@ editBtn.addEventListener("click", function (e) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
                         if (selectedid == itemId) {
-                            if (idVerified.value) {
-                                idVerifiedValue = idVerified.options[idVerified.selectedIndex].text;
-                            } else {
-                                idVerifiedValue = '';
+                            // Employment badge logic
+                            let employmentValue, employmentBadgeClass;
+                            switch (employment.options[employment.selectedIndex].value) {
+                                case 'A':
+                                    employmentValue = 'Active Employee';
+                                    employmentBadgeClass = 'warning';
+                                    break;
+                                case 'B':
+                                    employmentValue = 'Blacklisted';
+                                    employmentBadgeClass = 'danger';
+                                    break;
+                                case 'P':
+                                    employmentValue = 'Previously Employed';
+                                    employmentBadgeClass = 'info';
+                                    break;
+                                case 'N':
+                                    employmentValue = 'Not an Employee';
+                                    employmentBadgeClass = 'success';
+                                    break;
+                                case 'I':
+                                default:
+                                    employmentValue = 'Inconclusive';
+                                    employmentBadgeClass = 'dark';
+                                    break;
                             }
 
                             if (gender.value) {
@@ -397,6 +372,12 @@ editBtn.addEventListener("click", function (e) {
                                 raceValue = '';
                             }
 
+                            if (education.value) {
+                                educationValue = education.options[education.selectedIndex].text;
+                            } else {
+                                educationValue = '';
+                            }
+
                             if (duration.value) {
                                 durationValue = duration.options[duration.selectedIndex].text;
                             } else {
@@ -409,65 +390,19 @@ editBtn.addEventListener("click", function (e) {
                                 stateValue = '';
                             }
 
-                            if (education.value) {
-                                educationValue = education.options[education.selectedIndex].text;
-                            } else {
-                                educationValue = '';
-                            }
-
-                            if (publicHolidays.value) {
-                                publicHolidaysValue = publicHolidays.options[publicHolidays.selectedIndex].text;
-                            } else {
-                                publicHolidaysValue = '';
-                            }
-
-                            if (applicantType.value) {
-                                applicantTypeValue = applicantType.options[applicantType.selectedIndex].text;
-                            } else {
-                                applicantTypeValue = '';
-                            }
-
-                            if (environment.value) {
-                                environmentValue = environment.options[environment.selectedIndex].text;
-                            } else {
-                                environmentValue = '';
-                            }
-
-                            if (brand.value) {
-                                brandValue = brand.options[brand.selectedIndex].text;
-                            } else {
-                                brandValue = '';
-                            }
-
-                            if (disability.value) {
-                                disabilityValue = disability.options[disability.selectedIndex].text;
-                            } else {
-                                disabilityValue = '';
-                            }
-
                             x.values({
                                 id: idField.value,
                                 name: '<div class="d-flex align-items-center">\
                                         <div class="flex-shrink-0"><img src="'+ profileImg.src + '" alt="" class="avatar-xs rounded-circle object-cover"></div>\
                                             <div class="flex-grow-1 ms-2 name">' + firstname.value + ' ' + lastname.value + '</div>\
                                         </div>',
-                                email: email.value,
-                                phone: phone.value,
                                 id_number: idNumber.value,
-                                idVerified: idVerifiedValue,
-                                birth_date: formatDate(birthDate.value),
-                                age: age.value,
+                                phone: phone.value,
+                                email: email.value,
+                                employment: '<span class="badge bg-' + employmentBadgeClass + '-subtle text-' + employmentBadgeClass + ' text-uppercase">' + employmentValue + '</span>',
+                                state: stateValue,
                                 gender: genderValue,
                                 race: raceValue,
-                                employment: employment.options[employment.selectedIndex].text,
-                                location: locationAddress.value,
-                                disability: disabilityValue,
-                                duration: durationValue,
-                                state: stateValue,
-                                education: educationValue,
-                                publicHolidays: publicHolidaysValue,
-                                applicantType: applicantTypeValue,
-                                environment: environmentValue,
                             });
                         }
                     });
@@ -618,7 +553,7 @@ function refreshCallbacks() {
             }).done(function(data) {
                 idField.value = data.encID;
 
-                profileImg.src = 'images/' + data.applicant.avatar;
+                profileImg.src = data.applicant.avatar;
 
                 firstname.value = data.applicant.firstname;
 
@@ -630,19 +565,9 @@ function refreshCallbacks() {
 
                 idNumber.value = data.applicant.id_number;
 
-                locationAddress.value = data.applicant.location;
-
-                locationLatitude.value = data.currentLatitude;
-
-                locationLongitude.value = data.currentLongitude;
-
-                if(data.applicant.id_verified) {
-                    idVerifiedVal.setChoiceByValue(data.applicant.id_verified.toString());
+                if(data.applicant.employment) {
+                    employmentVal.setChoiceByValue(data.applicant.employment.toString());
                 }
-
-                birthDate.value = data.applicant.birth_date;
-
-                age.value = data.applicant.age;
 
                 if(data.applicant.gender_id) {
                     genderVal.setChoiceByValue(data.applicant.gender_id.toString());
@@ -652,40 +577,49 @@ function refreshCallbacks() {
                     raceVal.setChoiceByValue(data.applicant.race_id.toString());
                 }
 
-                if(data.applicant.employment) {
-                    employmentVal.setChoiceByValue(data.applicant.employment.toString());
+                locationAddress.value = data.applicant.location;
+
+                latitude.value = data.latitude;
+
+                longitude.value = data.longitude;
+
+                if(data.applicant.education_id) {
+                    educationVal.setChoiceByValue(data.applicant.education_id.toString());
                 }
 
                 if(data.applicant.duration_id) {
                     durationVal.setChoiceByValue(data.applicant.duration_id.toString());
                 }
 
-                if(data.applicant.state_id) {
-                    stateVal.setChoiceByValue(data.applicant.state_id.toString());
-                }
+                var availableBrandIds = [1, 2, 5, 6];
 
-                if(data.applicant.education_id) {
-                    educationVal.setChoiceByValue(data.applicant.education_id.toString());
+                if (data.applicant.brands) {
+                    // Handle brands selection
+                    var brandsList = data.applicant.brands;  // Array of applicant's brands
+
+                    // Custom function to check and select brands
+                    brandsList.forEach(function(brand) {
+                        if (availableBrandIds.includes(brand.id)) {
+                            // Select the brand in the Choices.js dropdown
+                            brandVal.setChoiceByValue(brand.id.toString());
+                        }
+                    });
                 }
 
                 if(data.applicant.public_holidays) {
                     publicHolidaysVal.setChoiceByValue(data.applicant.public_holidays.toString());
                 }
 
-                if(data.applicant.applicant_type_id) {
-                    applicantTypeVal.setChoiceByValue(data.applicant.applicant_type_id.toString());
-                }
-
                 if(data.applicant.environment) {
                     environmentVal.setChoiceByValue(data.applicant.environment.toString());
                 }
 
-                if(data.applicant.brands && data.applicant.brands.length > 0) {
-                    brandVal.setChoiceByValue(data.applicant.brands[0].id.toString());
-                }
-
                 if(data.applicant.disability) {
                     disabilityVal.setChoiceByValue(data.applicant.disability.toString());
+                }
+
+                if(data.applicant.state_id) {
+                    stateVal.setChoiceByValue(data.applicant.state_id.toString());
                 }
             });
         }
@@ -712,7 +646,7 @@ function refreshCallbacks() {
                                         class="visually-hidden"></span>
                             </div>
                             <h5 class="mt-4 mb-1">${new DOMParser().parseFromString(x._values.name, "text/html").body.querySelector(".name").innerHTML}</h5>
-                            <p class="text-muted">${x._values.role}</p>
+                            <p class="text-muted">${x._values.employment}</p>
                         </div>
                         <div class="card-body">
                             <h6 class="text-muted text-uppercase fw-semibold mb-3">Personal Information</h6>
@@ -744,74 +678,24 @@ function refreshCallbacks() {
                                             <td>${x._values.race}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Disability</td>
-                                            <td>${x._values.disability}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Education</td>
-                                            <td>${x._values.education}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Employment</td>
-                                            <td>${x._values.employment}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Role</td>
-                                            <td>${x._values.role}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Location</td>
-                                            <td>${x._values.location}</td>
-                                        </tr>
-                                        <tr>
                                             <td class="fw-medium" scope="row">Town</td>
                                             <td>${x._values.town}</td>
                                         </tr>
                                         <tr>
+                                            <td class="fw-medium" scope="row">Score</td>
+                                            <td>${x._values.score}</td>
+                                        </tr>
+                                        <tr>
                                             <td class="fw-medium" scope="row">State</td>
                                             <td>${x._values.state}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Applicant Type</td>
-                                            <td>${x._values.applicantType}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Duration Type</td>
-                                            <td>${x._values.duration}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Public Holidays</td>
-                                            <td>${x._values.publicHolidays}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Environment</td>
-                                            <td>${x._values.environment}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Literacy Score</td>
-                                            <td>${x._values.literacyScore}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Numeracy Score</td>
-                                            <td>${x._values.numeracyScore}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Situational Score</td>
-                                            <td>${x._values.situationalScore}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Overall Score</td>
-                                            <td>${x._values.overallScore}</td>
-                                        </tr>
+                                        </tr>                                        
                                     </tbody>
                                 </table>
-                            </div>`
-                            if (x._values.interview_applicant_id !== '') {
-                                codeBlock += `<div class="d-grid gap-2 mt-4" >
-                                        <a href="`+ route('applicant-profile.index', {id: x._values.interview_applicant_id}) +`" class="btn btn-primary" type="button">View Profile</a>
-                                    </div>`
-                            }
-                        codeBlock += `</div>`;
+                            </div>
+                            <div class="d-grid gap-2 mt-4" >
+                                <a href="`+ route('applicant-profile.index', {id: x._values.id}) +`" class="btn btn-primary" type="button">View Profile</a>
+                            </div>
+                        </div>`;
                     document.getElementById('contact-view-detail').innerHTML = codeBlock;
                 }
             });
@@ -832,14 +716,8 @@ function clearFields() {
 
     idNumber.value = "";
 
-    locationAddress.value = "";
-
-    idVerifiedVal.removeActiveItems();
-    idVerifiedVal.setChoiceByValue("");
-
-    birthDate.value = "";
-
-    age.value = "";
+    employmentVal.removeActiveItems();
+    employmentVal.setChoiceByValue("");
 
     genderVal.removeActiveItems();
     genderVal.setChoiceByValue("");
@@ -847,32 +725,27 @@ function clearFields() {
     raceVal.removeActiveItems();
     raceVal.setChoiceByValue("");
 
-    employmentVal.removeActiveItems();
-    employmentVal.setChoiceByValue("");
-
-    durationVal.removeActiveItems();
-    durationVal.setChoiceByValue("");
-
-    stateVal.removeActiveItems();
-    stateVal.setChoiceByValue("");
+    locationAddress.value = "";
 
     educationVal.removeActiveItems();
     educationVal.setChoiceByValue("");
 
+    durationVal.removeActiveItems();
+    durationVal.setChoiceByValue("");
+
+    brandVal.removeActiveItems();
+
     publicHolidaysVal.removeActiveItems();
     publicHolidaysVal.setChoiceByValue("");
-
-    applicantTypeVal.removeActiveItems();
-    applicantTypeVal.setChoiceByValue("");
 
     environmentVal.removeActiveItems();
     environmentVal.setChoiceByValue("");
 
-    brandVal.removeActiveItems();
-    brandVal.setChoiceByValue("");
-
     disabilityVal.removeActiveItems();
     disabilityVal.setChoiceByValue("");
+
+    stateVal.removeActiveItems();
+    stateVal.setChoiceByValue("");
 }
 
 // Delete All Records

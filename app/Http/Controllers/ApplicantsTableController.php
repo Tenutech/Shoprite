@@ -15,17 +15,15 @@ use App\Models\Education;
 use App\Models\Applicant;
 use App\Models\Notification;
 use Illuminate\Http\Request;
-use App\Models\ChatTemplate;
-use App\Models\ApplicantType;
 use App\Models\ScoreWeighting;
-use App\Jobs\SendIdNumberToSap;
-use App\Jobs\ProcessUserIdNumber;
 use Illuminate\Support\Facades\DB;
 use App\Services\GoogleMapsService;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Requests\UpdateApplicantRequest;
+use Illuminate\Validation\Rule;
+use App\Jobs\ProcessUserIdNumber;
+use App\Jobs\SendIdNumberToSap;
 
 class ApplicantsTableController extends Controller
 {
@@ -56,7 +54,7 @@ class ApplicantsTableController extends Controller
     public function index()
     {
         if (view()->exists('admin.applicants-table')) {
-            //Applicants
+            // Applicants
             $applicants = Applicant::with([
                 'town',
                 'gender',
@@ -64,36 +62,29 @@ class ApplicantsTableController extends Controller
                 'education',
                 'duration',
                 'brands',
-                'role',
                 'state',
-                'vacancyFill',
-                'interviews',
-                'applicantType'
             ])
             ->orderby('firstname')
             ->orderby('lastname')
             ->get();
 
-            //Genders
+            // Genders
             $genders = Gender::all();
 
-            //Durations
+            // Durations
             $durations = Duration::get();
 
             // Education
             $educations = Education::where('id', '!=', 3)->get();
 
             // Brand
-            $brands = Brand::whereIn('id', [2, 5, 6])->get();
+            $brands = Brand::whereIn('id', [1, 2, 5, 6])->get();
 
             // Races
             $races = Race::get();
 
             // States
             $states = State::get();
-
-            // Applicant Types
-            $applicantTypes = ApplicantType::get();
 
             return view('admin/applicants-table', [
                 'applicants' => $applicants,
@@ -102,8 +93,7 @@ class ApplicantsTableController extends Controller
                 'educations' => $educations,
                 'brands' => $brands,
                 'races' => $races,
-                'states' => $states,
-                'applicantTypes' => $applicantTypes
+                'states' => $states
             ]);
         }
         return view('404');
@@ -117,10 +107,6 @@ class ApplicantsTableController extends Controller
 
     public function details($id)
     {
-        $currentLocation = '';
-        $latitude = '';
-        $longitude = '';
-
         try {
             $applicantID = Crypt::decryptString($id);
 
@@ -131,21 +117,25 @@ class ApplicantsTableController extends Controller
                 'education',
                 'duration',
                 'brands',
-                'role',
-                'state',
-                'interviews'
+                'state'
             ])->findOrFail($applicantID);
 
-            if ($applicant->location !== null) {
-                $currentLocation = $this->googleMapsService->geocodeAddress($applicant->location);
-                $latitude = $currentLocation['latitude'];
-                $longitude = $currentLocation['longitude'];
+            $latitude = '';
+            $longitude = '';
+
+            // Check if coordinates exist and split them by ','
+            if (!empty($applicant->coordinates)) {
+                $coordinates = explode(',', $applicant->coordinates);
+                if (count($coordinates) === 2) {
+                    $latitude = trim($coordinates[0]);
+                    $longitude = trim($coordinates[1]);
+                }
             }
 
             return response()->json([
                 'applicant' => $applicant,
-                'currentLatitude' => $latitude,
-                'currentLongitude' => $longitude,
+                'latitude' => $latitude,
+                'longitude' => $longitude,
                 'encID' => $id
             ], 200);
         } catch (Exception $e) {
@@ -166,56 +156,63 @@ class ApplicantsTableController extends Controller
         //Applicant ID
         $applicantId = Crypt::decryptString($request->field_id);
 
+        //Applicant
+        $applicant = Applicant::findOrFail($applicantId);
+        
         //Validate Input
-        $request->validated();
+        $request->validate([
+            'firstname' => ['required', 'string', 'max:191'],
+            'lastname' => ['required', 'string', 'max:191'],
+            'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', Rule::unique('applicants')->ignore($applicantId)],
+            'phone' => ['required', 'string', 'max:191', Rule::unique('applicants')->ignore($applicantId)],
+            'id_number' => ['required', 'string', 'max:13', Rule::unique('applicants')->ignore($applicantId)],
+            'employment' => ['required', 'in:A,B,I,N,P'],
+            'gender_id' => ['required', 'integer', 'exists:genders,id'],
+            'race_id' => ['required', 'integer', 'exists:races,id'],
+            'location' => ['required', 'string'],
+            'latitude' => ['required', function ($attribute, $value, $fail) {
+                if (empty($value)) {
+                    $fail('Please select a verified address from the Google suggestions.');
+                }
+            }],
+            'longitude' => ['required', function ($attribute, $value, $fail) {
+                if (empty($value)) {
+                    $fail('Please select a verified address from the Google suggestions.');
+                }
+            }],
+            'education_id' => ['required', 'integer', 'exists:educations,id'],
+            'duration_id' => ['required', 'integer', 'exists:durations,id'],
+            'brands' => ['required', 'array', function ($attribute, $value, $fail) {
+                // Check if brand ID 1 is in the array and there are other IDs selected
+                if (in_array(1, $value) && count($value) > 1) {
+                    $fail('You cannot select specific brands with "Any".');
+                }
+            }], // Ensure brands is an array
+            'brands.*' => ['required', 'integer', 'exists:brands,id'], // Validate each brand id exists in the brands table
+            'public_holidays' => ['required', 'in:Yes,No'],
+            'environment' => ['required', 'in:Yes,No'],
+            'disability' => ['required', 'in:Yes,No'],
+            'state_id' => ['required', 'integer', 'exists:states,id'],
+        ]);
 
         try {
-            // Get the current authenticated user
-            $userId = Auth::id();
-            $user = User::find($userId);
-
-            //Applicant
-            $applicant = Applicant::findOrFail($applicantId);
-
-            // Handle avatar upload (if present)
-            if ($request->avatar) {
-                $avatar = request()->file('avatar');
-                $avatarName = '/images/' . $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
-                $avatarPath = public_path('/images/');
-                $avatar->move($avatarPath, $avatarName);
-
-                // Create a document record for the uploaded avatar
-                Document::create([
-                    'applicant_id' => null, // This will be set later when the applicant is created
-                    'name' => $avatarName,
-                    'type' => $avatar->getClientOriginalExtension(),
-                    'size' => $avatar->getSize(),
-                    'url' => '/images/' . $avatarName,
-                ]);
-            } else {
-                // Use existing avatar if available, otherwise fallback to default
-                $avatarName = $user && $user->avatar ? $user->avatar : '/images/avatar.jpg';
-            }
-
-            // Determine the value of avatar_upload based on the avatar
-            $avatarUpload = $avatarName == '/images/avatar.jpg' ? 'No' : 'Yes'; // If avatar is the default one, set 'No', otherwise 'Yes'
-
             // Get form data from the request
             $firstname = $request->firstname;
-            $lastname = $request->lastname;
-            $idNumber = $request->id_number;
+            $lastname = $request->lastname;           
+            $email = $request->email;
             $phone = $request->phone;
+            $idNumber = $request->id_number;
+            $employment = $request->employment;
+            $genderId = $request->gender_id;
+            $raceId = $request->race_id;
             $location = $request->location;
             $latitude = $request->latitude;
             $longitude = $request->longitude;
-            $coordinates = $latitude . ',' . $longitude;
-            $raceID = $request->race_id;
-            $email = $request->email;
+            $coordinates = $latitude . ',' . $longitude;            
             $educationId = $request->education_id;
             $durationId = $request->duration_id;
             $publicHolidays = $request->public_holidays;
             $environment = $request->environment;
-            $brandId = $request->brand_id;
             $disability = $request->disability;
             $state_id = $request->state_id;
 
@@ -227,25 +224,18 @@ class ApplicantsTableController extends Controller
                 'id_number' => $idNumber,
                 'firstname' => $firstname,
                 'lastname' => $lastname,
-                'race_id' => $raceID,
-                'avatar_upload' => $avatarUpload, // Save avatar upload status (Yes or No)
-                'avatar' => '/images/avatar.jpg',
-                'terms_conditions' => $request->consent ? 'Yes' : 'No', // Check if the user accepted terms
-                'additional_contact_number' => 'No',
+                'gender_id' => $genderId,
+                'race_id' => $raceId,
                 'contact_number' => $phone,
-                'public_holidays' => $publicHolidays, // Store user's answer to public holidays
+                'public_holidays' => $publicHolidays,
                 'education_id' => $educationId,
-                'consent' => $request->consent ? 'Yes' : 'No', // Store consent status
-                'environment' => $environment, // Store user's answer to environment
+                'environment' => $environment,
                 'duration_id' => $durationId,
-                'brand_id' => $brandId,
-                'location_type' => 'Address',
                 'location' => $location,
                 'coordinates' => $coordinates,
-                'has_email' => $email ? 'Yes' : 'No', // Determine if email was provided
                 'email' => $email,
                 'disability' => $disability,
-                'role_id' => 8,
+                'employment' => $employment,
                 'state_id' => $state_id,
             ]);
 
@@ -266,57 +256,13 @@ class ApplicantsTableController extends Controller
                 $applicant->brands()->sync($brandData);
             }
 
-            // Now let's verify the location using GoogleMapsService
-            $googleMapsService = new GoogleMapsService();
-            $geocodedAddress = $googleMapsService->geocodeAddress($location);
-
-            if ($geocodedAddress) {
-                // Update the applicant's location with the formatted address and town_id
-                $applicant->update([
-                    'location' => $geocodedAddress['formatted_address'],
-                    'town_id' => $geocodedAddress['city'],
-                    'coordinates' => $geocodedAddress['latitude'] . ' ' . $geocodedAddress['longitude']
-                ]);
-            }
-
-            // Verify the applicant's location using Google Maps API
-            $googleMapsService = new GoogleMapsService();
-            $geocodedAddress = $googleMapsService->geocodeAddress($location);
-
-            if ($geocodedAddress) {
-                // Update applicant location with geocoded data
-                $applicant->update([
-                    'location' => $geocodedAddress['formatted_address'],
-                    'town_id' => $geocodedAddress['city'],
-                    'coordinates' => $geocodedAddress['latitude'] . ' ' . $geocodedAddress['longitude']
-                ]);
-            }
-
-            // Calculate the applicant's overall score
-            $score = $this->calculateScore($applicant);
-            $applicant->score = $score;
-            $applicant->save(); // Save updated applicant
-
-            // Update the user's applicant ID (if applicant is created successfully)
-            if ($applicant) {
-                $user->applicant_id = $applicant->id;
-                $user->save(); // Update user with applicant ID
-            }
-
-            // If a new applicant was created, then create a notification
-            if ($applicant->wasRecentlyCreated) {
-                // Create Notification
-                $notification = new Notification();
-                $notification->user_id = $userId;
-                $notification->causer_id = Auth::id();
-                $notification->subject()->associate($applicant);
-                $notification->type_id = 1;
-                $notification->notification = "Updated your application 🔔";
-                $notification->read = "No";
-                $notification->save();
-            }
-
             DB::commit(); // Commit the transaction
+
+            // Dispatch a background job for ID number processing
+            ProcessUserIdNumber::dispatch(null, $applicant->id);
+
+            // Dispatch the new job to process the ID number, pass the applicant object as well
+            SendIdNumberToSap::dispatch($applicant->id_number, $applicant);
 
             // Encrypt the applicant's ID before sending it in the response
             $encryptedID = Crypt::encryptString($applicant->id);
@@ -407,156 +353,5 @@ class ApplicantsTableController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
-    }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Calculate Score
-    |--------------------------------------------------------------------------
-    */
-
-    protected function calculateScore($applicant)
-    {
-        // Initialize variables to store the total score and total weight
-        $totalScore = 0;
-        $totalWeight = 0;
-
-        // Retrieve all the score weightings (likely from a database table)
-        $weightings = ScoreWeighting::all(); // Fetch all weightings
-
-        // Loop through each weighting to calculate the score
-        foreach ($weightings as $weighting) {
-            // Check if the score type is 'education_id' and apply custom logic
-            if ($weighting->score_type == 'education_id') {
-                // Get the education level from the applicant's data
-                $educationLevel = $applicant->{$weighting->score_type} ?? 0;
-
-                // Apply custom weight distribution based on the education level
-                switch ($educationLevel) {
-                    case 1: // Level 1 gets 0% of the weight
-                        $percentage = 0;
-                        break;
-                    case 2:
-                    case 3: // Levels 2 and 3 get 15% of the weight
-                        $percentage = 0.15;
-                        break;
-                    case 4: // Level 4 gets 40% of the weight
-                        $percentage = 0.40;
-                        break;
-                    case 5: // Level 5 gets 25% of the weight
-                        $percentage = 0.25;
-                        break;
-                    case 6: // Level 6 gets 20% of the weight
-                        $percentage = 0.20;
-                        break;
-                    default:
-                        $percentage = 0;
-                        break;
-                }
-
-                // Add the weighted score to the total score
-                $totalScore += $percentage * $weighting->weight;
-
-            // Check if the score type is 'duration_id' and apply custom logic
-            } elseif ($weighting->score_type == 'duration_id') {
-                // Get the duration value from the applicant's data
-                $durationLevel = $applicant->{$weighting->score_type} ?? 0;
-
-                // Apply custom weight distribution based on the duration level
-                switch ($durationLevel) {
-                    case 1: // Level 1 gets 0% of the weight
-                        $percentage = 0;
-                        break;
-                    case 2: // Level 2 gets 10% of the weight
-                        $percentage = 0.10;
-                        break;
-                    case 3: // Level 3 gets 15% of the weight
-                        $percentage = 0.15;
-                        break;
-                    case 4: // Level 4 gets 20% of the weight
-                        $percentage = 0.20;
-                        break;
-                    case 5: // Level 5 gets 25% of the weight
-                        $percentage = 0.25;
-                        break;
-                    case 6: // Level 6 gets 30% of the weight
-                        $percentage = 0.30;
-                        break;
-                    default:
-                        $percentage = 0;
-                        break;
-                }
-
-                // Add the weighted score to the total score
-                $totalScore += $percentage * $weighting->weight;
-
-            // Check if the score type is 'literacy_score', 'numeracy_score', or 'situational_score'
-            } elseif (in_array($weighting->score_type, ['literacy_score', 'numeracy_score', 'situational_score'])) {
-                // Get the applicant's score for the current score type
-                $scoreValue = $applicant->{$weighting->score_type} ?? 0;
-                $maxValue = $weighting->max_value;
-
-                // Calculate the percentage score
-                if ($maxValue > 0) {
-                    $scorePercentage = ($scoreValue / $maxValue) * 100;
-
-                    // Apply weight based on the percentage score
-                    if ($scorePercentage >= 0 && $scorePercentage <= 30) {
-                        $percentage = 0; // 0% of the weight for 0-30% score
-                    } elseif ($scorePercentage > 30 && $scorePercentage <= 55) {
-                        $percentage = 0.05; // 5% of the weight for 31-55% score
-                    } elseif ($scorePercentage > 55 && $scorePercentage <= 70) {
-                        $percentage = 0.20; // 20% of the weight for 56-70% score
-                    } elseif ($scorePercentage > 70 && $scorePercentage <= 85) {
-                        $percentage = 0.35; // 35% of the weight for 71-85% score
-                    } elseif ($scorePercentage > 85) {
-                        $percentage = 0.40; // 40% of the weight for >85% score
-                    }
-
-                    // Add the weighted score to the total score
-                    $totalScore += $percentage * $weighting->weight;
-                }
-
-            // Check if the weighting has a condition (i.e., applies to a specific field and value)
-            } elseif (!empty($weighting->condition_field)) {
-                // Apply conditional logic: if the applicant's field matches the condition value, use the specified weight
-                // Otherwise, use the fallback value as the score
-                $scoreValue = $applicant->{$weighting->condition_field} == $weighting->condition_value
-                    ? $weighting->weight
-                    : $weighting->fallback_value;
-
-                // Add the calculated score value to the total score
-                $totalScore += $scoreValue;
-            } else {
-                // For numeric scoring (without a condition), handle the score calculation based on the score type and max value
-
-                // Get the score value from the applicant's data, using the score type as the field name
-                // Default to 0 if no value is present
-                $scoreValue = $applicant->{$weighting->score_type} ?? 0;
-
-                // Get the max value from the weighting record (used for percentage calculation)
-                $maxValue = $weighting->max_value;
-
-                // If the max value is greater than 0, calculate the percentage score and weight it accordingly
-                if ($maxValue > 0) {
-                    $percentage = ($scoreValue / $maxValue) * $weighting->weight;
-                    $totalScore += $percentage; // Add the weighted score to the total score
-                }
-            }
-
-            // Add the current weighting's weight to the total weight
-            $totalWeight += $weighting->weight;
-        }
-
-        // Normalize the total score to a scale of 0 to 5
-        // If total weight is greater than 0, divide total score by total weight, then multiply by 5
-        // Otherwise, default to normalizing based on 100% scale
-        $normalizedScore = $totalWeight > 0 ? ($totalScore / $totalWeight) * 5 : ($totalScore / 100) * 5;
-
-        // Add 3 to the final score
-        $finalScore = $normalizedScore + 3;
-
-        // Round the normalized score to 2 decimal places and return it
-        return round($finalScore, 2);
     }
 }
