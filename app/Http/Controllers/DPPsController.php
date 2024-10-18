@@ -133,7 +133,9 @@ class DPPsController extends Controller
             'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
             'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
             'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
-            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id']
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password_confirmation' => ['required']
         ]);
 
         try {
@@ -157,7 +159,7 @@ class DPPsController extends Controller
                 'phone' => $request->phone,
                 'id_number' => $request->id_number,
                 'id_verified' => $request->id_verified,
-                'password' => Hash::make("F4!pT9@gL2#dR0wZ"),
+                'password' => Hash::make($request->password),
                 'avatar' => $avatarName,
                 'birth_date' => date('Y-m-d', strtotime($request->birth_date)),
                 'age' => $request->age,
@@ -253,7 +255,9 @@ class DPPsController extends Controller
             'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
             'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
             'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
-            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id']
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password_confirmation' => ['required']
         ]);
 
         try {
@@ -291,6 +295,7 @@ class DPPsController extends Controller
             $user->phone = $request->phone;
             $user->id_number = $request->id_number;
             $user->id_verified = $request->id_verified;
+            $user->password = Hash::make($request->password);
             $user->avatar = $avatarName;
             $user->birth_date = date('Y-m-d', strtotime($request->birth_date));
             $user->age = $request->age;

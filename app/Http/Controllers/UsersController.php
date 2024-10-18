@@ -119,7 +119,9 @@ class UsersController extends Controller
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
             'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
-            'role_id' => ['required', 'integer', 'exists:roles,id']
+            'role_id' => ['required', 'integer', 'exists:roles,id'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password_confirmation' => ['required']
         ]);
 
         try {
@@ -143,13 +145,13 @@ class UsersController extends Controller
                 'phone' => $request->phone,
                 'id_number' => $request->id_number,
                 'id_verified' => $request->id_verified,
-                'password' => Hash::make("F4!pT9@gL2#dR0wZ"),
+                'password' => Hash::make($request->password),
                 'avatar' => $avatarName,
                 'birth_date' => date('Y-m-d', strtotime($request->birth_date)),
                 'age' => $request->age,
                 'gender_id' => $request->gender_id,
                 'role_id' => $request->role_id,
-                'status_id' => 2
+                'status_id' => 2,
             ]);
 
             DB::commit();
@@ -227,7 +229,9 @@ class UsersController extends Controller
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
             'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
-            'role_id' => ['required', 'integer', 'exists:roles,id']
+            'role_id' => ['required', 'integer', 'exists:roles,id'],
+            'password' => ['required', 'string', 'min:8', 'confirmed'],
+            'password_confirmation' => ['required']
         ]);
 
         try {
@@ -266,6 +270,7 @@ class UsersController extends Controller
             $user->email = $request->email;
             $user->phone = $request->phone;
             $user->id_number = $request->id_number;
+            $user->password = Hash::make($request->password);
             $user->id_verified = $request->id_verified;
             $user->avatar = $avatarName;
             $user->birth_date = date('Y-m-d', strtotime($request->birth_date));
