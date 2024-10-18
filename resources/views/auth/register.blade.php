@@ -170,7 +170,7 @@
                                     
                                             <div class="col-lg-6">
                                                 <!-- Confirm Password -->
-                                                <div class=" mb-4">
+                                                <div class="mb-4">
                                                     <label for="input-password">
                                                         Confirm Password <span class="text-danger">*</span>
                                                     </label>

@@ -157,7 +157,7 @@ class DTDPsController extends Controller
                 'phone' => $request->phone,
                 'id_number' => $request->id_number,
                 'id_verified' => $request->id_verified,
-                'password' => Hash::make("F4!pT9@gL2#dR0wZ"),
+                'password' => Hash::make("Shoprite1!"),
                 'avatar' => $avatarName,
                 'birth_date' => date('Y-m-d', strtotime($request->birth_date)),
                 'age' => $request->age,

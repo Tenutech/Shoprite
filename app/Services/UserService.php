@@ -33,7 +33,7 @@ class UserService
             'phone' => $userData['phone'],
             'id_number' => $userData['id_number'],
             'id_verified' => $userData['id_verified'],
-            'password' => Hash::make("F4!pT9@gL2#dR0wZ"),
+            'password' => Hash::make("Shoprite1!"),
             'avatar' => $userData['avatarName'],
             'birth_date' => date('Y-m-d', strtotime($userData['birth_date'])),
             'age' => $userData['age'],

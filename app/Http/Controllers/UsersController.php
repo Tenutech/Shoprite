@@ -143,7 +143,7 @@ class UsersController extends Controller
                 'phone' => $request->phone,
                 'id_number' => $request->id_number,
                 'id_verified' => $request->id_verified,
-                'password' => Hash::make("F4!pT9@gL2#dR0wZ"),
+                'password' => Hash::make("Shoprite1!"),
                 'avatar' => $avatarName,
                 'birth_date' => date('Y-m-d', strtotime($request->birth_date)),
                 'age' => $request->age,
@@ -362,6 +362,72 @@ class UsersController extends Controller
                 'message' => 'Failed to delete users!',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Password Reset
+    |--------------------------------------------------------------------------
+    */
+
+    public function passwordReset(Request $request)
+    {
+        try {
+            //User ID
+            $userID = Crypt::decryptString($request->password_id);
+
+            // Custom messages for password validation
+            $messages = [
+                'password.min' => 'The password must be at least :min characters.',
+                'password.regex' => 'The password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character.',
+                'password.confirmed' => 'The password confirmation does not match.'
+            ];
+
+
+            //Validate
+            $request->validate([
+                'password_id' => ['required', 'string', function ($attribute, $value, $fail) use ($userID) {
+                    // Check if the user exists
+                    if (!User::where('id', $userID)->exists()) {
+                        $fail('The user does not exist.');
+                    }
+                }],
+                'password' => [
+                    'required', 
+                    'string', 
+                    'min:8', // Increase the minimum length to 12 characters
+                    'regex:/[a-z]/', // At least one lowercase letter
+                    'regex:/[A-Z]/', // At least one uppercase letter
+                    'regex:/[0-9]/', // At least one digit
+                    'regex:/[@$!%*#?&]/', // At least one special character
+                    'confirmed'
+                ],
+            ], $messages);
+
+            //User Update
+            $user = User::findOrFail($userID);
+            $user->password = Hash::make($request->password); // Use password, not role_id
+            $user->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Password reset successfully!',
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            // Handle validation failure
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            // Return a failure response with the error message
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to reset password!',
+                'error' => $e->getMessage()
+            ], 400);
         }
     }
 }

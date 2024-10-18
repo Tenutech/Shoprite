@@ -157,6 +157,12 @@
                                                                             Delete
                                                                         </a>
                                                                     </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item password-item-btn" data-bs-toggle="modal" href="#resetPasswordModal">
+                                                                            <i class="ri-lock-fill align-bottom me-2 text-muted"></i>
+                                                                            Password
+                                                                        </a>
+                                                                    </li>
                                                                 </ul>
                                                             </div>
                                                         </li>
@@ -210,6 +216,12 @@
                                                                     <a class="dropdown-item remove-item-btn" data-bs-toggle="modal" href="#deleteRecordModal">
                                                                         <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
                                                                         Delete
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a class="dropdown-item password-item-btn" data-bs-toggle="modal" href="#resetPasswordModal">
+                                                                        <i class="ri-lock-fill align-bottom me-2 text-muted"></i>
+                                                                        Password
                                                                     </a>
                                                                 </li>
                                                             </ul>
@@ -474,6 +486,70 @@
                     </div>
                     <!--end delete modal -->
 
+                    <!-- Reset Password Modal -->
+                    <div class="modal fade zoomIn" id="resetPasswordModal" tabindex="-1"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="btn-close" id="resetPassword-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
+                                </div>
+                                <div class="modal-body p-5 text-center">
+                                    <lord-icon src="https://cdn.lordicon.com/sjoccsdj.json" trigger="loop" style="width:90px;height:90px"></lord-icon>
+                                    <div class="mt-4 text-center">
+                                        <h4 class="fs-semibold">
+                                            You are about to reset this user's password!
+                                        </h4>
+                                    </div>
+                                    <form id="formPassword" enctype="multipart/form-data">
+                                        @csrf
+                                        <input type="hidden" id="password-id" name="password_id"/>
+                                        <div class="mt-4">
+                                            <div class="col-lg-12">
+                                                <!-- Password -->
+                                                <div class="mb-2">
+                                                    <div class="position-relative auth-pass-inputgroup mb-3">
+                                                        <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" id="password" placeholder="Enter new password" autocomplete="off" required>
+                                                        <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon">
+                                                            <i class="ri-eye-fill align-middle"></i>
+                                                        </button>
+                                                        @error('password')
+                                                            <span class="invalid-feedback" role="alert">
+                                                                <strong>{{ e($message) }}</strong>
+                                                            </span>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-lg-12">
+                                                <!-- Confirm Password -->
+                                                <div class="mb-2">
+                                                    <div class="position-relative auth-pass-inputgroup mb-3">
+                                                        <input type="password" class="form-control pe-5 password-input-confirmation @error('password_confirmation') is-invalid @enderror" name="password_confirmation" id="input-password-confirmation" placeholder="Confirm new password" autocomplete="off" required>
+                                                        <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon-confirmation">
+                                                            <i class="ri-eye-fill align-middle"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>                                        
+
+                                            <div class="hstack gap-2 justify-content-center remove">
+                                                <button class="btn btn-light" data-bs-dismiss="modal" id="resetPassword-close">
+                                                    <i class="ri-close-line me-1 align-middle"></i>
+                                                    Close
+                                                </button>
+                                                <button class="btn btn-success" id="password-reset">
+                                                    Reset Password!
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end password modal -->
                 </div>
             </div>
             <!--end card-->

@@ -6,6 +6,31 @@ Contact: admin@tenutech.com
 File: CRM-contact Js File
 */
 
+/*
+|--------------------------------------------------------------------------
+| Password Addon
+|--------------------------------------------------------------------------
+*/
+
+// Toggle visibility of password inputs
+document.querySelector("#password-addon").addEventListener("click", function () {
+    var passwordInput = document.querySelector("#password");
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+    } else {
+        passwordInput.type = "password";
+    }
+});
+
+document.querySelector("#password-addon-confirmation").addEventListener("click", function () {
+    var passwordInputConfirmation = document.querySelector("#input-password-confirmation");
+    if (passwordInputConfirmation.type === "password") {
+        passwordInputConfirmation.type = "text";
+    } else {
+        passwordInputConfirmation.type = "password";
+    }
+});
+
 //Format Date
 function formatDate(dateStr) {
     if (!dateStr) return ''; // Check for falsy input to avoid errors
@@ -129,9 +154,11 @@ var idField = document.getElementById("field-id"),
     role = document.getElementById("role"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
+    passwordBtn = document.getElementById("password-reset"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
     editBtns = document.getElementsByClassName("edit-item-btn");
     viewBtns = document.getElementsByClassName("view-item-btn");
+    passwordBtns = document.getElementsByClassName("password-item-btn");
 refreshCallbacks();
 
 document.getElementById("usersModal").addEventListener("show.bs.modal", function (e) {
@@ -397,6 +424,102 @@ editBtn.addEventListener("click", function (e) {
     }
 });
 
+/*
+|--------------------------------------------------------------------------
+| Reset Password
+|--------------------------------------------------------------------------
+*/
+
+passwordBtn.addEventListener("click", function (e) {
+    e.preventDefault(); // Prevent the form from submitting naturally
+    var form = document.getElementById("formPassword");
+
+    // Password validation: check if the passwords match
+    var passwordInput = document.getElementById('password');
+    var confirmPasswordInput = document.getElementById('input-password-confirmation');
+
+    if (passwordInput.value !== confirmPasswordInput.value) {
+        // Prevent the form from submitting
+        event.preventDefault();
+
+        // Add 'is-invalid' class to both password input fields
+        passwordInput.classList.add('is-invalid');
+        confirmPasswordInput.classList.add('is-invalid');
+
+        // Display a custom error message if passwords don't match
+        var errorElement = confirmPasswordInput.parentNode.querySelector('.invalid-feedback');
+        if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.className = "invalid-feedback";
+            confirmPasswordInput.parentNode.appendChild(errorElement);
+        }
+        errorElement.innerText = "Passwords don't match";
+    } else {
+        // If passwords match, remove the invalid classes
+        passwordInput.classList.remove('is-invalid');
+        confirmPasswordInput.classList.remove('is-invalid');
+
+        // Proceed with the AJAX submission
+        var formData = new FormData(form);
+
+        $.ajax({
+            url: route('users.password'),
+            type: 'POST',
+            data: formData,
+            async: false,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (data) {
+                if (data.success === true) {
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 2000,
+                        showCloseButton: true,
+                        toast: true
+                    });
+
+                    document.getElementById("resetPassword-close").click(); // Close the modal
+
+                    // Reset the password fields after success
+                    passwordInput.value = ''; // Clear the input value
+                    confirmPasswordInput.value = ''; // Clear the confirmation input value
+
+                    // Set both input fields back to type "password"
+                    passwordInput.type = 'password';
+                    confirmPasswordInput.type = 'password';
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                let message = '';
+
+                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
+                } else {
+                    message = 'An error occurred while processing your request. Please try again later.';
+                }
+
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
+            }
+        });
+    }
+});
+
 function ischeckboxcheck() {
     Array.from(document.getElementsByName("checkAll")).forEach(function (x) {
         x.addEventListener("click", function (e) {
@@ -597,6 +720,17 @@ function refreshCallbacks() {
                 }
             });
         });
+    });
+
+    // Add event listeners for password reset buttons
+    Array.from(passwordBtns).forEach(function (btn) {
+        btn.onclick = function (e) {
+            // Retrieve the itemId from the closest table row
+            itemId = e.target.closest("tr").children[1].innerText;
+            
+            // Set the hidden input field with the user ID
+            document.getElementById("password-id").value = itemId;
+        };
     });
 }
 

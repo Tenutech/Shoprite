@@ -277,11 +277,27 @@ class ProfileSettingsController extends Controller
         //User
         $user = auth()->user();
 
+         // Custom messages for password validation
+        $messages = [
+            'newPassword.min' => 'The new password must be at least :min characters.',
+            'newPassword.regex' => 'The new password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character.',
+            'newPassword.confirmed' => 'The new password confirmation does not match.',
+        ];
+
         // Validate Request
         $request->validate([
             'oldPassword' => ['required', 'string'],
-            'newPassword' => ['required', 'string', 'min:8', 'confirmed'],
-        ]);
+            'newPassword' => [
+                'required', 
+                'string', 
+                'min:8', // Increase the minimum length to 12 characters
+                'regex:/[a-z]/', // At least one lowercase letter
+                'regex:/[A-Z]/', // At least one uppercase letter
+                'regex:/[0-9]/', // At least one digit
+                'regex:/[@$!%*#?&]/', // At least one special character
+                'confirmed'
+            ],
+        ], $messages);
 
         // Check if the old password matches
         if (!Hash::check($request->oldPassword, $user->password)) {

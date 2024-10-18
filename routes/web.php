@@ -69,6 +69,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/users/destroy-multiple', [App\Http\Controllers\UsersController::class, 'destroyMultiple'])->name('users.destroyMultiple');
 
+    Route::post('/users/password-reset', [App\Http\Controllers\UsersController::class, 'passwordReset'])->name('users.password');
+
     //Managers
 
     Route::get('/managers', [App\Http\Controllers\ManagersController::class, 'index'])->name('managers.index');
