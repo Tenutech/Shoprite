@@ -62,598 +62,566 @@ class AdminController extends Controller
     public function index(Request $request)
     {
         if (view()->exists('admin/home')) {
-            // Define the models that are relevant for the activity log.
-            $allowedModels = [
-                'App\Models\Application',
-                'App\Models\Vacancy',
-                'App\Models\Message',
-                'App\Models\User'
-            ];
+            // Define the date range (from the start of the year to the end of today)
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfDay();
 
-            // Retrieve the ID of the currently authenticated user.
-            $authUserId = Auth::id();
-            // Get a list of IDs for vacancies that are associated with the authenticated user.
-            $authVacancyIds = Vacancy::where('user_id', $authUserId)->pluck('id')->toArray();
+            $data = $this->fetchData($startDate, $endDate);
 
-            // Query the activity log, filtering for activities related to the allowed models.
-            $activities = Activity::whereIn('subject_type', $allowedModels)
-                ->where(function ($query) use ($authUserId, $authVacancyIds) {
-                    // Filter for activities where the 'causer' (the user who performed the action) is the authenticated user,
-                    // and the action is one of 'created', 'updated', or 'deleted'.
-                    $query->where('causer_id', $authUserId)
-                        ->whereIn('event', ['created', 'updated', 'deleted']);
-                })
-                ->orWhere(function ($q) use ($authUserId) {
-                    // Include activities where the event is 'accessed' (e.g., a user viewed a vacancy or applicant profile),
-                    // specifically for the authenticated user.
-                    $q->where('event', 'accessed')
-                    ->whereIn('description', ['job-overview.index', 'applicant-profile.index'])
-                    ->where('causer_id', $authUserId);
-                })
-                ->orWhere(function ($q) use ($authUserId) {
-                    // Include activities related to messages where the authenticated user is the recipient ('to_id').
-                    $q->where('subject_type', 'App\Models\Message')
-                    ->where('properties->attributes->to_id', $authUserId)
-                    ->where('event', 'created');
-                })
-                ->orWhere(function ($q) use ($authVacancyIds) {
-                    // Include activities related to applications connected to any of the vacancies owned by the authenticated user.
-                    $q->where('subject_type', 'App\Models\Application')
-                    ->whereIn('properties->attributes->vacancy_id', $authVacancyIds);
-                })
-                ->latest() // Order the results by the most recent first.
-                ->limit(10) // Limit the results to the 10 most recent activities.
-                ->get(); // Execute the query and get the results
-
-            // Filter activities to get only those related to vacancies.
-            $vacancyActivities = $activities->where('subject_type', 'App\Models\Vacancy');
-            // Extract the IDs of the affected vacancies from these activities.
-            $vacancyIds = $vacancyActivities->pluck('subject_id');
-
-            // Retrieve the vacancies along with their related models like position, store's brand, store's town, and type.
-            $vacanciesWithRelations = Vacancy::with(['position', 'store.brand', 'store.town', 'type'])
-                                            ->whereIn('id', $vacancyIds)
-                                            ->get();
-
-            // Associate each activity with its corresponding vacancy by setting a relation.
-            foreach ($vacancyActivities as $activity) {
-                $activity->setRelation('subject', $vacanciesWithRelations->firstWhere('id', $activity->subject_id));
-            }
-
-            // Filter activities to get only those related to messages.
-            $messageActivities = $activities->where('subject_type', 'App\Models\Message');
-            // Extract the IDs of the messages from these activities.
-            $ids = $messageActivities->pluck('subject_id');
-
-            // Retrieve the messages along with their related 'to' and 'from' users.
-            $messagesWithRelations = Message::with('to', 'from')->whereIn('id', $ids)->get();
-
-            // Associate each message activity with its corresponding message by setting a relation.
-            foreach ($messageActivities as $activity) {
-                $activity->setRelation('subject', $messagesWithRelations->firstWhere('id', $activity->subject_id));
-            }
-
-            // Filter activities to get only those related to applications.
-            $applicationActivities = $activities->where('subject_type', 'App\Models\Application');
-            // Extract the IDs of the applications from these activities.
-            $connectionIds = $applicationActivities->pluck('subject_id');
-
-            // Retrieve the applications along with their related user and the user of the related vacancy.
-            $applicationWithRelations = Application::with(['user', 'vacancy.user'])->whereIn('id', $connectionIds)->get();
-
-            // Associate each application activity with its corresponding application by setting a relation.
-            foreach ($applicationActivities as $activity) {
-                $activity->setRelation('subject', $applicationWithRelations->firstWhere('id', $activity->subject_id));
-            }
-
-            // For activities where messages have been deleted, extract the 'to_id' from the old properties.
-            $deletedMessageUserIds = $activities->where('subject_type', 'App\Models\Message')
-                                                ->where('event', 'deleted')
-                                                ->map(function ($activity) {
-                                                    return data_get($activity, 'properties.old.to_id');
-                                                })
-                                                ->filter()
-                                                ->unique();
-
-            // Retrieve the users associated with the deleted messages.
-            $usersForDeletedMessages = User::whereIn('id', $deletedMessageUserIds)->get();
-
-            // Filter activities to get only those where messages have been deleted.
-            $deletedMessageActivities = $activities->where('subject_type', 'App\Models\Message')->where('event', 'deleted');
-
-            // Associate each deleted message activity with the user it was sent to by setting a relation.
-            foreach ($deletedMessageActivities as $activity) {
-                $toId = data_get($activity, 'properties.old.to_id');
-                $activity->setRelation('userForDeletedMessage', $usersForDeletedMessages->firstWhere('id', $toId));
-            }
-
-            // Extract the encrypted IDs from the URL of the 'accessed' activities for vacancies.
-            $accessedVacancyEncryptedIds = $activities->where('event', 'accessed')
-            ->where('description', 'job-overview.index')
-            ->map(function ($activity) {
-                // Get the URL from the activity's properties.
-                return data_get($activity, 'properties.url');
-            })
-            ->map(function ($url) {
-                // Split the URL into segments and get the last segment, which is the encrypted ID.
-                $segments = explode('/', $url);
-                $encryptedId = count($segments) > 1 ? last($segments) : null;
-
-                // Attempt to decrypt the encrypted ID.
-                if ($encryptedId) {
-                    try {
-                        return Crypt::decryptString($encryptedId);
-                    } catch (\Exception $e) {
-                        // If decryption fails, return null.
-                        return null;
-                    }
-                }
-                return null;
-            })
-            ->filter(); // Remove any null values from the collection.
-
-            // Retrieve the vacancies that have been accessed using the decrypted IDs.
-            $accessedOpportunities = Vacancy::whereIn('id', $accessedVacancyEncryptedIds)->get();
-
-            // Filter the activities to get only those with 'accessed' event and 'job-overview.index' description.
-            $accessedVacancyActivities = $activities->where('event', 'accessed')->where('description', 'job-overview.index');
-
-            // Associate each accessed vacancy activity with the corresponding vacancy.
-            foreach ($accessedVacancyActivities as $activity) {
-                // Decrypt the encrypted ID from the URL.
-                $encryptedId = last(explode('/', data_get($activity, 'properties.url')));
-                try {
-                    $decryptedId = Crypt::decryptString($encryptedId);
-                    // Find the vacancy using the decrypted ID and set the relation.
-                    $opportunity = $accessedOpportunities->firstWhere('id', $decryptedId);
-                    $activity->setRelation('accessedVacancy', $opportunity);
-                } catch (\Exception $e) {
-                    // If decryption fails, skip this iteration.
-                    continue;
-                }
-            }
-
-            // Extract the encrypted IDs from the URL of the 'accessed' activities for applicants.
-            $accessedApplicantEncryptedIds = $activities->where('event', 'accessed')
-            ->where('description', 'applicant-profile.index')
-            ->map(function ($activity) {
-                // Parse the URL to get the query string, then extract the 'id' parameter.
-                parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
-                return $queryParams['id'] ?? null;
-            })
-            ->map(function ($encryptedId) {
-                // Attempt to decrypt the encrypted ID.
-                if ($encryptedId) {
-                    try {
-                        return Crypt::decryptString($encryptedId);
-                    } catch (\Exception $e) {
-                        // If decryption fails, return null.
-                        return null;
-                    }
-                }
-                return null;
-            })
-            ->filter(); // Remove any null values from the collection.
-
-            // Retrieve the applicants that have been accessed using the decrypted IDs.
-            $accessedApplicants = Applicant::whereIn('id', $accessedApplicantEncryptedIds)->get();
-
-            // Filter the activities to get only those with 'accessed' event and 'applicant-profile.index' description.
-            $accessedApplicantActivities = $activities->where('event', 'accessed')->where('description', 'applicant-profile.index');
-
-            // Associate each accessed applicant activity with the corresponding applicant.
-            foreach ($accessedApplicantActivities as $activity) {
-                // Parse the URL to get the encrypted ID from the query string.
-                parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
-                $encryptedId = $queryParams['id'] ?? null;
-                if ($encryptedId) {
-                    try {
-                        // Decrypt the encrypted ID and find the corresponding applicant.
-                        $decryptedId = Crypt::decryptString($encryptedId);
-                        $applicant = $accessedApplicants->firstWhere('id', $decryptedId);
-                        // Set the relation on the activity.
-                        $activity->setRelation('accessedApplicant', $applicant);
-                    } catch (\Exception $e) {
-                        // If decryption fails or the applicant is not found, skip this iteration.
-                        continue;
-                    }
-                }
-            }
-
-            //Positions
-            $positions = Position::withCount('users')
-                ->whereNotIn('id', [1, 10])
-                ->orderBy('users_count', 'desc')
-                ->take(10)
-                ->get();
-
-            //Current Year
-            $currentYear = now()->year;
-            $currentMonth = now()->month - 1;
-            $previousYear = $currentYear - 1;
-
-            $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-            // Determine months to query for the current year
-            $queryMonthsCurrentYear = array_slice($months, 0, $currentMonth + 1);
-            // Determine months to query for the previous year, excluding months overlapping with the current year
-            $queryMonthsPreviousYear = array_slice($months, $currentMonth + 1);
-
-            $currentYearData = ApplicantTotalData::where('year', $currentYear)->first();
-            $previousYearData = ApplicantTotalData::where('year', $currentYear - 1)->first();
-            $currentYearId = $currentYearData->id;
-            $previousYearId = $previousYearData->id;
-
-            $applicantsPerProvince = [];
-            $applicantsByRace = [];
-            $totalApplicantsPerMonth = [];
-            $applicationsPerMonth = [];
-            $interviewedPerMonth = [];
-            $appointedPerMonth = [];
-            $rejectedPerMonth = [];
-            $percentMovementApplicationsPerMonth = 0;
-            $percentMovementInterviewedPerMonth = 0;
-            $percentMovementAppointedPerMonth = 0;
-            $percentMovementRejectedPerMonth = 0;
-
-            if ($currentYearData) {
-                // Fetch total applicants per province for the current year using the relation
-                $applicantsPerProvince = $currentYearData->monthlyData()
-                ->where('category_type', 'Province')
-                ->join('provinces', 'applicant_monthly_data.category_id', '=', 'provinces.id')
-                ->select('provinces.name', DB::raw('SUM(applicant_monthly_data.count) as total_applicants'))
-                ->groupBy('provinces.name')
-                ->get()
-                ->map(function ($item) {
-                    // Format for the chart
-                    return ['x' => $item->name, 'y' => (int) $item->total_applicants];
-                })
-                ->toArray();
-
-                // Fetch applicants by race for the current year
-                $applicantsByRaceCurrentYear = ApplicantMonthlyData::join('races', 'applicant_monthly_data.category_id', '=', 'races.id')
-                ->where('applicant_total_data_id', $currentYearId)
-                ->whereIn('month', $queryMonthsCurrentYear)
-                ->where('category_type', 'Race')
-                ->get(['races.name as race_name', 'applicant_monthly_data.month', 'applicant_monthly_data.count']);
-
-                // Fetch applicants by race for the previous year
-                $applicantsByRacePreviousYear = ApplicantMonthlyData::join('races', 'applicant_monthly_data.category_id', '=', 'races.id')
-                ->where('applicant_total_data_id', $previousYearId)
-                ->whereIn('month', $queryMonthsPreviousYear)
-                ->where('category_type', 'Race')
-                ->get(['races.name as race_name', 'applicant_monthly_data.month', 'applicant_monthly_data.count']);
-
-                // Combine both year's data
-                $combinedApplicantsByRace = $applicantsByRacePreviousYear->concat($applicantsByRaceCurrentYear);
-
-                // Initialize the series array for the chart
-                $combinedApplicantsByRace->groupBy('race_name')->each(function ($items, $raceName) use (&$applicantsByRace, $months, $currentMonth) {
-                    $dataPoints = array_fill(0, count($months), 0); // Initialize with zeros for all months
-
-                    foreach ($items as $item) {
-                        $index = array_search($item->month, $months);
-                        if ($index !== false) {
-                            $dataPoints[$index] = (int) $item->count;
-                        }
-                    }
-
-                    // Adjust for the current year by slicing and rearranging months to start from the current month backwards
-                    $dataPoints = array_merge(array_slice($dataPoints, $currentMonth + 1), array_slice($dataPoints, 0, $currentMonth + 1));
-
-                    $applicantsByRace[] = [
-                        'name' => $raceName,
-                        'data' => array_reverse($dataPoints), // Reverse to start with the most recent month
-                    ];
-                });
-
-                // Handle the previous year's data
-                if ($currentMonth < 11) {
-                    foreach (array_slice($months, $currentMonth + 1) as $month) {
-                        $monthKey = strtolower($month); // Convert month to the key format (e.g., 'jan', 'feb')
-                        $totalApplicantsPerMonth[] = $previousYearData->$monthKey ?? 0;
-                    }
-                }
-
-                // Add data for the current year up to the current month
-                foreach (array_slice($months, 0, $currentMonth + 1) as $month) {
-                    $monthKey = strtolower($month);
-                    $totalApplicantsPerMonth[] = $currentYearData->$monthKey ?? 0;
-                }
-
-                // Fetch application data for the current year
-                $applicationsCurrentYear = ApplicantMonthlyData::where('category_type', 'Application')
-                ->where('applicant_total_data_id', $currentYearId)
-                ->whereIn('month', $queryMonthsCurrentYear)
-                ->get(['month', 'count']);
-
-                // Fetch application data for the previous year
-                $applicationsPreviousYear = ApplicantMonthlyData::where('category_type', 'Application')
-                ->where('applicant_total_data_id', $previousYearId)
-                ->whereIn('month', $queryMonthsPreviousYear)
-                ->get(['month', 'count']);
-
-                // Combine both year's data
-                $combinedApplications = $applicationsPreviousYear->concat($applicationsCurrentYear);
-
-                // Process the combined data for visualization
-                $combinedApplications->groupBy('month')->each(function ($items, $month) use (&$applicationsPerMonth, $months) {
-                    $totalApplications = $items->sum('count'); // Sum up applications for the month
-
-                    $index = array_search($month, $months);
-                    if ($index !== false) {
-                        $applicationsPerMonth[] = $totalApplications;
-                    }
-                });
-
-                //Percent movement from last month
-                $sumOfApplications = array_sum($applicationsPerMonth);
-
-                if (count($applicationsPerMonth) >= 2) {
-                    $lastMonthApplications = end($applicationsPerMonth);
-                    $penultimateMonthApplications = $applicationsPerMonth[count($applicationsPerMonth) - 2];
-
-                    if ($sumOfApplications > 0) {
-                        $percentMovementApplicationsPerMonth = round((($lastMonthApplications - $penultimateMonthApplications) / $sumOfApplications) * 100, 2);
-                    } else {
-                        $percentMovementApplicationsPerMonth = 0;
-                    }
-                } else {
-                    $percentMovementApplicationsPerMonth = 0;
-                }
-
-                // Fetch interview data for the current year
-                $interviewsCurrentYear = ApplicantMonthlyData::where('category_type', 'Interviewed')
-                ->where('applicant_total_data_id', $currentYearId)
-                ->whereIn('month', $queryMonthsCurrentYear)
-                ->get(['month', 'count']);
-
-                // Fetch interview data for the previous year
-                $interviewsPreviousYear = ApplicantMonthlyData::where('category_type', 'Interviewed')
-                ->where('applicant_total_data_id', $previousYearId)
-                ->whereIn('month', $queryMonthsPreviousYear)
-                ->get(['month', 'count']);
-
-                // Combine both year's data
-                $combinedInterviews = $interviewsPreviousYear->concat($interviewsCurrentYear);
-
-                // Process the combined data for visualization
-                $combinedInterviews->groupBy('month')->each(function ($items, $month) use (&$interviewedPerMonth, $months) {
-                    $totalInterviews = $items->sum('count'); // Sum up interviews for the month
-
-                    $index = array_search($month, $months);
-                    if ($index !== false) {
-                        $interviewedPerMonth[] = $totalInterviews;
-                    }
-                });
-
-                //Percent movement from last month
-                $sumOfInterviewed = array_sum($interviewedPerMonth);
-
-                if (count($interviewedPerMonth) >= 2) {
-                    $lastMonthInterviewed = end($interviewedPerMonth);
-                    $penultimateMonthInterviewed = $interviewedPerMonth[count($interviewedPerMonth) - 2];
-
-                    if ($sumOfInterviewed > 0) {
-                        $percentMovementInterviewedPerMonth = round((($lastMonthInterviewed - $penultimateMonthInterviewed) / $sumOfInterviewed) * 100, 2);
-                    } else {
-                        $percentMovementInterviewedPerMonth = 0;
-                    }
-                } else {
-                    $percentMovementInterviewedPerMonth = 0;
-                }
-
-                // Fetch appointed data for the current year
-                $appointedCurrentYear = ApplicantMonthlyData::where('category_type', 'Appointed')
-                ->where('applicant_total_data_id', $currentYearId)
-                ->whereIn('month', $queryMonthsCurrentYear)
-                ->get(['month', 'count']);
-
-                // Fetch appointed data for the previous year
-                $appointedPreviousYear = ApplicantMonthlyData::where('category_type', 'Appointed')
-                ->where('applicant_total_data_id', $previousYearId)
-                ->whereIn('month', $queryMonthsPreviousYear)
-                ->get(['month', 'count']);
-
-                // Combine both year's data
-                $combinedAppointed = $appointedPreviousYear->concat($appointedCurrentYear);
-
-                // Process the combined data for visualization
-                $combinedAppointed->groupBy('month')->each(function ($items, $month) use (&$appointedPerMonth, $months) {
-                    $totalAppointed = $items->sum('count'); // Sum up appointed for the month
-
-                    $index = array_search($month, $months);
-                    if ($index !== false) {
-                        $appointedPerMonth[] = $totalAppointed;
-                    }
-                });
-
-                //Percent movement from last month
-                $sumOfAppointed = array_sum($appointedPerMonth);
-
-                if (count($appointedPerMonth) >= 2) {
-                    $lastMonthAppointed = end($appointedPerMonth);
-                    $penultimateMonthAppointed = $appointedPerMonth[count($appointedPerMonth) - 2];
-
-                    if ($sumOfAppointed > 0) {
-                        $percentMovementAppointedPerMonth = round((($lastMonthAppointed - $penultimateMonthAppointed) / $sumOfAppointed) * 100, 2);
-                    } else {
-                        $percentMovementAppointedPerMonth = 0;
-                    }
-                } else {
-                    $percentMovementAppointedPerMonth = 0;
-                }
-
-                // Fetch rejected data for the current year
-                $rejectedCurrentYear = ApplicantMonthlyData::where('category_type', 'Rejected')
-                ->where('applicant_total_data_id', $currentYearId)
-                ->whereIn('month', $queryMonthsCurrentYear)
-                ->get(['month', 'count']);
-
-                // Fetch rejected data for the previous year
-                $rejectedPreviousYear = ApplicantMonthlyData::where('category_type', 'Rejected')
-                ->where('applicant_total_data_id', $previousYearId)
-                ->whereIn('month', $queryMonthsPreviousYear)
-                ->get(['month', 'count']);
-
-                // Combine both year's data
-                $combinedRejected = $rejectedPreviousYear->concat($rejectedCurrentYear);
-
-                // Process the combined data for visualization
-                $combinedRejected->groupBy('month')->each(function ($items, $month) use (&$rejectedPerMonth, $months) {
-                    $totalRejected = $items->sum('count'); // Sum up rejected for the month
-
-                    $index = array_search($month, $months);
-                    if ($index !== false) {
-                        $rejectedPerMonth[] = $totalRejected;
-                    }
-                });
-
-                //Percent movement from last month
-                $sumOfRejected = array_sum($rejectedPerMonth);
-
-                if (count($rejectedPerMonth) >= 2) {
-                    $lastMonthRejected = end($rejectedPerMonth);
-                    $penultimateMonthRejected = $rejectedPerMonth[count($rejectedPerMonth) - 2];
-
-                    if ($sumOfRejected > 0) {
-                        $percentMovementRejectedPerMonth = round((($lastMonthRejected - $penultimateMonthRejected) / $sumOfRejected) * 100, 2);
-                    } else {
-                        $percentMovementRejectedPerMonth = 0;
-                    }
-                } else {
-                    $percentMovementRejectedPerMonth = 0;
-                }
-            }
-
-            //Message Data
-            $currentYearChatData = ChatTotalData::where('year', $currentYear)->first();
-            $previousYearChatData = ChatTotalData::where('year', $previousYear)->first();
-
-            $totalIncomingMessages = $currentYearChatData->total_incoming + $previousYearChatData->total_incoming;
-            $totalOutgoingMessages = $currentYearChatData->total_outgoing + $previousYearChatData->total_outgoing;
-
-            $incomingMessages = [];
-            $outgoingMessages = [];
-
-            if ($currentYearData) {
-                // Handle data from the previous year, if current month is not January
-                if ($currentMonth < 11) {
-                    foreach (array_slice($months, $currentMonth + 1) as $month) {
-                        $monthIncoming = strtolower($month) . '_incoming';
-                        $monthOutgoing = strtolower($month) . '_outgoing';
-                        $incomingMessages[] = $previousYearChatData->$monthIncoming ?? 0;
-                        $outgoingMessages[] = $previousYearChatData->$monthOutgoing ?? 0;
-                    }
-                }
-
-                // Add data for the current year, including the current month
-                foreach (array_slice($months, 0, $currentMonth + 1) as $month) {
-                    $monthIncoming = strtolower($month) . '_incoming';
-                    $monthOutgoing = strtolower($month) . '_outgoing';
-                    $incomingMessages[] = $currentYearChatData->$monthIncoming ?? 0;
-                    $outgoingMessages[] = $currentYearChatData->$monthOutgoing ?? 0;
-                }
-            }
-
-            // Fetch applicants positions
-            $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
-            ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
-            ->where('applicant_monthly_data.category_type', 'Position')
-            ->groupBy('positions.name')
-            ->get();
-
-            $applicantsByPosition = $positionsTotals->map(function ($item) {
-                return [
-                    'name' => $item->positionName,
-                    'data' => [$item->total]
-                ];
-            })->all();
-
-            $startDate = Carbon::now()->subYears(2)->startOfYear();
-            $endDate = Carbon::now()->endOfYear();
-
-            $averageShortlistTime = $this->vacancyDataService->getNationwideAverageTimeToShortlist($startDate, $endDate);
-            $averageTimeToHire = $this->vacancyDataService->getNationwideAverageTimeToHire($startDate, $endDate);
-            $adoptionRate = $this->vacancyDataService->getNationwideVacancyFillRate($startDate, $endDate);
-            $applicationCompletionRate = $this->applicantDataService->getApplicationCompletionRate($startDate, $endDate);
-            $dropOffRates = $this->applicantDataService->getDropOffRates($startDate, $endDate);
-            // $completionByRegion = $this->applicantDataService->getCompletionByRegion($startDate, $endDate);
-            $channelStats =  $this->applicantDataService->getTotalAndPercentageByChannel($startDate, $endDate);
-            $totalTalentPool = $this->applicantDataService->getTotalTalentPoolCount([
-                'startDate' => $startDate,
-                'endDate' => $endDate,
-            ]);
-            $raceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate);
-            $genderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate);
-            $ageBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate);
-
-            $appointedRaceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate, 'appointed');
-            $appointedGenderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate, 'appointed');
-            $appointedAgeBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate, 'appointed');
-
-            $interviewedRaceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate, 'interveiwed');
-            $interviewedGenderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate, 'interveiwed');
-            $interviewedAgeBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate, 'interveiwed');
-
-            $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDateRange($startDate, $endDate);
-            $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
-            $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
-            $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForAdmin($startDate, $endDate);
-            $distanceLimit = 50;
-            $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
-                'national',
-                null,
-                $distanceLimit,
-                $startDate,
-                $endDate
-            );
-
-            return view('admin/home', [
-                'activities' => $activities,
-                'positions' => $positions,
-                'currentYearData' => $currentYearData,
-                'previousYearData' => $previousYearData,
-                'applicantsPerProvince' => $applicantsPerProvince,
-                'applicantsByRace' => $applicantsByRace,
-                'totalApplicantsPerMonth' => $totalApplicantsPerMonth,
-                'totalIncomingMessages' => $totalIncomingMessages,
-                'totalOutgoingMessages' => $totalOutgoingMessages,
-                'incomingMessages' => $incomingMessages,
-                'outgoingMessages' => $outgoingMessages,
-                'applicantsByPosition' => $applicantsByPosition,
-                'applicationsPerMonth' => $applicationsPerMonth,
-                'interviewedPerMonth' => $interviewedPerMonth,
-                'appointedPerMonth' => $appointedPerMonth,
-                'rejectedPerMonth' => $rejectedPerMonth,
-                'percentMovementApplicationsPerMonth' => $percentMovementApplicationsPerMonth,
-                'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
-                'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
-                'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
-                'averageShortlistTime' => $averageShortlistTime,
-                'averageTimeToHire' => $averageTimeToHire,
-                'adoptionRate' => $adoptionRate,
-                'applicationCompletionRate' => $applicationCompletionRate,
-                'dropOffRates' => $dropOffRates,
-                // 'completionByRegion' => $completionByRegion,
-                'averageScoresByBrand' => $averageScoresByBrand,
-                'averageScoresByProvince' => $averageScoresByProvince,
-                'channelStats' => $channelStats,
-                'totalTalentPool' => $totalTalentPool,
-                'raceBreakdownPercentages' => array_values($raceBreakdown['percentages']),
-                'ageBreakdownPercentages' => array_values($ageBreakdown['percentages']),
-                'genderBreakdownPercentages' => array_values($genderBreakdown['percentages']),
-                'appointedRaceBreakdownPercentages' => array_values($appointedRaceBreakdown['percentages']),
-                'appointedGenderBreakdownPercentages' => array_values($appointedGenderBreakdown['percentages']),
-                'appointedAgeBreakdownPercentages' => array_values($appointedAgeBreakdown['percentages']),
-                'interviewedRaceBreakdownPercentages' => array_values($interviewedRaceBreakdown['percentages']),
-                'interviewedGenderBreakdownPercentages' => array_values($interviewedGenderBreakdown['percentages']),
-                'interviewedAgeBreakdownPercentages' => array_values($interviewedAgeBreakdown['percentages']),
-                'averageDistanceSuccessfulPlacements' => $averageDistanceSuccessfulPlacements,
-                'averageTalentPoolDistance' => $averageTalentPoolDistance,
-            ]);
+            return view('admin/home', $data);
         }
+
         return view('404');
+
+        //     // Filter activities to get only those related to vacancies.
+        //     $vacancyActivities = $activities->where('subject_type', 'App\Models\Vacancy');
+        //     // Extract the IDs of the affected vacancies from these activities.
+        //     $vacancyIds = $vacancyActivities->pluck('subject_id');
+
+        //     // Retrieve the vacancies along with their related models like position, store's brand, store's town, and type.
+        //     $vacanciesWithRelations = Vacancy::with(['position', 'store.brand', 'store.town', 'type'])
+        //                                     ->whereIn('id', $vacancyIds)
+        //                                     ->get();
+
+        //     // Associate each activity with its corresponding vacancy by setting a relation.
+        //     foreach ($vacancyActivities as $activity) {
+        //         $activity->setRelation('subject', $vacanciesWithRelations->firstWhere('id', $activity->subject_id));
+        //     }
+
+        //     // Filter activities to get only those related to messages.
+        //     $messageActivities = $activities->where('subject_type', 'App\Models\Message');
+        //     // Extract the IDs of the messages from these activities.
+        //     $ids = $messageActivities->pluck('subject_id');
+
+        //     // Retrieve the messages along with their related 'to' and 'from' users.
+        //     $messagesWithRelations = Message::with('to', 'from')->whereIn('id', $ids)->get();
+
+        //     // Associate each message activity with its corresponding message by setting a relation.
+        //     foreach ($messageActivities as $activity) {
+        //         $activity->setRelation('subject', $messagesWithRelations->firstWhere('id', $activity->subject_id));
+        //     }
+
+        //     // Filter activities to get only those related to applications.
+        //     $applicationActivities = $activities->where('subject_type', 'App\Models\Application');
+        //     // Extract the IDs of the applications from these activities.
+        //     $connectionIds = $applicationActivities->pluck('subject_id');
+
+        //     // Retrieve the applications along with their related user and the user of the related vacancy.
+        //     $applicationWithRelations = Application::with(['user', 'vacancy.user'])->whereIn('id', $connectionIds)->get();
+
+        //     // Associate each application activity with its corresponding application by setting a relation.
+        //     foreach ($applicationActivities as $activity) {
+        //         $activity->setRelation('subject', $applicationWithRelations->firstWhere('id', $activity->subject_id));
+        //     }
+
+        //     // For activities where messages have been deleted, extract the 'to_id' from the old properties.
+        //     $deletedMessageUserIds = $activities->where('subject_type', 'App\Models\Message')
+        //                                         ->where('event', 'deleted')
+        //                                         ->map(function ($activity) {
+        //                                             return data_get($activity, 'properties.old.to_id');
+        //                                         })
+        //                                         ->filter()
+        //                                         ->unique();
+
+        //     // Retrieve the users associated with the deleted messages.
+        //     $usersForDeletedMessages = User::whereIn('id', $deletedMessageUserIds)->get();
+
+        //     // Filter activities to get only those where messages have been deleted.
+        //     $deletedMessageActivities = $activities->where('subject_type', 'App\Models\Message')->where('event', 'deleted');
+
+        //     // Associate each deleted message activity with the user it was sent to by setting a relation.
+        //     foreach ($deletedMessageActivities as $activity) {
+        //         $toId = data_get($activity, 'properties.old.to_id');
+        //         $activity->setRelation('userForDeletedMessage', $usersForDeletedMessages->firstWhere('id', $toId));
+        //     }
+
+        //     // Extract the encrypted IDs from the URL of the 'accessed' activities for vacancies.
+        //     $accessedVacancyEncryptedIds = $activities->where('event', 'accessed')
+        //     ->where('description', 'job-overview.index')
+        //     ->map(function ($activity) {
+        //         // Get the URL from the activity's properties.
+        //         return data_get($activity, 'properties.url');
+        //     })
+        //     ->map(function ($url) {
+        //         // Split the URL into segments and get the last segment, which is the encrypted ID.
+        //         $segments = explode('/', $url);
+        //         $encryptedId = count($segments) > 1 ? last($segments) : null;
+
+        //         // Attempt to decrypt the encrypted ID.
+        //         if ($encryptedId) {
+        //             try {
+        //                 return Crypt::decryptString($encryptedId);
+        //             } catch (\Exception $e) {
+        //                 // If decryption fails, return null.
+        //                 return null;
+        //             }
+        //         }
+        //         return null;
+        //     })
+        //     ->filter(); // Remove any null values from the collection.
+
+        //     // Retrieve the vacancies that have been accessed using the decrypted IDs.
+        //     $accessedOpportunities = Vacancy::whereIn('id', $accessedVacancyEncryptedIds)->get();
+
+        //     // Filter the activities to get only those with 'accessed' event and 'job-overview.index' description.
+        //     $accessedVacancyActivities = $activities->where('event', 'accessed')->where('description', 'job-overview.index');
+
+        //     // Associate each accessed vacancy activity with the corresponding vacancy.
+        //     foreach ($accessedVacancyActivities as $activity) {
+        //         // Decrypt the encrypted ID from the URL.
+        //         $encryptedId = last(explode('/', data_get($activity, 'properties.url')));
+        //         try {
+        //             $decryptedId = Crypt::decryptString($encryptedId);
+        //             // Find the vacancy using the decrypted ID and set the relation.
+        //             $opportunity = $accessedOpportunities->firstWhere('id', $decryptedId);
+        //             $activity->setRelation('accessedVacancy', $opportunity);
+        //         } catch (\Exception $e) {
+        //             // If decryption fails, skip this iteration.
+        //             continue;
+        //         }
+        //     }
+
+        //     // Extract the encrypted IDs from the URL of the 'accessed' activities for applicants.
+        //     $accessedApplicantEncryptedIds = $activities->where('event', 'accessed')
+        //     ->where('description', 'applicant-profile.index')
+        //     ->map(function ($activity) {
+        //         // Parse the URL to get the query string, then extract the 'id' parameter.
+        //         parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
+        //         return $queryParams['id'] ?? null;
+        //     })
+        //     ->map(function ($encryptedId) {
+        //         // Attempt to decrypt the encrypted ID.
+        //         if ($encryptedId) {
+        //             try {
+        //                 return Crypt::decryptString($encryptedId);
+        //             } catch (\Exception $e) {
+        //                 // If decryption fails, return null.
+        //                 return null;
+        //             }
+        //         }
+        //         return null;
+        //     })
+        //     ->filter(); // Remove any null values from the collection.
+
+        //     // Retrieve the applicants that have been accessed using the decrypted IDs.
+        //     $accessedApplicants = Applicant::whereIn('id', $accessedApplicantEncryptedIds)->get();
+
+        //     // Filter the activities to get only those with 'accessed' event and 'applicant-profile.index' description.
+        //     $accessedApplicantActivities = $activities->where('event', 'accessed')->where('description', 'applicant-profile.index');
+
+        //     // Associate each accessed applicant activity with the corresponding applicant.
+        //     foreach ($accessedApplicantActivities as $activity) {
+        //         // Parse the URL to get the encrypted ID from the query string.
+        //         parse_str(parse_url(data_get($activity, 'properties.url'), PHP_URL_QUERY), $queryParams);
+        //         $encryptedId = $queryParams['id'] ?? null;
+        //         if ($encryptedId) {
+        //             try {
+        //                 // Decrypt the encrypted ID and find the corresponding applicant.
+        //                 $decryptedId = Crypt::decryptString($encryptedId);
+        //                 $applicant = $accessedApplicants->firstWhere('id', $decryptedId);
+        //                 // Set the relation on the activity.
+        //                 $activity->setRelation('accessedApplicant', $applicant);
+        //             } catch (\Exception $e) {
+        //                 // If decryption fails or the applicant is not found, skip this iteration.
+        //                 continue;
+        //             }
+        //         }
+        //     }
+
+        //     //Positions
+        //     $positions = Position::withCount('users')
+        //         ->whereNotIn('id', [1, 10])
+        //         ->orderBy('users_count', 'desc')
+        //         ->take(10)
+        //         ->get();
+
+        //     //Current Year
+        //     $currentYear = now()->year;
+        //     $currentMonth = now()->month - 1;
+        //     $previousYear = $currentYear - 1;
+
+        //     $months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+        //     // Determine months to query for the current year
+        //     $queryMonthsCurrentYear = array_slice($months, 0, $currentMonth + 1);
+        //     // Determine months to query for the previous year, excluding months overlapping with the current year
+        //     $queryMonthsPreviousYear = array_slice($months, $currentMonth + 1);
+
+        //     $currentYearData = ApplicantTotalData::where('year', $currentYear)->first();
+        //     $previousYearData = ApplicantTotalData::where('year', $currentYear - 1)->first();
+        //     $currentYearId = $currentYearData->id;
+        //     $previousYearId = $previousYearData->id;
+
+        //     $applicantsPerProvince = [];
+        //     $applicantsByRace = [];
+        //     $totalApplicantsPerMonth = [];
+        //     $applicationsPerMonth = [];
+        //     $interviewedPerMonth = [];
+        //     $appointedPerMonth = [];
+        //     $rejectedPerMonth = [];
+        //     $percentMovementApplicationsPerMonth = 0;
+        //     $percentMovementInterviewedPerMonth = 0;
+        //     $percentMovementAppointedPerMonth = 0;
+        //     $percentMovementRejectedPerMonth = 0;
+
+        //     if ($currentYearData) {
+        //         // Fetch total applicants per province for the current year using the relation
+        //         $applicantsPerProvince = $currentYearData->monthlyData()
+        //         ->where('category_type', 'Province')
+        //         ->join('provinces', 'applicant_monthly_data.category_id', '=', 'provinces.id')
+        //         ->select('provinces.name', DB::raw('SUM(applicant_monthly_data.count) as total_applicants'))
+        //         ->groupBy('provinces.name')
+        //         ->get()
+        //         ->map(function ($item) {
+        //             // Format for the chart
+        //             return ['x' => $item->name, 'y' => (int) $item->total_applicants];
+        //         })
+        //         ->toArray();
+
+        //         // Fetch applicants by race for the current year
+        //         $applicantsByRaceCurrentYear = ApplicantMonthlyData::join('races', 'applicant_monthly_data.category_id', '=', 'races.id')
+        //         ->where('applicant_total_data_id', $currentYearId)
+        //         ->whereIn('month', $queryMonthsCurrentYear)
+        //         ->where('category_type', 'Race')
+        //         ->get(['races.name as race_name', 'applicant_monthly_data.month', 'applicant_monthly_data.count']);
+
+        //         // Fetch applicants by race for the previous year
+        //         $applicantsByRacePreviousYear = ApplicantMonthlyData::join('races', 'applicant_monthly_data.category_id', '=', 'races.id')
+        //         ->where('applicant_total_data_id', $previousYearId)
+        //         ->whereIn('month', $queryMonthsPreviousYear)
+        //         ->where('category_type', 'Race')
+        //         ->get(['races.name as race_name', 'applicant_monthly_data.month', 'applicant_monthly_data.count']);
+
+        //         // Combine both year's data
+        //         $combinedApplicantsByRace = $applicantsByRacePreviousYear->concat($applicantsByRaceCurrentYear);
+
+        //         // Initialize the series array for the chart
+        //         $combinedApplicantsByRace->groupBy('race_name')->each(function ($items, $raceName) use (&$applicantsByRace, $months, $currentMonth) {
+        //             $dataPoints = array_fill(0, count($months), 0); // Initialize with zeros for all months
+
+        //             foreach ($items as $item) {
+        //                 $index = array_search($item->month, $months);
+        //                 if ($index !== false) {
+        //                     $dataPoints[$index] = (int) $item->count;
+        //                 }
+        //             }
+
+        //             // Adjust for the current year by slicing and rearranging months to start from the current month backwards
+        //             $dataPoints = array_merge(array_slice($dataPoints, $currentMonth + 1), array_slice($dataPoints, 0, $currentMonth + 1));
+
+        //             $applicantsByRace[] = [
+        //                 'name' => $raceName,
+        //                 'data' => array_reverse($dataPoints), // Reverse to start with the most recent month
+        //             ];
+        //         });
+
+        //         // Handle the previous year's data
+        //         if ($currentMonth < 11) {
+        //             foreach (array_slice($months, $currentMonth + 1) as $month) {
+        //                 $monthKey = strtolower($month); // Convert month to the key format (e.g., 'jan', 'feb')
+        //                 $totalApplicantsPerMonth[] = $previousYearData->$monthKey ?? 0;
+        //             }
+        //         }
+
+        //         // Add data for the current year up to the current month
+        //         foreach (array_slice($months, 0, $currentMonth + 1) as $month) {
+        //             $monthKey = strtolower($month);
+        //             $totalApplicantsPerMonth[] = $currentYearData->$monthKey ?? 0;
+        //         }
+
+        //         // Fetch application data for the current year
+        //         $applicationsCurrentYear = ApplicantMonthlyData::where('category_type', 'Application')
+        //         ->where('applicant_total_data_id', $currentYearId)
+        //         ->whereIn('month', $queryMonthsCurrentYear)
+        //         ->get(['month', 'count']);
+
+        //         // Fetch application data for the previous year
+        //         $applicationsPreviousYear = ApplicantMonthlyData::where('category_type', 'Application')
+        //         ->where('applicant_total_data_id', $previousYearId)
+        //         ->whereIn('month', $queryMonthsPreviousYear)
+        //         ->get(['month', 'count']);
+
+        //         // Combine both year's data
+        //         $combinedApplications = $applicationsPreviousYear->concat($applicationsCurrentYear);
+
+        //         // Process the combined data for visualization
+        //         $combinedApplications->groupBy('month')->each(function ($items, $month) use (&$applicationsPerMonth, $months) {
+        //             $totalApplications = $items->sum('count'); // Sum up applications for the month
+
+        //             $index = array_search($month, $months);
+        //             if ($index !== false) {
+        //                 $applicationsPerMonth[] = $totalApplications;
+        //             }
+        //         });
+
+        //         //Percent movement from last month
+        //         $sumOfApplications = array_sum($applicationsPerMonth);
+
+        //         if (count($applicationsPerMonth) >= 2) {
+        //             $lastMonthApplications = end($applicationsPerMonth);
+        //             $penultimateMonthApplications = $applicationsPerMonth[count($applicationsPerMonth) - 2];
+
+        //             if ($sumOfApplications > 0) {
+        //                 $percentMovementApplicationsPerMonth = round((($lastMonthApplications - $penultimateMonthApplications) / $sumOfApplications) * 100, 2);
+        //             } else {
+        //                 $percentMovementApplicationsPerMonth = 0;
+        //             }
+        //         } else {
+        //             $percentMovementApplicationsPerMonth = 0;
+        //         }
+
+        //         // Fetch interview data for the current year
+        //         $interviewsCurrentYear = ApplicantMonthlyData::where('category_type', 'Interviewed')
+        //         ->where('applicant_total_data_id', $currentYearId)
+        //         ->whereIn('month', $queryMonthsCurrentYear)
+        //         ->get(['month', 'count']);
+
+        //         // Fetch interview data for the previous year
+        //         $interviewsPreviousYear = ApplicantMonthlyData::where('category_type', 'Interviewed')
+        //         ->where('applicant_total_data_id', $previousYearId)
+        //         ->whereIn('month', $queryMonthsPreviousYear)
+        //         ->get(['month', 'count']);
+
+        //         // Combine both year's data
+        //         $combinedInterviews = $interviewsPreviousYear->concat($interviewsCurrentYear);
+
+        //         // Process the combined data for visualization
+        //         $combinedInterviews->groupBy('month')->each(function ($items, $month) use (&$interviewedPerMonth, $months) {
+        //             $totalInterviews = $items->sum('count'); // Sum up interviews for the month
+
+        //             $index = array_search($month, $months);
+        //             if ($index !== false) {
+        //                 $interviewedPerMonth[] = $totalInterviews;
+        //             }
+        //         });
+
+        //         //Percent movement from last month
+        //         $sumOfInterviewed = array_sum($interviewedPerMonth);
+
+        //         if (count($interviewedPerMonth) >= 2) {
+        //             $lastMonthInterviewed = end($interviewedPerMonth);
+        //             $penultimateMonthInterviewed = $interviewedPerMonth[count($interviewedPerMonth) - 2];
+
+        //             if ($sumOfInterviewed > 0) {
+        //                 $percentMovementInterviewedPerMonth = round((($lastMonthInterviewed - $penultimateMonthInterviewed) / $sumOfInterviewed) * 100, 2);
+        //             } else {
+        //                 $percentMovementInterviewedPerMonth = 0;
+        //             }
+        //         } else {
+        //             $percentMovementInterviewedPerMonth = 0;
+        //         }
+
+        //         // Fetch appointed data for the current year
+        //         $appointedCurrentYear = ApplicantMonthlyData::where('category_type', 'Appointed')
+        //         ->where('applicant_total_data_id', $currentYearId)
+        //         ->whereIn('month', $queryMonthsCurrentYear)
+        //         ->get(['month', 'count']);
+
+        //         // Fetch appointed data for the previous year
+        //         $appointedPreviousYear = ApplicantMonthlyData::where('category_type', 'Appointed')
+        //         ->where('applicant_total_data_id', $previousYearId)
+        //         ->whereIn('month', $queryMonthsPreviousYear)
+        //         ->get(['month', 'count']);
+
+        //         // Combine both year's data
+        //         $combinedAppointed = $appointedPreviousYear->concat($appointedCurrentYear);
+
+        //         // Process the combined data for visualization
+        //         $combinedAppointed->groupBy('month')->each(function ($items, $month) use (&$appointedPerMonth, $months) {
+        //             $totalAppointed = $items->sum('count'); // Sum up appointed for the month
+
+        //             $index = array_search($month, $months);
+        //             if ($index !== false) {
+        //                 $appointedPerMonth[] = $totalAppointed;
+        //             }
+        //         });
+
+        //         //Percent movement from last month
+        //         $sumOfAppointed = array_sum($appointedPerMonth);
+
+        //         if (count($appointedPerMonth) >= 2) {
+        //             $lastMonthAppointed = end($appointedPerMonth);
+        //             $penultimateMonthAppointed = $appointedPerMonth[count($appointedPerMonth) - 2];
+
+        //             if ($sumOfAppointed > 0) {
+        //                 $percentMovementAppointedPerMonth = round((($lastMonthAppointed - $penultimateMonthAppointed) / $sumOfAppointed) * 100, 2);
+        //             } else {
+        //                 $percentMovementAppointedPerMonth = 0;
+        //             }
+        //         } else {
+        //             $percentMovementAppointedPerMonth = 0;
+        //         }
+
+        //         // Fetch rejected data for the current year
+        //         $rejectedCurrentYear = ApplicantMonthlyData::where('category_type', 'Rejected')
+        //         ->where('applicant_total_data_id', $currentYearId)
+        //         ->whereIn('month', $queryMonthsCurrentYear)
+        //         ->get(['month', 'count']);
+
+        //         // Fetch rejected data for the previous year
+        //         $rejectedPreviousYear = ApplicantMonthlyData::where('category_type', 'Rejected')
+        //         ->where('applicant_total_data_id', $previousYearId)
+        //         ->whereIn('month', $queryMonthsPreviousYear)
+        //         ->get(['month', 'count']);
+
+        //         // Combine both year's data
+        //         $combinedRejected = $rejectedPreviousYear->concat($rejectedCurrentYear);
+
+        //         // Process the combined data for visualization
+        //         $combinedRejected->groupBy('month')->each(function ($items, $month) use (&$rejectedPerMonth, $months) {
+        //             $totalRejected = $items->sum('count'); // Sum up rejected for the month
+
+        //             $index = array_search($month, $months);
+        //             if ($index !== false) {
+        //                 $rejectedPerMonth[] = $totalRejected;
+        //             }
+        //         });
+
+        //         //Percent movement from last month
+        //         $sumOfRejected = array_sum($rejectedPerMonth);
+
+        //         if (count($rejectedPerMonth) >= 2) {
+        //             $lastMonthRejected = end($rejectedPerMonth);
+        //             $penultimateMonthRejected = $rejectedPerMonth[count($rejectedPerMonth) - 2];
+
+        //             if ($sumOfRejected > 0) {
+        //                 $percentMovementRejectedPerMonth = round((($lastMonthRejected - $penultimateMonthRejected) / $sumOfRejected) * 100, 2);
+        //             } else {
+        //                 $percentMovementRejectedPerMonth = 0;
+        //             }
+        //         } else {
+        //             $percentMovementRejectedPerMonth = 0;
+        //         }
+        //     }
+
+        //     //Message Data
+        //     $currentYearChatData = ChatTotalData::where('year', $currentYear)->first();
+        //     $previousYearChatData = ChatTotalData::where('year', $previousYear)->first();
+
+        //     $totalIncomingMessages = $currentYearChatData->total_incoming + $previousYearChatData->total_incoming;
+        //     $totalOutgoingMessages = $currentYearChatData->total_outgoing + $previousYearChatData->total_outgoing;
+
+        //     $incomingMessages = [];
+        //     $outgoingMessages = [];
+
+        //     if ($currentYearData) {
+        //         // Handle data from the previous year, if current month is not January
+        //         if ($currentMonth < 11) {
+        //             foreach (array_slice($months, $currentMonth + 1) as $month) {
+        //                 $monthIncoming = strtolower($month) . '_incoming';
+        //                 $monthOutgoing = strtolower($month) . '_outgoing';
+        //                 $incomingMessages[] = $previousYearChatData->$monthIncoming ?? 0;
+        //                 $outgoingMessages[] = $previousYearChatData->$monthOutgoing ?? 0;
+        //             }
+        //         }
+
+        //         // Add data for the current year, including the current month
+        //         foreach (array_slice($months, 0, $currentMonth + 1) as $month) {
+        //             $monthIncoming = strtolower($month) . '_incoming';
+        //             $monthOutgoing = strtolower($month) . '_outgoing';
+        //             $incomingMessages[] = $currentYearChatData->$monthIncoming ?? 0;
+        //             $outgoingMessages[] = $currentYearChatData->$monthOutgoing ?? 0;
+        //         }
+        //     }
+
+        //     // Fetch applicants positions
+        //     $positionsTotals = ApplicantMonthlyData::join('positions', 'applicant_monthly_data.category_id', '=', 'positions.id')
+        //     ->select('positions.name as positionName', DB::raw('SUM(applicant_monthly_data.count) as total'))
+        //     ->where('applicant_monthly_data.category_type', 'Position')
+        //     ->groupBy('positions.name')
+        //     ->get();
+
+        //     $applicantsByPosition = $positionsTotals->map(function ($item) {
+        //         return [
+        //             'name' => $item->positionName,
+        //             'data' => [$item->total]
+        //         ];
+        //     })->all();
+
+        //     $startDate = Carbon::now()->subYears(2)->startOfYear();
+        //     $endDate = Carbon::now()->endOfYear();
+
+        //     $averageShortlistTime = $this->vacancyDataService->getNationwideAverageTimeToShortlist($startDate, $endDate);
+        //     $averageTimeToHire = $this->vacancyDataService->getNationwideAverageTimeToHire($startDate, $endDate);
+        //     $adoptionRate = $this->vacancyDataService->getNationwideVacancyFillRate($startDate, $endDate);
+        //     $applicationCompletionRate = $this->applicantDataService->getApplicationCompletionRate($startDate, $endDate);
+        //     $dropOffRates = $this->applicantDataService->getDropOffRates($startDate, $endDate);
+        //     // $completionByRegion = $this->applicantDataService->getCompletionByRegion($startDate, $endDate);
+        //     $channelStats =  $this->applicantDataService->getTotalAndPercentageByChannel($startDate, $endDate);
+        //     $totalTalentPool = $this->applicantDataService->getTotalTalentPoolCount([
+        //         'startDate' => $startDate,
+        //         'endDate' => $endDate,
+        //     ]);
+        //     $raceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate);
+        //     $genderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate);
+        //     $ageBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate);
+
+        //     $appointedRaceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate, 'appointed');
+        //     $appointedGenderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate, 'appointed');
+        //     $appointedAgeBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate, 'appointed');
+
+        //     $interviewedRaceBreakdown = $this->applicantDataService->getRaceBreakdown($startDate, $endDate, 'interveiwed');
+        //     $interviewedGenderBreakdown = $this->applicantDataService->getGenderBreakdown($startDate, $endDate, 'interveiwed');
+        //     $interviewedAgeBreakdown = $this->applicantDataService->getAgeBreakdown($startDate, $endDate, 'interveiwed');
+
+        //     $placedApplicants = $this->applicantDataService->getPlacedApplicantsWithScoresByDateRange($startDate, $endDate);
+        //     $averageScoresByBrand = $this->applicantDataService->calculateAverageScoresByBrand($placedApplicants);
+        //     $averageScoresByProvince = $this->applicantDataService->calculateAverageScoresByProvince($placedApplicants);
+        //     $averageDistanceSuccessfulPlacements = $this->applicantProximityService->calculateProximityForAdmin($startDate, $endDate);
+        //     $distanceLimit = 50;
+        //     $averageTalentPoolDistance = $this->applicantProximityService->calculateTalentPoolDistance(
+        //         'national',
+        //         null,
+        //         $distanceLimit,
+        //         $startDate,
+        //         $endDate
+        //     );
+
+        //     return view('admin/home', [
+        //         'activities' => $activities,
+        //         'positions' => $positions,
+        //         'currentYearData' => $currentYearData,
+        //         'previousYearData' => $previousYearData,
+        //         'applicantsPerProvince' => $applicantsPerProvince,
+        //         'applicantsByRace' => $applicantsByRace,
+        //         'totalApplicantsPerMonth' => $totalApplicantsPerMonth,
+        //         'totalIncomingMessages' => $totalIncomingMessages,
+        //         'totalOutgoingMessages' => $totalOutgoingMessages,
+        //         'incomingMessages' => $incomingMessages,
+        //         'outgoingMessages' => $outgoingMessages,
+        //         'applicantsByPosition' => $applicantsByPosition,
+        //         'applicationsPerMonth' => $applicationsPerMonth,
+        //         'interviewedPerMonth' => $interviewedPerMonth,
+        //         'appointedPerMonth' => $appointedPerMonth,
+        //         'rejectedPerMonth' => $rejectedPerMonth,
+        //         'percentMovementApplicationsPerMonth' => $percentMovementApplicationsPerMonth,
+        //         'percentMovementInterviewedPerMonth' => $percentMovementInterviewedPerMonth,
+        //         'percentMovementAppointedPerMonth' => $percentMovementAppointedPerMonth,
+        //         'percentMovementRejectedPerMonth' => $percentMovementRejectedPerMonth,
+        //         'averageShortlistTime' => $averageShortlistTime,
+        //         'averageTimeToHire' => $averageTimeToHire,
+        //         'adoptionRate' => $adoptionRate,
+        //         'applicationCompletionRate' => $applicationCompletionRate,
+        //         'dropOffRates' => $dropOffRates,
+        //         // 'completionByRegion' => $completionByRegion,
+        //         'averageScoresByBrand' => $averageScoresByBrand,
+        //         'averageScoresByProvince' => $averageScoresByProvince,
+        //         'channelStats' => $channelStats,
+        //         'totalTalentPool' => $totalTalentPool,
+        //         'raceBreakdownPercentages' => array_values($raceBreakdown['percentages']),
+        //         'ageBreakdownPercentages' => array_values($ageBreakdown['percentages']),
+        //         'genderBreakdownPercentages' => array_values($genderBreakdown['percentages']),
+        //         'appointedRaceBreakdownPercentages' => array_values($appointedRaceBreakdown['percentages']),
+        //         'appointedGenderBreakdownPercentages' => array_values($appointedGenderBreakdown['percentages']),
+        //         'appointedAgeBreakdownPercentages' => array_values($appointedAgeBreakdown['percentages']),
+        //         'interviewedRaceBreakdownPercentages' => array_values($interviewedRaceBreakdown['percentages']),
+        //         'interviewedGenderBreakdownPercentages' => array_values($interviewedGenderBreakdown['percentages']),
+        //         'interviewedAgeBreakdownPercentages' => array_values($interviewedAgeBreakdown['percentages']),
+        //         'averageDistanceSuccessfulPlacements' => $averageDistanceSuccessfulPlacements,
+        //         'averageTalentPoolDistance' => $averageTalentPoolDistance,
+        //     ]);
+        // }
+        // return view('404');
     }
 
     /*
@@ -1075,5 +1043,125 @@ class AdminController extends Controller
         } else {
             return 0;
         }
+    }
+
+
+    /**
+     * Fetches various metrics for a region over a given date range.
+     *
+     * @param \Carbon\Carbon $startDate The start date of the range.
+     * @param \Carbon\Carbon $endDate The end date of the range.
+     * @return array An associative array containing region metrics.
+     */
+    private function fetchData(Carbon $startDate, Carbon $endDate)
+    {
+        $totalVacancies = 0;
+        $totalVacanciesFilled = 0;
+        $totalInterviewsScheduled = 0;
+        $totalInterviewsCompleted = 0;
+        $totalApplicantsAppointed = 0;
+        $totalApplicantsRegretted = 0;
+        $averageTimeToShortlist = 0;
+        $averageTimeToHire = 0;
+        $adoptionRate = 0;
+        $averageDistanceApplicantsAppointed = 0;
+        $averageScoreApplicantsAppointed = 0;
+        $talentPoolApplicants = 0;
+        $applicantsAppointed = 0;
+
+        // Define the models that are relevant for the activity log.
+        $allowedModels = [
+            'App\Models\Application',
+            'App\Models\Vacancy',
+            'App\Models\Message',
+            'App\Models\User'
+        ];
+
+        // Retrieve the ID of the currently authenticated user.
+        $authUserId = Auth::id();
+
+        // Get a list of IDs for vacancies that are associated with the authenticated user.
+        $authVacancyIds = Vacancy::where('user_id', $authUserId)->pluck('id')->toArray();
+
+        // Query the activity log, filtering for activities related to the allowed models.
+        $activities = Activity::whereIn('subject_type', $allowedModels)
+            ->where(function ($query) use ($authUserId, $authVacancyIds) {
+                // Filter for activities where the 'causer' (the user who performed the action) is the authenticated user,
+                // and the action is one of 'created', 'updated', or 'deleted'.
+                $query->where('causer_id', $authUserId)
+                    ->whereIn('event', ['created', 'updated', 'deleted']);
+            })
+            ->orWhere(function ($q) use ($authUserId) {
+                // Include activities where the event is 'accessed' (e.g., a user viewed a vacancy or applicant profile),
+                // specifically for the authenticated user.
+                $q->where('event', 'accessed')
+                ->whereIn('description', ['job-overview.index', 'applicant-profile.index'])
+                ->where('causer_id', $authUserId);
+            })
+            ->orWhere(function ($q) use ($authUserId) {
+                // Include activities related to messages where the authenticated user is the recipient ('to_id').
+                $q->where('subject_type', 'App\Models\Message')
+                ->where('properties->attributes->to_id', $authUserId)
+                ->where('event', 'created');
+            })
+            ->orWhere(function ($q) use ($authVacancyIds) {
+                // Include activities related to applications connected to any of the vacancies owned by the authenticated user.
+                $q->where('subject_type', 'App\Models\Application')
+                ->whereIn('properties->attributes->vacancy_id', $authVacancyIds);
+            })
+            ->latest() // Order the results by the most recent first.
+            ->limit(10) // Limit the results to the 10 most recent activities.
+            ->get(); // Execute the query and get the results
+
+        // Step 1: Fetch vacancy data from VacancyDataService
+        $totalVacancies = $this->vacancyDataService->getAllTotalVacancies($startDate, $endDate);
+        $totalVacanciesFilled = $this->vacancyDataService->getAllTotalVacanciesFilled($startDate, $endDate);
+
+        // Step 2: Fetch interview data from VacancyDataService
+        $totalInterviewsScheduled = $this->vacancyDataService->getAllTotalInterviewsScheduled($startDate, $endDate);
+        $totalInterviewsCompleted = $this->vacancyDataService->getAllTotalInterviewsCompleted($startDate, $endDate);
+
+        // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
+        $totalApplicantsAppointed = $this->vacancyDataService->getAllTotalApplicantsAppointed($startDate, $endDate);
+        $totalApplicantsRegretted = $this->vacancyDataService->getAllTotalApplicantsRegretted($startDate, $endDate);
+
+        // Step 4: Fetch time data from VacancyDataService
+        $averageTimeToShortlist = $this->vacancyDataService->getAllAverageTimeToShortlist($startDate, $endDate);
+        $averageTimeToHire = $this->vacancyDataService->getAllAverageTimeToHire($startDate, $endDate);
+        $adoptionRate = ($totalVacancies > 0) ? round($totalVacanciesFilled / $totalVacancies * 100) : 0;
+
+        // // Step 5: Fetch proximity data from ApplicantProximityService
+        // $regionAverageDistanceApplicantsAppointed = $this->applicantProximityService->calculateProximityForRegion($regionId, $startDate, $endDate);
+
+        // // Step 6: Fetch applicant score data from ApplicantDataService
+        // $redionAverageScoreApplicantsAppointed = $this->applicantDataService->getRegionAverageScoreApplicantsAppointed($regionId, $startDate, $endDate);
+
+        // // Step 7: Fetch talent pool data from applicantProximityService
+        // $regionTalentPoolApplicants = $this->applicantProximityService->getRegionTalentPoolApplicants($regionId, $startDate, $endDate, $maxDistanceFromStore);
+        // $regionTalentPoolApplicantsByMonth = $this->applicantProximityService->getRegionTalentPoolApplicantsByMonth($regionId, $startDate, $endDate, $maxDistanceFromStore);
+
+        // // Step 8:
+        // $regionApplicantsAppointed = $this->applicantProximityService->getRegionPlacedApplicants($regionId, $startDate, $endDate);
+        // $regionApplicantsAppointedByMonth = $this->applicantProximityService->getRegionPlacedApplicantsByMonth($regionId, $startDate, $endDate);
+
+        return [
+            'activities' => $activities,
+            'totalVacancies' => $totalVacancies,
+            'totalVacanciesFilled' => $totalVacanciesFilled,
+            'totalInterviewsScheduled' => $totalInterviewsScheduled,
+            'totalInterviewsCompleted' => $totalInterviewsCompleted,
+            'totalApplicantsAppointed' => $totalApplicantsAppointed,
+            'totalApplicantsRegretted' => $totalApplicantsRegretted,
+            'averageTimeToShortlist' => $averageTimeToShortlist,
+            'averageTimeToHire' => $averageTimeToHire,
+            'adoptionRate' => $adoptionRate,
+
+            'averageDistanceApplicantsAppointed' => 0,
+            'averageScoreApplicantsAppointed' => 0,
+            'talentPoolApplicants' => 0,
+            'talentPoolApplicantsByMonth' => 0,
+            'applicantsAppointed' => 0,
+            'applicantsAppointedByMonth' => 0,
+        ];
     }
 }

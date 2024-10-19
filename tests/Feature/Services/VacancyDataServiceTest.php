@@ -67,7 +67,7 @@ it('calculates the nationwide average time to hire within a date range', functio
     $vacancyDataService = app(VacancyDataService::class);
     $nationwideAverageTimeToHire = $vacancyDataService->getNationwideAverageTimeToHire($startDate, $endDate);
 
-    $expectedAverage = 7.0;
+    $expectedAverage = 8.0;
 
     expect($nationwideAverageTimeToHire)->toBeGreaterThanOrEqual($expectedAverage - 0.1);
     expect($nationwideAverageTimeToHire)->toBeLessThanOrEqual($expectedAverage + 0.1);

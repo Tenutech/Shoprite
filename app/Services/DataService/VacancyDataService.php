@@ -395,6 +395,103 @@ class VacancyDataService
     }
 
     /**
+    * Get total number of vacancies for a date range.
+    *
+    * @param \Carbon\Carbon $startDate
+    * @param \Carbon\Carbon $endDate
+    * @return int
+    */
+    public function getAllTotalVacancies(Carbon $startDate, Carbon $endDate): int
+    {
+        return $this->getTotalVacancies(null, null, $startDate, $endDate);
+    }
+
+    /**
+    * Get total number of filled vacancies for a date range.
+    *
+    * @param \Carbon\Carbon $startDate
+    * @param \Carbon\Carbon $endDate
+    * @return int
+    */
+    public function getAllTotalVacanciesFilled(Carbon $startDate, Carbon $endDate): int
+    {
+        return $this->getTotalVacanciesFilled(null, null, $startDate, $endDate);
+    }
+
+    /**
+    * Get total number of scheduled interviews for a specific region within a date range.
+    *
+    * @param \Carbon\Carbon $startDate
+    * @param \Carbon\Carbon $endDate
+    * @return int
+    */
+    public function getAllTotalInterviewsScheduled(Carbon $startDate, Carbon $endDate): int
+    {
+        return $this->getTotalInterviewsScheduled(null, null, $startDate, $endDate);
+    }
+
+    /**
+     * Get total number of scheduled interviews within a date range.
+     *
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return int
+     */
+    public function getallTotalInterviewsCompleted(Carbon $startDate, Carbon $endDate): int
+    {
+        return $this->getTotalInterviewsCompleted(null, null, $startDate, $endDate);
+    }
+
+    /**
+     * Get total number of appointed applicants within a date range.
+     *
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return int
+     */
+    public function getAllTotalApplicantsAppointed(Carbon $startDate, Carbon $endDate): int
+    {
+        return $this->getTotalApplicantsAppointed(null, null, $startDate, $endDate);
+    }
+
+    /**
+     * Get total number of completed interviews within a date range.
+     *
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return int
+     */
+    public function getAllTotalApplicantsRegretted(Carbon $startDate, Carbon $endDate): int
+    {
+        return $this->getTotalApplicantsRegretted(null, null, $startDate, $endDate);
+    }
+
+    /**
+     * Calculate the average time to shortlist for a specific store within a date range.
+     *
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return string
+     */
+    public function getAllAverageTimeToShortlist(Carbon $startDate, Carbon $endDate)
+    {
+        return $this->getAverageTimeToShortlist(null, null, $startDate, $endDate);
+    }
+
+    /**
+     * Calculate the average time to hire for a specific store within a date range.
+     *
+     * @param int $regionId
+     * @param \Carbon\Carbon $startDate
+     * @param \Carbon\Carbon $endDate
+     * @return string
+     */
+    public function getAllAverageTimeToHire(Carbon $startDate, Carbon $endDate)
+    {
+        return $this->getAverageTimeToHire(null, null, $startDate, $endDate);
+    }
+
+    /**
      * Calculate the average time to shortlist for all vacancies (nationwide),
      * within an optional date range.
      *
@@ -444,7 +541,7 @@ class VacancyDataService
      * @param string $endDate The end date for filtering applicants.
      * @return int The total count of vacancies
      */
-    protected function getTotalVacancies(string $type, ?int $id, string $startDate, string $endDate)
+    protected function getTotalVacancies(string $type = null, ?int $id = null, string $startDate, string $endDate)
     {
         $query = DB::table('vacancies')
             ->join('stores', 'vacancies.store_id', '=', 'stores.id')
@@ -470,7 +567,7 @@ class VacancyDataService
      * @param string $endDate The end date for filtering applicants.
      * @return int The total count of vacancies
      */
-    protected function getTotalVacanciesFilled(string $type, ?int $id, string $startDate, string $endDate)
+    protected function getTotalVacanciesFilled(string $type = null, ?int $id = null, string $startDate, string $endDate)
     {
         $query = DB::table('vacancies')
             ->join('stores', 'vacancies.store_id', '=', 'stores.id')
@@ -497,7 +594,7 @@ class VacancyDataService
      * @param \Carbon\Carbon $endDate
      * @return int
      */
-    protected function getTotalInterviewsScheduled(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
+    protected function getTotalInterviewsScheduled(string $type = null, ?int $id = null, Carbon $startDate, Carbon $endDate): int
     {
         $query = DB::table('interviews')
             ->join('vacancies', 'interviews.vacancy_id', '=', 'interviews.id')
@@ -524,7 +621,7 @@ class VacancyDataService
      * @param \Carbon\Carbon $endDate
      * @return int
      */
-    protected function getTotalInterviewsCompleted(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
+    protected function getTotalInterviewsCompleted(string $type = null, ?int $id = null, Carbon $startDate, Carbon $endDate): int
     {
         $query = DB::table('interviews')
             ->join('vacancies', 'interviews.vacancy_id', '=', 'interviews.id')
@@ -552,7 +649,7 @@ class VacancyDataService
      * @param \Carbon\Carbon $endDate
      * @return int
      */
-    protected function getTotalApplicantsAppointed(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
+    protected function getTotalApplicantsAppointed(string $type = null, ?int $id = null, Carbon $startDate, Carbon $endDate): int
     {
         $query = DB::table('interviews')
             ->join('vacancies', 'interviews.vacancy_id', '=', 'interviews.id')
@@ -580,7 +677,7 @@ class VacancyDataService
      * @param \Carbon\Carbon $endDate
      * @return int
      */
-    protected function getTotalApplicantsRegretted(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
+    protected function getTotalApplicantsRegretted(string $type = null, ?int $id = null, Carbon $startDate, Carbon $endDate): int
     {
         $query = DB::table('interviews')
             ->join('vacancies', 'interviews.vacancy_id', '=', 'interviews.id')
@@ -608,7 +705,7 @@ class VacancyDataService
      * @param \Carbon\Carbon $endDate
      * @return string
      */
-    protected function getAverageTimeToShortlist(string $type, ?int $id, Carbon $startDate, Carbon $endDate): string
+    protected function getAverageTimeToShortlist(string $type = null, ?int $id = null, Carbon $startDate, Carbon $endDate): string
     {
         // Retrieve all vacancies for the store within the specified date range
         $query = DB::table('vacancies')
@@ -686,7 +783,7 @@ class VacancyDataService
      * @param \Carbon\Carbon $endDate
      * @return string
      */
-    protected function getAverageTimeToHire(string $type, ?int $id, Carbon $startDate, Carbon $endDate): string
+    protected function getAverageTimeToHire(string $type = null, ?int $id = null, Carbon $startDate, Carbon $endDate): string
     {
         $query = DB::table('vacancies')
             ->join('stores', 'vacancies.store_id', '=', 'stores.id')  // Join vacancies with stores

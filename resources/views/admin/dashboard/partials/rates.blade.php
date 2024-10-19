@@ -11,7 +11,7 @@
                                     <i class="ri-space-ship-line display-6 text-muted"></i>
                                 </div>
                                 <div class="flex-grow-1 ms-3">
-                                    <h2 class="mb-0"><span class="counter-value" data-target="{{ $averageShortlistTime }}">{{ $averageShortlistTime }}</span>
+                                    <h2 class="mb-0"><span class="counter-value" data-target="{{ $averageTimeToShortlist }}">{{ $averageTimeToShortlist }}</span>
                                     </h2>
                                 </div>
                             </div>
