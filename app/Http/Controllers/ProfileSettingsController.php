@@ -289,8 +289,8 @@ class ProfileSettingsController extends Controller
         $request->validate([
             'oldPassword' => ['required', 'string'],
             'newPassword' => [
-                'required', 
-                'string', 
+                'required',
+                'string',
                 'min:8', // Increase the minimum length to 12 characters
                 'regex:/[a-z]/', // At least one lowercase letter
                 'regex:/[A-Z]/', // At least one uppercase letter
