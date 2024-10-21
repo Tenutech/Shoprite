@@ -157,7 +157,6 @@ var totalVacanciesFilled = getChartColorsArray("total_vacancies_filled");
 // Calculate percentage of filled vacancies
 var storeTotalVacancies = storeTotalVacancies || 0;
 var storeTotalVacanciesFilled = storeTotalVacanciesFilled || 0;
-
 var percentageFilled = 0;
 
 // Check for divide by zero and calculate percentage
@@ -225,8 +224,7 @@ var totalInterviewsCompleted = getChartColorsArray("total_interviews_completed")
 // Calculate percentage of completed interviews
 var storeTotalInterviewsScheduled = storeTotalInterviewsScheduled || 0;
 var storeTotalInterviewsCompleted = storeTotalInterviewsCompleted || 0;
-
-var percentageFilled = 0;
+var percentageCompleted = 0;
 
 // Check for divide by zero and calculate percentage
 if (storeTotalInterviewsScheduled > 0) {

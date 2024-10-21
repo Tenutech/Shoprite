@@ -11,124 +11,437 @@ use Illuminate\Support\Facades\DB;
 
 class VacancyDataService
 {
-    /**
-     * Get total number of vacancies for a specific store within a date range.
-     *
-     * @param int $storeId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getStoreTotalVacancies(int $storeId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalVacancies('store', $storeId, $startDate, $endDate);
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Total Vacancies
+    |--------------------------------------------------------------------------
+    */
 
     /**
-     * Get total number of filled vacancies for a specific store within a date range.
+     * Fetch the total vacancies based on type and date range using the Vacancy model and Eloquent relationships.
      *
-     * @param int $storeId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
+     * @param string $type The type of view (e.g., store, division, region).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param string $startDate The start date for filtering vacancies.
+     * @param string $endDate The end date for filtering vacancies.
+     * @return int The total count of vacancies.
      */
-    public function getStoreTotalVacanciesFilled(int $storeId, Carbon $startDate, Carbon $endDate): int
+    public function getTotalVacancies(string $type, ?int $id, string $startDate, string $endDate)
     {
-        return $this->getTotalVacanciesFilled('store', $storeId, $startDate, $endDate);
+        // Start building the query using the Vacancy model and filter by date range
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+
+        // Prioritize filtering by store, followed by division, then region using Eloquent relationships
+        if ($type === 'store') {
+            $vacancies->where('store_id', $id);
+        } elseif ($type === 'division') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('division_id', $id);
+            });
+        } elseif ($type === 'region') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('region_id', $id);
+            });
+        }
+
+        // Return the total count of vacancies
+        return $vacancies->count();
     }
 
-    /**
-     * Get total number of scheduled interviews for a specific store within a date range.
-     *
-     * @param int $storeId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getStoreTotalInterviewsScheduled(int $storeId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalInterviewsScheduled('store', $storeId, $startDate, $endDate);
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Total Vacancies Filled
+    |--------------------------------------------------------------------------
+    */
 
     /**
-     * Get total number of completed interviews for a specific store within a date range.
+     * Fetch the total vacancies filled based on type and date range using the Vacancy model and Eloquent relationships.
      *
-     * @param int $storeId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
+     * @param string $type The type of view (e.g., store, division, region).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param string $startDate The start date for filtering vacancies.
+     * @param string $endDate The end date for filtering vacancies.
+     * @return int The total count of filled vacancies.
      */
-    public function getStoreTotalInterviewsCompleted(int $storeId, Carbon $startDate, Carbon $endDate): int
+    public function getTotalVacanciesFilled(string $type, ?int $id, string $startDate, string $endDate)
     {
-        return $this->getTotalInterviewsCompleted('store', $storeId, $startDate, $endDate);
+        // Start building the query using the Vacancy model, filter for filled vacancies (open_positions = 0), and date range
+        $vacancies = Vacancy::where('open_positions', 0)
+            ->whereBetween('created_at', [$startDate, $endDate]);
+
+        // Prioritize filtering by store, followed by division, then region using Eloquent relationships
+        if ($type === 'store') {
+            $vacancies->where('store_id', $id);
+        } elseif ($type === 'division') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('division_id', $id);
+            });
+        } elseif ($type === 'region') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('region_id', $id);
+            });
+        }
+
+        // Return the total count of filled vacancies
+        return $vacancies->count();
     }
 
-    /**
-     * Get total number of completed interviews for a specific store within a date range.
-     *
-     * @param int $storeId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getStoreTotalApplicantsAppointed(int $storeId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalApplicantsAppointed('store', $storeId, $startDate, $endDate);
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Total Interviews Scheduled
+    |--------------------------------------------------------------------------
+    */
 
     /**
-     * Get total number of completed interviews for a specific store within a date range.
+     * Get total number of scheduled interviews for a specific type within a date range.
      *
-     * @param int $storeId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
+     * @param string $type The type of view (e.g., store, division, region).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param \Carbon\Carbon $startDate The start date for filtering interviews.
+     * @param \Carbon\Carbon $endDate The end date for filtering interviews.
+     * @return int The total count of scheduled interviews.
      */
-    public function getStoreTotalApplicantsRegretted(int $storeId, Carbon $startDate, Carbon $endDate): int
+    public function getTotalInterviewsScheduled(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
     {
-        return $this->getTotalApplicantsRegretted('store', $storeId, $startDate, $endDate);
+        // Start building the query using the Interview model and filter by date range
+        $interviews = Interview::whereBetween('created_at', [$startDate, $endDate]);
+
+        // Prioritize filtering by store, followed by division, then region using Eloquent relationships
+        if ($type === 'store') {
+            $interviews->whereHas('vacancy', function ($query) use ($id) {
+                $query->where('store_id', $id);  // Directly filter by store_id in vacancies table
+            });
+        } elseif ($type === 'division') {
+            $interviews->whereHas('vacancy.store', function ($query) use ($id) {
+                $query->where('division_id', $id);  // Filter by division_id in stores table
+            });
+        } elseif ($type === 'region') {
+            $interviews->whereHas('vacancy.store', function ($query) use ($id) {
+                $query->where('region_id', $id);  // Filter by region_id in stores table
+            });
+        }
+
+        // Return the total count of scheduled interviews
+        return $interviews->count();
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Total Interviews Completed
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Calculate the average time to shortlist for a specific store within a date range.
+     * Get total number of completed interviews for a specific type within a date range.
      *
-     * @param int $storeId
+     * @param string $type The type of view (e.g., store, division, region).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param \Carbon\Carbon $startDate The start date for filtering interviews.
+     * @param \Carbon\Carbon $endDate The end date for filtering interviews.
+     * @return int The total count of completed interviews.
+     */
+    public function getTotalInterviewsCompleted(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
+    {
+        // Start building the query using the Interview model, filter for completed interviews (score is not null) and date range
+        $interviews = Interview::whereNotNull('score')
+            ->whereBetween('created_at', [$startDate, $endDate]);
+
+        // Prioritize filtering by store, followed by division, then region using Eloquent relationships
+        if ($type === 'store') {
+            $interviews->whereHas('vacancy', function ($query) use ($id) {
+                $query->where('store_id', $id);  // Directly filter by store_id in vacancies table
+            });
+        } elseif ($type === 'division') {
+            $interviews->whereHas('vacancy.store', function ($query) use ($id) {
+                $query->where('division_id', $id);  // Filter by division_id in stores table
+            });
+        } elseif ($type === 'region') {
+            $interviews->whereHas('vacancy.store', function ($query) use ($id) {
+                $query->where('region_id', $id);  // Filter by region_id in stores table
+            });
+        }
+
+        // Return the total count of completed interviews
+        return $interviews->count();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Total Applicants Appointed
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get total number of appointed applicants for a specific type within a date range.
+     *
+     * @param string $type The type of view (e.g., store, division, region).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param \Carbon\Carbon $startDate The start date for filtering interviews.
+     * @param \Carbon\Carbon $endDate The end date for filtering interviews.
+     * @return int The total count of appointed applicants.
+     */
+    public function getTotalApplicantsAppointed(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
+    {
+        // Start building the query using the Interview model, filter for appointed applicants and date range
+        $interviews = Interview::where('status', 'Appointed')
+            ->whereBetween('created_at', [$startDate, $endDate]);
+
+        // Prioritize filtering by store, followed by division, then region using Eloquent relationships
+        if ($type === 'store') {
+            $interviews->whereHas('vacancy', function ($query) use ($id) {
+                $query->where('store_id', $id);  // Directly filter by store_id in vacancies table
+            });
+        } elseif ($type === 'division') {
+            $interviews->whereHas('vacancy.store', function ($query) use ($id) {
+                $query->where('division_id', $id);  // Filter by division_id in stores table
+            });
+        } elseif ($type === 'region') {
+            $interviews->whereHas('vacancy.store', function ($query) use ($id) {
+                $query->where('region_id', $id);  // Filter by region_id in stores table
+            });
+        }
+
+        // Return the total count of appointed applicants
+        return $interviews->count();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Total Applicants Regretted
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get total number of regretted applicants for a specific type within a date range.
+     *
+     * @param string $type The type of view (e.g., store, division, region).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param \Carbon\Carbon $startDate The start date for filtering interviews.
+     * @param \Carbon\Carbon $endDate The end date for filtering interviews.
+     * @return int The total count of regretted applicants.
+     */
+    public function getTotalApplicantsRegretted(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
+    {
+        // Start building the query using the Interview model, filter for regretted applicants and date range
+        $interviews = Interview::where('status', 'Regretted')
+            ->whereBetween('created_at', [$startDate, $endDate]);
+
+        // Prioritize filtering by store, followed by division, then region using Eloquent relationships
+        if ($type === 'store') {
+            $interviews->whereHas('vacancy', function ($query) use ($id) {
+                $query->where('store_id', $id);  // Correctly filter by store_id through the vacancy relationship
+            });
+        } elseif ($type === 'division') {
+            $interviews->whereHas('vacancy.store', function ($query) use ($id) {
+                $query->where('division_id', $id);  // Filter by division_id in stores table
+            });
+        } elseif ($type === 'region') {
+            $interviews->whereHas('vacancy.store', function ($query) use ($id) {
+                $query->where('region_id', $id);  // Filter by region_id in stores table
+            });
+        }
+
+        // Return the total count of regretted applicants
+        return $interviews->count();
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Time To Shortlist
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Calculate the average time to shortlist for within a date range.
+     *
+     * @param string $type The type of view (e.g., national, division, area, store).
+     * @param int|null $id The ID for filtering based on the type.
      * @param \Carbon\Carbon $startDate
      * @param \Carbon\Carbon $endDate
      * @return string
      */
-    public function getStoreAverageTimeToShortlist(int $storeId, Carbon $startDate, Carbon $endDate)
+    public function getAverageTimeToShortlist(string $type, ?int $id, Carbon $startDate, Carbon $endDate): string
     {
-        return $this->getAverageTimeToShortlist('store', $storeId, $startDate, $endDate);
+        // Retrieve vacancies within the specified date range using Eloquent and filter by store, division, or region
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])
+            ->when($type === 'store', function ($query) use ($id) {
+                return $query->where('store_id', $id);
+            })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('division_id', $id);
+                });
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('region_id', $id);
+                });
+            })
+            ->with('shortlists')
+            ->get();
+
+        $totalTimeInSeconds = 0;
+        $shortlistCount = 0;
+
+        // Loop through each vacancy and its associated shortlists
+        foreach ($vacancies as $vacancy) {
+            foreach ($vacancy->shortlists as $shortlist) {
+                // Calculate the time difference between vacancy creation and shortlist creation in seconds
+                $totalTimeInSeconds += $vacancy->created_at->diffInSeconds($shortlist->created_at);
+                $shortlistCount++;
+            }
+        }
+
+        // Calculate the average time to shortlist
+        if ($shortlistCount > 0) {
+            $averageTimeInSeconds = $totalTimeInSeconds / $shortlistCount;
+
+            // Convert total seconds into days, hours, minutes, and seconds
+            $totalDays = floor($averageTimeInSeconds / (24 * 3600));
+            $remainingSeconds = $averageTimeInSeconds % (24 * 3600);
+
+            $totalHours = floor($remainingSeconds / 3600);
+            $remainingSeconds %= 3600;
+
+            $totalMinutes = floor($remainingSeconds / 60);
+            $totalSeconds = $remainingSeconds % 60;
+
+            // If the total time is less than one hour, return only minutes and seconds
+            if ($totalDays == 0 && $totalHours == 0) {
+                return sprintf('%dM %dS', $totalMinutes, $totalSeconds);
+            }
+
+            // If the total time is less than one day, return only hours and minutes
+            if ($totalDays == 0) {
+                return sprintf('%dH %dM', $totalHours, $totalMinutes);
+            }
+
+            // Otherwise, return the full format (days, hours, and minutes)
+            return sprintf('%dD %dH %dM', $totalDays, $totalHours, $totalMinutes);
+        }
+
+        // Return default format if no shortlists
+        return '0D 0H 0M';
     }
 
-    /**
-     * Calculate the average time to hire for a specific store within a date range.
-     *
-     * @param int $storeId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return string
-     */
-    public function getStoreAverageTimeToHire(int $storeId, Carbon $startDate, Carbon $endDate)
-    {
-        return $this->getAverageTimeToHire('store', $storeId, $startDate, $endDate);
-    }
+    /*
+    |--------------------------------------------------------------------------
+    | Time To Hire
+    |--------------------------------------------------------------------------
+    */
 
     /**
-     * Get the total number of applicants appointed within a date range for vacancies where store_id = $storeId.
+     * Calculate the average time to hire for a specific type within a date range.
      *
-     * @param int $storeId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
+     * @param string $type The type of view (e.g., store, division, region).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param \Carbon\Carbon $startDate The start date for filtering vacancies.
+     * @param \Carbon\Carbon $endDate The end date for filtering vacancies.
+     * @return string The average time to hire in the format 'D H M' (Days, Hours, Minutes).
      */
-    public function getStoreApplicantsAppointed(int $storeId, Carbon $startDate, Carbon $endDate)
+    public function getAverageTimeToHire(string $type, ?int $id, Carbon $startDate, Carbon $endDate): string
     {
-        // Retrieve all vacancies for the store within the date range
-        $vacancies = Vacancy::where('store_id', $storeId)
+        // Retrieve vacancies within the specified date range using Eloquent and filter by store, division, or region
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])
+            ->when($type === 'store', function ($query) use ($id) {
+                return $query->where('store_id', $id);
+            })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('division_id', $id);
+                });
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('region_id', $id);
+                });
+            })
+            ->with(['appointed' => function ($query) {
+                $query->orderBy('vacancy_fills.created_at', 'asc'); // Order by first appointment
+            }])
+            ->get();
+
+        $totalTimeInSeconds = 0;
+        $hiringCount = 0;
+
+        // Loop through each vacancy and calculate the time difference for the first appointed record
+        foreach ($vacancies as $vacancy) {
+            if ($vacancy->appointed->isNotEmpty()) {
+                // Get the first appointment record
+                $firstAppointed = $vacancy->appointed->first();
+
+                // Calculate the time difference between vacancy creation and the first appointment in seconds
+                $totalTimeInSeconds += $vacancy->created_at->diffInSeconds($firstAppointed->pivot->created_at);
+                $hiringCount++;
+            }
+        }
+
+        // Calculate the average time to hire
+        if ($hiringCount > 0) {
+            $averageTimeInSeconds = $totalTimeInSeconds / $hiringCount;
+
+            // Convert total seconds into days, hours, minutes, and seconds
+            $totalDays = floor($averageTimeInSeconds / (24 * 3600));
+            $remainingSeconds = $averageTimeInSeconds % (24 * 3600);
+
+            $totalHours = floor($remainingSeconds / 3600);
+            $remainingSeconds %= 3600;
+
+            $totalMinutes = floor($remainingSeconds / 60);
+            $totalSeconds = $remainingSeconds % 60;
+
+            // If the total time is less than one hour, return only minutes and seconds
+            if ($totalDays == 0 && $totalHours == 0) {
+                return sprintf('%dM %dS', $totalMinutes, $totalSeconds);
+            }
+
+            // If the total time is less than one day, return only hours and minutes
+            if ($totalDays == 0) {
+                return sprintf('%dH %dM', $totalHours, $totalMinutes);
+            }
+
+            // Otherwise, return the full format (days, hours, and minutes)
+            return sprintf('%dD %dH %dM', $totalDays, $totalHours, $totalMinutes);
+        }
+
+        // Return default format if no appointments
+        return '0D 0H 0M';
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Applicants Appointed
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Get the total number of applicants appointed within a date range for vacancies filtered by store, division, or region.
+     *
+     * @param string $type The type of filter (e.g., store, division, region).
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering appointments.
+     * @param \Carbon\Carbon $endDate The end date for filtering appointments.
+     * @return int The total number of appointed applicants.
+     */
+    public function getApplicantsAppointed(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
+    {
+        // Start building the query to retrieve vacancies based on type (store, division, region)
+        $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
+                return $query->where('store_id', $id);
+            })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('division_id', $id);
+                });
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('region_id', $id);
+                });
+            })
             ->with(['appointed' => function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]); // Only fetch appointed within the date range
+                // Only fetch appointed applicants within the date range
+                $query->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
             }])
             ->get();
 
@@ -143,15 +456,22 @@ class VacancyDataService
         return $totalAppointed;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Applicants Appointed By Month
+    |--------------------------------------------------------------------------
+    */
+
     /**
-     * Get the number of appointed applicants by month for vacancies where store_id = $storeId.
+     * Get the number of appointed applicants by month for vacancies filtered by store, division, or region.
      *
-     * @param int $storeId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return array
+     * @param string $type The type of filter (e.g., store, division, region).
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering appointments.
+     * @param \Carbon\Carbon $endDate The end date for filtering appointments.
+     * @return array An array of appointed applicants grouped by month.
      */
-    public function getStoreApplicantsAppointedByMonth(int $storeId, $startDate, $endDate)
+    public function getApplicantsAppointedByMonth(string $type, ?int $id, $startDate, $endDate): array
     {
         // Initialize an array to hold the results, with months set to 0 from startDate to endDate
         $applicantsByMonth = [];
@@ -164,8 +484,20 @@ class VacancyDataService
             $currentDate->addMonth();
         }
 
-        // Retrieve all vacancies for the store within the date range
-        $vacancies = Vacancy::where('store_id', $storeId)
+        // Retrieve vacancies based on the type (store, division, or region) and within the date range
+        $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
+                return $query->where('store_id', $id);
+            })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('division_id', $id);
+                });
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('region_id', $id);
+                });
+            })
             ->with(['appointed' => function ($query) use ($startDate, $endDate) {
                 $query->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]); // Only fetch appointed within the date range
             }])
@@ -184,214 +516,6 @@ class VacancyDataService
         }
 
         return $applicantsByMonth;
-    }
-
-    /**
-     * Get total number of vacancies for a specific division within a date range.
-     *
-     * @param int $divisionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getDivisionTotalVacancies(int $divisionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalVacancies('division', $divisionId, $startDate, $endDate);
-    }
-
-    /**
-     * Get total number of filled vacancies for a specific division within a date range.
-     *
-     * @param int $divisionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getDivisionTotalVacanciesFilled(int $divisionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalVacanciesFilled('division', $divisionId, $startDate, $endDate);
-    }
-
-    /**
-     * Get total number of scheduled interviews for a specific division within a date range.
-     *
-     * @param int $divisionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getDivisionTotalInterviewsScheduled(int $divisionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalInterviewsScheduled('division', $divisionId, $startDate, $endDate);
-    }
-
-    /**
-     * Get total number of scheduled interviews for a specific division within a date range.
-     *
-     * @param int $divisionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getDivisionTotalInterviewsCompleted(int $divisionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalInterviewsCompleted('division', $divisionId, $startDate, $endDate);
-    }
-
-    /**
-     * Get total number of appointed applicants for a specific division within a date range.
-     *
-     * @param int $divisionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getDivisionTotalApplicantsAppointed(int $divisionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalApplicantsAppointed('division', $divisionId, $startDate, $endDate);
-    }
-
-    /**
-     * Get total number of completed interviews for a specific division within a date range.
-     *
-     * @param int $divisionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getDivisionTotalApplicantsRegretted(int $divisionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalApplicantsRegretted('division', $divisionId, $startDate, $endDate);
-    }
-
-    /**
-     * Calculate the average time to shortlist for a specific store within a date range.
-     *
-     * @param int $divisionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return string
-     */
-    public function getDivisionAverageTimeToShortlist(int $divisionId, Carbon $startDate, Carbon $endDate)
-    {
-        return $this->getAverageTimeToShortlist('division', $divisionId, $startDate, $endDate);
-    }
-
-    /**
-     * Calculate the average time to hire for a specific store within a date range.
-     *
-     * @param int $divisionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return string
-     */
-    public function getDivisionAverageTimeToHire(int $divisionId, Carbon $startDate, Carbon $endDate)
-    {
-        return $this->getAverageTimeToHire('division', $divisionId, $startDate, $endDate);
-    }
-
-    /**
-     * Get total number of vacancies for a specific region within a date range.
-     *
-     * @param int $regionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getRegionTotalVacancies(int $regionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalVacancies('region', $regionId, $startDate, $endDate);
-    }
-
-    /**
-    * Get total number of filled vacancies for a specific region within a date range.
-    *
-    * @param int $regionId
-    * @param \Carbon\Carbon $startDate
-    * @param \Carbon\Carbon $endDate
-    * @return int
-    */
-    public function getRegionTotalVacanciesFilled(int $regionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalVacanciesFilled('region', $regionId, $startDate, $endDate);
-    }
-
-    /**
-    * Get total number of scheduled interviews for a specific region within a date range.
-    *
-    * @param int $regionId
-    * @param \Carbon\Carbon $startDate
-    * @param \Carbon\Carbon $endDate
-    * @return int
-    */
-    public function getRegionTotalInterviewsScheduled(int $regionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalInterviewsScheduled('region', $regionId, $startDate, $endDate);
-    }
-
-    /**
-     * Get total number of scheduled interviews for a specific region within a date range.
-     *
-     * @param int $regionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getRegionTotalInterviewsCompleted(int $regionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalInterviewsCompleted('region', $regionId, $startDate, $endDate);
-    }
-
-    /**
-     * Get total number of appointed applicants for a specific region within a date range.
-     *
-     * @param int $regionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getRegionTotalApplicantsAppointed(int $regionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalApplicantsAppointed('region', $regionId, $startDate, $endDate);
-    }
-
-    /**
-     * Get total number of completed interviews for a specific region within a date range.
-     *
-     * @param int $regionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    public function getRegionTotalApplicantsRegretted(int $regionId, Carbon $startDate, Carbon $endDate): int
-    {
-        return $this->getTotalApplicantsRegretted('region', $regionId, $startDate, $endDate);
-    }
-
-    /**
-     * Calculate the average time to shortlist for a specific store within a date range.
-     *
-     * @param int $regionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return string
-     */
-    public function getRegionAverageTimeToShortlist(int $regionId, Carbon $startDate, Carbon $endDate)
-    {
-        return $this->getAverageTimeToShortlist('region', $regionId, $startDate, $endDate);
-    }
-
-    /**
-     * Calculate the average time to hire for a specific store within a date range.
-     *
-     * @param int $regionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return string
-     */
-    public function getRegionAverageTimeToHire(int $regionId, Carbon $startDate, Carbon $endDate)
-    {
-        return $this->getAverageTimeToHire('region', $regionId, $startDate, $endDate);
     }
 
     /**
@@ -433,331 +557,5 @@ class VacancyDataService
         }
 
         return $query->value('avg_time_to_hire');
-    }
-
-    /**
-     * Fetch the total vacancies
-     *
-     * @param string $type The type of view (e.g., national, division, area, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param string $startDate The start date for filtering applicants.
-     * @param string $endDate The end date for filtering applicants.
-     * @return int The total count of vacancies
-     */
-    protected function getTotalVacancies(string $type, ?int $id, string $startDate, string $endDate)
-    {
-        $query = DB::table('vacancies')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->whereBetween('vacancies.created_at', [$startDate, $endDate]);
-
-        if ($type === 'division') {
-            $query->where('stores.division_id', $id);
-        } elseif ($type === 'region') {
-            $query->where('stores.region_id', $id);
-        } elseif ($type === 'store') {
-            $query->where('stores.id', $id);
-        }
-
-        return $query->count();
-    }
-
-    /**
-     * Fetch the total vacancies filled
-     *
-     * @param string $type The type of view (e.g., national, division, area, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param string $startDate The start date for filtering applicants.
-     * @param string $endDate The end date for filtering applicants.
-     * @return int The total count of vacancies
-     */
-    protected function getTotalVacanciesFilled(string $type, ?int $id, string $startDate, string $endDate)
-    {
-        $query = DB::table('vacancies')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->where('open_positions', 0)
-            ->whereBetween('vacancies.created_at', [$startDate, $endDate]);
-
-        if ($type === 'division') {
-            $query->where('stores.division_id', $id);
-        } elseif ($type === 'region') {
-            $query->where('stores.region_id', $id);
-        } elseif ($type === 'store') {
-            $query->where('stores.id', $id);
-        }
-
-        return $query->count();
-    }
-
-    /**
-     * Get total number of scheduled interviews for within a date range.
-     *
-     * @param string $type The type of view (e.g., national, division, area, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    protected function getTotalInterviewsScheduled(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
-    {
-        $query = DB::table('interviews')
-            ->join('vacancies', 'interviews.vacancy_id', '=', 'interviews.id')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->whereBetween('interviews.created_at', [$startDate, $endDate]);
-
-        if ($type === 'division') {
-            $query->where('stores.division_id', $id);
-        } elseif ($type === 'region') {
-            $query->where('stores.region_id', $id);
-        } elseif ($type === 'store') {
-            $query->where('stores.id', $id);
-        }
-
-        return $query->count();
-    }
-
-    /**
-     * Get total number of completed interviews for within a date range.
-     *
-     * @param string $type The type of view (e.g., national, division, area, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    protected function getTotalInterviewsCompleted(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
-    {
-        $query = DB::table('interviews')
-            ->join('vacancies', 'interviews.vacancy_id', '=', 'interviews.id')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->whereNotNull('interviews.score')
-            ->whereBetween('interviews.created_at', [$startDate, $endDate]);
-
-        if ($type === 'division') {
-            $query->where('stores.division_id', $id);
-        } elseif ($type === 'region') {
-            $query->where('stores.region_id', $id);
-        } elseif ($type === 'store') {
-            $query->where('stores.id', $id);
-        }
-
-        return $query->count();
-    }
-
-    /**
-     * Get total number of appointed applicants for within a date range.
-     *
-     * @param string $type The type of view (e.g., national, division, area, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    protected function getTotalApplicantsAppointed(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
-    {
-        $query = DB::table('interviews')
-            ->join('vacancies', 'interviews.vacancy_id', '=', 'interviews.id')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->where('interviews.status', 'Appointed')
-            ->whereBetween('interviews.created_at', [$startDate, $endDate]);
-
-        if ($type === 'division') {
-            $query->where('stores.division_id', $id);
-        } elseif ($type === 'region') {
-            $query->where('stores.region_id', $id);
-        } elseif ($type === 'store') {
-            $query->where('stores.id', $id);
-        }
-
-        return $query->count();
-    }
-
-    /**
-     * Get total number of ompleted interviews for within a date range.
-     *
-     * @param string $type The type of view (e.g., national, division, area, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return int
-     */
-    protected function getTotalApplicantsRegretted(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
-    {
-        $query = DB::table('interviews')
-            ->join('vacancies', 'interviews.vacancy_id', '=', 'interviews.id')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->where('interviews.status', 'Regretted')
-            ->whereBetween('interviews.created_at', [$startDate, $endDate]);
-
-        if ($type === 'division') {
-            $query->where('stores.division_id', $id);
-        } elseif ($type === 'region') {
-            $query->where('stores.region_id', $id);
-        } elseif ($type === 'store') {
-            $query->where('stores.id', $id);
-        }
-
-        return $query->count();
-    }
-
-    /**
-     * Calculate the average time to shortlist for within a date range.
-     *
-     * @param string $type The type of view (e.g., national, division, area, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return string
-     */
-    protected function getAverageTimeToShortlist(string $type, ?int $id, Carbon $startDate, Carbon $endDate): string
-    {
-        // Retrieve all vacancies for the store within the specified date range
-        $query = DB::table('vacancies')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')  // Join vacancies with stores
-            ->whereBetween('vacancies.created_at', [$startDate, $endDate]);
-
-        if ($type === 'division') {
-            $query->where('stores.division_id', $id);
-        } elseif ($type === 'region') {
-            $query->where('stores.region_id', $id);
-        } elseif ($type === 'store') {
-            $query->where('stores.id', $id);
-        }
-
-        $vacancies = Vacancy::whereIn('id', $query->pluck('vacancies.id'))
-            ->with('shortlists')
-            ->get();
-
-        $totalDays = 0;
-        $totalHours = 0;
-        $totalMinutes = 0;
-        $totalSeconds = 0;
-        $shortlistCount = 0;
-
-        // Loop through each vacancy and its associated shortlists
-        foreach ($vacancies as $vacancy) {
-            foreach ($vacancy->shortlists as $shortlist) {
-                // Calculate the time difference between vacancy creation and shortlist creation
-                $interval = $vacancy->created_at->diff($shortlist->created_at);
-
-                // Add to total time
-                $totalDays += $interval->days;
-                $totalHours += $interval->h;
-                $totalMinutes += $interval->i;
-                $totalSeconds += $interval->s;
-                $shortlistCount++;
-            }
-        }
-
-        // Calculate the average time to shortlist
-        if ($shortlistCount > 0) {
-            // Normalize seconds to minutes, minutes to hours, and hours to days
-            $totalMinutes += floor($totalSeconds / 60);
-            $totalSeconds = $totalSeconds % 60; // Remainder for seconds
-
-            $totalHours += floor($totalMinutes / 60);
-            $totalMinutes = $totalMinutes % 60; // Remainder for minutes
-
-            $totalDays += floor($totalHours / 24);
-            $totalHours = $totalHours % 24; // Remainder for hours
-
-            // If the total time is less than one hour, return only minutes and seconds
-            if ($totalDays == 0 && $totalHours == 0) {
-                return sprintf('%dM %dS', $totalMinutes, $totalSeconds);
-            }
-
-            // If the total time is less than one day, return only hours and minutes
-            if ($totalDays == 0) {
-                return sprintf('%dH %dM', $totalHours, $totalMinutes);
-            }
-
-            // Otherwise, return the full format (days, hours, and minutes)
-            return sprintf('%dD %dH %dM', $totalDays, $totalHours, $totalMinutes);
-        } else {
-            return '0D 0H 0M'; // Return default format if no shortlists
-        }
-    }
-
-    /**
-     * Calculate the average time to hire within a date range.
-     *
-     * @param string $type The type of view (e.g., national, division, area, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return string
-     */
-    protected function getAverageTimeToHire(string $type, ?int $id, Carbon $startDate, Carbon $endDate): string
-    {
-        $query = DB::table('vacancies')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')  // Join vacancies with stores
-            ->whereBetween('vacancies.created_at', [$startDate, $endDate]);
-
-        // Apply conditions based on the $type value
-        if ($type === 'division') {
-            $query->where('stores.division_id', $id);
-        } elseif ($type === 'region') {
-            $query->where('stores.region_id', $id);
-        } elseif ($type === 'store') {
-            $query->where('stores.id', $id);
-        }
-
-        // Get the results and load the 'appointed' relationship using Eloquent
-        $vacancies = Vacancy::whereIn('id', $query->pluck('vacancies.id'))
-            ->with(['appointed' => function ($query) {
-                $query->orderBy('vacancy_fills.created_at', 'asc'); // Order by first appointment
-            }])
-            ->get();
-
-        $totalDays = 0;
-        $totalHours = 0;
-        $totalMinutes = 0;
-        $totalSeconds = 0;
-        $hiringCount = 0;
-
-        // Loop through each vacancy and calculate the time difference for the first appointed record
-        foreach ($vacancies as $vacancy) {
-            if ($vacancy->appointed->isNotEmpty()) {
-                // Get the first appointment record
-                $firstAppointed = $vacancy->appointed->first();
-
-                // Calculate the time difference between vacancy creation and the first appointment
-                $interval = $vacancy->created_at->diff($firstAppointed->pivot->created_at);
-
-                // Add to total time
-                $totalDays += $interval->days;
-                $totalHours += $interval->h;
-                $totalMinutes += $interval->i;
-                $totalSeconds += $interval->s;
-                $hiringCount++;
-            }
-        }
-
-        // Calculate the average time to hire
-        if ($hiringCount > 0) {
-            // Normalize seconds to minutes, minutes to hours, and hours to days
-            $totalMinutes += floor($totalSeconds / 60);
-            $totalSeconds = $totalSeconds % 60; // Remainder for seconds
-
-            $totalHours += floor($totalMinutes / 60);
-            $totalMinutes = $totalMinutes % 60; // Remainder for minutes
-
-            $totalDays += floor($totalHours / 24);
-            $totalHours = $totalHours % 24; // Remainder for hours
-
-            // If the total time is less than one hour, return only minutes and seconds
-            if ($totalDays == 0 && $totalHours == 0) {
-                return sprintf('%dM %dS', $totalMinutes, $totalSeconds);
-            }
-
-            // If the total time is less than one day, return only hours and minutes
-            if ($totalDays == 0) {
-                return sprintf('%dH %dM', $totalHours, $totalMinutes);
-            }
-
-            // Otherwise, return the full format (days, hours, and minutes)
-            return sprintf('%dD %dH %dM', $totalDays, $totalHours, $totalMinutes);
-        } else {
-            return '0D 0H 0M'; // Return default format if no appointments
-        }
     }
 }

@@ -49,11 +49,10 @@
                                 Hello, {{ Auth::user()->firstname }}!
                             </h4>
                             <p class="text-muted mb-0">
-                                Here's what's happening with your Division
+                                Here's what's happening with the 
                                 @if (isset($division))
-                                    {{ $division->name }}
-                                @endif
-                                today.
+                                    ({{ $division->name }})
+                                @endif division today.
                             </p>
                         </div>
                         <div class="mt-3 mt-lg-0">
@@ -275,7 +274,7 @@
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0">
-                                            Division Average
+                                            Store Average
                                         </span>
                                     </p>
                                 </div>
@@ -307,7 +306,7 @@
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0">
-                                            Division Average
+                                            Store Average
                                         </span>
                                     </p>
                                 </div>
@@ -375,7 +374,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                    <span id="divisionAverageDistanceApplicantsAppointed" class="counter-value"  data-target="{{ $divisionAverageDistanceApplicantsAppointed }}">
+                                    <span id="averageDistanceApplicantsAppointedValue" class="counter-value"  data-target="{{ $divisionAverageDistanceApplicantsAppointed }}">
                                         0
                                     </span>km 
                                     </h2>
@@ -402,7 +401,7 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="divisionAverageScoreApplicantsAppointed" class="counter-value"  data-target="{{ $divisionAverageScoreApplicantsAppointed }}">
+                                        <span id="averageScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $divisionAverageScoreApplicantsAppointed }}">
                                             0
                                         </span>
                                     </h2>
@@ -433,7 +432,7 @@
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
                                         <h5 class="mb-1">
-                                            <span id="divisionTalentPoolApplicantsValue" class="counter-value" data-target="{{ $divisionTalentPoolApplicants }}">
+                                            <span id="talentPoolApplicantsValue" class="counter-value" data-target="{{ $divisionTalentPoolApplicants }}">
                                                 0
                                             </span>
                                         </h5>
@@ -445,7 +444,7 @@
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
                                         <h5 class="mb-1">
-                                            <span id="divisionApplicantsAppointedValue" class="counter-value" data-target="{{ $divisionApplicantsAppointed }}">
+                                            <span id="applicantsAppointedValue" class="counter-value" data-target="{{ $divisionApplicantsAppointed }}">
                                                 0
                                             </span>
                                         </h5>
@@ -459,11 +458,14 @@
             
                         <div class="card-body">
                             <div id="talent_pool_by_month" data-colors='["--vz-primary", "--vz-success"]' class="apex-charts" dir="ltr"></div>
-                        </div> 
-                        <!-- end card-body -->
+                        </div> <!-- end card-body -->
                     </div> <!-- end card -->
                 </div> <!-- end col -->
             </div> <!-- end row -->
+
+            @if ($shortlist)
+                @include('manager.partials.shortlist-modal', ['shortlist' => $shortlist])
+            @endif
 
         </div> <!-- end .h-100 -->
 
@@ -474,15 +476,14 @@
 @endsection
 @section('script')
 <script>
+    var shortlist = @json($shortlist);
     var divisionTotalVacancies = @json($divisionTotalVacancies);
     var divisionTotalVacanciesFilled = @json($divisionTotalVacanciesFilled);
     var divisionTotalInterviewsScheduled = @json($divisionTotalInterviewsScheduled);
     var divisionTotalInterviewsCompleted = @json($divisionTotalInterviewsCompleted);
     var divisionTotalApplicantsAppointed = @json($divisionTotalApplicantsAppointed);
     var divisionTotalApplicantsRegretted = @json($divisionTotalApplicantsRegretted);
-    var divisionTalentPoolApplicants = @json($divisionTalentPoolApplicants);
     var divisionTalentPoolApplicantsByMonth = @json($divisionTalentPoolApplicantsByMonth);
-    var divisionApplicantsAppointed = @json($divisionApplicantsAppointed);
     var divisionApplicantsAppointedByMonth = @json($divisionApplicantsAppointedByMonth);
 </script>
 <!-- sweet alert -->
@@ -491,6 +492,6 @@
 <script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js')}}"></script>
 <!-- dashboard init -->
-<script src="{{URL::asset('build/js/pages/dpp.init.js')}}?v={{ filemtime(public_path('build/js/pages/manager.init.js')) }}"></script>
+<script src="{{URL::asset('build/js/pages/dpp.init.js')}}?v={{ filemtime(public_path('build/js/pages/dpp.init.js')) }}"></script>
 <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

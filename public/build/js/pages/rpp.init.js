@@ -157,7 +157,6 @@ var totalVacanciesFilled = getChartColorsArray("total_vacancies_filled");
 // Calculate percentage of filled vacancies
 var regionTotalVacancies = regionTotalVacancies || 0;
 var regionTotalVacanciesFilled = regionTotalVacanciesFilled || 0;
-
 var percentageFilled = 0;
 
 // Check for divide by zero and calculate percentage
@@ -225,8 +224,7 @@ var totalInterviewsCompleted = getChartColorsArray("total_interviews_completed")
 // Calculate percentage of completed interviews
 var regionTotalInterviewsScheduled = regionTotalInterviewsScheduled || 0;
 var regionTotalInterviewsCompleted = regionTotalInterviewsCompleted || 0;
-
-var percentageFilled = 0;
+var percentageCompleted = 0;
 
 // Check for divide by zero and calculate percentage
 if (regionTotalInterviewsScheduled > 0) {

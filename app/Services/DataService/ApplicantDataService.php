@@ -15,42 +15,57 @@ use Illuminate\Support\Facades\DB;
 class ApplicantDataService
 {
     /**
-     * Calculate the average score for all appointed applicants in vacancies where store_id = $storeId.
+     * Calculate the average score for all appointed applicants in vacancies filtered by store, division, or region.
      *
-     * @param int $storeId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return float
+     * @param string $type The type of filter (e.g., store, division, region).
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering vacancies.
+     * @param \Carbon\Carbon $endDate The end date for filtering vacancies.
+     * @return float The average score of appointed applicants.
      */
-    public function getStoreAverageScoreApplicantsAppointed(int $storeId, $startDate, $endDate)
+    public function getAverageScoreApplicantsAppointed(string $type, ?int $id, Carbon $startDate, Carbon $endDate): float
     {
-        return $this->getAverageScoreApplicantsAppointed('store', $storeId, $startDate, $endDate);
-    }
+        // Retrieve vacancies based on the type (store, division, or region) and within the date range
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])
+            ->when($type === 'store', function ($query) use ($id) {
+                return $query->where('store_id', $id);
+            })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('division_id', $id);
+                });
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('region_id', $id);
+                });
+            })
+            ->with(['appointed' => function ($query) {
+                // Only load appointed applicants with a score
+                $query->whereNotNull('score');
+            }])
+            ->get();
 
-    /**
-     * Calculate the average score for all appointed applicants in vacancies where store_id = $storeId.
-     *
-     * @param int $divisionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return float
-     */
-    public function getDivisionAverageScoreApplicantsAppointed(int $divisionId, $startDate, $endDate): float
-    {
-        return $this->getAverageScoreApplicantsAppointed('division', $divisionId, $startDate, $endDate);
-    }
+        $totalScore = 0;
+        $applicantCount = 0;
 
-    /**
-     * Calculate the average score for all appointed applicants in vacancies
-     *
-     * @param int $regionId
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return float
-     */
-    public function getRegionAverageScoreApplicantsAppointed(int $regionId, $startDate, $endDate): float
-    {
-        return $this->getAverageScoreApplicantsAppointed('region', $regionId, $startDate, $endDate);
+        // Loop through each vacancy and its appointed applicants
+        foreach ($vacancies as $vacancy) {
+            foreach ($vacancy->appointed as $applicant) {
+                // Sum up the scores of appointed applicants
+                if ($applicant->score !== null) {
+                    $totalScore += $applicant->score;
+                    $applicantCount++;
+                }
+            }
+        }
+
+        // Calculate the average score
+        if ($applicantCount > 0) {
+            return round($totalScore / $applicantCount, 2); // Return the average score rounded to 2 decimal places
+        } else {
+            return 0; // Return 0 if no applicants with a score are found
+        }
     }
 
     /**
@@ -638,58 +653,5 @@ class ApplicantDataService
         return ApplicantMonthlyData::where('category_type', $categoryType)
             ->where('applicant_monthly_data.created_at', '>=', $startOfDay)
             ->where('applicant_monthly_data.created_at', '<=', $endDate);
-    }
-
-    /**
-     * Calculate the average score for all appointed applicants in vacancies where store_id = $storeId.
-     *
-     * @param string $type The type of view (e.g., national, division, area, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param \Carbon\Carbon $startDate
-     * @param \Carbon\Carbon $endDate
-     * @return float
-     */
-    protected function getAverageScoreApplicantsAppointed(string $type, ?int $id, Carbon $startDate, Carbon $endDate): float
-    {
-        // Retrieve all vacancies for the store within the specified date range
-        $query = DB::table('vacancies')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')  // Join vacancies with stores
-            ->whereBetween('vacancies.created_at', [$startDate, $endDate]);
-
-        if ($type === 'division') {
-            $query->where('stores.division_id', $id);
-        } elseif ($type === 'region') {
-            $query->where('stores.region_id', $id);
-        } elseif ($type === 'store') {
-            $query->where('stores.id', $id);
-        }
-
-        // Get the results and load the 'appointed' relationship using Eloquent
-        $vacancies = Vacancy::whereIn('id', $query->pluck('vacancies.id'))
-            ->with(['appointed' => function ($query) {
-                $query->whereNotNull('score');
-            }])
-            ->get();
-
-        $totalScore = 0;
-        $applicantCount = 0;
-
-        // Loop through each vacancy and its appointed applicants
-        foreach ($vacancies as $vacancy) {
-            foreach ($vacancy->appointed as $applicant) {
-                // Assuming the applicant model has a 'score' field
-                if ($applicant->score !== null) {
-                    $totalScore += $applicant->score;
-                    $applicantCount++;
-                }
-            }
-        }
-
-        // Calculate the average score
-        if ($applicantCount > 0) {
-            return round($totalScore / $applicantCount, 2); // Return the average score rounded to 1 decimal
-        } else {
-            return 0; // Return 0 if no applicants with a score are found
-        }
     }
 }

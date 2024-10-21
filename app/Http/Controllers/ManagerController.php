@@ -90,6 +90,9 @@ class ManagerController extends Controller
             $startDate = Carbon::now()->startOfYear();
             $endDate = Carbon::now()->endOfDay();
 
+            // Set the type to 'store' to filter vacancies by the specific store ID in the query
+            $type = 'store';
+
             // Get the store ID for the authenticated user
             $storeId = $authUser->store_id;
 
@@ -132,35 +135,35 @@ class ManagerController extends Controller
             // Check if the authenticated user is associated with a store
             if ($storeId !== null) {
                 // Step 1: Fetch vacancy data from VacancyDataService
-                $storeTotalVacancies = $this->vacancyDataService->getStoreTotalVacancies($storeId, $startDate, $endDate);
-                $storeTotalVacanciesFilled = $this->vacancyDataService->getStoreTotalVacanciesFilled($storeId, $startDate, $endDate);
+                $storeTotalVacancies = $this->vacancyDataService->getTotalVacancies($type, $storeId, $startDate, $endDate);
+                $storeTotalVacanciesFilled = $this->vacancyDataService->getTotalVacanciesFilled($type, $storeId, $startDate, $endDate);
 
                 // Step 2: Fetch interview data from VacancyDataService
-                $storeTotalInterviewsScheduled = $this->vacancyDataService->getStoreTotalInterviewsScheduled($storeId, $startDate, $endDate);
-                $storeTotalInterviewsCompleted = $this->vacancyDataService->getStoreTotalInterviewsCompleted($storeId, $startDate, $endDate);
+                $storeTotalInterviewsScheduled = $this->vacancyDataService->getTotalInterviewsScheduled($type, $storeId, $startDate, $endDate);
+                $storeTotalInterviewsCompleted = $this->vacancyDataService->getTotalInterviewsCompleted($type, $storeId, $startDate, $endDate);
 
                 // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
-                $storeTotalApplicantsAppointed = $this->vacancyDataService->getStoreTotalApplicantsAppointed($storeId, $startDate, $endDate);
-                $storeTotalApplicantsRegretted = $this->vacancyDataService->getStoreTotalApplicantsRegretted($storeId, $startDate, $endDate);
+                $storeTotalApplicantsAppointed = $this->vacancyDataService->getTotalApplicantsAppointed($type, $storeId, $startDate, $endDate);
+                $storeTotalApplicantsRegretted = $this->vacancyDataService->getTotalApplicantsRegretted($type, $storeId, $startDate, $endDate);
 
                 // Step 4: Fetch time data from VacancyDataService
-                $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId, $startDate, $endDate);
-                $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire($storeId, $startDate, $endDate);
+                $storeAverageTimeToShortlist = $this->vacancyDataService->getAverageTimeToShortlist($type, $storeId, $startDate, $endDate);
+                $storeAverageTimeToHire = $this->vacancyDataService->getAverageTimeToHire($type, $storeId, $startDate, $endDate);
                 $storeAdoptionRate = ($storeTotalVacancies > 0) ? round($storeTotalVacanciesFilled / $storeTotalVacancies * 100) : 0;
 
                 // Step 5: Fetch proximity data from ApplicantProximityService
-                $storeAverageDistanceApplicantsAppointed = $this->applicantProximityService->getStoreAverageDistanceApplicantsAppointed($storeId, $startDate, $endDate);
+                $storeAverageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $storeId, $startDate, $endDate);
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
-                $storeAverageScoreApplicantsAppointed = $this->applicantDataService->getStoreAverageScoreApplicantsAppointed($storeId, $startDate, $endDate);
+                $storeAverageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, $storeId, $startDate, $endDate);
 
                 // Step 7: Fetch talent pool data from applicantProximityService
-                $storeTalentPoolApplicants = $this->applicantProximityService->getStoreTalentPoolApplicants($storeId, $startDate, $endDate, $maxDistanceFromStore);
-                $storeTalentPoolApplicantsByMonth = $this->applicantProximityService->getStoreTalentPoolApplicantsByMonth($storeId, $startDate, $endDate, $maxDistanceFromStore);
+                $storeTalentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, $storeId, $startDate, $endDate, $maxDistanceFromStore);
+                $storeTalentPoolApplicantsByMonth = $this->applicantProximityService->getTalentPoolApplicantsByMonth($type, $storeId, $startDate, $endDate, $maxDistanceFromStore);
 
                 // Step 8: Fetch applicants appointed data from vacancyDataService
-                $storeApplicantsAppointed = $this->vacancyDataService->getStoreApplicantsAppointed($storeId, $startDate, $endDate);
-                $storeApplicantsAppointedByMonth = $this->vacancyDataService->getStoreApplicantsAppointedByMonth($storeId, $startDate, $endDate);
+                $storeApplicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, $storeId, $startDate, $endDate);
+                $storeApplicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, $storeId, $startDate, $endDate);
             }
 
             // Return the 'manager/home' view with the calculated data
@@ -213,6 +216,9 @@ class ManagerController extends Controller
             $startDate = Carbon::parse($request->input('startDate'))->startOfDay();
             $endDate = Carbon::parse($request->input('endDate'))->endOfDay();
 
+            // Set the type to 'store' to filter vacancies by the specific store ID in the query
+            $type = 'store';
+
             // Get the store ID for the authenticated user
             $storeId = $authUser->store_id;
 
@@ -255,35 +261,35 @@ class ManagerController extends Controller
             // Check if the authenticated user is associated with a store
             if ($storeId !== null) {
                 // Step 1: Fetch vacancy data from VacancyDataService
-                $storeTotalVacancies = $this->vacancyDataService->getStoreTotalVacancies($storeId, $startDate, $endDate);
-                $storeTotalVacanciesFilled = $this->vacancyDataService->getStoreTotalVacanciesFilled($storeId, $startDate, $endDate);
+                $storeTotalVacancies = $this->vacancyDataService->getTotalVacancies($type, $storeId, $startDate, $endDate);
+                $storeTotalVacanciesFilled = $this->vacancyDataService->getTotalVacanciesFilled($type, $storeId, $startDate, $endDate);
 
                 // Step 2: Fetch interview data from VacancyDataService
-                $storeTotalInterviewsScheduled = $this->vacancyDataService->getStoreTotalInterviewsScheduled($storeId, $startDate, $endDate);
-                $storeTotalInterviewsCompleted = $this->vacancyDataService->getStoreTotalInterviewsCompleted($storeId, $startDate, $endDate);
+                $storeTotalInterviewsScheduled = $this->vacancyDataService->getTotalInterviewsScheduled($type, $storeId, $startDate, $endDate);
+                $storeTotalInterviewsCompleted = $this->vacancyDataService->getTotalInterviewsCompleted($type, $storeId, $startDate, $endDate);
 
                 // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
-                $storeTotalApplicantsAppointed = $this->vacancyDataService->getStoreTotalApplicantsAppointed($storeId, $startDate, $endDate);
-                $storeTotalApplicantsRegretted = $this->vacancyDataService->getStoreTotalApplicantsRegretted($storeId, $startDate, $endDate);
+                $storeTotalApplicantsAppointed = $this->vacancyDataService->getTotalApplicantsAppointed($type, $storeId, $startDate, $endDate);
+                $storeTotalApplicantsRegretted = $this->vacancyDataService->getTotalApplicantsRegretted($type, $storeId, $startDate, $endDate);
 
                 // Step 4: Fetch time data from VacancyDataService
-                $storeAverageTimeToShortlist = $this->vacancyDataService->getStoreAverageTimeToShortlist($storeId, $startDate, $endDate);
-                $storeAverageTimeToHire = $this->vacancyDataService->getStoreAverageTimeToHire($storeId, $startDate, $endDate);
+                $storeAverageTimeToShortlist = $this->vacancyDataService->getAverageTimeToShortlist($type, $storeId, $startDate, $endDate);
+                $storeAverageTimeToHire = $this->vacancyDataService->getAverageTimeToHire($type, $storeId, $startDate, $endDate);
                 $storeAdoptionRate = ($storeTotalVacancies > 0) ? round($storeTotalVacanciesFilled / $storeTotalVacancies * 100) : 0;
 
                 // Step 5: Fetch proximity data from ApplicantProximityService
-                $storeAverageDistanceApplicantsAppointed = $this->applicantProximityService->getStoreAverageDistanceApplicantsAppointed($storeId, $startDate, $endDate);
+                $storeAverageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $storeId, $startDate, $endDate);
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
-                $storeAverageScoreApplicantsAppointed = $this->applicantDataService->getStoreAverageScoreApplicantsAppointed($storeId, $startDate, $endDate);
+                $storeAverageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, $storeId, $startDate, $endDate);
 
                 // Step 7: Fetch talent pool data from applicantProximityService
-                $storeTalentPoolApplicants = $this->applicantProximityService->getStoreTalentPoolApplicants($storeId, $startDate, $endDate, $maxDistanceFromStore);
-                $storeTalentPoolApplicantsByMonth = $this->applicantProximityService->getStoreTalentPoolApplicantsByMonth($storeId, $startDate, $endDate, $maxDistanceFromStore);
+                $storeTalentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, $storeId, $startDate, $endDate, $maxDistanceFromStore);
+                $storeTalentPoolApplicantsByMonth = $this->applicantProximityService->getTalentPoolApplicantsByMonth($type, $storeId, $startDate, $endDate, $maxDistanceFromStore);
 
                 // Step 8: Fetch applicants appointed data from vacancyDataService
-                $storeApplicantsAppointed = $this->vacancyDataService->getStoreApplicantsAppointed($storeId, $startDate, $endDate);
-                $storeApplicantsAppointedByMonth = $this->vacancyDataService->getStoreApplicantsAppointedByMonth($storeId, $startDate, $endDate);
+                $storeApplicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, $storeId, $startDate, $endDate);
+                $storeApplicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, $storeId, $startDate, $endDate);
             }
 
             //Data to return
