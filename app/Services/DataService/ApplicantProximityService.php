@@ -11,12 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class ApplicantProximityService
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Average Distance Applicants Appointed
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Calculate the average distance between stores' coordinates and appointed applicants' coordinates for store, division, or region.
      *
@@ -83,12 +77,6 @@ class ApplicantProximityService
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Calculate Distance
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Calculate the distance between two coordinates (latitude and longitude) in kilometers.
      *
@@ -113,12 +101,6 @@ class ApplicantProximityService
 
         return $earthRadius * $c; // Distance in kilometers
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Talent Pool Applicants
-    |--------------------------------------------------------------------------
-    */
 
     /**
      * Count the number of talent pool applicants within a given distance from the store, division, or region.
@@ -184,12 +166,6 @@ class ApplicantProximityService
         return $applicantCount;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Talent Pool Applicants By Month
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Get the number of talent pool applicants by month within a given distance from the store, division, or region.
      *
@@ -200,7 +176,7 @@ class ApplicantProximityService
      * @param float $maxDistanceFromStore The maximum distance from the store in kilometers.
      * @return array An array of applicants by month.
      */
-    public function getTalentPoolApplicantsByMonth(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore): array
+    public function getTalentPoolApplicantsByMonth(string $type = null, ?int $id = null, $startDate, $endDate, $maxDistanceFromStore): array
     {
         // Get stores based on the type (store, division, or region)
         $stores = Store::when($type === 'store', function ($query) use ($id) {
