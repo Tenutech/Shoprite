@@ -243,7 +243,7 @@ class VacancyDataService
             })
             ->with('shortlists')
             ->get();
-       
+
         $totalTimeInSeconds = 0;
         $shortlistCount = 0;
 
@@ -255,7 +255,7 @@ class VacancyDataService
                 $shortlistCount++;
             }
         }
-        
+
         // Calculate the average time to shortlist
         if ($shortlistCount > 0) {
             $averageTimeInSeconds = $totalTimeInSeconds / $shortlistCount;
