@@ -11,14 +11,8 @@ use Illuminate\Support\Facades\DB;
 
 class VacancyDataService
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Total Vacancies
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Fetch the total vacancies based on type and date range using the Vacancy model and Eloquent relationships.
+     * Fetch the Total Vacancies based on type and date range using the Vacancy model and Eloquent relationships.
      *
      * @param string $type The type of view (e.g., store, division, region).
      * @param int|null $id The ID for filtering based on the type.
@@ -48,14 +42,8 @@ class VacancyDataService
         return $vacancies->count();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Total Vacancies Filled
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Fetch the total vacancies filled based on type and date range using the Vacancy model and Eloquent relationships.
+     * Fetch the Total Vacancies Filled based on type and date range using the Vacancy model and Eloquent relationships.
      *
      * @param string $type The type of view (e.g., store, division, region).
      * @param int|null $id The ID for filtering based on the type.
@@ -86,14 +74,8 @@ class VacancyDataService
         return $vacancies->count();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Total Interviews Scheduled
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Get total number of scheduled interviews for a specific type within a date range.
+     * Get Total Interviews Scheduled for a specific type within a date range.
      *
      * @param string $type The type of view (e.g., store, division, region).
      * @param int|null $id The ID for filtering based on the type.
@@ -165,14 +147,8 @@ class VacancyDataService
         return $interviews->count();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Total Applicants Appointed
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Get total number of appointed applicants for a specific type within a date range.
+     * Get Total Applicants Appointedfor a specific type within a date range.
      *
      * @param string $type The type of view (e.g., store, division, region).
      * @param int|null $id The ID for filtering based on the type.
@@ -204,12 +180,6 @@ class VacancyDataService
         // Return the total count of appointed applicants
         return $interviews->count();
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Total Applicants Regretted
-    |--------------------------------------------------------------------------
-    */
 
     /**
      * Get total number of regretted applicants for a specific type within a date range.
@@ -244,12 +214,6 @@ class VacancyDataService
         // Return the total count of regretted applicants
         return $interviews->count();
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Time To Shortlist
-    |--------------------------------------------------------------------------
-    */
 
     /**
      * Calculate the average time to shortlist for within a date range.
@@ -323,12 +287,6 @@ class VacancyDataService
         // Return default format if no shortlists
         return '0D 0H 0M';
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | Time To Hire
-    |--------------------------------------------------------------------------
-    */
 
     /**
      * Calculate the average time to hire for a specific type within a date range.
@@ -408,14 +366,8 @@ class VacancyDataService
         return '0D 0H 0M';
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Applicants Appointed
-    |--------------------------------------------------------------------------
-    */
-
     /**
-     * Get the total number of applicants appointed within a date range for vacancies filtered by store, division, or region.
+     * Get the Applicants Appointed within a date range for vacancies filtered by store, division, or region.
      *
      * @param string $type The type of filter (e.g., store, division, region).
      * @param int|null $id The ID of the store, division, or region to filter.
@@ -428,7 +380,7 @@ class VacancyDataService
         // Start building the query to retrieve vacancies based on type (store, division, region)
         $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
                 return $query->where('store_id', $id);
-            })
+        })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->whereHas('store', function ($q) use ($id) {
                     $q->where('division_id', $id);
@@ -456,14 +408,9 @@ class VacancyDataService
         return $totalAppointed;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Applicants Appointed By Month
-    |--------------------------------------------------------------------------
-    */
 
     /**
-     * Get the number of appointed applicants by month for vacancies filtered by store, division, or region.
+     * Get the Applicants Appointed By Month for vacancies filtered by store, division, or region.
      *
      * @param string $type The type of filter (e.g., store, division, region).
      * @param int|null $id The ID of the store, division, or region to filter.
@@ -487,7 +434,7 @@ class VacancyDataService
         // Retrieve vacancies based on the type (store, division, or region) and within the date range
         $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
                 return $query->where('store_id', $id);
-            })
+        })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->whereHas('store', function ($q) use ($id) {
                     $q->where('division_id', $id);

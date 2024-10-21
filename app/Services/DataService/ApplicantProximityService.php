@@ -34,7 +34,7 @@ class ApplicantProximityService
         // Retrieve vacancies and stores based on the type (store, division, region) and date range
         $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
                 return $query->where('store_id', $id);
-            })
+        })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->whereHas('store', function ($q) use ($id) {
                     $q->where('division_id', $id);
@@ -135,7 +135,7 @@ class ApplicantProximityService
         // Get the store, division, or region based on the type
         $stores = Store::when($type === 'store', function ($query) use ($id) {
                 return $query->where('id', $id);
-            })
+        })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->where('division_id', $id);
             })
@@ -205,7 +205,7 @@ class ApplicantProximityService
         // Get stores based on the type (store, division, or region)
         $stores = Store::when($type === 'store', function ($query) use ($id) {
                 return $query->where('id', $id);
-            })
+        })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->where('division_id', $id);
             })
