@@ -224,7 +224,7 @@ class VacancyDataService
      * @param \Carbon\Carbon $endDate
      * @return string
      */
-    public function getAverageTimeToShortlist(string $type, ?int $id, Carbon $startDate, Carbon $endDate): string
+    public function getAverageTimeToShortlist(string $type = null, ?int $id = null, Carbon $startDate, Carbon $endDate): string
     {
         // Retrieve vacancies within the specified date range using Eloquent and filter by store, division, or region
         $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])
@@ -243,7 +243,7 @@ class VacancyDataService
             })
             ->with('shortlists')
             ->get();
-
+       
         $totalTimeInSeconds = 0;
         $shortlistCount = 0;
 
@@ -255,7 +255,7 @@ class VacancyDataService
                 $shortlistCount++;
             }
         }
-
+        
         // Calculate the average time to shortlist
         if ($shortlistCount > 0) {
             $averageTimeInSeconds = $totalTimeInSeconds / $shortlistCount;
@@ -297,7 +297,7 @@ class VacancyDataService
      * @param \Carbon\Carbon $endDate The end date for filtering vacancies.
      * @return string The average time to hire in the format 'D H M' (Days, Hours, Minutes).
      */
-    public function getAverageTimeToHire(string $type, ?int $id, Carbon $startDate, Carbon $endDate): string
+    public function getAverageTimeToHire(string $type = null, ?int $id = null, Carbon $startDate, Carbon $endDate): string
     {
         // Retrieve vacancies within the specified date range using Eloquent and filter by store, division, or region
         $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])
