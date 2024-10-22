@@ -526,6 +526,773 @@ if (talentPoolByMonthColors) {
 
 /*
 |--------------------------------------------------------------------------
+| Average Literacy Score
+|--------------------------------------------------------------------------
+*/
+
+// Average Literacy Score
+var averageLiteracyScoreColors = getChartColorsArray("literacy_chart");
+
+// Calculate the number of correct answers (rounded value)
+var averageLiteracyScore = Math.round(averageLiteracyScoreTalentPoolApplicants);
+
+// Generate the series and labels dynamically based on the number of questions and average score
+var literacySeries = [];
+var literacyLabels = [];
+
+// Populate the series and labels (e.g., from 1 to literacyQuestionsCount)
+for (var i = 1; i <= averageLiteracyScore; i++) {
+    literacySeries.push(i);
+    literacyLabels.push(i.toString()); // Convert the number to string for labels
+}
+
+// Average Literacy Score Chart
+if (averageLiteracyScoreColors) {
+    var options = {
+        series: literacySeries, // Dynamically generated series
+        chart: {
+            height: 300,
+            type: 'donut',
+        },
+        labels: literacyLabels, // Dynamically generated labels
+        theme: {
+            monochrome: {
+                enabled: true,
+                color: averageLiteracyScoreColors[0],
+                shadeTo: 'dark',
+                shadeIntensity: 0.6
+            }
+        },
+        plotOptions: {
+            pie: {
+                dataLabels: {
+                    offset: -5
+                }
+            }
+        },
+        dataLabels: {
+            formatter: function (val, opts) {
+                var name = opts.w.globals.labels[opts.seriesIndex];
+                return name; // Only return the number, not the percentage
+            },
+            dropShadow: {
+                enabled: false,
+            }
+        },
+        legend: {
+            show: false
+        },
+        title: {
+            text: averageLiteracyScore + '/' + literacyQuestionsCount, // Display the score out of total
+            floating: true,
+            offsetY: 125,
+            align: 'center',
+            style: {
+                fontSize: '20px',
+                fontWeight: 'bold'
+            }
+        }
+    };
+
+    var averageLiteracyScoreChart = new ApexCharts(document.querySelector("#literacy_chart"), options);
+    averageLiteracyScoreChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Average Numeracy Score
+|--------------------------------------------------------------------------
+*/
+
+// Average Numeracy Score
+var averageNumeracyScoreColors = getChartColorsArray("numeracy_chart");
+
+// Calculate the number of correct answers (rounded value)
+var averageNumeracyScore = Math.round(averageNumeracyScoreTalentPoolApplicants);
+
+// Generate the series and labels dynamically based on the number of questions and average score
+var numeracySeries = [];
+var numeracyLabels = [];
+
+// Populate the series and labels (e.g., from 1 to numeracyQuestionsCount)
+for (var i = 1; i <= averageNumeracyScore; i++) {
+    numeracySeries.push(i);
+    numeracyLabels.push(i.toString()); // Convert the number to string for labels
+}
+
+// Average Numeracy Score Chart
+if (averageNumeracyScoreColors) {
+    var options = {
+        series: numeracySeries, // Dynamically generated series
+        chart: {
+            height: 300,
+            type: 'donut',
+        },
+        labels: numeracyLabels, // Dynamically generated labels
+        theme: {
+            monochrome: {
+                enabled: true,
+                color: averageNumeracyScoreColors[0],
+                shadeTo: 'dark',
+                shadeIntensity: 0.6
+            }
+        },
+        plotOptions: {
+            pie: {
+                dataLabels: {
+                    offset: -5
+                }
+            }
+        },
+        dataLabels: {
+            formatter: function (val, opts) {
+                var name = opts.w.globals.labels[opts.seriesIndex];
+                return name; // Only return the number, not the percentage
+            },
+            dropShadow: {
+                enabled: false,
+            }
+        },
+        legend: {
+            show: false
+        },
+        title: {
+            text: averageNumeracyScore + '/' + numeracyQuestionsCount, // Display the score out of total
+            floating: true,
+            offsetY: 125,
+            align: 'center',
+            style: {
+                fontSize: '20px',
+                fontWeight: 'bold'
+            }
+        }
+    };
+
+    var averageNumeracyScoreChart = new ApexCharts(document.querySelector("#numeracy_chart"), options);
+    averageNumeracyScoreChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Average Situational Score
+|--------------------------------------------------------------------------
+*/
+
+// Average Situational Score
+var averageSituationalScoreColors = getChartColorsArray("situational_chart");
+
+// Calculate the number of correct answers (rounded value)
+var averageSituationalScore = Math.round(averageSituationalScoreTalentPoolApplicants);
+
+// Generate the series and labels dynamically based on the number of questions and average score
+var situationalSeries = [];
+var situationalLabels = [];
+
+// Populate the series and labels (e.g., from 1 to situationalQuestionsCount)
+for (var i = 1; i <= averageSituationalScore; i++) {
+    situationalSeries.push(i);
+    situationalLabels.push(i.toString()); // Convert the number to string for labels
+}
+
+// Average Situational Score Chart
+if (averageSituationalScoreColors) {
+    var options = {
+        series: situationalSeries, // Dynamically generated series
+        chart: {
+            height: 300,
+            type: 'donut',
+        },
+        labels: situationalLabels, // Dynamically generated labels
+        theme: {
+            monochrome: {
+                enabled: true,
+                color: averageSituationalScoreColors[0],
+                shadeTo: 'dark',
+                shadeIntensity: 0.6
+            }
+        },
+        plotOptions: {
+            pie: {
+                dataLabels: {
+                    offset: -5
+                }
+            }
+        },
+        dataLabels: {
+            formatter: function (val, opts) {
+                var name = opts.w.globals.labels[opts.seriesIndex];
+                return name; // Only return the number, not the percentage
+            },
+            dropShadow: {
+                enabled: false,
+            }
+        },
+        legend: {
+            show: false
+        },
+        title: {
+            text: averageSituationalScore + '/' + situationalQuestionsCount, // Display the score out of total
+            floating: true,
+            offsetY: 125,
+            align: 'center',
+            style: {
+                fontSize: '20px',
+                fontWeight: 'bold'
+            }
+        }
+    };
+
+    var averageSituationalScoreChart = new ApexCharts(document.querySelector("#situational_chart"), options);
+    averageSituationalScoreChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Total WhatsApp Applicants
+|--------------------------------------------------------------------------
+*/
+
+// Total WhatsApp Applicants
+var totalWhatsAppApplicantsColors = getChartColorsArray("total_whatsapp_applicants");
+
+// Calculate percentage of WhatsApp applicants
+var totalApplicants = talentPoolApplicants || 0;
+var totalWhatsAppApplicants = totalWhatsAppApplicants || 0;
+var percentageWhatsApp = 0;
+
+// Check for divide by zero and calculate percentage
+if (totalApplicants > 0) {
+    percentageWhatsApp = Math.round((totalWhatsAppApplicants / totalApplicants) * 100);
+}
+
+// Total WhatsApp Applicants Chart
+if (totalWhatsAppApplicantsColors) {
+    var options = {
+        series: [percentageWhatsApp], // Use the calculated percentage
+        chart: {
+            type: 'radialBar',
+            width: 105,
+            sparkline: {
+                enabled: true
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        plotOptions: {
+            radialBar: {
+                hollow: {
+                    margin: 0,
+                    size: '70%'
+                },
+                track: {
+                    margin: 1
+                },
+                dataLabels: {
+                    show: true,
+                    name: {
+                        show: false
+                    },
+                    value: {
+                        show: true,
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        offsetY: 8,
+                        // Show percentage inside the radial chart
+                        formatter: function(val) {
+                            return Math.round(val) + "%";
+                        }
+                    }
+                }
+            }
+        },
+        colors: totalWhatsAppApplicantsColors
+    };
+
+    var totalWhatsAppApplicantsChart = new ApexCharts(document.querySelector("#total_whatsapp_applicants"), options);
+    totalWhatsAppApplicantsChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Total Website Applicants
+|--------------------------------------------------------------------------
+*/
+
+// Total Website Applicants
+var totalWebsiteApplicantsColors = getChartColorsArray("total_website_applicants");
+
+// Calculate percentage of Website applicants
+var totalApplicants = talentPoolApplicants || 0;
+var totalWebsiteApplicants = totalWebsiteApplicants || 0;
+var percentageWebsite = 0;
+
+// Check for divide by zero and calculate percentage
+if (totalApplicants > 0) {
+    percentageWebsite = Math.round((totalWebsiteApplicants / totalApplicants) * 100);
+}
+
+// Total Website Applicants Chart
+if (totalWebsiteApplicantsColors) {
+    var options = {
+        series: [percentageWebsite], // Use the calculated percentage
+        chart: {
+            type: 'radialBar',
+            width: 105,
+            sparkline: {
+                enabled: true
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        plotOptions: {
+            radialBar: {
+                hollow: {
+                    margin: 0,
+                    size: '70%'
+                },
+                track: {
+                    margin: 1
+                },
+                dataLabels: {
+                    show: true,
+                    name: {
+                        show: false
+                    },
+                    value: {
+                        show: true,
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        offsetY: 8,
+                        // Show percentage inside the radial chart
+                        formatter: function(val) {
+                            return Math.round(val) + "%";
+                        }
+                    }
+                }
+            }
+        },
+        colors: totalWebsiteApplicantsColors
+    };
+
+    var totalWebsiteApplicantsChart = new ApexCharts(document.querySelector("#total_website_applicants"), options);
+    totalWebsiteApplicantsChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Talent Pool Applicants Demographic
+|--------------------------------------------------------------------------
+*/
+
+// Talent Pool Applicants Demographic
+var talentPoolApplicantsDemographicColors = getChartColorsArray("talent_pool_applicants_demographic");
+
+// Extract percentages and labels dynamically from talentPoolApplicantsDemographic
+var talentPoolApplicantsDemographicSeries = [];
+var talentPoolApplicantsDemographicLabels = [];
+
+talentPoolApplicantsDemographic.forEach(function (item) {
+    talentPoolApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
+    talentPoolApplicantsDemographicLabels.push(item.name);       // Extract the race name
+});
+
+// Talent Pool Applicants Demographic Chart
+if(talentPoolApplicantsDemographicColors){
+    var options = {
+        series: talentPoolApplicantsDemographicSeries,
+        chart: {
+            height: 350,
+            type: 'radialBar',
+        },
+        plotOptions: {
+            radialBar: {
+                offsetY: 0,
+                startAngle: 0,
+                endAngle: 270,
+                hollow: {
+                    margin: 5,
+                    size: '30%',
+                    background: 'transparent',
+                    image: undefined,
+                },
+                dataLabels: {
+                    name: {
+                        show: false,
+                    },
+                    value: {
+                        show: false,
+                    }
+                }
+            }
+        },
+        colors: talentPoolApplicantsDemographicColors,
+        labels: talentPoolApplicantsDemographicLabels,
+        legend: {
+            show: true,
+            floating: true,
+            fontSize: '16px',
+            position: 'left',
+            offsetX: 80,
+            offsetY: 15,
+            labels: {
+                useSeriesColors: true,
+            },
+            markers: {
+                size: 0
+            },
+            formatter: function (seriesName, opts) {
+                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+            },
+            itemMargin: {
+                vertical: 3
+            }
+        },
+        responsive: [
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1650,
+                options: {
+                    legend: {
+                        offsetX: 60 // Set offsetX to 60 for screen sizes under 1700px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1500,
+                options: {
+                    legend: {
+                        offsetX: 10 // Set offsetX to 60 for screen sizes under 1700px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1250,
+                options: {
+                    legend: {
+                        offsetX: -20 // Set offsetX to 60 for screen sizes under 1700px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 768px (tablet and mobile)
+                breakpoint: 768,
+                options: {
+                    legend: {
+                        offsetX: 180, // Adjust the horizontal offset for medium screens
+                    }
+                }
+            },
+            {
+                // For screens smaller than 480px (mobile)
+                breakpoint: 480,
+                options: {
+                    legend: {
+                        offsetX: -30 // Adjust the horizontal offset for small screens
+                    }
+                }
+            }
+        ]
+    };
+
+    var talentPoolApplicantsDemographicChart = new ApexCharts(document.querySelector("#talent_pool_applicants_demographic"), options);
+    talentPoolApplicantsDemographicChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Interviewed Applicants Demographic
+|--------------------------------------------------------------------------
+*/
+
+// Interviewed Applicants Demographic
+var interviewedApplicantsDemographicColors = getChartColorsArray("interviewed_applicants_demographic");
+
+// Extract percentages and labels dynamically from interviewedApplicantsDemographic
+var interviewedApplicantsDemographicSeries = [];
+var interviewedApplicantsDemographicLabels = [];
+
+interviewedApplicantsDemographic.forEach(function (item) {
+    interviewedApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
+    interviewedApplicantsDemographicLabels.push(item.name);       // Extract the race name
+});
+
+// Interviewed Applicants Demographic Chart
+if(interviewedApplicantsDemographicColors){
+    var options = {
+        series: interviewedApplicantsDemographicSeries,
+        chart: {
+            height: 350,
+            type: 'radialBar',
+        },
+        plotOptions: {
+            radialBar: {
+                offsetY: 0,
+                startAngle: 0,
+                endAngle: 270,
+                hollow: {
+                    margin: 5,
+                    size: '30%',
+                    background: 'transparent',
+                    image: undefined,
+                },
+                dataLabels: {
+                    name: {
+                        show: false,
+                    },
+                    value: {
+                        show: false,
+                    }
+                }
+            }
+        },
+        colors: interviewedApplicantsDemographicColors,
+        labels: interviewedApplicantsDemographicLabels,
+        legend: {
+            show: true,
+            floating: true,
+            fontSize: '16px',
+            position: 'left',
+            offsetX: 80,
+            offsetY: 15,
+            labels: {
+                useSeriesColors: true,
+            },
+            markers: {
+                size: 0
+            },
+            formatter: function (seriesName, opts) {
+                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+            },
+            itemMargin: {
+                vertical: 3
+            }
+        },
+        responsive: [
+            {
+                breakpoint: 1650,
+                options: {
+                    legend: {
+                        offsetX: 60
+                    }
+                }
+            },
+            {
+                breakpoint: 1500,
+                options: {
+                    legend: {
+                        offsetX: 10
+                    }
+                }
+            },
+            {
+                breakpoint: 1250,
+                options: {
+                    legend: {
+                        offsetX: -20
+                    }
+                }
+            },
+            {
+                breakpoint: 768,
+                options: {
+                    legend: {
+                        offsetX: 180
+                    }
+                }
+            },
+            {
+                breakpoint: 480,
+                options: {
+                    legend: {
+                        offsetX: -30
+                    }
+                }
+            }
+        ]
+    };
+
+    var interviewedApplicantsDemographicChart = new ApexCharts(document.querySelector("#interviewed_applicants_demographic"), options);
+    interviewedApplicantsDemographicChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Appointed Applicants Demographic
+|--------------------------------------------------------------------------
+*/
+
+// Appointed Applicants Demographic
+var appointedApplicantsDemographicColors = getChartColorsArray("appointed_applicants_demographic");
+
+// Extract percentages and labels dynamically from appointedApplicantsDemographic
+var appointedApplicantsDemographicSeries = [];
+var appointedApplicantsDemographicLabels = [];
+
+appointedApplicantsDemographic.forEach(function (item) {
+    appointedApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
+    appointedApplicantsDemographicLabels.push(item.name);       // Extract the race name
+});
+
+// Appointed Applicants Demographic Chart
+if(appointedApplicantsDemographicColors){
+    var options = {
+        series: appointedApplicantsDemographicSeries,
+        chart: {
+            height: 350,
+            type: 'radialBar',
+        },
+        plotOptions: {
+            radialBar: {
+                offsetY: 0,
+                startAngle: 0,
+                endAngle: 270,
+                hollow: {
+                    margin: 5,
+                    size: '30%',
+                    background: 'transparent',
+                    image: undefined,
+                },
+                dataLabels: {
+                    name: {
+                        show: false,
+                    },
+                    value: {
+                        show: false,
+                    }
+                }
+            }
+        },
+        colors: appointedApplicantsDemographicColors,
+        labels: appointedApplicantsDemographicLabels,
+        legend: {
+            show: true,
+            floating: true,
+            fontSize: '16px',
+            position: 'left',
+            offsetX: 80,
+            offsetY: 15,
+            labels: {
+                useSeriesColors: true,
+            },
+            markers: {
+                size: 0
+            },
+            formatter: function (seriesName, opts) {
+                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+            },
+            itemMargin: {
+                vertical: 3
+            }
+        },
+        responsive: [
+            {
+                breakpoint: 1650,
+                options: {
+                    legend: {
+                        offsetX: 60
+                    }
+                }
+            },
+            {
+                breakpoint: 1500,
+                options: {
+                    legend: {
+                        offsetX: 10
+                    }
+                }
+            },
+            {
+                breakpoint: 1250,
+                options: {
+                    legend: {
+                        offsetX: -20
+                    }
+                }
+            },
+            {
+                breakpoint: 768,
+                options: {
+                    legend: {
+                        offsetX: 180
+                    }
+                }
+            },
+            {
+                breakpoint: 480,
+                options: {
+                    legend: {
+                        offsetX: -30
+                    }
+                }
+            }
+        ]
+    };
+
+    var appointedApplicantsDemographicChart = new ApexCharts(document.querySelector("#appointed_applicants_demographic"), options);
+    appointedApplicantsDemographicChart.render();
+}
+
+/*
+|-------------------------------------------------------------------------- 
+| Talent Pool Applicants Province
+|-------------------------------------------------------------------------- 
+*/
+
+// Talent Pool Applicants Province
+var talentPoolApplicantsProvinceColors = getChartColorsArray("talent_pool_applicants_province");
+
+// Convert the talentPoolApplicantsProvince object into the required format for the series
+var talentPoolApplicantsProvinceSeries = [];
+
+Object.keys(talentPoolApplicantsProvince).forEach(function (key) {
+    talentPoolApplicantsProvinceSeries.push({
+        x: key, // Province name
+        y: talentPoolApplicantsProvince[key] // Applicant count
+    });
+});
+
+// Talent Pool Applicants Province Chart
+if(talentPoolApplicantsProvinceColors) {
+    var options = {
+        series: [{
+            data: talentPoolApplicantsProvinceSeries // Use the dynamically generated series
+        }],
+        legend: {
+            show: false
+        },
+        chart: {
+            height: 350,
+            type: 'treemap',
+            toolbar: {
+                show: false
+            }
+        },
+        title: {
+            text: 'Talent Pool By Province',
+            align: 'center',
+            style: {
+                fontWeight: 500,
+            }
+        },
+        colors: talentPoolApplicantsProvinceColors,
+        plotOptions: {
+            treemap: {
+                distributed: true,
+                enableShades: false
+            }
+        }
+    };
+
+    var talentPoolApplicantsProvinceChart = new ApexCharts(document.querySelector("#talent_pool_applicants_province"), options);
+    talentPoolApplicantsProvinceChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
 | Update Dashboard
 |--------------------------------------------------------------------------
 */
@@ -565,23 +1332,50 @@ function updateDashboard(data) {
     // Update average distance applicants appointed
     $('#averageDistanceApplicantsAppointedValue').text(data.averageDistanceApplicantsAppointed + ' km');
 
-    // Update average score of appointed applicants
-    $('#averageScoreApplicantsAppointedValue').text(data.averageScoreApplicantsAppointed);
-
     // Update talent pool applicants
     $('#talentPoolApplicantsValue').text(data.talentPoolApplicants);
 
     // Update appointed applicants
     $('#applicantsAppointedValue').text(data.applicantsAppointed);
 
+    // Update average score of talent pool applicants
+    $('#averageScoreTalentPoolApplicantsValue').text(data.averageScoreTalentPoolApplicants);
+
+    // Update average score of appointed applicants
+    $('#averageScoreApplicantsAppointedValue').text(data.averageScoreApplicantsAppointed);
+
+    // Update total WhatsApp applicants
+    $('#totalWhatsAppApplicantsValue').text(data.totalWhatsAppApplicants);
+
+    // Update total Website applicants
+    $('#totalWebsiteApplicantsValue').text(data.totalWebsiteApplicants);
+
+    // Update completion rate
+    $('#completionRateValue').text(data.completionRate);
+
     // Update radial charts
     updateRadialChart(totalVacanciesFilledChart, data.totalVacanciesFilled, data.totalVacancies);
     updateRadialChart(totalInterviewsCompletedChart, data.totalInterviewsCompleted, data.totalInterviewsScheduled);
     updateRadialChart(totalApplicantsAppointedChart, data.totalApplicantsAppointed, data.totalInterviewsScheduled);
     updateRadialChart(totalApplicantsRegrettedChart, data.totalApplicantsRegretted, data.totalInterviewsScheduled);
+    updateRadialChart(totalWhatsAppApplicantsChart, data.totalWhatsAppApplicants, data.talentPoolApplicants);
+    updateRadialChart(totalWebsiteApplicantsChart, data.totalWebsiteApplicants, data.talentPoolApplicants);
 
     // Update the "Talent Pool By Month" chart
     updateLineCharts(talentPoolByMonthChart, data.talentPoolApplicantsByMonth, data.applicantsAppointedByMonth);
+
+    // Update average literacy, numeracy, and situational scores
+    updateDonutChart(averageLiteracyScoreChart, data.averageLiteracyScoreTalentPoolApplicants, data.literacyQuestionsCount);
+    updateDonutChart(averageNumeracyScoreChart, data.averageNumeracyScoreTalentPoolApplicants, data.numeracyQuestionsCount);
+    updateDonutChart(averageSituationalScoreChart, data.averageSituationalScoreTalentPoolApplicants, data.situationalQuestionsCount);
+
+    // Update demographic charts
+    updateRadialBarChart(talentPoolApplicantsDemographicChart, data.talentPoolApplicantsDemographic);
+    updateRadialBarChart(interviewedApplicantsDemographicChart, data.interviewedApplicantsDemographic);
+    updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
+
+    // Update the treemap chart with the new province data
+    updateTreemapChart(talentPoolApplicantsProvinceChart, data.talentPoolApplicantsProvince);
 }
 
 /*
@@ -650,4 +1444,84 @@ function updateLineCharts(chartInstance, talentPoolApplicantsByMonth, applicants
             data: appointedData // Use dynamic data for Appointed
         }
     ]);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Donut Charts
+|--------------------------------------------------------------------------
+*/
+
+function updateDonutChart(chart, score, totalQuestions) {
+    // Dynamically generate series and labels
+    var series = [];
+    var labels = [];
+    for (var i = 1; i <= score; i++) {
+        series.push(i);
+        labels.push(i.toString());
+    }
+    
+    // Update chart series and title
+    chart.updateOptions({
+        series: series,
+        labels: labels,
+        title: {
+            text: score + '/' + totalQuestions
+        }
+    });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Radial Charts
+|--------------------------------------------------------------------------
+*/
+
+function updateRadialBarChart(chart, demographicData) {
+    // Initialize the series and labels with default values for all races
+    var demographicSeries = {
+        'African': 0,
+        'Coloured': 0,
+        'Indian': 0,
+        'White': 0
+    };
+
+    // Populate the series from demographicData (ensure all races have counts)
+    demographicData.forEach(function (item) {
+        // Update the corresponding race count from demographicData
+        if (demographicSeries.hasOwnProperty(item.name)) {
+            demographicSeries[item.name] = item.percentage;
+        }
+    });
+
+    // Convert the object into arrays for chart update
+    var seriesArray = Object.values(demographicSeries);
+
+    // Update the chart
+    chart.updateOptions({
+        series: seriesArray,  // Updated series with all races
+    });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Update Treemap Chart
+|--------------------------------------------------------------------------
+*/
+
+function updateTreemapChart(chart, provinceData) {
+    // Prepare the series data from the updated province data
+    var updatedSeries = [];
+
+    Object.keys(provinceData).forEach(function (key) {
+        updatedSeries.push({
+            x: key, // Province name
+            y: provinceData[key] // Applicant count
+        });
+    });
+
+    // Update the chart
+    chart.updateSeries([{
+        data: updatedSeries
+    }]);
 }

@@ -275,7 +275,7 @@
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0">
-                                            Store Average
+                                            Nationwide Average
                                         </span>
                                     </p>
                                 </div>
@@ -307,7 +307,7 @@
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0">
-                                            Store Average
+                                            Nationwide Average
                                         </span>
                                     </p>
                                 </div>
@@ -357,12 +357,12 @@
             </div> <!-- end row -->
 
             <!-------------------------------------------------------------------------------------
-                Proximity & Score
+                Proximity
             -------------------------------------------------------------------------------------->
 
             <div class="row g-3">
                 <!-- Average Proximity Talent Pool -->
-                <div class="col-xl-4 col-md-4">
+                <div class="col-xl-6 col-md-6">
                     <div class="card card-animate">
                         <div class="card-header">
                             <div class="d-flex">
@@ -389,7 +389,7 @@
                 </div> <!-- end col -->
 
                 <!-- Average Proximity Appointed -->
-                <div class="col-xl-4 col-md-4">
+                <div class="col-xl-6 col-md-6">
                     <div class="card card-animate">
                         <div class="card-header">
                             <div class="d-flex">
@@ -408,33 +408,6 @@
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average distance for succesfull placements
-                                    </p>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div>
-                </div> <!-- end col -->
-
-                <!-- Average Score -->
-                <div class="col-xl-4 col-md-4">
-                    <div class="card card-animate">
-                        <div class="card-header">
-                            <div class="d-flex">
-                                <h5 class="card-title mb-0 flex-grow-1">
-                                    Average Score
-                                </h5>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="averageScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $averageScoreApplicantsAppointed }}">
-                                            0
-                                        </span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        Average score for succesfull placements
                                     </p>
                                 </div>
                             </div>
@@ -491,6 +464,313 @@
                 </div> <!-- end col -->
             </div> <!-- end row -->
 
+            <!-------------------------------------------------------------------------------------
+                Overall Scores
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Average Score Talent Pool -->
+                <div class="col-xl-6 col-md-6">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                    Average Score (Talent Pool)
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                        <span id="averageScoreTalentPoolApplicantsValue" class="counter-value"  data-target="{{ $averageScoreTalentPoolApplicants }}">
+                                            0
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average score of talent pool
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col -->
+
+                <!-- Average Score Succesfull Placements -->
+                <div class="col-xl-6 col-md-6">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                    Average Score (Succesfull Placements)
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                        <span id="averageScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $averageScoreApplicantsAppointed }}">
+                                            0
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average score for succesfull placements
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Assessment Scores
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Average Literacy Score Talent Pool -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">Average Literacy Score</h4>
+                        </div><!-- end card header -->
+
+                        <div class="card-body">
+                            <div id="literacy_chart" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div> <!-- end col -->
+
+                <!-- Average Numeracy Score Talent Pool -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">Average Numeracy Score</h4>
+                        </div><!-- end card header -->
+
+                        <div class="card-body">
+                            <div id="numeracy_chart" data-colors='["--vz-info"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div> <!-- end col -->
+
+                <!-- Average Situational Score Talent Pool -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">Average Situational Score</h4>
+                        </div><!-- end card header -->
+
+                        <div class="card-body">
+                            <div id="situational_chart" data-colors='["--vz-danger"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Application Channels
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Total WhatsApp -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s2" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Total WhatsApp Applications
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalWhatsAppApplicantsValue" class="counter-value" data-target="{{ $totalWhatsAppApplicants }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_whatsapp_applicants" data-colors='["--vz-success"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            
+                <!-- Total Website -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Total Website Applications
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalWebsiteApplicantsValue" class="counter-value" data-target="{{ $totalWebsiteApplicants }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_website_applicants" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            </div> <!--end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Completion & Drp Off State
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Completion Rate -->
+                <div class="col-xl-6 col-md-6" id="completionRateColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Completion Rate
+                                    </p>
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="completionRateValue">
+                                            {{ $completionRate }}%
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-success mb-0">
+                                            Nationwide Average
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-success-subtle rounded-circle fs-2">
+                                            <i data-feather="check-circle" class="text-success"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+
+                <!-- Drop Off State -->
+                <div class="col-xl-6 col-md-6" id="dropOffStateColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Average Drop Off State
+                                    </p>
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="dropOffStateValue">
+                                            {{ $dropOffState }}
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average chatbot state where applicants drop off
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-danger-subtle rounded-circle fs-2">
+                                            <i data-feather="user-x" class="text-danger"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Demograhpic Information
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Talent Pool Demograhpic -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">
+                                Demograhpic (Talent Pool)
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <div class="card-body">
+                            <div id="talent_pool_applicants_demographic" data-colors='["--vz-success", "--vz-warning", "--vz-danger", "--vz-secondary"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div> <!-- end col -->
+
+                <!-- Interviewed Demograhpic -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">
+                                Demograhpic (Interviewed)
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <div class="card-body">
+                            <div id="interviewed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div> <!-- end col -->
+
+                <!-- Appointed Demograhpic -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">
+                                Demograhpic (Appointed)
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <div class="card-body">
+                            <div id="appointed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Province Information
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Talent Pool Province -->
+                <div class="col-xl-12 col-md-12">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">
+                                Location (Talent Pool)
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <div class="card-body">
+                            <div id="talent_pool_applicants_province" data-colors='["--vz-primary", "--vz-secondary", "--vz-info", "--vz-success", "--vz-warning", "--vz-danger", "--vz-pink", "--vz-gray", "--vz-purple"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div> <!-- end col -->   
+            </div> <!-- end row -->
+
             @if ($shortlist)
                 @include('manager.partials.shortlist-modal', ['shortlist' => $shortlist])
             @endif
@@ -511,8 +791,21 @@
     var totalInterviewsCompleted = @json($totalInterviewsCompleted);
     var totalApplicantsAppointed = @json($totalApplicantsAppointed);
     var totalApplicantsRegretted = @json($totalApplicantsRegretted);
+    var talentPoolApplicants = @json($talentPoolApplicants);
     var talentPoolApplicantsByMonth = @json($talentPoolApplicantsByMonth);
     var applicantsAppointedByMonth = @json($applicantsAppointedByMonth);
+    var literacyQuestionsCount = @json($literacyQuestionsCount);
+    var averageLiteracyScoreTalentPoolApplicants = @json($averageLiteracyScoreTalentPoolApplicants);
+    var numeracyQuestionsCount = @json($numeracyQuestionsCount);
+    var averageNumeracyScoreTalentPoolApplicants = @json($averageNumeracyScoreTalentPoolApplicants);
+    var situationalQuestionsCount = @json($situationalQuestionsCount);
+    var averageSituationalScoreTalentPoolApplicants = @json($averageSituationalScoreTalentPoolApplicants);
+    var totalWhatsAppApplicants = @json($totalWhatsAppApplicants);
+    var totalWebsiteApplicants = @json($totalWebsiteApplicants);
+    var talentPoolApplicantsDemographic = @json($talentPoolApplicantsDemographic);
+    var interviewedApplicantsDemographic = @json($interviewedApplicantsDemographic);
+    var appointedApplicantsDemographic = @json($appointedApplicantsDemographic);
+    var talentPoolApplicantsProvince = @json($talentPoolApplicantsProvince);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

@@ -3,10 +3,8 @@
 namespace App\Services\DataService;
 
 use Carbon\Carbon;
-use App\Models\Store;
 use App\Models\Vacancy;
 use App\Models\Interview;
-use App\Models\Shortlist;
 use Illuminate\Support\Facades\DB;
 
 class VacancyDataService

@@ -278,7 +278,7 @@
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0">
-                                            Store Average
+                                            Region Average
                                         </span>
                                     </p>
                                 </div>
@@ -310,7 +310,7 @@
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0">
-                                            Store Average
+                                            Region Average
                                         </span>
                                     </p>
                                 </div>

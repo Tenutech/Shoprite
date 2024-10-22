@@ -93,12 +93,6 @@ class ApplicantProximityService
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Average Distance Applicants Appointed
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Calculate the average distance between stores' coordinates and appointed applicants' coordinates for store, division, or region.
      *
@@ -202,9 +196,16 @@ class ApplicantProximityService
      */
     public function getTalentPoolApplicants(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore): int
     {
+        // Retrieve the complete state id
+        $completeStateID = State::where('code', 'complete')->value('id');
+        if (!$completeStateID) {
+            return 0; // Handle case where 'complete' state does not exist
+        }
+        
         // Check if the type is 'all' to get all applicants within the date range
         if ($type === 'all') {
             return Applicant::whereBetween('created_at', [$startDate, $endDate])
+                ->where('state_id', '>=', $completeStateID)
                 ->count(); // Simply return all applicants within the date range, ignoring distance
         }
 
@@ -222,12 +223,6 @@ class ApplicantProximityService
 
         if ($stores->isEmpty()) {
             return 0; // Return 0 if no stores are found for the given filter
-        }
-
-        // Retrieve the complete state id
-        $completeStateID = State::where('code', 'complete')->value('id');
-        if (!$completeStateID) {
-            return 0; // Handle case where 'complete' state does not exist
         }
 
         $applicantCount = 0;
@@ -283,9 +278,16 @@ class ApplicantProximityService
             $currentDate->addMonth();
         }
 
+        // Retrieve the complete state id
+        $completeStateID = State::where('code', 'complete')->value('id');
+        if (!$completeStateID) {
+            return $applicantsByMonth; // Return if 'complete' state does not exist
+        }
+
         // If the type is 'all', retrieve all applicants within the date range and group them by month
         if ($type === 'all') {
             $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                ->where('state_id', '>=', $completeStateID)
                 ->get();
 
             // Group applicants by the month of their creation date and count them
@@ -311,12 +313,6 @@ class ApplicantProximityService
 
         if ($stores->isEmpty()) {
             return $applicantsByMonth; // Return the array with months initialized to 0 if no stores found
-        }
-
-        // Retrieve the complete state id
-        $completeStateID = State::where('code', 'complete')->value('id');
-        if (!$completeStateID) {
-            return $applicantsByMonth; // Return if 'complete' state does not exist
         }
 
         // Loop through each store and calculate the applicants by month within the given distance
