@@ -87,7 +87,7 @@ class SamlController extends Saml2Controller
                 'avatar' => $avatar,
                 'internal' => 1,
                 'status_id' => 1,
-                'role_id' => 2,
+                'role_id' => 6,
                 'resident' => 1,
                 'company_id' => 1,
             ]);
