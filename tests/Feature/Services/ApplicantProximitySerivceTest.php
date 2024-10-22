@@ -52,7 +52,7 @@ it('returns the correct number of applicants by month for division', function ()
     ]);
 
     $service = new ApplicantProximityService();
-    $applicantsByMonth = $service->getDivisionTalentPoolApplicantsByMonth($division->id, $startDate, $endDate, $maxDistanceFromStore);
+    $applicantsByMonth = $service->getTalentPoolApplicantsByMonth('division', $division->id, $startDate, $endDate, $maxDistanceFromStore);
     
     expect($applicantsByMonth)->toEqual([
         'Jan' => 1,
@@ -98,7 +98,7 @@ it('returns the correct number of applicants by month for region', function () {
     ]);
 
    $service = new ApplicantProximityService();
-    $applicantsByMonth = $service->getRegionTalentPoolApplicantsByMonth($region->id, $startDate, $endDate, $maxDistanceFromStore);
+    $applicantsByMonth = $service->getTalentPoolApplicantsByMonth('region', $region->id, $startDate, $endDate, $maxDistanceFromStore);
 
     expect($applicantsByMonth)->toEqual([
         'Jan' => 1,

@@ -11,12 +11,6 @@ use Illuminate\Support\Facades\DB;
 
 class ApplicantProximityService
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Average Distance Applicants Appointed
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Calculate the average distance of talent pool applicants within a given distance from the store, division, or region.
      *
@@ -122,7 +116,7 @@ class ApplicantProximityService
         // Retrieve vacancies and stores based on the type (store, division, region) and date range
         $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
                 return $query->where('store_id', $id);
-            })
+        })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->whereHas('store', function ($q) use ($id) {
                     $q->where('division_id', $id);
@@ -171,12 +165,6 @@ class ApplicantProximityService
         }
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Calculate Distance
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Calculate the distance between two coordinates (latitude and longitude) in kilometers.
      *
@@ -202,12 +190,6 @@ class ApplicantProximityService
         return $earthRadius * $c; // Distance in kilometers
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Talent Pool Applicants
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Count the number of talent pool applicants within a given distance from the store, division, or region.
      *
@@ -223,7 +205,7 @@ class ApplicantProximityService
         // Get the store, division, or region based on the type
         $stores = Store::when($type === 'store', function ($query) use ($id) {
                 return $query->where('id', $id);
-            })
+        })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->where('division_id', $id);
             })
@@ -272,12 +254,6 @@ class ApplicantProximityService
         return $applicantCount;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Talent Pool Applicants By Month
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Get the number of talent pool applicants by month within a given distance from the store, division, or region.
      *
@@ -288,12 +264,12 @@ class ApplicantProximityService
      * @param float $maxDistanceFromStore The maximum distance from the store in kilometers.
      * @return array An array of applicants by month.
      */
-    public function getTalentPoolApplicantsByMonth(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore): array
+    public function getTalentPoolApplicantsByMonth(string $type = null, ?int $id = null, $startDate, $endDate, $maxDistanceFromStore): array
     {
         // Get stores based on the type (store, division, or region)
         $stores = Store::when($type === 'store', function ($query) use ($id) {
                 return $query->where('id', $id);
-            })
+        })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->where('division_id', $id);
             })
