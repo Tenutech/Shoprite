@@ -18,6 +18,94 @@ class ApplicantProximityService
     */
 
     /**
+     * Calculate the average distance of talent pool applicants within a given distance from the store, division, or region.
+     *
+     * @param string $type The type of filter (e.g., store, division, region).
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering.
+     * @param \Carbon\Carbon $endDate The end date for filtering.
+     * @param float $maxDistanceFromStore The maximum distance from the store in kilometers.
+     * @return float The average distance of applicants in kilometers.
+     */
+    public function getAverageDistanceTalentPoolApplicants(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore): float
+    {
+        // Get the stores based on the type (store, division, or region)
+        $stores = Store::when($type === 'store', function ($query) use ($id) {
+                return $query->where('id', $id);
+            })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->where('division_id', $id);
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->where('region_id', $id);
+            })
+            ->get();
+
+        if ($stores->isEmpty()) {
+            return 0; // Return 0 if no stores are found for the given filter
+        }
+
+        // Retrieve the complete state id
+        $completeStateID = State::where('code', 'complete')->value('id');
+        if (!$completeStateID) {
+            return 0; // Handle case where 'complete' state does not exist
+        }
+
+        $totalDistance = 0;
+        $applicantCount = 0;
+
+        // Loop through each store and calculate the applicants' distances within the given range
+        foreach ($stores as $store) {
+            if ($store->coordinates) {
+                $storeCoordinates = explode(',', $store->coordinates);
+                $storeLat = floatval($storeCoordinates[0]);
+                $storeLng = floatval($storeCoordinates[1]);
+
+                // Retrieve applicants within the distance range using MySQL ST_Distance_Sphere
+                $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                    ->where('state_id', '>=', $completeStateID)
+                    ->whereRaw("
+                        ST_Distance_Sphere(
+                            point(
+                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
+                                SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                            ), 
+                            point(?, ?)
+                        ) <= ?
+                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
+                    ->get();
+
+                // Calculate the total distance for each applicant
+                foreach ($applicants as $applicant) {
+                    if ($applicant->coordinates) {
+                        $applicantCoordinates = explode(',', $applicant->coordinates);
+                        $applicantLat = floatval($applicantCoordinates[0]);
+                        $applicantLng = floatval($applicantCoordinates[1]);
+
+                        // Calculate the distance between the store and the applicant
+                        $distance = $this->calculateDistance($storeLat, $storeLng, $applicantLat, $applicantLng);
+                        $totalDistance += $distance;
+                        $applicantCount++;
+                    }
+                }
+            }
+        }
+
+        // Calculate the average distance and return it
+        if ($applicantCount > 0) {
+            return round($totalDistance / $applicantCount, 1); // Average distance rounded to 2 decimal places
+        } else {
+            return 0; // Return 0 if no applicants are found
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Average Distance Applicants Appointed
+    |--------------------------------------------------------------------------
+    */
+
+    /**
      * Calculate the average distance between stores' coordinates and appointed applicants' coordinates for store, division, or region.
      *
      * @param string $type The type of filter (e.g., store, division, region).

@@ -559,8 +559,11 @@ function updateDashboard(data) {
     // Update region adoption rate
     $('#adoptionRateValue').text(data.regionAdoptionRate + '%');
 
+    // Update average distance talent pool applicants
+    $('#averageDistanceTalentPoolApplicantsValue').text(data.regionAverageDistanceTalentPoolApplicants + ' km');
+
     // Update average distance applicants appointed
-    $('#averageDistanceApplicantsAppointedValue').text(data.regionverageDistanceApplicantsAppointed + ' km');
+    $('#averageDistanceApplicantsAppointedValue').text(data.regionAverageDistanceApplicantsAppointed + ' km');
 
     // Update average score of appointed applicants
     $('#averageScoreApplicantsAppointedValue').text(data.regionAverageScoreApplicantsAppointed);

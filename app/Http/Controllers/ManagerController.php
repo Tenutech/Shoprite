@@ -119,6 +119,7 @@ class ManagerController extends Controller
             $storeAdoptionRate = 0;
 
             // Step 5: Initialize proximity data
+            $storeAverageDistanceTalentPoolApplicants = 0;
             $storeAverageDistanceApplicantsAppointed = 0;
 
             // Step 6: Fetch applicant score data
@@ -152,6 +153,7 @@ class ManagerController extends Controller
                 $storeAdoptionRate = ($storeTotalVacancies > 0) ? round($storeTotalVacanciesFilled / $storeTotalVacancies * 100) : 0;
 
                 // Step 5: Fetch proximity data from ApplicantProximityService
+                $storeAverageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $storeId, $startDate, $endDate, $maxDistanceFromStore);
                 $storeAverageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $storeId, $startDate, $endDate);
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
@@ -179,6 +181,7 @@ class ManagerController extends Controller
                 'storeAverageTimeToShortlist' => $storeAverageTimeToShortlist,
                 'storeAverageTimeToHire' => $storeAverageTimeToHire,
                 'storeAdoptionRate' => $storeAdoptionRate,
+                'storeAverageDistanceTalentPoolApplicants' => $storeAverageDistanceTalentPoolApplicants,
                 'storeAverageDistanceApplicantsAppointed' => $storeAverageDistanceApplicantsAppointed,
                 'storeAverageScoreApplicantsAppointed' => $storeAverageScoreApplicantsAppointed,
                 'storeTalentPoolApplicants' => $storeTalentPoolApplicants,
@@ -245,6 +248,7 @@ class ManagerController extends Controller
             $storeAdoptionRate = 0;
 
             // Step 5: Initialize proximity data
+            $storeAverageDistanceTalentPoolApplicants = 0;
             $storeAverageDistanceApplicantsAppointed = 0;
 
             // Step 6: Fetch applicant score data
@@ -278,6 +282,7 @@ class ManagerController extends Controller
                 $storeAdoptionRate = ($storeTotalVacancies > 0) ? round($storeTotalVacanciesFilled / $storeTotalVacancies * 100) : 0;
 
                 // Step 5: Fetch proximity data from ApplicantProximityService
+                $storeAverageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $storeId, $startDate, $endDate, $maxDistanceFromStore);
                 $storeAverageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $storeId, $startDate, $endDate);
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
@@ -303,6 +308,7 @@ class ManagerController extends Controller
                 'storeAverageTimeToShortlist' => $storeAverageTimeToShortlist,
                 'storeAverageTimeToHire' => $storeAverageTimeToHire,
                 'storeAdoptionRate' => $storeAdoptionRate,
+                'storeAverageDistanceTalentPoolApplicants' => $storeAverageDistanceTalentPoolApplicants,
                 'storeAverageDistanceApplicantsAppointed' => $storeAverageDistanceApplicantsAppointed,
                 'storeAverageScoreApplicantsAppointed' => $storeAverageScoreApplicantsAppointed,
                 'storeTalentPoolApplicants' => $storeTalentPoolApplicants,

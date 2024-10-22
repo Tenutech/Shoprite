@@ -361,13 +361,40 @@
             -------------------------------------------------------------------------------------->
 
             <div class="row g-3">
-                <!-- Average Proximity -->
-                <div class="col-xl-6 col-md-6">
+                <!-- Average Proximity Talent Pool -->
+                <div class="col-xl-4 col-md-4">
                     <div class="card card-animate">
                         <div class="card-header">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1">
-                                    Average Proximity
+                                    Average Proximity (Talent Pool)
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                    <span id="averageDistanceTalentPoolApplicantsValue" class="counter-value"  data-target="{{ $storeAverageDistanceTalentPoolApplicants }}">
+                                        0
+                                    </span>km 
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average distance of talent pool
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col -->
+
+                <!-- Average Proximity Appointed -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                    Average Proximity (Succesfull Placements)
                                 </h5>
                             </div>
                         </div>
@@ -389,7 +416,7 @@
                 </div> <!-- end col -->
 
                 <!-- Average Score -->
-                <div class="col-xl-6 col-md-6">
+                <div class="col-xl-4 col-md-4">
                     <div class="card card-animate">
                         <div class="card-header">
                             <div class="d-flex">

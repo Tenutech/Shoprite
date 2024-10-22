@@ -559,6 +559,9 @@ function updateDashboard(data) {
     // Update store adoption rate
     $('#adoptionRateValue').text(data.storeAdoptionRate + '%');
 
+    // Update average distance talent pool applicants
+    $('#averageDistanceTalentPoolApplicantsValue').text(data.storeAverageDistanceTalentPoolApplicants + ' km');
+
     // Update average distance applicants appointed
     $('#averageDistanceApplicantsAppointedValue').text(data.storeAverageDistanceApplicantsAppointed + ' km');
 

@@ -117,6 +117,7 @@ class RPPController extends Controller
             $regionAdoptionRate = 0;
 
             // Step 5: Initialize proximity data
+            $regionAverageDistanceTalentPoolApplicants = 0;
             $regionAverageDistanceApplicantsAppointed = 0;
 
             // Step 6: Fetch applicant score data
@@ -150,6 +151,7 @@ class RPPController extends Controller
                 $regionAdoptionRate = ($regionTotalVacancies > 0) ? round($regionTotalVacanciesFilled / $regionTotalVacancies * 100) : 0;
 
                 // Step 5: Fetch proximity data from ApplicantProximityService
+                $regionAverageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $regionId, $startDate, $endDate, $maxDistanceFromStore);
                 $regionAverageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $regionId, $startDate, $endDate);
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
@@ -177,6 +179,7 @@ class RPPController extends Controller
                 'regionAverageTimeToShortlist' => $regionAverageTimeToShortlist,
                 'regionAverageTimeToHire' => $regionAverageTimeToHire,
                 'regionAdoptionRate' => $regionAdoptionRate,
+                'regionAverageDistanceTalentPoolApplicants' => $regionAverageDistanceTalentPoolApplicants,
                 'regionAverageDistanceApplicantsAppointed' => $regionAverageDistanceApplicantsAppointed,
                 'regionAverageScoreApplicantsAppointed' => $regionAverageScoreApplicantsAppointed,
                 'regionTalentPoolApplicants' => $regionTalentPoolApplicants,
@@ -243,6 +246,7 @@ class RPPController extends Controller
             $regionAdoptionRate = 0;
 
             // Step 5: Initialize proximity data
+            $regionAverageDistanceTalentPoolApplicants = 0;
             $regionAverageDistanceApplicantsAppointed = 0;
 
             // Step 6: Fetch applicant score data
@@ -276,6 +280,7 @@ class RPPController extends Controller
                 $regionAdoptionRate = ($regionTotalVacancies > 0) ? round($regionTotalVacanciesFilled / $regionTotalVacancies * 100) : 0;
 
                 // Step 5: Fetch proximity data from ApplicantProximityService
+                $regionAverageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $regionId, $startDate, $endDate, $maxDistanceFromStore);
                 $regionAverageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $regionId, $startDate, $endDate);
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
@@ -301,6 +306,7 @@ class RPPController extends Controller
                 'regionAverageTimeToShortlist' => $regionAverageTimeToShortlist,
                 'regionAverageTimeToHire' => $regionAverageTimeToHire,
                 'regionAdoptionRate' => $regionAdoptionRate,
+                'regionAverageDistanceTalentPoolApplicants' => $regionAverageDistanceTalentPoolApplicants,
                 'regionAverageDistanceApplicantsAppointed' => $regionAverageDistanceApplicantsAppointed,
                 'regionAverageScoreApplicantsAppointed' => $regionAverageScoreApplicantsAppointed,
                 'regionTalentPoolApplicants' => $regionTalentPoolApplicants,

@@ -117,6 +117,7 @@ class DPPController extends Controller
             $divisionAdoptionRate = 0;
 
             // Step 5: Initialize proximity data
+            $divisionAverageDistanceTalentPoolApplicants = 0;
             $divisionAverageDistanceApplicantsAppointed = 0;
 
             // Step 6: Fetch applicant score data
@@ -150,6 +151,7 @@ class DPPController extends Controller
                 $divisionAdoptionRate = ($divisionTotalVacancies > 0) ? round($divisionTotalVacanciesFilled / $divisionTotalVacancies * 100) : 0;
 
                 // Step 5: Fetch proximity data from ApplicantProximityService
+                $divisionAverageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
                 $divisionAverageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $divisionId, $startDate, $endDate);
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
@@ -177,6 +179,7 @@ class DPPController extends Controller
                 'divisionAverageTimeToShortlist' => $divisionAverageTimeToShortlist,
                 'divisionAverageTimeToHire' => $divisionAverageTimeToHire,
                 'divisionAdoptionRate' => $divisionAdoptionRate,
+                'divisionAverageDistanceTalentPoolApplicants' => $divisionAverageDistanceTalentPoolApplicants,
                 'divisionAverageDistanceApplicantsAppointed' => $divisionAverageDistanceApplicantsAppointed,
                 'divisionAverageScoreApplicantsAppointed' => $divisionAverageScoreApplicantsAppointed,
                 'divisionTalentPoolApplicants' => $divisionTalentPoolApplicants,
@@ -243,6 +246,7 @@ class DPPController extends Controller
             $divisionAdoptionRate = 0;
 
             // Step 5: Initialize proximity data
+            $divisionAverageDistanceTalentPoolApplicants = 0;
             $divisionAverageDistanceApplicantsAppointed = 0;
 
             // Step 6: Fetch applicant score data
@@ -276,6 +280,7 @@ class DPPController extends Controller
                 $divisionAdoptionRate = ($divisionTotalVacancies > 0) ? round($divisionTotalVacanciesFilled / $divisionTotalVacancies * 100) : 0;
 
                 // Step 5: Fetch proximity data from ApplicantProximityService
+                $divisionAverageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
                 $divisionAverageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $divisionId, $startDate, $endDate);
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
@@ -301,6 +306,7 @@ class DPPController extends Controller
                 'divisionAverageTimeToShortlist' => $divisionAverageTimeToShortlist,
                 'divisionAverageTimeToHire' => $divisionAverageTimeToHire,
                 'divisionAdoptionRate' => $divisionAdoptionRate,
+                'divisionAverageDistanceTalentPoolApplicants' => $divisionAverageDistanceTalentPoolApplicants,
                 'divisionAverageDistanceApplicantsAppointed' => $divisionAverageDistanceApplicantsAppointed,
                 'divisionAverageScoreApplicantsAppointed' => $divisionAverageScoreApplicantsAppointed,
                 'divisionTalentPoolApplicants' => $divisionTalentPoolApplicants,

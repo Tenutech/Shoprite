@@ -559,6 +559,9 @@ function updateDashboard(data) {
     // Update division adoption rate
     $('#adoptionRateValue').text(data.divisionAdoptionRate + '%');
 
+    // Update average distance talent pool applicants
+    $('#averageDistanceTalentPoolApplicantsValue').text(data.divisionAverageDistanceTalentPoolApplicants + ' km');
+
     // Update average distance applicants appointed
     $('#averageDistanceApplicantsAppointedValue').text(data.divisionverageDistanceApplicantsAppointed + ' km');
 
