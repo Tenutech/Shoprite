@@ -116,7 +116,7 @@ class ApplicantProximityService
         // Retrieve vacancies and stores based on the type (store, division, region) and date range
         $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
                 return $query->where('store_id', $id);
-        })
+            })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->whereHas('store', function ($q) use ($id) {
                     $q->where('division_id', $id);
@@ -191,21 +191,27 @@ class ApplicantProximityService
     }
 
     /**
-     * Count the number of talent pool applicants within a given distance from the store, division, or region.
+     * Count the number of talent pool applicants within a given distance from the store, division, or region, or all applicants if type is 'all'.
      *
-     * @param string $type The type of filter (e.g., store, division, region).
+     * @param string $type The type of filter (e.g., store, division, region, or all).
      * @param int|null $id The ID of the store, division, or region to filter.
      * @param \Carbon\Carbon $startDate The start date for filtering.
      * @param \Carbon\Carbon $endDate The end date for filtering.
      * @param float $maxDistanceFromStore The maximum distance from the store in kilometers.
-     * @return int The count of talent pool applicants within the given distance.
+     * @return int The count of talent pool applicants within the given distance or all applicants if type is 'all'.
      */
     public function getTalentPoolApplicants(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore): int
     {
-        // Get the store, division, or region based on the type
+        // Check if the type is 'all' to get all applicants within the date range
+        if ($type === 'all') {
+            return Applicant::whereBetween('created_at', [$startDate, $endDate])
+                ->count(); // Simply return all applicants within the date range, ignoring distance
+        }
+
+        // Otherwise, proceed with filtering by store, division, or region
         $stores = Store::when($type === 'store', function ($query) use ($id) {
                 return $query->where('id', $id);
-        })
+            })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->where('division_id', $id);
             })
@@ -255,9 +261,9 @@ class ApplicantProximityService
     }
 
     /**
-     * Get the number of talent pool applicants by month within a given distance from the store, division, or region.
+     * Get the number of talent pool applicants by month within a given distance from the store, division, or region, or all applicants if type is 'all'.
      *
-     * @param string $type The type of filter (e.g., store, division, region).
+     * @param string|null $type The type of filter (e.g., store, division, region, or all).
      * @param int|null $id The ID of the store, division, or region to filter.
      * @param \Carbon\Carbon $startDate The start date for filtering.
      * @param \Carbon\Carbon $endDate The end date for filtering.
@@ -266,22 +272,6 @@ class ApplicantProximityService
      */
     public function getTalentPoolApplicantsByMonth(string $type = null, ?int $id = null, $startDate, $endDate, $maxDistanceFromStore): array
     {
-        // Get stores based on the type (store, division, or region)
-        $stores = Store::when($type === 'store', function ($query) use ($id) {
-                return $query->where('id', $id);
-        })
-            ->when($type === 'division', function ($query) use ($id) {
-                return $query->where('division_id', $id);
-            })
-            ->when($type === 'region', function ($query) use ($id) {
-                return $query->where('region_id', $id);
-            })
-            ->get();
-
-        if ($stores->isEmpty()) {
-            return []; // Return empty array if no stores found for the given filter
-        }
-
         // Initialize an array to hold the results, with months set to 0 from startDate to endDate
         $applicantsByMonth = [];
         $currentDate = $startDate->copy();
@@ -293,10 +283,40 @@ class ApplicantProximityService
             $currentDate->addMonth();
         }
 
+        // If the type is 'all', retrieve all applicants within the date range and group them by month
+        if ($type === 'all') {
+            $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                ->get();
+
+            // Group applicants by the month of their creation date and count them
+            foreach ($applicants as $applicant) {
+                $month = $applicant->created_at->format('M');
+                $applicantsByMonth[$month]++;
+            }
+
+            return $applicantsByMonth;
+        }
+
+        // Get stores based on the type (store, division, or region)
+        $stores = Store::when($type === 'store', function ($query) use ($id) {
+                return $query->where('id', $id);
+            })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->where('division_id', $id);
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->where('region_id', $id);
+            })
+            ->get();
+
+        if ($stores->isEmpty()) {
+            return $applicantsByMonth; // Return the array with months initialized to 0 if no stores found
+        }
+
         // Retrieve the complete state id
         $completeStateID = State::where('code', 'complete')->value('id');
         if (!$completeStateID) {
-            return []; // Handle case where 'complete' state does not exist
+            return $applicantsByMonth; // Return if 'complete' state does not exist
         }
 
         // Loop through each store and calculate the applicants by month within the given distance
@@ -322,9 +342,7 @@ class ApplicantProximityService
 
                 // Group applicants by the month of their creation date and count them
                 foreach ($applicants as $applicant) {
-                    // Get the month name from the created_at date (e.g., 'Jan', 'Feb', etc.)
                     $month = $applicant->created_at->format('M');
-                    // Increment the count for the corresponding month
                     $applicantsByMonth[$month]++;
                 }
             }

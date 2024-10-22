@@ -65,6 +65,10 @@
                                             <div class="input-group-text bg-primary border-primary text-white">
                                                 <i class="ri-calendar-2-line"></i>
                                             </div>
+                                            <!-- Refresh Button with Tooltip and a gap (margin-left) -->
+                                            <button class="btn btn-info ms-2" id="refreshBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh data" onclick="location.reload();">
+                                                <i class="ri-refresh-line align-bottom"></i>
+                                            </button>
                                         </div>
                                     </div> <!--end col-->
                                 </div> <!--end row -->
@@ -260,7 +264,7 @@
 
             <div class="row g-3">
                 <!-- Time to Shortlist -->
-                <div class="col-xl-4 col-md-4" id="storeAverageTimeToShortlistColumn">
+                <div class="col-xl-4 col-md-4" id="averageTimeToShortlistColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -292,7 +296,7 @@
                 </div> <!-- end col -->
 
                 <!-- Time to Hire -->
-                <div class="col-xl-4 col-md-4" id="storeAverageTimeToHireColumn">
+                <div class="col-xl-4 col-md-4" id="averageTimeToHireColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">

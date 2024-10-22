@@ -31,7 +31,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     //Update Data
 
-    Route::get('/updateData', [App\Http\Controllers\AdminController::class, 'updateData'])->name('admin.updateData');
+    Route::get('/update-dashboard', [App\Http\Controllers\AdminController::class, 'updateDashboard'])->name('admin.updateDashboard');
 
     //Vacancy Approvals
 
