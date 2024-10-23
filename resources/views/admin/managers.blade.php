@@ -82,16 +82,16 @@
                                         <th class="sort" data-sort="name" scope="col">Name</th>
                                         <th class="sort" data-sort="email" scope="col">Email</th>
                                         <th class="sort" data-sort="phone" scope="col">Phone</th>
-                                        <th class="sort" data-sort="id_number" scope="col">ID Number</th>
+                                        <th class="sort d-none" data-sort="id_number" scope="col">ID Number</th>
                                         <th class="sort d-none" data-sort="id_verified" scope="col">Verified</th>
                                         <th class="sort d-none" data-sort="birth_date" scope="col">Birth Date</th>
-                                        <th class="sort" data-sort="age" scope="col">Age</th>
-                                        <th class="sort" data-sort="gender" scope="col">Gender</th>
-                                        <th class="sort d-none" data-sort="resident" scope="col">Citizen Status</th>
-                                        <th class="sort d-none" data-sort="position" scope="col">Position</th>
-                                        <th class="sort" data-sort="role" scope="col">Role</th>
+                                        <th class="sort d-none" data-sort="age" scope="col">Age</th>
+                                        <th class="sort d-none" data-sort="gender" scope="col">Gender</th>
+                                        <th class="sort d-none" data-sort="role" scope="col">Role</th>
                                         <th class="sort" data-sort="store" scope="col">Store</th>
-                                        <th class="sort d-none" data-sort="internal" scope="col">Internal</th>
+                                        <th class="sort d-none" data-sort="division" scope="col">Division</th>
+                                        <th class="sort d-none" data-sort="region" scope="col">Region</th>                                        
+                                        <th class="sort d-none" data-sort="brand" scope="col">Brand</th>
                                         <th class="sort" data-sort="status" scope="col">Status</th>                          
                                         <th scope="col">Action</th>
                                     </tr>
@@ -116,16 +116,16 @@
                                                 </td>
                                                 <td class="email">{{ $user->email }}</td>
                                                 <td class="phone">{{ $user->phone }}</td>
-                                                <td class="id_number">{{ $user->id_number }}</td>
+                                                <td class="id_number d-none">{{ $user->id_number }}</td>
                                                 <td class="id_verified d-none">{{ $user->id_verified }}</td>
                                                 <td class="birth_date d-none">{{ $user->birth_date ? date('d M, Y', strtotime($user->birth_date)) : '' }}</td>
-                                                <td class="age">{{ $user->age }}</td>
-                                                <td class="gender">{{ $user->gender ? $user->gender->name : '' }}</td>
-                                                <td class="resident d-none">{{ $user->resident == 1 ? 'Born a Citizen' : 'Permanent Resident' }}</td>
-                                                <td class="position d-none">{{ $user->position ? $user->position->name : '' }}</td>
-                                                <td class="role">{{ $user->role ? $user->role->name : '' }}</td>
-                                                <td class="store">{{ $user->store ? optional($user->store->brand)->name.' ('.optional($user->store->town)->name.')' : '' }}</td>
-                                                <td class="internal d-none">{{ $user->internal == 1 ? 'Yes' : 'No' }}</td>
+                                                <td class="age d-none">{{ $user->age }}</td>
+                                                <td class="gender d-none">{{ $user->gender ? $user->gender->name : '' }}</td>
+                                                <td class="role d-none">{{ $user->role ? $user->role->name : '' }}</td>
+                                                <td class="store" style="white-space: pre-wrap;">{{ $user->store ? optional($user->store->brand)->name.' ('.optional($user->store)->name.')' : '' }}</td>
+                                                <td class="division d-none">{{ $user->division ? $user->division->name : '' }}</td>
+                                                <td class="region d-none">{{ $user->region ? $user->region->name : '' }}</td>
+                                                <td class="brand d-none">{{ $user->brand ? $user->brand->name : '' }}</td>
                                                 <td class="status">
                                                     <span class="badge bg-{{ $user->status->color }}-subtle text-{{ $user->status->color }} text-uppercase">
                                                         {{ $user->status->name }}
@@ -157,6 +157,12 @@
                                                                             Delete
                                                                         </a>
                                                                     </li>
+                                                                    <li>
+                                                                        <a class="dropdown-item password-item-btn" data-bs-toggle="modal" href="#resetPasswordModal">
+                                                                            <i class="ri-lock-fill align-bottom me-2 text-muted"></i>
+                                                                            Password
+                                                                        </a>
+                                                                    </li>
                                                                 </ul>
                                                             </div>
                                                         </li>
@@ -175,16 +181,16 @@
                                             <td class="name"></td>
                                             <td class="email"></td>
                                             <td class="phone"></td>
-                                            <td class="id_number"></td>
+                                            <td class="id_number d-none"></td>
                                             <td class="id_verified d-none"></td>
                                             <td class="birth_date d-none"></td>
-                                            <td class="age"></td>
-                                            <td class="gender"></td>
-                                            <td class="resident d-none"></td>
-                                            <td class="position d-none"></td>
-                                            <td class="role"></td>
-                                            <td class="store d-none"></td>
-                                            <td class="internal d-none"></td>
+                                            <td class="age d-none"></td>
+                                            <td class="gender d-none"></td>
+                                            <td class="role d-none"></td>
+                                            <td class="store" style="white-space: pre-wrap;"></td>                                            
+                                            <td class="division d-none"></td>
+                                            <td class="region d-none"></td>
+                                            <td class="brand d-none"></td>
                                             <td class="status"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
@@ -210,6 +216,12 @@
                                                                     <a class="dropdown-item remove-item-btn" data-bs-toggle="modal" href="#deleteRecordModal">
                                                                         <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
                                                                         Delete
+                                                                    </a>
+                                                                </li>
+                                                                <li>
+                                                                    <a class="dropdown-item password-item-btn" data-bs-toggle="modal" href="#resetPasswordModal">
+                                                                        <i class="ri-lock-fill align-bottom me-2 text-muted"></i>
+                                                                        Password
                                                                     </a>
                                                                 </li>
                                                             </ul>
@@ -329,29 +341,29 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="position" class="form-label">
-                                                        Position
-                                                    </label>
-                                                    <select id="position" name="position_id" class="form-control">
-                                                        <option value="" selected>Select Position</option>
-                                                        @foreach ($positions as $position)
-                                                            <option value="{{ $position->id }}">{{ $position->name }}</option>
-                                                        @endforeach
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
                                                     <label for="store" class="form-label">
                                                         Store
                                                     </label>
                                                     <select id="store" name="store_id" class="form-control">
                                                         <option value="" selected>Select Store</option>
                                                         @foreach ($stores as $store)
-                                                            <option value="{{ $store->id }}">{{ optional($store->brand)->name }} ({{ optional($store->town)->name }})</option>
+                                                            <option value="{{ $store->id }}">{{ optional($store->brand)->name }} ({{ $store->name }})</option>
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->                             
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="region"class="form-label">
+                                                        Region
+                                                    </label>
+                                                    <select id="region" name="region_id" class="form-control">
+                                                        <option value="" selected>Select Region</option>
+                                                        @foreach ($regions as $region)
+                                                            <option value="{{ $region->id }}">{{ $region->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!-- end col -->                                                                                                                      
                                             </div>
                                             <!--end col-->
 
@@ -389,22 +401,11 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="resident" class="form-label">
-                                                        Citizen Status
-                                                    </label>
-                                                    <select id="resident" name="resident" class="form-control">
-                                                        <option value="" selected>Select Option</option>
-                                                        <option value="0">Born a Citizen</option>
-                                                        <option value="1">Permanent Resident</option>
-                                                    </select>
-                                                </div>
-                                                <!--end col-->
-                                                <div class="col-lg-12 mb-3">
                                                     <label for="role" class="form-label">
                                                         Role
                                                     </label>
-                                                    <select id="role" name="role_id" class="form-control" required>
-                                                        <option value="" selected>Select Manager Role</option>
+                                                    <select id="role" name="role_id" class="form-control">
+                                                        <option value="" selected>Select Role</option>
                                                         @foreach ($roles as $role)
                                                             <option value="{{ $role->id }}">{{ $role->name }}</option>
                                                         @endforeach
@@ -412,16 +413,29 @@
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
-                                                    <label for="internal" class="form-label">
-                                                        Internal
+                                                    <label for="division" class="form-label">
+                                                        Division
                                                     </label>
-                                                    <select id="internal" name="internal" class="form-control">
-                                                        <option value="" selected>Select Option</option>
-                                                        <option value="0">No</option>
-                                                        <option value="1">Yes</option>
+                                                    <select id="division" name="division_id" class="form-control">
+                                                        <option value="" selected>Select Division</option>
+                                                        @foreach ($divisions as $division)
+                                                            <option value="{{ $division->id }}">{{ $division->name }}</option>
+                                                        @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->
+                                                <!--end col--> 
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="brand" class="form-label">
+                                                        Brand
+                                                    </label>
+                                                    <select id="brand" name="brand_id" class="form-control">
+                                                        <option value="" selected>Select Brand</option>
+                                                        @foreach ($brands as $brand)
+                                                            <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->   
                                             </div>
                                             <!--end col-->
                                         </div>
@@ -472,6 +486,70 @@
                     </div>
                     <!--end delete modal -->
 
+                    <!-- Reset Password Modal -->
+                    <div class="modal fade zoomIn" id="resetPasswordModal" tabindex="-1"
+                        aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="btn-close" id="resetPassword-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
+                                </div>
+                                <div class="modal-body p-5 text-center">
+                                    <lord-icon src="https://cdn.lordicon.com/sjoccsdj.json" trigger="loop" style="width:90px;height:90px"></lord-icon>
+                                    <div class="mt-4 text-center">
+                                        <h4 class="fs-semibold">
+                                            You are about to reset this user's password!
+                                        </h4>
+                                    </div>
+                                    <form id="formPassword" enctype="multipart/form-data">
+                                        @csrf
+                                        <input type="hidden" id="password-id" name="password_id"/>
+                                        <div class="mt-4">
+                                            <div class="col-lg-12">
+                                                <!-- Password -->
+                                                <div class="mb-2">
+                                                    <div class="position-relative auth-pass-inputgroup mb-3">
+                                                        <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" id="password" placeholder="Enter new password" autocomplete="off" required>
+                                                        <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon">
+                                                            <i class="ri-eye-fill align-middle"></i>
+                                                        </button>
+                                                        @error('password')
+                                                            <span class="invalid-feedback" role="alert">
+                                                                <strong>{{ e($message) }}</strong>
+                                                            </span>
+                                                        @enderror
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="col-lg-12">
+                                                <!-- Confirm Password -->
+                                                <div class="mb-2">
+                                                    <div class="position-relative auth-pass-inputgroup mb-3">
+                                                        <input type="password" class="form-control pe-5 password-input-confirmation @error('password_confirmation') is-invalid @enderror" name="password_confirmation" id="input-password-confirmation" placeholder="Confirm new password" autocomplete="off" required>
+                                                        <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon-confirmation">
+                                                            <i class="ri-eye-fill align-middle"></i>
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>                                        
+
+                                            <div class="hstack gap-2 justify-content-center remove">
+                                                <button class="btn btn-light" data-bs-dismiss="modal" id="resetPassword-close">
+                                                    <i class="ri-close-line me-1 align-middle"></i>
+                                                    Close
+                                                </button>
+                                                <button class="btn btn-success" id="password-reset">
+                                                    Reset Password!
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end password modal -->
                 </div>
             </div>
             <!--end card-->
@@ -507,40 +585,24 @@
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">ID Verified</td>
+                                    <td class="fw-medium" scope="row">Store</td>
+                                    <td></td>
+                                </tr>                                
+                                <tr>
+                                    <td class="fw-medium" scope="row">Division</td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">Birth Date</td>
+                                    <td class="fw-medium" scope="row">Region</td>
                                     <td></td>
                                 </tr>
                                 <tr>
-                                    <td class="fw-medium" scope="row">Age</td>
+                                    <td class="fw-medium" scope="row">Brand</td>
                                     <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium" scope="row">Gender</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Citizen Status</td>
-                                    <td class="d-none"></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Position</td>
-                                    <tdc class="d-none"></td>
                                 </tr>
                                 <tr>
                                     <td class="fw-medium" scope="row">Role</td>
                                     <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium" scope="row">Store</td>
-                                    <td></td>
-                                </tr>
-                                <tr>
-                                    <td class="fw-medium d-none" scope="row">Internal</td>
-                                    <td class="d-none"></td>
                                 </tr>
                             </tbody>
                         </table>

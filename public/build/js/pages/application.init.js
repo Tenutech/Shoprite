@@ -8,6 +8,112 @@ File: Form wizard Js File
 
 /*
 |--------------------------------------------------------------------------
+| Choices
+|--------------------------------------------------------------------------
+*/
+
+$(document).ready(function() {
+    var education = $('#education')[0]; // Get the first DOM element from the jQuery object
+    var educationChoices = new Choices(education, {
+        shouldSort: false,     // Disable sorting
+        searchEnabled: false   // Disable search
+    });
+
+    var duration = $('#duration')[0]; // Get the first DOM element from the jQuery object
+    var durationChoices = new Choices(duration, {
+        shouldSort: false,     // Disable sorting
+        searchEnabled: false   // Disable search
+    });
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| Google Maps
+|--------------------------------------------------------------------------
+*/
+
+function initAutocomplete() {
+    // Get the input element with data-google-autocomplete attribute
+    const addressInput = document.querySelector('[data-google-autocomplete]');
+
+    if (addressInput) {
+        // Initialize Google Places Autocomplete
+        const autocomplete = new google.maps.places.Autocomplete(addressInput, {
+            types: ['geocode'],  // Restrict to geocoding (address types)
+            componentRestrictions: { 'country': 'ZA' },  // Restrict to South Africa (optional)
+        });
+
+        // Flag to check if a valid place was selected
+        let placeSelected = false;
+
+        // When the user selects an address from the suggestions
+        autocomplete.addListener('place_changed', function () {
+            const place = autocomplete.getPlace();
+            placeSelected = true;
+
+            if (!place.geometry) {
+                // If no geometry is available, reset the input field
+                addressInput.value = '';
+                addressInput.classList.add('is-invalid');
+
+                // Show the correct error message right after the address input
+                const feedback = addressInput.nextElementSibling;  // This gets the closest sibling
+                feedback.textContent = 'Please select a verified address!';
+                feedback.style.display = 'block';  // Show the feedback element
+            } else {
+                // Valid address selected, remove error state
+                addressInput.classList.remove('is-invalid');
+
+                // Hide the feedback element
+                const feedback = addressInput.nextElementSibling;
+                feedback.textContent = '';
+                feedback.style.display = 'none';  // Hide the feedback
+
+                // Set lat/lng hidden fields
+                const lat = place.geometry.location.lat();
+                const lng = place.geometry.location.lng();
+                document.getElementById('latitude').value = lat;
+                document.getElementById('longitude').value = lng;
+            }
+        });
+
+        // Prevent browser autocomplete by disabling autofill
+        addressInput.setAttribute('autocomplete', 'off');
+
+        // Validate on field blur that the user selected a valid address
+        addressInput.addEventListener('blur', function () {
+            if (!placeSelected) {
+                // If the user didn't select a valid address, mark the field as invalid
+                addressInput.classList.add('is-invalid');
+                document.getElementById('latitude').value = '';
+                document.getElementById('longitude').value = '';
+
+                // Show error message and ensure display is set to block
+                const feedback = addressInput.nextElementSibling;  // Get the closest invalid-feedback
+                feedback.textContent = 'Please select a verified address!';
+                feedback.style.display = 'block';  // Force display to block
+            }
+        });
+
+        // Reset placeSelected when user starts typing again
+        addressInput.addEventListener('input', function () {
+            placeSelected = false;
+            addressInput.classList.remove('is-invalid');
+
+            // Hide error message
+            const feedback = addressInput.nextElementSibling;
+            feedback.textContent = '';
+            feedback.style.display = 'none';  // Hide feedback
+        });
+    }
+}
+
+// Load the Google Autocomplete on page load
+window.addEventListener('load', initAutocomplete);
+
+/*
+|--------------------------------------------------------------------------
 | Avatar
 |--------------------------------------------------------------------------
 */
@@ -71,6 +177,43 @@ if (document.querySelectorAll(".form-steps")) {
                         }
                     }
 
+                    // Add validation for the Google Places Autocomplete field (location)
+                    let addressValid = true;
+                    const activeTab = form.querySelector(".tab-pane.show");  // Get the active tab
+
+                    // Only validate the address if the location field exists on the current tab
+                    if (activeTab.querySelector('[data-google-autocomplete]')) {
+                        const addressInput = activeTab.querySelector('[data-google-autocomplete]');
+                        const latInput = document.getElementById('latitude');
+                        const lngInput = document.getElementById('longitude');
+
+                        if (addressInput) {
+                            // Check if latitude and longitude are filled in (indicating a valid place was selected)
+                            if (!latInput.value || !lngInput.value) {
+                                addressValid = false;
+                                addressInput.classList.add('is-invalid');
+                                addressInput.classList.remove('was-validated');
+                                const feedback = addressInput.nextElementSibling;
+                                feedback.textContent = 'Please select a verified address!';
+                                feedback.style.display = 'block';
+
+                                // Apply custom invalid border color
+                                addressInput.style.borderColor = 'var(--vz-form-invalid-border-color)';
+                            } else {
+                                addressInput.classList.remove('is-invalid');
+                                addressInput.classList.add('was-validated');
+                                const feedback = addressInput.nextElementSibling;
+                                feedback.style.display = 'none';
+
+                                // Apply custom valid border color
+                                addressInput.style.borderColor = 'var(--vz-form-valid-border-color)';
+                            }
+                        }
+                    } else {
+                        // If the location field is not on the current tab, skip address validation
+                        addressValid = true;
+                    }
+
                     // Check if the brands field contains '1' (All) along with other selected options
                     const brandsSelect = form.querySelector('select[name="brands[]"]');
                     const selectedBrands = Array.from(brandsSelect.selectedOptions).map(option => option.value);
@@ -81,12 +224,32 @@ if (document.querySelectorAll(".form-steps")) {
                         brandValid = false;
                         brandsSelect.classList.add('is-invalid');
                         let feedbackDiv = brandsSelect.closest('.mb-3').querySelector('.invalid-feedback');
-                        feedbackDiv.textContent = "You cannot select specific brands with 'All'.";
+                        feedbackDiv.textContent = "You cannot select specific brands with 'Any'.";
                         feedbackDiv.style.display = 'block';
+
+                        // Get the parent element with the class 'choices'
+                        let choicesDiv = brandsSelect.closest('.mb-3');
+
+                        // Add a border to the 'choices' div
+                        if(choicesDiv) {
+                            let choicesElement = choicesDiv.querySelector('.choices');
+                            if (choicesElement) {
+                                choicesElement.style.border = '1px solid #f17171';
+                            }
+                        }
                     } else {
                         brandsSelect.classList.remove('is-invalid');
                         let feedbackDiv = brandsSelect.closest('.mb-3').querySelector('.invalid-feedback');
                         feedbackDiv.style.display = 'none';
+
+                        // Reset border for the 'choices' div
+                        let choicesDiv = brandsSelect.closest('.mb-3');
+                        if(choicesDiv) {
+                            let choicesElement = choicesDiv.querySelector('.choices');
+                            if (choicesElement) {
+                                choicesElement.style.border = ''; // Reset border
+                            }
+                        }
                     }
 
                     // Check if all required fields have been filled
@@ -117,12 +280,12 @@ if (document.querySelectorAll(".form-steps")) {
                         return isValid;
                     });
 
-                    // Combine with custom brand validation
-                    valid = valid && brandValid;
-        
+                    // Combine with custom public holidays , enviroment and brand validation
+                    valid = valid && addressValid && brandValid;
+
                     // If validation passed, go to the next tab
                     if (!valid) {
-                        requiredFields.forEach(input => {                       
+                        requiredFields.forEach(input => {
                             if (input.type == "radio" && !input.validity.valid) {
                                 let alertDiv = form.querySelector(".tab-pane.show .alert-danger");
                                 if (!alertDiv) {
@@ -132,39 +295,39 @@ if (document.querySelectorAll(".form-steps")) {
                                     alertDiv.innerHTML = `<i class="ri-error-warning-line me-3 align-middle fs-16"></i><strong>Please select at least one option!</strong>
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>`;
                                     form.querySelector(".tab-pane.show").appendChild(alertDiv);
-                                }                                
-                            } 
-                            
-                            if (input.type == "select-multiple" && input.selectedOptions.length === 0) {                            
+                                }
+                            }
+
+                            if (input.type == "select-multiple" && input.selectedOptions.length === 0) {
                                 // Get the parent element with the class 'choices'
                                 let choicesDiv = input.closest('.mb-3');
-                            
+
                                 // Add a border to the 'choices' div
                                 if(choicesDiv) {
                                     choicesDiv.querySelector('.choices').style.border = '1px solid #f17171';
                                 }
-                            
+
                                 // Get the invalid feedback div which is the sibling of the 'choices' div
                                 let feedbackDiv = choicesDiv.querySelector('.invalid-feedback');
-                                
+
                                 // Display the invalid feedback message
                                 if (feedbackDiv) {
                                     feedbackDiv.style.display = 'block';
                                 }
-                            } 
-                            
+                            }
+
                             if (input.tagName === "SELECT" && !input.multiple && input.value === "") {
                                 // Get the parent element with the class 'choices'
                                 let choicesDiv = input.closest('.mb-3');
-                            
+
                                 // Add a border to the 'choices' div
                                 if(choicesDiv) {
                                     choicesDiv.querySelector('.choices').style.border = '1px solid #f17171';
                                 }
-                            
+
                                 // Get the invalid feedback div which is the sibling of the 'choices' div
                                 let feedbackDiv = choicesDiv.querySelector('.invalid-feedback');
-                                
+
                                 // Display the invalid feedback message
                                 if (feedbackDiv) {
                                     feedbackDiv.style.display = 'block';
@@ -187,13 +350,13 @@ if (document.querySelectorAll(".form-steps")) {
                                 if (feedbackDiv) {
                                     feedbackDiv.style.display = 'block';
                                 }
-                            }                           
+                            }
                         });
                     } else {
                         // If valid, reset the border and hide the invalid feedback message for all select-multiple inputs
                         form.querySelectorAll('select').forEach(input => {
                             let selectParentDiv = input.closest('.mb-3');
-                        
+
                             if (selectParentDiv) {
                                 // Reset border for both single and multiple selects
                                 let choicesDiv = selectParentDiv.querySelector('.choices');
@@ -203,16 +366,16 @@ if (document.querySelectorAll(".form-steps")) {
                                     // If there's no choices div, reset border on the select element itself
                                     input.style.border = '';
                                 }
-                        
+
                                 // Hide the invalid feedback message
                                 let feedbackDiv = selectParentDiv.querySelector('.invalid-feedback');
-                                
+
                                 if (feedbackDiv) {
                                     feedbackDiv.style.display = 'none';
                                 }
                             }
                         });
-                        
+
                         // Reset validation styles for text inputs
                         form.querySelectorAll('input[type="text"]').forEach(input => {
                             if (input.name === 'date' && input.value.trim() === '') {
@@ -232,16 +395,23 @@ if (document.querySelectorAll(".form-steps")) {
 
                         // If valid, move to the next tab
                         var currentActiveTabButton = form.querySelector('.nav-link.active');
-                
+
                         var nextTab = nextButton.getAttribute('data-nexttab');
-                
+
                         new bootstrap.Tab(document.getElementById(nextTab)).show();
-                
+
                         if (currentActiveTabButton) {
                             currentActiveTabButton.classList.add('done');
                         }
+
                         form.classList.remove('was-validated');
-                    }                                 
+
+                        // Scroll to the top of the page when moving to the next tab
+                        window.scrollTo({
+                            top: 0,
+                            behavior: 'smooth'  // Adds a smooth scrolling effect
+                        });
+                    }
 
                     // Call the updateNavLinks function to update the "disabled" class on the nav links
                     updateNavLinks();
@@ -278,7 +448,7 @@ if (document.querySelectorAll(".form-steps")) {
                         return;
                     }
                     form.classList.remove('was-validated');
-           
+
                     var getProgressBar = button.getAttribute("data-progressbar");
                     if (getProgressBar) {
                         var totalLength = document.getElementById("custom-progress-bar").querySelectorAll("li").length - 1;
@@ -310,10 +480,17 @@ if (document.querySelectorAll(".form-steps")) {
 $('#formApplication, #formApplicationUpdate').on('submit', function(e) {
     e.preventDefault();
 
-    var countryCode = $('#phoneCountry').text().trim().replace('+', '').trim();
+    // Get the country code and remove any spaces
+    var countryCode = $('.country-codeno').text().trim().replace(/\s+/g, '');
+
+    // Get the phone input element
     var phoneNumber = $('#phone').val().trim();
-    phoneNumber = '+' + countryCode + phoneNumber;
-    phoneNumber = phoneNumber.replace(/\s+/g, '');
+
+    // Check if the phone number already starts with the country code
+    if (!phoneNumber.startsWith(countryCode)) {
+        // If it doesn't start with the country code, add the country code
+        phoneNumber = countryCode + phoneNumber;
+    }
 
     var formID = $(this).attr('id');
     var formData = new FormData(this);
@@ -346,16 +523,23 @@ $('#formApplication, #formApplicationUpdate').on('submit', function(e) {
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
-        success:function(data){                
+        success:function(data){
             if (data.success == true){
                 $("#loading").addClass("d-none");
 
                 if (formID === 'formApplication') {
                     $('#id').val(data.encrypted_id);
-                    $('#formApplication').attr('id', 'formApplicationUpdate');
-                    $("#view-application").attr('href', route('profile.index', {id: data.encrypted_id}));
                     $("#confirm").remove();
-                    $("#complete").removeClass("d-none");
+
+                    // Check if applicant is not eligible
+                    if (data.applicant.public_holidays === 'No' || data.applicant.environment === 'No' || data.applicant.education_id === 1) {
+                        $("#view-application-2").attr('href', route('profile.index', {id: data.encrypted_id}));
+                        $("#regret").removeClass("d-none");
+                    } else {
+                        $('#formApplication').attr('id', 'formApplicationUpdate');
+                        $("#view-application").attr('href', route('profile.index', {id: data.encrypted_id}));
+                        $("#complete").removeClass("d-none");
+                    }
 
                     Swal.fire({
                         position: 'top-end',
@@ -366,7 +550,7 @@ $('#formApplication, #formApplicationUpdate').on('submit', function(e) {
                         toast: true,
                         showCloseButton: true
                     });
-                } else if (formID === 'formApplicationUpdate') {                        
+                } else if (formID === 'formApplicationUpdate') {
                     $('#lordicon').attr('src', 'https://cdn.lordicon.com/lupuorrc.json');
                     $('#completeHeading').text('Application Updated !');
                     $('#completeText').text('You have succesfully updated this application.');
@@ -381,7 +565,7 @@ $('#formApplication, #formApplicationUpdate').on('submit', function(e) {
                         toast: true,
                         showCloseButton: true
                     });
-                }      
+                }
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
@@ -391,6 +575,10 @@ $('#formApplication, #formApplicationUpdate').on('submit', function(e) {
             } else if (formID === 'formApplicationUpdate') {
                 $("#complete").show();
             }
+
+            // Strip the country code and revert the phone input to its original format
+            var phoneNumberWithoutCode = phoneNumber.replace(countryCode, '').replace(/^0+/, '');
+            $('#phone').val(phoneNumberWithoutCode);
 
             if (jqXHR.status === 400) {
                 Swal.fire({
@@ -415,7 +603,7 @@ $('#formApplication, #formApplicationUpdate').on('submit', function(e) {
                 $("#requiredAlert").html(errorsHtml);
                 // Show the requiredAlert div
                 $("#requiredAlert").addClass("show");
-        
+
                 setTimeout(function() {
                     $("#requiredAlert").removeClass("show");
                 }, 10000);
@@ -479,7 +667,7 @@ $('#editBtn').on('click', function () {
 
     // Step 2: Remove class done from steps
     $('.form-steps .nav-link').removeClass('done');
-    
+
     // Step 3: Change the src attribute of the lord-icon element
     $('#lordicon').attr('src', 'https://cdn.lordicon.com/nocovwne.json');
 

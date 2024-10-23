@@ -128,7 +128,7 @@ return [
 
     'cookie' => env(
         'SESSION_COOKIE',
-        Str::slug(env('APP_NAME', 'Orient'), '_').'_session'
+        Str::slug(env('APP_NAME', 'Shoprite - Job Opportunities'), '_').'_session'
     ),
 
     /*

@@ -109,14 +109,9 @@ document.getElementById('formRegister').addEventListener('submit', function(even
     // Get the phone input element
     let phoneInput = document.getElementById('phone');
 
-    // Remove the `+` and any spaces from the country code
-    let numericCountryCode = countryCode.replace('+', '');
-
-    // Check if the phone number already includes the country code
-    if (phoneInput.value.startsWith(numericCountryCode)) {
-        phoneInput.value = '+' + phoneInput.value; // Ensure the phone number starts with the full country code
-    } else {
-        // Add the country code to the phone number
+    // Check if the phone number already starts with the country code
+    if (!phoneInput.value.startsWith(countryCode)) {
+        // If it doesn't start with the country code, add the country code
         phoneInput.value = countryCode + phoneInput.value;
     }
 

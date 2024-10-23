@@ -33,7 +33,7 @@ class VacancyFactory extends Factory
                 return \App\Models\Type::factory()->create()->id;
             },
             'status_id' => function () {
-                return \App\Models\Status::factory()->create()->id;
+                return \App\Models\VacancyStatus::factory()->create()->id;
             },
             'open_positions' => $this->faker->numberBetween(1, 10),
             'filled_positions' => $this->faker->numberBetween(0, 10),

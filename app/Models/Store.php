@@ -53,6 +53,12 @@ class Store extends Model
         return $this->belongsTo(Division::class);
     }
 
+    //Users
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+
     /**
      * The attributes that should be logged.
      * @var bool

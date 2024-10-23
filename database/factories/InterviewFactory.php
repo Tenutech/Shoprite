@@ -21,8 +21,12 @@ class InterviewFactory extends Factory
     {
         return [
             'applicant_id' => Applicant::factory(),
-            'interviewer_id' => User::factory(),
-            'vacancy_id' => Vacancy::factory(), 
+            'interviewer_id' => function () {
+                return User::factory()->create()->id;
+            },
+            'vacancy_id' => function () {
+                return Vacancy::factory()->create()->id;
+            }, 
             'scheduled_date' => $this->faker->dateTimeBetween('+1 week', '+1 month'),
             'start_time' => '12:00:00',
             'end_time' => '13:00:00',

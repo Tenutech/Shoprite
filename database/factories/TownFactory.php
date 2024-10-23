@@ -16,7 +16,7 @@ class TownFactory extends Factory
             'name' => $this->faker->city,
             'code' => $this->faker->postcode,
             'province_id' => function () {
-                return \App\Models\Province::factory()->create()->id;
+                return Province::factory()->create()->id;
             },
             'district' => $this->faker->word,
             'seat' => $this->faker->boolean,

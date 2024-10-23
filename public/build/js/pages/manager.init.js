@@ -6,19 +6,92 @@ Contact: admin@tenutech.com
 File: job-statistics init js
 */
 
-/*
-|--------------------------------------------------------------------------
-| Show Unactioned Shortlist
-|--------------------------------------------------------------------------
-*/
-
 $(document).ready(function() {
+    /*
+    |--------------------------------------------------------------------------
+    | Show Unactioned Shortlist
+    |--------------------------------------------------------------------------
+    */
+
     // Check if the shortlist exists
     if (typeof shortlist !== 'undefined' && shortlist !== null) {
         // Show the modal when shortlist exists
         $('#unActionedShortlistModal').modal('show');
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Date Range
+    |--------------------------------------------------------------------------
+    */
+
+    // Get the first day of the current year and today's date
+    var startDate = new Date(new Date().getFullYear(), 0, 1); // Start of the year
+    var endDate = new Date(); // Today's date
+
+    // Initialize Flatpickr with the #dateFilter selector
+    flatpickr("#dateFilter", {
+        mode: "range",
+        dateFormat: "d M Y",
+        defaultDate: [formatDate(startDate), formatDate(endDate)], // Set default date range
+        onChange: function(selectedDates, dateStr, instance) {
+            if (selectedDates.length === 2) {
+                var startDate = selectedDates[0];
+                var endDate = selectedDates[1];
+    
+                // Send the date range via AJAX to update the dashboard
+                $.ajax({
+                    url: route('manager.updateDashboard'),
+                    type: "GET",
+                    data: {
+                        startDate: formatDateBeforeSend(startDate), // Format date for the request
+                        endDate: formatDateBeforeSend(endDate), // Format date for the request
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    success: function(response) {
+                        // Update the dashboard with the new data
+                        updateDashboard(response.data); // Pass the data to the updateDashboard function
+
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: response.message,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            showCloseButton: true,
+                            toast: true
+                        })    
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        let message = ''; // Initialize the message variable
+                    
+                        if (jqXHR.status === 400 || jqXHR.status === 422) {
+                            message = jqXHR.responseJSON.message;
+                        } else if (textStatus === 'timeout') {
+                            message = 'The request timed out. Please try again later.';
+                        } else {
+                            message = 'An error occurred while processing your request. Please try again later.';
+                        }
+                    
+                        // Trigger the Swal notification with the dynamic message
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'error',
+                            title: message,
+                            showConfirmButton: false,
+                            timer: 5000,
+                            showCloseButton: true,
+                            toast: true
+                        });
+                    }
+                });
+            }
+        }
+    });
 });
+
 
 /*
 |--------------------------------------------------------------------------
@@ -26,250 +99,21 @@ $(document).ready(function() {
 |--------------------------------------------------------------------------
 */
 
-// list js
+// Format dates as 'd M Y'
 function formatDate(date) {
-    var monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
-    ];
-    var d = new Date(date),
-        month = '' + monthNames[(d.getMonth())],
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-    if (month.length < 2)
-        month = '0' + month;
-    if (day.length < 2)
-        day = '0' + day;
-    return [day + " " + month, year].join(', ');
-};
-
-/*
-|--------------------------------------------------------------------------
-| Check Boxes
-|--------------------------------------------------------------------------
-*/
-
-var checkAll = document.getElementById("checkAll");
-if (checkAll) {
-  checkAll.onclick = function () {
-    var checkboxes = document.querySelectorAll('.form-check-all input[type="checkbox"]');
-    var checkedCount = document.querySelectorAll('.form-check-all input[type="checkbox"]:checked').length;
-    for (var i = 0; i < checkboxes.length; i++) {
-      checkboxes[i].checked = this.checked;
-      if (checkboxes[i].checked) {
-          checkboxes[i].closest("tr").classList.add("table-active");
-      } else {
-          checkboxes[i].closest("tr").classList.remove("table-active");
-      }
-    }
-
-    (checkedCount > 0) ? document.getElementById("remove-actions").style.display = 'none' : document.getElementById("remove-actions").style.display = 'block';
-  };
+    var day = String(date.getDate()).padStart(2, '0');
+    var month = date.toLocaleString('default', { month: 'short' });
+    var year = date.getFullYear();
+    return day + " " + month + " " + year;
 }
 
-/*
-|--------------------------------------------------------------------------
-| Vacancies List
-|--------------------------------------------------------------------------
-*/
-
-var perPage = 8;
-var editlist = false;
-
-//Table
-var options = {
-    valueNames: [
-        "id",
-        "type",
-        "open",
-        "filled",
-        "applicants",
-        "location",
-        "date",
-        "status",
-    ],
-    page: perPage,
-    pagination: true,
-    plugins: [
-        ListPagination({
-            left: 2,
-            right: 2
-        })
-    ]
-};
-
-// Init list
-var vacanciesList = new List("vacanciesList", options).on("updated", function (list) {
-    list.matchingItems.length == 0 ?
-        (document.getElementsByClassName("noresult")[0].style.display = "block") :
-        (document.getElementsByClassName("noresult")[0].style.display = "none");
-    
-    var isFirst = list.i == 1;
-    var isLast = list.i > list.matchingItems.length - list.page;
-
-    (document.querySelector(".pagination-prev.disabled")) ? document.querySelector(".pagination-prev.disabled").classList.remove("disabled"): '';
-    (document.querySelector(".pagination-next.disabled")) ? document.querySelector(".pagination-next.disabled").classList.remove("disabled"): '';
-
-    if (isFirst) {
-        document.querySelector(".pagination-prev").classList.add("disabled");
-    }
-    if (isLast) {
-        document.querySelector(".pagination-next").classList.add("disabled");
-    }
-    if (list.matchingItems.length <= perPage) {
-        document.querySelector(".pagination-wrap").style.display = "none";
-    } else {
-        document.querySelector(".pagination-wrap").style.display = "flex";
-    }
-
-    if (list.matchingItems.length > 0) {
-        document.getElementsByClassName("noresult")[0].style.display = "none";
-    } else {
-        document.getElementsByClassName("noresult")[0].style.display = "block";
-    }
-});
-
-ischeckboxcheck();
-
-document.querySelector("#vacanciesList").addEventListener("click", function () {
-    ischeckboxcheck();
-});
-
-var table = document.getElementById("vacanciesTable");
-// save all tr
-var tr = table.getElementsByTagName("tr");
-var trlist = table.querySelectorAll(".list tr");
-
-var count = 11;
-
-function ischeckboxcheck() {
-    Array.from(document.getElementsByName("chk_child")).forEach(function (x) {
-        x.addEventListener("change", function (e) {
-            if (x.checked == true) {
-                e.target.closest("tr").classList.add("table-active");
-            } else {
-                e.target.closest("tr").classList.remove("table-active");
-            }
-  
-            var checkedCount = document.querySelectorAll('[name="chk_child"]:checked').length;
-            if (e.target.closest("tr").classList.contains("table-active")) {
-                (checkedCount > 0) ? document.getElementById("remove-actions").style.display = 'block': document.getElementById("remove-actions").style.display = 'none';
-            } else {
-                (checkedCount > 0) ? document.getElementById("remove-actions").style.display = 'block': document.getElementById("remove-actions").style.display = 'none';
-            }
-        });
-    });
+// Format the date as 'Y-m-d'
+function formatDateBeforeSend(date) {
+    var day = String(date.getDate()).padStart(2, '0');
+    var month = String(date.getMonth() + 1).padStart(2, '0'); // Months are zero-based, so add 1
+    var year = date.getFullYear();
+    return year + '-' + month + '-' + day; // Format as 'Y-m-d'
 }
-
-function refreshCallbacks() {
-    if(removeBtns){
-        Array.from(removeBtns).forEach(function (btn) {
-            btn.addEventListener("click", function (e) {
-                e.target.closest("tr").children[1].innerText;
-                itemId = e.target.closest("tr").children[1].innerText;
-                var itemValues = vacanciesList.get({
-                    id: itemId,
-                });
-    
-                Array.from(itemValues).forEach(function (x) {
-                    deleteid = new DOMParser().parseFromString(x._values.id, "text/html");
-    
-                    var isElem = deleteid.body.firstElementChild;
-                    var isdeleteid = deleteid.body.firstElementChild.innerHTML;
-    
-                    if (isdeleteid == itemId) {
-                        document.getElementById("delete-record").addEventListener("click", function () {
-                            vacanciesList.remove("id", isElem.outerHTML);
-                            document.getElementById("deleteRecord-close").click();
-                        });
-                    }
-                });
-            });
-        });
-    }
-}
-
-function deleteMultiple(){
-    ids_array = [];
-    var items = document.getElementsByName('chk_child');
-    for (i = 0; i < items.length; i++) {
-        if (items[i].checked == true) {
-            var trNode = items[i].parentNode.parentNode.parentNode;
-            var id = trNode.querySelector("td a").innerHTML;
-            ids_array.push(id);
-        }
-    }
-    if (typeof ids_array !== 'undefined' && ids_array.length > 0) {
-        Swal.fire({
-            title: "Are you sure?",
-            text: "You won't be able to revert this!",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonClass: 'btn btn-primary w-xs me-2 mt-2',
-            cancelButtonClass: 'btn btn-danger w-xs mt-2',
-            confirmButtonText: "Yes, delete it!",
-            buttonsStyling: false,
-            showCloseButton: true
-        }).then(function (result) {
-            if (result.value) {
-                for (i = 0; i < ids_array.length; i++) {
-                    vacanciesList.remove("id", `<a href="javascript:void(0);" class="fw-medium link-primary">${ids_array[i]}</a>`);
-                }
-                document.getElementById("remove-actions").style.display = 'none';
-                document.getElementById("checkAll").checked = false;
-                Swal.fire({
-                    title: 'Deleted!',
-                    text: 'Your data has been deleted.',
-                    icon: 'success',
-                    confirmButtonClass: 'btn btn-info w-xs mt-2',
-                    buttonsStyling: false
-                });
-            }
-        });
-    } else {
-        Swal.fire({
-            title: 'Please select at least one checkbox',
-            confirmButtonClass: 'btn btn-info',
-            buttonsStyling: false,
-            showCloseButton: true
-        });
-    }
-}
-
-// Prevent default behavior for all pagination links created by List.js
-document.querySelectorAll(".listjs-pagination a").forEach(function(anchor) {
-    anchor.addEventListener("click", function(event) {
-        event.preventDefault();
-    });
-});
-
-document.querySelector(".pagination-wrap").addEventListener("click", function(event) {
-    // If the clicked element or its parent has the class .pagination-prev
-    if (event.target.classList.contains("pagination-prev") || (event.target.parentElement && event.target.parentElement.classList.contains("pagination-prev"))) {
-        event.preventDefault();
-        const activeElement = document.querySelector(".pagination.listjs-pagination")?.querySelector(".active");
-        if (activeElement) {
-            const previousElement = activeElement.previousElementSibling;
-            if (previousElement && previousElement.children[0]) {
-                previousElement.children[0].click();
-            }
-        }
-    }
-    
-    // If the clicked element or its parent is in the .listjs-pagination
-    if (event.target.closest(".listjs-pagination")) {
-        event.preventDefault();
-        event.target.click();
-    }
-    
-    // If the clicked element or its parent has the class .pagination-next
-    if (event.target.classList.contains("pagination-next") || (event.target.parentElement && event.target.parentElement.classList.contains("pagination-next"))) {
-        event.preventDefault();
-        const activeElement = document.querySelector(".pagination.listjs-pagination")?.querySelector(".active");
-        if (activeElement && activeElement.nextElementSibling && activeElement.nextElementSibling.children[0]) {
-            activeElement.nextElementSibling.children[0].click();
-        }
-    }
-});
 
 /*
 |--------------------------------------------------------------------------
@@ -303,297 +147,507 @@ function getChartColorsArray(chartId) {
 
 /*
 |--------------------------------------------------------------------------
-| Get Last 5 Months
+| Total Vacancies Filled
 |--------------------------------------------------------------------------
 */
 
-function getLast5Months() {
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-    
-    let months = [];
-    for (let i = 4; i >= 0; i--) {
-        let monthIndex = (currentMonth - i + 12) % 12;
-        let year = currentYear - (currentMonth < i ? 1 : 0);
-        months.push(`${monthNames[monthIndex]} '${year.toString().slice(-2)}`);
-    }    
-    return months;
+// Total Vacancies Filled
+var totalVacanciesFilled = getChartColorsArray("total_vacancies_filled");
+
+// Calculate percentage of filled vacancies
+var storeTotalVacancies = storeTotalVacancies || 0;
+var storeTotalVacanciesFilled = storeTotalVacanciesFilled || 0;
+var percentageFilled = 0;
+
+// Check for divide by zero and calculate percentage
+if (storeTotalVacancies > 0) {
+    percentageFilled = Math.round((storeTotalVacanciesFilled / storeTotalVacancies) * 100);
 }
 
-/*
-|--------------------------------------------------------------------------
-| Applications Sparkline Chart
-|--------------------------------------------------------------------------
-*/
-
-var areachartbitcoinColors = getChartColorsArray("applications_sparkline_chart");
-if (areachartbitcoinColors) {
+// Total Vacancies Filled Chart
+if (totalVacanciesFilled) {
     var options = {
-        series: [{
-            name: "Applications",
-            data: applicationsPerMonth.slice(-5),
-        },],
+        series: [percentageFilled], // Use the calculated percentage
         chart: {
-            width: 140,
-            type: "area",
+            type: 'radialBar',
+            width: 105,
             sparkline: {
-                enabled: true,
-            },
-            toolbar: {
-                show: false,
-            },
-        },
-        dataLabels: {
-            enabled: false,
-        },
-        stroke: {
-            curve: "smooth",
-            width: 1.5,
-        },
-        fill: {
-            type: "gradient",
-            gradient: {
-                shadeIntensity: 1,
-                inverseColors: false,
-                opacityFrom: 0.45,
-                opacityTo: 0.05,
-                stops: [50, 100, 100, 100],
-            },
-        },
-        colors: areachartbitcoinColors,
-        xaxis: {
-            categories: getLast5Months(),
-        }
-    };
-    var chart = new ApexCharts(document.querySelector("#applications_sparkline_chart"), options);
-    chart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Interviewed Sparkline Chart
-|--------------------------------------------------------------------------
-*/
-
-var areachartbitcoinColors = getChartColorsArray("interviewed_sparkline_chart");
-if (areachartbitcoinColors) {
-    var options = {
-        series: [{
-            name: "Interviewed",
-            data: interviewedPerMonth.slice(-5),
-        },],
-        chart: {
-            width: 140,
-            type: "area",
-            sparkline: {
-                enabled: true,
-            },
-            toolbar: {
-                show: false,
-            },
-        },
-        dataLabels: {
-            enabled: false,
-        },
-        stroke: {
-            curve: "smooth",
-            width: 1.5,
-        },
-        fill: {
-            type: "gradient",
-            gradient: {
-                shadeIntensity: 1,
-                inverseColors: false,
-                opacityFrom: 0.45,
-                opacityTo: 0.05,
-                stops: [50, 100, 100, 100],
-            },
-        },
-        colors: areachartbitcoinColors,
-        xaxis: {
-            categories: getLast5Months(),
-        }
-    };
-    var chart = new ApexCharts(document.querySelector("#interviewed_sparkline_chart"), options);
-    chart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Hired Sparkline Chart
-|--------------------------------------------------------------------------
-*/
-
-var areachartbitcoinColors = getChartColorsArray("hired_sparkline_chart");
-if (areachartbitcoinColors) {
-    var options = {
-        series: [{
-            name: "Appointed",
-            data: appointedPerMonth.slice(-5),
-        },],
-        chart: {
-            width: 140,
-            type: "area",
-            sparkline: {
-                enabled: true,
-            },
-            toolbar: {
-                show: false,
-            },
-        },
-        dataLabels: {
-            enabled: false,
-        },
-        stroke: {
-            curve: "smooth",
-            width: 1.5,
-        },
-        fill: {
-            type: "gradient",
-            gradient: {
-                shadeIntensity: 1,
-                inverseColors: false,
-                opacityFrom: 0.45,
-                opacityTo: 0.05,
-                stops: [50, 100, 100, 100],
-            },
-        },
-        colors: areachartbitcoinColors,
-        xaxis: {
-            categories: getLast5Months(),
-        }
-    };
-    var chart = new ApexCharts(document.querySelector("#hired_sparkline_chart"), options);
-    chart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Rejected Sparkline Chart
-|--------------------------------------------------------------------------
-*/
-
-var areachartbitcoinColors = getChartColorsArray("rejected_sparkline_chart");
-if (areachartbitcoinColors) {
-    var options = {
-        series: [{
-            name: "Rejected",
-            data: rejectedPerMonth.slice(-5),
-        },],
-        chart: {
-            width: 140,
-            type: "area",
-            sparkline: {
-                enabled: true,
-            },
-            toolbar: {
-                show: false,
-            },
-        },
-        dataLabels: {
-            enabled: false,
-        },
-        stroke: {
-            curve: "smooth",
-            width: 1.5,
-        },
-        fill: {
-            type: "gradient",
-            gradient: {
-                shadeIntensity: 1,
-                inverseColors: false,
-                opacityFrom: 0.45,
-                opacityTo: 0.05,
-                stops: [50, 100, 100, 100],
-            },
-        },
-        colors: areachartbitcoinColors,
-        xaxis: {
-            categories: getLast5Months(),
-        }
-    };
-    var chart = new ApexCharts(document.querySelector("#rejected_sparkline_chart"), options);
-    chart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Generate Data
-|--------------------------------------------------------------------------
-*/
-
-function getLast12Months() {
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
-    const currentYear = currentDate.getFullYear();
-    
-    let months = [];
-    for (let i = 11; i >= 0; i--) {
-        let monthIndex = (currentMonth - i + 12) % 12;
-        let year = currentYear - (currentMonth < i ? 1 : 0);
-        months.push(`${monthNames[monthIndex]} '${year.toString().slice(-2)}`);
-    }    
-    return months;
-}
-
-function generateRandomData(length, min, max) {
-    const data = [];
-    for (let i = 0; i < length; i++) {
-        data.push(Math.floor(Math.random() * (max - min + 1)) + min);
-    }
-    return data;
-}
-
-/*
-|--------------------------------------------------------------------------
-| Jobs Summary
-|--------------------------------------------------------------------------
-*/
-
-// Job Summary
-var revenueExpensesChartsColors = getChartColorsArray("jobs_chart");
-if (revenueExpensesChartsColors) {
-    var options = {
-        series: [{
-            name: 'Applications',
-            data: applicationsPerMonth
-        }, {
-            name: 'Interviews',
-            data: interviewedPerMonth
-        },
-        {
-            name: 'Hired',
-            data: appointedPerMonth
-        },
-        {
-            name: 'Rejected',
-            data: rejectedPerMonth
-        }],
-        chart: {
-            height: 320,
-            type: 'area',
-            toolbar: 'false',
+                enabled: true
+            }
         },
         dataLabels: {
             enabled: false
         },
+        plotOptions: {
+            radialBar: {
+                hollow: {
+                    margin: 0,
+                    size: '70%'
+                },
+                track: {
+                    margin: 1
+                },
+                dataLabels: {
+                    show: true,
+                    name: {
+                        show: false
+                    },
+                    value: {
+                        show: true,
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        offsetY: 8,
+                        // Show percentage inside the radial chart
+                        formatter: function(val) {
+                            return Math.round(val) + "%";
+                        }
+                    }
+                }
+            }
+        },
+        colors: totalVacanciesFilled
+    };
+
+    var totalVacanciesFilledChart = new ApexCharts(document.querySelector("#total_vacancies_filled"), options);
+    totalVacanciesFilledChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Total Interviews Completed
+|--------------------------------------------------------------------------
+*/
+
+// Total Interviews Completed
+var totalInterviewsCompleted = getChartColorsArray("total_interviews_completed");
+
+// Calculate percentage of completed interviews
+var storeTotalInterviewsScheduled = storeTotalInterviewsScheduled || 0;
+var storeTotalInterviewsCompleted = storeTotalInterviewsCompleted || 0;
+var percentageCompleted = 0;
+
+// Check for divide by zero and calculate percentage
+if (storeTotalInterviewsScheduled > 0) {
+    percentageCompleted = Math.round((storeTotalInterviewsCompleted / storeTotalInterviewsScheduled) * 100);
+}
+
+// Total Interviews Completed Chart
+if (totalInterviewsCompleted) {
+    var options = {
+        series: [percentageCompleted], // Use the calculated percentage
+        chart: {
+            type: 'radialBar',
+            width: 105,
+            sparkline: {
+                enabled: true
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        plotOptions: {
+            radialBar: {
+                hollow: {
+                    margin: 0,
+                    size: '70%'
+                },
+                track: {
+                    margin: 1
+                },
+                dataLabels: {
+                    show: true,
+                    name: {
+                        show: false
+                    },
+                    value: {
+                        show: true,
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        offsetY: 8,
+                        // Show percentage inside the radial chart
+                        formatter: function(val) {
+                            return Math.round(val) + "%";
+                        }
+                    }
+                }
+            }
+        },
+        colors: totalInterviewsCompleted
+    };
+
+    var totalInterviewsCompletedChart = new ApexCharts(document.querySelector("#total_interviews_completed"), options);
+    totalInterviewsCompletedChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Total Applicants Appointed
+|--------------------------------------------------------------------------
+*/
+
+// Total Applicants Appointed
+var totalApplicantsAppointed = getChartColorsArray("total_applicants_appointed");
+
+// Calculate percentage of appointed applicants
+var storeTotalApplicantsAppointed = storeTotalApplicantsAppointed || 0;
+var percentageAppointed = 0;
+
+// Check for divide by zero and calculate percentage for appointed applicants
+if (storeTotalInterviewsScheduled > 0) {
+    percentageAppointed = Math.round((storeTotalApplicantsAppointed / storeTotalInterviewsScheduled) * 100);
+}
+
+// Total Applicants Appointed Chart
+if (totalApplicantsAppointed) {
+    var options = {
+        series: [percentageAppointed], // Use the calculated percentage
+        chart: {
+            type: 'radialBar',
+            width: 105,
+            sparkline: {
+                enabled: true
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        plotOptions: {
+            radialBar: {
+                hollow: {
+                    margin: 0,
+                    size: '70%'
+                },
+                track: {
+                    margin: 1
+                },
+                dataLabels: {
+                    show: true,
+                    name: {
+                        show: false
+                    },
+                    value: {
+                        show: true,
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        offsetY: 8,
+                        // Show percentage inside the radial chart
+                        formatter: function(val) {
+                            return Math.round(val) + "%";
+                        }
+                    }
+                }
+            }
+        },
+        colors: totalApplicantsAppointed
+    };
+
+    var totalApplicantsAppointedChart = new ApexCharts(document.querySelector("#total_applicants_appointed"), options);
+    totalApplicantsAppointedChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Total Applicants Regretted
+|--------------------------------------------------------------------------
+*/
+
+// Total Applicants Regretted
+var totalApplicantsRegretted = getChartColorsArray("total_applicants_regretted");
+
+// Calculate percentage of regretted applicants
+var storeTotalApplicantsRegretted = storeTotalApplicantsRegretted || 0;
+var percentageRegretted = 0;
+
+// Check for divide by zero and calculate percentage for regretted applicants
+if (storeTotalInterviewsScheduled > 0) {
+    percentageRegretted = Math.round((storeTotalApplicantsRegretted / storeTotalInterviewsScheduled) * 100);
+}
+
+// Total Applicants Regretted Chart
+if (totalApplicantsRegretted) {
+    var options = {
+        series: [percentageRegretted], // Use the calculated percentage
+        chart: {
+            type: 'radialBar',
+            width: 105,
+            sparkline: {
+                enabled: true
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        plotOptions: {
+            radialBar: {
+                hollow: {
+                    margin: 0,
+                    size: '70%'
+                },
+                track: {
+                    margin: 1
+                },
+                dataLabels: {
+                    show: true,
+                    name: {
+                        show: false
+                    },
+                    value: {
+                        show: true,
+                        fontSize: '16px',
+                        fontWeight: 600,
+                        offsetY: 8,
+                        // Show percentage inside the radial chart
+                        formatter: function(val) {
+                            return Math.round(val) + "%";
+                        }
+                    }
+                }
+            }
+        },
+        colors: totalApplicantsRegretted
+    };
+
+    var totalApplicantsRegrettedChart = new ApexCharts(document.querySelector("#total_applicants_regretted"), options);
+    totalApplicantsRegrettedChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Talent Pool
+|--------------------------------------------------------------------------
+*/
+
+//  Talent Pool By Month Chart
+var talentPoolByMonth = getChartColorsArray("talent_pool_by_month");
+
+// Prepare default months from January to December
+var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+// Prepare the data for the chart
+var talentPoolData = storeTalentPoolApplicantsByMonth && Object.keys(storeTalentPoolApplicantsByMonth).length > 0
+    ? Object.values(storeTalentPoolApplicantsByMonth) // Extract values if not empty
+    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
+
+var appointedData = storeApplicantsAppointedByMonth && Object.keys(storeApplicantsAppointedByMonth).length > 0
+    ? Object.values(storeApplicantsAppointedByMonth) // Extract values if not empty
+    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
+
+// Get the months (x-axis categories)
+var months = Object.keys(storeTalentPoolApplicantsByMonth).length > 0 
+    ? Object.keys(storeTalentPoolApplicantsByMonth)  // Use the months from data if available
+    : defaultMonths; // Use default months if data is empty
+
+//  Talent Pool By Month Chart
+if (talentPoolByMonth) {
+    var options = {
+        chart: {
+            height: 380,
+            type: 'line',
+            zoom: {
+                enabled: false
+            },
+            toolbar: {
+                show: false
+            }
+        },
+        colors: talentPoolByMonth,
+        dataLabels: {
+            enabled: false,
+        },
         stroke: {
-            curve: 'smooth',
-            width: 2,
+            width: [3, 3],
+            curve: 'straight'
+        },
+        series: [{
+                name: "Total Talent Pool",
+                data: talentPoolData // Use dynamic data for Talent Pool
+            },
+            {
+                name: "Total Appointed",
+                data: appointedData // Use dynamic data for Appointed
+            }
+        ],
+        title: {
+            text: 'Total Talent Pool vs Total Appointed',
+            align: 'left',
+            style: {
+                fontWeight: 500,
+            },
+        },
+        grid: {
+            row: {
+                colors: ['transparent', 'transparent'],
+                opacity: 0.2
+            },
+            borderColor: '#f1f1f1'
+        },
+        markers: {
+            style: 'inverted',
+            size: 6
         },
         xaxis: {
-            categories: getLast12Months(),
+            categories:  months, // Use dynamic months from the view
+            title: {
+                text: 'Month'
+            }
         },
-        colors: revenueExpensesChartsColors,
-        fill: {
-            opacity: 0.06,
-            colors: revenueExpensesChartsColors,
-            type: 'solid'
+        yaxis: {
+            title: {
+                text: 'Total Applicants'
+            },
+            min: 0, // Adjust min to allow smaller values
+            max: Math.max(...talentPoolData, ...appointedData) + 5 // Set the max value based on the highest number in your data
+        },
+        legend: {
+            position: 'top',
+            horizontalAlign: 'right',
+            floating: true,
+            offsetY: -25,
+            offsetX: -5
+        },
+        responsive: [{
+            breakpoint: 600,
+            options: {
+                chart: {
+                    toolbar: {
+                        show: false
+                    }
+                },
+                legend: {
+                    show: false
+                },
+            }
+        }]
+    }
+
+    var talentPoolByMonthChart = new ApexCharts(document.querySelector("#talent_pool_by_month"), options);
+    talentPoolByMonthChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Dashboard
+|--------------------------------------------------------------------------
+*/
+
+// Function to update elements on the dashboard
+function updateDashboard(data) {
+    // Update total vacancies
+    $('#totalVacanciesValue').text(data.storeTotalVacancies);
+
+    // Update total vacancies filled
+    $('#totalVacanciesFilledValue').text(data.storeTotalVacanciesFilled);
+
+    // Update total interviews scheduled
+    $('#totalInterviewsScheduledValue').text(data.storeTotalInterviewsScheduled);
+
+    // Update total interviews completed
+    $('#totalInterviewsCompletedValue').text(data.storeTotalInterviewsCompleted);
+
+    // Update total applicants appointed
+    $('#totalApplicantsAppointedValue').text(data.storeTotalApplicantsAppointed);
+
+    // Update total applicants regretted
+    $('#totalApplicantsRegrettedValue').text(data.storeTotalApplicantsRegretted);
+
+    // Update average time to shortlist
+    $('#averageTimeToShortlistValue').text(data.storeAverageTimeToShortlist);
+
+    // Update average time to hire
+    $('#averageTimeToHireValue').text(data.storeAverageTimeToHire);
+
+    // Update store adoption rate
+    $('#adoptionRateValue').text(data.storeAdoptionRate + '%');
+
+    // Update average distance talent pool applicants
+    $('#averageDistanceTalentPoolApplicantsValue').text(data.storeAverageDistanceTalentPoolApplicants + ' km');
+
+    // Update average distance applicants appointed
+    $('#averageDistanceApplicantsAppointedValue').text(data.storeAverageDistanceApplicantsAppointed + ' km');
+
+    // Update average score of appointed applicants
+    $('#averageScoreApplicantsAppointedValue').text(data.storeAverageScoreApplicantsAppointed);
+
+    // Update talent pool applicants
+    $('#talentPoolApplicantsValue').text(data.storeTalentPoolApplicants);
+
+    // Update appointed applicants
+    $('#applicantsAppointedValue').text(data.storeApplicantsAppointed);
+
+    // Update radial charts
+    updateRadialChart(totalVacanciesFilledChart, data.storeTotalVacanciesFilled, data.storeTotalVacancies);
+    updateRadialChart(totalInterviewsCompletedChart, data.storeTotalInterviewsCompleted, data.storeTotalInterviewsScheduled);
+    updateRadialChart(totalApplicantsAppointedChart, data.storeTotalApplicantsAppointed, data.storeTotalInterviewsScheduled);
+    updateRadialChart(totalApplicantsRegrettedChart, data.storeTotalApplicantsRegretted, data.storeTotalInterviewsScheduled);
+
+    // Update the "Talent Pool By Month" chart
+    updateLineCharts(talentPoolByMonthChart, data.storeTalentPoolApplicantsByMonth, data.storeApplicantsAppointedByMonth);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Radial Charts
+|--------------------------------------------------------------------------
+*/
+
+// Function to update the radial chars
+function updateRadialChart(chartInstance, filledValue, totalValue) {
+    // Calculate percentage (check for divide by zero)
+    var percentage = 0;
+    if (totalValue > 0) {
+        percentage = Math.round((filledValue / totalValue) * 100);
+    }
+
+    // Update the series of the passed chart instance
+    chartInstance.updateSeries([percentage]);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Line Charts
+|--------------------------------------------------------------------------
+*/
+
+function updateLineCharts(chartInstance, storeTalentPoolApplicantsByMonth, storeApplicantsAppointedByMonth) {
+    // Get default months from January to December
+    var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+    // Prepare the data for the Talent Pool By Month Chart
+    var talentPoolData = storeTalentPoolApplicantsByMonth && Object.keys(storeTalentPoolApplicantsByMonth).length > 0
+        ? Object.values(storeTalentPoolApplicantsByMonth) // Extract values if not empty
+        : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
+
+    var appointedData = storeApplicantsAppointedByMonth && Object.keys(storeApplicantsAppointedByMonth).length > 0
+        ? Object.values(storeApplicantsAppointedByMonth) // Extract values if not empty
+        : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
+
+    // Get the months (x-axis categories)
+    var months = Object.keys(storeTalentPoolApplicantsByMonth).length > 0 
+        ? Object.keys(storeTalentPoolApplicantsByMonth)  // Use the months from data if available
+        : defaultMonths; // Use default months if data is empty
+
+    // Calculate max value for the y-axis dynamically
+    var maxYValue = Math.max(...talentPoolData, ...appointedData) + 5; // Add buffer to the maximum value
+
+    // Update chart options
+    chartInstance.updateOptions({
+        xaxis: {
+            categories: months // Update x-axis with dynamic months
+        },
+        yaxis: {
+            max: maxYValue // Dynamically update the y-axis maximum
         }
-    };
-    var chart = new ApexCharts(document.querySelector("#jobs_chart"), options);
-    chart.render();
+    });
+
+    // Update chart series data
+    chartInstance.updateSeries([
+        {
+            name: "Total Talent Pool",
+            data: talentPoolData // Use dynamic data for Talent Pool
+        },
+        {
+            name: "Total Appointed",
+            data: appointedData // Use dynamic data for Appointed
+        }
+    ]);
 }

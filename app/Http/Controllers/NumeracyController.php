@@ -69,7 +69,7 @@ class NumeracyController extends Controller
         //Validate
         $request->validate([
             'message' => ['required', 'string'],
-            'answer' => ['required', 'in:a,b,c,d'],
+            'answer' => ['required', 'in:a,b,c,d,e'],
             'sort' => ['required', 'integer']
         ]);
 
@@ -149,7 +149,7 @@ class NumeracyController extends Controller
         //Validate
         $request->validate([
             'message' => ['required', 'string'],
-            'answer' => ['required', 'in:a,b,c,d'],
+            'answer' => ['required', 'in:a,b,c,d,e'],
             'sort' => ['required', 'integer']
         ]);
 

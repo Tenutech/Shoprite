@@ -1,4 +1,4 @@
-name: Deploy to qa
+name: Deploy to QA
 
 on:
   push:
@@ -7,60 +7,6 @@ on:
   workflow_dispatch:
 
 jobs:
-  Test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v3
-
-      - name: Setup PHP Action
-        uses: shivammathur/setup-php@2.12.0
-        with:
-          php-version: 8.2.4
-          extensions: pdo_sqlite, sqlite3, xdebug
-
-      - name: Validate composer.json and composer.lock
-        run: composer validate
-
-      - name: Cache Composer packages
-        id: composer-cache
-        uses: actions/cache@v3
-        with:
-          path: vendor
-          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-php-
-            
-      - name: Install Dependencies
-        run: composer install --prefer-dist --no-progress --no-suggest --no-interaction
-
-      - name: Set Up Environment
-        run: |
-          mkdir -p storage/framework/views storage/framework/cache
-          mkdir -p database
-          touch database/database.sqlite
-          cp .env.testing .env
-          chmod -R 775 storage
-          php artisan config:cache
-          php artisan cache:clear
-
-      - name: Run Migrations
-        run: php artisan migrate --database=sqlite
-
-      - name: Run Tests with Coverage
-        run: ./vendor/bin/pest --coverage-html build/coverage
-
-      - name: Archive Code Coverage Results
-        uses: actions/upload-artifact@v4
-        with:
-          name: code-coverage-report
-          path: build/coverage
-
-      - name: Create Coverage Report Link
-        run: |
-          echo "Coverage report available at: [Coverage Report](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts)" >> $GITHUB_STEP_SUMMARY
-
   Deploy:
     runs-on: ubuntu-latest
 
@@ -75,61 +21,11 @@ jobs:
 
       - name: Deploy to QA Server
         env:
-          SSH_USER: ${{ secrets.SSH_QA_DEPLOYER_USERNAME }}
-          SERVER_IP: ${{ secrets.QA_SERVER_IP }}
+          SSH_USER: ${{ secrets.SSH_DEV_DEPLOYER_USERNAME }}
+          SERVER_IP: ${{ secrets.DEV_SERVER_IP }}
         run: |
-          ssh -o StrictHostKeyChecking=no $SSH_USER@$SERVER_IP << 'EOF'
-            export TZ="Africa/Johannesburg"
-            TIMESTAMP=$(date +%Y%m%d%H%M%S)
-            RELEASE_DIR="/var/www/qa.apply.shoprite.jobs/releases/$TIMESTAMP"
-            CURRENT_DIR="/var/www/qa.apply.shoprite.jobs/current"
-            SHARED_DIR="/var/www/qa.apply.shoprite.jobs/shared"
-
-            # Create the release directory
-            sudo -u www-data mkdir -p $RELEASE_DIR
-            
-            sudo chown www-data:www-data -R /var/www/qa.apply.shoprite.jobs/
-
-            # Clone the repository
-            sudo -u www-data git clone -b qa git@github.com:Tenutech/Shoprite.git $RELEASE_DIR
-
-            # Change to the release directory
-            cd $RELEASE_DIR
-
-            # Link the .env file and storage directory
-            sudo rm -R $RELEASE_DIR/storage
-            sudo ln -nfs $SHARED_DIR/.env .env
-            sudo ln -nfs $SHARED_DIR/storage storage
-
-            # Install dependencies
-            sudo -u www-data composer install --no-dev --optimize-autoloader
-
-            # Change ownership to www-data
-            sudo chown www-data:www-data -R /var/www/qa.apply.shoprite.jobs/
-
-            # Cache Laravel configurations and run optimizations
-            sudo -u www-data php artisan config:cache
-            sudo -u www-data php artisan route:cache
-            sudo -u www-data php artisan view:cache
-            sudo -u www-data php artisan optimize
-
-            # Run migrations
-            sudo -u www-data php artisan migrate --force
-
-            # Install npm dependencies and build assets
-            # sudo -u www-data npm install
-            # sudo -u www-data npm run build
-
-            # Update the current symlink to the new release
-            sudo -u www-data ln -sfn $RELEASE_DIR $CURRENT_DIR
-
-            # Restart Supervisor to apply changes
-            sudo supervisorctl reread
-            sudo supervisorctl update
-            sudo supervisorctl restart laravel-queue-worker:*
-
-            # Remove old releases, keeping only the last two
-            ls -dt /var/www/qa.apply.shoprite.jobs/releases/* | tail -n +3 | xargs sudo rm -rf
+          ssh -o StrictHostKeyChecking=no -p 50000 $SSH_USER@$SERVER_IP << 'EOF'
+            cd /home/support/shoprite_deployment && ansible-playbook -i inventories/qa/hosts --extra-vars "branch=qa env=qa" playbook-code-deploy.yml
           EOF
 
           

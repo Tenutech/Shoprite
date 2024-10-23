@@ -49,7 +49,7 @@ class TopbarServiceProvider extends ServiceProvider
             ->where('show', 'Yes')
             ->orderBy('created_at', 'desc')
             ->get()
-            ->groupBy(function($notification) {
+            ->groupBy(function ($notification) {
                 return $notification->subject_type . ':' . $notification->subject_id;
             })
             ->map(function ($groupedNotifications) {

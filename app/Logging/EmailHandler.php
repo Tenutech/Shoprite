@@ -45,10 +45,10 @@ class EmailHandler extends MailHandler
                 $record['message'],
                 $fileAndLine // Include the file and line information
             ],
-            'actionText' => 'Orient Recruitment',
+            'actionText' => 'Shoprite - Job Opportunities',
             'actionUrl' => $this->actionUrl,
             'userName' => $this->userName,
-            'company' => 'Orient',
+            'company' => 'Shoprite',
         ];
 
         // Send the email using the rendered HTML content

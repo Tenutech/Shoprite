@@ -6,6 +6,31 @@ Contact: admin@tenutech.com
 File: CRM-contact Js File
 */
 
+/*
+|--------------------------------------------------------------------------
+| Password Addon
+|--------------------------------------------------------------------------
+*/
+
+// Toggle visibility of password inputs
+document.querySelector("#password-addon").addEventListener("click", function () {
+    var passwordInput = document.querySelector("#password");
+    if (passwordInput.type === "password") {
+        passwordInput.type = "text";
+    } else {
+        passwordInput.type = "password";
+    }
+});
+
+document.querySelector("#password-addon-confirmation").addEventListener("click", function () {
+    var passwordInputConfirmation = document.querySelector("#input-password-confirmation");
+    if (passwordInputConfirmation.type === "password") {
+        passwordInputConfirmation.type = "text";
+    } else {
+        passwordInputConfirmation.type = "password";
+    }
+});
+
 //Format Date
 function formatDate(dateStr) {
     if (!dateStr) return ''; // Check for falsy input to avoid errors
@@ -47,11 +72,7 @@ var options = {
         "birth_date",
         "age",
         "gender",
-        "resident",
-        "position",
         "role",
-        "store",
-        "internal",
         "status"
     ],
     page: perPage,
@@ -130,16 +151,14 @@ var idField = document.getElementById("field-id"),
     birthDate = document.getElementById("birthDate"),
     age = document.getElementById("age"),
     gender = document.getElementById("gender"),
-    resident = document.getElementById("resident"),
-    position = document.getElementById("position"),
     role = document.getElementById("role"),
-    store = document.getElementById("store"),
-    internal = document.getElementById("internal"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
+    passwordBtn = document.getElementById("password-reset"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
     editBtns = document.getElementsByClassName("edit-item-btn");
     viewBtns = document.getElementsByClassName("view-item-btn");
+    passwordBtns = document.getElementsByClassName("password-item-btn");
 refreshCallbacks();
 
 document.getElementById("usersModal").addEventListener("show.bs.modal", function (e) {
@@ -186,27 +205,8 @@ var genderVal = new Choices(gender, {
     shouldSort: false
 });
 
-var residentVal = new Choices(resident, {
-    searchEnabled: false,
-    shouldSort: false
-});
-
-var positionVal = new Choices(position, {
-    searchEnabled: true,
-    shouldSort: false
-});
-
 var roleVal = new Choices(role, {
     searchEnabled: false
-});
-
-var storeVal = new Choices(store, {
-    searchEnabled: true
-});
-
-var internalVal = new Choices(internal, {
-    searchEnabled: false,
-    shouldSort: false
 });
 
 /*
@@ -244,34 +244,10 @@ addBtn.addEventListener("click", function (e) {
                         genderValue = '';
                     }
 
-                    if (resident.value) {
-                        residentValue = resident.options[resident.selectedIndex].text;
-                    } else {
-                        residentValue = '';
-                    }
-
-                    if (position.value) {
-                        positionValue = position.options[position.selectedIndex].text;
-                    } else {
-                        positionValue = '';
-                    }
-
                     if (role.value) {
                         roleValue = role.options[role.selectedIndex].text;
                     } else {
                         roleValue = '';
-                    }
-
-                    if (store.value) {
-                        storeValue = store.options[store.selectedIndex].text;
-                    } else {
-                        storeValue = '';
-                    }
-
-                    if (internal.value) {
-                        internalValue = internal.options[internal.selectedIndex].text;
-                    } else {
-                        internalValue = '';
                     }
 
                     userList.add({
@@ -287,11 +263,7 @@ addBtn.addEventListener("click", function (e) {
                         birth_date: formatDate(birthDate.value),
                         age: age.value,
                         gender: genderValue,
-                        resident: residentValue,
-                        position: positionValue,
                         role: roleValue,
-                        store: storeValue,
-                        internal: internalValue,
                         status: '<span class="badge bg-danger-subtle text-danger text-uppercase">\
                                     Offline\
                                 </span>'                     
@@ -384,34 +356,10 @@ editBtn.addEventListener("click", function (e) {
                                 genderValue = '';
                             }
         
-                            if (resident.value) {
-                                residentValue = resident.options[resident.selectedIndex].text;
-                            } else {
-                                residentValue = '';
-                            }
-        
-                            if (position.value) {
-                                positionValue = position.options[position.selectedIndex].text;
-                            } else {
-                                positionValue = '';
-                            }
-        
                             if (role.value) {
                                 roleValue = role.options[role.selectedIndex].text;
                             } else {
                                 roleValue = '';
-                            }
-        
-                            if (store.value) {
-                                storeValue = store.options[store.selectedIndex].text;
-                            } else {
-                                storeValue = '';
-                            }
-        
-                            if (internal.value) {
-                                internalValue = internal.options[internal.selectedIndex].text;
-                            } else {
-                                internalValue = '';
                             }
         
                             x.values({
@@ -427,11 +375,7 @@ editBtn.addEventListener("click", function (e) {
                                 birth_date: formatDate(birthDate.value),
                                 age: age.value,
                                 gender: genderValue,
-                                resident: residentValue,
-                                position: positionValue,
-                                role: roleValue,
-                                store: storeValue,
-                                internal: internalValue
+                                role: roleValue
                             });
                         }
                     });
@@ -477,6 +421,102 @@ editBtn.addEventListener("click", function (e) {
         })
     } else {
         form.reportValidity();
+    }
+});
+
+/*
+|--------------------------------------------------------------------------
+| Reset Password
+|--------------------------------------------------------------------------
+*/
+
+passwordBtn.addEventListener("click", function (e) {
+    e.preventDefault(); // Prevent the form from submitting naturally
+    var form = document.getElementById("formPassword");
+
+    // Password validation: check if the passwords match
+    var passwordInput = document.getElementById('password');
+    var confirmPasswordInput = document.getElementById('input-password-confirmation');
+
+    if (passwordInput.value !== confirmPasswordInput.value) {
+        // Prevent the form from submitting
+        event.preventDefault();
+
+        // Add 'is-invalid' class to both password input fields
+        passwordInput.classList.add('is-invalid');
+        confirmPasswordInput.classList.add('is-invalid');
+
+        // Display a custom error message if passwords don't match
+        var errorElement = confirmPasswordInput.parentNode.querySelector('.invalid-feedback');
+        if (!errorElement) {
+            errorElement = document.createElement('div');
+            errorElement.className = "invalid-feedback";
+            confirmPasswordInput.parentNode.appendChild(errorElement);
+        }
+        errorElement.innerText = "Passwords don't match";
+    } else {
+        // If passwords match, remove the invalid classes
+        passwordInput.classList.remove('is-invalid');
+        confirmPasswordInput.classList.remove('is-invalid');
+
+        // Proceed with the AJAX submission
+        var formData = new FormData(form);
+
+        $.ajax({
+            url: route('users.password'),
+            type: 'POST',
+            data: formData,
+            async: false,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function (data) {
+                if (data.success === true) {
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 2000,
+                        showCloseButton: true,
+                        toast: true
+                    });
+
+                    document.getElementById("resetPassword-close").click(); // Close the modal
+
+                    // Reset the password fields after success
+                    passwordInput.value = ''; // Clear the input value
+                    confirmPasswordInput.value = ''; // Clear the confirmation input value
+
+                    // Set both input fields back to type "password"
+                    passwordInput.type = 'password';
+                    confirmPasswordInput.type = 'password';
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                let message = '';
+
+                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
+                } else {
+                    message = 'An error occurred while processing your request. Please try again later.';
+                }
+
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
+            }
+        });
     }
 });
 
@@ -606,24 +646,8 @@ function refreshCallbacks() {
                     genderVal.setChoiceByValue(data.user.gender_id.toString());
                 }
 
-                if (data.user.resident !== null) {
-                    residentVal.setChoiceByValue(data.user.resident.toString());
-                }
-
-                if(data.user.position_id) {
-                    positionVal.setChoiceByValue(data.user.position_id.toString());
-                }
-
                 if(data.user.role_id) {
                     roleVal.setChoiceByValue(data.user.role_id.toString());
-                }
-
-                if(data.user.store_id) {
-                    storeVal.setChoiceByValue(data.user.store_id.toString());
-                }
-
-                if(data.user.internal) {
-                    internalVal.setChoiceByValue(data.user.internal.toString());
                 }
             });
         }
@@ -670,14 +694,6 @@ function refreshCallbacks() {
                                             <td>${x._values.id_number}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">ID Verified</td>
-                                            <td>${x._values.id_verified}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium" scope="row">Birth Date</td>
-                                            <td>${x._values.birth_date}</td>
-                                        </tr>
-                                        <tr>
                                             <td class="fw-medium" scope="row">Age</td>
                                             <td>${x._values.age}</td>
                                         </tr>
@@ -686,24 +702,12 @@ function refreshCallbacks() {
                                             <td>${x._values.gender}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium d-none" scope="row">Citizen Status</td>
-                                            <td class="d-none">${x._values.resident}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium d-none" scope="row">Position</td>
-                                            <td class="d-none">${x._values.position}</td>
-                                        </tr>
-                                        <tr>
                                             <td class="fw-medium" scope="row">Role</td>
                                             <td>${x._values.role}</td>
                                         </tr>
                                         <tr>
-                                            <td class="fw-medium" scope="row">Store</td>
-                                            <td>${x._values.store}</td>
-                                        </tr>
-                                        <tr>
-                                            <td class="fw-medium d-none" scope="row">Internal</td>
-                                            <td class="d-none">${x._values.internal}</td>
+                                            <td class="fw-medium" scope="row">Status</td>
+                                            <td>${x._values.status}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -716,6 +720,17 @@ function refreshCallbacks() {
                 }
             });
         });
+    });
+
+    // Add event listeners for password reset buttons
+    Array.from(passwordBtns).forEach(function (btn) {
+        btn.onclick = function (e) {
+            // Retrieve the itemId from the closest table row
+            itemId = e.target.closest("tr").children[1].innerText;
+            
+            // Set the hidden input field with the user ID
+            document.getElementById("password-id").value = itemId;
+        };
     });
 }
 
@@ -742,20 +757,8 @@ function clearFields() {
     genderVal.removeActiveItems();
     genderVal.setChoiceByValue("");
 
-    residentVal.removeActiveItems();
-    residentVal.setChoiceByValue("");
-
-    positionVal.removeActiveItems();
-    positionVal.setChoiceByValue("");
-
     roleVal.removeActiveItems();
     roleVal.setChoiceByValue("");
-
-    storeVal.removeActiveItems();
-    storeVal.setChoiceByValue("");
-
-    internalVal.removeActiveItems();
-    internalVal.setChoiceByValue("");
 }
 
 // Delete All Records

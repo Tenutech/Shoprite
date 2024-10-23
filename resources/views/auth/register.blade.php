@@ -41,7 +41,7 @@
                             <div class="card-body p-4">
                                 <div class="text-center mt-2">
                                     <h5 class="text-primary">Create New Account</h5>
-                                    <p class="text-muted">Get your free Orient account now</p>
+                                    <p class="text-muted">Get your free Shoprite Job Opportunities account now</p>
                                 </div>
                                 <div class="p-2 mt-4">
                                     <form class="needs-validation form-steps" id="formRegister" validate method="POST" action="{{ route('register') }}" enctype="multipart/form-data">
@@ -147,21 +147,6 @@
                                                     @enderror
                                                 </div>
                                             </div>
-
-                                            <div class="col-lg-12">
-                                                <!-- Email -->
-                                                <div class="mb-3">
-                                                    <label for="address" class="form-label">
-                                                        Address <span class="text-danger">*</span>
-                                                    </label>
-                                                    <input type="address" class="form-control @error('address') is-invalid @enderror" name="address" value="{{ e(old('address')) }}" id="address" placeholder="Enter your address" required>
-                                                    @error('emaaddressil')
-                                                        <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ e($message) }}</strong>
-                                                        </span>
-                                                    @enderror
-                                                </div>
-                                            </div>
                                     
                                             <div class="col-lg-6">
                                                 <!-- Password -->
@@ -185,7 +170,7 @@
                                     
                                             <div class="col-lg-6">
                                                 <!-- Confirm Password -->
-                                                <div class=" mb-4">
+                                                <div class="mb-4">
                                                     <label for="input-password">
                                                         Confirm Password <span class="text-danger">*</span>
                                                     </label>
@@ -200,29 +185,13 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                    
-                                            <div class="col-lg-12">
-                                                <!-- Profile Picture -->
-                                                <div class=" mb-4">
-                                                    <label for="input-avatar">Profile Picture</label>
-                                                    <input type="file" class="form-control @error('avatar') is-invalid @enderror" name="avatar" id="input-avatar" accept=".jpg, .jpeg, .png">
-                                                    @error('avatar')
-                                                        <span class="invalid-feedback" role="alert">
-                                                            <strong>{{ e($message) }}</strong>
-                                                        </span>
-                                                    @enderror
-                                                    <div class="">
-                                                        <i data-feather="file"></i>
-                                                    </div>
-                                                </div>
-                                            </div>
                                         </div>
                                     
                                         <div class="mb-4">
                                             <p class="mb-0 fs-12 text-muted fst-italic">
-                                                By registering you agree to the Orient
-                                                <a href="{{ route('terms') }}" class="text-primary text-decoration-underline fst-normal fw-medium">
-                                                    Terms of Use
+                                                By registering you agree to the
+                                                <a href="https://bit.ly/srtscsnew" class="text-primary text-decoration-underline fst-normal fw-medium">
+                                                    Terms & Conditions
                                                 </a>
                                             </p>
                                         </div>

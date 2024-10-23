@@ -415,50 +415,26 @@ $(document).on('submit', '#formVacancy, #formVacancyUpdate', function(e) {
                     $("#complete").show();
                 }
 
-                if (jqXHR.status === 400) {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: jqXHR.responseJSON.message,
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
-                } else if (jqXHR.status == 422) {
-                    $("#requiredAlert").addClass("show");
-                    var errors = $.parseJSON(jqXHR.responseText);
-                    $.each(errors.errors, function(key, val){
-                        $("input[name='" + key + "']").addClass("is-invalid");
-                        $("#" + key + "_error").text(val[0]);
-                    });
-
-                    setTimeout(function() {
-                        $("#requiredAlert").removeClass("show");
-                    }, 10000);
+                let message = ''; // Initialize the message variable
+        
+                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
                 } else {
-                    if (textStatus === 'timeout') {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'The request timed out. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    } else {
-                        Swal.fire({
-                            position: 'top-end',
-                            icon: 'error',
-                            title: 'An error occurred while processing your request. Please try again later.',
-                            showConfirmButton: false,
-                            timer: 5000,
-                            showCloseButton: true,
-                            toast: true
-                        });
-                    }
+                    message = 'An error occurred while processing your request. Please try again later.';
                 }
+            
+                // Trigger the Swal notification with the dynamic message
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
             }
         });
     } else {

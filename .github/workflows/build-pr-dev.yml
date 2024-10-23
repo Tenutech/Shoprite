@@ -34,7 +34,6 @@ jobs:
         run: |
           mkdir -p storage/framework/views storage/framework/cache
           mkdir -p database
-          touch database/database.sqlite
           cp .env.testing .env
           chmod -R 775 storage
 
@@ -57,13 +56,21 @@ jobs:
         if: env.LINTING_REQUIRED == 'true'
         run: composer run lint
 
-      # - name: PSR2 Code Sniffer
-      #   if: env.LINTING_REQUIRED == 'true'
-      #   run: composer run style
-
   Test:
     runs-on: ubuntu-latest
     needs: Lint
+
+    services:
+      mysql:
+        image: mysql:8.0
+        options: --health-cmd="mysqladmin ping --silent" --health-interval=10s --health-timeout=5s --health-retries=3
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: shoprite_test
+          MYSQL_USER: user
+          MYSQL_PASSWORD: password
+        ports:
+          - 3306:3306
 
     steps:
       - name: Checkout
@@ -73,7 +80,7 @@ jobs:
         uses: shivammathur/setup-php@2.12.0
         with:
           php-version: 8.2.4
-          extensions: pdo_sqlite, sqlite3, xdebug
+          extensions: pdo_mysql, xdebug
 
       - name: Validate composer.json and composer.lock
         run: composer validate
@@ -90,15 +97,29 @@ jobs:
       - name: Set Up Environment
         run: |
           mkdir -p storage/framework/views storage/framework/cache
-          mkdir -p database
-          touch database/database.sqlite
           cp .env.testing .env
           chmod -R 775 storage
           php artisan config:cache
           php artisan cache:clear
 
+      - name: Configure MySQL in .env
+        run: |
+          sed -i 's/DB_CONNECTION=sqlite/DB_CONNECTION=mysql/' .env.testing
+          sed -i 's/DB_DATABASE=.*/DB_DATABASE=shoprite_test/' .env.testing
+          sed -i 's/DB_USERNAME=.*/DB_USERNAME=user/' .env.testing
+          sed -i 's/DB_PASSWORD=.*/DB_PASSWORD=password/' .env.testing
+          sed -i 's/DB_HOST=.*/DB_HOST=127.0.0.1/' .env.testing
+
+      - name: Wait for MySQL
+        run: |
+          sudo apt-get install -y mysql-client
+          until mysql -h 127.0.0.1 -u user -ppassword -e "SHOW DATABASES;" > /dev/null 2>&1; do
+            echo "Waiting for MySQL to be ready..."
+            sleep 10
+          done
+
       - name: Run Migrations
-        run: php artisan migrate --database=sqlite
+        run: php artisan migrate --force
 
       - name: Run Tests with Coverage
         run: ./vendor/bin/pest --coverage-html build/coverage

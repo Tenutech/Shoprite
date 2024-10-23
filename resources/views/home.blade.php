@@ -10,6 +10,7 @@
 
 <div class="row mt-5">
     @if ($user->applicant)
+
         <div class="col">
             <div class="h-100 text-center">
                 <div class="row mb-3 pb-1">
@@ -20,10 +21,14 @@
                                     Thank You
                                 </h1>
                                 <p class="fs-16 text-muted mb-0">
-                                    We are currently reviewing your application. If you qualify for the next steps, you will receive an invitation for an interview. Please keep an eye on your email and WhatsApp for further updates.
+                                    Yor application has been submitted!
                                 </p>
                                 <p class="fs-16 text-muted mb-0">
-                                    Should you have any questions or require assistance, feel free to reach out. We're here to help!
+                                    @if ($user->applicant->public_holidays === 'No' || $user->applicant->environment === 'No' || $user->applicant->education_id === 1)
+                                        You are not <b>eligible</b> for this position. Have a wonderful day!
+                                    @else
+                                        You will be informed if you are <b>selected</b> for an interview.
+                                    @endif
                                 </p>
                             </div>
                         </div><!-- end card header -->
@@ -134,45 +139,36 @@
                                         <div class="tab-pane fade show active" id="v-pills-welcome" role="tabpanel" aria-labelledby="v-pills-welcome-tab">
                                             <div class="text-center pt-4 pb-2" id="welcome">
                                                 <div class="mb-4">
-                                                    <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" state="hover-2" 
-                                                            colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
+                                                    <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" state="hover-2" colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
                                                 </div>
-                                                
-                                                <h5 class="mb-3">Welcome to the Shoprite Employment Application!</h5>
-                                                
+
+                                                <h5 class="mb-3">Welcome to our store <b><em>employment journey</em></b>!</h5>
+
                                                 <p class="text-muted">
-                                                    You are applying for a position at the Shoprite Group. Your answers will replace the need 
-                                                    to submit a physical CV. Please set aside 30 minutes to complete the process.
+                                                    This process will take about 20 minutes, so please find a quiet spot to focus and carefully answer each question.
                                                 </p>
-                                                
+
                                                 <p class="text-muted">
-                                                    By proceeding, you consent to the processing of your personal information in accordance 
-                                                    with the Protection of Personal Information Act (POPIA) and accept our 
-                                                    <a href="{{ route('terms') }}" class="text-primary text-decoration-underline fst-normal fw-medium" target="_blank">
-                                                        Terms of Use
-                                                    </a>.
+                                                    By continuing, you acknowledge and <b><em>consent</em></b> to our terms and conditions of employment as part of your application
+                                                    with the Shoprite Group of Companies, and you give <b><em>consent</em></b> for credential verification checks, including
+                                                    criminal checks, to be conducted.
                                                 </p>
-                                                
+
                                                 <p class="text-muted">
-                                                    The Shoprite Group reserves the right to conduct Credential Verification Checks, 
-                                                    including Criminal Checks. Do you give consent for these checks?
-                                                </p>
-                                            
-                                                <p class="text-muted">
-                                                    By continuing this application, you acknowledge and consent to our 
+                                                    You can view the T's and C's here:
                                                     <a href="https://bit.ly/srtscsnew" class="text-primary text-decoration-underline fst-normal fw-medium" target="_blank">
                                                         Terms and Conditions
                                                     </a>.
                                                 </p>
-                                            
+
                                                 <!-- Centered Label and Checkbox -->
                                                 <div class="text-center mt-3">
                                                     <!-- Label above checkbox -->
                                                     <label class="form-check-label mb-2" for="consent">
-                                                        I agree to the Terms and Conditions, and I consent to the Credential Verification Checks.
+                                                        I agree to the terms and conditions, and I consent to the credential verification checks.
                                                         <span class="text-danger">*</span>
                                                     </label>
-                                                    
+
                                                     <!-- Larger centered checkbox on a new line -->
                                                     <div>
                                                         <input class="form-check-input" type="checkbox" id="consent" name="consent" required style="transform: scale(1.5);">
@@ -181,12 +177,12 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            
+
                                                 <!-- Start button -->
                                                 <div class="mt-4">
-                                                    <button type="button" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill nexttab" 
+                                                    <button type="button" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill nexttab"
                                                             data-nexttab="v-pills-personal-tab">
-                                                        <i class="ri-play-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-play-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         Start!
                                                     </button>
                                                 </div>
@@ -201,9 +197,6 @@
                                         <div class="tab-pane fade" id="v-pills-personal" role="tabpanel" aria-labelledby="v-pills-personal-tab">
                                             <div>
                                                 <h5>Personal Information</h5>
-                                                <p class="text-muted">
-                                                    Provide your basic details to help us understand your background better.
-                                                </p>
                                             </div>
 
                                             <div>
@@ -226,14 +219,14 @@
                                                                         <img src="{{ URL::asset($user->applicant ? ($user->applicant->avatar ? $user->applicant->avatar : 'images/avatar.jpg') : ($user->avatar ? 'images/'.$user->avatar : 'images/avatar.jpg')) }}" alt="" id="preview" class="avatar-lg rounded-circle object-cover" >
                                                                     </div>
                                                                 </div>
-                                                            </div>                                                        
+                                                            </div>
                                                         </div>
                                                         <label for="avatar" class="form-label">
                                                             Please upload a clear picture of your South African ID. (Max 5MB)
                                                             <span class="badge bg-secondary-subtle text-secondary badge-border">
                                                                 Optional
                                                             </span>
-                                                        </label>                                                  
+                                                        </label>
                                                     </div>
 
                                                     <!-- Fistname -->
@@ -249,7 +242,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    
+
                                                     <!-- Lastname -->
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
@@ -268,7 +261,7 @@
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
                                                             <label for="idNumber" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Please provide your South African ID number.">
-                                                                ID number
+                                                                ID Number
                                                                 <span class="text-danger">*</span>
                                                             </label>
                                                             <input type="text" class="form-control" id="idNumber" name="id_number" placeholder="Enter ID number" value="{{ $user->applicant ? $user->applicant->id_number : ($user->id_number ? $user->id_number : '') }}" readonly />
@@ -282,7 +275,7 @@
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
                                                             <label for="phone" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Please provide the phone number that we can contact you via WhatsApp.">
-                                                                Phone Number 
+                                                                Phone Number
                                                                 <span class="text-danger">*</span>
                                                             </label>
                                                             <div class="input-group" data-input-flag>
@@ -307,14 +300,16 @@
                                                     <!-- Address -->
                                                     <div class="col-md-12">
                                                         <div class="mb-3">
-                                                            <label for="location" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="What is your current residential address where you stay/live 🏡? Please type every detail. (e.g. street number, street name, suburb, town, postal code).">
+                                                            <label for="location" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="What is your current home address where you stay/live 🏡? Please type every detail. (e.g. street number, street name, suburb, town, postal code).">
                                                                 Address
                                                                 <span class="text-danger">*</span>
                                                             </label>
-                                                            <input type="text" class="form-control" id="location" name="location" placeholder="Enter physical address" value="{{ $user->applicant ? $user->applicant->location : ($user->address ? $user->address : '') }}" required />
+                                                            <input type="text" class="form-control" id="location" name="location" placeholder="Enter home address" value="{{ $user->applicant ? $user->applicant->location : '' }}" data-google-autocomplete autocomplete="off" required />
                                                             <div class="invalid-feedback">
-                                                                Please enter your physical address!
+                                                                Please enter your home address!
                                                             </div>
+                                                            <input type="hidden" id="latitude" name="latitude" value="">
+                                                            <input type="hidden" id="longitude" name="longitude" value="">
                                                         </div>
                                                     </div>
 
@@ -332,7 +327,7 @@
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select your ethnicity!</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Email -->
@@ -345,8 +340,8 @@
                                                                 </span>
                                                             </label>
                                                             <input type="email" class="form-control" id="email" name="email" placeholder="Enter email address" value="{{ $user->applicant ? $user->applicant->email : ($user->email ? $user->email : '') }}" />
-                                                        </div>                                                        
-                                                    </div>                                                
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             </div>
 
@@ -373,14 +368,11 @@
                                         <div class="tab-pane fade" id="v-pills-job" role="tabpanel" aria-labelledby="v-pills-job-tab">
                                             <div>
                                                 <h5>Job Information</h5>
-                                                <p class="text-muted">
-                                                    Please provide details regarding your job preferences and experience.
-                                                </p>
                                             </div>
 
                                             <div>
                                                 <div class="row gy-3">
-                                                    
+
                                                     <!-- Education -->
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
@@ -388,14 +380,17 @@
                                                                 Highest Qualification
                                                                 <span class="text-danger">*</span>
                                                             </label>
-                                                            <select class="form-control" id="education" name="education_id" data-choices data-choices-search-false required>
-                                                                <option value="">Select education Level</option>
+                                                            <select class="form-control" id="education" name="education_id" required>
+                                                                <option value="">Select education level</option>
                                                                 @foreach ($educations as $education)
-                                                                    <option value="{{ $education->id }}" {{ ($user->applicant && $user->applicant->education_id == $education->id) ? 'selected' : '' }}>{{ $education->name }}</option>
+                                                                    <option value="{{ $education->id }}"
+                                                                        {{ ($user->applicant && $user->applicant->education_id == $education->id) ? 'selected' : '' }}>
+                                                                        {{ $education->id == 2 ? 'Grade 10 / Grade 11' : $education->name }}
+                                                                    </option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select an qualification option!</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Experience Duration -->
@@ -405,14 +400,14 @@
                                                                 Retail Experience
                                                                 <span class="text-danger">*</span>
                                                             </label>
-                                                            <select class="form-control" id="duration" name="duration_id" data-choices data-choices-search-false>
-                                                                <option value="">Select duration</option>
+                                                            <select class="form-control" id="duration" name="duration_id" required>
+                                                                <option value="">Select experience</option>
                                                                 @foreach ($durations as $duration)
                                                                     <option value="{{ $duration->id }}" {{ ($user->applicant && $user->applicant->duration_id == $duration->id) ? 'selected' : '' }}>{{ $duration->name }}</option>
                                                                 @endforeach
                                                             </select>
                                                             <div class="invalid-feedback">Please select an experience option!</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
 
                                                     <!-- Public Holidays -->
@@ -455,7 +450,7 @@
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
                                                             <label for="brand" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Which type of store would you like to work at and be considered for?">
-                                                                Type of Store
+                                                                Type of Store/Brand
                                                                 <span class="text-danger">*</span>
                                                             </label>
                                                             <select class="form-control" id="brands" name="brands[]" data-choices multiple data-choices-search-true data-choices-removeItem required>
@@ -464,8 +459,8 @@
                                                                     <option value="{{ $brand->id }}" {{ $user->applicant && in_array($brand->id, array_column($user->applicant->brands->toArray(), 'id')) ? 'selected' : '' }}>{{ $brand->name }}</option>
                                                                 @endforeach
                                                             </select>
-                                                            <div class="invalid-feedback">Please select a store type!</div>
-                                                        </div>                                                        
+                                                            <div class="invalid-feedback">Please select a brand!</div>
+                                                        </div>
                                                     </div>
 
                                                     <!-- Disability -->
@@ -481,7 +476,7 @@
                                                                 <option value="No" {{ ($user->applicant && $user->applicant->disability == 'No') ? 'selected' : '' }}>No</option>
                                                             </select>
                                                             <div class="invalid-feedback">Please select a answer!</div>
-                                                        </div>                                                        
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
@@ -509,10 +504,6 @@
                                         <div class="tab-pane fade" id="v-pills-literacy" role="tabpanel" aria-labelledby="v-pills-literacy-tab">
                                             <div>
                                                 <h5>Literacy Assessment</h5>
-                                                <p class="text-muted">
-                                                    This assessment assesses your reading comprehension, writing skills, and ability to communicate effectively. 
-                                                    It's an opportunity to demonstrate your proficiency in understanding and using written language in a workplace context.
-                                                </p>
                                             </div>
 
                                             <div>
@@ -535,23 +526,24 @@
 
                                                             // Convert line breaks to <br> tags without escaping the message
                                                             $formattedMessage = nl2br($question->message);
+                                                            $formattedMessage = str_replace('*', '', $formattedMessage);
                                                         @endphp
 
                                                         <div class="col-md-12">
                                                             <div class="mb-3">
-                                                                <label for="literacyQuestion-{{ $question->id }}" class="form-label">
-                                                                    {{ $literacyQuestionNumber }}.) {!! $formattedMessage !!} <!-- Display the literacy question number -->
+                                                                <label for="literacyQuestion-{{ $question->id }} text-bold" class="form-label">
+                                                                    {{ $literacyQuestionNumber }}. {!! $formattedMessage !!} <!-- Display the literacy question number -->
                                                                 </label>
                                                                 <select class="form-control" id="literacyQuestion-{{ $question->id }}" name="literacy_answers[{{ $question->id }}]" data-choices data-choices-search-false required>
-                                                                    <option value="">Select an option</option>
-                                                                    <option value="a" selected>a</option>
+                                                                    <option value="" selected>Select an option</option>
+                                                                    <option value="a">a</option>
                                                                     <option value="b">b</option>
                                                                     <option value="c">c</option>
                                                                     <option value="d">d</option>
                                                                     <option value="e">e</option>
                                                                 </select>
-                                                                <div class="invalid-feedback">Please select an option</div>
-                                                            </div>                                                        
+                                                                <div class="invalid-feedback">Please select an answer!</div>
+                                                            </div>
                                                         </div>
                                                         @php $literacyQuestionNumber++; @endphp <!-- Increment the literacy question number for the next iteration -->
                                                     @endforeach
@@ -581,10 +573,6 @@
                                         <div class="tab-pane fade" id="v-pills-numeracy" role="tabpanel" aria-labelledby="v-pills-numeracy-tab">
                                             <div>
                                                 <h5>Numerical Ability Assessment</h5>
-                                                <p class="text-muted">
-                                                    This assessment evaluates your ability to work with numbers. It includes tasks such as basic arithmetic, interpreting data, 
-                                                    and problem-solving with quantitative elements, reflecting the practical math skills required in everyday job tasks.
-                                                </p>
                                             </div>
 
                                             <div>
@@ -596,34 +584,35 @@
                                                             // Find the position of the first question mark or line break
                                                             $firstQuestionMarkPos = strpos($question->message, '?');
                                                             $firstLineBreakPos = strpos($question->message, "\n");
-                                                    
+
                                                             // Determine where to insert the <span> based on your preference
                                                             $insertPos = $firstQuestionMarkPos !== false ? $firstQuestionMarkPos + 1 : $firstLineBreakPos;
-                                                    
+
                                                             // Insert the <span> tag
                                                             if ($insertPos !== false) {
                                                                 $question->message = substr_replace($question->message, ' <span class="text-danger">*</span>', $insertPos, 0);
                                                             }
-                                                    
+
                                                             // Convert line breaks to <br> tags without escaping the message
                                                             $formattedMessage = nl2br($question->message);
+                                                            $formattedMessage = str_replace('*', '', $formattedMessage);
                                                         @endphp
-                                                    
+
                                                         <div class="col-md-12">
                                                             <div class="mb-3">
                                                                 <label for="numeracyQuestion-{{ $question->id }}" class="form-label">
                                                                     {{ $numeracyQuestionNumber }}.) {!! $formattedMessage !!} <!-- Display the numeracy question number -->
                                                                 </label>
                                                                 <select class="form-control" id="numeracyQuestion-{{ $question->id }}" name="numeracy_answers[{{ $question->id }}]" data-choices data-choices-search-false required>
-                                                                    <option value="">Select an option</option>
-                                                                    <option value="a" selected>a</option>
+                                                                    <option value="" selected>Select an option</option>
+                                                                    <option value="a">a</option>
                                                                     <option value="b">b</option>
                                                                     <option value="c">c</option>
                                                                     <option value="d">d</option>
                                                                     <option value="e">e</option>
                                                                 </select>
-                                                                <div class="invalid-feedback">Please select an option</div>
-                                                            </div>                                                        
+                                                                <div class="invalid-feedback">Please select an answer!</div>
+                                                            </div>
                                                         </div>
                                                         @php $numeracyQuestionNumber++; @endphp <!-- Increment the numeracy question number for the next iteration -->
                                                     @endforeach
@@ -653,49 +642,45 @@
                                         <div class="tab-pane fade" id="v-pills-situational" role="tabpanel" aria-labelledby="v-pills-situational-tab">
                                             <div>
                                                 <h5>Situational Awareness Assessment</h5>
-                                                <p class="text-muted">
-                                                    This assessment tests your ability to respond appropriately to workplace scenarios, focusing on decision-making, 
-                                                    problem-solving, and handling real-life challenges in a professional environment.
-                                                </p>
                                             </div>
 
                                             <div>
                                                 <div class="row gy-3">
                                                     @php $situationalQuestionNumber = 1; @endphp <!-- Initialize a situational question number counter outside the loop -->
-                                        
+
                                                     @foreach ($situationalQuestions as $question)
                                                         @php
                                                             // Find the position of the first question mark or line break
                                                             $firstQuestionMarkPos = strpos($question->message, '?');
                                                             $firstLineBreakPos = strpos($question->message, "\n");
-                                        
+
                                                             // Determine where to insert the <span> based on your preference
                                                             $insertPos = $firstQuestionMarkPos !== false ? $firstQuestionMarkPos + 1 : $firstLineBreakPos;
-                                        
+
                                                             // Insert the <span> tag
                                                             if ($insertPos !== false) {
                                                                 $question->message = substr_replace($question->message, ' <span class="text-danger">*</span>', $insertPos, 0);
                                                             }
-                                        
+
                                                             // Convert line breaks to <br> tags without escaping the message
                                                             $formattedMessage = nl2br($question->message);
                                                             $formattedMessage = str_replace('*', '', $formattedMessage);
                                                         @endphp
-                                        
+
                                                         <div class="col-md-12">
                                                             <div class="mb-3">
                                                                 <label for="situationalQuestion-{{ $question->id }}" class="form-label">
                                                                     {{ $situationalQuestionNumber }}.) {!! $formattedMessage !!} <!-- Display the situational question number -->
                                                                 </label>
                                                                 <select class="form-control" id="situationalQuestion-{{ $question->id }}" name="situational_answers[{{ $question->id }}]" data-choices data-choices-search-false required>
-                                                                    <option value="">Select an option</option>
-                                                                    <option value="a" selected>a</option>
+                                                                    <option value="" selected>Select an option</option>
+                                                                    <option value="a">a</option>
                                                                     <option value="b">b</option>
                                                                     <option value="c">c</option>
                                                                     <option value="d">d</option>
                                                                 </select>
-                                                                <div class="invalid-feedback">Please select an option</div>
-                                                            </div>                                                        
+                                                                <div class="invalid-feedback">Please select an answer!</div>
+                                                            </div>
                                                         </div>
                                                         @php $situationalQuestionNumber++; @endphp <!-- Increment the situational question number for the next iteration -->
                                                     @endforeach
@@ -734,11 +719,11 @@
                                                         You are about to update your application with new information.
                                                     </p>
                                                     <button type="submit" id="updateBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         Yes, Update !
                                                     </button>
                                                     <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         View Application
                                                     </a>
                                                 </div>
@@ -755,19 +740,19 @@
                                                     <div class="mb-4">
                                                         <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="loop" state="hover-2" colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
                                                     </div>
-                                                    <h5>Would you like to submit your application ?</h5>
+                                                    <h5>Would you like to submit your application?</h5>
                                                     <p class="text-muted">
                                                         After successful submission you will be notified should you qualify fo an interview.
                                                     </p>
                                                     <button type="button" id="cancelBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
-                                                        <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         No, Cancel
                                                     </button>
                                                     <button type="submit" id="submitBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                                                        Yes, Submit !
+                                                        <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
+                                                        Yes, Submit!
                                                     </button>
-                                                </div>                                            
+                                                </div>
 
                                                 <!-- Loading -->
                                                 <div class="text-center pt-4 pb-2 d-none" id="loading">
@@ -781,13 +766,28 @@
                                                     <div class="mb-4">
                                                         <lord-icon src="https://cdn.lordicon.com/lupuorrc.json" trigger="loop" colors="primary:#0ab39c,secondary:#405189" id="lordicon" style="width:120px;height:120px"></lord-icon>
                                                     </div>
-                                                    <h5 id="completeHeading">Application Submitted !</h5>
+                                                    <h5 id="completeHeading">Application Submitted!</h5>
                                                     <p class="text-muted" id="completeText">
-                                                        Your application has been submitted successfully, you will be notified should you qualify 
+                                                        Your application has been submitted successfully, you will be notified should you qualify
                                                         for an interview
                                                     </p>
                                                     <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
-                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
+                                                        View Application
+                                                    </a>
+                                                </div>
+
+                                                <!-- Regret -->
+                                                <div class="text-center pt-4 pb-2 d-none" id="regret">
+                                                    <div class="mb-4">
+                                                        <lord-icon src="https://cdn.lordicon.com/fjvfsqea.json" trigger="loop" colors="primary:#0ab39c,secondary:#405189" id="lordicon" style="width:120px;height:120px"></lord-icon>
+                                                    </div>
+                                                    <h5 id="completeHeading">Application Submitted!</h5>
+                                                    <p class="text-muted" id="completeText">
+                                                        Thank you for your interest in a position at the Shoprite Group of Companies. You are not eligible for this position. Have a wonderful day!
+                                                    </p>
+                                                    <a type="button" href="{{ route('profile.index') }}" id="view-application-2" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
+                                                        <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
                                                         View Application
                                                     </a>
                                                 </div>
@@ -826,6 +826,7 @@
 <script src="{{ URL::asset('build/libs/jsvectormap/js/jsvectormap.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/jsvectormap/maps/world-merc.js') }}"></script>
 <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js')}}"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.googlemaps.key') }}&libraries=places"></script>
 <!-- home init -->
 @if ($user->applicant)
     <script src="{{URL::asset('build/js/pages/home.init.js')}}?v={{ filemtime(public_path('build/js/pages/home.init.js')) }}"></script>

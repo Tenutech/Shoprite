@@ -23,17 +23,17 @@
                 <div class="col-sm-auto">
                     <div>
                         <a class="btn btn-primary" id="create-btn" data-bs-toggle="modal" data-bs-target="#messageModal">
-                            <i class="ri-add-line align-bottom me-1"></i> 
+                            <i class="ri-add-line align-bottom me-1"></i>
                             Add New
                         </a>
                     </div>
                 </div>
             </div>
-            <div class="row" id="literacy-test">
+            <div class="row" id="numeracy-test">
                 @foreach ($messages as $message)
                     <div class="col-xxl-12 col-lg-12" id="message-{{ $message->id }}">
                         <div class="card">
-                            <div class="card-header">                               
+                            <div class="card-header">
                                 <div class="row">
                                     <div class="col d-flex align-items-center">
                                         <div class="flex-shrink-0 me-2">
@@ -48,13 +48,13 @@
                                         </a>
                                         <ul class="dropdown-menu dropdown-menu-end" style="">
                                             <li>
-                                                <a class="dropdown-item edit-list" data-bs-toggle="modal" data-bs-target="#messageUpdateModal" data-edit-id="{{ Crypt::encryptstring($message->id) }}">
+                                                <a href="#" class="dropdown-item edit-list" data-bs-toggle="modal" data-bs-target="#messageUpdateModal" data-edit-id="{{ Crypt::encryptstring($message->id) }}">
                                                     <i class="ri-pencil-line me-2 align-bottom text-muted"></i>
                                                     Edit
                                                 </a>
                                             </li>
                                             <li>
-                                                <a class="dropdown-item remove-list" data-bs-toggle="modal" data-bs-target="#messageDeleteModal" data-remove-id="{{ Crypt::encryptstring($message->id) }}">
+                                                <a href="#" class="dropdown-item remove-list" data-bs-toggle="modal" data-bs-target="#messageDeleteModal" data-remove-id="{{ Crypt::encryptstring($message->id) }}">
                                                     <i class="ri-delete-bin-5-line me-2 align-bottom text-muted"></i>
                                                     Remove
                                                 </a>
@@ -70,11 +70,11 @@
                             </div>
                             <div class="card-footer">
                                 <a href="javascript:void(0);" class="link-success float-end" id="state-{{ Crypt::encryptstring($message->id) }}">
-                                    {{ $message->state->name }} 
+                                    {{ $message->state->name }}
                                     <i class="ri-arrow-right-s-line align-middle ms-1 lh-1"></i>
                                 </a>
                                 <p class="text-muted mb-0" id="answer-{{ $message->id }}">
-                                    Answer: 
+                                    Answer:
                                     <span class="text-primary">
                                         {{ $message->answer }}
                                     </span>

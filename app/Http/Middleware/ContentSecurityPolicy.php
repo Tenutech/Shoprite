@@ -28,11 +28,13 @@ class ContentSecurityPolicy
         $csp .= "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://maps.googleapis.com; "; // Allow scripts from the same origin, inline scripts, eval(), jsdelivr, and Google Maps
         $csp .= "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "; // Allow styles from the same origin, inline styles, and Google Fonts
         $csp .= "font-src 'self' https://fonts.gstatic.com data:; "; // Allow fonts from the same origin, Google Fonts, and data URIs
-        $csp .= "img-src 'self' data:; "; // Allow images from the same origin and data URIs
+        $csp .= "img-src 'self' data: https://maps.gstatic.com https://maps.googleapis.com https://login.microsoftonline.com; "; // Allow images from the same origin, data URIs, Google Maps, and Microsoft Online
         $csp .= "connect-src 'self' https://cdn.lordicon.com https://maps.googleapis.com https://login.microsoftonline.com; "; // Allow connections to the same origin, lordicon CDN, and Google Maps
         $csp .= "form-action 'self' https://login.microsoftonline.com; "; // Allow form actions to your SAML provider
         $csp .= "frame-src 'self' https://www.google.com https://maps.googleapis.com; "; // Allow embedding frames from Google Maps
         $csp .= "frame-ancestors 'none'; "; // Prevent the page from being embedded in frames
+        $csp .= "object-src 'none'; "; // Restrict object-src to 'none'
+        $csp .= "base-uri 'self'; ";  // Restrict the base URL to the same origin
 
         // Set the Content-Security-Policy header in the response
         $response->headers->set('Content-Security-Policy', $csp);

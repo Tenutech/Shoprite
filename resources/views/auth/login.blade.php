@@ -43,7 +43,7 @@
                         <div class="card-body p-4">
                             <div class="text-center mt-2">
                                 <h5 class="text-primary">Welcome Back !</h5>
-                                <p class="text-muted">Sign in to continue to Orient.</p>
+                                <p class="text-muted">Sign in to continue to Shoprite Job Opportunities.</p>
                             </div>
                             <div class="p-2 mt-4">
                                 <form action="{{ route('login') }}" method="POST">

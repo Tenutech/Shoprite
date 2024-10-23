@@ -12,6 +12,7 @@ use App\Models\Brand;
 use App\Models\Store;
 use App\Models\Gender;
 use App\Models\Reason;
+use App\Models\Document;
 use App\Models\Language;
 use App\Models\Position;
 use App\Models\Duration;
@@ -36,6 +37,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class ApplicationController extends Controller
 {
@@ -66,7 +68,7 @@ class ApplicationController extends Controller
     {
         if (view()->exists('application')) {
             //User ID
-            $userId = Auth::id();
+            $userID = Auth::id();
 
             //User
             $user = User::with([
@@ -74,7 +76,7 @@ class ApplicationController extends Controller
                 'appliedVacancies'
             ])
             ->withCount('appliedVacancies')
-            ->findOrFail($userId);
+            ->findOrFail($userID);
 
             // Type
             $types = Type::get();
@@ -82,14 +84,14 @@ class ApplicationController extends Controller
             // Race
             $races = Race::get();
 
-            // Brand
-            $brands = Brand::whereIn('id', [1, 2, 5, 6])->get();
+            // Education
+            $educations = Education::where('id', '!=', 3)->get();
 
             // Duration
             $durations = Duration::get();
 
-            // Education
-            $educations = Education::get();
+            // Brand
+            $brands = Brand::whereIn('id', [1, 2, 5, 6])->get();
 
             //Literacy
             $literacyQuestions = ChatTemplate::whereHas('state', function ($query) {
@@ -113,12 +115,13 @@ class ApplicationController extends Controller
             ->get();
 
             return view('application', [
+                'userID' => $userID,
                 'user' => $user,
                 'types' => $types,
                 'races' => $races,
-                'brands' => $brands,
-                'durations' => $durations,
                 'educations' => $educations,
+                'durations' => $durations,
+                'brands' => $brands,
                 'literacyQuestions' => $literacyQuestions,
                 'numeracyQuestions' => $numeracyQuestions,
                 'situationalQuestions' => $situationalQuestions
@@ -138,19 +141,40 @@ class ApplicationController extends Controller
         // Validate Input
         $request->validate([
             'consent' => ['accepted'], // Validate consent checkbox
-            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:1024'], // Avatar validation
+            'avatar' => [
+                'sometimes', 
+                'file', 
+                'mimes:jpg,jpeg,png', // Whitelist allowed extensions (JPG, JPEG, PNG)
+                'mimetypes:image/jpeg,image/png,image/jpg', // Ensure MIME type matches an image type
+                'max:5120' // 5MB max size
+            ],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'id_number' => ['required', 'string', 'max:13'],
-            'phone' => ['required', 'string', 'max:191'],
+            'id_number' => ['required', 'string', 'max:13', 'unique:applicants'],
+            'phone' => ['required', 'string', 'max:191', 'unique:applicants'],
             'location' => ['required', 'string'],
+            'latitude' => ['required', function ($attribute, $value, $fail) {
+                if (empty($value)) {
+                    $fail('Please select a verified address from the Google suggestions.');
+                }
+            }],
+            'longitude' => ['required', function ($attribute, $value, $fail) {
+                if (empty($value)) {
+                    $fail('Please select a verified address from the Google suggestions.');
+                }
+            }],
             'race_id' => ['required', 'integer', 'exists:races,id'],
             'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
             'education_id' => ['required', 'integer', 'exists:educations,id'],
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
             'public_holidays' => ['required', 'in:Yes,No'],
             'environment' => ['required', 'in:Yes,No'],
-            'brands' => ['required', 'array'], // Ensure brands is an array
+            'brands' => ['required', 'array', function ($attribute, $value, $fail) {
+                // Check if brand ID 1 is in the array and there are other IDs selected
+                if (in_array(1, $value) && count($value) > 1) {
+                    $fail('You cannot select specific brands with "Any".');
+                }
+            }], // Ensure brands is an array
             'brands.*' => ['required', 'integer', 'exists:brands,id'], // Validate each brand id exists in the brands table
             'disability' => ['required', 'in:Yes,No'],
             'literacy_answers' => ['required', 'array'], // Ensure literacy answers array
@@ -159,13 +183,6 @@ class ApplicationController extends Controller
             'numeracy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each numeracy answer
             'situational_answers' => ['required', 'array'],
             'situational_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each situational answer
-            // Custom validation rule for brands
-            'brands' => ['required', 'array', function ($attribute, $value, $fail) {
-                // Check if brand ID 1 is in the array and there are other IDs selected
-                if (in_array(1, $value) && count($value) > 1) {
-                    $fail('You cannot select specific brands with "All".');
-                }
-            }],
         ]);
 
         try {
@@ -174,11 +191,29 @@ class ApplicationController extends Controller
             $user = User::find($userId);
 
             // Handle avatar upload (if present)
-            if ($request->avatar) {
-                $avatar = request()->file('avatar');
-                $avatarName = '/images/' . $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
+            if ($request->hasFile('avatar')) {
+                $avatar = $request->file('avatar');
+
+                // Check the file's signature (magic bytes) to ensure it's an image
+                if (!$this->isValidImage($avatar->getPathname())) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid image file!'
+                    ], 400); // Return error if the file signature is not valid
+                }
+
+                $avatarName = '/images/' . Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
+
+                // Create a document record for the uploaded avatar
+                Document::create([
+                    'applicant_id' => null, // This will be set later when the applicant is created
+                    'name' => $avatarName,
+                    'type' => $avatar->getClientOriginalExtension(),
+                    'size' => $avatar->getSize(),
+                    'url' => '/images/' . $avatarName,
+                ]);
             } else {
                 // Use existing avatar if available, otherwise fallback to default
                 $avatarName = $user && $user->avatar ? '/images/' . $user->avatar : '/images/avatar.jpg';
@@ -193,6 +228,9 @@ class ApplicationController extends Controller
             $idNumber = $request->id_number;
             $phone = $request->phone;
             $location = $request->location;
+            $latitude = $request->latitude;
+            $longitude = $request->longitude;
+            $coordinates = $latitude . ',' . $longitude;
             $raceID = $request->race_id;
             $email = $request->email;
             $educationId = $request->education_id;
@@ -256,7 +294,7 @@ class ApplicationController extends Controller
                 'lastname' => $lastname,
                 'race_id' => $raceID,
                 'avatar_upload' => $avatarUpload, // Save avatar upload status (Yes or No)
-                'avatar' => $avatarName,
+                'avatar' => '/images/avatar.jpg',
                 'terms_conditions' => $request->consent ? 'Yes' : 'No', // Check if the user accepted terms
                 'additional_contact_number' => 'No',
                 'contact_number' => $phone,
@@ -267,6 +305,7 @@ class ApplicationController extends Controller
                 'duration_id' => $durationId,
                 'location_type' => 'Address',
                 'location' => $location,
+                'coordinates' => $coordinates,
                 'has_email' => $email ? 'Yes' : 'No', // Determine if email was provided
                 'email' => $email,
                 'disability' => $disability,
@@ -374,22 +413,49 @@ class ApplicationController extends Controller
 
     public function update(Request $request)
     {
+        //Applicant ID
+        $applicantId = Crypt::decryptString($request->id);
+
+        //Applicant
+        $applicant = Applicant::findOrFail($applicantId);
+
         //Validate Input
         $request->validate([
             'consent' => ['accepted'], // Validate consent checkbox
-            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:1024'], // Avatar validation
+            'avatar' => [
+                'sometimes', 
+                'file', 
+                'mimes:jpg,jpeg,png', // Whitelist allowed extensions (JPG, JPEG, PNG)
+                'mimetypes:image/jpeg,image/png,image/jpg', // Ensure MIME type matches an image type
+                'max:5120' // 5MB max size
+            ],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'id_number' => ['required', 'string', 'max:13'],
-            'phone' => ['required', 'string', 'max:191'],
+            'id_number' => ['required', 'string', 'max:13', Rule::unique('applicants')->ignore($applicantId)],
+            'phone' => ['required', 'string', 'max:191', Rule::unique('applicants')->ignore($applicantId)],
             'location' => ['required', 'string'],
+            'latitude' => ['required', function ($attribute, $value, $fail) {
+                if (empty($value)) {
+                    $fail('Please select a verified address from the Google suggestions.');
+                }
+            }],
+            'longitude' => ['required', function ($attribute, $value, $fail) {
+                if (empty($value)) {
+                    $fail('Please select a verified address from the Google suggestions.');
+                }
+            }],
             'race_id' => ['required', 'integer', 'exists:races,id'],
-            'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', 'unique:applicants'],
+            'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', Rule::unique('applicants')->ignore($applicantId)],
             'education_id' => ['required', 'integer', 'exists:educations,id'],
             'duration_id' => ['required', 'integer', 'exists:durations,id'],
             'public_holidays' => ['required', 'in:Yes,No'],
             'environment' => ['required', 'in:Yes,No'],
-            'brands' => ['required', 'array'], // Ensure brands is an array
+            'brands' => ['required', 'array', function ($attribute, $value, $fail) {
+                // Check if brand ID 1 is in the array and there are other IDs selected
+                if (in_array(1, $value) && count($value) > 1) {
+                    $fail('You cannot select specific brands with "Any".');
+                }
+            }], // Ensure brands is an array
             'brands.*' => ['required', 'integer', 'exists:brands,id'], // Validate each brand id exists in the brands table
             'disability' => ['required', 'in:Yes,No'],
             'literacy_answers' => ['required', 'array'], // Ensure literacy answers array
@@ -398,13 +464,6 @@ class ApplicationController extends Controller
             'numeracy_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each numeracy answer
             'situational_answers' => ['required', 'array'],
             'situational_answers.*' => ['required', 'in:a,b,c,d,e'], // Validate each situational answer
-            // Custom validation rule for brands
-            'brands' => ['required', 'array', function ($attribute, $value, $fail) {
-                // Check if brand ID 1 is in the array and there are other IDs selected
-                if (in_array(1, $value) && count($value) > 1) {
-                    $fail('You cannot select specific brands with "All".');
-                }
-            }],
         ]);
 
         try {
@@ -412,21 +471,33 @@ class ApplicationController extends Controller
             $userId = Auth::id();
             $user = User::find($userId);
 
-            //Applicant ID
-            $applicantId = Crypt::decryptString($request->id);
-
-            //Applicant
-            $applicant = Applicant::findOrFail($applicantId);
-
             // Handle avatar upload (if present)
-            if ($request->avatar) {
-                $avatar = request()->file('avatar');
-                $avatarName = '/images/' . $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
+            if ($request->hasFile('avatar')) {
+                $avatar = $request->file('avatar');
+
+                // Check the file's signature (magic bytes) to ensure it's an image
+                if (!$this->isValidImage($avatar->getPathname())) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid image file!'
+                    ], 400); // Return error if the file signature is not valid
+                }
+
+                $avatarName = '/images/' . Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
+
+                // Create a document record for the uploaded avatar
+                Document::create([
+                    'applicant_id' => null, // This will be set later when the applicant is created
+                    'name' => $avatarName,
+                    'type' => $avatar->getClientOriginalExtension(),
+                    'size' => $avatar->getSize(),
+                    'url' => '/images/' . $avatarName,
+                ]);
             } else {
                 // Use existing avatar if available, otherwise fallback to default
-                $avatarName = $user && $user->avatar ? $user->avatar : '/images/avatar.jpg';
+                $avatarName = $user && $user->avatar ? '/images/' . $user->avatar : '/images/avatar.jpg';
             }
 
             // Determine the value of avatar_upload based on the avatar
@@ -438,13 +509,15 @@ class ApplicationController extends Controller
             $idNumber = $request->id_number;
             $phone = $request->phone;
             $location = $request->location;
+            $latitude = $request->latitude;
+            $longitude = $request->longitude;
+            $coordinates = $latitude . ',' . $longitude;
             $raceID = $request->race_id;
             $email = $request->email;
             $educationId = $request->education_id;
             $durationId = $request->duration_id;
             $publicHolidays = $request->public_holidays;
             $environment = $request->environment;
-            $brandId = $request->brand_id;
             $disability = $request->disability;
             $literacyAnswers = $request->literacy_answers;
             $numeracyAnswers = $request->numeracy_answers;
@@ -501,7 +574,7 @@ class ApplicationController extends Controller
                 'lastname' => $lastname,
                 'race_id' => $raceID,
                 'avatar_upload' => $avatarUpload, // Save avatar upload status (Yes or No)
-                'avatar' => $avatarName,
+                'avatar' => '/images/avatar.jpg',
                 'terms_conditions' => $request->consent ? 'Yes' : 'No', // Check if the user accepted terms
                 'additional_contact_number' => 'No',
                 'contact_number' => $phone,
@@ -510,9 +583,9 @@ class ApplicationController extends Controller
                 'consent' => $request->consent ? 'Yes' : 'No', // Store consent status
                 'environment' => $environment, // Store user's answer to environment
                 'duration_id' => $durationId,
-                'brand_id' => $brandId,
                 'location_type' => 'Address',
                 'location' => $location,
+                'coordinates' => $coordinates,
                 'has_email' => $email ? 'Yes' : 'No', // Determine if email was provided
                 'email' => $email,
                 'disability' => $disability,
@@ -796,5 +869,32 @@ class ApplicationController extends Controller
 
         // Round the normalized score to 2 decimal places and return it
         return round($finalScore, 2);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validate Image
+    |--------------------------------------------------------------------------
+    */
+
+    // Function to validate the file signature (magic bytes)
+    private function isValidImage($path)
+    {
+        $file = fopen($path, 'rb');
+        $bytes = fread($file, 8); // Get the first few bytes
+        fclose($file);
+
+        // JPEG magic numbers
+        if (bin2hex($bytes) === 'ffd8ffe0' || bin2hex($bytes) === 'ffd8ffe1') {
+            return true; // It's a JPEG file
+        }
+
+        // PNG magic numbers
+        if (bin2hex($bytes) === '89504e47') {
+            return true; // It's a PNG file
+        }
+
+        // Add more checks for other image formats if necessary
+        return false;
     }
 }

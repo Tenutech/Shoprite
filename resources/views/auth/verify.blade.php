@@ -42,7 +42,7 @@
                                 <h5>Please verify your email</h5>
                                 <p class="text-muted">
                                     Please validate your email address in order to get started using
-                                    <span class="fw-semibold">Orient</span>.
+                                    <span class="fw-semibold">Shoprite - Job Opportunities</span>.
                                 </p>
                                 <form method="POST" action="{{ route('verification.resend') }}">
                                     @csrf
