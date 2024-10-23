@@ -133,7 +133,7 @@ class ProfileSettingsController extends Controller
         $user = User::findorfail($userID);
 
         // Base validation rules
-        $validationRules = [            
+        $validationRules = [
             'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'mimetypes:image/jpeg,image/png', 'max:1024'],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],

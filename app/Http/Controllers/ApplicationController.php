@@ -142,8 +142,8 @@ class ApplicationController extends Controller
         $request->validate([
             'consent' => ['accepted'], // Validate consent checkbox
             'avatar' => [
-                'sometimes', 
-                'file', 
+                'sometimes',
+                'file',
                 'mimes:jpg,jpeg,png', // Whitelist allowed extensions (JPG, JPEG, PNG)
                 'mimetypes:image/jpeg,image/png,image/jpg', // Ensure MIME type matches an image type
                 'max:5120' // 5MB max size
@@ -423,8 +423,8 @@ class ApplicationController extends Controller
         $request->validate([
             'consent' => ['accepted'], // Validate consent checkbox
             'avatar' => [
-                'sometimes', 
-                'file', 
+                'sometimes',
+                'file',
                 'mimes:jpg,jpeg,png', // Whitelist allowed extensions (JPG, JPEG, PNG)
                 'mimetypes:image/jpeg,image/png,image/jpg', // Ensure MIME type matches an image type
                 'max:5120' // 5MB max size
