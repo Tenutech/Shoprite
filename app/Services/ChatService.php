@@ -85,8 +85,11 @@ class ChatService
                 return; // Exit the function early since more than one image was provided
             }
 
+            // Extract message ID from the webhook data
+            $messageId = $messageData['id'] ?? null;
+
             // Log the received message
-            $this->logMessage($applicant->id, $body, 1);
+            $this->logMessage($applicant->id, $body, 1, $messageId, 'Received');
 
             // Process the applicant's current state and check if a checkpoint was triggered
             $checkpointTriggered = $this->processApplicantState($applicant, $body);
@@ -163,7 +166,7 @@ class ChatService
     * @param  int    $type
     * @return void
     */
-    protected function logMessage($applicantID, $message, $type)
+    protected function logMessage($applicantID, $message, $type, $messageId = null, $status = null, $template = null)
     {
         try {
             // Create a new chat entry with the provided message data
@@ -171,6 +174,9 @@ class ChatService
                 'applicant_id' => $applicantID,
                 'message' => $message,
                 'type_id' => $type,
+                'message_id' => $messageId,
+                'status' => $status,
+                'template' => $template
             ]);
             $chat->save();
 
@@ -459,6 +465,7 @@ class ChatService
     protected function handleWelcomeState($applicant, $client, $to, $from, $token)
     {
         try {
+            /*
             // **Check Eligibility**: public_holidays, environment, education_id, and created_at within 6 months
             $sixMonthsAgo = now()->subMonths(6);
 
@@ -473,6 +480,7 @@ class ChatService
                 // Exit the function early as the applicant is ineligible
                 return;
             }
+            */
 
             // Get the current hour using the server's current time
             $currentHour = now()->hour;
@@ -562,7 +570,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
             } else {
                 // If the applicant's input is not a valid option, send an error message
-                $errorMessage = "Invalid option. Please reply with:\n\n1. Our stores\n2. Our offices\n3. Main menu";
+                $errorMessage = "Invalid option. Please reply with:\n\n1. Our stores\n2. Our offices";
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
             }
         } catch (Exception $e) {
@@ -674,8 +682,11 @@ class ChatService
                         return; // End the process here for under 18 applicants
                     }
 
-                    // Check if the ID number already exists in the applicants table
-                    $existingApplicant = Applicant::where('id_number', $body)->first();
+                    // Check if the ID number already exists in the applicants table, excluding the current applicant
+                    $existingApplicant = Applicant::where('id_number', $body)
+                        ->where('id', '!=', $applicant->id)
+                        ->first();
+
                     if ($existingApplicant) {
                         // Send message that this ID number has already been registered
                         $message = "Sorry, this ID number has already been registered. Please try again with a different ID number.";
@@ -3311,11 +3322,15 @@ class ChatService
                     'body' => json_encode($payload)
                 ]);
 
+                // Extract the response body and decode it to capture the message ID
+                $responseData = json_decode($response->getBody()->getContents(), true);
+                $messageId = $responseData['messages'][0]['id'] ?? null; // Extract the message ID from the response
+
                 // Update the last message sent
                 $lastMessage = $body;
 
-                // Log the outgoing message
-                $this->logMessage($applicant->id, $body, 2);
+                // Log the outgoing message with the message ID, status as 'Sent', and template if applicable
+                $this->logMessage($applicant->id, $body, 2, $messageId, 'Sent', $template);
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 $responseBody = $e->getResponse()->getBody()->getContents();
                 $errorData = json_decode($responseBody, true);

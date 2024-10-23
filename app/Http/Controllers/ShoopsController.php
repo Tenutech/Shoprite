@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\Chat;
 use Illuminate\Http\Request;
 use App\Services\ChatService;
 use Illuminate\Support\Facades\Log;
@@ -44,14 +45,64 @@ class ShoopsController extends Controller
     public function shoops(Request $request)
     {
         try {
-            // Use the ChatService to process the incoming message.
-            $this->chatService->handleIncomingMessage($request->json()->all());
+            $data = $request->json()->all();
+
+            // Check if the incoming webhook is for a status update
+            if (isset($data['entry'][0]['changes'][0]['value']['statuses'][0])) {
+                // Handle status update
+                $this->handleStatusUpdate($data);
+            } else {
+                // Use the ChatService to process the incoming message
+                $this->chatService->handleIncomingMessage($data);
+            }
         } catch (Exception $e) {
             // Log the error for debugging purposes
             Log::error('Error in shoops method: ' . $e->getMessage());
         }
 
-        // Respond to the request indicating the message has been received and processed.
+        // Respond to the request indicating the message has been received and processed
         return response()->json(['message' => 'Received'], 200);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Handle Status Update
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Handle the status update of a previously sent message.
+     *
+     * This method processes incoming status updates from the WhatsApp webhook,
+     * updating the message status in the `chats` table based on the `message_id`.
+     * Typical statuses include 'sent', 'delivered', 'read', etc.
+     *
+     * @param  array  $data  The incoming webhook data containing the status update.
+     * @return void
+     */
+    protected function handleStatusUpdate($data)
+    {
+        try {
+            // Extract message ID and status from the webhook data
+            $statusData = $data['entry'][0]['changes'][0]['value']['statuses'][0];
+            $messageId = $statusData['id'] ?? null;
+            $status = $statusData['status'] ?? null; // Status could be 'sent', 'delivered', 'read', etc.
+
+            // Ensure we have a valid message ID and status
+            if (!$messageId || !$status) {
+                return;
+            }
+
+            // Find the chat record by message ID
+            $chat = Chat::where('message_id', $messageId)->first();
+
+            // If the chat record exists, update its status
+            if ($chat) {
+                $chat->status = ucfirst($status); // Ensure the status is properly capitalized (e.g., 'Sent', 'Delivered')
+                $chat->save();
+            }
+        } catch (Exception $e) {
+            return response()->json(['error' => 'Internal server error'], 500); // Return 500 on exception
+        }
     }
 }
