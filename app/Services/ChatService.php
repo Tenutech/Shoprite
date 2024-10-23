@@ -166,7 +166,7 @@ class ChatService
     * @param  int    $type
     * @return void
     */
-    protected function logMessage($applicantID, $message, $type, $messageId = null, $status = null, $template = null)
+    protected function logMessage($applicantID, $message = null, $type, $messageId = null, $status = null, $template = null)
     {
         try {
             // Create a new chat entry with the provided message data
