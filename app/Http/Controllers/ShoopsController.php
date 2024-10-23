@@ -75,10 +75,10 @@ class ShoopsController extends Controller
      *
      * This method processes incoming status updates from the WhatsApp webhook,
      * updating the message status in the `chats` table based on the `message_id`.
-     * Typical statuses include 'sent', 'delivered', 'read', etc.
+     * For failed messages, it stores the error code and reason.
      *
      * @param  array  $data  The incoming webhook data containing the status update.
-     * @return void
+     * @return \Illuminate\Http\JsonResponse
      */
     protected function handleStatusUpdate($data)
     {
@@ -86,23 +86,42 @@ class ShoopsController extends Controller
             // Extract message ID and status from the webhook data
             $statusData = $data['entry'][0]['changes'][0]['value']['statuses'][0];
             $messageId = $statusData['id'] ?? null;
-            $status = $statusData['status'] ?? null; // Status could be 'sent', 'delivered', 'read', etc.
+            $status = $statusData['status'] ?? null;
 
             // Ensure we have a valid message ID and status
             if (!$messageId || !$status) {
-                return;
+                return response()->json(['error' => 'Missing message ID or status'], 400);
             }
 
             // Find the chat record by message ID
             $chat = Chat::where('message_id', $messageId)->first();
 
-            // If the chat record exists, update its status
             if ($chat) {
-                $chat->status = ucfirst($status); // Ensure the status is properly capitalized (e.g., 'Sent', 'Delivered')
-                $chat->save();
+                // Handle a failed message status
+                if ($status === 'failed') {
+                    // Extract error details
+                    $errorCode = $statusData['errors'][0]['code'] ?? null;
+                    $errorReason = $statusData['errors'][0]['title'] ?? 'Unknown reason';
+
+                    // Update the chat record with the failed status, code, and reason
+                    $chat->update([
+                        'status' => 'Failed',
+                        'code' => $errorCode,
+                        'reason' => $errorReason,
+                    ]);
+                } else {
+                    // Update the chat record with the new status (e.g., 'delivered', 'sent')
+                    $chat->update([
+                        'status' => ucfirst($status),
+                    ]);
+                }
+
+                return response()->json(['message' => 'Status updated successfully'], 200);
+            } else {
+                return response()->json(['error' => 'Chat record not found'], 404);
             }
         } catch (Exception $e) {
-            return response()->json(['error' => 'Internal server error'], 500); // Return 500 on exception
+            return response()->json(['error' => 'Internal server error'], 500);
         }
     }
 }

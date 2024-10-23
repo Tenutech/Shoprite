@@ -18,6 +18,8 @@ class Chat extends Model
         'type_id',
         'message_id',
         'status',
+        'code',
+        'reason',
         'template'
     ];
 
