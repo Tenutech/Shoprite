@@ -60,6 +60,81 @@ class AdminController extends Controller
             // Fetch the authenticated user
             $authUser = User::find($authUserId);
 
+            // Define the date range (from the start of the year to the end of today)
+            $startDate = Carbon::now()->startOfYear();
+            $endDate = Carbon::now()->endOfDay();
+
+            $data = $this->fetchData($startDate, $endDate);
+
+            // Return the 'admin/home' view with the calculated data
+            return view('admin/home', $data);
+        }
+
+        // If the view 'admin/home' does not exist, return a 404 error page
+        return view('404');
+    }
+
+    /**
+     * Update the admin dashboard data based on a selected date range.
+     *
+     * This method is triggered via an AJAX request and retrieves
+     * updated statistics for the admin dashboard, including vacancy,
+     * interview, applicant, and proximity data based on the selected
+     * date range (startDate to endDate).
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+    */
+    public function updateDashboard(Request $request)
+    {
+        try {
+            // Retrieve the ID of the currently authenticated user
+            $authUserId = Auth::id();
+
+            // Fetch the authenticated user
+            $authUser = User::find($authUserId);
+
+            // Define the date range (from the request data)
+            $startDate = Carbon::parse($request->input('startDate'))->startOfDay();
+            $endDate = Carbon::parse($request->input('endDate'))->endOfDay();
+
+            // Set the type to 'store' to filter vacancies by the specific store ID in the query
+            $type = 'all';
+
+            // Get the max proximity from store
+            $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
+
+            $data = $this->fetchData($startDate, $endDate);
+
+            // Return the updated data as JSON
+            return response()->json([
+                'success' => true,
+                'data' => $data,
+                'message' => 'Data updated successfully!'
+            ]);
+        } catch (\Exception $e) {
+            // Return other errors
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to retrieve data!',
+                'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    /**
+     * Fetches various metrics for a region over a given date range.
+     *
+     * @param \Carbon\Carbon $startDate The start date of the range.
+     * @param \Carbon\Carbon $endDate The end date of the range.
+     * @return array An associative array containing region metrics.
+     */
+    private function fetchData(Carbon $startDate, Carbon $endDate)
+    {
+            // Retrieve the ID of the currently authenticated user
+            $authUserId = Auth::id();
+
+
             // Get the delay from ReminderSetting where type is 'shortlist_created_no_interview'
             $reminderSetting = ReminderSetting::where('type', 'shortlist_created_no_interview')->first();
             $delayDays = $reminderSetting ? $reminderSetting->delay : 1;
@@ -82,10 +157,6 @@ class AdminController extends Controller
             // Apply the created_at condition to all results
             ->where('created_at', '<=', $cutoffDate)
             ->first(); // Get the first matching shortlist
-
-            // Define the date range (from the start of the year to the end of today)
-            $startDate = Carbon::now()->startOfYear();
-            $endDate = Carbon::now()->endOfDay();
 
             // Set the type to 'all' to filter all vacancies
             $type = 'all';
@@ -158,64 +229,62 @@ class AdminController extends Controller
             $talentPoolApplicantsProvince = [];
 
             // Check if the authenticated user is active
-            if ($authUserId !== null) {
-                // Step 1: Fetch vacancy data from VacancyDataService
-                $totalVacancies = $this->vacancyDataService->getTotalVacancies($type, null, $startDate, $endDate);
-                $totalVacanciesFilled = $this->vacancyDataService->getTotalVacanciesFilled($type, null, $startDate, $endDate);
+        if ($authUserId !== null) {
+            // Step 1: Fetch vacancy data from VacancyDataService
+            $totalVacancies = $this->vacancyDataService->getTotalVacancies($type, null, $startDate, $endDate);
+            $totalVacanciesFilled = $this->vacancyDataService->getTotalVacanciesFilled($type, null, $startDate, $endDate);
 
-                // Step 2: Fetch interview data from VacancyDataService
-                $totalInterviewsScheduled = $this->vacancyDataService->getTotalInterviewsScheduled($type, null, $startDate, $endDate);
-                $totalInterviewsCompleted = $this->vacancyDataService->getTotalInterviewsCompleted($type, null, $startDate, $endDate);
+            // Step 2: Fetch interview data from VacancyDataService
+            $totalInterviewsScheduled = $this->vacancyDataService->getTotalInterviewsScheduled($type, null, $startDate, $endDate);
+            $totalInterviewsCompleted = $this->vacancyDataService->getTotalInterviewsCompleted($type, null, $startDate, $endDate);
 
-                // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
-                $totalApplicantsAppointed = $this->vacancyDataService->getTotalApplicantsAppointed($type, null, $startDate, $endDate);
-                $totalApplicantsRegretted = $this->vacancyDataService->getTotalApplicantsRegretted($type, null, $startDate, $endDate);
+            // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
+            $totalApplicantsAppointed = $this->vacancyDataService->getTotalApplicantsAppointed($type, null, $startDate, $endDate);
+            $totalApplicantsRegretted = $this->vacancyDataService->getTotalApplicantsRegretted($type, null, $startDate, $endDate);
 
-                // Step 4: Fetch time data from VacancyDataService
-                $averageTimeToShortlist = $this->vacancyDataService->getAverageTimeToShortlist($type, null, $startDate, $endDate);
-                $averageTimeToHire = $this->vacancyDataService->getAverageTimeToHire($type, null, $startDate, $endDate);
-                $adoptionRate = ($totalVacancies > 0) ? round($totalVacanciesFilled / $totalVacancies * 100) : 0;
+            // Step 4: Fetch time data from VacancyDataService
+            $averageTimeToShortlist = $this->vacancyDataService->getAverageTimeToShortlist($type, null, $startDate, $endDate);
+            $averageTimeToHire = $this->vacancyDataService->getAverageTimeToHire($type, null, $startDate, $endDate);
+            $adoptionRate = ($totalVacancies > 0) ? round($totalVacanciesFilled / $totalVacancies * 100) : 0;
 
-                // Step 5: Fetch proximity data from ApplicantProximityService
-                $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
-                $averageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, null, $startDate, $endDate);
+            // Step 5: Fetch proximity data from ApplicantProximityService
+            $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
+            $averageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, null, $startDate, $endDate);
 
-                // Step 6: Fetch applicant score data from ApplicantDataService
-                $averageScoreTalentPoolApplicants = $this->applicantDataService->getAverageScoreTalentPoolApplicants($type, null, $startDate, $endDate);
-                $averageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, null, $startDate, $endDate);
+            // Step 6: Fetch applicant score data from ApplicantDataService
+            $averageScoreTalentPoolApplicants = $this->applicantDataService->getAverageScoreTalentPoolApplicants($type, null, $startDate, $endDate);
+            $averageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, null, $startDate, $endDate);
 
-                // Step 7: Fetch talent pool data from applicantProximityService
-                $talentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
-                $talentPoolApplicantsByMonth = $this->applicantProximityService->getTalentPoolApplicantsByMonth($type, null, $startDate, $endDate, $maxDistanceFromStore);
+            // Step 7: Fetch talent pool data from applicantProximityService
+            $talentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
+            $talentPoolApplicantsByMonth = $this->applicantProximityService->getTalentPoolApplicantsByMonth($type, null, $startDate, $endDate, $maxDistanceFromStore);
 
-                // Step 8: Fetch applicants appointed data from vacancyDataService
-                $applicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, null, $startDate, $endDate);
-                $applicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, null, $startDate, $endDate);
+            // Step 8: Fetch applicants appointed data from vacancyDataService
+            $applicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, null, $startDate, $endDate);
+            $applicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, null, $startDate, $endDate);
 
-                // Step 9: Fetch applicants assessment scores from applicantDataService
-                $averageLiteracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageLiteracyScoreTalentPoolApplicants($type, null, $startDate, $endDate);
-                $averageNumeracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageNumeracyScoreTalentPoolApplicants($type, null, $startDate, $endDate);
-                $averageSituationalScoreTalentPoolApplicants = $this->applicantDataService->getAverageSituationalScoreTalentPoolApplicants($type, null, $startDate, $endDate);
+            // Step 9: Fetch applicants assessment scores from applicantDataService
+            $averageLiteracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageLiteracyScoreTalentPoolApplicants($type, null, $startDate, $endDate);
+            $averageNumeracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageNumeracyScoreTalentPoolApplicants($type, null, $startDate, $endDate);
+            $averageSituationalScoreTalentPoolApplicants = $this->applicantDataService->getAverageSituationalScoreTalentPoolApplicants($type, null, $startDate, $endDate);
 
-                // Step 10: Fetch application channel data from applicantDataService
-                $totalWhatsAppApplicants = $this->applicantDataService->getTotalWhatsAppApplicants($type, null, $startDate, $endDate);
-                $totalWebsiteApplicants = $this->applicantDataService->getTotalWebsiteApplicants($type, null, $startDate, $endDate);
+            // Step 10: Fetch application channel data from applicantDataService
+            $totalWhatsAppApplicants = $this->applicantDataService->getTotalWhatsAppApplicants($type, null, $startDate, $endDate);
+            $totalWebsiteApplicants = $this->applicantDataService->getTotalWebsiteApplicants($type, null, $startDate, $endDate);
 
-                // Step 11: Fetch the completion rate and drop of state from applicantDataService
-                $totalApplicants = $this->applicantDataService->getTotalApplicants($type, null, $startDate, $endDate);
-                $totalCompletedApplicants = $this->applicantDataService->getTotalCompletedApplicants($type, null, $startDate, $endDate);
-                $completionRate = ($totalApplicants > 0) ? round($totalCompletedApplicants / $totalApplicants * 100) : 0;
-                $dropOffState = $this->applicantDataService->getdropOffState($type, null, $startDate, $endDate);
+            // Step 11: Fetch the completion rate and drop of state from applicantDataService
+            $totalApplicants = $this->applicantDataService->getTotalApplicants($type, null, $startDate, $endDate);
+            $totalCompletedApplicants = $this->applicantDataService->getTotalCompletedApplicants($type, null, $startDate, $endDate);
+            $completionRate = ($totalApplicants > 0) ? round($totalCompletedApplicants / $totalApplicants * 100) : 0;
+            $dropOffState = $this->applicantDataService->getdropOffState($type, null, $startDate, $endDate);
 
-                // Step 12: Fetch applicant demographic data from applicantDataService
-                $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate);
-                $interviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, null, $startDate, $endDate);
-                $appointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, null, $startDate, $endDate);
-                $talentPoolApplicantsProvince = $this->applicantDataService->getTalentPoolApplicantsProvince($type, null, $startDate, $endDate);
-            }
+            // Step 12: Fetch applicant demographic data from applicantDataService
+            $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate);
+            $interviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, null, $startDate, $endDate);
+            $appointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, null, $startDate, $endDate);
+            $talentPoolApplicantsProvince = $this->applicantDataService->getTalentPoolApplicantsProvince($type, null, $startDate, $endDate);
 
-            // Return the 'admin/home' view with the calculated data
-            return view('admin/home', [
+            return [
                 'shortlist' => $shortlist,
                 'totalVacancies' => $totalVacancies,
                 'totalVacanciesFilled' => $totalVacanciesFilled,
@@ -248,212 +317,7 @@ class AdminController extends Controller
                 'interviewedApplicantsDemographic' => $interviewedApplicantsDemographic,
                 'appointedApplicantsDemographic' => $appointedApplicantsDemographic,
                 'talentPoolApplicantsProvince' => $talentPoolApplicantsProvince
-            ]);
-        }
-
-        // If the view 'admin/home' does not exist, return a 404 error page
-        return view('404');
-    }
-
-    /**
-     * Update the admin dashboard data based on a selected date range.
-     *
-     * This method is triggered via an AJAX request and retrieves
-     * updated statistics for the admin dashboard, including vacancy,
-     * interview, applicant, and proximity data based on the selected
-     * date range (startDate to endDate).
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
-    */
-    public function updateDashboard(Request $request)
-    {
-        try {
-            // Retrieve the ID of the currently authenticated user
-            $authUserId = Auth::id();
-
-            // Fetch the authenticated user
-            $authUser = User::find($authUserId);
-
-            // Define the date range (from the request data)
-            $startDate = Carbon::parse($request->input('startDate'))->startOfDay();
-            $endDate = Carbon::parse($request->input('endDate'))->endOfDay();
-
-            // Set the type to 'store' to filter vacancies by the specific store ID in the query
-            $type = 'all';
-
-            // Get the max proximity from store
-            $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
-
-            // Initialize variables to 0 or empty before the null check
-
-            // Step 1: Initialize vacancy data
-            $totalVacancies = 0;
-            $totalVacanciesFilled = 0;
-
-            // Step 2: Initialize interview data
-            $totalInterviewsScheduled = 0;
-            $totalInterviewsCompleted = 0;
-
-            // Step 3: Initialize appointed and regretted applicant data
-            $totalApplicantsAppointed = 0;
-            $totalApplicantsRegretted = 0;
-
-            // Step 4: Initialize time data
-            $averageTimeToShortlist = 0;
-            $averageTimeToHire = 0;
-            $adoptionRate = 0;
-
-            // Step 5: Initialize proximity data
-            $averageDistanceTalentPoolApplicants = 0;
-            $averageDistanceApplicantsAppointed = 0;
-
-            // Step 6: Fetch applicant score data
-            $averageScoreTalentPoolApplicants = 0;
-            $averageScoreApplicantsAppointed = 0;
-
-            // Step 7: Fetch talent pool data
-            $talentPoolApplicants = 0;
-            $talentPoolApplicantsByMonth = [];
-
-            // Step 8: Fetch applicants appointed data
-            $applicantsAppointed = 0;
-            $applicantsAppointedByMonth = [];
-
-            // Step 9: Fetch applicants assessment scores
-            $literacyStateID = State::where('code', 'literacy')->first()->id;
-            $literacyQuestionsCount = ChatTemplate::where('state_id', $literacyStateID)->count();
-            $averageLiteracyScoreTalentPoolApplicants = 0;
-
-            $numeracyStateID = State::where('code', 'numeracy')->first()->id;
-            $numeracyQuestionsCount = ChatTemplate::where('state_id', $numeracyStateID)->count();
-            $averageNumeracyScoreTalentPoolApplicants = 0;
-
-            $situationalStateID = State::where('code', 'situational')->first()->id;
-            $situationalQuestionsCount = ChatTemplate::where('state_id', $situationalStateID)->count();
-            $averageSituationalScoreTalentPoolApplicants = 0;
-
-            // Step 10: Fetch application channel data
-            $totalWhatsAppApplicants = 0;
-            $totalWebsiteApplicants = 0;
-
-            // Step 11: Fetch the completion rate and drop of state
-            $totalApplicants = 0;
-            $totalCompletedApplicants = 0;
-            $completionRate = 0;
-            $dropOffState = 'None';
-
-            // Step 12: Fetch applicant demographic data
-            $talentPoolApplicantsDemographic = [];
-            $interviewedApplicantsDemographic = [];
-            $appointedApplicantsDemographic = [];
-            $talentPoolApplicantsProvince = [];
-
-            // Check if the authenticated user is active
-            if ($authUserId !== null) {
-                // Step 1: Fetch vacancy data from VacancyDataService
-                $totalVacancies = $this->vacancyDataService->getTotalVacancies($type, null, $startDate, $endDate);
-                $totalVacanciesFilled = $this->vacancyDataService->getTotalVacanciesFilled($type, null, $startDate, $endDate);
-
-                // Step 2: Fetch interview data from VacancyDataService
-                $totalInterviewsScheduled = $this->vacancyDataService->getTotalInterviewsScheduled($type, null, $startDate, $endDate);
-                $totalInterviewsCompleted = $this->vacancyDataService->getTotalInterviewsCompleted($type, null, $startDate, $endDate);
-
-                // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
-                $totalApplicantsAppointed = $this->vacancyDataService->getTotalApplicantsAppointed($type, null, $startDate, $endDate);
-                $totalApplicantsRegretted = $this->vacancyDataService->getTotalApplicantsRegretted($type, null, $startDate, $endDate);
-
-                // Step 4: Fetch time data from VacancyDataService
-                $averageTimeToShortlist = $this->vacancyDataService->getAverageTimeToShortlist($type, null, $startDate, $endDate);
-                $averageTimeToHire = $this->vacancyDataService->getAverageTimeToHire($type, null, $startDate, $endDate);
-                $adoptionRate = ($totalVacancies > 0) ? round($totalVacanciesFilled / $totalVacancies * 100) : 0;
-
-                // Step 5: Fetch proximity data from ApplicantProximityService
-                $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
-                $averageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, null, $startDate, $endDate);
-
-                // Step 6: Fetch applicant score data from ApplicantDataService
-                $averageScoreTalentPoolApplicants = $this->applicantDataService->getAverageScoreTalentPoolApplicants($type, null, $startDate, $endDate);
-                $averageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, null, $startDate, $endDate);
-
-                // Step 7: Fetch talent pool data from applicantProximityService
-                $talentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
-                $talentPoolApplicantsByMonth = $this->applicantProximityService->getTalentPoolApplicantsByMonth($type, null, $startDate, $endDate, $maxDistanceFromStore);
-
-                // Step 8: Fetch applicants appointed data from vacancyDataService
-                $applicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, null, $startDate, $endDate);
-                $applicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, null, $startDate, $endDate);
-
-                // Step 9: Fetch applicants assessment scores
-                $averageLiteracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageLiteracyScoreTalentPoolApplicants($type, null, $startDate, $endDate);
-                $averageNumeracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageNumeracyScoreTalentPoolApplicants($type, null, $startDate, $endDate);
-                $averageSituationalScoreTalentPoolApplicants = $this->applicantDataService->getAverageSituationalScoreTalentPoolApplicants($type, null, $startDate, $endDate);
-
-                // Step 10: Fetch application channel data from applicantDataService
-                $totalWhatsAppApplicants = $this->applicantDataService->getTotalWhatsAppApplicants($type, null, $startDate, $endDate);
-                $totalWebsiteApplicants = $this->applicantDataService->getTotalWebsiteApplicants($type, null, $startDate, $endDate);
-
-                // Step 11: Fetch the completion rate and drop of state from applicantDataService
-                $totalApplicants = $this->applicantDataService->getTotalApplicants($type, null, $startDate, $endDate);
-                $totalCompletedApplicants = $this->applicantDataService->getTotalCompletedApplicants($type, null, $startDate, $endDate);
-                $completionRate = ($totalApplicants > 0) ? round($totalCompletedApplicants / $totalApplicants * 100) : 0;
-                $dropOffState = $this->applicantDataService->getdropOffState($type, null, $startDate, $endDate);
-
-                // Step 12: Fetch applicant demographic data from applicantDataService
-                $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate);
-                $interviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, null, $startDate, $endDate);
-                $appointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, null, $startDate, $endDate);
-                $talentPoolApplicantsProvince = $this->applicantDataService->getTalentPoolApplicantsProvince($type, null, $startDate, $endDate);
-            }
-
-            //Data to return
-            $data = [
-                'totalVacancies' => $totalVacancies,
-                'totalVacanciesFilled' => $totalVacanciesFilled,
-                'totalInterviewsScheduled' => $totalInterviewsScheduled,
-                'totalInterviewsCompleted' => $totalInterviewsCompleted,
-                'totalApplicantsAppointed' => $totalApplicantsAppointed,
-                'totalApplicantsRegretted' => $totalApplicantsRegretted,
-                'averageTimeToShortlist' => $averageTimeToShortlist,
-                'averageTimeToHire' => $averageTimeToHire,
-                'adoptionRate' => $adoptionRate,
-                'averageDistanceTalentPoolApplicants' => $averageDistanceTalentPoolApplicants,
-                'averageDistanceApplicantsAppointed' => $averageDistanceApplicantsAppointed,
-                'averageScoreTalentPoolApplicants' => $averageScoreTalentPoolApplicants,
-                'averageScoreApplicantsAppointed' => $averageScoreApplicantsAppointed,
-                'talentPoolApplicants' => $talentPoolApplicants,
-                'talentPoolApplicantsByMonth' => $talentPoolApplicantsByMonth,
-                'applicantsAppointed' => $applicantsAppointed,
-                'applicantsAppointedByMonth' => $applicantsAppointedByMonth,
-                'literacyQuestionsCount' => $literacyQuestionsCount,
-                'averageLiteracyScoreTalentPoolApplicants' => $averageLiteracyScoreTalentPoolApplicants,
-                'numeracyQuestionsCount' => $numeracyQuestionsCount,
-                'averageNumeracyScoreTalentPoolApplicants' => $averageNumeracyScoreTalentPoolApplicants,
-                'situationalQuestionsCount' => $situationalQuestionsCount,
-                'averageSituationalScoreTalentPoolApplicants' => $averageSituationalScoreTalentPoolApplicants,
-                'totalWhatsAppApplicants' => $totalWhatsAppApplicants,
-                'totalWebsiteApplicants' => $totalWebsiteApplicants,
-                'completionRate' => $completionRate,
-                'dropOffState' => $dropOffState,
-                'talentPoolApplicantsDemographic' => $talentPoolApplicantsDemographic,
-                'interviewedApplicantsDemographic' => $interviewedApplicantsDemographic,
-                'appointedApplicantsDemographic' => $appointedApplicantsDemographic,
-                'talentPoolApplicantsProvince' => $talentPoolApplicantsProvince
             ];
-
-            // Return the updated data as JSON
-            return response()->json([
-                'success' => true,
-                'data' => $data,
-                'message' => 'Data updated successfully!'
-            ]);
-        } catch (\Exception $e) {
-            // Return other errors
-            return response()->json([
-                'success' => false,
-                'message' => 'Failed to retrieve data!',
-                'error' => $e->getMessage()
-            ], 400);
         }
     }
 }
