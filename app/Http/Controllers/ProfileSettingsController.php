@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Session;
 use Spatie\Activitylog\Models\Activity;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
 
 class ProfileSettingsController extends Controller
 {
@@ -132,8 +133,8 @@ class ProfileSettingsController extends Controller
         $user = User::findorfail($userID);
 
         // Base validation rules
-        $validationRules = [
-            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024'],
+        $validationRules = [            
+            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'mimetypes:image/jpeg,image/png', 'max:1024'],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
             'phone' => ['required', 'string', 'max:191', Rule::unique('users')->ignore($userID)],
@@ -170,24 +171,32 @@ class ProfileSettingsController extends Controller
         $request->validate($validationRules);
 
         try {
-            // Avatar
-            if ($request->avatar) {
-                // Check if a previous avatar exists and is not the default one
+             // Avatar
+            if ($request->hasFile('avatar')) {
+                $avatar = $request->file('avatar');
+
+                // Validate file signature
+                if (!$this->isValidImage($avatar->getPathname())) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid image file!'
+                    ], 400);
+                }
+
+                // Delete old avatar if not default
                 if ($user->avatar && $user->avatar !== 'avatar.jpg') {
-                    // Construct the path to the old avatar
                     $oldAvatarPath = public_path('/images/') . $user->avatar;
-                    // Check if the file exists and delete it
                     if (File::exists($oldAvatarPath)) {
                         File::delete($oldAvatarPath);
                     }
                 }
 
-                $avatar = request()->file('avatar');
-                $avatarName = $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
+                // Generate new avatar name and move it
+                $avatarName = Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
-                $avatarName = $user->avatar;
+                $avatarName = $user->avatar; // Keep the current avatar
             }
 
             DB::beginTransaction();
@@ -201,7 +210,7 @@ class ProfileSettingsController extends Controller
             $user->avatar = $avatarName;
             $user->save();
 
-            // Update Applicant if the role_id is <= 7
+            // Update Applicant if the role_id is >= 7
             if ($user->role_id >= 7) {
                 $applicant = Applicant::find($user->applicant_id);
                 $latitude = $request->latitude;
@@ -373,5 +382,32 @@ class ProfileSettingsController extends Controller
                 'error' => $e->getMessage()
             ], 400);
         }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validate Image
+    |--------------------------------------------------------------------------
+    */
+
+    // Function to validate the file signature (magic bytes)
+    private function isValidImage($path)
+    {
+        $file = fopen($path, 'rb');
+        $bytes = fread($file, 8); // Get the first few bytes
+        fclose($file);
+
+        // JPEG magic numbers
+        if (bin2hex($bytes) === 'ffd8ffe0' || bin2hex($bytes) === 'ffd8ffe1') {
+            return true; // It's a JPEG file
+        }
+
+        // PNG magic numbers
+        if (bin2hex($bytes) === '89504e47') {
+            return true; // It's a PNG file
+        }
+
+        // Add more checks for other image formats if necessary
+        return false;
     }
 }

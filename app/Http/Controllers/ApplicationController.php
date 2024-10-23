@@ -37,6 +37,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
 
 class ApplicationController extends Controller
 {
@@ -140,7 +141,13 @@ class ApplicationController extends Controller
         // Validate Input
         $request->validate([
             'consent' => ['accepted'], // Validate consent checkbox
-            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:5120'], // Avatar validation
+            'avatar' => [
+                'sometimes', 
+                'file', 
+                'mimes:jpg,jpeg,png', // Whitelist allowed extensions (JPG, JPEG, PNG)
+                'mimetypes:image/jpeg,image/png,image/jpg', // Ensure MIME type matches an image type
+                'max:5120' // 5MB max size
+            ],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
             'id_number' => ['required', 'string', 'max:13', 'unique:applicants'],
@@ -184,9 +191,18 @@ class ApplicationController extends Controller
             $user = User::find($userId);
 
             // Handle avatar upload (if present)
-            if ($request->avatar) {
-                $avatar = request()->file('avatar');
-                $avatarName = '/images/' . $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
+            if ($request->hasFile('avatar')) {
+                $avatar = $request->file('avatar');
+
+                // Check the file's signature (magic bytes) to ensure it's an image
+                if (!$this->isValidImage($avatar->getPathname())) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid image file!'
+                    ], 400); // Return error if the file signature is not valid
+                }
+
+                $avatarName = '/images/' . Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
 
@@ -406,7 +422,13 @@ class ApplicationController extends Controller
         //Validate Input
         $request->validate([
             'consent' => ['accepted'], // Validate consent checkbox
-            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'max:5120'], // Avatar validation
+            'avatar' => [
+                'sometimes', 
+                'file', 
+                'mimes:jpg,jpeg,png', // Whitelist allowed extensions (JPG, JPEG, PNG)
+                'mimetypes:image/jpeg,image/png,image/jpg', // Ensure MIME type matches an image type
+                'max:5120' // 5MB max size
+            ],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
             'id_number' => ['required', 'string', 'max:13', Rule::unique('applicants')->ignore($applicantId)],
@@ -450,9 +472,18 @@ class ApplicationController extends Controller
             $user = User::find($userId);
 
             // Handle avatar upload (if present)
-            if ($request->avatar) {
-                $avatar = request()->file('avatar');
-                $avatarName = '/images/' . $request->firstname . ' ' . $request->lastname . '-' . time() . '.' . $avatar->getClientOriginalExtension();
+            if ($request->hasFile('avatar')) {
+                $avatar = $request->file('avatar');
+
+                // Check the file's signature (magic bytes) to ensure it's an image
+                if (!$this->isValidImage($avatar->getPathname())) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid image file!'
+                    ], 400); // Return error if the file signature is not valid
+                }
+
+                $avatarName = '/images/' . Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
                 $avatarPath = public_path('/images/');
                 $avatar->move($avatarPath, $avatarName);
 
@@ -466,7 +497,7 @@ class ApplicationController extends Controller
                 ]);
             } else {
                 // Use existing avatar if available, otherwise fallback to default
-                $avatarName = $user && $user->avatar ? $user->avatar : '/images/avatar.jpg';
+                $avatarName = $user && $user->avatar ? '/images/' . $user->avatar : '/images/avatar.jpg';
             }
 
             // Determine the value of avatar_upload based on the avatar
@@ -838,5 +869,32 @@ class ApplicationController extends Controller
 
         // Round the normalized score to 2 decimal places and return it
         return round($finalScore, 2);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Validate Image
+    |--------------------------------------------------------------------------
+    */
+
+    // Function to validate the file signature (magic bytes)
+    private function isValidImage($path)
+    {
+        $file = fopen($path, 'rb');
+        $bytes = fread($file, 8); // Get the first few bytes
+        fclose($file);
+
+        // JPEG magic numbers
+        if (bin2hex($bytes) === 'ffd8ffe0' || bin2hex($bytes) === 'ffd8ffe1') {
+            return true; // It's a JPEG file
+        }
+
+        // PNG magic numbers
+        if (bin2hex($bytes) === '89504e47') {
+            return true; // It's a PNG file
+        }
+
+        // Add more checks for other image formats if necessary
+        return false;
     }
 }
