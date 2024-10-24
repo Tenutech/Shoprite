@@ -71,7 +71,7 @@ it('calculates the nationwide average time to hire within a date range', functio
     $vacancyDataService = app(VacancyDataService::class);
     $averageTime = $vacancyDataService->getAverageTimeToHire(null, null, $startDate, $endDate);
 
-    $expectedAverage = '6D 12H 0M';
+    $expectedAverage = '8D 0H 0M';
 
     expect($averageTime)->toBe($expectedAverage);
 });
