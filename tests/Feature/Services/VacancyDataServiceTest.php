@@ -55,7 +55,6 @@ it('calculates the nationwide average time to hire', function () {
     expect($averageTime)->toBe($expectedAverage);
 });
 
-/*
 it('calculates the nationwide average time to hire within a date range', function () {
     $vacancy1 = Vacancy::factory()->create(['created_at' => now()->subDays(30)]);
     VacancyFill::factory()->create(['vacancy_id' => $vacancy1->id, 'created_at' => now()->subDays(25)]);
@@ -72,7 +71,7 @@ it('calculates the nationwide average time to hire within a date range', functio
     $vacancyDataService = app(VacancyDataService::class);
     $averageTime = $vacancyDataService->getAverageTimeToHire(null, null, $startDate, $endDate);
 
-    $expectedAverage = '6D 0H 0M';
+    $expectedAverage = '6D 12H 0M';
 
     expect($averageTime)->toBe($expectedAverage);
 });
@@ -126,4 +125,3 @@ it('calculates the store-specific average time to shortlist', function () {
 
     expect($storeAverage)->toBe($expectedAverage);
 });
-*/

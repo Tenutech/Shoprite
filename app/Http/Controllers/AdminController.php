@@ -65,7 +65,7 @@ class AdminController extends Controller
             $endDate = Carbon::now()->endOfDay();
 
             $data = $this->fetchData($startDate, $endDate);
-         
+
             // Return the 'admin/home' view with the calculated data
             return view('admin/home', $data);
         }
@@ -227,98 +227,97 @@ class AdminController extends Controller
             $interviewedApplicantsDemographic = [];
             $appointedApplicantsDemographic = [];
             $talentPoolApplicantsProvince = [];
-          
+
             // Check if the authenticated user is active
-            if ($authUserId !== null) {
-                // Step 1: Fetch vacancy data from VacancyDataService
-                $totalVacancies = $this->vacancyDataService->getTotalVacancies($type, null, $startDate, $endDate);
-                $totalVacanciesFilled = $this->vacancyDataService->getTotalVacanciesFilled($type, null, $startDate, $endDate);
+        if ($authUserId !== null) {
+            // Step 1: Fetch vacancy data from VacancyDataService
+            $totalVacancies = $this->vacancyDataService->getTotalVacancies($type, null, $startDate, $endDate);
+            $totalVacanciesFilled = $this->vacancyDataService->getTotalVacanciesFilled($type, null, $startDate, $endDate);
 
-                // Step 2: Fetch interview data from VacancyDataService
-                $totalInterviewsScheduled = $this->vacancyDataService->getTotalInterviewsScheduled($type, null, $startDate, $endDate);
-                $totalInterviewsCompleted = $this->vacancyDataService->getTotalInterviewsCompleted($type, null, $startDate, $endDate);
+            // Step 2: Fetch interview data from VacancyDataService
+            $totalInterviewsScheduled = $this->vacancyDataService->getTotalInterviewsScheduled($type, null, $startDate, $endDate);
+            $totalInterviewsCompleted = $this->vacancyDataService->getTotalInterviewsCompleted($type, null, $startDate, $endDate);
 
-                // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
-                $totalApplicantsAppointed = $this->vacancyDataService->getTotalApplicantsAppointed($type, null, $startDate, $endDate);
-                $totalApplicantsRegretted = $this->vacancyDataService->getTotalApplicantsRegretted($type, null, $startDate, $endDate);
+            // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
+            $totalApplicantsAppointed = $this->vacancyDataService->getTotalApplicantsAppointed($type, null, $startDate, $endDate);
+            $totalApplicantsRegretted = $this->vacancyDataService->getTotalApplicantsRegretted($type, null, $startDate, $endDate);
 
-                // Step 4: Fetch time data from VacancyDataService
-                $averageTimeToShortlist = $this->vacancyDataService->getAverageTimeToShortlist($type, null, $startDate, $endDate);
-                $averageTimeToHire = $this->vacancyDataService->getAverageTimeToHire($type, null, $startDate, $endDate);
-                $adoptionRate = ($totalVacancies > 0) ? round($totalVacanciesFilled / $totalVacancies * 100) : 0;
+            // Step 4: Fetch time data from VacancyDataService
+            $averageTimeToShortlist = $this->vacancyDataService->getAverageTimeToShortlist($type, null, $startDate, $endDate);
+            $averageTimeToHire = $this->vacancyDataService->getAverageTimeToHire($type, null, $startDate, $endDate);
+            $adoptionRate = ($totalVacancies > 0) ? round($totalVacanciesFilled / $totalVacancies * 100) : 0;
 
-                // Step 5: Fetch proximity data from ApplicantProximityService
-                $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
-                $averageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, null, $startDate, $endDate);
+            // Step 5: Fetch proximity data from ApplicantProximityService
+            $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
+            $averageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, null, $startDate, $endDate);
 
-                // Step 6: Fetch applicant score data from ApplicantDataService
-                $averageScoreTalentPoolApplicants = $this->applicantDataService->getAverageScoreTalentPoolApplicants($type, null, $startDate, $endDate);
-                $averageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, null, $startDate, $endDate);
+            // Step 6: Fetch applicant score data from ApplicantDataService
+            $averageScoreTalentPoolApplicants = $this->applicantDataService->getAverageScoreTalentPoolApplicants($type, null, $startDate, $endDate);
+            $averageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, null, $startDate, $endDate);
 
-                // Step 7: Fetch talent pool data from applicantProximityService
-                $talentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
-                $talentPoolApplicantsByMonth = $this->applicantProximityService->getTalentPoolApplicantsByMonth($type, null, $startDate, $endDate, $maxDistanceFromStore);
+            // Step 7: Fetch talent pool data from applicantProximityService
+            $talentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
+            $talentPoolApplicantsByMonth = $this->applicantProximityService->getTalentPoolApplicantsByMonth($type, null, $startDate, $endDate, $maxDistanceFromStore);
 
-                // Step 8: Fetch applicants appointed data from vacancyDataService
-                $applicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, null, $startDate, $endDate);
-                $applicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, null, $startDate, $endDate);
+            // Step 8: Fetch applicants appointed data from vacancyDataService
+            $applicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, null, $startDate, $endDate);
+            $applicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, null, $startDate, $endDate);
 
-                // Step 9: Fetch applicants assessment scores from applicantDataService
-                $averageLiteracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageLiteracyScoreTalentPoolApplicants($type, null, $startDate, $endDate);
-                $averageNumeracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageNumeracyScoreTalentPoolApplicants($type, null, $startDate, $endDate);
-                $averageSituationalScoreTalentPoolApplicants = $this->applicantDataService->getAverageSituationalScoreTalentPoolApplicants($type, null, $startDate, $endDate);
+            // Step 9: Fetch applicants assessment scores from applicantDataService
+            $averageLiteracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageLiteracyScoreTalentPoolApplicants($type, null, $startDate, $endDate);
+            $averageNumeracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageNumeracyScoreTalentPoolApplicants($type, null, $startDate, $endDate);
+            $averageSituationalScoreTalentPoolApplicants = $this->applicantDataService->getAverageSituationalScoreTalentPoolApplicants($type, null, $startDate, $endDate);
 
-                // Step 10: Fetch application channel data from applicantDataService
-                $totalWhatsAppApplicants = $this->applicantDataService->getTotalWhatsAppApplicants($type, null, $startDate, $endDate);
-                $totalWebsiteApplicants = $this->applicantDataService->getTotalWebsiteApplicants($type, null, $startDate, $endDate);
+            // Step 10: Fetch application channel data from applicantDataService
+            $totalWhatsAppApplicants = $this->applicantDataService->getTotalWhatsAppApplicants($type, null, $startDate, $endDate);
+            $totalWebsiteApplicants = $this->applicantDataService->getTotalWebsiteApplicants($type, null, $startDate, $endDate);
 
-                // Step 11: Fetch the completion rate and drop of state from applicantDataService
-                $totalApplicants = $this->applicantDataService->getTotalApplicants($type, null, $startDate, $endDate);
-                $totalCompletedApplicants = $this->applicantDataService->getTotalCompletedApplicants($type, null, $startDate, $endDate);
-                $completionRate = ($totalApplicants > 0) ? round($totalCompletedApplicants / $totalApplicants * 100) : 0;
-                $dropOffState = $this->applicantDataService->getdropOffState($type, null, $startDate, $endDate);
+            // Step 11: Fetch the completion rate and drop of state from applicantDataService
+            $totalApplicants = $this->applicantDataService->getTotalApplicants($type, null, $startDate, $endDate);
+            $totalCompletedApplicants = $this->applicantDataService->getTotalCompletedApplicants($type, null, $startDate, $endDate);
+            $completionRate = ($totalApplicants > 0) ? round($totalCompletedApplicants / $totalApplicants * 100) : 0;
+            $dropOffState = $this->applicantDataService->getdropOffState($type, null, $startDate, $endDate);
 
-                // Step 12: Fetch applicant demographic data from applicantDataService
-                $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate);
-                $interviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, null, $startDate, $endDate);
-                $appointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, null, $startDate, $endDate);
-                $talentPoolApplicantsProvince = $this->applicantDataService->getTalentPoolApplicantsProvince($type, null, $startDate, $endDate);
-            
-                return [
-                    'shortlist' => $shortlist,
-                    'totalVacancies' => $totalVacancies,
-                    'totalVacanciesFilled' => $totalVacanciesFilled,
-                    'totalInterviewsScheduled' => $totalInterviewsScheduled,
-                    'totalInterviewsCompleted' => $totalInterviewsCompleted,
-                    'totalApplicantsAppointed' => $totalApplicantsAppointed,
-                    'totalApplicantsRegretted' => $totalApplicantsRegretted,
-                    'averageTimeToShortlist' => $averageTimeToShortlist,
-                    'averageTimeToHire' => $averageTimeToHire,
-                    'adoptionRate' => $adoptionRate,
-                    'averageDistanceTalentPoolApplicants' => $averageDistanceTalentPoolApplicants,
-                    'averageDistanceApplicantsAppointed' => $averageDistanceApplicantsAppointed,
-                    'averageScoreTalentPoolApplicants' => $averageScoreTalentPoolApplicants,
-                    'averageScoreApplicantsAppointed' => $averageScoreApplicantsAppointed,
-                    'talentPoolApplicants' => $talentPoolApplicants,
-                    'talentPoolApplicantsByMonth' => $talentPoolApplicantsByMonth,
-                    'applicantsAppointed' => $applicantsAppointed,
-                    'applicantsAppointedByMonth' => $applicantsAppointedByMonth,
-                    'literacyQuestionsCount' => $literacyQuestionsCount,
-                    'averageLiteracyScoreTalentPoolApplicants' => $averageLiteracyScoreTalentPoolApplicants,
-                    'numeracyQuestionsCount' => $numeracyQuestionsCount,
-                    'averageNumeracyScoreTalentPoolApplicants' => $averageNumeracyScoreTalentPoolApplicants,
-                    'situationalQuestionsCount' => $situationalQuestionsCount,
-                    'averageSituationalScoreTalentPoolApplicants' => $averageSituationalScoreTalentPoolApplicants,
-                    'totalWhatsAppApplicants' => $totalWhatsAppApplicants,
-                    'totalWebsiteApplicants' => $totalWebsiteApplicants,
-                    'completionRate' => $completionRate,
-                    'dropOffState' => $dropOffState,
-                    'talentPoolApplicantsDemographic' => $talentPoolApplicantsDemographic,
-                    'interviewedApplicantsDemographic' => $interviewedApplicantsDemographic,
-                    'appointedApplicantsDemographic' => $appointedApplicantsDemographic,
-                    'talentPoolApplicantsProvince' => $talentPoolApplicantsProvince
-                ];
+            // Step 12: Fetch applicant demographic data from applicantDataService
+            $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate);
+            $interviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, null, $startDate, $endDate);
+            $appointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, null, $startDate, $endDate);
+            $talentPoolApplicantsProvince = $this->applicantDataService->getTalentPoolApplicantsProvince($type, null, $startDate, $endDate);
 
-            }
+            return [
+                'shortlist' => $shortlist,
+                'totalVacancies' => $totalVacancies,
+                'totalVacanciesFilled' => $totalVacanciesFilled,
+                'totalInterviewsScheduled' => $totalInterviewsScheduled,
+                'totalInterviewsCompleted' => $totalInterviewsCompleted,
+                'totalApplicantsAppointed' => $totalApplicantsAppointed,
+                'totalApplicantsRegretted' => $totalApplicantsRegretted,
+                'averageTimeToShortlist' => $averageTimeToShortlist,
+                'averageTimeToHire' => $averageTimeToHire,
+                'adoptionRate' => $adoptionRate,
+                'averageDistanceTalentPoolApplicants' => $averageDistanceTalentPoolApplicants,
+                'averageDistanceApplicantsAppointed' => $averageDistanceApplicantsAppointed,
+                'averageScoreTalentPoolApplicants' => $averageScoreTalentPoolApplicants,
+                'averageScoreApplicantsAppointed' => $averageScoreApplicantsAppointed,
+                'talentPoolApplicants' => $talentPoolApplicants,
+                'talentPoolApplicantsByMonth' => $talentPoolApplicantsByMonth,
+                'applicantsAppointed' => $applicantsAppointed,
+                'applicantsAppointedByMonth' => $applicantsAppointedByMonth,
+                'literacyQuestionsCount' => $literacyQuestionsCount,
+                'averageLiteracyScoreTalentPoolApplicants' => $averageLiteracyScoreTalentPoolApplicants,
+                'numeracyQuestionsCount' => $numeracyQuestionsCount,
+                'averageNumeracyScoreTalentPoolApplicants' => $averageNumeracyScoreTalentPoolApplicants,
+                'situationalQuestionsCount' => $situationalQuestionsCount,
+                'averageSituationalScoreTalentPoolApplicants' => $averageSituationalScoreTalentPoolApplicants,
+                'totalWhatsAppApplicants' => $totalWhatsAppApplicants,
+                'totalWebsiteApplicants' => $totalWebsiteApplicants,
+                'completionRate' => $completionRate,
+                'dropOffState' => $dropOffState,
+                'talentPoolApplicantsDemographic' => $talentPoolApplicantsDemographic,
+                'interviewedApplicantsDemographic' => $interviewedApplicantsDemographic,
+                'appointedApplicantsDemographic' => $appointedApplicantsDemographic,
+                'talentPoolApplicantsProvince' => $talentPoolApplicantsProvince
+            ];
+        }
     }
 }
