@@ -44,7 +44,7 @@ it('calculates the nationwide average time to hire', function () {
     $vacancy2 = Vacancy::factory()->create(['created_at' => now()->subDays(20)]);
     VacancyFill::factory()->create(['vacancy_id' => $vacancy2->id, 'created_at' => now()->subDays(10)]);
 
-    $startDate = Carbon::now()->subDays(20);
+    $startDate = Carbon::now()->subDays(30);
     $endDate = Carbon::now();
 
     $vacancyDataService = app(VacancyDataService::class);
