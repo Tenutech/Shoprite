@@ -1,5 +1,5 @@
 @extends('layouts.master-without-nav')
-@section('title') Orient  - Where Potential Meets Opportunity @endsection
+@section('title') Shoprite - Job Opportunities @endsection
 @section('css')
 <link href="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.css') }}" rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('build/libs/swiper/swiper-bundle.min.css') }}" rel="stylesheet" type="text/css" />

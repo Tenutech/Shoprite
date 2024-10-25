@@ -44,9 +44,6 @@
                                 <h5 class="text-shoprite-secondary">
                                     Welcome Back !
                                 </h5>
-                                <p class="text-muted">
-                                    Sign in to continue to Shoprite Job Opportunities
-                                </p>
                             </div>
                             <div class="p-2 mt-4">
                                 <form action="{{ route('login') }}" method="POST">
