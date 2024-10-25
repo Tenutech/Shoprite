@@ -55,6 +55,13 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+        // Custom error messages for validation
+        $messages = [
+            'password.min' => 'The password must be at least :min characters.',
+            'password.regex' => 'The password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character.',
+            'password.confirmed' => 'Password confirmation does not match.',
+        ];
+
         // Define validation rules for registration data
         return Validator::make($data, [
             'firstname' => ['required', 'string', 'max:191'],
@@ -72,8 +79,17 @@ class RegisterController extends Controller
             }],
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
             'email' => ['nullable', 'string', 'email', 'max:191', 'unique:users'],
-            'password' => ['required', 'string', 'min:8', 'confirmed']
-        ]);
+            'password' => [
+                'required',
+                'string',
+                'min:8', // Increase the minimum length to 12 characters
+                'regex:/[a-z]/', // At least one lowercase letter
+                'regex:/[A-Z]/', // At least one uppercase letter
+                'regex:/[0-9]/', // At least one digit
+                'regex:/[@$!%*#?&]/', // At least one special character
+                'confirmed'
+            ],
+        ], $messages);
     }
 
     /**

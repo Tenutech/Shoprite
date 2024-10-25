@@ -201,6 +201,11 @@
                     <div class="collapse menu-dropdown" id="sidebarUsers">
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
+                                <a class="nav-link" href="{{ route('applicants-table.index') }}">
+                                    Applicants
+                                </a>
+                            </li>
+                            <li class="nav-item">
                                 <a class="nav-link" href="{{ route('users.index') }}">
                                     Users
                                 </a>
@@ -208,6 +213,21 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('managers.index') }}">
                                     Managers
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('dpps.index') }}">
+                                    DPPs
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('dtdps.index') }}">
+                                    DTDPs
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('rpps.index') }}">
+                                    RPPs
                                 </a>
                             </li>
                             <li class="nav-item">

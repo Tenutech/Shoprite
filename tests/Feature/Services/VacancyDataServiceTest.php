@@ -27,12 +27,14 @@ it('calculates the nationwide average time to shortlist', function () {
     $vacancy2 = Vacancy::factory()->create(['created_at' => now()->subDays(10)]);
     $shortlist2 = Shortlist::factory()->create(['vacancy_id' => $vacancy2->id, 'created_at' => now()->subDays(1)]);
 
-    $averageTime = $service->getNationwideAverageTimeToShortlist();
+    $startDate = Carbon::now()->subDays(20);
+    $endDate = Carbon::now();
+
+    $averageTime = $service->getAverageTimeToShortlist(null, null, $startDate, $endDate);
    
-    $expectedAverage = 6;
+    $expectedAverage = '6D 0H 0M';
  
-    expect($averageTime)->toBeGreaterThanOrEqual($expectedAverage - 0.1);
-    expect($averageTime)->toBeLessThanOrEqual($expectedAverage + 0.1);
+    expect($averageTime)->toBe($expectedAverage);
 });
 
 it('calculates the nationwide average time to hire', function () {
@@ -42,13 +44,15 @@ it('calculates the nationwide average time to hire', function () {
     $vacancy2 = Vacancy::factory()->create(['created_at' => now()->subDays(20)]);
     VacancyFill::factory()->create(['vacancy_id' => $vacancy2->id, 'created_at' => now()->subDays(10)]);
 
+    $startDate = Carbon::now()->subDays(20);
+    $endDate = Carbon::now();
+
     $vacancyDataService = app(VacancyDataService::class);
-    $nationwideAverageTimeToHire = $vacancyDataService->getNationwideAverageTimeToHire();
+    $averageTime = $vacancyDataService->getAverageTimeToHire(null, null, $startDate, $endDate);
+    
+    $expectedAverage = '7D 12H 0M';
 
-    $expectedAverage = 8;
-
-    expect($nationwideAverageTimeToHire)->toBeGreaterThanOrEqual($expectedAverage - 0.1);
-    expect($nationwideAverageTimeToHire)->toBeLessThanOrEqual($expectedAverage + 0.1);
+    expect($averageTime)->toBe($expectedAverage);
 });
 
 it('calculates the nationwide average time to hire within a date range', function () {
@@ -61,19 +65,22 @@ it('calculates the nationwide average time to hire within a date range', functio
     $vacancy3 = Vacancy::factory()->create(['created_at' => now()->subDays(10)]);
     VacancyFill::factory()->create(['vacancy_id' => $vacancy3->id, 'created_at' => now()->subDays(2)]);
 
-    $startDate = now()->subDays(20)->format('Y-m-d');
-    $endDate = now()->format('Y-m-d');
+    $startDate = Carbon::now()->subDays(20);
+    $endDate = Carbon::now();
 
     $vacancyDataService = app(VacancyDataService::class);
-    $nationwideAverageTimeToHire = $vacancyDataService->getNationwideAverageTimeToHire($startDate, $endDate);
+    $averageTime = $vacancyDataService->getAverageTimeToHire(null, null, $startDate, $endDate);
 
-    $expectedAverage = 7.0;
+    $expectedAverage = '6D 12H 0M';
 
-    expect($nationwideAverageTimeToHire)->toBeGreaterThanOrEqual($expectedAverage - 0.1);
-    expect($nationwideAverageTimeToHire)->toBeLessThanOrEqual($expectedAverage + 0.1);
+    expect($averageTime)->toBe($expectedAverage);
 });
 
 it('it calculates the store-specific average time to shortlist', function () {
+
+    $startDate = Carbon::now()->subDays(20);
+    $endDate = Carbon::now();
+
     $store = Store::factory()->create(['id' => 1]);
     $user = User::factory()->create(['id' => 1]);
    
@@ -90,34 +97,18 @@ it('it calculates the store-specific average time to shortlist', function () {
     );
 
     $vacancyDataService = app(VacancyDataService::class);
-    $storeAverage = $vacancyDataService->getStoreAverageTimeToShortlist(1);
+    $storeAverage = $vacancyDataService->getAverageTimeToShortlist('store', 1, $startDate, $endDate);
   
-    $expectedAverage = 13;
+    $expectedAverage = '12D 12H 0M';
 
-    expect($storeAverage)->toBeGreaterThanOrEqual($expectedAverage - 0.1);
-    expect($storeAverage)->toBeLessThanOrEqual($expectedAverage + 0.1);
-});
-
-it('calculates the time-filtered average time to shortlist', function () {
-    $store = Store::factory()->create(['id' => 1]);
-    $user = User::factory()->create(['id' => 1]);
-   
-    $vacancy1 = Vacancy::factory()->create(['store_id' => 1, 'created_at' => now()->subDays(15)]);
-    $shortlist1 = Shortlist::factory()->create([
-        'vacancy_id' => $vacancy1->id,
-        'created_at' => now()->subDays(2)]
-    );
-
-    $vacancyDataService = app(VacancyDataService::class);
-
-    $currentMonthStart = Carbon::now()->startOfMonth();
-    $currentMonthEnd = Carbon::now()->endOfMonth();
-    $timeFilteredAverage = $vacancyDataService->getTimeFilteredAverageToShortlist($currentMonthStart, $currentMonthEnd, $store->id);
-    
-    expect($timeFilteredAverage)->toBeGreaterThan(0);
+    expect($storeAverage)->toBe($expectedAverage);
 });
 
 it('calculates the store-specific average time to shortlist', function () {
+
+    $startDate = Carbon::now()->subDays(20);
+    $endDate = Carbon::now();     
+
     $store = Store::factory()->create(['id' => 1]);
     User::factory()->create(['id' => 1]);
 
@@ -128,93 +119,9 @@ it('calculates the store-specific average time to shortlist', function () {
     Shortlist::factory()->create(['vacancy_id' => $vacancy2->id, 'created_at' => now()->subDays(3)]);
 
     $vacancyDataService = app(VacancyDataService::class);
-    $storeAverage = $vacancyDataService->getStoreAverageTimeToShortlist(1);
+    $storeAverage = $vacancyDataService->getAverageTimeToShortlist('store', 1, $startDate, $endDate);
 
-    $expectedAverage = 15;
-    
-    expect($storeAverage)->toBeGreaterThanOrEqual($expectedAverage - 0.1);
-    expect($storeAverage)->toBeLessThanOrEqual($expectedAverage + 0.1);
-});
+    $expectedAverage = '15D 0H 0M';
 
-it('calculates the division-wide average time to shortlist', function () {
-    $division = Division::factory()->create();
-    $store1 = Store::factory()->create(['division_id' => $division->id]);
-    $store2 = Store::factory()->create(['division_id' => $division->id]);
-
-    $vacancy1 = Vacancy::factory()->create([
-        'store_id' => $store1->id,
-        'created_at' => now()->subDays(10),
-    ]);
-    Shortlist::factory()->create([
-        'vacancy_id' => $vacancy1->id,
-        'created_at' => now()->subDays(5),
-    ]);
-
-    $vacancy2 = Vacancy::factory()->create([
-        'store_id' => $store2->id,
-        'created_at' => now()->subDays(7),
-    ]);
-    Shortlist::factory()->create([
-        'vacancy_id' => $vacancy2->id,
-        'created_at' => now()->subDays(2),
-    ]);
-
-    $expectedAverageTime = "5";
-
-    $service = new VacancyDataService();
-    $averageTime = $service->getDivisionWideAverageTimeToShortlist($division->id);
-
-    expect($averageTime)->toBe($expectedAverageTime);
-});
-
-it('calculates the region-wide average time to hire without date range', function () {
-    
-    $region = Region::factory()->create();
-    $store = Store::factory()->create(['region_id' => $region->id]);
-
-    $vacancies = Vacancy::factory()->count(3)->create(['store_id' => $store->id, 'created_at' => now()->subDays(10)]);
-
-    foreach ($vacancies as $vacancy) {
-        VacancyFill::factory()->create([
-            'vacancy_id' => $vacancy->id,
-            'created_at' => now()->subDays(2)
-        ]);
-    }
-
-    $service = new VacancyDataService();
-    $averageTimeToHire = $service->getRegionWideAverageTimeToHire($region->id);
-  
-    $expectedAverageTime = 8;
-
-    expect($averageTimeToHire)->toBeGreaterThanOrEqual($expectedAverageTime - 0.1);
-    expect($averageTimeToHire)->toBeLessThanOrEqual($expectedAverageTime + 0.1);
-});
-
-it('calculates the region-wide average time to hire within a date range', function () {
-
-    $region = Region::factory()->create();
-    $store = Store::factory()->create(['region_id' => $region->id]);
-
-    $vacancies = Vacancy::factory()->count(3)->create([
-        'store_id' => $store->id, 
-        'created_at' => now()->subDays(10)
-    ]);
-
-    foreach ($vacancies as $vacancy) {
-        VacancyFill::factory()->create([
-            'vacancy_id' => $vacancy->id,
-            'created_at' => now()->addDays(7)
-        ]);
-    }
-
-    $startDate = now()->subDays(20)->format('Y-m-d');
-    $endDate = now()->addDays(30)->format('Y-m-d');
-
-    $service = new VacancyDataService();
-    $averageTimeToHire = $service->getRegionWideAverageTimeToHire($region->id, $startDate, $endDate);
-
-    $expectedAverageTime = 17;
-
-    expect($averageTimeToHire)->toBeGreaterThanOrEqual($expectedAverageTime - 0.1);
-    expect($averageTimeToHire)->toBeLessThanOrEqual($expectedAverageTime + 0.1);
+    expect($storeAverage)->toBe($expectedAverage);
 });

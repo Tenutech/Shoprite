@@ -2,217 +2,348 @@
 
 namespace App\Services\DataService;
 
+use App\Models\State;
+use App\Models\Store;
+use App\Models\Vacancy;
+use App\Models\Applicant;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
 class ApplicantProximityService
 {
     /**
-     * Calculate the average proximity for all applicants for Admin view.
+     * Calculate the average distance of talent pool applicants within a given distance from the store, division, or region.
      *
-     * @param string $startDate The start date for filtering applicants.
-     * @param string $endDate The end date for filtering applicants.
-     * @return float The average distance in kilometers.
+     * @param string $type The type of filter (e.g., store, division, region).
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering.
+     * @param \Carbon\Carbon $endDate The end date for filtering.
+     * @param float $maxDistanceFromStore The maximum distance from the store in kilometers.
+     * @return float The average distance of applicants in kilometers.
      */
-    public function calculateProximityForAdmin(string $startDate, string $endDate): float
+    public function getAverageDistanceTalentPoolApplicants(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore): float
     {
-        return $this->calculateAverageDistance('national', null, $startDate, $endDate);
-    }
-
-    /**
-     * Calculate the average proximity for applicants for division
-     *
-     * @param int $divisionId The ID of the division.
-     * @param string $startDate The start date for filtering applicants.
-     * @param string $endDate The end date for filtering applicants.
-     * @return float The average distance in kilometers.
-     */
-    public function calculateProximityForDivision(int $divisionId, string $startDate, string $endDate): float
-    {
-        return $this->calculateAverageDistance('division', $divisionId, $startDate, $endDate);
-    }
-
-    /**
-     * Calculate the average proximity for a given region
-     *
-     * @param int $regionId The ID of the region.
-     * @param string $startDate The start date for filtering applicants.
-     * @param string $endDate The end date for filtering applicants.
-     * @return float The average distance in kilometers.
-     */
-    public function calculateProximityForRegion(int $regionId, string $startDate, string $endDate): float
-    {
-        return $this->calculateAverageDistance('region', $regionId, $startDate, $endDate);
-    }
-
-    /**
-     * Calculate the average proximity for applicants for store
-     *
-     * @param int $storeId The ID of the store.
-     * @param string $startDate The start date for filtering applicants.
-     * @param string $endDate The end date for filtering applicants.
-     * @return float The average distance in kilometers.
-     */
-    public function calculateProximityForStore(int $storeId, string $startDate, string $endDate): float
-    {
-        return $this->calculateAverageDistance('store', $storeId, $startDate, $endDate);
-    }
-
-    /**
-     * Fetch applicants in the talent pool within a specified distance from a store.
-     *
-     * @param string $type The type of view (e.g., national, division, region, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param int $distanceLimit The distance limit in kilometers.
-     * @param string $startDate The start date for filtering applicants (YYYY-MM-DD).
-     * @param string $endDate The end date for filtering applicants (YYYY-MM-DD).
-     * @return float The average distance of applicants in the talent pool.
-     */
-    public function calculateTalentPoolDistance(string $type, ?int $id, int $distanceLimit, string $startDate, string $endDate): float
-    {
-        $talentPool = DB::table('vacancy_fills')
-            ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
-            ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->select(
-                'applicants.coordinates as applicant_coordinates',
-                'stores.coordinates as store_coordinates'
-            )
+        // Get the stores based on the type (store, division, or region)
+        $stores = Store::when($type === 'store', function ($query) use ($id) {
+                return $query->where('id', $id);
+        })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->where('division_id', $id);
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->where('region_id', $id);
+            })
             ->get();
 
+        if ($stores->isEmpty()) {
+            return 0; // Return 0 if no stores are found for the given filter
+        }
+
+        // Retrieve the complete state id
+        $completeStateID = State::where('code', 'complete')->value('id');
+        if (!$completeStateID) {
+            return 0; // Handle case where 'complete' state does not exist
+        }
+
         $totalDistance = 0;
-        $validApplicantsCount = 0;
+        $applicantCount = 0;
 
-        foreach ($talentPool as $applicant) {
-            $applicantCoords = $this->splitCoordinates($applicant->applicant_coordinates);
-            $storeCoords = $this->splitCoordinates($applicant->store_coordinates);
+        // Loop through each store and calculate the applicants' distances within the given range
+        foreach ($stores as $store) {
+            if ($store->coordinates) {
+                $storeCoordinates = explode(',', $store->coordinates);
+                $storeLat = floatval($storeCoordinates[0]);
+                $storeLng = floatval($storeCoordinates[1]);
 
-            $distance = $this->haversineGreatCircleDistance(
-                $applicantCoords['lat'],
-                $applicantCoords['long'],
-                $storeCoords['lat'],
-                $storeCoords['long']
-            );
+                // Retrieve applicants within the distance range using MySQL ST_Distance_Sphere
+                $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                    ->where('state_id', '>=', $completeStateID)
+                    ->whereRaw("
+                        ST_Distance_Sphere(
+                            point(
+                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
+                                SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                            ), 
+                            point(?, ?)
+                        ) <= ?
+                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
+                    ->get();
 
-            if ($distance <= $distanceLimit) {
-                $totalDistance += $distance;
-                $validApplicantsCount++;
+                // Calculate the total distance for each applicant
+                foreach ($applicants as $applicant) {
+                    if ($applicant->coordinates) {
+                        $applicantCoordinates = explode(',', $applicant->coordinates);
+                        $applicantLat = floatval($applicantCoordinates[0]);
+                        $applicantLng = floatval($applicantCoordinates[1]);
+
+                        // Calculate the distance between the store and the applicant
+                        $distance = $this->calculateDistance($storeLat, $storeLng, $applicantLat, $applicantLng);
+                        $totalDistance += $distance;
+                        $applicantCount++;
+                    }
+                }
             }
         }
 
-        $totalDistance = ($validApplicantsCount > 0) ? ($totalDistance / $validApplicantsCount) : 0;
-
-        return number_format($totalDistance, 2);
+        // Calculate the average distance and return it
+        if ($applicantCount > 0) {
+            return round($totalDistance / $applicantCount, 1); // Average distance rounded to 2 decimal places
+        } else {
+            return 0; // Return 0 if no applicants are found
+        }
     }
 
     /**
-     * Calculate the average distance for placed applicants based on the specified type and date range.
+     * Calculate the average distance between stores' coordinates and appointed applicants' coordinates for store, division, or region.
      *
-     * @param string $type The type of view (e.g., national, division, region, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param string $startDate The start date for filtering applicants.
-     * @param string $endDate The end date for filtering applicants.
+     * @param string $type The type of filter (e.g., store, division, region).
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering.
+     * @param \Carbon\Carbon $endDate The end date for filtering.
      * @return float The average distance in kilometers.
      */
-    private function calculateAverageDistance(string $type, ?int $id, string $startDate, string $endDate): float
+    public function getAverageDistanceApplicantsAppointed(string $type, ?int $id, $startDate, $endDate): float
     {
-        $placedApplicants = $this->fetchPlacedApplicants($type, $id, $startDate, $endDate);
-
         $totalDistance = 0;
-        $placedCount = $placedApplicants->count();
+        $applicantCount = 0;
 
-        foreach ($placedApplicants as $applicant) {
-            $applicantCoords = $this->splitCoordinates($applicant->applicant_coordinates);
-            $storeCoords = $this->splitCoordinates($applicant->store_coordinates);
+        // Retrieve vacancies and stores based on the type (store, division, region) and date range
+        $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
+                return $query->where('store_id', $id);
+        })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('division_id', $id);
+                });
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('region_id', $id);
+                });
+            })
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->with(['store', 'appointed']) // Load store and appointed applicants relationships
+            ->get();
 
-            $distance = $this->haversineGreatCircleDistance(
-                $applicantCoords['lat'],
-                $applicantCoords['long'],
-                $storeCoords['lat'],
-                $storeCoords['long']
-            );
+        // Loop through each vacancy and calculate the distance for all appointed applicants
+        foreach ($vacancies as $vacancy) {
+            $store = $vacancy->store;
 
-            $totalDistance += $distance;
+            // Ensure the store has valid coordinates
+            if ($store && $store->coordinates) {
+                $storeCoordinates = explode(',', $store->coordinates); // Assuming coordinates are stored as "latitude,longitude"
+                $storeLat = floatval($storeCoordinates[0]);
+                $storeLng = floatval($storeCoordinates[1]);
+
+                foreach ($vacancy->appointed as $applicant) {
+                    // Assuming applicants have a 'coordinates' field in the format "latitude,longitude"
+                    if ($applicant->coordinates) {
+                        $applicantCoordinates = explode(',', $applicant->coordinates);
+                        $applicantLat = floatval($applicantCoordinates[0]);
+                        $applicantLng = floatval($applicantCoordinates[1]);
+
+                        // Calculate the distance between the store and the applicant in kilometers
+                        $distance = $this->calculateDistance($storeLat, $storeLng, $applicantLat, $applicantLng);
+                        $totalDistance += $distance;
+                        $applicantCount++;
+                    }
+                }
+            }
         }
 
-        $averageDistance = ($placedCount > 0) ? ($totalDistance / $placedCount) : 0;
-
-        return round($averageDistance, 2);
-        ;
-    }
-
-    /**
-     * Fetch placed applicants along with their coordinates and the store's coordinates.
-     *
-     * @param string $type The type of view (e.g., national, division, area, store).
-     * @param int|null $id The ID for filtering based on the type.
-     * @param string $startDate The start date for filtering applicants.
-     * @param string $endDate The end date for filtering applicants.
-     * @return \Illuminate\Support\Collection The collection of placed applicants.
-     */
-    private function fetchPlacedApplicants(string $type, ?int $id, string $startDate, string $endDate)
-    {
-        $query = DB::table('vacancy_fills')
-            ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
-            ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
-            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
-            ->select(
-                'applicants.coordinates as applicant_coordinates',
-                'stores.coordinates as store_coordinates'
-            )
-            ->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
-
-        if ($type === 'division') {
-            $query->where('stores.division_id', $id);
-        } elseif ($type === 'region') {
-            $query->where('stores.region_id', $id);
-        } elseif ($type === 'store') {
-            $query->where('stores.id', $id);
+        // Calculate the average distance and round it to 1 decimal place
+        if ($applicantCount > 0) {
+            return round($totalDistance / $applicantCount, 1);
+        } else {
+            return 0; // Return 0 if no appointed applicants are found
         }
-
-        return $query->get();
     }
 
     /**
-     * Split coordinates string into latitude and longitude.
+     * Calculate the distance between two coordinates (latitude and longitude) in kilometers.
      *
-     * @param string $coordinates The coordinates string (e.g., "lat,long").
-     * @return array An associative array with 'lat' and 'long'.
+     * @param float $lat1
+     * @param float $lng1
+     * @param float $lat2
+     * @param float $lng2
+     * @return float
      */
-    private function splitCoordinates(string $coordinates): array
+    private function calculateDistance($lat1, $lng1, $lat2, $lng2)
     {
-        $coords = explode(',', $coordinates);
-        return [
-            'lat' => floatval($coords[0]),
-            'long' => floatval($coords[1]),
-        ];
-    }
+        $earthRadius = 6371; // Radius of the Earth in kilometers
 
-    /**
-     * Calculate the distance between two geographic coordinates using the Haversine formula.
-     *
-     * @param float $lat1 Latitude of the first point.
-     * @param float $lon1 Longitude of the first point.
-     * @param float $lat2 Latitude of the second point.
-     * @param float $lon2 Longitude of the second point.
-     * @param float $earthRadius The radius of the Earth in kilometers (default is 6371).
-     * @return float The distance in kilometers.
-     */
-    private function haversineGreatCircleDistance(float $lat1, float $lon1, float $lat2, float $lon2, float $earthRadius = 6371): float
-    {
-        $lat1 = deg2rad($lat1);
-        $lon1 = deg2rad($lon1);
-        $lat2 = deg2rad($lat2);
-        $lon2 = deg2rad($lon2);
+        $dLat = deg2rad($lat2 - $lat1);
+        $dLng = deg2rad($lng2 - $lng1);
 
-        $dlat = $lat2 - $lat1;
-        $dlon = $lon2 - $lon1;
-
-        $a = sin($dlat / 2) * sin($dlat / 2) +
-            cos($lat1) * cos($lat2) *
-            sin($dlon / 2) * sin($dlon / 2);
+        $a = sin($dLat / 2) * sin($dLat / 2) +
+            cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+            sin($dLng / 2) * sin($dLng / 2);
 
         $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
 
-        return $earthRadius * $c;
+        return $earthRadius * $c; // Distance in kilometers
+    }
+
+    /**
+     * Count the number of talent pool applicants within a given distance from the store, division, or region, or all applicants if type is 'all'.
+     *
+     * @param string $type The type of filter (e.g., store, division, region, or all).
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering.
+     * @param \Carbon\Carbon $endDate The end date for filtering.
+     * @param float $maxDistanceFromStore The maximum distance from the store in kilometers.
+     * @return int The count of talent pool applicants within the given distance or all applicants if type is 'all'.
+     */
+    public function getTalentPoolApplicants(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore): int
+    {
+        // Retrieve the complete state id
+        $completeStateID = State::where('code', 'complete')->value('id');
+        if (!$completeStateID) {
+            return 0; // Handle case where 'complete' state does not exist
+        }
+
+        // Check if the type is 'all' to get all applicants within the date range
+        if ($type === 'all') {
+            return Applicant::whereBetween('created_at', [$startDate, $endDate])
+                ->where('state_id', '>=', $completeStateID)
+                ->count(); // Simply return all applicants within the date range, ignoring distance
+        }
+
+        // Otherwise, proceed with filtering by store, division, or region
+        $stores = Store::when($type === 'store', function ($query) use ($id) {
+                return $query->where('id', $id);
+        })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->where('division_id', $id);
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->where('region_id', $id);
+            })
+            ->get();
+
+        if ($stores->isEmpty()) {
+            return 0; // Return 0 if no stores are found for the given filter
+        }
+
+        $applicantCount = 0;
+
+        // Loop through each store and calculate the applicants within the given distance
+        foreach ($stores as $store) {
+            if ($store->coordinates) {
+                $storeCoordinates = explode(',', $store->coordinates);
+                $storeLat = floatval($storeCoordinates[0]);
+                $storeLng = floatval($storeCoordinates[1]);
+
+                // Count the applicants within the distance range using MySQL ST_Distance_Sphere
+                $storeApplicantCount = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                    ->where('state_id', '>=', $completeStateID)
+                    ->whereRaw("
+                        ST_Distance_Sphere(
+                            point(
+                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
+                                SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                            ), 
+                            point(?, ?)
+                        ) <= ?
+                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
+                    ->count();
+
+                $applicantCount += $storeApplicantCount;
+            }
+        }
+
+        return $applicantCount;
+    }
+
+    /**
+     * Get the number of talent pool applicants by month within a given distance from the store, division, or region, or all applicants if type is 'all'.
+     *
+     * @param string|null $type The type of filter (e.g., store, division, region, or all).
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering.
+     * @param \Carbon\Carbon $endDate The end date for filtering.
+     * @param float $maxDistanceFromStore The maximum distance from the store in kilometers.
+     * @return array An array of applicants by month.
+     */
+    public function getTalentPoolApplicantsByMonth(string $type = null, ?int $id = null, $startDate, $endDate, $maxDistanceFromStore): array
+    {
+        // Initialize an array to hold the results, with months set to 0 from startDate to endDate
+        $applicantsByMonth = [];
+        $currentDate = $startDate->copy();
+
+        // Loop to populate only the months between startDate and endDate
+        while ($currentDate->lte($endDate)) {
+            $monthName = $currentDate->format('M');
+            $applicantsByMonth[$monthName] = 0;
+            $currentDate->addMonth();
+        }
+
+        // Retrieve the complete state id
+        $completeStateID = State::where('code', 'complete')->value('id');
+        if (!$completeStateID) {
+            return $applicantsByMonth; // Return if 'complete' state does not exist
+        }
+
+        // If the type is 'all', retrieve all applicants within the date range and group them by month
+        if ($type === 'all') {
+            $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                ->where('state_id', '>=', $completeStateID)
+                ->get();
+
+            // Group applicants by the month of their creation date and count them
+            foreach ($applicants as $applicant) {
+                $month = $applicant->created_at->format('M');
+                $applicantsByMonth[$month]++;
+            }
+
+            return $applicantsByMonth;
+        }
+
+        // Get stores based on the type (store, division, or region)
+        $stores = Store::when($type === 'store', function ($query) use ($id) {
+                return $query->where('id', $id);
+        })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->where('division_id', $id);
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->where('region_id', $id);
+            })
+            ->get();
+
+        if ($stores->isEmpty()) {
+            return $applicantsByMonth; // Return the array with months initialized to 0 if no stores found
+        }
+
+        // Loop through each store and calculate the applicants by month within the given distance
+        foreach ($stores as $store) {
+            if ($store->coordinates) {
+                $storeCoordinates = explode(',', $store->coordinates);
+                $storeLat = floatval($storeCoordinates[0]);
+                $storeLng = floatval($storeCoordinates[1]);
+
+                // Retrieve applicants within the distance range using MySQL ST_Distance_Sphere
+                $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                    ->where('state_id', '>=', $completeStateID)
+                    ->whereRaw("
+                        ST_Distance_Sphere(
+                            point(
+                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
+                                SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                            ), 
+                            point(?, ?)
+                        ) <= ?
+                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
+                    ->get();
+
+                // Group applicants by the month of their creation date and count them
+                foreach ($applicants as $applicant) {
+                    $month = $applicant->created_at->format('M');
+                    $applicantsByMonth[$month]++;
+                }
+            }
+        }
+
+        return $applicantsByMonth;
     }
 }

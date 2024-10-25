@@ -31,7 +31,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     //Update Data
 
-    Route::get('/updateData', [App\Http\Controllers\AdminController::class, 'updateData'])->name('admin.updateData');
+    Route::get('/update-dashboard', [App\Http\Controllers\AdminController::class, 'updateDashboard'])->name('admin.updateDashboard');
 
     //Vacancy Approvals
 
@@ -53,6 +53,18 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::put('/applicant-decline', [App\Http\Controllers\ApplicantApprovalController::class, 'decline'])->name('applicant.decline');
 
+    //Applicants Table
+
+    Route::get('/applicants-table', [App\Http\Controllers\ApplicantsTableController::class, 'index'])->name('applicants-table.index');
+
+    Route::post('/applicants-table/update', [App\Http\Controllers\ApplicantsTableController::class, 'update'])->name('applicants-table.update');
+
+    Route::get('/applicants-table/details/{id}', [App\Http\Controllers\ApplicantsTableController::class, 'details'])->name('applicants-table.details');
+
+    Route::delete('/applicants-table/destroy/{id}', [App\Http\Controllers\ApplicantsTableController::class, 'destroy'])->name('applicants-table.destroy');
+
+    Route::post('/applicants-table/destroy-multiple', [App\Http\Controllers\ApplicantsTableController::class, 'destroyMultiple'])->name('applicants-table.destroyMultiple');
+
     //Users
 
     Route::get('/users', [App\Http\Controllers\UsersController::class, 'index'])->name('users.index');
@@ -69,17 +81,93 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/users/destroy-multiple', [App\Http\Controllers\UsersController::class, 'destroyMultiple'])->name('users.destroyMultiple');
 
+    Route::post('/users/password-reset', [App\Http\Controllers\UsersController::class, 'passwordReset'])->name('users.password');
+
     //Managers
 
     Route::get('/managers', [App\Http\Controllers\ManagersController::class, 'index'])->name('managers.index');
+
+    Route::get('manager', [App\Http\Controllers\ManagersController::class, 'user'])->name('managers.user');
+
+    Route::post('/managers/store', [App\Http\Controllers\ManagersController::class, 'store'])->name('managers.store');
+
+    Route::post('/managers/update', [App\Http\Controllers\ManagersController::class, 'update'])->name('managers.update');
+
+    Route::get('/managers/details/{id}', [App\Http\Controllers\ManagersController::class, 'details'])->name('managers.details');
+
+    Route::delete('/managers/destroy/{id}', [App\Http\Controllers\ManagersController::class, 'destroy'])->name('managers.destroy');
+
+    Route::post('/managers/destroy-multiple', [App\Http\Controllers\ManagersController::class, 'destroyMultiple'])->name('managers.destroyMultiple');
+
+    //DPPs
+
+    Route::get('/dpps', [App\Http\Controllers\DPPsController::class, 'index'])->name('dpps.index');
+
+    Route::post('/dpps/store', [App\Http\Controllers\DPPsController::class, 'store'])->name('dpps.store');
+
+    Route::post('/dpps/update', [App\Http\Controllers\DPPsController::class, 'update'])->name('dpps.update');
+
+    Route::get('/dpps/details/{id}', [App\Http\Controllers\DPPsController::class, 'details'])->name('dpps.details');
+
+    Route::delete('/dpps/destroy/{id}', [App\Http\Controllers\DPPsController::class, 'destroy'])->name('dpps.destroy');
+
+    Route::post('/dpps/destroy-multiple', [App\Http\Controllers\DPPsController::class, 'destroyMultiple'])->name('dpps.destroyMultiple');
+
+    //DTDPs
+
+    Route::get('/dtdps', [App\Http\Controllers\DTDPsController::class, 'index'])->name('dtdps.index');
+
+    Route::post('/dtdps/store', [App\Http\Controllers\DTDPsController::class, 'store'])->name('dtdps.store');
+
+    Route::post('/dtdps/update', [App\Http\Controllers\DTDPsController::class, 'update'])->name('dtdps.update');
+
+    Route::get('/dtdps/details/{id}', [App\Http\Controllers\DTDPsController::class, 'details'])->name('dtdps.details');
+
+    Route::delete('/dtdps/destroy/{id}', [App\Http\Controllers\DTDPsController::class, 'destroy'])->name('dtdps.destroy');
+
+    Route::post('/dtdps/destroy-multiple', [App\Http\Controllers\DTDPsController::class, 'destroyMultiple'])->name('dtdps.destroyMultiple');
+
+    //RPPs
+
+    Route::get('/rpps', [App\Http\Controllers\RPPsController::class, 'index'])->name('rpps.index');
+
+    Route::post('/rpps/store', [App\Http\Controllers\RPPsController::class, 'store'])->name('rpps.store');
+
+    Route::post('/rpps/update', [App\Http\Controllers\RPPsController::class, 'update'])->name('rpps.update');
+
+    Route::get('/rpps/details/{id}', [App\Http\Controllers\RPPsController::class, 'details'])->name('rpps.details');
+
+    Route::delete('/rpps/destroy/{id}', [App\Http\Controllers\RPPsController::class, 'destroy'])->name('rpps.destroy');
+
+    Route::post('/rpps/destroy-multiple', [App\Http\Controllers\RPPsController::class, 'destroyMultiple'])->name('rpps.destroyMultiple');
 
     //Admins
 
     Route::get('/admins', [App\Http\Controllers\AdminsController::class, 'index'])->name('admins.index');
 
+    Route::post('/admins/store', [App\Http\Controllers\AdminsController::class, 'store'])->name('admins.store');
+
+    Route::post('/admins/update', [App\Http\Controllers\AdminsController::class, 'update'])->name('admins.update');
+
+    Route::get('/admins/details/{id}', [App\Http\Controllers\AdminsController::class, 'details'])->name('admins.details');
+
+    Route::delete('/admins/destroy/{id}', [App\Http\Controllers\AdminsController::class, 'destroy'])->name('admins.destroy');
+
+    Route::post('/admins/destroy-multiple', [App\Http\Controllers\AdminsController::class, 'destroyMultiple'])->name('admins.destroyMultiple');
+
     //Super Admins
 
     Route::get('/super-admins', [App\Http\Controllers\SuperAdminsController::class, 'index'])->name('super-admins.index');
+
+    Route::post('/super-admins/store', [App\Http\Controllers\SuperAdminsController::class, 'store'])->name('super-admins.store');
+
+    Route::post('/super-admins/update', [App\Http\Controllers\SuperAdminsController::class, 'update'])->name('super-admins.update');
+
+    Route::get('/super-admins/details/{id}', [App\Http\Controllers\SuperAdminsController::class, 'details'])->name('super-admins.details');
+
+    Route::delete('/super-admins/destroy/{id}', [App\Http\Controllers\SuperAdminsController::class, 'destroy'])->name('super-admins.destroy');
+
+    Route::post('/super-admins/destroy-multiple', [App\Http\Controllers\SuperAdminsController::class, 'destroyMultiple'])->name('super-admins.destroyMultiple');
 
     //Email
 
@@ -168,6 +256,33 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::delete('/role/destroy/{id}', [App\Http\Controllers\RolesController::class, 'destroy'])->name('role.destroy');
 
     Route::post('/role/destroy-multiple', [App\Http\Controllers\RolesController::class, 'destroyMultiple'])->name('role.destroyMultiple');
+
+    //Regions
+    Route::get('/regions', [App\Http\Controllers\RegionsController::class, 'index'])->name('regions.index');
+
+    Route::post('/regions/add', [App\Http\Controllers\RegionsController::class, 'store'])->name('regions.store');
+
+    Route::post('/regions/update', [App\Http\Controllers\RegionsController::class, 'update'])->name('regions.update');
+
+    Route::get('/regions/details/{id}', [App\Http\Controllers\RegionsController::class, 'details'])->name('regions.details');
+
+    Route::delete('/regions/destroy/{id}', [App\Http\Controllers\RegionsController::class, 'destroy'])->name('regions.destroy');
+
+    Route::post('/regions/destroy-multiple', [App\Http\Controllers\RegionsController::class, 'destroyMultiple'])->name('regions.destroyMultiple');
+
+    //Divisions
+    Route::get('/divisions', [App\Http\Controllers\DivisionsController::class, 'index'])->name('divisions.index');
+
+    Route::post('/divisions/add', [App\Http\Controllers\DivisionsController::class, 'store'])->name('divisions.store');
+
+    Route::post('/divisions/update', [App\Http\Controllers\DivisionsController::class, 'update'])->name('divisions.update');
+
+    Route::get('/divisions/details/{id}', [App\Http\Controllers\DivisionsController::class, 'details'])->name('divisions.details');
+
+    Route::delete('/divisions/destroy/{id}', [App\Http\Controllers\DivisionsController::class, 'destroy'])->name('divisions.destroy');
+
+    Route::post('/divisions/destroy-multiple', [App\Http\Controllers\DivisionsController::class, 'destroyMultiple'])->name('divisions.destroyMultiple');
+
 
     //Positions
 
@@ -543,6 +658,8 @@ Route::prefix('dtdp')->middleware(['auth', 'verified', 'role:4', 'user.activity'
 
     Route::get('/home', [App\Http\Controllers\DTDPController::class, 'index'])->name('dtdp.home');
 
+    Route::get('/update-dashboard', [App\Http\Controllers\DTDPController::class, 'updateDashboard'])->name('dtdp.updateDashboard');
+
     //Update Data
 
     Route::get('/updateData', [App\Http\Controllers\DTDPController::class, 'updateData'])->name('dtdp.updateData');
@@ -559,6 +676,9 @@ Route::prefix('dpp')->middleware(['auth', 'verified', 'role:5', 'user.activity']
 
     Route::get('/home', [App\Http\Controllers\DPPController::class, 'index'])->name('dpp.home');
 
+    Route::get('/update-dashboard', [App\Http\Controllers\DTDPController::class, 'updateDashboard'])->name('dpp.updateDashboard');
+
+
     //Update Data
 
     Route::get('/updateData', [App\Http\Controllers\DPPController::class, 'updateData'])->name('dpp.updateData');
@@ -574,6 +694,8 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,6', 'use
     //Home
 
     Route::get('/home', [App\Http\Controllers\ManagerController::class, 'index'])->name('manager.home');
+
+    Route::get('/update-dashboard', [App\Http\Controllers\ManagerController::class, 'updateDashboard'])->name('manager.updateDashboard');
 
     //User Profile
 
@@ -670,7 +792,7 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     //Application
 
-    //Route::get('/application', [App\Http\Controllers\ApplicationController::class, 'index'])->name('application.index');
+    Route::get('/application', [App\Http\Controllers\ApplicationController::class, 'index'])->name('application.index');
 
     Route::post('/application/store', [App\Http\Controllers\ApplicationController::class, 'store'])->name('application.store');
 

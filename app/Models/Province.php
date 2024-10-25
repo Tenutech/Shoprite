@@ -22,6 +22,12 @@ class Province extends Model
         return $this->hasMany(Town::class);
     }
 
+    // Applicants
+    public function applicants()
+    {
+        return $this->hasManyThrough(Applicant::class, Town::class, 'province_id', 'town_id', 'id', 'id');
+    }
+
     /**
      * The attributes that should be logged.
      * @var bool

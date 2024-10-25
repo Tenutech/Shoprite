@@ -104,7 +104,7 @@ class ShortlistController extends Controller
             $positions = Position::get();
 
             //Education Levels
-            $educations = Education::get();
+            $educations = Education::where('id', '>', 1)->get();
 
             //Durations
             $durations = Duration::get();
@@ -271,6 +271,11 @@ class ShortlistController extends Controller
                     $query->orWhere('brand_id', $vacancyBrandID);
                 }
             })
+            ->where('terms_conditions', 'Yes')
+            ->where('consent', 'Yes')
+            ->where('public_holidays', 'Yes')
+            ->where('environment', 'Yes')
+            ->where('education_id', '>', 1)
             ->orderBy('score', 'desc');
 
             // Check if shortlist_type_id is 1 and vacancy_id is provided

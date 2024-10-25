@@ -871,9 +871,6 @@
                         </a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="profile-settings">
-                            <span class="badge bg-success-subtle text-success mt-1 float-end">
-                                New
-                            </span>
                             <i class="mdi mdi-cog-outline text-muted fs-16 align-middle me-1"></i>
                             <span class="align-middle">Settings</span>
                         </a>
