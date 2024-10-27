@@ -20,6 +20,15 @@ class RouteServiceProvider extends ServiceProvider
     public const HOME = '/home';
 
     /**
+     * The path to the "login" route for your application.
+     *
+     * This is used to redirect users to the login page after certain actions.
+     *
+     * @var string
+     */
+    public const LOGIN = '/login'; // Define the login route constant here
+
+    /**
      * The controller namespace for the application.
      *
      * When present, controller route declarations will automatically be prefixed with this namespace.

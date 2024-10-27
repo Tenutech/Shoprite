@@ -41,20 +41,25 @@
                                     <h5 class="text-primary">Forgot Password?</h5>
                                     <p class="text-muted">Reset password with Shoprite Job Opportunities</p>
 
-                                    <lord-icon src="https://cdn.lordicon.com/rhvddzym.json" trigger="loop"
-                                        colors="primary:#0ab39c" class="avatar-xl">
+                                    <lord-icon 
+                                        src="{{ isset($token) ? 'https://cdn.lordicon.com/jectmwqf.json' : 'https://cdn.lordicon.com/rhvddzym.json' }}"
+                                        trigger="loop"
+                                        colors="primary:#0ab39c"
+                                        class="avatar-xl">
                                     </lord-icon>
 
                                 </div>
 
-                                <div class="alert border-0 alert-warning text-center mb-2 mx-2" role="alert">
-                                    Enter your email and instructions will be sent to you!
-                                </div>
+                                @if(!isset($token))
+                                    <div class="alert border-0 alert-warning text-center mb-2 mx-2" role="alert">
+                                        Enter your email and instructions will be sent to you!
+                                    </div>
+                                @endif
                                 <div class="p-2">
                                     <form class="form-horizontal" method="POST" action="{{ route('password.update') }}">
                                         @csrf
                                         <input type="hidden" name="token" value="{{ $token }}">
-                                        <div class="mb-3">
+                                        <div class="mb-3 {{ isset($token) ? 'd-none' : '' }}">
                                             <label for="useremail" class="form-label">Email</label>
                                             <input type="email" class="form-control @error('email') is-invalid @enderror" id="useremail" name="email" placeholder="Enter email" value="{{ $email ?? old('email') }}" id="email">
                                             @error('email')
@@ -67,9 +72,6 @@
                                         <div class="mb-3">
                                             <label for="userpassword">Password</label>
                                             <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" id="userpassword" placeholder="Enter password">
-                                            <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon">
-                                                <i class="ri-eye-fill align-middle"></i>
-                                            </button>
                                             @error('password')
                                             <span class="invalid-feedback" role="alert">
                                                 <strong>{{ $message }}</strong>
@@ -80,9 +82,6 @@
                                         <div class="mb-3">
                                             <label for="userpassword">Confirm Password</label>
                                             <input id="password-confirm" type="password" name="password_confirmation" class="form-control pe-5 password-input" placeholder="Enter confirm password">
-                                            <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon">
-                                                <i class="ri-eye-fill align-middle"></i>
-                                            </button>
                                         </div>
 
                                         <div class="text-end">
