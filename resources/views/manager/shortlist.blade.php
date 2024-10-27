@@ -638,7 +638,6 @@
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/nouislider/nouislider.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/wnumb/wNumb.min.js') }}"></script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.googlemaps.key') }}&callback=initAutocomplete"></script>
 <!-- job-candidate-grid js -->
 <script src="{{ URL::asset('build/js/pages/shortlist.init.js') }}?v={{ filemtime(public_path('build/js/pages/shortlist.init.js')) }}"></script>
 <script src="{{ URL::asset('build/js/pages/applicant-save.init.js') }}"></script>

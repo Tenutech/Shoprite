@@ -31,7 +31,7 @@
                                     <h1 class="display-5 coming-soon-text">Site is Under Maintenance</h1>
                                     <p class="fs-14">Please check back in sometime</p>
                                     <div class="mt-4 pt-2">
-                                        <a href="index" class="btn btn-success"><i class="mdi mdi-home me-1"></i> Back
+                                        <a href="/" class="btn btn-success"><i class="mdi mdi-home me-1"></i> Back
                                             to Home</a>
                                     </div>
                                 </div>

@@ -415,7 +415,7 @@
                                     <!--end col-->
                                     <div class="col-lg-12">
                                         <div class="mb-3">
-                                            <a href="javascript:void(0);" class="link-primary text-decoration-underline">
+                                            <a href="{{ route('password.request') }}" class="link-primary text-decoration-underline">
                                                 Forgot Password ?
                                             </a>
                                         </div>

@@ -953,47 +953,16 @@ function paginationEvents() {
 
 /*
 |--------------------------------------------------------------------------
-| Google Map
+| Coordinates Filter
 |--------------------------------------------------------------------------
 */
 
-var map;
-var selectedLocation;
-var center = {lat: -30.5595, lng: 22.9375};
-var marker;
-
-function initMap() {
-    map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 7,
-        center: center
-    });
-
-    // Add a double-click event listener to the map
-    map.addListener('dblclick', function(event) {
-        selectedLocation = {
-            lat: event.latLng.lat(),
-            lng: event.latLng.lng()
-        };
-
-        // Place a marker on the map at the clicked location
-        if (marker) {
-            marker.setMap(null);  // Remove the existing marker
-        }
-        marker = new google.maps.Marker({
-            position: selectedLocation,
-            map: map
-        });
-
-        // Add a removable badge for this location
-        addLocationBadge(selectedLocation, true);
-        applyLocationFilter(selectedLocation);
-    });
-
-    // Add location badge on load if coordinates and maxDistanceFromStore are set
+// Immediately execute on page load to add location badge if coordinates and maxDistanceFromStore are set
+$(document).ready(function() {
     if (coordinates) {
         // Split the coordinates string into latitude and longitude
         var coordArray = coordinates.split(', ');
-        
+
         // Check if we successfully split the coordinates
         if (coordArray.length === 2) {
             coordinates = {
@@ -1009,80 +978,6 @@ function initMap() {
             }
         }
     }
-}
-
-/*
-|--------------------------------------------------------------------------
-| Calculate Distance
-|--------------------------------------------------------------------------
-*/
-
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    var R = 6371; // Radius of the earth in km
-    var dLat = (lat2 - lat1) * Math.PI / 180;  
-    var dLon = (lon2 - lon1) * Math.PI / 180;
-    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c; // Distance in km
-    return d;
-}
-
-// Load the map once the modal is fully shown
-$('#mapModal').on('shown.bs.modal', function() {
-    google.maps.event.trigger(map, 'resize');
-});
-
-// Listen to changes on the dropdown
-selectTown.addEventListener('change', function() {
-    const selectedValue = this.value.split(';');
-    const key = selectedValue[0];
-    const value = selectedValue[1];
-    
-    // Get the label as the option text
-    const label = this.options[this.selectedIndex].textContent;
-
-    if (!badgeExists(label, 'filterBadges')) {
-        addBadge(key, value, label);
-        applyFilter(key, value); 
-    }
-});
-
-let currentSort = { key: null, order: 'asc' };
-
-document.querySelectorAll('.filter-button').forEach(button => {
-    button.addEventListener('click', function() {
-        const filter = this.getAttribute('data-bs-filter').split(';');
-        const label = this.innerText;
-        const value = filter[1];
-
-        if (!badgeExists(label, 'filterBadges')) {
-            addBadge(filter[0], value, label);
-
-            if (value === 'literacy' || value === 'numeracy') {
-                currentSort.key = filter[0]; // set the sorting key
-                currentSort.value = value;
-                currentSort.order = 'desc'; // for descending order
-            } else {
-                applyFilter(filter[0], value);
-            }
-        }
-    });
-});
-
-document.querySelectorAll('.check-button').forEach(button => {
-    button.addEventListener('click', function() {
-        const check = this.getAttribute('data-bs-check').split(';');
-        const key = check[0];
-        const value = check[1] || 'Yes';
-        const label = this.innerText;
-
-        if (!badgeExists(label, 'checkBadges')) {
-            addBadge(key, value, label, true);
-            applyCheck(key, value);
-        }
-    });
 });
 
 /*

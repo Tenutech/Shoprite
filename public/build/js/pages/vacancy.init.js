@@ -147,6 +147,26 @@ if (document.querySelectorAll(".form-steps")) {
                         }
                         return isValid;
                     });
+
+                    // Validate SAP Number fields only in the current active tab
+                    let sapNumberFields = form.querySelectorAll(".tab-pane.show input[name='sap_numbers[]']");
+                    sapNumberFields.forEach(input => {
+                        // Reset previous validation state
+                        input.classList.remove('is-invalid');
+                        let feedbackDiv = input.parentElement.querySelector('.invalid-feedback');
+                        if (feedbackDiv) {
+                            feedbackDiv.style.display = 'none';
+                        }
+
+                        // Check if the input value is exactly 8 digits
+                        if (!/^\d{8}$/.test(input.value)) {
+                            input.classList.add('is-invalid');
+                            if (feedbackDiv) {
+                                feedbackDiv.style.display = 'block';
+                            }
+                            valid = false; // Set valid to false if any SAP Number field in the active tab is invalid
+                        }
+                    });
         
                     // If validation passed, go to the next tab
                     if (!valid) {

@@ -19,7 +19,7 @@
     <div class="layout-wrapper landing">
         <nav class="navbar navbar-expand-lg navbar-landing fixed-top job-navbar" id="navbar" style="background-color: #fff;">
             <div class="container-fluid custom-container">
-                <a class="navbar-brand" href="index">
+                <a class="navbar-brand" href="/">
                     <img src="{{URL::asset('build/images/logo-dark.png')}}" class="card-logo card-logo-dark" alt="Shoprite Logo" height="30">
                     <img src="{{URL::asset('build/images/logo-light.png')}}" class="card-logo card-logo-light" alt="Shoprite Logo" height="30">
                 </a>
@@ -160,11 +160,11 @@
                     <div class="col-12">
                         <div class="live-preview">
                             <div class="d-flex flex-wrap gap-2">
-                                <a href="{{ route('login') }}" class="btn btn-light">
+                                <a href="{{ route('register') }}" class="btn btn-light">
                                     REGISTER A NEW ACCOUNT
                                     <i class="ri-arrow-right-line align-bottom me-1"></i> 
                                 </a>
-                                <a href="{{ route('register') }}" class="btn  btn-outline-light">
+                                <a href="{{ route('login') }}" class="btn  btn-outline-light">
                                     LOGIN TO YOUR ACCOUNT
                                     <i class="ri-arrow-right-line align-bottom me-1"></i> 
                                 </a>

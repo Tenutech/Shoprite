@@ -65,7 +65,7 @@
                                 <i class="ri-building-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
                                 {{ optional($vacancy->store->brand)->name ?? 'N/A' }}
                             </div>
-                        1@endif
+                        @endif
                     </div>
                 </div>
             </div>
