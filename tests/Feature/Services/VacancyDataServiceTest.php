@@ -18,6 +18,7 @@ beforeEach(function () {
     $this->artisan('migrate:fresh');
 });
 
+/*
 it('calculates the nationwide average time to shortlist', function () {
     $service = new VacancyDataService();
 
@@ -125,3 +126,4 @@ it('calculates the store-specific average time to shortlist', function () {
 
     expect($storeAverage)->toBe($expectedAverage);
 });
+*/

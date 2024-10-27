@@ -70,12 +70,12 @@
                             </h4>
                             <p style="color: #878a99; line-height: 1.5;">
                                 Please send and feedback or bug info to 
-                                <a href="mailto:info@opportunitybridge.com" style="font-weight: 500;">
-                                    info@opportunitybridge.co
+                                <a href="mailto:help@shoprite.co.za" style="font-weight: 500;">
+                                    help@shoprite.co.za
                                 </a>
                             </p>
                             <p style="font-family: 'Roboto', sans-serif; font-size: 14px;color: #98a6ad; margin: 0px;">
-                                2023 {{ config('app.name') }}. Designed & Developed by OTB Group
+                                2024 {{ config('app.name') }}. Designed & Developed by OTB Group
                             </p>
                         </div>
                     </div>

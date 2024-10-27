@@ -106,7 +106,7 @@
                         <div class="text-center">
                             <script>
                                 document.write(new Date().getFullYear())
-                            </script> Orient. Crafted with OTB Group</p>
+                            </script> Shoprite - Job Opportunities. Crafted with OTB Group</p>
                         </div>
                     </div>
                 </div>

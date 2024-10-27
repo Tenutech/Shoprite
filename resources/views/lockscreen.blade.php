@@ -80,7 +80,7 @@
             <div class="row">
                 <div class="col-lg-12">
                     <div class="text-center">
-                        <p class="mb-0 text-muted">&copy; <script>document.write(new Date().getFullYear())</script> Orient. Crafted by OTB Group</p>
+                        <p class="mb-0 text-muted">&copy; <script>document.write(new Date().getFullYear())</script> Shoprite - Job Opportunities. Crafted by OTB Group</p>
                     </div>
                 </div>
             </div>

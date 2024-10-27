@@ -90,7 +90,7 @@
                                     Privacy Policy
                                 </h3>
                                 <p class="mb-0 text-muted">
-                                    Last update: 16 Sept, 2023
+                                    Last update: 16 Sept, 2024
                                 </p>
                             </div>
                         </div>
@@ -116,10 +116,10 @@
                                 <i data-feather="check-circle" class="text-primary icon-dual-primary icon-xs"></i>
                             </div>
                             <div class="flex-grow-1">
-                                <h5>Privacy Policy for Orient</h5>
+                                <h5>Privacy Policy for Shoprite - Job Opportunities</h5>
                                 <p class="text-muted">
-                                    At Orient, accessible at 
-                                    https://www.opportunitybridge.co/, we deeply value and respect 
+                                    At Shoprite - Job Opportunities, accessible at 
+                                    https://apply.shoprite.jobs/, we deeply value and respect 
                                     the privacy of our members and visitors. Our Privacy Policy 
                                     outlines the kinds of data we collect, record, and how we use 
                                     it to improve your experience.
@@ -127,11 +127,11 @@
                                 <p class="text-muted">
                                     Should you need more clarity or have any inquiries about our 
                                     Privacy Policy, please don't hesitate to contact us at 
-                                    info@opportunitybridge.co.
+                                    help@shoprite.co.za
                                 </p>
                                 <p class="text-muted">
                                     Please note that this Privacy Policy pertains exclusively to activities on 
-                                    Orient's online platform. It doesn't encompass information gathered 
+                                    Shoprite - Job Opportunities's online platform. It doesn't encompass information gathered 
                                     offline or via other channels.
                                 </p>
                                 <p class="text-muted">
@@ -176,7 +176,7 @@
                                     <li>
                                         <p>
                                             <b>**Enhancing User Experience**:</b> The primary reason for collecting your 
-                                            data is to improve and customize your experience on Orient. 
+                                            data is to improve and customize your experience on Shoprite - Job Opportunities. 
                                             By understanding user preferences and behavior, we can tailor content, 
                                             showcase relevant opportunities, and ensure smoother site navigation.
                                         </p>
@@ -231,7 +231,7 @@
                                     <li>Ensure the safety and security of our platform by preventing fraudulent activities.</li>
                                 </ul>
                                 <p class="text-muted">
-                                    Similar to other platforms, Orient employs 'cookies'. 
+                                    Similar to other platforms, Shoprite - Job Opportunities employs 'cookies'. 
                                     These cookies help enrich user experiences by remembering preferences and session 
                                     information.
                                 </p>
@@ -254,7 +254,7 @@
                                 </p>
                                 <p class="text-muted">
                                     <b>
-                                        Note: Orient's Privacy Policy does not extend to 
+                                        Note: Shoprite - Job Opportunities's Privacy Policy does not extend to 
                                         third-party advertisers or other websites. We urge users to 
                                         acquaint themselves with the individual privacy policies of 
                                         these third-party entities for a more detailed understanding.

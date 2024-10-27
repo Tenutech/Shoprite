@@ -360,7 +360,7 @@
                                 <script>
                                     document.write(new Date().getFullYear())
 
-                                </script> © Orient - OTB Group
+                                </script> © Shoprite - Job Opportunities - OTB Group
                             </p>
                         </div>
                     </div>

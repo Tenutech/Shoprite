@@ -24,7 +24,7 @@
                         <div class="text-center mt-sm-5 mb-4 text-white-50">
                             <div>
                                 <a href="index" class="d-inline-block auth-logo">
-                                    <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="3s0">
+                                    <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="30">
                                 </a>
                             </div>
                         </div>
@@ -122,7 +122,7 @@
                         <div class="text-center">
                             <script>
                                 document.write(new Date().getFullYear())
-                            </script> Orient. Crafted with by OTB Group</p>
+                            </script> Shoprite - Job Opportunities. Crafted with by OTB Group</p>
                         </div>
                     </div>
                 </div>

@@ -90,7 +90,7 @@
                                     Security
                                 </h3>
                                 <p class="mb-0 text-muted">
-                                    Last update: 16 Sept, 2023
+                                    Last update: 16 Sept, 2024
                                 </p>
                             </div>
                         </div>
@@ -117,7 +117,7 @@
                                 Introduction
                             </h5>
                             <p class="text-muted">
-                                At Orient, the security of our users' information 
+                                At Shoprite - Job Opportunities, the security of our users' information 
                                 and the integrity of our marketplace are paramount. We are 
                                 committed to employing the best practices and state-of-the-art 
                                 security measures to ensure a safe environment for all parties 
@@ -234,7 +234,7 @@
                             <p class="text-muted">
                                 Reporting: We encourage our user community to report any 
                                 suspicious activities or perceived vulnerabilities in our system. 
-                                Reports can be sent to security@opportunitybridge.co.
+                                Reports can be sent to help@shoprite.co.za.
                             </p>
                         </div>
                     
@@ -255,7 +255,7 @@
                                 Conclusion
                             </h5>
                             <p class="text-muted">
-                                Security is an ongoing commitment at Orient. 
+                                Security is an ongoing commitment at Shoprite - Job Opportunities. 
                                 We are devoted to ensuring that our marketplace remains a 
                                 trusted environment for all users.
                             </p>

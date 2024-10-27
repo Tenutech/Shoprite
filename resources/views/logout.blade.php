@@ -42,7 +42,7 @@
 
                             <div class="mt-4 pt-2">
                                 <h5>You are Logged Out</h5>
-                                <p class="text-muted">Thank you for using <span class="fw-semibold">Orient</span>
+                                <p class="text-muted">Thank you for using <span class="fw-semibold">Shoprite - Job Opportunities</span>
                                     admin template</p>
                                 <div class="mt-4">
                                     <a href="{{ route('login') }}" class="btn btn-success w-100">Sign In</a>
@@ -70,7 +70,7 @@
                     <div class="text-center">
                         <script>
                             document.write(new Date().getFullYear())
-                        </script> Orient. Crafted with <i
+                        </script> Shoprite - Job Opportunities. Crafted with <i
                                 class="mdi mdi-heart text-danger"></i> by OTB Group</p>
                     </div>
                 </div>
