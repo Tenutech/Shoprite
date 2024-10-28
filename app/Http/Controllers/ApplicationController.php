@@ -364,7 +364,7 @@ class ApplicationController extends Controller
                 $applicant->update([
                     'location' => $geocodedAddress['formatted_address'],
                     'town_id' => $geocodedAddress['city'],
-                    'coordinates' => $geocodedAddress['latitude'] . ' ' . $geocodedAddress['longitude']
+                    'coordinates' => $geocodedAddress['latitude'] . ',' . $geocodedAddress['longitude']
                 ]);
             }
 
@@ -658,7 +658,7 @@ class ApplicationController extends Controller
                 $applicant->update([
                     'location' => $geocodedAddress['formatted_address'],
                     'town_id' => $geocodedAddress['city'],
-                    'coordinates' => $geocodedAddress['latitude'] . ' ' . $geocodedAddress['longitude']
+                    'coordinates' => $geocodedAddress['latitude'] . ',' . $geocodedAddress['longitude']
                 ]);
             }
 

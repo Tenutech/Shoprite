@@ -195,8 +195,24 @@
                                                     <div class="invalid-feedback">
                                                         Please enter your home address!
                                                     </div>
-                                                    <input type="hidden" id="latitude" name="latitude" value="">
-                                                    <input type="hidden" id="longitude" name="longitude" value="">
+                                                    @php
+                                                        $coordinates = $user->role_id < 7 ? '' : optional($user->applicant)->coordinates;
+
+                                                        // Initialize default values
+                                                        $latitude = '';
+                                                        $longitude = '';
+
+                                                        // Check if coordinates are present and properly formatted
+                                                        if ($coordinates && str_contains($coordinates, ',')) {
+                                                            $parts = explode(',', $coordinates);
+
+                                                            // Assign values if both latitude and longitude are available
+                                                            $latitude = $parts[0] ?? '';
+                                                            $longitude = $parts[1] ?? '';
+                                                        }
+                                                    @endphp
+                                                    <input type="hidden" id="latitude" name="latitude" value="{{ $latitude }}">
+                                                    <input type="hidden" id="longitude" name="longitude" value="{{ $longitude }}">
                                                 </div>
                                             </div>
 
@@ -343,7 +359,7 @@
                             Password
                         -------------------------------------------------------------------------------------->
 
-                        <div class="tab-pane" id="changePassword" role="tabpanel">
+                        <div class="tab-pane {{ ($user->role_id >= 7 && !$user->applicant) ? 'active' : '' }}" id="changePassword" role="tabpanel">
                             <form id="formPassword" action="post" enctype="multipart/form-data">
                                 @csrf
                                 <div class="row g-2">
