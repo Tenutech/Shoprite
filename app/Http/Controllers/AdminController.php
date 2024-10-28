@@ -214,8 +214,6 @@ class AdminController extends Controller
                 $talentPoolApplicantsProvince = $this->applicantDataService->getTalentPoolApplicantsProvince($type, null, $startDate, $endDate);
             }
 
-            Log::info($interviewedApplicantsDemographic);
-
             // Return the 'admin/home' view with the calculated data
             return view('admin/home', [
                 'shortlist' => $shortlist,

@@ -460,8 +460,13 @@ class ApplicantProfileController extends Controller
             $type = 'template';
             $template = 'interview_send';
 
+            // Prepare the variables for the WhatsApp template
+            $variables = [
+                $applicant->firstname ?: 'N/A'
+            ];
+
             // Dispatch WhatsApp message
-            SendWhatsAppMessage::dispatch($applicant, $message, $type, $template);
+            SendWhatsAppMessage::dispatch($applicant, $message, $type, $template, $variables);
 
             // Return the interview instance
             return $interview;

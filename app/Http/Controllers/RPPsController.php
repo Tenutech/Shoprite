@@ -282,8 +282,6 @@ class RPPsController extends Controller
 
             DB::beginTransaction();
 
-            Log::info($request->store_id);
-
             //User Update
             $user->firstname = ucwords($request->firstname);
             $user->lastname = ucwords($request->lastname);
