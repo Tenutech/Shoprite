@@ -192,30 +192,54 @@
                                             <table class="table table-borderless mb-0">
                                                 <tbody>
                                                     <tr>
-                                                        <th class="ps-0" scope="row">Name :</th>
-                                                        <td class="text-muted">{{ $applicant->firstname ?? 'N/A' }} {{ $applicant->lastname }}</td>
+                                                        <th class="ps-0" scope="row">
+                                                            Name :
+                                                        </th>
+                                                        <td class="text-muted">
+                                                            {{ $applicant->firstname ?? 'N/A' }} {{ $applicant->lastname }}
+                                                        </td>
                                                     </tr>
                                                     <tr>
-                                                        <th class="ps-0" scope="row">Mobile :</th>
-                                                        <td class="text-muted">{{ $applicant->phone ?? 'N/A' }}</td>
+                                                        <th class="ps-0" scope="row">
+                                                            Mobile :
+                                                        </th>
+                                                        <td class="text-muted">
+                                                            {{ $applicant->phone ?? 'N/A' }}
+                                                        </td>
                                                     </tr>
                                                     @if ($applicant->email )
                                                         <tr>
-                                                            <th class="ps-0" scope="row">Email :</th>
-                                                            <td class="text-muted">{{ $applicant->email ?? 'N/A' }}</td>
+                                                            <th class="ps-0" scope="row">
+                                                                Email :
+                                                            </th>
+                                                            <td class="text-muted">
+                                                                {{ $applicant->email ?? 'N/A' }}
+                                                            </td>
                                                         </tr>
                                                     @endif
                                                     <tr>
-                                                        <th class="ps-0" scope="row">Brand :</th>
-                                                        <td class="text-muted">{{ optional($applicant->brand)->name ?? 'N/A' }}</td>
+                                                        <th class="ps-0" scope="row">
+                                                            Brand :
+                                                        </th>
+                                                        <td class="text-muted">
+                                                            {{ $applicant->brands->first()->name ?? 'N/A' }}
+                                                        </td>
                                                     </tr>
                                                     <tr>
-                                                        <th class="ps-0" scope="row">Role :</th>
-                                                        <td class="text-muted">{{ optional($applicant->role)->name ?? 'N/A' }}</td>
+                                                        <th class="ps-0" scope="row">
+                                                            Role :
+                                                        </th>
+                                                        <td class="text-muted">
+                                                            {{ optional($applicant->role)->name ?? 'N/A' }}
+                                                        </td>
                                                     </tr>
                                                     <tr>
-                                                        <th class="ps-0" scope="row">Applied</th>
-                                                        <td class="text-muted">{{ date('d M Y', strtotime($applicant->created_at)) }}</td>
+                                                        <th class="ps-0" scope="row">
+                                                            Applied
+                                                        </th>
+                                                        <td class="text-muted">
+                                                            {{ date('d M Y', strtotime($applicant->created_at)) }}
+                                                        </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
