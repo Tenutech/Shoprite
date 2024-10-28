@@ -319,13 +319,9 @@
                                                                                     </div>
                                                                                 @elseif ($activity->subject_type === "App\Models\Applicant")
                                                                                     @php
-                                                                                        $applicantPosition = $activity->subject->position ?? null;
-                                                                                        $applicantPositionName = $applicantPosition ? $applicantPosition->name : 'N/A';
-                                                                                        if ($applicantPositionName === "Other") {
-                                                                                            $applicantPositionName = $activityAttributes['attributes']['position_specify'] ?? 'N/A';
-                                                                                        }
                                                                                         $firstname = isset($activityAttributes['attributes']['firstname']) ? $activityAttributes['attributes']['firstname'] : 'N/A';
                                                                                         $lastname = isset($activityAttributes['attributes']['lastname']) ? $activityAttributes['attributes']['lastname'] : 'N/A';
+                                                                                        $phone = isset($activityAttributes['attributes']['phone']) ? $activityAttributes['attributes']['phone'] : 'N/A';
                                                                                         $avatar = isset($activityAttributes['attributes']['avatar']) ? $activityAttributes['attributes']['avatar'] : URL::asset('images/avatar.jpg');
                                                                                     @endphp
 
@@ -339,7 +335,7 @@
                                                                                                     <div class="flex-grow-1 ms-3">
                                                                                                         <h6 class="fs-14 mb-1">
                                                                                                             <span class="text-success">
-                                                                                                                Application
+                                                                                                                Applicant
                                                                                                             </span>
                                                                                                         </h6>
                                                                                                         <small class="text-muted">
@@ -355,7 +351,7 @@
                                                                                                     <i class="ri-user-2-line"></i> {{ $firstname }} {{ $lastname }}
                                                                                                 </p>
                                                                                                 <p class="text-muted mb-3">
-                                                                                                    <i class="ri-briefcase-line"></i> {{ $applicantPositionName }}
+                                                                                                    <i class="ri-briefcase-line"></i> {{ $phone }}
                                                                                                 </p>
                                                                                             </div>
                                                                                         </div>
@@ -539,52 +535,7 @@
                                                                                                 </p>
                                                                                             </div>
                                                                                         </div>
-                                                                                    </div>
-                                                                                @elseif ($activity->subject_type === "App\Models\Applicant")
-                                                                                    @php
-                                                                                        $applicantPosition = $activity->subject->position ?? null;
-                                                                                        $applicantPositionName = $applicantPosition ? $applicantPosition->name : 'N/A';
-                                                                                        if ($applicantPositionName === "Other") {
-                                                                                            $applicantPositionName = $activityAttributes['attributes']['position_specify'] ?? 'N/A';
-                                                                                        }
-                                                                                        $firstname = isset($activityAttributes['attributes']['firstname']) ? $activityAttributes['attributes']['firstname'] : 'N/A';
-                                                                                        $lastname = isset($activityAttributes['attributes']['lastname']) ? $activityAttributes['attributes']['lastname'] : 'N/A';
-                                                                                    @endphp
-                                                                                    <div class="accordion-item border-0">                                                                            
-                                                                                        <div class="accordion-header" id="activityHeading{{ $activity->id }}">
-                                                                                            <a class="accordion-button p-2 shadow-none" data-bs-toggle="collapse" href="#activity{{ $activity->id }}" aria-expanded="true">
-                                                                                                <div class="d-flex">
-                                                                                                    <div class="flex-shrink-0">
-                                                                                                        <div class="avatar-xs acitivity-avatar">
-                                                                                                            <div class="avatar-title rounded-circle {{ $bgClass }}">
-                                                                                                                <i class="{{ $iconClass }}"></i>
-                                                                                                            </div>
-                                                                                                        </div>
-                                                                                                    </div>
-                                                                                                    <div class="flex-grow-1 ms-3">
-                                                                                                        <h6 class="fs-14 mb-1">
-                                                                                                            <span class="text-warning">
-                                                                                                                Application
-                                                                                                            </span>
-                                                                                                        </h6>
-                                                                                                        <small class="text-muted">
-                                                                                                            Updated {{ $activity->created_at->diffForHumans() }}
-                                                                                                        </small>
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                            </a>
-                                                                                        </div>
-                                                                                        <div id="activity{{ $activity->id }}" class="accordion-collapse collapse show" aria-labelledby="activityHeading{{ $activity->id }}">
-                                                                                            <div class="accordion-body ms-2 ps-5">
-                                                                                                <p class="text-muted mb-3">
-                                                                                                    <i class="ri-user-2-line"></i> {{ $firstname }} {{ $lastname }}
-                                                                                                </p>
-                                                                                                <p class="text-muted mb-3">
-                                                                                                    <i class="ri-briefcase-line"></i> {{ $applicantPositionName }}
-                                                                                                </p>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
+                                                                                    </div>                                                                                
                                                                                 @elseif ($activity->subject_type === "App\Models\Application")
                                                                                     @php
                                                                                         $activityAttributes = json_decode($activity->properties, true);
@@ -819,13 +770,9 @@
                                                                                 @elseif($activity->accessedApplicant)
                                                                                     @php
                                                                                         $applicant = $activity->accessedApplicant;
-                                                                                        $applicantPosition = $applicant->position ?? null;
-                                                                                        $applicantPositionName = $applicantPosition ? $applicantPosition->name : 'N/A';
-                                                                                        if ($applicantPositionName === "Other") {
-                                                                                            $applicantPositionName = $applicant->position_specify ?? 'N/A';
-                                                                                        }
                                                                                         $firstname = $applicant->firstname ?? 'N/A';
                                                                                         $lastname = $applicant->lastname ?? 'N/A';
+                                                                                        $phone = $$applicant->phone ?? 'N/A';
                                                                                         $avatar = $applicant->avatar ?? URL::asset('images/avatar.jpg');
                                                                                     @endphp
 
@@ -855,7 +802,7 @@
                                                                                                     <i class="ri-user-2-line"></i> {{ $firstname }} {{ $lastname }}
                                                                                                 </p>
                                                                                                 <p class="text-muted mb-3">
-                                                                                                    <i class="ri-briefcase-line"></i> {{ $applicantPositionName }}
+                                                                                                    <i class="ri-briefcase-line"></i> {{ $phone }}
                                                                                                 </p>
                                                                                             </div>
                                                                                         </div>
