@@ -200,7 +200,7 @@
                 <!-- Steps Row with 5 Columns -->
                 <div class="row justify-content-center d-flex align-items-stretch">
                     <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
-                        <div class="card shadow-none bg-light h-100">
+                        <div class="card card-animate shadow-none bg-light h-100">
                             <div class="card-body p-4">
                                 <h1 class="fw-bold display-5 ff-secondary mb-4 text-shoprite-secondary position-relative">
                                     <span>1</span>
@@ -213,7 +213,7 @@
                         </div>
                     </div>
                     <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
-                        <div class="card shadow-none bg-light h-100">
+                        <div class="card card-animate shadow-none bg-light h-100">
                             <div class="card-body p-4">
                                 <h1 class="fw-bold display-5 ff-secondary mb-4 text-shoprite-secondary position-relative">
                                     <span>2</span>
@@ -226,7 +226,7 @@
                         </div>
                     </div>
                     <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
-                        <div class="card shadow-none bg-light h-100">
+                        <div class="card card-animate shadow-none bg-light h-100">
                             <div class="card-body p-4">
                                 <h1 class="fw-bold display-5 ff-secondary mb-4 text-shoprite-secondary position-relative">
                                     <span>3</span>
@@ -239,7 +239,7 @@
                         </div>
                     </div>
                     <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
-                        <div class="card shadow-none bg-light h-100">
+                        <div class="card card-animate shadow-none bg-light h-100">
                             <div class="card-body p-4">
                                 <h1 class="fw-bold display-5 ff-secondary mb-4 text-shoprite-secondary position-relative">
                                     <span>4</span>
@@ -252,7 +252,7 @@
                         </div>
                     </div>
                     <div class="col-lg-2 col-md-4 col-sm-6 mb-4">
-                        <div class="card shadow-none bg-light h-100">
+                        <div class="card card-animate shadow-none bg-light h-100">
                             <div class="card-body p-4">
                                 <h1 class="fw-bold display-5 ff-secondary mb-4 text-shoprite-secondary position-relative">
                                     <span>5</span>
