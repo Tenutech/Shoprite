@@ -425,7 +425,7 @@
                                                                             </div>
                                                                             <div class="col-lg-9">
                                                                                 @if($applicant->brands && $applicant->brands->isNotEmpty())
-                                                                                    {{ $applicant->brands->pluck('name')->implode(', ') }}
+                                                                                    {{ $applicant->brands->unique('name')->pluck('name')->implode(', ') }}
                                                                                 @else
                                                                                     N/A
                                                                                 @endif
