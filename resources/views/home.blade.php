@@ -714,13 +714,13 @@
                                                     <div class="mb-4">
                                                         <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="loop" colors="primary:#0ab39c,secondary:#405189" id="lordicon" style="width:120px;height:120px"></lord-icon>
                                                     </div>
-                                                    <h5 id="completeHeading">Would you like to update your application ?</h5>
+                                                    <h5 id="completeHeading">Would you like to update your application?</h5>
                                                     <p class="text-muted" id="completeText">
                                                         You are about to update your application with new information.
                                                     </p>
                                                     <button type="submit" id="updateBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
                                                         <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
-                                                        Yes, Update !
+                                                        Yes, Update!
                                                     </button>
                                                     <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
                                                         <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>

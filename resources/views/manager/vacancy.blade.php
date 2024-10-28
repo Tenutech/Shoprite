@@ -477,7 +477,7 @@
                                                     @endif
                                                     <button type="submit" id="updateBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
                                                         <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
-                                                        Yes, Update !
+                                                        Yes, Update!
                                                     </button>
                                                     <a type="button" href="{{ route('job-overview.index', ['id' => Crypt::encryptString($vacancy->id)]) }}" id="view-vacancy" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
                                                         <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
@@ -507,7 +507,7 @@
                                                     </button>
                                                     <button type="submit" id="submitBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
                                                         <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
-                                                        Yes, Create !
+                                                        Yes, Create!
                                                     </button>
                                                 </div>
 

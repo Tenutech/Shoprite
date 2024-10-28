@@ -543,8 +543,8 @@
             <div class="modal-body p-5 text-center">
                 <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" style="width:120px;height:120px"></lord-icon>
                 <div class="mt-4 text-center">
-                    <h4 class="fs-semibold">You are about to appoint these applicants !</h4>
-                    <p class="text-muted fs-14 mb-4 pt-1">Send appointment confirmation ?</p>
+                    <h4 class="fs-semibold">You are about to appoint these applicants!</h4>
+                    <p class="text-muted fs-14 mb-4 pt-1">Send appointment confirmation?</p>
                     <form id="formVacancy" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="mb-3" id="applicantsVacancyDiv">
@@ -611,7 +611,7 @@
                                 Cancel
                             </button>
                             <button type="submit" class="btn btn-primary vacancy-fill" id="vacancy-fill">
-                                Fill Vacancy !
+                                Fill Vacancy!
                             </button>
                             <div class="spinner-border text-primary d-none" role="status" id="loading-vacancy">
                                 <span class="sr-only">Loading...</span>

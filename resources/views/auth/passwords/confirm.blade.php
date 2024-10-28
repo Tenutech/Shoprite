@@ -30,7 +30,7 @@
                                                                     </div>
                                                                 </div>
                                                                 <div class="mt-4">
-                                                                    <h4>Success !</h4>
+                                                                    <h4>Success!</h4>
                                                                     <p class="text-muted">At vero eos et accusamus et iusto odio dignissimos ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores et</p>
                                                                     <div class="mt-4">
                                                                         <a href="index" class="btn btn-primary w-100">Back to Home</a>

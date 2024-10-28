@@ -42,7 +42,7 @@
                         <div class="card-body p-4">
                             <div class="text-center mt-2">
                                 <h5 class="text-shoprite-secondary">
-                                    Welcome Back !
+                                    Welcome Back!
                                 </h5>
                             </div>
                             <div class="p-2 mt-4">

@@ -728,13 +728,13 @@
                                                         <div class="mb-4">
                                                             <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="loop" colors="primary:#0ab39c,secondary:#405189" id="lordicon" style="width:120px;height:120px"></lord-icon>
                                                         </div>
-                                                        <h5 id="completeHeading">Would you like to update your application ?</h5>
+                                                        <h5 id="completeHeading">Would you like to update your application?</h5>
                                                         <p class="text-muted" id="completeText">
                                                             You are about to update your application with new information.
                                                         </p>
                                                         <button type="submit" id="updateBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
                                                             <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
-                                                            Yes, Update !
+                                                            Yes, Update!
                                                         </button>
                                                         <a type="button" href="{{ route('profile.index') }}" id="view-application" class="btn btn-primary btn-label waves-effect waves-light rounded-pill">
                                                             <i class="ri-organization-chart label-icon align-middle rounded-pill fs-16 me-2"></i>
@@ -754,7 +754,7 @@
                                                         <div class="mb-4">
                                                             <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="loop" state="hover-2" colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
                                                         </div>
-                                                        <h5>Would you like to submit your application ?</h5>
+                                                        <h5>Would you like to submit your application?</h5>
                                                         <p class="text-muted">
                                                             After successful submission you will be notified should you qualify fo an interview.
                                                         </p>
@@ -764,7 +764,7 @@
                                                         </button>
                                                         <button type="submit" id="submitBtn" class="btn btn-secondary btn-label waves-effect waves-light rounded-pill">
                                                             <i class="ri-check-double-line label-icon align-middle rounded-pill fs-16 me-2"></i>
-                                                            Yes, Submit !
+                                                            Yes, Submit!
                                                         </button>
                                                     </div>
 
@@ -780,7 +780,7 @@
                                                         <div class="mb-4">
                                                             <lord-icon src="https://cdn.lordicon.com/lupuorrc.json" trigger="loop" colors="primary:#0ab39c,secondary:#405189" id="lordicon" style="width:120px;height:120px"></lord-icon>
                                                         </div>
-                                                        <h5 id="completeHeading">Application Submitted !</h5>
+                                                        <h5 id="completeHeading">Application Submitted!</h5>
                                                         <p class="text-muted" id="completeText">
                                                             Your application has been submitted successfully, you will be notified should you qualify
                                                             for an interview
