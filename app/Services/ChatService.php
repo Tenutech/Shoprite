@@ -2692,7 +2692,7 @@ class ChatService
                         " is now declined. If this was a mistake, please contact us immediately."
                     ];*/
                     $messages = [
-                        "Thank you for your response. Should you wish to view, reschedle or decline your interview, start by typing Hi. Have a wonderful day!"
+                        "Thank you for your response. Should you wish to view, reschedule or decline your interview, start by typing Hi. Have a wonderful day!"
                     ];
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
 
