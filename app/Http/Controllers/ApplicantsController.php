@@ -183,6 +183,9 @@ class ApplicantsController extends Controller
         // Check if the store has valid coordinates
         $storeCoordinates = isset($store->coordinates) && strpos($store->coordinates, ',') !== false ? explode(',', $store->coordinates) : null;
 
+        $longitude = '';
+        $latitude = '';
+
         if ($storeCoordinates) {
             list($latitude, $longitude) = [(float)$storeCoordinates[0], (float)$storeCoordinates[1]];
         }

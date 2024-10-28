@@ -190,6 +190,8 @@ class ApplicationController extends Controller
             $userId = Auth::id();
             $user = User::find($userId);
 
+            $avatarName = '/images/avatar.jpg';
+
             // Handle avatar upload (if present)
             if ($request->hasFile('avatar')) {
                 $avatar = $request->file('avatar');
@@ -484,6 +486,8 @@ class ApplicationController extends Controller
             // Get the current authenticated user
             $userId = Auth::id();
             $user = User::find($userId);
+
+            $avatarName = '/images/avatar.jpg';
 
             // Handle avatar upload (if present)
             if ($request->hasFile('avatar')) {
