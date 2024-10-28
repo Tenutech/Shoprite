@@ -404,7 +404,7 @@ class ApplicantProfileController extends Controller
 
             // Define the message type and template
             $type = 'template';
-            $template = 'interview_reschedule_view';
+            $template = 'interview_reschedule_view_2';
 
             // Prepare the variables for the WhatsApp template
             $variables = [

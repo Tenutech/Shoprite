@@ -706,7 +706,7 @@ class VacancyController extends Controller
                     $type = 'template';
 
                     // Define the template
-                    $template = 'appointed';
+                    $template = 'appointed_2';
 
                     // Prepare the variables (you can define these as per your needs)
                     $variables = [
@@ -863,7 +863,7 @@ class VacancyController extends Controller
                         $type = 'template';
 
                         // Define the template
-                        $template = 'regretted';
+                        $template = 'regretted_2';
 
                         // Prepare the variables (you can define these as per your needs)
                         $variables = [

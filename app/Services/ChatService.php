@@ -2508,9 +2508,7 @@ class ChatService
                     $templateMessage = [
                         [
                             'message' => "Dear {$variables[0]},\n\nI have picked up that you currently have an interview scheduled for the *{$variables[1]}* at *{$variables[2]}* for the position of *{$variables[3]}* at *{$variables[4]}*.\n\nWould you like to view or edit the details of this interview? 📆\n\n1. Yes\n2. No",
-                            'type' => "text",
-                            'template' => "interview_welcome",
-                            'variables' => $variables
+                            'type' => "text"
                         ]
                     ];
 

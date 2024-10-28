@@ -262,7 +262,7 @@ class InterviewController extends Controller
 
             // Define the message type and template
             $type = 'template';
-            $template = 'interview_reschedule_view';
+            $template = 'interview_reschedule_view_2';
 
             // Prepare the variables for the WhatsApp template
             $variables = [
@@ -419,7 +419,7 @@ class InterviewController extends Controller
                 $type = 'template';
 
                 // Define the template for a confirmed interview
-                $template = 'interview_confirmed';
+                $template = 'interview_confirmed_2';
 
                 // Prepare the variables (these values will be injected into the template)
                 $variables = [
@@ -726,7 +726,7 @@ class InterviewController extends Controller
                 $type = 'template';
 
                 // Define the template for a confirmed interview
-                $template = 'interview_reschedule_view';
+                $template = 'interview_reschedule_view_2';
 
                 // Prepare the variables for the WhatsApp template
                 $variables = [
@@ -949,7 +949,7 @@ class InterviewController extends Controller
                 $type = 'template';
 
                 // Define the template
-                $template = 'interview_cancel';
+                $template = 'interview_cancel_2';
 
                 // Prepare the variables (you can define these as per your needs)
                 $variables = [
@@ -1070,7 +1070,7 @@ class InterviewController extends Controller
             $type = 'template';
 
             // Define the template
-            $template = 'regretted';
+            $template = 'regretted_2';
 
             // Prepare the variables (you can define these as per your needs)
             $variables = [

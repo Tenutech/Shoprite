@@ -68,7 +68,7 @@ class MessageController extends Controller
 
             // Check if a chat record exists and if it's more than 24 hours old
             if ($chat && $chat->created_at->lt(Carbon::now()->subDay(1))) {
-                $template = "free_message";
+                $template = "free_message_2";
             }
 
             SendWhatsAppMessage::dispatch($applicant, $request->message, $type, $template);
