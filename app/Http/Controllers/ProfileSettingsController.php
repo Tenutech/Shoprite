@@ -397,17 +397,14 @@ class ProfileSettingsController extends Controller
         $bytes = fread($file, 8); // Get the first few bytes
         fclose($file);
 
-        // JPEG magic numbers
-        if (bin2hex($bytes) === 'ffd8ffe0' || bin2hex($bytes) === 'ffd8ffe1') {
-            return true; // It's a JPEG file
+        // Check only the first four bytes for JPEG and PNG
+        $firstFourBytes = substr(bin2hex($bytes), 0, 8);
+
+        // JPEG and PNG magic numbers
+        if (in_array($firstFourBytes, ['ffd8ffe0', 'ffd8ffe1', '89504e47'])) {
+            return true; // It's a valid JPEG or PNG file
         }
 
-        // PNG magic numbers
-        if (bin2hex($bytes) === '89504e47') {
-            return true; // It's a PNG file
-        }
-
-        // Add more checks for other image formats if necessary
         return false;
     }
 }

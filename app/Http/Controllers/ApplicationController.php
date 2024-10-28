@@ -202,21 +202,24 @@ class ApplicationController extends Controller
                     ], 400); // Return error if the file signature is not valid
                 }
 
-                $avatarName = '/images/' . Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
-                $avatarPath = public_path('/images/');
-                $avatar->move($avatarPath, $avatarName);
+                // Define the avatar name and path
+                $avatarName = Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
+                $avatarPath = public_path('images');
 
-                // Create a document record for the uploaded avatar
-                Document::create([
-                    'applicant_id' => null, // This will be set later when the applicant is created
-                    'name' => $avatarName,
-                    'type' => $avatar->getClientOriginalExtension(),
-                    'size' => $avatar->getSize(),
-                    'url' => '/images/' . $avatarName,
-                ]);
+                // Move the file and store the path for later use
+                if ($avatar->move($avatarPath, $avatarName)) {
+                    $avatarUrl = '/images/' . $avatarName;
+                    $avatarSize = filesize($avatarPath . DIRECTORY_SEPARATOR . $avatarName);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to move the uploaded file.'
+                    ], 500); // Return error if the file couldn't be moved
+                }
             } else {
-                // Use existing avatar if available, otherwise fallback to default
-                $avatarName = $user && $user->avatar ? '/images/' . $user->avatar : '/images/avatar.jpg';
+                // Use default avatar if none uploaded
+                $avatarUrl = '/images/avatar.jpg';
+                $avatarSize = null; // No size for default avatar
             }
 
             // Determine the value of avatar_upload based on the avatar
@@ -323,6 +326,17 @@ class ApplicationController extends Controller
                 'application_type' => 'Website', // Application type set to Website
                 'state_id' => $completeStateID,
             ]);
+
+            // Create the document record after applicant is created
+            if ($request->hasFile('avatar')) {
+                Document::create([
+                    'applicant_id' => $applicant->id, // Associate with the created applicant
+                    'name' => $avatarName,
+                    'type' => $avatar->getClientOriginalExtension(),
+                    'size' => $avatarSize,
+                    'url' => $avatarUrl,
+                ]);
+            }
 
             // Brands
             if ($request->has('brands')) {
@@ -483,21 +497,24 @@ class ApplicationController extends Controller
                     ], 400); // Return error if the file signature is not valid
                 }
 
-                $avatarName = '/images/' . Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
-                $avatarPath = public_path('/images/');
-                $avatar->move($avatarPath, $avatarName);
+                // Define the avatar name and path
+                $avatarName = Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
+                $avatarPath = public_path('images');
 
-                // Create a document record for the uploaded avatar
-                Document::create([
-                    'applicant_id' => null, // This will be set later when the applicant is created
-                    'name' => $avatarName,
-                    'type' => $avatar->getClientOriginalExtension(),
-                    'size' => $avatar->getSize(),
-                    'url' => '/images/' . $avatarName,
-                ]);
+                // Move the file and store the path for later use
+                if ($avatar->move($avatarPath, $avatarName)) {
+                    $avatarUrl = '/images/' . $avatarName;
+                    $avatarSize = filesize($avatarPath . DIRECTORY_SEPARATOR . $avatarName);
+                } else {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Failed to move the uploaded file.'
+                    ], 500); // Return error if the file couldn't be moved
+                }
             } else {
-                // Use existing avatar if available, otherwise fallback to default
-                $avatarName = $user && $user->avatar ? '/images/' . $user->avatar : '/images/avatar.jpg';
+                // Use default avatar if none uploaded
+                $avatarUrl = '/images/avatar.jpg';
+                $avatarSize = null; // No size for default avatar
             }
 
             // Determine the value of avatar_upload based on the avatar
@@ -603,6 +620,17 @@ class ApplicationController extends Controller
                 'application_type' => 'Website', // Application type set to Website
                 'state_id' => $completeStateID,
             ]);
+
+            // Create the document record after applicant is created
+            if ($request->hasFile('avatar')) {
+                Document::create([
+                    'applicant_id' => $applicant->id, // Associate with the created applicant
+                    'name' => $avatarName,
+                    'type' => $avatar->getClientOriginalExtension(),
+                    'size' => $avatarSize,
+                    'url' => $avatarUrl,
+                ]);
+            }
 
             // Brands
             if ($request->has('brands')) {
@@ -884,17 +912,14 @@ class ApplicationController extends Controller
         $bytes = fread($file, 8); // Get the first few bytes
         fclose($file);
 
-        // JPEG magic numbers
-        if (bin2hex($bytes) === 'ffd8ffe0' || bin2hex($bytes) === 'ffd8ffe1') {
-            return true; // It's a JPEG file
+        // Check only the first four bytes for JPEG and PNG
+        $firstFourBytes = substr(bin2hex($bytes), 0, 8);
+
+        // JPEG and PNG magic numbers
+        if (in_array($firstFourBytes, ['ffd8ffe0', 'ffd8ffe1', '89504e47'])) {
+            return true; // It's a valid JPEG or PNG file
         }
 
-        // PNG magic numbers
-        if (bin2hex($bytes) === '89504e47') {
-            return true; // It's a PNG file
-        }
-
-        // Add more checks for other image formats if necessary
         return false;
     }
 }

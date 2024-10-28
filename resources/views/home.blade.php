@@ -49,7 +49,7 @@
             <div class="card">
                 <div class="card-header">
                     <h4 class="card-title mb-0">
-                        {{ $user->applicant ? 'Update' : 'Post' }} Your Application
+                        {{ $user->applicant ? 'Update' : 'Submit' }} Your Application
                     </h4>
                 </div><!-- end card header -->
                 <div class="card-body form-steps">
@@ -139,7 +139,13 @@
                                         <div class="tab-pane fade show active" id="v-pills-welcome" role="tabpanel" aria-labelledby="v-pills-welcome-tab">
                                             <div class="text-center pt-4 pb-2" id="welcome">
                                                 <div class="mb-4">
-                                                    <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" state="hover-2" colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
+                                                    <lord-icon 
+                                                        src="https://cdn.lordicon.com/xzalkbkz.json" 
+                                                        trigger="loop" 
+                                                        state="hover-2"
+                                                        colors="primary:#333b46,secondary:#d50019" 
+                                                        style="width:120px;height:120px">
+                                                    </lord-icon>
                                                 </div>
 
                                                 <h5 class="mb-3">Welcome to our store <b><em>employment journey</em></b>!</h5>
@@ -195,7 +201,7 @@
                                         -------------------------------------------------------------------------------------->
 
                                         <div class="tab-pane fade" id="v-pills-personal" role="tabpanel" aria-labelledby="v-pills-personal-tab">
-                                            <div>
+                                            <div class="mb-3">
                                                 <h5>Personal Information</h5>
                                             </div>
 
@@ -366,7 +372,7 @@
                                         -------------------------------------------------------------------------------------->
 
                                         <div class="tab-pane fade" id="v-pills-job" role="tabpanel" aria-labelledby="v-pills-job-tab">
-                                            <div>
+                                            <div class="mb-3">
                                                 <h5>Job Information</h5>
                                             </div>
 
@@ -502,7 +508,7 @@
                                         -------------------------------------------------------------------------------------->
 
                                         <div class="tab-pane fade" id="v-pills-literacy" role="tabpanel" aria-labelledby="v-pills-literacy-tab">
-                                            <div>
+                                            <div class="mb-3">
                                                 <h5>Literacy Assessment</h5>
                                             </div>
 
@@ -571,7 +577,7 @@
                                         -------------------------------------------------------------------------------------->
 
                                         <div class="tab-pane fade" id="v-pills-numeracy" role="tabpanel" aria-labelledby="v-pills-numeracy-tab">
-                                            <div>
+                                            <div class="mb-3">
                                                 <h5>Numerical Ability Assessment</h5>
                                             </div>
 
@@ -640,7 +646,7 @@
                                         -------------------------------------------------------------------------------------->
 
                                         <div class="tab-pane fade" id="v-pills-situational" role="tabpanel" aria-labelledby="v-pills-situational-tab">
-                                            <div>
+                                            <div class="mb-3">
                                                 <h5>Situational Awareness Assessment</h5>
                                             </div>
 
