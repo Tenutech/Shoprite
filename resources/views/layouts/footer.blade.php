@@ -6,7 +6,7 @@
             </div>
             <div class="col-sm-6">
                 <div class="text-sm-end d-none d-sm-block">
-                    Designed & Developed by OTB Group
+                    Crafted by OTB Group
                 </div>
             </div>
         </div>
