@@ -24,29 +24,28 @@ class TopbarServiceProvider extends ServiceProvider
     public function boot(): void
     {
         view()->composer('layouts.topbar', function (View $view) {
-            //User ID
+            // User ID
             $userID = Auth::id();
 
             // Messages
-            $messages = Message::with([
-                'from',
-                'to'
-            ])
-            ->where('to_id', $userID)
-            ->where('read', 'No')
-            ->orderBy('created_at', 'desc')
-            ->get();
+            $messages = Message::with(['from', 'to'])
+                ->where('to_id', $userID)
+                ->where('read', 'No')
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-            // Notifications
+            // Notifications where both 'causer' and 'subject' exist
             $notifications = Notification::with([
-                'user',
-                'causer',
-                'subject',
-                'type',
+                'user', 
+                'causer', 
+                'subject', 
+                'type'
             ])
             ->where('user_id', $userID)
             ->where('type_id', '!=', 3)
             ->where('show', 'Yes')
+            ->whereHas('causer') // Ensure causer exists
+            ->whereHas('subject') // Ensure subject exists
             ->orderBy('created_at', 'desc')
             ->get()
             ->groupBy(function ($notification) {
