@@ -393,7 +393,7 @@
 
 <div class="row g-0 justify-content-end mb-4" id="pagination-element">
     <!-- end col -->
-    <div class="col-sm-6">
+    <div class="col-sm-6" id="pagination">
         <div class="pagination-block pagination pagination-separated justify-content-center justify-content-sm-end mb-sm-0">
             <div class="page-item">
                 <a href="javascript:void(0);" class="page-link" id="page-prev">Previous</a>

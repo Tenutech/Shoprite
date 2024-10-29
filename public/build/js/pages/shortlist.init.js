@@ -1713,6 +1713,9 @@ $('#formVacancy').on('submit', function(e) {
                         if (colButtons) {
                             colButtons.style.display = 'none'; // Hide the column
                         }
+
+                        var pagination = document.querySelector('#pagination');
+                        pagination.style.display = 'none'; // Hide the pagination
                     }
 
                     // Reload SAP Number options
