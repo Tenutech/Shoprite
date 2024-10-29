@@ -328,21 +328,6 @@
                             </div>
                         </div>
                     </div>
-
-                    <div class="col-lg-7 ms-lg-auto">
-                        <div class="row">                            
-                            <div class="col-sm-4 mt-4">
-                                <h5 class="text-white mb-0">Legal</h5>
-                                <div class="text-muted mt-3">
-                                    <ul class="list-unstyled ff-secondary footer-list fs-15">
-                                        <li><a href="https://bit.ly/srtscsnew" target="_blank">Privacy Policy</a></li>
-                                        <li><a href="https://bit.ly/srtscsnew" target="_blank">Terms & Conditions</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
                 </div>
 
                 <div class="row text-center text-sm-start align-items-center mt-5">
