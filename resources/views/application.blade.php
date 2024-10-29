@@ -761,7 +761,7 @@
                                                         </div>
                                                         <h5>Would you like to submit your application?</h5>
                                                         <p class="text-muted">
-                                                            After successful submission you will be notified should you qualify fo an interview.
+                                                            After successful submission you will be notified should you be selected for an interview.
                                                         </p>
                                                         <button type="button" id="cancelBtn" class="btn btn-light btn-label waves-effect waves-light rounded-pill" data-previous="v-pills-personal-tab">
                                                             <i class="ri-close-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i>

@@ -22,8 +22,7 @@
                                     Frequently asked questions
                                 </h4>
                                 <p class="text-success fs-16 mt-3">
-                                    If you can not find answer to your question in our FAQ, you can always submit a query or email us. 
-                                    We will respond ASAP!
+                                    If you can not find answer to your question in our FAQ, you can always submit a query. We will respond ASAP!
                                 </p>
                                 <div class="hstack flex-wrap gap-2">
                                     <button type="button" class="btn btn-primary btn-label rounded-pill" data-bs-toggle="modal" data-bs-target="#queryModal">

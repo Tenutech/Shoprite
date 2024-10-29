@@ -340,14 +340,6 @@
                                     </ul>
                                 </div>
                             </div>
-                            <div class="col-sm-4 mt-4">
-                                <h5 class="text-white mb-0">Support</h5>
-                                <div class="text-muted mt-3">
-                                    <ul class="list-unstyled ff-secondary footer-list fs-15">
-                                        <li><a href="mailto:help@shoprite.co.za?subject=Contact%20Inquiry">Contact</a></li>
-                                    </ul>                                
-                                </div>
-                            </div>
                         </div>
                     </div>
 
