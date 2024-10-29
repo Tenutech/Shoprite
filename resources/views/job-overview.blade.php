@@ -341,38 +341,6 @@
                         {{ optional($vacancy->store)->name ?: 'N/A' }}
                     </p>
                 </div>
-
-                <div class="table-responsive">
-                    <table class="table mb-0">
-                        <tbody>
-                            <tr>
-                                <td class="fw-semibold">
-                                    Industry Type
-                                </td>
-                                <td>
-                                    Retail
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">
-                                    Phone
-                                </td>
-                                <td>
-                                    0800 01 07 09
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">
-                                    Email
-                                </td>
-                                <td>
-                                    help@shoprite.co.za
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <!--end table-->
-                </div>
             </div>
         </div>
         <!--end card-->
