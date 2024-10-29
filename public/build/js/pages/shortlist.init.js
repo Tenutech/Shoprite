@@ -982,6 +982,59 @@ $(document).ready(function() {
 
 /*
 |--------------------------------------------------------------------------
+| Dropdown Change Listener
+|--------------------------------------------------------------------------
+*/
+
+// Listen to changes on the dropdown
+selectTown.addEventListener('change', function() {
+    const selectedValue = this.value.split(';');  // Split the selected value into key and value
+    const key = selectedValue[0];
+    const value = selectedValue[1];
+    
+    // Get the label as the option text
+    const label = this.options[this.selectedIndex].textContent;
+
+    // If the badge does not exist, add it
+    if (!badgeExists(label, 'filterBadges')) {
+        addBadge(key, value, label);
+        applyFilter(key, value); 
+    }
+});
+
+/*
+|--------------------------------------------------------------------------
+| Filter Button Click Listener
+|--------------------------------------------------------------------------
+*/
+
+let currentSort = { key: null, order: 'asc' };  // Current sorting settings
+
+// Add click event listeners to filter buttons
+document.querySelectorAll('.filter-button').forEach(button => {
+    button.addEventListener('click', function() {
+        const filter = this.getAttribute('data-bs-filter').split(';');  // Split filter attribute into key and value
+        const label = this.innerText;
+        const value = filter[1];
+
+        // If the badge does not exist, add it
+        if (!badgeExists(label, 'filterBadges')) {
+            addBadge(filter[0], value, label);
+
+            // If the filter is for sorting, update currentSort
+            if (value === 'literacy' || value === 'numeracy') {
+                currentSort.key = filter[0];  // Set the sorting key
+                currentSort.value = value;
+                currentSort.order = 'desc';  // For descending order
+            } else {
+                applyFilter(filter[0], value);
+            }
+        }
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
 | Badge Exists
 |--------------------------------------------------------------------------
 */
