@@ -919,13 +919,12 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xxl-12 mb-4">
-                                        <strong>Welcome to Shoprite</strong>, where precision in talent acquisition meets innovative assessment. As a manager, your discernment is critical in shaping the future of our team. We are committed to providing you with an intuitive and robust platform to evaluate applicants seamlessly. Our structured rating system is designed to capture the nuanced performance of candidates, ensuring that your hiring decisions are informed, fair, and aligned with our organizational benchmarks.
+                                        <strong>As a Manager</strong>, your judgment is critical in appointing best-fit candidates to join our team. 
+                                        Please see below interview questions to be asked to each candidate coming in for an in-person interview.
                                         <br><br>
-                                        Each question below is an opportunity to gauge the candidate's potential fit within our corporate ecosystem. We rely on your expert judgment to rate the candidate's responses on a scale from 1 to 5 stars, with 1 star indicating a need for significant improvement, and 5 stars representing exceptional alignment with the role's requirements and our company values.
-                                        <br><br>
-                                        Please take into account not only the content of the responses but also the candidate's problem-solving abilities, adaptability, collaborative spirit, leadership potential, communication clarity, customer orientation, integrity, time management skills, and overall compatibility with our company culture.
-                                        <br><br>
-                                        We value your insight and look forward to your contributions to our collective success.
+                                        Each question below is an opportunity to determine the candidate's potential fit within our company. We rely on your 
+                                        <strong>expert judgment</strong> to rate the candidate's responses on a scale from 1 to 5 stars, with 1 star indicating a need for 
+                                        <strong>significant improvement</strong>, and 5 stars representing <strong>exceptional alignment</strong> with the role's requirements and our company values.
                                     </div>
                                     <!-- Interview Form Placeholder -->
                                     <div id="interviewFormContainer">
