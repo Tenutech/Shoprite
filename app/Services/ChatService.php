@@ -2023,8 +2023,8 @@ class ChatService
                 $messages = $this->fetchStateMessages('literacy_start');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } elseif ($body === '2' || $body === 'no') {
-                // Update the applicant's has_email
-                $applicant->update(['has_email' => 'No']);
+                // Update the applicant's disability
+                $applicant->update(['disability' => 'No']);
 
                 // Applicant selected option 2: Navigate to 'literacy_start' state
                 $stateID = State::where('code', 'literacy_start')->value('id');
