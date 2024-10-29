@@ -237,7 +237,7 @@
                                                                     </div>
                                                                     <div class="avatar-xg p-1">
                                                                         <div class="avatar-title bg-light rounded-circle">
-                                                                            <img src="{{ URL::asset($user->applicant ? ($user->applicant->avatar ? $user->applicant->avatar : 'images/avatar-id.jpg') : ($user->avatar ? 'images/'.$user->avatar : 'images/avatar-id.jpg')) }}" alt="" id="preview" class="avatar-lg rounded-circle object-cover" >
+                                                                            <img src="{{ URL::asset('images/avatar-id.jpg') }}" alt="" id="preview" class="avatar-lg rounded-circle object-cover" >
                                                                         </div>
                                                                     </div>
                                                                 </div>
