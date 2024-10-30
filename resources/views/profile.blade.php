@@ -15,7 +15,7 @@
         <div class="row g-4">
             <div class="col-auto">
                 <div class="avatar-lg">
-                    <img src="{{ URL::asset('storage/images/' . Auth::user()->avatar) }}" alt="user-img" class="img-thumbnail rounded-circle" />
+                    <img src="{{ URL::asset('storage/images/' . Auth::user()->avatar) }}" alt="user-img" class="img-thumbnail rounded-circle" style="width: 100px; height: 100px; object-fit: cover;"/>
                 </div>
             </div>
             <!--end col-->
