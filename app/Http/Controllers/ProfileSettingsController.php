@@ -134,7 +134,15 @@ class ProfileSettingsController extends Controller
 
         // Base validation rules
         $validationRules = [
-            'avatar' => ['sometimes', 'image', 'mimes:jpg,jpeg,png', 'mimetypes:image/jpeg,image/png', 'max:1024'],
+            'avatar' => [
+                'sometimes', 'image', 'mimes:jpg,jpeg,png', 'mimetypes:image/jpeg,image/png', 'max:5120',
+                function ($attribute, $value, $fail) {
+                    $extension = strtolower($value->getClientOriginalExtension());
+                    if (!in_array($extension, ['jpg', 'jpeg', 'png'])) {
+                        $fail("The $attribute must be a file of type: jpg, jpeg, png.");
+                    }
+                }
+            ],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
             'phone' => ['required', 'string', 'max:191', Rule::unique('users')->ignore($userID)],
