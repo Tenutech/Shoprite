@@ -253,7 +253,7 @@ $("#formUser").submit(function(e) {
     var selectedBrands = brandsElement.val();
     var brandsIsValid = true;
 
-    if (!selectedBrands || selectedBrands.length === 0) {
+    if (brandsElement && (!selectedBrands || selectedBrands.length === 0)) {
         brandsIsValid = false;
 
         // Highlight only the invalid Choices.js field
@@ -266,7 +266,7 @@ $("#formUser").submit(function(e) {
     }
 
     // If validation fails, stop the form submission
-    if (!addressIsValid || !brandsIsValid) {
+    if ((addressInput && !addressIsValid) || (brandsElement.length && !brandsIsValid)) {
         return;
     }
 

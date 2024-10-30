@@ -132,6 +132,8 @@ class ProfileSettingsController extends Controller
         // User
         $user = User::findorfail($userID);
 
+        Log::info( $user);
+
         // Base validation rules
         $validationRules = [
             'avatar' => [
