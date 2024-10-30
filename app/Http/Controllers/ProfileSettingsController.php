@@ -135,7 +135,7 @@ class ProfileSettingsController extends Controller
         // Base validation rules
         $validationRules = [
             'avatar' => [
-                'sometimes', 'image', 'mimes:jpg,jpeg,png', 'mimetypes:image/jpeg,image/png', 'max:1024',
+                'sometimes', 'image', 'mimes:jpg,jpeg,png', 'mimetypes:image/jpeg,image/png', 'max:5120',
                 function ($attribute, $value, $fail) {
                     $extension = strtolower($value->getClientOriginalExtension());
                     if (!in_array($extension, ['jpg', 'jpeg', 'png'])) {
