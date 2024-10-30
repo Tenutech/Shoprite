@@ -108,7 +108,7 @@ class RegisterController extends Controller
             'firstname' => ucwords($data['firstname']),
             'lastname' => ucwords($data['lastname']),
             'email' => $data['email'],
-            'email_verified_at' => now(),
+            'email_verified_at' => $data['email'] ? null : now(),
             'phone' => $data['phone'],
             'id_number' => $data['id_number'],
             'password' => Hash::make($data['password']),
