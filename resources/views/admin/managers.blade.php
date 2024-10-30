@@ -109,7 +109,7 @@
                                                 <td class="name">
                                                     <div class="d-flex align-items-center">
                                                         <div class="flex-shrink-0">
-                                                            <img src="{{ URL::asset('images/' . $user->avatar) }}" alt="" class="avatar-xs rounded-circle">
+                                                            <img src="{{ URL::asset('storage/images/' . $user->avatar) }}" alt="" class="avatar-xs rounded-circle">
                                                         </div>
                                                         <div class="flex-grow-1 ms-2 name">{{ $user->firstname }} {{ $user->lastname }}</div>
                                                     </div>

@@ -458,7 +458,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('profile.index');
         $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
         $this->outroText = optional(optional($this->notification->causer->applicant)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
     }
 
     /**
@@ -472,7 +472,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('profile.index');
         $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
     }
 
@@ -487,7 +487,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('profile.index');
         $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
     }
 
@@ -502,7 +502,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('profile.index');
         $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
         $this->store = (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->town)->name ?? 'N/A') . ')';
         $this->location = optional($this->notification->subject)->location ?? 'N/A';
@@ -538,7 +538,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('profile.index');
         $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
         $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
         $this->store = (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->town)->name ?? 'N/A') . ')';
         $this->location = optional($this->notification->subject)->location ?? 'N/A';
@@ -573,7 +573,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('profile.index');
         $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
         $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
         $this->store = (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->town)->name ?? 'N/A') . ')';
         $this->location = optional($this->notification->subject)->location ?? 'N/A';
@@ -608,7 +608,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('profile.index');
         $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
         $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
         $this->store = (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->town)->name ?? 'N/A') . ')';
         $this->location = optional($this->notification->subject)->location ?? 'N/A';
@@ -653,7 +653,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('profile.index');
         $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
         $this->store = (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->town)->name ?? 'N/A') . ')';
         $this->location = optional($this->notification->subject)->location ?? 'N/A';
@@ -688,7 +688,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('profile.index');
         $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
         $this->store = (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->town)->name ?? 'N/A') . ')';
     }
@@ -704,7 +704,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('profile.index');
         $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
         $this->store = (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional(optional($this->notification->subject)->vacancy)->store)->town)->name ?? 'N/A') . ')';
     }
@@ -720,7 +720,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->id)]);
         $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
         $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
         $this->open = optional($this->notification->subject)->open_positions ?? 'N/A';
         $this->store = (optional(optional(optional($this->notification->subject)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional($this->notification->subject)->store)->town)->name ?? 'N/A') . ')';
@@ -738,7 +738,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->id)]);
         $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
         $this->open = optional($this->notification->subject)->open_positions ?? 'N/A';
         $this->store = (optional(optional(optional($this->notification->subject)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional($this->notification->subject)->store)->town)->name ?? 'N/A') . ')';
@@ -756,7 +756,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->id)]);
         $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
         $this->open = optional($this->notification->subject)->open_positions ?? 'N/A';
         $this->store = (optional(optional(optional($this->notification->subject)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional($this->notification->subject)->store)->town)->name ?? 'N/A') . ')';
@@ -775,7 +775,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('job-overview.index', ['id' => Crypt::encryptString($this->notification->subject->id)]);
         $this->userName = (optional($this->notification->user)->firstname ?? 'N/A') . ' ' . (optional($this->notification->user)->lastname ?? 'N/A');
         $this->outroText = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->user)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional($this->notification->subject)->position)->name ?? 'N/A';
         $this->open = optional($this->notification->subject)->open_positions ?? 'N/A';
         $this->store = (optional(optional(optional($this->notification->subject)->store)->brand)->name ?? 'N/A') . ' (' . (optional(optional(optional($this->notification->subject)->store)->town)->name ?? 'N/A') . ')';
@@ -793,7 +793,7 @@ class NotifyEmail extends Notification implements ShouldQueue
         $this->actionUrl = route('applicant-profile.index', ['id' => Crypt::encryptString($this->notification->causer->applicant->id)]);
         $this->userName = (optional($this->notification->causer)->firstname ?? 'N/A') . ' ' . (optional($this->notification->causer)->lastname ?? 'N/A');
         $this->outroText = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
-        $this->icon = \Illuminate\Support\Facades\URL::asset('images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
+        $this->icon = \Illuminate\Support\Facades\URL::asset('storage/images/' . (optional($this->notification->causer)->avatar ?? 'avatar.jpg'));
         $this->vacancy = optional(optional(optional($this->notification->subject)->vacancy)->position)->name ?? 'N/A';
         $created_at = strtotime($this->notification->subject->created_at);
         $this->applyDate = $created_at ? date('d M Y', $created_at) : 'N/A';

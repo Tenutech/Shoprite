@@ -130,6 +130,9 @@ jobs:
             sudo ln -nfs $SHARED_DIR/.env .env
             sudo ln -nfs $SHARED_DIR/storage storage
 
+            # Create the storage symlink
+            sudo -u www-data php artisan storage:link
+
             # Install dependencies
             sudo -u www-data composer install --no-dev --optimize-autoloader
 

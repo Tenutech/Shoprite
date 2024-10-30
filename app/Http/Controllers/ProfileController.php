@@ -346,8 +346,13 @@ class ProfileController extends Controller
         //File
         $file = Document::findOrFail($fileID);
 
-        //Path
-        $path = public_path($file->url);
+        // Construct the file path using the storage path and file URL
+        $path = storage_path('app/public/' . str_replace('/storage/', '', $file->url));
+
+        // Check if the file exists
+        if (!file_exists($path)) {
+            abort(404, 'File not found');
+        }
 
         if ($file->type == 'csv') {
             return response()->download($path, $file->original_name);

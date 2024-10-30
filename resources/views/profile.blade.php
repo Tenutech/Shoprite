@@ -15,7 +15,7 @@
         <div class="row g-4">
             <div class="col-auto">
                 <div class="avatar-lg">
-                    <img src="{{ URL::asset('images/' . Auth::user()->avatar) }}" alt="user-img" class="img-thumbnail rounded-circle" />
+                    <img src="{{ URL::asset('storage/images/' . Auth::user()->avatar) }}" alt="user-img" class="img-thumbnail rounded-circle" style="width: 100px; height: 100px; object-fit: cover;"/>
                 </div>
             </div>
             <!--end col-->
@@ -364,8 +364,8 @@
                                                                                         $userTo = $activity->subject->to ?? null;
                                                                                         $userFromName = $userFrom ? $userFrom->firstname . ' ' . $userFrom->lastname : 'N/A';                                                                                    
                                                                                         $userToName = $userTo ? $userTo->firstname . ' ' . $userTo->lastname : 'N/A';
-                                                                                        $userFromAvatar = $userFrom ? URL::asset('images/' . $userFrom->avatar) : URL::asset('images/avatar.jpg');
-                                                                                        $userToAvatar = $userTo ? URL::asset('images/' . $userTo->avatar) : URL::asset('images/avatar.jpg');
+                                                                                        $userFromAvatar = $userFrom ? URL::asset('storage/images/' . $userFrom->avatar) : URL::asset('images/avatar.jpg');
+                                                                                        $userToAvatar = $userTo ? URL::asset('storage/images/' . $userTo->avatar) : URL::asset('images/avatar.jpg');
                                                                                     @endphp
 
                                                                                     <div class="accordion-item border-0">                                                                            
@@ -419,10 +419,10 @@
                                                                                         $typeName = $vacancy ? optional($vacancy->type)->name : 'N/A';
                                                                                         $applicationUser = $activity->subject->user ?? null;
                                                                                         $applicationUserName = $applicationUser ? $applicationUser->firstname . ' ' . $applicationUser->lastname : 'N/A';
-                                                                                        $applicationUserAvatar = $applicationUser ? URL::asset('images/' . $applicationUser->avatar) : URL::asset('images/avatar.jpg');
+                                                                                        $applicationUserAvatar = $applicationUser ? URL::asset('storage/images/' . $applicationUser->avatar) : URL::asset('images/avatar.jpg');
                                                                                         $vacancyUser = $activity->subject->user ?? null;
                                                                                         $vacancyUserName = $vacancyUser ? $vacancyUser->firstname . ' ' . $vacancyUser->lastname : 'N/A';
-                                                                                        $vacancyUserAvatar = $vacancyUser ? URL::asset('images/' . $vacancyUser->avatar) : URL::asset('images/avatar.jpg');
+                                                                                        $vacancyUserAvatar = $vacancyUser ? URL::asset('storage/images/' . $vacancyUser->avatar) : URL::asset('images/avatar.jpg');
                                                                                     @endphp
 
                                                                                     <div class="accordion-item border-0">                                                                            
@@ -544,10 +544,10 @@
                                                                             
                                                                                         $applicationUser = $activity->subject->user ?? null;
                                                                                         $applicationUserName = $applicationUser ? $applicationUser->firstname . ' ' . $applicationUser->lastname : 'N/A';
-                                                                                        $applicationUserAvatar = $applicationUser ? URL::asset('images/' . $applicationUser->avatar) : URL::asset('images/avatar.jpg');
+                                                                                        $applicationUserAvatar = $applicationUser ? URL::asset('storage/images/' . $applicationUser->avatar) : URL::asset('images/avatar.jpg');
                                                                                         $vacancyUser = $activity->subject->vacancy->user ?? null;
                                                                                         $vacancyUserName = $vacancyUser ? $vacancyUser->firstname . ' ' . $vacancyUser->lastname : 'N/A';
-                                                                                        $vacancyUserAvatar = $vacancyUser ? URL::asset('images/' . $vacancyUser->avatar) : URL::asset('images/avatar.jpg');
+                                                                                        $vacancyUserAvatar = $vacancyUser ? URL::asset('storage/images/' . $vacancyUser->avatar) : URL::asset('images/avatar.jpg');
                                                                                     @endphp
 
                                                                                     @if($newApprovalStatus !== $oldApprovalStatus)
@@ -682,7 +682,7 @@
                                                                                         $message = isset($activityAttributes['old']['message']) ? $activityAttributes['old']['message'] : 'N/A';
                                                                                         $userTo = $activity->userForDeletedMessage;
                                                                                         $userToName = $userTo ? $userTo->firstname . ' ' . $userTo->lastname : 'N/A';
-                                                                                        $userToAvatar = $userTo ? URL::asset('images/' . $userTo->avatar) : URL::asset('images/avatar.jpg');
+                                                                                        $userToAvatar = $userTo ? URL::asset('storage/images/' . $userTo->avatar) : URL::asset('images/avatar.jpg');
                                                                                     @endphp
 
                                                                                     <div class="accordion-item border-0">                                                                            
@@ -919,7 +919,7 @@
                                                                                 @foreach($vacancy->applicants as $applicant)
                                                                                     <div class="avatar-group-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="{{ $applicant->firstname }} {{ $applicant->lastname }}">
                                                                                         <div class="avatar-xs">
-                                                                                            <img src="{{ URL::asset('images/' . $applicant->avatar) }}" class="rounded-circle img-fluid" />
+                                                                                            <img src="{{ URL::asset('storage/images/' . $applicant->avatar) }}" class="rounded-circle img-fluid" />
                                                                                         </div>
                                                                                     </div>
                                                                                 @endforeach                                                                   

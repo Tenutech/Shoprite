@@ -117,7 +117,7 @@
                                                         </span>
                                                     @endif
                                                     <div class="d-flex">
-                                                        <img src="{{ URL::asset('images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                                        <img src="{{ URL::asset('storage/images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                         <div class="flex-grow-1">
                                                             <h6 class="mt-0 mb-1 fs-13 fw-semibold">
                                                                 {{ $notification->causer->firstname }} {{ $notification->causer->lastname }}
@@ -178,7 +178,7 @@
                                                         </span>
                                                     @endif
                                                     <div class="d-flex">
-                                                        <img src="{{ URL::asset('images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                                        <img src="{{ URL::asset('storage/images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                         <div class="flex-grow-1">
                                                             <h6 class="mt-0 mb-1 fs-13 fw-semibold">
                                                                 {{ $notification->causer->firstname }} {{ $notification->causer->lastname }}
@@ -253,7 +253,7 @@
                                                 @if ($notification->subject)
                                                     <div class="text-reset notification-item d-block dropdown-item position-relative">
                                                         <div class="d-flex">
-                                                            <img src="{{ URL::asset('images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                                            <img src="{{ URL::asset('storage/images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                             <div class="flex-grow-1">
                                                                 <a href="{{ route('profile.index') }}" class="stretched-link">
                                                                     <h6 class="mt-0 mb-2 lh-base">
@@ -292,7 +292,7 @@
                                                             </span>
                                                         @endif
                                                         <div class="d-flex">
-                                                            <img src="{{ URL::asset('images/' . $notification->user->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                                            <img src="{{ URL::asset('storage/images/' . $notification->user->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                             <div class="flex-grow-1">
                                                                 <h6 class="mt-0 mb-1 fs-13 fw-semibold">
                                                                     {{ $notification->notification }}
@@ -642,7 +642,7 @@
                                                     </span>
                                                 @endif
                                                 <div class="d-flex">
-                                                    <img src="{{ URL::asset('images/' . $message->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                                    <img src="{{ URL::asset('storage/images/' . $message->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                     <div class="flex-grow-1">
                                                         <h6 class="mt-0 mb-1 fs-13 fw-semibold">
                                                             {{ $message->causer->firstname }} {{ $message->causer->lastname }}
@@ -706,7 +706,7 @@
                                                     </span>
                                                 @endif
                                                 <div class="d-flex">
-                                                    <img src="{{ URL::asset('images/' . $alert->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                                    <img src="{{ URL::asset('storage/images/' . $alert->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                     <div class="flex-grow-1">
                                                         <h6 class="mt-0 mb-1 fs-13 fw-semibold">
                                                             {{ $alert->causer->firstname }} {{ $alert->causer->lastname }}
@@ -797,7 +797,7 @@
                                             @if ($alert->subject)
                                                 <div class="text-reset notification-item d-block dropdown-item position-relative">
                                                     <div class="d-flex">
-                                                        <img src="{{ URL::asset('images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
+                                                        <img src="{{ URL::asset('storage/images/' . $notification->causer->avatar) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                         <div class="flex-grow-1">
                                                             <a href="{{ route('profile.index') }}" class="stretched-link">
                                                                 <h6 class="mt-0 mb-2 lh-base">
@@ -851,7 +851,7 @@
                 <div class="dropdown ms-sm-3 header-item topbar-user">
                     <button type="button" class="btn" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <span class="d-flex align-items-center">
-                            <img class="rounded-circle header-profile-user" id="topbar-avatar" src="@if (Auth::user()->avatar != ''){{ URL::asset('images/' . Auth::user()->avatar) }}@else{{ URL::asset('build/images/users/user-dummy-img.jpg') }}@endif" alt="Header Avatar">
+                            <img class="rounded-circle header-profile-user" id="topbar-avatar" src="@if (Auth::user()->avatar != ''){{ URL::asset('storage/images/' . Auth::user()->avatar) }}@else{{ URL::asset('build/images/users/user-dummy-img.jpg') }}@endif" alt="Header Avatar">
                             <span class="text-start ms-xl-2">
                                 <span class="d-none d-xl-inline-block ms-1 fw-semibold user-name-text">{{Auth::user()->firstname}} {{Auth::user()->lastname}}</span>
                                 <span class="d-none d-xl-block ms-1 fs-12 user-name-sub-text">{{Auth::user()->role->name}}</span>
