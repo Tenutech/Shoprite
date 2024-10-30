@@ -153,11 +153,6 @@ class ProfileSettingsController extends Controller
             'phone' => ['required', 'string', 'max:191', Rule::unique('users')->ignore($userID)],
         ];
 
-        // Custom error messages
-        $messages = [
-            'avatar.max' => 'The avatar must not exceed the maximum upload size of 5MB.',
-        ];
-
         // Conditionally validate `email` based on the `role_id`
         if ($user->role_id < 7) {
             $validationRules['email'] = ['required', 'string', 'email', 'max:191', Rule::unique('users')->ignore($userID)];
