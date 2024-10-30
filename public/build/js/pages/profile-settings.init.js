@@ -283,9 +283,9 @@ $("#formUser").submit(function(e) {
         },
         success: function(data) {
             if (data.success == true) {
-                if ($(".profile-img-file-input").prop('files')[0]) {
-                    var avatar = URL.createObjectURL($(".profile-img-file-input").prop('files')[0]);
-                    $("#topbar-avatar").attr("src", avatar);
+                // Use the returned avatar URL to update the image source
+                if (data.avatar_url) {
+                    $("#topbar-avatar").attr("src", data.avatar_url);
                 }
 
                 var firstName = capitalizeFirstLetterOfEachWord($("#firstname").val());

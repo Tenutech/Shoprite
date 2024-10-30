@@ -143,7 +143,7 @@ class ApplicationController extends Controller
             'consent' => ['accepted'], // Validate consent checkbox
             'avatar' => [
                 'sometimes',
-                'file',
+                'image',
                 'mimes:jpg,jpeg,png', // Whitelist allowed extensions (JPG, JPEG, PNG)
                 'mimetypes:image/jpeg,image/png,image/jpg', // Ensure MIME type matches an image type
                 'max:5120', // 5MB max size
@@ -212,11 +212,11 @@ class ApplicationController extends Controller
 
                 // Define the avatar name and path
                 $avatarName = Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
-                $avatarPath = public_path('images');
+                $avatarPath = storage_path('app/public/images');
 
                 // Move the file and store the path for later use
                 if ($avatar->move($avatarPath, $avatarName)) {
-                    $avatarUrl = '/images/' . $avatarName;
+                    $avatarUrl = '/storage/images/' . $avatarName;
                     $avatarSize = filesize($avatarPath . DIRECTORY_SEPARATOR . $avatarName);
                 } else {
                     return response()->json([
@@ -226,7 +226,7 @@ class ApplicationController extends Controller
                 }
             } else {
                 // Use default avatar if none uploaded
-                $avatarUrl = '/images/avatar.jpg';
+                $avatarUrl = '/storage/images/avatar.jpg';
                 $avatarSize = null; // No size for default avatar
             }
 
@@ -446,7 +446,7 @@ class ApplicationController extends Controller
             'consent' => ['accepted'], // Validate consent checkbox
             'avatar' => [
                 'sometimes',
-                'file',
+                'image',
                 'mimes:jpg,jpeg,png', // Whitelist allowed extensions (JPG, JPEG, PNG)
                 'mimetypes:image/jpeg,image/png,image/jpg', // Ensure MIME type matches an image type
                 'max:5120', // 5MB max size
@@ -515,11 +515,11 @@ class ApplicationController extends Controller
 
                 // Define the avatar name and path
                 $avatarName = Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
-                $avatarPath = public_path('images');
+                $avatarPath = storage_path('app/public/images/');
 
                 // Move the file and store the path for later use
                 if ($avatar->move($avatarPath, $avatarName)) {
-                    $avatarUrl = '/images/' . $avatarName;
+                    $avatarUrl = '/storage/images/' . $avatarName;
                     $avatarSize = filesize($avatarPath . DIRECTORY_SEPARATOR . $avatarName);
                 } else {
                     return response()->json([
@@ -529,7 +529,7 @@ class ApplicationController extends Controller
                 }
             } else {
                 // Use default avatar if none uploaded
-                $avatarUrl = '/images/avatar.jpg';
+                $avatarUrl = '/storage/images/avatar.jpg';
                 $avatarSize = null; // No size for default avatar
             }
 

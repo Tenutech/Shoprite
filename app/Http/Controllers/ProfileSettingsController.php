@@ -27,6 +27,7 @@ use Spatie\Activitylog\Models\Activity;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
+use Intervention\Image\Facades\Image;
 
 class ProfileSettingsController extends Controller
 {
@@ -132,12 +133,14 @@ class ProfileSettingsController extends Controller
         // User
         $user = User::findorfail($userID);
 
-        Log::info( $user);
-
         // Base validation rules
         $validationRules = [
             'avatar' => [
-                'sometimes', 'image', 'mimes:jpg,jpeg,png', 'mimetypes:image/jpeg,image/png', 'max:5120',
+                'sometimes', 
+                'image', 
+                'mimes:jpg,jpeg,png', 
+                'mimetypes:image/jpeg,image/png', 
+                'max:5120',
                 function ($attribute, $value, $fail) {
                     $extension = strtolower($value->getClientOriginalExtension());
                     if (!in_array($extension, ['jpg', 'jpeg', 'png'])) {
@@ -185,6 +188,9 @@ class ProfileSettingsController extends Controller
             if ($request->hasFile('avatar')) {
                 $avatar = $request->file('avatar');
 
+                // Open and re-encode the image with Intervention
+                $image = Image::make($avatar->getPathname());
+
                 // Validate file signature
                 if (!$this->isValidImage($avatar->getPathname())) {
                     return response()->json([
@@ -195,7 +201,7 @@ class ProfileSettingsController extends Controller
 
                 // Delete old avatar if not default
                 if ($user->avatar && $user->avatar !== 'avatar.jpg') {
-                    $oldAvatarPath = public_path('/images/') . $user->avatar;
+                    $oldAvatarPath = storage_path('app/public/images/') . $user->avatar;
                     if (File::exists($oldAvatarPath)) {
                         File::delete($oldAvatarPath);
                     }
@@ -203,7 +209,7 @@ class ProfileSettingsController extends Controller
 
                 // Generate new avatar name and move it
                 $avatarName = Str::slug($request->firstname . ' ' . $request->lastname) . '-' . time() . '.' . $avatar->getClientOriginalExtension();
-                $avatarPath = public_path('/images/');
+                $avatarPath = storage_path('app/public/images/');
                 $avatar->move($avatarPath, $avatarName);
             } else {
                 $avatarName = $user->avatar; // Keep the current avatar
@@ -266,7 +272,8 @@ class ProfileSettingsController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Profile updated successfully!'
+                'message' => 'Profile updated successfully!',
+                'avatar_url' => $user->avatar ? asset('storage/images/' . $user->avatar) : asset('storage/images/avatar.jpg')
             ], 201);
         } catch (ValidationException $e) {
             // Return validation errors with a 422 status code

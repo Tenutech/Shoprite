@@ -9,6 +9,7 @@
         "aacotroneo/laravel-saml2": "^2.1",
         "fruitcake/php-cors": "^1.2",
         "guzzlehttp/guzzle": "^7.8",
+        "intervention/image": "^2",
         "laravel/framework": "^10.14",
         "laravel/sanctum": "^3.2",
         "laravel/telescope": "^5.1",

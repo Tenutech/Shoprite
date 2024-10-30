@@ -1070,7 +1070,7 @@ class ChatService
 
                         // Create a unique file name using the applicant's first and last name, and the current timestamp
                         $fileName = $applicant->firstname . ' ' . $applicant->lastname . '-' . time() . '.' . $fileExtension;
-                        $filePath = public_path('/images/' . $fileName); // Define the file path where the image will be saved
+                        $filePath = storage_path('app/public/images/' . $fileName); // Define the file path where the image will be saved
 
                         // Save the image file to the specified path
                         if (file_put_contents($filePath, $fileContent)) {
@@ -1080,7 +1080,7 @@ class ChatService
                                 'name' => $fileName,
                                 'type' => $fileExtension,
                                 'size' => $contentLength,
-                                'url' => '/images/' . $fileName,
+                                'url' => '/storage/images/' . $fileName,
                             ]);
 
                             // Transition the applicant to the 'additional_contact_number' state
