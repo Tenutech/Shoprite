@@ -146,7 +146,13 @@ class ApplicationController extends Controller
                 'file',
                 'mimes:jpg,jpeg,png', // Whitelist allowed extensions (JPG, JPEG, PNG)
                 'mimetypes:image/jpeg,image/png,image/jpg', // Ensure MIME type matches an image type
-                'max:5120' // 5MB max size
+                'max:5120', // 5MB max size
+                function ($attribute, $value, $fail) {
+                    $extension = strtolower($value->getClientOriginalExtension());
+                    if (!in_array($extension, ['jpg', 'jpeg', 'png'])) {
+                        $fail("The $attribute must be a file of type: jpg, jpeg, png.");
+                    }
+                }
             ],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
@@ -443,7 +449,13 @@ class ApplicationController extends Controller
                 'file',
                 'mimes:jpg,jpeg,png', // Whitelist allowed extensions (JPG, JPEG, PNG)
                 'mimetypes:image/jpeg,image/png,image/jpg', // Ensure MIME type matches an image type
-                'max:5120' // 5MB max size
+                'max:5120', // 5MB max size
+                function ($attribute, $value, $fail) {
+                    $extension = strtolower($value->getClientOriginalExtension());
+                    if (!in_array($extension, ['jpg', 'jpeg', 'png'])) {
+                        $fail("The $attribute must be a file of type: jpg, jpeg, png.");
+                    }
+                }
             ],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
