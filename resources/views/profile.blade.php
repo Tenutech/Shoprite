@@ -31,7 +31,7 @@
                                 {{ optional($user->position)->name ?? 'N/A' }}
                             @endif
                         </div>
-                        <div>
+                        <div> 
                             <i class="ri-building-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
                             {{ optional(optional($user)->applicant)->brand->name ?? optional($user->company)->name ?? 'N/A' }}
                         </div>
