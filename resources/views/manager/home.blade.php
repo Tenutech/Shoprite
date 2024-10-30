@@ -4,8 +4,34 @@
 <link href="{{ URL::asset('build/libs/jsvectormap/css/jsvectormap.min.css')}}" rel="stylesheet" type="text/css" />
 <link href="{{ URL::asset('build/libs/swiper/swiper-bundle.min.css')}}" rel="stylesheet" type="text/css" />
 <style>
-.applicantsView:hover {
-    cursor: pointer; 
+.s0 {
+    opacity: .05;
+    fill: var(--vz-primary)
+}
+
+.s1 {
+    opacity: .05;
+    fill: var(--vz-secondary)
+}
+
+.s2 {
+    opacity: .05;
+    fill: var(--vz-success)
+}
+
+.s3 {
+    opacity: .05;
+    fill: var(--vz-danger)
+}
+
+.s4 {
+    opacity: .05;
+    fill: var(--vz-warning)
+}
+
+.s5 {
+    opacity: .05;
+    fill: var(--vz-info)
 }
 </style>
 @endsection
@@ -35,137 +61,224 @@
                                 <div class="row g-3 mb-0 align-items-center">
                                     <div class="col-sm-auto">
                                         <div class="input-group">
-                                            <input type="text" class="form-control border-0 dash-filter-picker shadow" data-provider="flatpickr" data-range-date="true" data-date-format="d M, Y" data-deafult-date="01 Jan 2022 to 31 Jan 2022">
+                                            <input type="text" id="dateFilter" class="form-control border-0 dash-filter-picker shadow">
                                             <div class="input-group-text bg-primary border-primary text-white">
                                                 <i class="ri-calendar-2-line"></i>
                                             </div>
+                                            <!-- Refresh Button with Tooltip and a gap (margin-left) -->
+                                            <button class="btn btn-info ms-2" id="refreshBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh data" onclick="location.reload();">
+                                                <i class="ri-refresh-line align-bottom"></i>
+                                            </button>
                                         </div>
-                                    </div>
-                                    <!--end col-->
-                                </div>
-                                <!--end row-->
-                            </form>
+                                    </div> <!--end col-->
+                                </div> <!--end row -->
+                            </form>                            
                         </div>
                     </div><!-- end card header -->
-                </div>
-                <!--end col-->
-            </div>
-            <!--end row-->
+                </div> <!--end col -->
+            </div> <!--end row -->
 
             <!-------------------------------------------------------------------------------------
-                Information
+                Vacancies
             -------------------------------------------------------------------------------------->
 
-            <div class="row">
-                <div class="col-xl-3 col-md-6">
-                    <div class="card card-height-100">
-                        <div class="d-flex">
-                            <div class="flex-grow-1 p-3">
-                                <h5 class="mb-3">
-                                    Applications
-                                </h5>
-                                <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementApplicationsPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
-                                        <i class="ri-arrow-{{ $percentMovementApplicationsPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
-                                        {{ abs($percentMovementApplicationsPerMonth) }} % 
-                                    </span>vs. previous month
-                                </p>
-                            </div>
-                            <div>
-                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementApplicationsPerMonth > 0 ? 'success' : 'danger' }}" , "--vz-transparent"]' dir="ltr" id="applications_sparkline_chart"></div>
-                            </div>
+            <div class="row g-3">
+                <!-- Total Vacancies -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
                         </div>
-                    </div>
-                </div>
-                <!--end col-->
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="card card-height-100">
-                        <div class="d-flex">
-                            <div class="flex-grow-1 p-3">
-                                <h5 class="mb-3">
-                                    Interviewed
-                                </h5>
-                                <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementInterviewedPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
-                                        <i class="ri-arrow-{{ $percentMovementInterviewedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
-                                        {{ abs($percentMovementInterviewedPerMonth) }} % 
-                                    </span>vs. previous month
-                                </p>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Total Vacancies
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalVacanciesValue" class="counter-value" data-target="{{ $storeTotalVacancies }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
                             </div>
-                            <div>
-                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementInterviewedPerMonth > 0 ? 'success' : 'danger' }}" , "--vz-transparent"]' dir="ltr" id="interviewed_sparkline_chart"></div>
-                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            
+                <!-- Total Vacancies Filled -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
                         </div>
-                    </div>
-                </div>
-                <!--end col-->
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Total Vacancies Filled
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalVacanciesFilledValue" class="counter-value" data-target="{{ $storeTotalVacanciesFilled }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_vacancies_filled" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            </div> <!--end row -->
+            
+            <!-------------------------------------------------------------------------------------
+                Interviews
+            -------------------------------------------------------------------------------------->
 
-                <div class="col-xl-3 col-md-6">
-                    <div class="card card-height-100">
-                        <div class="d-flex">
-                            <div class="flex-grow-1 p-3">
-                                <h5 class="mb-3">
-                                    Hired
-                                </h5>
-                                <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementAppointedPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
-                                        <i class="ri-arrow-{{ $percentMovementAppointedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
-                                        {{ abs($percentMovementAppointedPerMonth) }} % 
-                                    </span>vs. previous month
-                                </p>
-                            </div>
-                            <div>
-                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementAppointedPerMonth > 0 ? 'success' : 'danger' }}" , "--vz-transparent"]' dir="ltr" id="hired_sparkline_chart"></div>
-                            </div>
+            <div class="row g-3">
+                <!-- Total Interviews Scheduled -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
                         </div>
-                    </div>
-                </div>
-                <!--end col-->
-
-                <div class="col-xl-3 col-md-6">
-                    <div class="card card-height-100">
-                        <div class="d-flex">
-                            <div class="flex-grow-1 p-3">
-                                <h5 class="mb-3">
-                                    Rejected
-                                </h5>
-                                <p class="mb-0 text-muted">
-                                    <span class="badge bg-light text-{{ $percentMovementRejectedPerMonth > 0 ? 'success' : 'danger' }} mb-0"> 
-                                        <i class="ri-arrow-{{ $percentMovementRejectedPerMonth > 0 ? 'up' : 'down' }}-line align-middle"></i> 
-                                        {{ abs($percentMovementRejectedPerMonth) }} % 
-                                    </span>vs. previous month
-                                </p>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Interviews Scheduled
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalInterviewsScheduledValue"  class="counter-value" data-target="{{ $storeTotalInterviewsScheduled }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
                             </div>
-                            <div>
-                                <div class="apex-charts" data-colors='["--vz-{{ $percentMovementRejectedPerMonth > 0 ? 'success' : 'danger' }}", "--vz-transparent"]' dir="ltr" id="rejected_sparkline_chart"></div>
-                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            
+                <!-- Total Interviews Completed -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
                         </div>
-                    </div>
-                </div>
-                <!--end col-->
-            </div> <!-- end row-->
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Interviews Completed
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalInterviewsCompletedValue" class="counter-value" data-target="{{ $storeTotalInterviewsCompleted }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_interviews_completed" data-colors='["--vz-secondary"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            </div> <!--end row -->
 
-            <div class="row">
-                <div class="col-md-6" id="storeAverageTimeToShortlistColumn">
+            <!-------------------------------------------------------------------------------------
+                Applicants
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Total Applicants Appointed -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s2" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Applicants Appointed
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalApplicantsAppointedValue" class="counter-value" data-target="{{ $storeTotalApplicantsAppointed }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_applicants_appointed" data-colors='["--vz-success"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            
+                <!-- Total Applicants Regretted -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s3" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Applicants Regretted
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalApplicantsRegrettedValue" class="counter-value" data-target="{{ $storeTotalApplicantsRegretted }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_applicants_regretted" data-colors='["--vz-danger"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            </div> <!--end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Time
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Time to Shortlist -->
+                <div class="col-xl-4 col-md-4" id="averageTimeToShortlistColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <p class="fw-semibold text-muted mb-0">
-                                        Time to Shortlist (days)
+                                        Time to Shortlist
                                     </p>
-                                    @php
-                                        $totalDays = $storeAverageTimeToShortlist;
-                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
-                                        $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
-                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
-                                    @endphp
                                     <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="storeAverageTimeToShortlistValue">{{ $formattedInterval }}</span>
+                                        <span id="averageTimeToShortlistValue">
+                                            {{ $storeAverageTimeToShortlist }}
+                                        </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="storeAverageTimeToShortlist">
+                                        <span class="badge bg-light text-secondary mb-0">
                                             Store Average
                                         </span>
                                     </p>
@@ -179,28 +292,25 @@
                                 </div>
                             </div>
                         </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
 
-                <div class="col-md-6" id="storeAverageTimeToHireColumn">
+                <!-- Time to Hire -->
+                <div class="col-xl-4 col-md-4" id="averageTimeToHireColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <p class="fw-semibold text-muted mb-0">
-                                        Time to Hire (days)
+                                        Time to Hire
                                     </p>
-                                    @php
-                                        $totalDays = $storeAverageTimeToHire;
-                                        $totalMinutes = $totalDays * 24 * 60; // Convert days to minutes
-                                        $interval = \Carbon\CarbonInterval::minutes($totalMinutes);
-                                        $formattedInterval = $interval->cascade()->format('%dD %hH %iM');
-                                    @endphp
                                     <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="storeAverageTimeToHireValue">{{ $formattedInterval }}</span>
+                                        <span id="averageTimeToHireValue">
+                                            {{ $storeAverageTimeToHire }}
+                                        </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="storeAverageTimeToHire">
+                                        <span class="badge bg-light text-secondary mb-0">
                                             Store Average
                                         </span>
                                     </p>
@@ -214,10 +324,11 @@
                                 </div>
                             </div>
                         </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
 
-                <div class="col-md-6" id="adoptionRateColumn">
+                <!-- Adoption Rate -->
+                <div class="col-xl-4 col-md-4" id="adoptionRateColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
@@ -225,621 +336,194 @@
                                     <p class="fw-semibold text-muted mb-0">
                                         Adoption Rate
                                     </p>
-                                    <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="adoptionRateValue">{{ $adoptionRate }}%</span>
+                                    <h2 class="mt-4 ff-success fw-bold">
+                                        <span id="adoptionRateValue">
+                                            {{ $storeAdoptionRate }}%
+                                        </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0" id="adoptionRate">
+                                        <span class="badge bg-light text-success mb-0" id="adoptionRate">
                                            Percentage
                                         </span>
                                     </p>
                                 </div>
                                 <div>
                                     <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-secondary"></i>
+                                        <span class="avatar-title bg-success-subtle rounded-circle fs-2">
+                                            <i data-feather="user-check" class="text-success"></i>
                                         </span>
                                     </div>
                                 </div>
                             </div>
                         </div><!-- end card body -->
-                    </div> <!-- end card-->
-                </div> <!-- end col-->
-            </div> <!-- end row-->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
 
             <!-------------------------------------------------------------------------------------
-                Vacancies
+                Proximity & Score
             -------------------------------------------------------------------------------------->
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card" id="vacanciesList">
-                        <div class="card-header border-0">
-        
-                            <div class="row g-4 align-items-center">
-                                <div class="col-sm-3">
-                                    <div class="search-box">
-                                        <input type="text" class="form-control search"
-                                            placeholder="Search for...">
-                                        <i class="ri-search-line search-icon"></i>
-                                    </div>
-                                </div>
-                                <div class="col-sm-auto ms-auto">
-                                    <div class="hstack gap-2">
-                                        <button class="btn btn-soft-danger" id="remove-actions" onClick="deleteMultiple()">
-                                            <i class="ri-delete-bin-2-line"></i>
-                                        </button>
-                                        <button type="button" class="btn btn-info d-none" data-bs-toggle="offcanvas" href="#offcanvasExample">
-                                            <i class="ri-filter-3-line align-bottom me-1"></i> 
-                                            Fliters
-                                        </button>
-                                        <a href="{{ route('vacancy.index') }}" type="button" class="btn btn-success add-btn">
-                                            <i class="ri-add-line align-bottom me-1"></i> 
-                                            New Vacancy
-                                        </a>                                        
-                                    </div>
-                                </div>
+            <div class="row g-3">
+                <!-- Average Proximity Talent Pool -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                    Average Proximity (Talent Pool)
+                                </h5>
                             </div>
                         </div>
                         <div class="card-body">
-                            <div>
-                                <div class="table-responsive table-card">
-                                    <table class="table align-middle" id="vacanciesTable">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th scope="col" style="width: 50px;">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" id="checkAll" value="option">
-                                                    </div>
-                                                </th>
-                                                <th class="sort d-none" data-sort="id" scope="col">ID</th>
-                                                <th class="sort" data-sort="name">Position</th>
-                                                <th class="sort" data-sort="type">Type</th>
-                                                <th class="sort" data-sort="open">Open</th>
-                                                <th class="sort" data-sort="filled">Filled</th>
-                                                <th class="sort" data-sort="applicants">Appointed</th>
-                                                <th class="sort" data-sort="location">Location</th>
-                                                <th class="sort" data-sort="date">Posted</th>
-                                                <th class="sort" data-sort="status">Status</th> 
-                                                <th class="sort" data-sort="action">Action</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="list form-check-all">
-                                            @if($vacancies && count($vacancies) > 0)
-                                                @foreach ($vacancies as $vacancy)
-                                                    <!-- Accordion Toggle Row -->
-                                                    <tr>
-                                                        <th scope="row">
-                                                            <div class="form-check">
-                                                                <input class="form-check-input" type="checkbox" name="chk_child" value="{{ Crypt::encryptstring($vacancy->id) }}">
-                                                            </div>
-                                                        </th>
-                                                        <td class="id" style="display:none;">{{ Crypt::encryptstring($vacancy->id) }}</td>
-                                                        <td class="name">
-                                                            <div class="d-flex align-items-center">
-                                                                <div class="flex-shrink-0">
-                                                                    <div class="avatar-sm">
-                                                                        <div class="avatar-title bg-light rounded">
-                                                                            <i class="{{ $vacancy->position->icon }} text-{{ $vacancy->position->color }} fs-4"></i>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                                <div class="flex-grow-1 ms-2 name">
-                                                                    <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString($vacancy->id)]) }}" class="fw-medium link-primary">
-                                                                        {{ $vacancy->position->name }}
-                                                                    </a>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                        <td class="type">
-                                                            <span class="badge bg-{{ $vacancy->type->color }}-subtle text-{{ $vacancy->type->color }}">
-                                                                {{ $vacancy->type->name }}
-                                                            </span>
-                                                        </td>
-                                                        <td class="open">{{ $vacancy->open_positions }}</td>
-                                                        <td class="filled">{{ $vacancy->filled_positions }}</td>
-                                                        <td class="applicants">{{ $vacancy->appointed->count() }}</td>                                                      
-                                                        <td class="location">{{ $vacancy->store->town->name }}</td>
-                                                        <td class="date">{{ date('d M Y', strtotime($vacancy->created_at)) }}</td>
-                                                        <td class="status">
-                                                            <span class="badge bg-{{ $vacancy->status->color }}-subtle text-{{ $vacancy->status->color }}">
-                                                                {{ $vacancy->status->name }}
-                                                            </span>
-                                                        </td>
-                                                        <td class="action">
-                                                            <ul class="list-inline hstack gap-2 mb-0">
-                                                                <li class="list-inline-item">
-                                                                    <a class="applicantsView" data-bs-toggle="collapse" data-bs-target="#accordion-{{ $vacancy->id }}" aria-expanded="false" aria-controls="accordion-{{ $vacancy->id }}">
-                                                                        <i class="ri-group-fill align-bottom text-muted"></i>
-                                                                    </a>
-                                                                </li>
-                                                                <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="View">
-                                                                    <a href="{{ route('job-overview.index', ['id' => Crypt::encryptString($vacancy->id)]) }}">
-                                                                        <i class="ri-eye-fill align-bottom text-muted"></i>
-                                                                    </a>
-                                                                </li>
-                                                                <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Edit">
-                                                                    <a  href="{{ route('vacancy.index', ['id' => Crypt::encryptString($vacancy->id)]) }}" class="edit-item-btn">
-                                                                        <i class="ri-pencil-fill align-bottom text-muted"></i>
-                                                                    </a>
-                                                                </li>
-                                                                <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Delete">
-                                                                    <a class="remove-item-btn" data-bs-toggle="modal" href="#vacancyDeleteModal">
-                                                                        <i class="ri-delete-bin-fill align-bottom text-muted"></i>
-                                                                    </a>
-                                                                </li>
-                                                            </ul>
-                                                        </td>
-                                                    </tr>
-
-                                                    <!-- Accordion Content Row -->
-                                                    <tr class="accordion-collapse collapse" id="accordion-{{ $vacancy->id }}" data-bs-parent="#accordion-{{ $vacancy->id }}">
-                                                        <td colspan="100%" class="hiddenRow">
-                                                            <div class="accordion-body">
-                                                                <div class="row gy-2 mb-2">
-                                                                    <div data-simplebar style="max-height: 250px;" class="px-3">
-                                                                        @foreach ($vacancy->appointed as $user)
-                                                                            <div class="col-md-6 col-lg-12">
-                                                                                <div class="card mb-0">
-                                                                                    <div class="card-body">
-                                                                                        <div class="d-lg-flex align-items-center">
-                                                                                            <div class="flex-shrink-0 col-auto">
-                                                                                                <div class="avatar-sm rounded overflow-hidden">
-                                                                                                    {{-- Check if avatar is null, if so use a default image --}}
-                                                                                                    <img src="{{ $user->avatar ?? URL::asset('images/avatar.jpg') }}" alt="" class="member-img img-fluid d-block rounded">
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">
-                                                                                                <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($user->id ?? '')]) }}">
-                                                                                                    <h5 class="fs-16 mb-2">
-                                                                                                        {{-- Check if firstname or lastname is null --}}
-                                                                                                        {{ $user->firstname ?? 'N/A' }} {{ $user->lastname ?? 'N/A' }}
-                                                                                                    </h5>
-                                                                                                </a>
-                                                                                                <p class="text-muted mb-0">
-                                                                                                    @if (optional($user->position)->name == 'Other')
-                                                                                                        {{ $user->position_specify ?? 'N/A' }}
-                                                                                                    @else
-                                                                                                        {{ optional($user->position)->name ?? 'N/A' }}
-                                                                                                    @endif
-                                                                                                </p>
-                                                                                            </div>
-                                                                                            <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">
-                                                                                                <div>
-                                                                                                    <i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>
-                                                                                                    {{-- Safely check if town name is null --}}
-                                                                                                    {{ optional($user->town)->name ?? 'N/A' }}
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="col-2">
-                                                                                                <i class="ri-hashtag text-primary me-1 align-bottom"></i>
-                                                                                                {{ optional($user->pivot)->sap_number ?? 'N/A' }}
-                                                                                            </div>                                                                                        
-                                                                                            <div class="d-flex flex-wrap gap-2 align-items-center mx-auto my-3 my-lg-0 col-1">
-                                                                                                <div class="badge text-bg-success">
-                                                                                                    <i class="mdi mdi-star me-1"></i>
-                                                                                                    {{-- Check if score is null --}}
-                                                                                                    {{ $user->score ?? 'N/A' }}                                                                                            
-                                                                                                </div>
-                                                                                            </div>
-                                                                                            <div class="col-2 text-end">
-                                                                                                <a href="{{ route('applicant-profile.index', ['id' => Crypt::encryptString($user->id ?? '')]) }}" class="btn btn-soft-primary">
-                                                                                                    View Details
-                                                                                                </a>
-                                                                                            </div>
-                                                                                        </div>
-                                                                                    </div>
-                                                                                </div>
-                                                                            </div>
-                                                                        @endforeach
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            @else
-                                                <tr style="vertical-align:top;">
-                                                    <th scope="row">
-                                                        <div class="form-check">
-                                                            <input class="form-check-input" type="checkbox" name="chk_child" value="option">
-                                                        </div>
-                                                    </th>
-                                                    <td class="id d-none"></td>
-                                                    <td class="name"></td>
-                                                    <td class="type"></td>
-                                                    <td class="open"></td>
-                                                    <td class="filled"></td>
-                                                    <td class="applicants"></td>
-                                                    <td class="location"></td>
-                                                    <td class="date"></td>
-                                                    <td class="status"></td>
-                                                    <td class="action">
-                                                        <ul class="list-inline hstack gap-2 mb-0">
-                                                            <li>
-                                                                <a>
-                                                                    <i class="ri-group-fill align-bottom text-muted"></i>
-                                                                </a>
-                                                            </li>
-                                                            <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="View">
-                                                                <a>
-                                                                    <i class="ri-eye-fill align-bottom text-muted"></i>
-                                                                </a>
-                                                            </li>
-                                                            <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Edit">
-                                                                <a class="edit-item-btn">
-                                                                    <i class="ri-pencil-fill align-bottom text-muted"></i>
-                                                                </a>
-                                                            </li>
-                                                            <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Delete">
-                                                                <a class="remove-item-btn" data-bs-toggle="modal" href="#vacancyDeleteModal">
-                                                                    <i class="ri-delete-bin-fill align-bottom text-muted"></i>
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </td>
-                                                    <td>
-                                                        <ul class="list-inline hstack gap-2 mb-0">
-                                                            <li class="list-inline-item">
-                                                                <div class="dropdown">
-                                                                    <button class="btn btn-soft-secondary btn-sm dropdown" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                                                        <i class="ri-more-fill align-middle"></i>
-                                                                    </button>
-                                                                    <ul class="dropdown-menu dropdown-menu-end">
-                                                                        <li>
-                                                                            <a class="dropdown-item view-item-btn" href="javascript:void(0);">
-                                                                                <i class="ri-eye-fill align-bottom me-2 text-muted"></i>
-                                                                                View
-                                                                            </a>
-                                                                        </li>
-                                                                        <li>
-                                                                            <a class="dropdown-item edit-item-btn" href="#usersModal" data-bs-toggle="modal">
-                                                                                <i class="ri-pencil-fill align-bottom me-2 text-muted"></i>
-                                                                                Edit
-                                                                            </a>
-                                                                        </li>
-                                                                        <li>
-                                                                            <a class="dropdown-item remove-item-btn" data-bs-toggle="modal" href="#deleteRecordModal">
-                                                                                <i class="ri-delete-bin-fill align-bottom me-2 text-muted"></i>
-                                                                                Delete
-                                                                            </a>
-                                                                        </li>
-                                                                    </ul>
-                                                                </div>
-                                                            </li>
-                                                        </ul>
-                                                    </td>
-                                                </tr>
-                                            @endif
-                                        </tbody>
-                                    </table>
-                                    <div class="noresult" style="display: none">
-                                        <div class="text-center">
-                                            <lord-icon src="https://cdn.lordicon.com/msoeawqm.json"
-                                                trigger="loop" colors="primary:#121331,secondary:#08a88a"
-                                                style="width:75px;height:75px">
-                                            </lord-icon>
-                                            <h5 class="mt-2">Sorry! No Result Found</h5>
-                                            <p class="text-muted mb-0">We've searched more than 150+ leads We
-                                                did not find any
-                                                leads for you search.</p>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="d-flex justify-content-end mt-3">
-                                    <div class="pagination-wrap hstack gap-2">
-                                        <a class="page-item pagination-prev disabled" href="#">
-                                            Previous
-                                        </a>
-                                        <ul class="pagination listjs-pagination mb-0"></ul>
-                                        <a class="page-item pagination-next" href="#">
-                                            Next
-                                        </a>
-                                    </div>
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                    <span id="averageDistanceTalentPoolApplicantsValue" class="counter-value"  data-target="{{ $storeAverageDistanceTalentPoolApplicants }}">
+                                        0
+                                    </span>km 
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average distance of talent pool
+                                    </p>
                                 </div>
                             </div>
-        
-                            <!-- Vacancy delete modal -->
-                            <div class="modal fade flip" id="vacancyDeleteModal" tabindex="-1" aria-hidden="true">
-                                <div class="modal-dialog modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-body p-5 text-center">
-                                            <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px"></lord-icon>
-                                            <div class="mt-4 text-center">
-                                                <h4>
-                                                    You are about to delete this vacancy ?
-                                                </h4>
-                                                <p class="text-muted fs-14 mb-4">
-                                                    Deleting this vacancy will remove all of the information from the database.
-                                                </p>
-                                                <div class="hstack gap-2 justify-content-center remove">
-                                                    <button class="btn btn-link btn-ghost-dark fw-medium text-decoration-none" data-bs-dismiss="modal" id="deleteOpportunity-close">
-                                                        <i class="ri-close-line me-1 align-middle"></i> 
-                                                        Close
-                                                    </button>                       
-                                                    <button class="btn btn-danger" id="vacancy-delete">
-                                                        Yes, Delete It
-                                                    </button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- end vacancy delete modal -->        
-        
-                            <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasExample"
-                                aria-labelledby="offcanvasExampleLabel">
-                                <div class="offcanvas-header bg-light">
-                                    <h5 class="offcanvas-title" id="offcanvasExampleLabel">Leads Fliters</h5>
-                                    <button type="button" class="btn-close text-reset"
-                                        data-bs-dismiss="offcanvas" aria-label="Close"></button>
-                                </div>
-                                <!--end offcanvas-header-->
-                                <form action="" class="d-flex flex-column justify-content-end h-100">
-                                    <div class="offcanvas-body">
-                                        <div class="mb-4">
-                                            <label for="datepicker-range"
-                                                class="form-label text-muted text-uppercase fw-semibold mb-3">Date</label>
-                                            <input type="date" class="form-control" id="datepicker-range"
-                                                data-provider="flatpickr" data-range="true"
-                                                placeholder="Select date">
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="country-select"
-                                                class="form-label text-muted text-uppercase fw-semibold mb-3">Country</label>
-                                            <select class="form-control" data-choices
-                                                data-choices-multiple-remove="true" name="country-select"
-                                                id="country-select" multiple>
-                                                <option value="">Select country</option>
-                                                <option value="Argentina">Argentina</option>
-                                                <option value="Belgium">Belgium</option>
-                                                <option value="Brazil" selected>Brazil</option>
-                                                <option value="Colombia">Colombia</option>
-                                                <option value="Denmark">Denmark</option>
-                                                <option value="France">France</option>
-                                                <option value="Germany">Germany</option>
-                                                <option value="Mexico">Mexico</option>
-                                                <option value="Russia">Russia</option>
-                                                <option value="Spain">Spain</option>
-                                                <option value="Syria">Syria</option>
-                                                <option value="United Kingdom" selected>United Kingdom</option>
-                                                <option value="United States of America">United States of
-                                                    America</option>
-                                            </select>
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="status-select"
-                                                class="form-label text-muted text-uppercase fw-semibold mb-3">Status</label>
-                                            <div class="row g-2">
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="inlineCheckbox1" value="option1">
-                                                        <label class="form-check-label"
-                                                            for="inlineCheckbox1">New Leads</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="inlineCheckbox2" value="option2">
-                                                        <label class="form-check-label"
-                                                            for="inlineCheckbox2">Old Leads</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="inlineCheckbox3" value="option3">
-                                                        <label class="form-check-label"
-                                                            for="inlineCheckbox3">Loss Leads</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="inlineCheckbox4" value="option4">
-                                                        <label class="form-check-label"
-                                                            for="inlineCheckbox4">Follow Up</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="mb-4">
-                                            <label for="leadscore"
-                                                class="form-label text-muted text-uppercase fw-semibold mb-3">Lead
-                                                Score</label>
-                                            <div class="row g-2 align-items-center">
-                                                <div class="col-lg">
-                                                    <input type="number" class="form-control" id="leadscore"
-                                                        placeholder="0">
-                                                </div>
-                                                <div class="col-lg-auto">
-                                                    To
-                                                </div>
-                                                <div class="col-lg">
-                                                    <input type="number" class="form-control" id="leadscore"
-                                                        placeholder="0">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div>
-                                            <label for="leads-tags"
-                                                class="form-label text-muted text-uppercase fw-semibold mb-3">Tags</label>
-                                            <div class="row g-3">
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="marketing" value="marketing">
-                                                        <label class="form-check-label"
-                                                            for="marketing">Marketing</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="management" value="management">
-                                                        <label class="form-check-label"
-                                                            for="management">Management</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="business" value="business">
-                                                        <label class="form-check-label"
-                                                            for="business">Business</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="investing" value="investing">
-                                                        <label class="form-check-label"
-                                                            for="investing">Investing</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="partner" value="partner">
-                                                        <label class="form-check-label"
-                                                            for="partner">Partner</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="lead" value="lead">
-                                                        <label class="form-check-label" for="lead">Leads</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="sale" value="sale">
-                                                        <label class="form-check-label" for="sale">Sale</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="owner" value="owner">
-                                                        <label class="form-check-label"
-                                                            for="owner">Owner</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="banking" value="banking">
-                                                        <label class="form-check-label"
-                                                            for="banking">Banking</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="banking" value="banking">
-                                                        <label class="form-check-label"
-                                                            for="banking">Exiting</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="banking" value="banking">
-                                                        <label class="form-check-label"
-                                                            for="banking">Finance</label>
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-6">
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox"
-                                                            id="banking" value="banking">
-                                                        <label class="form-check-label"
-                                                            for="banking">Fashion</label>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--end offcanvas-body-->
-                                    <div class="offcanvas-footer border-top p-3 text-center hstack gap-2">
-                                        <button class="btn btn-light w-100">Clear Filter</button>
-                                        <button type="submit" class="btn btn-success w-100">Filters</button>
-                                    </div>
-                                    <!--end offcanvas-footer-->
-                                </form>
-                            </div>
-                            <!--end offcanvas-->
-        
-                        </div>
+                        </div><!-- end card body -->
                     </div>
-        
-                </div>
-                <!--end col-->
-            </div>
-            <!--end row-->
+                </div> <!-- end col -->
+
+                <!-- Average Proximity Appointed -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                    Average Proximity (Succesfull Placements)
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                    <span id="averageDistanceApplicantsAppointedValue" class="counter-value"  data-target="{{ $storeAverageDistanceApplicantsAppointed }}">
+                                        0
+                                    </span>km 
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average distance for succesfull placements
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col -->
+
+                <!-- Average Score -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1">
+                                    Average Score
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                        <span id="averageScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $storeAverageScoreApplicantsAppointed }}">
+                                            0
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average score for succesfull placements
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col -->
+            </div> <!-- end row -->
 
             <!-------------------------------------------------------------------------------------
-                Jobs Summary
+                Applicants
             -------------------------------------------------------------------------------------->
+            
 
-            <div class="row">
-                <div class="col-xxl-12 col-md-12">
-                    <div class="card card-height-100">
-                        <div class="card-header align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">Jobs Summary</h4>
-                            <div class="flex-shrink-0">
-                                <div class="dropdown card-header-dropdown">
-                                    <a class="text-reset dropdown-btn">
-                                        <span class="fw-bold text-uppercase fs-12">Absorption Rate: </span>
-                                        <span class="text-muted">
-                                            {{ $totalApplications > 0 ? round($totalAppointed / $totalApplications * 100) : 0 }}%
-                                            <i class="mdi mdi-briefcase ms-1"></i>
-                                        </span>
-                                    </a>
-                                </div>
+            <div class="row g-3">
+                <div class="col-xl-12 col-md-12">
+                    <div class="card card-animate">
+                        <div class="card-header border-0 align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">Talent Pool</h4>
+                        </div><!-- end card header -->
+
+                        <div class="card-header p-0 border-0 bg-white bg-opacity-10">
+                            <div class="row g-0 text-center">
+                                <div class="col-6 col-sm-6">
+                                    <div class="p-3 border border-dashed border-start-0">
+                                        <h5 class="mb-1">
+                                            <span id="talentPoolApplicantsValue" class="counter-value" data-target="{{ $storeTalentPoolApplicants }}">
+                                                0
+                                            </span>
+                                        </h5>
+                                        <p class="text-muted mb-0">
+                                            Total Talent Pool
+                                        </p>
+                                    </div>
+                                </div> <!--end col -->
+                                <div class="col-6 col-sm-6">
+                                    <div class="p-3 border border-dashed border-start-0">
+                                        <h5 class="mb-1">
+                                            <span id="applicantsAppointedValue" class="counter-value" data-target="{{ $storeApplicantsAppointed }}">
+                                                0
+                                            </span>
+                                        </h5>
+                                        <p class="text-muted mb-0">
+                                            Total Appointed
+                                        </p>
+                                    </div>
+                                </div> <!--end col -->
                             </div>
                         </div><!-- end card header -->
-                        <div class="card-body px-0">
-                            <div id="jobs_chart" data-colors='["--vz-success","--vz-primary", "--vz-info", "--vz-danger"]' class="apex-charts" dir="ltr"></div>
-                        </div>
-                    </div><!-- end card -->
-                </div><!-- end col -->
-            </div>
+            
+                        <div class="card-body">
+                            <div id="talent_pool_by_month" data-colors='["--vz-primary", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
 
             @if ($shortlist)
                 @include('manager.partials.shortlist-modal', ['shortlist' => $shortlist])
             @endif
 
-        </div> <!-- end .h-100-->
+        </div> <!-- end .h-100 -->
 
     </div> <!-- end col -->
-</div>
+</div> <!-- end row -->
 
 
 @endsection
 @section('script')
 <script>
     var shortlist = @json($shortlist);
-    var applicationsPerMonth = @json($applicationsPerMonth);
-    var interviewedPerMonth = @json($interviewedPerMonth);
-    var appointedPerMonth = @json($appointedPerMonth);
-    var rejectedPerMonth = @json($rejectedPerMonth);
+    var storeTotalVacancies = @json($storeTotalVacancies);
+    var storeTotalVacanciesFilled = @json($storeTotalVacanciesFilled);
+    var storeTotalInterviewsScheduled = @json($storeTotalInterviewsScheduled);
+    var storeTotalInterviewsCompleted = @json($storeTotalInterviewsCompleted);
+    var storeTotalApplicantsAppointed = @json($storeTotalApplicantsAppointed);
+    var storeTotalApplicantsRegretted = @json($storeTotalApplicantsRegretted);
+    var storeTalentPoolApplicantsByMonth = @json($storeTalentPoolApplicantsByMonth);
+    var storeApplicantsAppointedByMonth = @json($storeApplicantsAppointedByMonth);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 <!-- apexcharts -->
-<script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
-<script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
-<script src="{{URL::asset('build/libs/jsvectormap/js/jsvectormap2.min.js')}}"></script>
-<script src="{{ URL::asset('build/libs/jsvectormap/maps/south-africa.js') }}"></script>
 <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js')}}"></script>
 <!-- dashboard init -->
-<script src="{{URL::asset('build/js/pages/manager.init.js')}}"></script>
+<script src="{{URL::asset('build/js/pages/manager.init.js')}}?v={{ filemtime(public_path('build/js/pages/manager.init.js')) }}"></script>
 <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

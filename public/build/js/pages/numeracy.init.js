@@ -51,7 +51,7 @@ $(document).ready(function() {
             },
             success:function(data) {
                 if (data.success === true) {
-                    $('#literacy-test').append(`
+                    $('#numeracy-test').append(`
                         <div class="col-xxl-12 col-lg-12" id="message-${data.chat.id}">
                             <div class="card">
                                 <div class="card-header">

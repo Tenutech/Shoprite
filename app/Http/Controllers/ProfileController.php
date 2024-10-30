@@ -347,7 +347,7 @@ class ProfileController extends Controller
         $file = Document::findOrFail($fileID);
 
         //Path
-        $path = storage_path('app/public/users/' . $userID . '/' . $file->name);
+        $path = public_path($file->url);
 
         if ($file->type == 'csv') {
             return response()->download($path, $file->original_name);

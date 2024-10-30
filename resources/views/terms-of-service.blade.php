@@ -2,7 +2,7 @@
 @section('content')
     <nav class="navbar navbar-expand-lg navbar-landing fixed-top job-navbar" id="navbar">
         <div class="container-fluid custom-container">
-            <a class="navbar-brand" href="index">
+            <a class="navbar-brand" href="/">
                 <img src="{{URL::asset('build/images/logo-dark.png')}}" class="card-logo card-logo-dark" alt="logo dark" height="17">
                 <img src="{{URL::asset('build/images/logo-light.png')}}" class="card-logo card-logo-light" alt="logo light" height="17">
             </a>
@@ -90,7 +90,7 @@
                                     Term & Conditions
                                 </h3>
                                 <p class="mb-0 text-muted">
-                                    Last update: 16 Sept, 2023
+                                    Last update: 16 Sept, 2024
                                 </p>
                             </div>
                         </div>
@@ -113,17 +113,17 @@
                     <div class="card-body p-4">
                         <div>
                             <h5>
-                                Welcome to Orient!
+                                Welcome to Shoprite - Job Opportunities!
                             </h5>
                             <p class="text-muted">
                                 These terms and conditions define the guidelines for using 
-                                Orient's Website, located at 
-                                https://www.opportunitybridge.co/.
+                                Shoprite - Job Opportunities's Website, located at 
+                                https://apply.shoprite.jobs/.
                             </p>
                             <p class="text-muted">
                                 By navigating our website, you acknowledge and agree to abide by 
                                 these terms and conditions in full. If you do not concur with any 
-                                of these terms, we advise not to use Orient's platform.
+                                of these terms, we advise not to use Shoprite - Job Opportunities's platform.
                             </p>
                             <p class="text-muted">
                                 Our platform, like many interactive websites, uses cookies to 
@@ -139,8 +139,8 @@
                                 License
                             </h5>
                             <p class="text-muted">
-                                All materials on Orient, unless otherwise noted, 
-                                are protected by copyright laws. Orient and its 
+                                All materials on Shoprite - Job Opportunities, unless otherwise noted, 
+                                are protected by copyright laws. Shoprite - Job Opportunities and its 
                                 licensors own the intellectual property rights for all these 
                                 materials. Users are granted limited license only for purposes 
                                 of viewing the material.
@@ -150,7 +150,7 @@
                             </p>
                             <ul class="text-muted vstack gap-2">
                                 <li>
-                                    Republishing material from Orient without proper 
+                                    Republishing material from Shoprite - Job Opportunities without proper 
                                     attribution.
                                 </li>
                                 <li>
@@ -162,7 +162,7 @@
                                     Bridge for commercial purposes.
                                 </li>
                                 <li>
-                                    Redistributing content from Orient without prior 
+                                    Redistributing content from Shoprite - Job Opportunities without prior 
                                     consent.
                                 </li>
                             </ul>
@@ -172,16 +172,16 @@
                             </p>
                             <p class="text-muted">
                                 Certain sections of our website allow users to post comments, 
-                                share experiences, or provide feedback. Orient does 
+                                share experiences, or provide feedback. Shoprite - Job Opportunities does 
                                 not necessarily review these comments before they are displayed. 
                                 The opinions in the comments section belong solely to the users 
-                                and do not represent Orient's stance or views.
+                                and do not represent Shoprite - Job Opportunities's stance or views.
                             </p>
                         </div>
         
                         <div>
                             <p class="text-muted">
-                                Orient maintains the authority to oversee all 
+                                Shoprite - Job Opportunities maintains the authority to oversee all 
                                 comments and has the discretion to delete or edit any comments 
                                 deemed inappropriate, offensive, or in breach of these 
                                 Terms and Conditions.
@@ -210,7 +210,7 @@
                                 </li>
                             </ul>
                             <p class="text-muted">
-                                By posting comments, you provide Orient a non-exclusive 
+                                By posting comments, you provide Shoprite - Job Opportunities a non-exclusive 
                                 license to use, reproduce, modify, and distribute these comments 
                                 across various media channels.
                             </p>
@@ -220,11 +220,11 @@
                             </p>
                             <ul class="text-muted vstack gap-2">
                                 <li>
-                                    Using our corporate name: Orient.
+                                    Using our corporate name: Shoprite - Job Opportunities.
                                 </li>
                                 <li>
                                     By direct use of our website URL: 
-                                    https://www.opportunitybridge.co/.
+                                    https://apply.shoprite.jobs/.
                                 </li>
                                 <li>
                                     Using a relevant description related to our website, which 
@@ -233,7 +233,7 @@
                             </ul>
                             <p class="text-muted fw-semibold">
                                 Please note that without a formal agreement, usage of 
-                                Orient's logo or other graphics for linking is 
+                                Shoprite - Job Opportunities's logo or other graphics for linking is 
                                 strictly prohibited.
                             </p>
                         </div>

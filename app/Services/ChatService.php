@@ -7,6 +7,7 @@ use Exception;
 use Carbon\Carbon;
 use App\Models\Chat;
 use App\Models\State;
+use App\Models\Document;
 use App\Models\Language;
 use App\Models\Applicant;
 use App\Models\Notification;
@@ -84,8 +85,11 @@ class ChatService
                 return; // Exit the function early since more than one image was provided
             }
 
+            // Extract message ID from the webhook data
+            $messageId = $messageData['id'] ?? null;
+
             // Log the received message
-            $this->logMessage($applicant->id, $body, 1);
+            $this->logMessage($applicant->id, $body, 1, $messageId, 'Received');
 
             // Process the applicant's current state and check if a checkpoint was triggered
             $checkpointTriggered = $this->processApplicantState($applicant, $body);
@@ -162,7 +166,7 @@ class ChatService
     * @param  int    $type
     * @return void
     */
-    protected function logMessage($applicantID, $message, $type)
+    protected function logMessage($applicantID, $message = null, $type, $messageId = null, $status = null, $template = null)
     {
         try {
             // Create a new chat entry with the provided message data
@@ -170,6 +174,9 @@ class ChatService
                 'applicant_id' => $applicantID,
                 'message' => $message,
                 'type_id' => $type,
+                'message_id' => $messageId,
+                'status' => $status,
+                'template' => $template
             ]);
             $chat->save();
 
@@ -458,6 +465,23 @@ class ChatService
     protected function handleWelcomeState($applicant, $client, $to, $from, $token)
     {
         try {
+            /*
+            // **Check Eligibility**: public_holidays, environment, education_id, and created_at within 6 months
+            $sixMonthsAgo = now()->subMonths(6);
+
+            if (($applicant->public_holidays === 'No' || $applicant->environment === 'No' || $applicant->education_id === 1) && $applicant->updated_at > $sixMonthsAgo) {
+                // Calculate the date 6 months from applicant's creation date
+                $eligibleDate = $applicant->updated_at->addMonths(6)->format('d F Y');
+
+                // Send message indicating ineligibility and when they can try again
+                $message = "Thank you for your interest in a position with the Shoprite Group of Companies.\n\nYou are not eligible for this position. You can try again on *$eligibleDate*.\n\nHave a wonderful day!";
+                $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
+
+                // Exit the function early as the applicant is ineligible
+                return;
+            }
+            */
+
             // Get the current hour using the server's current time
             $currentHour = now()->hour;
 
@@ -525,19 +549,13 @@ class ChatService
 
             // Check if the applicant's input is one of the valid options (1, 2, or 3)
             if ($body === '1') {
-                // Fetch messages for both 'employment_journey' and 'id_number' states
-                $employmentMessages = $this->fetchStateMessages('employment_journey');
-                $idNumberMessages = $this->fetchStateMessages('id_number');
-
-                // Merge both message arrays
-                $combinedMessages = array_merge($employmentMessages, $idNumberMessages);
-
-                // Send combined messages for both states
-                $this->sendAndLogMessages($applicant, $combinedMessages, $client, $to, $from, $token);
-
-                // Finally, update to the 'id_number' state
-                $stateID = State::where('code', 'id_number')->value('id');
+                // Update to the 'employment_journey' state
+                $stateID = State::where('code', 'employment_journey')->value('id');
                 $applicant->update(['state_id' => $stateID]);
+
+                // Send messages for the selected state
+                $messages = $this->fetchStateMessages('employment_journey');
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } elseif ($body === '2') {
                 // Applicant selected option 2: Navigate to 'career_page' state
                 $stateID = State::where('code', 'career_page')->value('id');
@@ -550,21 +568,9 @@ class ChatService
                 // Set state back to welcome
                 $stateID = State::where('code', 'welcome')->value('id');
                 $applicant->update(['state_id' => $stateID]);
-            } elseif ($body === '3') {
-                // Applicant selected option 3: Navigate to 'consumer_channel' state
-                $stateID = State::where('code', 'consumer_channel')->value('id');
-                $applicant->update(['state_id' => $stateID]);
-
-                // Send messages for the selected state
-                $messages = $this->fetchStateMessages('consumer_channel');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-
-                // Set state back to welcome
-                $stateID = State::where('code', 'welcome')->value('id');
-                $applicant->update(['state_id' => $stateID]);
             } else {
                 // If the applicant's input is not a valid option, send an error message
-                $errorMessage = "Invalid option. Please reply with:\n\n1. Our stores\n2. Our offices\n3. Main menu";
+                $errorMessage = "Invalid option. Please reply with:\n\n1. Our stores\n2. Our offices";
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
             }
         } catch (Exception $e) {
@@ -588,20 +594,42 @@ class ChatService
     protected function handleEmploymentJourneyState($applicant, $body, $client, $to, $from, $token)
     {
         try {
-            // Handle the 'start' keyword
-            if (strtolower($body) == 'start') {
-                $messages = $this->fetchStateMessages('employment_journey');
-                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
+            // Normalize the applicant's input (remove case sensitivity by converting to lowercase)
+            $body = strtolower(trim($body));
 
-                $stateID = State::where('code', 'first_name')->value('id');
+            // Check if the applicant's input is one of the valid options (1)
+            if ($body === '1' || $body === 'yes' || $body === 'agree' || $body === 'i agree') {
+                // Update the applicant's consent
+                $applicant->update([
+                    'terms_conditions' => 'Yes',
+                    'consent' => 'Yes',
+                ]);
+
+                // Applicant selected option 1: Navigate to 'id_number' state
+                $stateID = State::where('code', 'id_number')->value('id');
                 $applicant->update(['state_id' => $stateID]);
 
-                $messages = $this->fetchStateMessages('first_name');
+                // Send messages for the selected state
+                $messages = $this->fetchStateMessages('id_number');
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
+            } elseif ($body === '2' || $body === 'no' || $body === 'disagree' || $body === 'i disagree') {
+                // Update the applicant's consent
+                $applicant->update([
+                    'terms_conditions' => 'No',
+                    'consent' => 'No',
+                ]);
+
+                // Send message that they are not eligible
+                $message = "Thank you for your interest in a position with the Shoprite Group of Companies.\n\nYou cannot continue this application unless you *agree* to the terms and conditions.";
+                $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
+
+                // Resend employment journey message
+                $messages = $this->fetchStateMessages('employment_journey');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
-                $messages = $this->fetchStateMessages('welcome');
-                $lastMessage = end($messages);
-                $this->sendAndLogMessages($applicant, [$lastMessage], $client, $to, $from, $token);
+                // If the applicant's input is not a valid option, send an error message
+                $errorMessage = "Invalid option. Please reply with:\n\n1. I agree\n2. I disagree";
+                $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
             }
         } catch (Exception $e) {
             // Log the error for debugging purposes
@@ -652,6 +680,19 @@ class ChatService
                         ]);
 
                         return; // End the process here for under 18 applicants
+                    }
+
+                    // Check if the ID number already exists in the applicants table, excluding the current applicant
+                    $existingApplicant = Applicant::where('id_number', $body)
+                        ->where('id', '!=', $applicant->id)
+                        ->first();
+
+                    if ($existingApplicant) {
+                        // Send message that this ID number has already been registered
+                        $message = "Sorry, this ID number has already been registered. Please try again with a different ID number.";
+                        $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
+
+                        return; // End the process here if the ID is already registered
                     }
 
                     // Determine gender (SSSS)
@@ -889,7 +930,10 @@ class ChatService
             // Check if the applicant's input is one of the valid options (1, 2, or 3)
             if ($body === '1') {
                 // Update the applicant's avatar_upload
-                $applicant->update(['avatar_upload' => 'Yes']);
+                $applicant->update([
+                    'avatar_upload' => 'Yes',
+                    'avatar' => '/images/avatar.jpg'
+                ]);
 
                 // Applicant selected option 1 or 2: Navigate to 'avatar' state
                 $stateID = State::where('code', 'avatar')->value('id');
@@ -900,15 +944,37 @@ class ChatService
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } elseif ($body === '2') {
                 // Update the applicant's avatar_upload
-                $applicant->update(['avatar_upload' => 'No']);
-                $applicant->update(['avatar' => '/images/avatar.jpg']);
+                $applicant->update([
+                    'avatar_upload' => 'No',
+                    'avatar' => '/images/avatar.jpg'
+                ]);
 
-                // Applicant selected option 2: Navigate to 'terms_conditions' state
-                $stateID = State::where('code', 'terms_conditions')->value('id');
+                // Applicant selected option 2: Navigate to 'additional_contact_number' state
+                $stateID = State::where('code', 'additional_contact_number')->value('id');
                 $applicant->update(['state_id' => $stateID]);
 
                 // Send messages for the selected state
-                $messages = $this->fetchStateMessages('terms_conditions');
+                $messages = $this->fetchStateMessages('additional_contact_number');
+
+                // Get the applicant's phone number
+                $phoneNumber = $applicant->phone;
+
+                // Replace the {current number} placeholder in each message with the applicant phone
+                foreach ($messages as &$messageSet) {
+                    if (is_array($messageSet)) {
+                        // If the messageSet is an array, loop through its elements
+                        foreach ($messageSet as &$message) {
+                            if (is_string($message)) {
+                                $message = str_replace('{current number}', $phoneNumber, $message);
+                            }
+                        }
+                    } elseif (is_string($messageSet)) {
+                        // If messageSet is a string (not an array), replace {current number}
+                        $messageSet = str_replace('{current number}', $phoneNumber, $messageSet);
+                    }
+                }
+
+                //Send the state messages
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // If the applicant's input is not a valid option, send an error message
@@ -1008,15 +1074,41 @@ class ChatService
 
                         // Save the image file to the specified path
                         if (file_put_contents($filePath, $fileContent)) {
-                            // If the image was saved successfully, update the applicant's avatar field with the image path
-                            $applicant->update(['avatar' => '/images/' . $fileName]);
+                            // Create a new document record instead of updating the applicant's avatar
+                            Document::create([
+                                'applicant_id' => $applicant->id,
+                                'name' => $fileName,
+                                'type' => $fileExtension,
+                                'size' => $contentLength,
+                                'url' => '/images/' . $fileName,
+                            ]);
 
-                            // Transition the applicant to the 'terms_conditions' state
-                            $stateID = State::where('code', 'terms_conditions')->value('id');
+                            // Transition the applicant to the 'additional_contact_number' state
+                            $stateID = State::where('code', 'additional_contact_number')->value('id');
                             $applicant->update(['state_id' => $stateID]);
 
-                            // Fetch and send messages for the 'terms_conditions' state
-                            $messages = $this->fetchStateMessages('terms_conditions');
+                            // Fetch and send messages for the 'additional_contact_number' state
+                            $messages = $this->fetchStateMessages('additional_contact_number');
+
+                            // Get the applicant's phone number
+                            $phoneNumber = $applicant->phone;
+
+                            // Replace the {current number} placeholder in each message with the applicant phone
+                            foreach ($messages as &$messageSet) {
+                                if (is_array($messageSet)) {
+                                    // If the messageSet is an array, loop through its elements
+                                    foreach ($messageSet as &$message) {
+                                        if (is_string($message)) {
+                                            $message = str_replace('{current number}', $phoneNumber, $message);
+                                        }
+                                    }
+                                } elseif (is_string($messageSet)) {
+                                    // If messageSet is a string (not an array), replace {current number}
+                                    $messageSet = str_replace('{current number}', $phoneNumber, $messageSet);
+                                }
+                            }
+
+                            //Send the state messages
                             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
                         } else {
                             // If the image could not be saved, send an error message to the applicant
@@ -1061,7 +1153,7 @@ class ChatService
             $body = strtolower(trim($body));
 
             // Check if the applicant's input is one of the valid options (1)
-            if ($body === '1' || $body === 'i agree' || $body === 'agree') {
+            if ($body === '1' || $body === 'yes' || $body === 'i agree' || $body === 'agree') {
                 // Update the applicant's terms_conditions
                 $applicant->update(['terms_conditions' => 'Yes']);
 
@@ -1091,9 +1183,9 @@ class ChatService
                 }
 
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-            } elseif ($body === '2' || $body === 'i disagree' || $body === 'disagree') {
+            } elseif ($body === '2' || $body === 'no' || $body === 'i disagree' || $body === 'disagree') {
                 // Update the applicant's terms_conditions
-                $applicant->update(['terms_conditions' => 'Yes']);
+                $applicant->update(['terms_conditions' => 'No']);
 
                 // Applicant selected option 2: Navigate to 'welcome' state
                 $stateID = State::where('code', 'welcome')->value('id');
@@ -1147,7 +1239,7 @@ class ChatService
                 $messages = $this->fetchStateMessages('public_holidays');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } elseif ($body === '2' || $body === 'no') {
-                // Update the applicant's terms_conditions
+                // Update the applicant's additional_contact_number
                 $applicant->update(['additional_contact_number' => 'Yes']);
 
                 // Applicant selected option 2: Navigate to 'contact_number' state
@@ -1259,13 +1351,13 @@ class ChatService
                 // Update the applicant's public_holidays
                 $applicant->update(['public_holidays' => 'No']);
 
-                // Applicant selected option 2: Navigate to 'welcome' state
-                $stateID = State::where('code', 'welcome')->value('id');
+                // Applicant selected option 2: Navigate to 'highest_qualification' state
+                $stateID = State::where('code', 'highest_qualification')->value('id');
                 $applicant->update(['state_id' => $stateID]);
 
-                // Send message that they are not eligible
-                $message = "Thank you for your interest in a position at the Shoprite Group of Companies. You are not eligible for this position. Have a wonderful day!";
-                $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
+                // Send messages for the selected state
+                $messages = $this->fetchStateMessages('highest_qualification');
+                $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // If the applicant's input is not a valid option, send an error message
                 $errorMessage = "Invalid option. Please reply with:\n\n1. Yes\n2. No";
@@ -1306,21 +1398,18 @@ class ChatService
                     break;
                 case '2':
                 case 'grade 10':
+                case 'grade 11':
                     $education = 2;
                     break;
                 case '3':
-                case 'grade 11':
-                    $education = 3;
-                    break;
-                case '4':
                 case 'grade 12':
                     $education = 4;
                     break;
-                case '5':
+                case '4':
                 case 'diploma':
                     $education = 5;
                     break;
-                case '6':
+                case '5':
                 case 'degree':
                     $education = 6;
                     break;
@@ -1331,16 +1420,16 @@ class ChatService
                 // Update the applicant's education_id in the database
                 $applicant->update(['education_id' => $education]);
 
-                // Transition to the next state 'consent'
-                $stateID = State::where('code', 'consent')->value('id');
+                // Transition to the next state 'environment'
+                $stateID = State::where('code', 'environment')->value('id');
                 $applicant->update(['state_id' => $stateID]);
 
-                // Fetch and send messages for the 'consent' state
-                $messages = $this->fetchStateMessages('consent');
+                // Fetch and send messages for the 'environment' state
+                $messages = $this->fetchStateMessages('environment');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } else {
                 // If the applicant's input is not a valid option, send an error message
-                $errorMessage = "Invalid option. Please reply with:\n\n1. Grade 9\n2. Grade 10\n3. Grade 11\n4. Grade 12\n5. Diploma\n6. Degree";
+                $errorMessage = "Invalid option. Please reply with:\n\n1. Grade 9\n2. Grade 10 or 11\n3. Grade 12\n4. Diploma\n5. Degree";
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
             }
         } catch (Exception $e) {
@@ -1416,6 +1505,20 @@ class ChatService
     protected function handleEnvironmentState($applicant, $body, $client, $to, $from, $token)
     {
         try {
+            // Check if the applicant meets the exclusion criteria
+            if ($applicant->public_holidays === 'No' || $applicant->education_id === 1) {
+                // Applicant is not eligible: Navigate to 'welcome' state
+                $stateID = State::where('code', 'welcome')->value('id');
+                $applicant->update(['state_id' => $stateID]);
+
+                // Send message that they are not eligible
+                $message = "Thank you for your interest in a position at the Shoprite Group of Companies. You are not eligible for this position. Have a wonderful day!";
+                $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
+
+                // Exit the function early as the applicant is ineligible
+                return;
+            }
+
             // Normalize the applicant's input (remove case sensitivity by converting to lowercase)
             $body = strtolower(trim($body));
 
@@ -1549,7 +1652,7 @@ class ChatService
             // Prevent invalid combinations like "1, 4" or "2, 4"
             if (in_array('4', $inputs) && count($inputs) > 1) {
                 // Send an error message if "All" (4) is combined with other selections
-                $errorMessage = "Invalid option. You cannot select specific brands with 'All'. Please reply with:\n\n1. Checkers\n2. Shoprite\n3. USave\n4. All";
+                $errorMessage = "You’ve selected 'Any' along with a specific brand, which isn’t allowed. Please reply with:\n\n1. Checkers\n2. Shoprite\n3. USave\n4. Any";
                 $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 return; // Exit early to prevent further processing
             }
@@ -1642,7 +1745,7 @@ class ChatService
                 $applicant->update(['state_id' => $stateID]);
 
                 // Send messages for the selected state
-                $message = "Please provide your *address* with every detail (e.g. street number, street name, suburb, town, postal code): 🏡";
+                $message = "Please provide your home *address* with every detail (e.g. street number, street name, suburb, town, postal code): 🏡";
                 $this->sendAndLogMessages($applicant, [$message], $client, $to, $from, $token);
             } elseif ($body === '2' || $body === 'pin') {
                 // Update the applicant's location_type
@@ -1920,8 +2023,8 @@ class ChatService
                 $messages = $this->fetchStateMessages('literacy_start');
                 $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
             } elseif ($body === '2' || $body === 'no') {
-                // Update the applicant's has_email
-                $applicant->update(['has_email' => 'No']);
+                // Update the applicant's disability
+                $applicant->update(['disability' => 'No']);
 
                 // Applicant selected option 2: Navigate to 'literacy_start' state
                 $stateID = State::where('code', 'literacy_start')->value('id');
@@ -2347,6 +2450,10 @@ class ChatService
                     // Fetch and send the complete state messages.
                     $messages = $this->fetchStateMessages('complete');
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
+
+                    // Calculate and set applicants score.
+                    $score = $this->calculateScore($applicant);
+                    $applicant->update(['score' => $score]);
                 }
             } else {
                 // If the applicant's response is not a valid option (not 'a', 'b', 'c', or 'd'),
@@ -2401,9 +2508,7 @@ class ChatService
                     $templateMessage = [
                         [
                             'message' => "Dear {$variables[0]},\n\nI have picked up that you currently have an interview scheduled for the *{$variables[1]}* at *{$variables[2]}* for the position of *{$variables[3]}* at *{$variables[4]}*.\n\nWould you like to view or edit the details of this interview? 📆\n\n1. Yes\n2. No",
-                            'type' => "text",
-                            'template' => "interview_welcome",
-                            'variables' => $variables
+                            'type' => "text"
                         ]
                     ];
 
@@ -2464,30 +2569,30 @@ class ChatService
                         "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A', // If no position, set 'N/A'
                         "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' (' . ($latestInterview->vacancy->store->town->name ?? 'N/A') . ')', // Brand and town or default 'Our Office'
                         "Interview Location" => $latestInterview->location ?? 'N/A', // Interview location or 'N/A'
-                        
+
                         // Check if scheduled_date is an instance of Carbon or try parsing the date string
                         "Interview Date" => $latestInterview->scheduled_date instanceof Carbon
                                             ? $latestInterview->scheduled_date->format('d M Y')
                                             : (strtotime($latestInterview->scheduled_date) ? date('d M Y', strtotime($latestInterview->scheduled_date)) : 'N/A'), // Fallback to strtotime if not Carbon
-                        
+
                         // Check if start_time is an instance of Carbon or try parsing the time string
                         "Interview Time" => $latestInterview->start_time instanceof Carbon
                                             ? $latestInterview->start_time->format('H:i')
                                             : (strtotime($latestInterview->start_time) ? date('H:i', strtotime($latestInterview->start_time)) : 'N/A'), // Fallback to strtotime if not Carbon
-                    
+
                         // Check if reschedule_date is an instance of Carbon or try parsing the date string
                         "Reschedule Date" => $latestInterview->reschedule_date instanceof Carbon
                                             ? $latestInterview->reschedule_date->format('d M Y')
                                             : (strtotime($latestInterview->reschedule_date) ? date('d M Y', strtotime($latestInterview->reschedule_date)) : 'N/A'), // Fallback to strtotime if not Carbon
-                    
+
                         // Check if reschedule_date is an instance of Carbon or try parsing the time string
                         "Reschedule Time" => $latestInterview->reschedule_date instanceof Carbon
                                             ? $latestInterview->reschedule_date->format('H:i')
                                             : (strtotime($latestInterview->reschedule_date) ? date('H:i', strtotime($latestInterview->reschedule_date)) : 'N/A'), // Fallback to strtotime if not Carbon
-                    
+
                         "Notes" => $latestInterview->notes ?? 'N/A', // Additional notes or 'N/A'
                         "Status" => $latestInterview->status ?? 'N/A' // Interview status
-                    ];                                       
+                    ];
 
                     // Check if interview status is "Reschedule"
                     if ($latestInterview->status === "Reschedule") {
@@ -2509,14 +2614,14 @@ class ChatService
 
                             // Send the updated messages and log the outgoing messages.
                             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-                    
+
                             // Update the applicant's state to 'complete'.
                             $stateID = State::where('code', 'complete')->value('id');
                             $applicant->update(['state_id' => $stateID]);
                         } elseif ($latestInterview->reschedule_by === "Manager") {
                             // Fetch the messages associated with the 'reschedule_manager' state.
                             $messages = $this->fetchStateMessages('reschedule_manager');
-                    
+
                             // Loop through each message and replace placeholders with the corresponding applicant/interview data.
                             foreach ($messages as &$message) {
                                 foreach ($dataToReplace as $key => $value) {
@@ -2531,7 +2636,7 @@ class ChatService
 
                             // Send the updated messages and log the outgoing messages.
                             $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-                    
+
                             // Update the applicant's state to 'schedule'.
                             $stateID = State::where('code', 'schedule')->value('id');
                             $applicant->update(['state_id' => $stateID]);
@@ -2539,7 +2644,7 @@ class ChatService
                     } else {
                         // Handle the regular scheduled interview case
                         $messages = $this->fetchStateMessages('schedule');
-                    
+
                         // Loop through each message and replace placeholders with the corresponding applicant/interview data.
                         foreach ($messages as &$message) {
                             foreach ($dataToReplace as $key => $value) {
@@ -2554,7 +2659,7 @@ class ChatService
 
                         // Send the updated messages and log the outgoing messages.
                         $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
-                    
+
                         // Update the applicant's state to 'schedule'.
                         $stateID = State::where('code', 'schedule')->value('id');
                         $applicant->update(['state_id' => $stateID]);
@@ -2585,7 +2690,7 @@ class ChatService
                         " is now declined. If this was a mistake, please contact us immediately."
                     ];*/
                     $messages = [
-                        "Thank you for your response. Should you wish to view, reschedle or decline your interview, start by typing Hi. Have a wonderful day!"
+                        "Thank you for your response. Should you wish to view, reschedule or decline your interview, start by typing Hi. Have a wonderful day!"
                     ];
                     $this->sendAndLogMessages($applicant, $messages, $client, $to, $from, $token);
 
@@ -2738,7 +2843,7 @@ class ChatService
                     $scheduledDate = $latestInterview->scheduled_date->format('d M Y'); // Format the current scheduled date
                     // Add 1 day to the scheduled date using Carbon
                     $suggestedDateTime = Carbon::parse($latestInterview->scheduled_date)->addDay();
-                    $suggestedDate = $suggestedDateTime->format('d M Y'); 
+                    $suggestedDate = $suggestedDateTime->format('d M Y');
 
                     // Send a message prompting the applicant to suggest a new date and time.
                     $messages = [
@@ -3215,22 +3320,34 @@ class ChatService
                     'body' => json_encode($payload)
                 ]);
 
+                // Extract the response body and decode it to capture the message ID
+                $responseData = json_decode($response->getBody()->getContents(), true);
+                $messageId = $responseData['messages'][0]['id'] ?? null; // Extract the message ID from the response
+
                 // Update the last message sent
                 $lastMessage = $body;
 
-                // Log the outgoing message
-                $this->logMessage($applicant->id, $body, 2);
+                // Log the outgoing message with the message ID, status as 'Sent', and template if applicable
+                $this->logMessage($applicant->id, $body, 2, $messageId, 'Sent', $template);
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 $responseBody = $e->getResponse()->getBody()->getContents();
+                $errorData = json_decode($responseBody, true);
 
-                // Log the error for debugging purposes
-                Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
+                // Check for rate limit error code (#131056)
+                if (isset($errorData['error']['code']) && $errorData['error']['code'] == 131056) {
+                    // Custom rate limit message to inform the user
+                    $rateLimitMessage = "Rate limit reached. Please be aware of sending too many messages in quick succession. Wait 2 minutes and continue your application.";
+                    $this->sendAndLogMessages($applicant, [$rateLimitMessage], $client, $to, $from, $token);
+                } else {
+                    // Log the error for debugging purposes
+                    Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
 
-                // Get the error message from the method
-                $errorMessage = $this->getErrorMessage();
+                    // Get the error message from the method
+                    $errorMessage = $this->getErrorMessage();
 
-                // Send the error message to the applicant
-                $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
+                    // Send the error message to the applicant
+                    $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
+                }
             }
         }
     }

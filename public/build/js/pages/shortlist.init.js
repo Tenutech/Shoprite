@@ -335,6 +335,11 @@ function fetchData() {
             if (data.success == true) {
                 allcandidateList = data.applicants;
 
+                // Set the value of the input field with id="number" to the applicantCount
+                if (data.applicantCount) {
+                    document.getElementById('number').value = data.applicantCount;
+                }
+
                 if (allcandidateList.length === 0) {
                     // Hide the candidate list container and show the no result message
                     document.querySelector("#candidate-list").style.display = 'none';
@@ -437,13 +442,6 @@ function loadCandidateListData(datas, page) {
                     tooltip = 'Inconclusive';
                     break;
             }
-        
-            // Append each check as a column in the footer row
-            checksHtml += '<a class="avatar-sm flex-shrink-0" id="check-' + checkID + '" data-bs-toggle="tooltip" data-bs-placement="top" title="' + tooltip + '" style="cursor:pointer;">' +
-                                '<span class="avatar-title bg-' + status + '-subtle text-' + status + ' rounded-circle fs-4">' +
-                                    '<i class="ri-shield-user-line"></i>' + // Always use the same icon
-                                '</span>' +
-                           '</a>';
 
             // Initialize interviewAlert as an empty string
             var interviewAlert = '';
@@ -456,12 +454,12 @@ function loadCandidateListData(datas, page) {
                 if (interview.status === 'Appointed' && interview.updated_at) {
                     // Use updated_at for Appointed status
                     var updatedAtDate = new Date(interview.updated_at);
-                    formattedDate = updatedAtDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
+                    formattedDate = updatedAtDate.toLocaleString('en-GB', { day: '2-digit', month: 'short' });
                     formattedTime = formatTimeTo24Hour(interview.updated_at);
                 } else {
                     // Use the scheduled date and time for other statuses
                     var interviewDate = new Date(interview.scheduled_date);
-                    formattedDate = interviewDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
+                    formattedDate = interviewDate.toLocaleString('en-GB', { day: '2-digit', month: 'short' });
                     formattedTime = formatTimeTo24Hour(interview.start_time);
                 }
 
@@ -500,33 +498,21 @@ function loadCandidateListData(datas, page) {
                                         </div>`;
                     }
                 }
+            }
 
-                if (interview.score) {
-                    interviewScore = `<div class="badge text-bg-primary">
-                                        <i class="mdi mdi-star me-1"></i>
-                                        ${interview.score ? interview.score : 'N/A'}
-                                    </div>`;
-                }
+            //Get latest interview with score
+            var latestInterview = datas[i].latest_interview_with_score;
+
+            if (latestInterview && latestInterview.score) {
+                interviewScore = `<div class="badge text-bg-primary">
+                                    <i class="mdi mdi-star me-1"></i>
+                                    ${latestInterview.score ? latestInterview.score : 'N/A'}
+                                </div>`;
             }
 
             // Append the interview alert after the checksHtml if it exists
             if (interviewAlert) {
                 checksHtml += interviewAlert;
-            }
-
-            // Initialize contractAlert as an empty string
-            var contractAlert = '';
-
-            // Check if there are contract and set the alert based on the status
-            if (datas[i].contracts && datas[i].contracts.length > 0) {
-                contractAlert = '<div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show mb-0 alert-contract" role="alert">' +
-                                    '<i class="ri-article-fill label-icon"></i><strong>Contract Sent</strong>' + 
-                                '</div>';
-            }
-
-            // Append the contract alert after the checksHtml if it exists
-            if (contractAlert) {
-                checksHtml += contractAlert;
             }
 
             checksHtml += '</div></div>';
@@ -548,7 +534,7 @@ function loadCandidateListData(datas, page) {
                 '<div class="col-md-12 col-lg-12 candidate-card" data-candidate-id="' + datas[i].id + '">\
                     <div class="card ' + cardBorder + ' mb-0">\
                         <div class="card-body">\
-                            <div class="d-lg-flex align-items-center">\
+                            <div class="d-flex flex-wrap align-items-center">\
                                 <div class="form-check">\
                                     <input class="form-check-input" type="checkbox" name="chk_child" value="'+ datas[i].encrypted_id + '" data-bs-id="'+ datas[i].id + '" data-bs-name="'+ datas[i].firstname + ' '+ datas[i].lastname + '">\
                                 </div>\
@@ -557,19 +543,19 @@ function loadCandidateListData(datas, page) {
                                         '+ isUserProfile + '\
                                     </div>\
                                 </div>\
-                                <div class="ms-lg-3 my-3 my-lg-0 col-3 text-start">\
+                                <div class="ms-lg-3 my-3 my-lg-0 col-12 col-md-3 text-start">\
                                     <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'">\
                                         <h5 class="fs-16 mb-2">\
                                             '+ datas[i].firstname + ' '+ datas[i].lastname + '\
                                         </h5>\
                                     </a>\
                                     <p class="text-muted mb-0">\
-                                        '+ (datas[i].race ? datas[i].race.name : 'N/A') + '\
+                                        '+ (datas[i].distance ? datas[i].distance + ' km' : 'N/A') + '\
                                     </p>\
                                 </div>\
                                 <div class="col-2">\
-                                    <i class="'+ (datas[i].gender ? datas[i].gender.icon : 'ri-men-line') + ' text-'+ (datas[i].gender ? datas[i].gender.color : 'primary') + ' me-1 align-bottom"></i>'+ 
-                                    (datas[i].gender ? '<span class="badge bg-' + datas[i].gender.color + '-subtle text-' + datas[i].gender.color + '">' + datas[i].gender.name + '</span>' : 'N/A') +
+                                    <i class="ri-shield-user-line text-'+ status + ' me-1 align-bottom"></i>' + 
+                                    '<span class="badge bg-'+ status + '-subtle text-'+ status + '">' + tooltip +
                                 '</div>\
                                 <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">\
                                     <div><i class="ri-map-pin-2-line text-primary me-1 align-bottom"></i>\
@@ -583,10 +569,23 @@ function loadCandidateListData(datas, page) {
                                     </div>\
                                     '+ (interviewScore ? interviewScore : '') + '\
                                 </div>\
-                                <div class="col-2 text-end">\
+                                <!-- On larger screens, we make this a flex row with all buttons in one line -->\
+                                <div class="d-flex justify-content-end align-items-center col-2 text-end d-none d-md-flex">\
                                     <a href="'+ route('applicant-profile.index', {id: datas[i].encrypted_id}) +'" class="btn btn-soft-primary">\
                                         View Details\
                                     </a>\
+                                    <a href="#!" class="btn btn-ghost-danger btn-icon custom-toggle '+ bookmark + ' save-applicant mx-2" data-bs-toggle="button" data-bs-id='+ datas[i].encrypted_id + '>\
+                                        <span class="icon-on">\
+                                            <i class="ri-bookmark-line align-bottom"></i>\
+                                        </span>\
+                                        <span class="icon-off">\
+                                            <i class="ri-bookmark-3-fill align-bottom"></i>\
+                                        </span>\
+                                    </a>\
+                                    ' + closeButton + '\
+                                </div>\
+                                <!-- On mobile, we keep the save and close buttons where they were -->\
+                                <div class="col-2 text-end d-md-none">\
                                     <a href="#!" class="btn btn-ghost-danger btn-icon custom-toggle '+ bookmark + ' save-applicant" data-bs-toggle="button" data-bs-id='+ datas[i].encrypted_id + '>\
                                         <span class="icon-on">\
                                             <i class="ri-bookmark-line align-bottom"></i>\
@@ -954,47 +953,16 @@ function paginationEvents() {
 
 /*
 |--------------------------------------------------------------------------
-| Google Map
+| Coordinates Filter
 |--------------------------------------------------------------------------
 */
 
-var map;
-var selectedLocation;
-var center = {lat: -30.5595, lng: 22.9375};
-var marker;
-
-function initMap() {
-    map = new google.maps.Map(document.getElementById('map'), {
-        zoom: 7,
-        center: center
-    });
-
-    // Add a double-click event listener to the map
-    map.addListener('dblclick', function(event) {
-        selectedLocation = {
-            lat: event.latLng.lat(),
-            lng: event.latLng.lng()
-        };
-
-        // Place a marker on the map at the clicked location
-        if (marker) {
-            marker.setMap(null);  // Remove the existing marker
-        }
-        marker = new google.maps.Marker({
-            position: selectedLocation,
-            map: map
-        });
-
-        // Add a removable badge for this location
-        addLocationBadge(selectedLocation, true);
-        applyLocationFilter(selectedLocation);
-    });
-
-    // Add location badge on load if coordinates and maxDistanceFromStore are set
+// Immediately execute on page load to add location badge if coordinates and maxDistanceFromStore are set
+$(document).ready(function() {
     if (coordinates) {
         // Split the coordinates string into latitude and longitude
         var coordArray = coordinates.split(', ');
-        
+
         // Check if we successfully split the coordinates
         if (coordArray.length === 2) {
             coordinates = {
@@ -1010,78 +978,57 @@ function initMap() {
             }
         }
     }
-}
+});
 
 /*
 |--------------------------------------------------------------------------
-| Calculate Distance
+| Dropdown Change Listener
 |--------------------------------------------------------------------------
 */
 
-function calculateDistance(lat1, lon1, lat2, lon2) {
-    var R = 6371; // Radius of the earth in km
-    var dLat = (lat2 - lat1) * Math.PI / 180;  
-    var dLon = (lon2 - lon1) * Math.PI / 180;
-    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c; // Distance in km
-    return d;
-}
-
-// Load the map once the modal is fully shown
-$('#mapModal').on('shown.bs.modal', function() {
-    google.maps.event.trigger(map, 'resize');
-});
-
 // Listen to changes on the dropdown
 selectTown.addEventListener('change', function() {
-    const selectedValue = this.value.split(';');
+    const selectedValue = this.value.split(';');  // Split the selected value into key and value
     const key = selectedValue[0];
     const value = selectedValue[1];
     
     // Get the label as the option text
     const label = this.options[this.selectedIndex].textContent;
 
+    // If the badge does not exist, add it
     if (!badgeExists(label, 'filterBadges')) {
         addBadge(key, value, label);
         applyFilter(key, value); 
     }
 });
 
-let currentSort = { key: null, order: 'asc' };
+/*
+|--------------------------------------------------------------------------
+| Filter Button Click Listener
+|--------------------------------------------------------------------------
+*/
 
+let currentSort = { key: null, order: 'asc' };  // Current sorting settings
+
+// Add click event listeners to filter buttons
 document.querySelectorAll('.filter-button').forEach(button => {
     button.addEventListener('click', function() {
-        const filter = this.getAttribute('data-bs-filter').split(';');
+        const filter = this.getAttribute('data-bs-filter').split(';');  // Split filter attribute into key and value
         const label = this.innerText;
         const value = filter[1];
 
+        // If the badge does not exist, add it
         if (!badgeExists(label, 'filterBadges')) {
             addBadge(filter[0], value, label);
 
+            // If the filter is for sorting, update currentSort
             if (value === 'literacy' || value === 'numeracy') {
-                currentSort.key = filter[0]; // set the sorting key
+                currentSort.key = filter[0];  // Set the sorting key
                 currentSort.value = value;
-                currentSort.order = 'desc'; // for descending order
+                currentSort.order = 'desc';  // For descending order
             } else {
                 applyFilter(filter[0], value);
             }
-        }
-    });
-});
-
-document.querySelectorAll('.check-button').forEach(button => {
-    button.addEventListener('click', function() {
-        const check = this.getAttribute('data-bs-check').split(';');
-        const key = check[0];
-        const value = check[1] || 'Yes';
-        const label = this.innerText;
-
-        if (!badgeExists(label, 'checkBadges')) {
-            addBadge(key, value, label, true);
-            applyCheck(key, value);
         }
     });
 });
@@ -1288,8 +1235,8 @@ function clearFields() {
     var choicesInstance = new Choices(applicantsSelect);
     choicesInstance.removeActiveItems();
 
-    sapNumberChoices.removeActiveItems();
-    sapNumberChoices.setChoiceByValue("");
+    //sapNumberChoices.removeActiveItems();
+    //sapNumberChoices.setChoiceByValue("");
 }
 
 /*
@@ -1569,7 +1516,7 @@ function interviewConfirm() {
                     if (response.success) {
                         // Use the scheduled date and time for other statuses
                         var interviewDate = new Date(response.interview.scheduled_date);
-                        formattedDate = interviewDate.toLocaleString('en-US', { day: '2-digit', month: 'short' });
+                        formattedDate = interviewDate.toLocaleString('en-GB', { day: '2-digit', month: 'short' });
                         formattedTime = formatTimeTo24Hour(response.interview.start_time);
 
                         // On success, update the alert to "Confirmed"
@@ -1766,22 +1713,40 @@ $('#formVacancy').on('submit', function(e) {
                         if (colButtons) {
                             colButtons.style.display = 'none'; // Hide the column
                         }
+
+                        var pagination = document.querySelector('#pagination');
+                        pagination.style.display = 'none'; // Hide the pagination
                     }
 
                     // Reload SAP Number options
                     sapNumberChoices.clearChoices(); // Clear existing choices
+
                     if (data.vacancy.available_sap_numbers.length > 0) {
-                        sapNumberChoices.setChoices(
-                            data.vacancy.available_sap_numbers.map(function(sap) {
-                                return {
-                                    value: sap.id, // Use ID or value field as needed
-                                    label: sap.sap_number,
-                                    selected: sapNumberChoices.getValue(true) == sap.id // Optional: set selected if needed
-                                };
-                            }),
-                            'value', 'label', true
-                        );
+                        // Add default "Select SAP Number" option first
+                        let choicesArray = [{
+                            value: '',
+                            label: 'Select SAP Number',
+                            selected: true, // Set as the default selected option
+                        }];
+                    
+                        // Add the dynamic SAP number options
+                        let sapNumberChoicesArray = data.vacancy.available_sap_numbers.map(function(sap) {
+                            return {
+                                value: sap.id, // Use ID or value field as needed
+                                label: sap.sap_number,
+                                selected: sapNumberChoices.getValue(true) == sap.id // Optional: set selected if needed
+                            };
+                        });
+                    
+                        // Combine both arrays (default option + dynamic options)
+                        choicesArray = choicesArray.concat(sapNumberChoicesArray);
+                    
+                        // Set choices in the Choices.js instance
+                        sapNumberChoices.setChoices(choicesArray, 'value', 'label', true);
                     }
+
+                    sapNumberChoices.removeActiveItems();
+                    sapNumberChoices.setChoiceByValue("");
 
                     // Update open positions in the view
                     var openPositionsElement = document.querySelector('#openPositions');
@@ -1850,7 +1815,7 @@ function formatDateTime(dateTime) {
     const date = new Date(dateTime);
     
     const day = ("0" + date.getDate()).slice(-2); // Ensure two digits for day
-    const month = date.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
+    const month = date.toLocaleString('en-GB', { month: 'short' }); // Get abbreviated month name
     const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits for hours
     const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits for minutes
 
@@ -1878,7 +1843,7 @@ function formatFullDateTime(dateTimeString) {
     date.setUTCHours(date.getUTCHours() + offsetInHours);
 
     const day = ("0" + date.getDate()).slice(-2); // Ensure two digits
-    const month = date.toLocaleString('en-US', { month: 'short' }); // Get abbreviated month name
+    const month = date.toLocaleString('en-GB', { month: 'short' }); // Get abbreviated month name
     const year = date.getFullYear();
     const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits
     const minutes = ("0" + date.getMinutes()).slice(-2); // Ensure two digits

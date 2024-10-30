@@ -19,11 +19,11 @@ return new class extends Migration
             $table->boolean('receive_email_notifications')->nullable()->default(true);
             $table->boolean('receive_whatsapp_notifications')->nullable()->default(true);
             $table->boolean('notify_application_submitted')->nullable()->default(true);
-            $table->boolean('notify_application_status')->nullable()->default(true);
-            $table->boolean('notify_shortlisted')->nullable()->default(true);
+            $table->boolean('notify_application_status')->nullable()->default(false);
+            $table->boolean('notify_shortlisted')->nullable()->default(false);
             $table->boolean('notify_interview')->nullable()->default(true);
-            $table->boolean('notify_vacancy_status')->nullable()->default(true);
-            $table->boolean('notify_new_application')->nullable()->default(true);
+            $table->boolean('notify_vacancy_status')->nullable()->default(false);
+            $table->boolean('notify_new_application')->nullable()->default(false);
             $table->timestamp('created_at')->nullable()->useCurrent();
             $table->timestamp('updated_at')->nullable()->useCurrent();
         });

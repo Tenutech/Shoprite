@@ -12,6 +12,7 @@ use App\Models\Applicant;
 use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class RegisterController extends Controller
 {
@@ -54,6 +55,13 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+        // Custom error messages for validation
+        $messages = [
+            'password.min' => 'The password must be at least :min characters.',
+            'password.regex' => 'The password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character.',
+            'password.confirmed' => 'Password confirmation does not match.',
+        ];
+
         // Define validation rules for registration data
         return Validator::make($data, [
             'firstname' => ['required', 'string', 'max:191'],
@@ -71,10 +79,17 @@ class RegisterController extends Controller
             }],
             'phone' => ['required', 'string', 'max:191', 'unique:users'],
             'email' => ['nullable', 'string', 'email', 'max:191', 'unique:users'],
-            'address' => ['required', 'string', 'max:255'],
-            'password' => ['required', 'string', 'min:8', 'confirmed'],
-            'avatar' => ['image', 'mimes:jpg,jpeg,png', 'max:1024']
-        ]);
+            'password' => [
+                'required',
+                'string',
+                'min:8', // Increase the minimum length to 12 characters
+                'regex:/[a-z]/', // At least one lowercase letter
+                'regex:/[A-Z]/', // At least one uppercase letter
+                'regex:/[0-9]/', // At least one digit
+                'regex:/[@$!%*#?&]/', // At least one special character
+                'confirmed'
+            ],
+        ], $messages);
     }
 
     /**
@@ -85,16 +100,6 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
-        // Handle avatar upload if provided
-        if (request()->has('avatar')) {
-            $avatar = request()->file('avatar');
-            $avatarName = $data['firstname'] . ' ' . $data['lastname'] . '-' . time() . '.' . $avatar->getClientOriginalExtension();
-            $avatarPath = public_path('/images/');
-            $avatar->move($avatarPath, $avatarName);
-        } else {
-            $avatarName = 'avatar.jpg'; // Default avatar
-        }
-
         // Check if an applicant exists with the given ID number
         $applicant = Applicant::where('id_number', $data['id_number'])->first();
 
@@ -103,36 +108,21 @@ class RegisterController extends Controller
             'firstname' => ucwords($data['firstname']),
             'lastname' => ucwords($data['lastname']),
             'email' => $data['email'],
+            'email_verified_at' => $data['email'] ? null : now(),
             'phone' => $data['phone'],
             'id_number' => $data['id_number'],
-            'address' => $data['address'],
             'password' => Hash::make($data['password']),
-            'avatar' => $avatarName,
+            'avatar' => 'avatar.jpg',
             'company_id' => 1,
             'role_id' => 7, // Default role for new users
             'applicant_id' => $applicant ? $applicant->id : null,
             'status_id' => 1, // User status (e.g., active)
-            // If email is provided, set email_verified_at to null (will trigger verification),
-            // otherwise set it to the current timestamp to consider email verified by default
-            'email_verified_at' => $data['email'] ? null : now(),
         ]);
 
         // Create default notification settings for the user
         NotificationSetting::create([
             'user_id' => $user->id,
         ]);
-
-        // Calculate the user's age from the ID number
-        $age = $this->calculateAgeFromId($data['id_number']);
-
-        // If the user is under 18, create a consent record
-        if ($age < 18) {
-            // Consent::create([
-            //     'user_id' => $user->id,
-            //     'guardian_mobile' => $data['guardian_mobile'],
-            //     'consent_status' => 'Pending',
-            // ]);
-        }
 
         // Dispatch the job to process the user's ID number
         ProcessUserIdNumber::dispatch($user->id, null);
@@ -212,26 +202,31 @@ class RegisterController extends Controller
     private function calculateAgeFromId(string $idNumber): int
     {
         // Extract the first two digits for the year of birth (YY)
-        $year = substr($idNumber, 0, 2);
+        $year = (int) substr($idNumber, 0, 2);
 
-        // Extract the month of birth (MM)
-        $month = substr($idNumber, 2, 2);
+        // Determine if the century is 19xx or 20xx based on the current short year (last two digits of the current year)
+        $currentYearShort = (int) date('y'); // Last two digits of the current year
+        $year = ($year > $currentYearShort) ? (1900 + $year) : (2000 + $year);
 
-        // Extract the day of birth (DD)
-        $day = substr($idNumber, 4, 2);
+        // Extract the month and day of birth (MMDD) and pad with zero if necessary
+        $month = sprintf('%02d', (int) substr($idNumber, 2, 2)); // Add leading zero if needed
+        $day = sprintf('%02d', (int) substr($idNumber, 4, 2)); // Add leading zero if needed
 
-        // Get the current year in full (YYYY format)
-        $currentYear = date('Y');
-
-        // If the birth year (YY) is greater than the current last two digits of the year, assume 1900s, otherwise 2000s.
-        // This is done to determine if the century is 19xx or 20xx.
-        $year = ($year > date('y')) ? '19' . $year : '20' . $year;
+        // Ensure valid day and month values
+        if (!checkdate((int)$month, (int)$day, $year)) {
+            throw new \Exception('Invalid birth date extracted from ID number.');
+        }
 
         // Create a DateTime object from the extracted birth date (YYYY-MM-DD format)
         $birthDate = \DateTime::createFromFormat('Y-m-d', "$year-$month-$day");
 
+        // Check if the DateTime object is valid
         if (!$birthDate) {
-            // Handle the error if the date is invalid
+            throw new \Exception('Failed to create DateTime from extracted birth date.');
+        }
+
+        // Validate the format strictly
+        if ($birthDate->format('Y-m-d') !== sprintf('%04d-%02d-%02d', $year, $month, $day)) {
             throw new \Exception('Invalid birth date extracted from ID number.');
         }
 

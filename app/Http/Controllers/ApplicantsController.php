@@ -9,7 +9,7 @@ use App\Models\Race;
 use App\Models\Type;
 use App\Models\Town;
 use App\Models\Bank;
-use App\Models\Chat;
+use App\Models\Store;
 use App\Models\State;
 use App\Models\Gender;
 use App\Models\Brand;
@@ -59,6 +59,12 @@ class ApplicantsController extends Controller
         if (view()->exists('manager/applicants')) {
             //User ID
             $userID = Auth::id();
+
+            //User
+            $user = User::findOrFail($userID);
+
+            //Store
+            $store = Store::find($user->store_id);
 
             //Applicants
             $applicants = Applicant::with([
@@ -168,6 +174,22 @@ class ApplicantsController extends Controller
         //Auth User ID
         $userID = Auth::id();
 
+        //User
+        $user = User::findOrFail($userID);
+
+        //Store
+        $store = Store::find($user->store_id);
+
+        // Check if the store has valid coordinates
+        $storeCoordinates = isset($store->coordinates) && strpos($store->coordinates, ',') !== false ? explode(',', $store->coordinates) : null;
+
+        $longitude = '';
+        $latitude = '';
+
+        if ($storeCoordinates) {
+            list($latitude, $longitude) = [(float)$storeCoordinates[0], (float)$storeCoordinates[1]];
+        }
+
         //Applicants
         $applicants = Applicant::with([
             'town',
@@ -182,6 +204,7 @@ class ApplicantsController extends Controller
                 $query->where('user_id', $userID);
             }
         ])
+        ->whereNull('appointed_id')
         ->where('no_show', '<=', 2)
         ->whereHas('savedBy', function ($query) use ($userID) {
             $query->where('user_id', $userID);
@@ -189,8 +212,41 @@ class ApplicantsController extends Controller
         ->orderBy('firstname')
         ->orderBy('lastname')
         ->get()
-        ->map(function ($applicant) {
+        ->map(function ($applicant) use ($latitude, $longitude, $storeCoordinates) {
+            // Encrypt applicant ID
             $applicant->encrypted_id = Crypt::encryptString($applicant->id);
+
+            // Now, calculate the distance for each applicant if store coordinates exist
+            if ($storeCoordinates && isset($applicant->coordinates) && strpos($applicant->coordinates, ',') !== false) {
+                list($applicantLat, $applicantLng) = explode(',', $applicant->coordinates);
+
+                // Convert strings to floats
+                $applicantLat = (float)$applicantLat;
+                $applicantLng = (float)$applicantLng;
+
+                // Check if both coordinates are numeric
+                if (is_numeric($latitude) && is_numeric($longitude) && is_numeric($applicantLat) && is_numeric($applicantLng)) {
+                    // Haversine formula to calculate the distance
+                    $earthRadius = 6371;  // Earth's radius in kilometers
+                    $dLat = deg2rad($latitude - $applicantLat);
+                    $dLng = deg2rad($longitude - $applicantLng);
+
+                    $a = sin($dLat / 2) * sin($dLat / 2) +
+                        cos(deg2rad($latitude)) * cos(deg2rad($applicantLat)) *
+                        sin($dLng / 2) * sin($dLng / 2);
+
+                    $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+                    $distance = $earthRadius * $c;  // Distance in kilometers
+
+                    // Round the distance to 1 decimal place
+                    $applicant->distance = round($distance, 1);
+                } else {
+                    $applicant->distance = 'N/A';  // Coordinates are not numeric
+                }
+            } else {
+                $applicant->distance = 'N/A';  // No store coordinates or applicant coordinates
+            }
+
             return $applicant;
         })
         ->toArray();

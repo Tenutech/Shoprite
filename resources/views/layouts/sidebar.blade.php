@@ -29,21 +29,21 @@
     <!-- LOGO -->
     <div class="navbar-brand-box">
         <!-- Dark Logo-->
-        <a href="index" class="logo logo-dark">
+        <a href="/" class="logo logo-dark">
             <span class="logo-sm">
-                <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="22">
+                <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="30">
             </span>
             <span class="logo-lg">
-                <img src="{{ URL::asset('build/images/logo-dark.png') }}" alt="" height="17">
+                <img src="{{ URL::asset('build/images/logo-dark.png') }}" alt="" height="25">
             </span>
         </a>
         <!-- Light Logo-->
-        <a href="index" class="logo logo-light">
+        <a href="/" class="logo logo-light">
             <span class="logo-sm">
-                <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="22">
+                <img src="{{ URL::asset('build/images/logo-sm.png') }}" alt="" height="30">
             </span>
             <span class="logo-lg">
-                <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="17">
+                <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="25">
             </span>
         </a>
         <button type="button" class="btn btn-sm p-0 fs-20 header-item float-end btn-vertical-sm-hover" id="vertical-hover">
@@ -60,24 +60,24 @@
                 <li class="menu-title"><span>@lang('translation.menu')</span></li>
                 <li class="nav-item">
                     <a class="nav-link menu-link" href="{{ url($url.'home') }}">
-                        <i class="ri-home-3-line"></i> 
+                        <i class="ri-home-3-line"></i>
                         <span>Home</span>
                     </a>
-                </li>                
+                </li>
                 @if ($user->role_id > 6)
-                    @if ($user->applicant)
+                    @if ($user->applicant && $user->applicant->public_holidays != 'No' && $user->applicant->environment != 'No')
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
-                                <i class="ri-briefcase-line"></i> 
+                                <i class="ri-briefcase-line"></i>
                                 <span>My Interviews</span>
                             </a>
                         </li>
                     @endif
                 @endif
-                @if ($user->role_id <= 6)
+                @if (in_array($user->role_id, [1,2,3,4,6]))
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarVacancies" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarVacancies">
-                            <i class="ri-briefcase-line"></i> 
+                            <i class="ri-briefcase-line"></i>
                             <span>Vacancies</span>
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarVacancies">
@@ -97,19 +97,19 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('shortlist.index') }}">
-                            <i class="ri-list-check-2"></i> 
+                            <i class="ri-list-check-2"></i>
                             <span>My Shortlists</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
-                            <i class="ri-briefcase-line"></i> 
+                            <i class="ri-briefcase-line"></i>
                             <span>My Interviews</span>
                         </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('applicants.index') }}">
-                            <i class="ri-profile-line"></i> 
+                            <i class="ri-profile-line"></i>
                             <span>Saved Applicants</span>
                         </a>
                     </li>
@@ -117,7 +117,7 @@
                 @if ($user->role_id <= 2)
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarApprovals" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarApprovals">
-                            <i class="ri-shield-check-line"></i> 
+                            <i class="ri-shield-check-line"></i>
                             <span>Approvals</span>
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarApprovals">
@@ -136,11 +136,11 @@
                         </div>
                     </li>
                     <a class="nav-link menu-link" href="#sidebarTemplates" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarTemplates">
-                        <i class="ri-slideshow-line"></i> 
+                        <i class="ri-slideshow-line"></i>
                         <span>Templates</span>
                     </a>
                     <div class="collapse menu-dropdown" id="sidebarTemplates">
-                        <ul class="nav nav-sm flex-column">                            
+                        <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('email.index') }}">
                                     Email
@@ -158,14 +158,14 @@
                             </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('chats.index') }}">
-                                    Shoops
+                                    WhatsApp
                                 </a>
                             </li>
                         </ul>
                     </div>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarAssessments" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarAssessments">
-                            <i class="ri-survey-line"></i> 
+                            <i class="ri-survey-line"></i>
                             <span>Assessments</span>
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarAssessments">
@@ -180,21 +180,31 @@
                                         Numeracy
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('situational.index') }}">
+                                        Situational Awareness
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('weighting.index') }}">
-                            <i class="ri-medal-line"></i> 
+                            <i class="ri-medal-line"></i>
                             <span>Weightings</span>
                         </a>
                     </li>
                     <a class="nav-link menu-link" href="#sidebarUsers" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarUsers">
-                        <i class="ri-group-line"></i> 
+                        <i class="ri-group-line"></i>
                         <span>Users</span>
                     </a>
                     <div class="collapse menu-dropdown" id="sidebarUsers">
                         <ul class="nav nav-sm flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('applicants-table.index') }}">
+                                    Applicants
+                                </a>
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('users.index') }}">
                                     Users
@@ -203,6 +213,21 @@
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('managers.index') }}">
                                     Managers
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('dpps.index') }}">
+                                    DPPs
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('dtdps.index') }}">
+                                    DTDPs
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="{{ route('rpps.index') }}">
+                                    RPPs
                                 </a>
                             </li>
                             <li class="nav-item">
@@ -221,16 +246,11 @@
                     </div>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarJobs" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarJobs">
-                            <i class="ri-briefcase-3-line"></i> 
+                            <i class="ri-briefcase-3-line"></i>
                             <span>Jobs</span>
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarJobs">
                             <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('positions.index') }}">
-                                        Positions
-                                    </a>
-                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('experience.index') }}">
                                         Experience
@@ -239,6 +259,11 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('physical.index') }}">
                                         Physical Requirements
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('positions.index') }}">
+                                        Positions
                                     </a>
                                 </li>
                                 <li class="nav-item">
@@ -270,13 +295,13 @@
                                     <a class="nav-link" href="{{ route('hours.index') }}">
                                         Working Hours
                                     </a>
-                                </li>                                
+                                </li>
                             </ul>
                         </div>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarSettings" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarSettings">
-                            <i class="ri-settings-5-line"></i> 
+                            <i class="ri-settings-5-line"></i>
                             <span>Settings</span>
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarSettings">
@@ -300,7 +325,7 @@
                                     <a class="nav-link" href="{{ route('durations.index') }}">
                                         Experience
                                     </a>
-                                </li>                                
+                                </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('genders.index') }}">
                                         Genders
@@ -330,14 +355,14 @@
                                     <a class="nav-link" href="{{ route('towns.index') }}">
                                         Towns
                                     </a>
-                                </li>                                
+                                </li>
                             </ul>
                         </div>
                     </li>
                     @if ($user->role_id == 1)
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ url('/telescope') }}">
-                                <i class="ri-microscope-line"></i> 
+                                <i class="ri-microscope-line"></i>
                                 <span>Telescope</span>
                             </a>
                         </li>

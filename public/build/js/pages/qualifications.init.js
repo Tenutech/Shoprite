@@ -6,6 +6,56 @@ Contact: admin@tenutech.com
 File: CRM-contact Js File
 */
 
+// Snow Editor
+var snowEditor = document.querySelectorAll(".snow-editor");
+if (snowEditor) {
+    Array.from(snowEditor).forEach(function (item) {
+        var snowEditorData = {};
+        var issnowEditorVal = item.classList.contains("snow-editor");
+        if (issnowEditorVal == true) {
+            snowEditorData.theme = 'snow',
+                snowEditorData.modules = {
+                    'toolbar': [
+                        [{
+                            'font': []
+                        }, {
+                            'size': []
+                        }],
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{
+                            'color': []
+                        }, {
+                            'background': []
+                        }],
+                        [{
+                            'script': 'super'
+                        }, {
+                            'script': 'sub'
+                        }],
+                        [{
+                            'header': [false, 1, 2, 3, 4, 5, 6]
+                        }, 'blockquote', 'code-block'],
+                        [{
+                            'list': 'ordered'
+                        }, {
+                            'list': 'bullet'
+                        }, {
+                            'indent': '-1'
+                        }, {
+                            'indent': '+1'
+                        }],
+                        ['direction', {
+                            'align': []
+                        }],
+                        ['link', 'image', 'video'],
+                        ['clean']
+                    ]
+                }
+        }
+        new Quill(item, snowEditorData);
+    });
+}
+
 /*
 |--------------------------------------------------------------------------
 | List Js
@@ -154,7 +204,7 @@ $.getJSON('/build/json/remixicons.json', function(icons) {
             placeholder: false,
         };
     });
-  
+
     // Set choices using the array of icon objects
     iconVal.setChoices(iconChoices, 'value', 'label', true);
 });
@@ -175,6 +225,8 @@ addBtn.addEventListener("click", function (e) {
     var form = document.getElementById("formQualification");
     if (form.checkValidity()) {
         var formData = new FormData($('#formQualification')[0]);
+        var description = $("#description .ql-editor").html();
+        formData.set('description', description);
 
         $.ajax({
             url: route('qualification.store'),
@@ -197,7 +249,7 @@ addBtn.addEventListener("click", function (e) {
                     qualificationList.add({
                         id: data.encID,
                         position: positionValue,
-                        description: description.value,
+                        description: $("#description .ql-editor").html(),
                         icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
                         color: '<span class="text-'+ color.value +'">'+ color.value +'</span>'
                     });
@@ -211,17 +263,17 @@ addBtn.addEventListener("click", function (e) {
                         showCloseButton: true,
                         toast: true
                     })
-                    
+
                     document.querySelector(".pagination-wrap").style.display = "flex";
                     document.getElementById("close-modal").click();
                     clearFields();
                     refreshCallbacks();
-                    count++;                    
-                } 
+                    count++;
+                }
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -229,7 +281,7 @@ addBtn.addEventListener("click", function (e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -261,6 +313,8 @@ editBtn.addEventListener("click", function (e) {
     var form = document.getElementById("formQualification");
     if (form.checkValidity()) {
         var formData = new FormData($('#formQualification')[0]);
+        var description = $("#description .ql-editor").html();
+        formData.set('description', description);
 
         $.ajax({
             url: route('qualification.update'),
@@ -288,7 +342,7 @@ editBtn.addEventListener("click", function (e) {
                             x.values({
                                 id: idField.value,
                                 position: positionValue,
-                                description: description.value,
+                                description: $("#description .ql-editor").html(),
                                 icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
                                 color: '<span class="text-'+ color.value +'">'+ color.value +'</span>'
                             });
@@ -313,7 +367,7 @@ editBtn.addEventListener("click", function (e) {
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -321,7 +375,7 @@ editBtn.addEventListener("click", function (e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -372,14 +426,14 @@ function refreshCallbacks() {
                 var isdeleteid = deleteid.body.innerHTML;
 
                 if (isdeleteid == itemId) {
-                    document.getElementById("delete-qualification").onclick = function () {                        
+                    document.getElementById("delete-qualification").onclick = function () {
                         $.ajax({
                             url: route('qualification.destroy', {id: isdeleteid}),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
-                            success:function(data) {            
+                            success:function(data) {
                                 if(data.success === true) {
                                     qualificationList.remove("id", isdeleteid);
                                     document.getElementById("deleteRecord-close").click();
@@ -392,12 +446,12 @@ function refreshCallbacks() {
                                         timer: 2000,
                                         showCloseButton: true,
                                         toast: true
-                                    });                    
+                                    });
                                 }
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
                                 let message = ''; // Initialize the message variable
-        
+
                                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                                     message = jqXHR.responseJSON.message;
                                 } else if (textStatus === 'timeout') {
@@ -405,7 +459,7 @@ function refreshCallbacks() {
                                 } else {
                                     message = 'An error occurred while processing your request. Please try again later.';
                                 }
-                            
+
                                 // Trigger the Swal notification with the dynamic message
                                 Swal.fire({
                                     position: 'top-end',
@@ -428,7 +482,7 @@ function refreshCallbacks() {
         btn.onclick = function (e) {
             e.target.closest("tr").children[1].innerText;
             itemId = e.target.closest("tr").children[1].innerText;
-           
+
             $.ajax({
                 url: route('qualification.details', {id: itemId}),
                 type: 'GET',
@@ -446,7 +500,9 @@ function refreshCallbacks() {
                     positionVal.setChoiceByValue(data.qualification.position_id.toString());
                 }
 
-                description.value = data.qualification.description;
+                var cleanedDescription = data.qualification.description.replace(/;;/g, '');
+
+                $("#description .ql-editor").html(cleanedDescription);
 
                 if (data.qualification.icon) {
                     iconVal.setChoiceByValue(data.qualification.icon.toString());
@@ -464,7 +520,7 @@ function clearFields() {
     positionVal.removeActiveItems();
     positionVal.setChoiceByValue("");
 
-    description.value = "";
+    $("#description .ql-editor").html('');
 
     iconVal.removeActiveItems();
     iconVal.setChoiceByValue("");
@@ -499,7 +555,7 @@ function deleteMultiple(){
                 for (i = 0; i < ids_array.length; i++) {
                     qualificationList.remove("id", `${ids_array[i]}`);
                 }
-    
+
                 $.ajax({
                     url: route('qualification.destroyMultiple'),
                     type: 'post',
@@ -509,7 +565,7 @@ function deleteMultiple(){
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success:function(data) {            
+                    success:function(data) {
                         if(data.success === true) {
                             document.getElementById('checkAll').checked = false;
 
@@ -521,12 +577,12 @@ function deleteMultiple(){
                                 timer: 2000,
                                 showCloseButton: true,
                                 toast: true
-                            });                  
+                            });
                         }
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         let message = ''; // Initialize the message variable
-        
+
                         if (jqXHR.status === 400 || jqXHR.status === 422) {
                             message = jqXHR.responseJSON.message;
                         } else if (textStatus === 'timeout') {
@@ -534,7 +590,7 @@ function deleteMultiple(){
                         } else {
                             message = 'An error occurred while processing your request. Please try again later.';
                         }
-                    
+
                         // Trigger the Swal notification with the dynamic message
                         Swal.fire({
                             position: 'top-end',
@@ -578,13 +634,13 @@ document.querySelector(".pagination-wrap").addEventListener("click", function(ev
             }
         }
     }
-    
+
     // If the clicked element or its parent is in the .listjs-pagination
     if (event.target.closest(".listjs-pagination")) {
         event.preventDefault();
         event.target.click();
     }
-    
+
     // If the clicked element or its parent has the class .pagination-next
     if (event.target.classList.contains("pagination-next") || (event.target.parentElement && event.target.parentElement.classList.contains("pagination-next"))) {
         event.preventDefault();

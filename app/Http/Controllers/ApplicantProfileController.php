@@ -93,12 +93,10 @@ class ApplicantProfileController extends Controller
             ])
             ->findorfail($applicantID);
 
-            $user = $applicant->user;
-
             $documents = collect();
 
-            if ($user) {
-                $documents = Document::where('user_id', $user->id)->get();
+            if ($applicant) {
+                $documents = Document::where('applicant_id', $applicant->id)->get();
             }
 
             //Vacancy ID
@@ -398,23 +396,23 @@ class ApplicantProfileController extends Controller
                 // Update the applicant's state
                 $applicant->update(['state_id' => $scheduledStateId]);
             }
-    
+
             // Prepare a WhatsApp message
             $whatsappMessage = "You have a request to reschedule your interview to " .
                 Carbon::parse($existingInterview->reschedule_date)->format('d M Y \a\t H:i') .
                 ". Would you like to view the details?";
-    
+
             // Define the message type and template
             $type = 'template';
-            $template = 'interview_reschedule_view';
-    
+            $template = 'interview_reschedule_view_2';
+
             // Prepare the variables for the WhatsApp template
             $variables = [
                 $applicant->firstname ?: 'N/A',  // Applicant's first name
                 Carbon::parse($existingInterview->reschedule_date)->format('d M Y') ?: 'N/A', // Rescheduled date
                 Carbon::parse($existingInterview->reschedule_date)->format('H:i') ?: 'N/A', // Rescheduled time
             ];
-    
+
             // Dispatch WhatsApp message
             SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
 
@@ -460,10 +458,15 @@ class ApplicantProfileController extends Controller
 
             // Define the message type and template
             $type = 'template';
-            $template = 'interview_view';
+            $template = 'interview_send';
+
+            // Prepare the variables for the WhatsApp template
+            $variables = [
+                $applicant->firstname ?: 'N/A'
+            ];
 
             // Dispatch WhatsApp message
-            SendWhatsAppMessage::dispatch($applicant, $message, $type, $template);
+            SendWhatsAppMessage::dispatch($applicant, $message, $type, $template, $variables);
 
             // Return the interview instance
             return $interview;

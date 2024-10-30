@@ -56,14 +56,16 @@
                         {{ optional($applicant->role)->name ?? 'N/A' }}
                     </p>
                     <div class="hstack text-white-50 gap-1">
-                        <div class="me-2">
-                            <i class="ri-user-2-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
-                            {{ optional($vacancy->position)->name ?? 'N/A' }}
-                        </div>
-                        <div>
-                            <i class="ri-building-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
-                            {{ optional($vacancy->store->brand)->name ?? 'N/A' }}
-                        </div>
+                        @if (isset($vacancy))
+                            <div class="me-2">
+                                <i class="ri-user-2-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
+                                {{ optional($vacancy->position)->name ?? 'N/A' }}
+                            </div>
+                            <div>
+                                <i class="ri-building-line me-1 text-white text-opacity-75 fs-16 align-middle"></i>
+                                {{ optional($vacancy->store->brand)->name ?? 'N/A' }}
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -81,40 +83,40 @@
                     <ul class="nav nav-pills animation-nav profile-nav gap-2 gap-lg-3 flex-grow-1" role="tablist">
                         <li class="nav-item">
                             <a class="nav-link fs-14 applicant-tab active" data-bs-toggle="tab" href="#overview-tab" role="tab">
-                                <i class="ri-airplay-fill d-inline-block d-md-none"></i> 
+                                <i class="ri-airplay-fill d-inline-block d-md-none"></i>
                                 <span class="d-none d-md-inline-block">Overview</span>
                             </a>
                         </li>
                         @if ($authUser->role_id <= 2)
                             <li class="nav-item">
                                 <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#messaging-tab" role="tab">
-                                    <i class="ri-price-tag-line d-inline-block d-md-none"></i> 
+                                    <i class="ri-price-tag-line d-inline-block d-md-none"></i>
                                     <span class="d-none d-md-inline-block">Messaging</span>
                                 </a>
-                            </li>                        
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#assessments-tab" role="tab">
-                                    <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
+                                    <i class="ri-folder-4-line d-inline-block d-md-none"></i>
                                     <span class="d-none d-md-inline-block">Assessments</span>
                                 </a>
-                            </li>                        
+                            </li>
                             <li class="nav-item">
                                 <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#documents-tab" role="tab">
-                                    <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
+                                    <i class="ri-folder-4-line d-inline-block d-md-none"></i>
                                     <span class="d-none d-md-inline-block">Documents</span>
                                 </a>
                             </li>
                         @endif
                         <li class="nav-item">
                             <a class="nav-link fs-14 applicant-tab" data-bs-toggle="tab" href="#interview-tab" role="tab">
-                                <i class="ri-folder-4-line d-inline-block d-md-none"></i> 
+                                <i class="ri-folder-4-line d-inline-block d-md-none"></i>
                                 <span class="d-none d-md-inline-block">Interview</span>
                             </a>
                         </li>
                     </ul>
                     <div class="flex-shrink-0">
                         <a href="{{ route('shortlist.index') }}?id={{ Crypt::encryptString($vacancyId) }}" class="btn btn-success">
-                            <i class="ri-arrow-left-line align-bottom"></i> 
+                            <i class="ri-arrow-left-line align-bottom"></i>
                             Shortlist
                         </a>
                     </div>
@@ -136,7 +138,7 @@
                                             <div class="progress" style="height: 1px;">
                                                 <div class="progress-bar" role="progressbar" style="width: {{ $progressBarWidth }}%;" aria-valuenow="{{ $progressBarWidth }}" aria-valuemin="0" aria-valuemax="100"></div>
                                             </div>
-                
+
                                             <ul class="nav nav-pills progress-bar-tab custom-nav" role="tablist">
                                                 <li class="nav-item">
                                                     <button class="nav-link rounded-pill {{ $progressBarWidth >= 25 ? 'done' : '' }}" data-progressbar="custom-progress-bar" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-original-title="Application Submitted">
@@ -190,39 +192,63 @@
                                             <table class="table table-borderless mb-0">
                                                 <tbody>
                                                     <tr>
-                                                        <th class="ps-0" scope="row">Name :</th>
-                                                        <td class="text-muted">{{ $applicant->firstname ?? 'N/A' }} {{ $applicant->lastname }}</td>
+                                                        <th class="ps-0" scope="row">
+                                                            Name :
+                                                        </th>
+                                                        <td class="text-muted">
+                                                            {{ $applicant->firstname ?? 'N/A' }} {{ $applicant->lastname }}
+                                                        </td>
                                                     </tr>
                                                     <tr>
-                                                        <th class="ps-0" scope="row">Mobile :</th>
-                                                        <td class="text-muted">{{ $applicant->phone ?? 'N/A' }}</td>
+                                                        <th class="ps-0" scope="row">
+                                                            Mobile :
+                                                        </th>
+                                                        <td class="text-muted">
+                                                            {{ $applicant->phone ?? 'N/A' }}
+                                                        </td>
                                                     </tr>
                                                     @if ($applicant->email )
                                                         <tr>
-                                                            <th class="ps-0" scope="row">Email :</th>
-                                                            <td class="text-muted">{{ $applicant->email ?? 'N/A' }}</td>
+                                                            <th class="ps-0" scope="row">
+                                                                Email :
+                                                            </th>
+                                                            <td class="text-muted">
+                                                                {{ $applicant->email ?? 'N/A' }}
+                                                            </td>
                                                         </tr>
                                                     @endif
                                                     <tr>
-                                                        <th class="ps-0" scope="row">Brand :</th>
-                                                        <td class="text-muted">{{ optional($applicant->brand)->name ?? 'N/A' }}</td>
-                                                    </tr>                                                    
-                                                    <tr>
-                                                        <th class="ps-0" scope="row">Role :</th>
-                                                        <td class="text-muted">{{ optional($applicant->role)->name ?? 'N/A' }}</td>
+                                                        <th class="ps-0" scope="row">
+                                                            Brand :
+                                                        </th>
+                                                        <td class="text-muted">
+                                                            {{ $applicant->brands->first()->name ?? 'N/A' }}
+                                                        </td>
                                                     </tr>
                                                     <tr>
-                                                        <th class="ps-0" scope="row">Applied</th>
-                                                        <td class="text-muted">{{ date('d M Y', strtotime($applicant->created_at)) }}</td>
+                                                        <th class="ps-0" scope="row">
+                                                            Role :
+                                                        </th>
+                                                        <td class="text-muted">
+                                                            {{ optional($applicant->role)->name ?? 'N/A' }}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <th class="ps-0" scope="row">
+                                                            Applied
+                                                        </th>
+                                                        <td class="text-muted">
+                                                            {{ date('d M Y', strtotime($applicant->created_at)) }}
+                                                        </td>
                                                     </tr>
                                                 </tbody>
                                             </table>
                                         </div>
                                     </div><!-- end card body -->
-                                </div><!-- end card -->                                
+                                </div><!-- end card -->
                             </div>
                             <!--end col-->
-                            <div class="col-xxl-9"> 
+                            <div class="col-xxl-9">
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <div class="card">
@@ -234,7 +260,7 @@
                                             <div class="card-body">
                                                 <!-- Accordions Bordered -->
                                                 <div class="accordion custom-accordionwithicon custom-accordion-border accordion-border-box accordion-secondary" id="accordionBordered">
-                                                    
+
                                                     <!-------------------------------------------------------------------------------------
                                                         Personal Information
                                                     -------------------------------------------------------------------------------------->
@@ -269,7 +295,7 @@
                                                                                 </h6>
                                                                             </div>
                                                                             <div class="col-lg-6">
-                                                                                {{ $applicant->id_number ?? 'N/A' }}
+                                                                                {{ isset($applicant->id_number) ? substr($applicant->id_number, 0, 4) . str_repeat('*', strlen($applicant->id_number) - 4) : 'N/A' }}
                                                                             </div>
                                                                         </div>
 
@@ -345,7 +371,7 @@
                                                                             <div class="col-lg-6">
                                                                                 {{ optional($applicant->race)->name ?? 'N/A' }}
                                                                             </div>
-                                                                        </div>                                                                
+                                                                        </div>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -399,7 +425,7 @@
                                                                             </div>
                                                                             <div class="col-lg-9">
                                                                                 @if($applicant->brands && $applicant->brands->isNotEmpty())
-                                                                                    {{ $applicant->brands->pluck('name')->implode(', ') }}
+                                                                                    {{ $applicant->brands->unique('name')->pluck('name')->implode(', ') }}
                                                                                 @else
                                                                                     N/A
                                                                                 @endif
@@ -412,7 +438,7 @@
                                                                         <div class="row mb-3">
                                                                             <div class="col-lg-3">
                                                                                 <h6 class="fs-15 mb-0">
-                                                                                    Rotational Shift 
+                                                                                    Rotational Shift
                                                                                 </h6>
                                                                             </div>
                                                                             <div class="col-lg-9">
@@ -424,7 +450,7 @@
                                                                         <div class="row mb-3">
                                                                             <div class="col-lg-3">
                                                                                 <h6 class="fs-15 mb-0">
-                                                                                    Heavy Lifting 
+                                                                                    Heavy Lifting
                                                                                 </h6>
                                                                             </div>
                                                                             <div class="col-lg-9">
@@ -436,7 +462,7 @@
                                                                         <div class="row mb-3">
                                                                             <div class="col-lg-3">
                                                                                 <h6 class="fs-15 mb-0">
-                                                                                    Disability 
+                                                                                    Disability
                                                                                 </h6>
                                                                             </div>
                                                                             <div class="col-lg-9">
@@ -448,7 +474,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>                                                
+                                                </div>
                                             </div><!-- end card body -->
                                         </div><!-- end card -->
                                     </div><!-- end col -->
@@ -458,7 +484,7 @@
                         </div>
                         <!--end row-->
                     </div>
-                    
+
                     <!-------------------------------------------------------------------------------------
                         Messaging Tab
                     -------------------------------------------------------------------------------------->
@@ -471,14 +497,14 @@
                                         <div class="chat-wrapper d-lg-flex gap-1 mx-n4 mt-n4 p-1">
                                             <!-- Start User chat -->
                                             <div class="user-chat w-100 overflow-hidden">
-                                        
+
                                                 <div class="chat-content d-lg-flex">
                                                     <!-- start chat conversation section -->
                                                     <div class="w-100 overflow-hidden position-relative">
                                                         <!-- conversation user -->
                                                         <div class="position-relative">
-                                        
-                                        
+
+
                                                             <div class="position-relative" id="users-chat">
                                                                 <div class="p-3 user-chat-topbar">
                                                                     <div class="row align-items-center">
@@ -512,12 +538,12 @@
                                                                             </div>
                                                                         </div>
                                                                     </div>
-                                        
+
                                                                 </div>
                                                                 <!-- end chat user head -->
                                                                 <div class="chat-conversation p-3 p-lg-4 " id="chat-conversation" data-simplebar>
                                                                     <ul class="list-unstyled chat-conversation-list" id="users-conversation">
-                                        
+
                                                                     </ul>
                                                                     <!-- end chat-conversation-list -->
                                                                 </div>
@@ -525,9 +551,9 @@
                                                                     Message copied
                                                                 </div>
                                                             </div>
-                                                                                                
+
                                                             <div class="chat-input-section p-3 p-lg-4">
-                                        
+
                                                                 <form class="d-none" id="chatinput-form" enctype="multipart/form-data">
                                                                     <div class="row g-0 align-items-center">
                                                                         <div class="col-auto">
@@ -539,7 +565,7 @@
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                        
+
                                                                         <div class="col">
                                                                             <div class="chat-input-feedback">
                                                                                 Please Enter a Message
@@ -555,11 +581,11 @@
                                                                                 </div>
                                                                             </div>
                                                                         </div>
-                                        
+
                                                                     </div>
                                                                 </form>
                                                             </div>
-                                        
+
                                                             <div class="replyCard">
                                                                 <div class="card mb-0">
                                                                     <div class="card-body py-3">
@@ -582,7 +608,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-- end chat-wrapper -->                               
+                                        <!-- end chat-wrapper -->
                                     </div>
                                     <!--end row-->
                                 </div>
@@ -612,20 +638,20 @@
                                                 <div class="card-header">
                                                     <h4 class="card-title mb-0">Literacy Score</h4>
                                                 </div><!-- end card header -->
-                                
+
                                                 <div class="card-body">
                                                     <div id="literacy_chart" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
                                                 </div><!-- end card-body -->
                                             </div><!-- end card -->
                                         </div>
-                                        <!-- end col -->                                    
+                                        <!-- end col -->
 
                                         <div class="col-xl-6">
                                             <div class="card">
                                                 <div class="card-header">
                                                     <h4 class="card-title mb-0">Numeracy Score</h4>
                                                 </div><!-- end card header -->
-                                
+
                                                 <div class="card-body">
                                                     <div id="numeracy_chart" data-colors='["--vz-secondary"]' class="apex-charts" dir="ltr"></div>
                                                 </div><!-- end card-body -->
@@ -638,7 +664,7 @@
                                                 <div class="card-header">
                                                     <h4 class="card-title mb-0">Situational Score</h4>
                                                 </div><!-- end card header -->
-                                
+
                                                 <div class="card-body">
                                                     <div id="situational_chart" data-colors='["--vz-danger"]' class="apex-charts" dir="ltr"></div>
                                                 </div><!-- end card-body -->
@@ -683,7 +709,7 @@
                                                             @php
                                                                 $fileIcon = '';
                                                             @endphp
-                                                            
+
                                                             @switch($file->type)
                                                                 @case('png')
                                                                 @case('jpg')
@@ -692,32 +718,32 @@
                                                                         $fileIcon = '<i class="ri-gallery-fill align-bottom text-success"></i>';
                                                                     @endphp
                                                                     @break
-                                                            
+
                                                                 @case('pdf')
                                                                     @php
                                                                         $fileIcon = '<i class="ri-file-pdf-fill align-bottom text-danger"></i>';
                                                                     @endphp
                                                                     @break
-                                                            
+
                                                                 @case('docx')
                                                                     @php
                                                                         $fileIcon = '<i class="ri-file-word-2-fill align-bottom text-primary"></i>';
                                                                     @endphp
                                                                     @break
-                                                            
+
                                                                 @case('xls')
                                                                 @case('xlsx')
                                                                     @php
                                                                         $fileIcon = '<i class="ri-file-excel-2-fill align-bottom text-success"></i>';
                                                                     @endphp
                                                                     @break
-                                                            
+
                                                                 @case('csv')
                                                                     @php
                                                                         $fileIcon = '<i class="ri-file-excel-fill align-bottom text-success"></i>';
                                                                     @endphp
                                                                     @break
-                                                            
+
                                                                 @case('txt')
                                                                 @default
                                                                     @php
@@ -746,7 +772,7 @@
                                                                         $fileSizeText = "{$fileSizeInMB} MB";
                                                                     }
                                                                 @endphp
-                                                                <td class="filelist-size">                                            
+                                                                <td class="filelist-size">
                                                                     {{ $fileSizeText }}
                                                                 </td>
                                                                 <td class="filelist-create">
@@ -801,22 +827,22 @@
                                     <h5 class="card-title flex-grow-1 mb-0">
                                         Interview Guide
                                     </h5>
-                                
+
                                     @if (!$applicant->appointed_id)
                                         @if(count($applicant->interviews) <= 0 || (count($applicant->interviews) > 0 && !$applicant->interviews[0]->score))
                                             <button class="btn btn-secondary ms-3" id="interviewBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Schedule an interview with {{ $applicant->firstname }}">
-                                                <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
+                                                <i class="ri-calendar-todo-fill align-bottom me-1"></i>
                                                 Interview
                                             </button>
-                                            
+
                                             <button class="btn btn-light ms-3" id="noShowBtn" data-bs-toggle="modal" data-bs-target="#interviewNoShowModal" data-bs-toggle="tooltip" data-bs-placement="top" title="{{ $applicant->firstname }} did not show up for their interview">
-                                                <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
+                                                <i class="ri-calendar-todo-fill align-bottom me-1"></i>
                                                 No Show
                                             </button>
                                         @endif
                                     @endif
                                 </div>
-                                
+
                                 <!-- New row for the alert -->
                                 <div class="row mb-4">
                                     <div class="col-12">
@@ -852,9 +878,17 @@
                                                         'No Show' => [
                                                             'class' => 'danger',
                                                             'icon' => 'ri-user-unfollow-fill'
+                                                        ],
+                                                        'Appointed' => [
+                                                            'class' => 'success',
+                                                            'icon' => 'ri-open-arm-fill'
+                                                        ],
+                                                        'Regretted' => [
+                                                            'class' => 'danger',
+                                                            'icon' => 'ri-user-unfollow-fill'
                                                         ]
                                                     ];
-                                                
+
                                                     // Get the status of the interview
                                                     $status = $applicant->interviews[0]->status;
 
@@ -868,12 +902,12 @@
                                                         $rescheduledDate = \Carbon\Carbon::parse($applicant->interviews[0]->reschedule_date)->format('d M \a\\t H:i');
                                                     }
                                                 @endphp
-                                                
+
                                                 <div class="alert alert-{{ $statusColor }} alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert" data-status-color="{{ $statusColor }}" data-status-icon="{{ $statusIcon }}">
                                                     <i class="{{ $statusIcon }} label-icon"></i>
-                                                    <strong>{{ $status }}:</strong> 
+                                                    <strong>{{ $status }}:</strong>
                                                     {{ $applicant->interviews[0]->scheduled_date->format('d M') }} at {{ $applicant->interviews[0]->start_time->format('H:i') }}
-                                                    
+
                                                     @if ($rescheduledDate)
                                                         <br>
                                                         <strong>Suggested:</strong> {{ $rescheduledDate }}
@@ -885,13 +919,12 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-xxl-12 mb-4">
-                                        <strong>Welcome to Shoprite</strong>, where precision in talent acquisition meets innovative assessment. As a manager, your discernment is critical in shaping the future of our team. We are committed to providing you with an intuitive and robust platform to evaluate applicants seamlessly. Our structured rating system is designed to capture the nuanced performance of candidates, ensuring that your hiring decisions are informed, fair, and aligned with our organizational benchmarks.
+                                        <strong>As a Manager</strong>, your judgment is critical in appointing best-fit candidates to join our team. 
+                                        Please see below interview questions to be asked to each candidate coming in for an in-person interview.
                                         <br><br>
-                                        Each question below is an opportunity to gauge the candidate's potential fit within our corporate ecosystem. We rely on your expert judgment to rate the candidate's responses on a scale from 1 to 5 stars, with 1 star indicating a need for significant improvement, and 5 stars representing exceptional alignment with the role's requirements and our company values.
-                                        <br><br>
-                                        Please take into account not only the content of the responses but also the candidate's problem-solving abilities, adaptability, collaborative spirit, leadership potential, communication clarity, customer orientation, integrity, time management skills, and overall compatibility with our company culture.
-                                        <br><br>
-                                        We value your insight and look forward to your contributions to our collective success.
+                                        Each question below is an opportunity to determine the candidate's potential fit within our company. We rely on your 
+                                        <strong>expert judgment</strong> to rate the candidate's responses on a scale from 1 to 5 stars, with 1 star indicating a need for 
+                                        <strong>significant improvement</strong>, and 5 stars representing <strong>exceptional alignment</strong> with the role's requirements and our company values.
                                     </div>
                                     <!-- Interview Form Placeholder -->
                                     <div id="interviewFormContainer">
@@ -924,7 +957,7 @@
                                                                         <label class="form-label fs-16" style="width:100%;">
                                                                             <div class="row" style="width:100%;">
                                                                                 <div class="col-sm-1">
-                                                                                    {{ $question->id }}.) 
+                                                                                    {{ $question->id }}.)
                                                                                 </div>
                                                                                 <div class="col-sm-11">
                                                                                     {!! $question->question !!}
@@ -991,7 +1024,7 @@
                                                 @endif
                                             @endif
                                         @endif
-                                    </div>                   
+                                    </div>
                                 </div>
                                 <!--end row-->
                             </div>
@@ -1020,7 +1053,7 @@
 @section('script')
     @if ($authUser->role_id <= 2)
         <script>
-            var literacyScore = {{ $applicant->literacy_score ?? 0 }};            
+            var literacyScore = {{ $applicant->literacy_score ?? 0 }};
             var literacyQuestions = {{ $applicant->literacy_questions ?? 10 }};
             var literacy = "{{ $applicant->literacy  ?? 0/10 }}";
 
@@ -1036,7 +1069,7 @@
         </script>
     @else
         <script>
-            var literacyScore = 0;            
+            var literacyScore = 0;
             var literacyQuestions = 10;
             var literacy = "0/10";
 
@@ -1060,7 +1093,7 @@
     @if ($authUser->role_id <= 2)
         <script src="{{ URL::asset('build/js/pages/applicant-chat.init.js') }}"></script>
     @endif
-    
+
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

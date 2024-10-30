@@ -26,24 +26,24 @@
                 <div class="col-lg-12">
                     <div class="text-center mt-sm-5 mb-4 text-white-50">
                         <div>
-                            <a href="index" class="d-inline-block auth-logo">
-                                <img src="{{ URL::asset('build/images/logo-light.png')}}" alt="" height="20">
+                            <a href="/" class="d-inline-block auth-logo">
+                                <img src="{{ URL::asset('build/images/logo-light.png')}}" alt="" height="30">
                             </a>
                         </div>
-                        <p class="mt-3 fs-15 fw-medium">Where Potential Meets Opportunity</p>
                     </div>
                 </div>
             </div>
             <!-- end row -->
 
             <div class="row justify-content-center">
-                <div class="col-md-8 col-lg-6 col-xl-5">
+                <div class="col-md-8 col-lg-6 col-xl-4">
                     <div class="card mt-4">
 
                         <div class="card-body p-4">
                             <div class="text-center mt-2">
-                                <h5 class="text-primary">Welcome Back !</h5>
-                                <p class="text-muted">Sign in to continue to Orient.</p>
+                                <h5 class="text-shoprite-secondary">
+                                    Welcome Back!
+                                </h5>
                             </div>
                             <div class="p-2 mt-4">
                                 <form action="{{ route('login') }}" method="POST">
@@ -82,7 +82,7 @@
                                     </div>
 
                                     <div class="mt-4">
-                                        <button class="btn btn-success w-100" type="submit">Sign In</button>
+                                        <button class="btn btn-shoprite-primary w-100" type="submit">Sign In</button>
                                     </div>
                                 </form>
 
@@ -105,7 +105,12 @@
                     <!-- end card -->
 
                     <div class="mt-4 text-center">
-                        <p class="mb-0">Don't have an account ? <a href="register" class="fw-semibold text-primary text-decoration-underline"> Signup </a> </p>
+                        <p class="mb-0">
+                            Don't have an account?
+                            <a href="register" class="fw-semibold text-primary text-decoration-underline">
+                                Sign Up
+                            </a>
+                        </p>
                     </div>
 
                 </div>
@@ -125,7 +130,7 @@
                         <p class="mb-0 text-muted">
                             &copy; 
                             <script>document.write(new Date().getFullYear())</script> 
-                            Orient. Crafted by OTB Group
+                            Shoprite - Job Opportunities. Crafted by OTB Group
                         </p>
                     </div>
                 </div>

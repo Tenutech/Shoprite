@@ -23,11 +23,10 @@
                 <div class="col-lg-12">
                     <div class="text-center mt-sm-5 mb-4 text-white-50">
                         <div>
-                            <a href="index" class="d-inline-block auth-logo">
-                                <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="20">
+                            <a href="/" class="d-inline-block auth-logo">
+                                <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="30">
                             </a>
                         </div>
-                        <p class="mt-3 fs-15 fw-medium">Where Potential Meets Opportunity</p>
                     </div>
                 </div>
             </div>
@@ -42,7 +41,7 @@
                                 <h5>Please verify your email</h5>
                                 <p class="text-muted">
                                     Please validate your email address in order to get started using
-                                    <span class="fw-semibold">Orient</span>.
+                                    <span class="fw-semibold">Shoprite - Job Opportunities</span>.
                                 </p>
                                 <form method="POST" action="{{ route('verification.resend') }}">
                                     @csrf
@@ -87,7 +86,7 @@
                     <div class="text-center">
                         <script>
                             document.write(new Date().getFullYear())
-                        </script> Orient. Crafted by OTB Group</p>
+                        </script> Shoprite - Job Opportunities. Crafted by OTB Group</p>
                     </div>
                 </div>
             </div>

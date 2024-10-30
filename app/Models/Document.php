@@ -14,16 +14,23 @@ class Document extends Model
 
     protected $fillable = [
         'user_id',
+        'applicant_id',
         'name',
         'type',
         'size',
         'url',
     ];
 
-    //Posistion
+    //User
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    //Applicant
+    public function applicant()
+    {
+        return $this->belongsTo(Applicant::class);
     }
 
     /**

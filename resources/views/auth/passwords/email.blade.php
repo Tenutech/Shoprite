@@ -24,12 +24,10 @@
                     <div class="col-lg-12">
                         <div class="text-center mt-sm-5 mb-4 text-white-50">
                             <div>
-                                <a href="index" class="d-inline-block auth-logo">
-                                    <img src="{{ URL::asset('build/images/logo-light.png') }}" alt=""
-                                        height="20">
+                                <a href="/" class="d-inline-block auth-logo">
+                                    <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="" height="30">
                                 </a>
                             </div>
-                            <p class="mt-3 fs-15 fw-medium">Where Potential Meets Opportunity</p>
                         </div>
                     </div>
                 </div>
@@ -42,7 +40,7 @@
                             <div class="card-body p-4">
                                 <div class="text-center mt-2">
                                     <h5 class="text-primary">Forgot Password?</h5>
-                                    <p class="text-muted">Reset password with Orient</p>
+                                    <p class="text-muted">Reset password with Shoprite Job Opportunities</p>
 
                                     <lord-icon src="https://cdn.lordicon.com/rhvddzym.json" trigger="loop"
                                         colors="primary:#0ab39c" class="avatar-xl">
@@ -108,7 +106,7 @@
                         <div class="text-center">
                             <script>
                                 document.write(new Date().getFullYear())
-                            </script> Orient. Crafted with OTB Group</p>
+                            </script> Shoprite - Job Opportunities. Crafted with OTB Group</p>
                         </div>
                     </div>
                 </div>

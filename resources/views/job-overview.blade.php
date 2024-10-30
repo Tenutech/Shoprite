@@ -341,38 +341,6 @@
                         {{ optional($vacancy->store)->name ?: 'N/A' }}
                     </p>
                 </div>
-
-                <div class="table-responsive">
-                    <table class="table mb-0">
-                        <tbody>
-                            <tr>
-                                <td class="fw-semibold">
-                                    Industry Type
-                                </td>
-                                <td>
-                                    Retail
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">
-                                    Phone
-                                </td>
-                                <td>
-                                    0800 01 07 09
-                                </td>
-                            </tr>
-                            <tr>
-                                <td class="fw-semibold">
-                                    Email
-                                </td>
-                                <td>
-                                    help@shoprite.co.za
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <!--end table-->
-                </div>
             </div>
         </div>
         <!--end card-->
@@ -409,15 +377,15 @@
             <div class="modal-body p-5 text-center">
                 <lord-icon src="https://cdn.lordicon.com/zpxybbhl.json" trigger="loop" colors="primary:#405189,secondary:#f06548" style="width:120px;height:120px"></lord-icon>
                 <div class="mt-4 text-center">
-                    <h4 class="fs-semibold">You are about to apply for this vacancy !</h4>
-                    <p class="text-muted fs-14 mb-4 pt-1">Send application request ?</p>
+                    <h4 class="fs-semibold">You are about to apply for this vacancy!</h4>
+                    <p class="text-muted fs-14 mb-4 pt-1">Send application request?</p>
                     <div class="hstack gap-2 justify-content-center remove">
                         <button class="btn btn-danger" data-bs-dismiss="modal" id="apply-close">
                             <i class="ri-close-line me-1 align-middle"></i>
                             Cancel
                         </button>
                         <button class="btn btn-primary vacancy-apply" id="apply" data-bs-id="">
-                            Send Request !
+                            Send Request!
                         </button>
                         <div class="spinner-border text-primary d-none" role="status" id="loading-apply">
                             <span class="sr-only">Loading...</span>

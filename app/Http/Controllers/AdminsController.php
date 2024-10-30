@@ -9,6 +9,9 @@ use App\Models\Gender;
 use App\Models\Company;
 use App\Models\Position;
 use App\Models\Store;
+use App\Models\Division;
+use App\Models\Region;
+use App\Models\Brand;
 use App\Jobs\ProcessUserIdNumber;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -53,21 +56,12 @@ class AdminsController extends Controller
             $users = User::with([
                 'role',
                 'status',
-                'company',
-                'position',
                 'gender',
                 'store',
-                'applicant',
-                'amendments',
-                'state',
-                'vacancies',
-                'appliedVacancies',
-                'savedVacancies',
-                'savedApplicants',
                 'files',
-                'messagesFrom',
-                'messagesTo',
-                'notifications'
+                'division',
+                'region',
+                'brand'
             ])
             ->where('role_id', 2)
             ->orderby('firstname')
@@ -76,12 +70,6 @@ class AdminsController extends Controller
 
             //Genders
             $genders = Gender::all();
-
-            //Companies
-            $companies = Company::all();
-
-            //Positions
-            $positions = Position::all();
 
             //Stores
             $stores = Store::with([
@@ -94,13 +82,23 @@ class AdminsController extends Controller
                          ->orderby('name')
                          ->get();
 
+            //Divisions
+            $divisions = Division::all();
+
+            //Regions
+            $regions = Region::all();
+
+            //Brands
+            $brands = Brand::all();
+
             return view('admin/admins', [
                 'users' => $users,
                 'genders' => $genders,
-                'companies' => $companies,
-                'positions' => $positions,
                 'stores' => $stores,
-                'roles' => $roles
+                'roles' => $roles,
+                'divisions' => $divisions,
+                'regions' => $regions,
+                'brands' => $brands
             ]);
         }
         return view('404');
@@ -126,11 +124,11 @@ class AdminsController extends Controller
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
             'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
-            'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
-            'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
             'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
-            'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
+            'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
+            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id']
         ]);
 
         try {
@@ -154,16 +152,16 @@ class AdminsController extends Controller
                 'phone' => $request->phone,
                 'id_number' => $request->id_number,
                 'id_verified' => $request->id_verified,
-                'password' => Hash::make("F4!pT9@gL2#dR0wZ"),
+                'password' => Hash::make("Shoprite1!"),
                 'avatar' => $avatarName,
                 'birth_date' => date('Y-m-d', strtotime($request->birth_date)),
                 'age' => $request->age,
                 'gender_id' => $request->gender_id,
-                'resident' => $request->resident,
-                'position_id' => $request->position_id,
                 'role_id' => $request->role_id,
                 'store_id' => $request->store_id,
-                'internal' => $request->internal,
+                'division_id' => $request->division_id,
+                'region_id' => $request->region_id,
+                'brand_id' => $request->brand_id,
                 'status_id' => 2,
             ]);
 
@@ -205,10 +203,11 @@ class AdminsController extends Controller
             $user = User::with([
                 'role',
                 'status',
-                'company',
-                'position',
                 'gender',
                 'store',
+                'region',
+                'division',
+                'brand',
             ])->findOrFail($userID);
 
             return response()->json([
@@ -245,11 +244,11 @@ class AdminsController extends Controller
             'birth_date' => ['sometimes', 'nullable', 'date'],
             'age' => ['sometimes', 'nullable', 'integer', 'min:16', 'max:100'],
             'gender_id' => ['sometimes', 'nullable', 'integer', 'exists:genders,id'],
-            'resident' => ['sometimes', 'nullable', 'integer', 'in:0,1'],
-            'position_id' => ['sometimes', 'nullable', 'integer', 'exists:positions,id'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
             'store_id' => ['sometimes', 'nullable', 'integer', 'exists:stores,id'],
-            'internal' => ['sometimes', 'nullable', 'integer', 'in:0,1']
+            'division_id' => ['sometimes', 'nullable', 'integer', 'exists:divisions,id'],
+            'region_id' => ['sometimes', 'nullable', 'integer', 'exists:regions,id'],
+            'brand_id' => ['sometimes', 'nullable', 'integer', 'exists:brands,id']
         ]);
 
         try {
@@ -278,10 +277,6 @@ class AdminsController extends Controller
 
             DB::beginTransaction();
 
-            // Check if the company exists or create a new one
-            $inputCompanyName = strtolower($request->company);
-            $company = Company::whereRaw('LOWER(name) = ?', [$inputCompanyName])->first();
-
             //User Update
             $user->firstname = ucwords($request->firstname);
             $user->lastname = ucwords($request->lastname);
@@ -293,11 +288,11 @@ class AdminsController extends Controller
             $user->birth_date = date('Y-m-d', strtotime($request->birth_date));
             $user->age = $request->age;
             $user->gender_id = $request->gender_id;
-            $user->resident = $request->resident;
-            $user->position_id = $request->position_id;
             $user->role_id = $request->role_id;
             $user->store_id = $request->store_id;
-            $user->internal = $request->internal;
+            $user->division_id = $request->division_id;
+            $user->region_id = $request->region_id;
+            $user->brand_id = $request->brand_id;
             $user->save();
 
             DB::commit();

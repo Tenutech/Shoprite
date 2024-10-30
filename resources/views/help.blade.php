@@ -18,12 +18,16 @@
                     <div class="row">
                         <div class="col-xxl-5 align-self-center">
                             <div class="py-4">
-                                <h4 class="display-6 coming-soon-text">Frequently asked questions</h4>
-                                <p class="text-success fs-16 mt-3">If you can not find answer to your question in our FAQ, you can always contact us or email us. We will answer you shortly!</p>
+                                <h4 class="display-6 coming-soon-text">
+                                    Frequently asked questions
+                                </h4>
+                                <p class="text-success fs-16 mt-3">
+                                    If you can not find answer to your question in our FAQ, you can always submit a query. We will respond ASAP!
+                                </p>
                                 <div class="hstack flex-wrap gap-2">
                                     <button type="button" class="btn btn-primary btn-label rounded-pill" data-bs-toggle="modal" data-bs-target="#queryModal">
-                                        <i class="ri-mail-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                                        Send a Query
+                                        <i class="ri-login-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                        Submit a Query
                                     </button>
                                 </div>
                             </div>

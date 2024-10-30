@@ -83,7 +83,7 @@
                 @endforeach
             </select>
             <div class="invalid-feedback">Please select a vacancy</div>
-        </div>                                                       
+        </div>
     </div>
 
     <div class="col-md-6">
@@ -93,7 +93,7 @@
             </label>
             <input type="number" class="form-control" id="number" name="number" placeholder="Enter number of applicants" value="{{ ($vacancyID && $shortlistedApplicants) ? count($shortlistedApplicants) : $minShortlistNumber }}" min="{{ $minShortlistNumber }}" max="{{ $maxShortlistNumber }}" required />
             <div class="invalid-feedback">
-                Please enter a number above {{ $minShortlistNumber }} and below {{ $maxShortlistNumber}}
+                Please enter a number above {{ $minShortlistNumber - 1 }} and below {{ $maxShortlistNumber + 1}}
             </div>
             <div class="text-muted">
                 Please select a minimum of {{ $minShortlistNumber }} and a maximum of {{ $maxShortlistNumber}} appliacnts.
@@ -114,7 +114,7 @@
                     <option value="4">Saved Applicants</option>
             </select>
             <div class="invalid-feedback">Please select shortlist type</div>
-        </div>                                                       
+        </div>
     </div>
 
     <div class="col-md-6 d-none">
@@ -131,7 +131,7 @@
                 @endforeach
             </select>
             <div class="invalid-feedback">Please select a applicant type</div>
-        </div>                                                       
+        </div>
     </div>
 
     @if($vacancyID && $vacancy)
@@ -160,13 +160,13 @@
         <div class="card mb-0">
             <div class="card-body">
                 <button type="button" class="btn btn-light btn-label rounded-pill d-none" data-bs-toggle="modal" data-bs-target="#mapModal">
-                    <i class="ri-map-pin-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                    <i class="ri-map-pin-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                     Location
                 </button>
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill d-none" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-building-2-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-building-2-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Town
                     </button>
                     <div class="dropdown-menu p-2">
@@ -180,7 +180,7 @@
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-men-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-men-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Gender
                     </button>
                     <ul class="dropdown-menu">
@@ -194,7 +194,7 @@
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-user-3-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-user-3-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Race
                     </button>
                     <ul class="dropdown-menu">
@@ -207,18 +207,18 @@
                 </div>
 
                 <button type="button" class="btn btn-light btn-label rounded-pill filter-button d-none" data-bs-filter="citizen;Yes">
-                    <i class="ri-shield-user-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                    <i class="ri-shield-user-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                     Citizen
                 </button>
 
                 <button type="button" class="btn btn-light btn-label rounded-pill filter-button d-none" data-bs-filter="foreign_national;Yes">
-                    <i class="ri-map-pin-user-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                    <i class="ri-map-pin-user-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                     Foreign National
                 </button>
 
                 <div class="btn-group d-none" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-briefcase-4-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-briefcase-4-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Position
                     </button>
                     <ul class="dropdown-menu">
@@ -232,7 +232,7 @@
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-book-read-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-book-read-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Qualifications
                     </button>
                     <ul class="dropdown-menu">
@@ -246,7 +246,7 @@
 
                 <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <i class="ri-book-read-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="ri-book-read-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Experience
                     </button>
                     <ul class="dropdown-menu">
@@ -259,7 +259,7 @@
                 </div>
 
                 <button type="button" class="btn btn-light btn-label rounded-pill filter-button" data-bs-filter="disability;Yes">
-                    <i class="ri-wheelchair-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                    <i class="ri-wheelchair-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                     Disability
                 </button>
 
@@ -282,9 +282,9 @@
         </label>
         <div class="card mb-0">
             <div class="card-body">
-                @foreach ($checks as $check)  
+                @foreach ($checks as $check)
                     <button type="button" class="btn btn-light btn-label rounded-pill check-button" data-bs-check="{{ $check->name }};{{ $check->id }}">
-                        <i class="{{ $check->icon }} label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                        <i class="{{ $check->icon }} label-icon align-middle rounded-pill fs-16 me-2"></i>
                         {{ $check->name }}
                     </button>
                 @endforeach
@@ -309,7 +309,7 @@
                     <div class="d-grid gap-2">
                         <button class="btn btn-success" type="button" id="{{ $vacancyID && optional($vacancy)->open_positions == 0 ? 'vacancyFilled-btn' : 'generate-btn' }}">
                             {{ $vacancyID && optional($vacancy)->open_positions == 0 ? 'Vacancy Filled!' : 'Generate Shortlist' }}
-                        </button>                        
+                        </button>
                     </div>
                 </div>
             </div><!-- end card-body -->
@@ -342,7 +342,7 @@
             <div class="col-md-3">
                 <h5 class="mb-0">
                     Shortlisted Applicants
-                </h5>                
+                </h5>
             </div>
             <!--end col-->
             @if ($vacancyID && optional($vacancy)->open_positions > 0)
@@ -350,13 +350,13 @@
                     <div class="d-flex hstack gap-2 flex-wrap">
                         <!-- Interview Button with Tooltip -->
                         <button class="btn btn-secondary" id="interviewBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Schedule interview with selected applicants">
-                            <i class="ri-calendar-todo-fill align-bottom me-1"></i> 
+                            <i class="ri-calendar-todo-fill align-bottom me-1"></i>
                             Interview
                         </button>
-                    
+
                         <!-- Fill Vacancy Button with Tooltip -->
                         <button class="btn btn-success" id="vacancyBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Appoint selected applicants">
-                            <i class="ri-open-arm-fill align-bottom me-1"></i> 
+                            <i class="ri-open-arm-fill align-bottom me-1"></i>
                             Fill Vacancy
                         </button>
 
@@ -364,7 +364,7 @@
                         <button class="btn btn-info" id="refreshBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh page" onclick="location.reload();">
                             <i class="ri-refresh-line align-bottom"></i>
                         </button>
-                    </div>                
+                    </div>
                 </div>
                 <!--end col-->
             @endif
@@ -393,7 +393,7 @@
 
 <div class="row g-0 justify-content-end mb-4" id="pagination-element">
     <!-- end col -->
-    <div class="col-sm-6">
+    <div class="col-sm-6" id="pagination">
         <div class="pagination-block pagination pagination-separated justify-content-center justify-content-sm-end mb-sm-0">
             <div class="page-item">
                 <a href="javascript:void(0);" class="page-link" id="page-prev">Previous</a>
@@ -431,7 +431,7 @@
             </div>
             <div class="modal-footer">
                 <a href="javascript:void(0);" class="btn btn-link link-light fw-medium" data-bs-dismiss="modal">
-                    <i class="ri-close-line me-1 align-middle"></i> 
+                    <i class="ri-close-line me-1 align-middle"></i>
                     Close
                 </a>
             </div>
@@ -499,7 +499,7 @@
                                             <div class="invalid-feedback">
                                                 Please select a end time
                                             </div>
-                                        </div>                                        
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -543,8 +543,8 @@
             <div class="modal-body p-5 text-center">
                 <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" style="width:120px;height:120px"></lord-icon>
                 <div class="mt-4 text-center">
-                    <h4 class="fs-semibold">You are about to appoint these applicants !</h4>
-                    <p class="text-muted fs-14 mb-4 pt-1">Send appointment confirmation ?</p>
+                    <h4 class="fs-semibold">You are about to appoint these applicants!</h4>
+                    <p class="text-muted fs-14 mb-4 pt-1">Send appointment confirmation?</p>
                     <form id="formVacancy" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="mb-3" id="applicantsVacancyDiv">
@@ -611,13 +611,13 @@
                                 Cancel
                             </button>
                             <button type="submit" class="btn btn-primary vacancy-fill" id="vacancy-fill">
-                                Fill Vacancy !
+                                Fill Vacancy!
                             </button>
                             <div class="spinner-border text-primary d-none" role="status" id="loading-vacancy">
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div>
-                    </form>                    
+                    </form>
                 </div>
             </div>
         </div>
@@ -638,7 +638,6 @@
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/nouislider/nouislider.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/wnumb/wNumb.min.js') }}"></script>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.googlemaps.key') }}&callback=initMap"></script>
 <!-- job-candidate-grid js -->
 <script src="{{ URL::asset('build/js/pages/shortlist.init.js') }}?v={{ filemtime(public_path('build/js/pages/shortlist.init.js')) }}"></script>
 <script src="{{ URL::asset('build/js/pages/applicant-save.init.js') }}"></script>

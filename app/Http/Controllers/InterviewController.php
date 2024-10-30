@@ -70,7 +70,7 @@ class InterviewController extends Controller
                 return $query->where('interviewer_id', $userID);
             })
             ->orderBy('scheduled_date', 'desc')
-            ->orderBy('updated_at', 'desc') 
+            ->orderBy('updated_at', 'desc')
             ->get();
 
             return view('interviews', [
@@ -179,7 +179,7 @@ class InterviewController extends Controller
             ]);
         } catch (\Exception $e) {
             // An error occurred; cancel the transaction
-            DB::rollBack();  
+            DB::rollBack();
 
             // Return an error response
             return response()->json([
@@ -254,23 +254,23 @@ class InterviewController extends Controller
                 // Update the applicant's state
                 $applicant->update(['state_id' => $scheduledStateId]);
             }
-    
+
             // Prepare a WhatsApp message
             $whatsappMessage = "You have a request to reschedule your interview to " .
                 Carbon::parse($existingInterview->reschedule_date)->format('d M Y \a\t H:i') .
                 ". Would you like to view the details?";
-    
+
             // Define the message type and template
             $type = 'template';
-            $template = 'interview_reschedule_view';
-    
+            $template = 'interview_reschedule_view_2';
+
             // Prepare the variables for the WhatsApp template
             $variables = [
                 $applicant->firstname ?: 'N/A',  // Applicant's first name
                 Carbon::parse($existingInterview->reschedule_date)->format('d M Y') ?: 'N/A', // Rescheduled date
                 Carbon::parse($existingInterview->reschedule_date)->format('H:i') ?: 'N/A', // Rescheduled time
             ];
-    
+
             // Dispatch WhatsApp message
             SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
 
@@ -316,7 +316,7 @@ class InterviewController extends Controller
 
             // Define the message type and template
             $type = 'template';
-            $template = 'interview_view';
+            $template = 'interview_send';
 
             // Prepare the variables for the WhatsApp template
             $variables = [
@@ -419,7 +419,7 @@ class InterviewController extends Controller
                 $type = 'template';
 
                 // Define the template for a confirmed interview
-                $template = 'interview_confirmed';
+                $template = 'interview_confirmed_2';
 
                 // Prepare the variables (these values will be injected into the template)
                 $variables = [
@@ -436,7 +436,7 @@ class InterviewController extends Controller
                 // Dispatch a job to send the WhatsApp message
                 SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
             // Additional check if the interview exists, the user is the applicant, and the status is 'Reschedule'.
-            } else if ($interview && $interview->applicant_id == $user->applicant_id && $interview->status == 'Reschedule'  && $interview->reschedule_by == 'Manager') {
+            } elseif ($interview && $interview->applicant_id == $user->applicant_id && $interview->status == 'Reschedule'  && $interview->reschedule_by == 'Manager') {
                 // Parse the reschedule_date
                 $rescheduleDateTime = new \Carbon\Carbon($interview->reschedule_date);
 
@@ -470,7 +470,7 @@ class InterviewController extends Controller
                     $notification->save();
                 }
             // Additional check if the current user is the applicant, and confirm the interview in that case
-            } else if ($interview && $interview->applicant_id == $user->applicant_id && $interview->status == 'Manager') {
+            } elseif ($interview && $interview->applicant_id == $user->applicant_id && $interview->status == 'Manager') {
                 //Interview Update
                 $interview->update([
                     'status' => 'Confirmed'
@@ -719,14 +719,14 @@ class InterviewController extends Controller
 
                 // Prepare a WhatsApp message
                 $whatsappMessage = "You have a request to reschedule your interview to " .
-                    $interview->reschedule_date->format('d M Y \a\t H:i') . 
+                    $interview->reschedule_date->format('d M Y \a\t H:i') .
                     ". Would you like to view the details?";
 
                 // Define the message type
                 $type = 'template';
 
                 // Define the template for a confirmed interview
-                $template = 'interview_reschedule_view';
+                $template = 'interview_reschedule_view_2';
 
                 // Prepare the variables for the WhatsApp template
                 $variables = [
@@ -949,7 +949,7 @@ class InterviewController extends Controller
                 $type = 'template';
 
                 // Define the template
-                $template = 'interview_cancel';
+                $template = 'interview_cancel_2';
 
                 // Prepare the variables (you can define these as per your needs)
                 $variables = [
@@ -959,16 +959,16 @@ class InterviewController extends Controller
                     optional($vacancy->store->town)->name ?: 'N/A',  // If $vacancy->store->town or its name is null, use 'N/A'
                     optional($interview->scheduled_date)->format('d M Y') ?: 'N/A', // Interview date
                     optional($interview->start_time)->format('H:i') ?: 'N/A' // Interview start time
-                ];                  
+                ];
 
                 // Dispatch a job to send the WhatsApp message
                 SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
 
-            return response()->json([
+                return response()->json([
                 'success' => true,
                 'interview' => $interview,
                 'message' => 'Interview cancelled!',
-            ], 201);
+                ], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Handle validation failure
             return response()->json([
@@ -1056,6 +1056,32 @@ class InterviewController extends Controller
                     $notification->save();
                 }
             }
+
+            // Prepare a congratulatory WhatsApp message for the applicant
+            $whatsappMessage = "Dear " . $applicant->firstname ?: 'N/A' . ", thank you for your interest in the " .
+                optional($vacancy->position)->name ?: 'N/A' . " position at " .
+                optional($vacancy->store->brand)->name ?: 'N/A' . " (" .
+                optional($vacancy->store->town)->name ?: 'N/A' . "). We truly appreciate the time and effort you invested in your application.
+                After careful consideration, we regret to inform you that we have selected another candidate for this role. Please know that this 
+                decision does not diminish the value of your skills and experience.
+                We encourage you to apply for future opportunities with us, and we wish you all the best in your job search and career journey.";
+
+            // Define the message type
+            $type = 'template';
+
+            // Define the template
+            $template = 'regretted_2';
+
+            // Prepare the variables (you can define these as per your needs)
+            $variables = [
+                $applicant->firstname ?: 'N/A',  // If $applicant->firstname is null, use 'N/A'
+                optional($vacancy->position)->name ?: 'N/A',  // If $vacancy->position or its name is null, use 'N/A'
+                optional($vacancy->store->brand)->name ?: 'N/A',  // If $vacancy->store->brand or its name is null, use 'N/A'
+                optional($vacancy->store->town)->name ?: 'N/A'  // If $vacancy->store->town or its name is null, use 'N/A'
+            ];
+
+            // Dispatch a job to send the WhatsApp message
+            SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
 
             return response()->json([
                 'success' => true,

@@ -15,7 +15,12 @@ class Chat extends Model
     protected $fillable = [
         'applicant_id',
         'message',
-        'type_id'
+        'type_id',
+        'message_id',
+        'status',
+        'code',
+        'reason',
+        'template'
     ];
 
     //User
