@@ -184,12 +184,18 @@ class ProfileSettingsController extends Controller
         $request->validate($validationRules);
 
         try {
-             // Avatar
+            // Avatar
             if ($request->hasFile('avatar')) {
                 $avatar = $request->file('avatar');
 
-                // Open and re-encode the image with Intervention
-                $image = Image::make($avatar->getPathname());
+                // Verify MIME type server-side
+                $mimeType = mime_content_type($avatar->getPathname());
+                if (!in_array($mimeType, ['image/jpeg', 'image/png'])) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Invalid image file type!',
+                    ], 400);
+                }
 
                 // Validate file signature
                 if (!$this->isValidImage($avatar->getPathname())) {
@@ -198,6 +204,9 @@ class ProfileSettingsController extends Controller
                         'message' => 'Invalid image file!'
                     ], 400);
                 }
+
+                // Open and re-encode the image with Intervention
+                $image = Image::make($avatar->getPathname())->encode('jpg');
 
                 // Delete old avatar if not default
                 if ($user->avatar && $user->avatar !== 'avatar.jpg') {
