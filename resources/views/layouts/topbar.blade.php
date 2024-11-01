@@ -323,27 +323,13 @@
                                                                     <div class="d-flex flex-wrap gap-2 mt-3">
                                                                         <div class="btn-container">
                                                                             @if ($notification->subject->status == "Scheduled")
-                                                                                <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-success waves-effect waves-light interviewConfirm">
-                                                                                    Confirm
-                                                                                </button>
-                                                                                <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-danger waves-effect waves-light interviewDecline">
-                                                                                    Decline
-                                                                                </button>
-                                                                                <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-info waves-effect waves-light mt-2 interviewReschedule">
-                                                                                    Reschedule
-                                                                                </button>
+                                                                                <span class="text-warning">Scheduled!</span>  
                                                                             @elseif ($notification->subject->status == "Confirmed")
-                                                                                <span class="text-success">Confirmed!</span>
-                                                                                <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-danger waves-effect waves-light interviewDecline">
-                                                                                    Decline
-                                                                                </button>
+                                                                                <span class="text-success">Confirmed!</span>                                                                                
                                                                             @elseif ($notification->subject->status == "Declined")
                                                                                 <span class="text-danger">Declined!</span>
                                                                             @elseif ($notification->subject->status == "Reschedule")
-                                                                                <span class="text-info">Reschedule for {{ !empty($notification->subject->reschedule_date) ? \Carbon\Carbon::parse($notification->subject->reschedule_date)->format('d M H:i') : 'N/A' }}</span><br>
-                                                                                <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-danger waves-effect waves-light mt-2 interviewDecline">
-                                                                                    Decline
-                                                                                </button>
+                                                                                <span class="text-info">Reschedule for {{ !empty($notification->subject->reschedule_date) ? \Carbon\Carbon::parse($notification->subject->reschedule_date)->format('d M H:i') : 'N/A' }}</span><br>                                                                                
                                                                             @elseif ($notification->subject->status == "Completed")
                                                                                 <span class="text-success">Completed!</span>
                                                                             @elseif ($notification->subject->status == "Canceled")
@@ -405,12 +391,7 @@
                                                                     <div class="d-flex flex-wrap gap-2 mt-3">
                                                                         <div class="btn-container">
                                                                             @if ($notification->subject->status == "Scheduled")
-                                                                                <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-success waves-effect waves-light interviewConfirm">
-                                                                                    Confirm
-                                                                                </button>
-                                                                                <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-danger waves-effect waves-light interviewDecline">
-                                                                                    Decline
-                                                                                </button>
+                                                                                <span class="text-warning">Scheduled!</span> 
                                                                             @elseif ($notification->subject->status == "Confirmed")
                                                                                 <span class="text-success">Confirmed!</span>
                                                                             @elseif ($notification->subject->status == "Declined")
@@ -478,12 +459,7 @@
                                                                     <div class="d-flex flex-wrap gap-2 mt-3">
                                                                         <div class="btn-container">
                                                                             @if ($notification->subject->status == "Scheduled")
-                                                                                <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-success waves-effect waves-light interviewConfirm">
-                                                                                    Confirm
-                                                                                </button>
-                                                                                <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-danger waves-effect waves-light interviewDecline">
-                                                                                    Decline
-                                                                                </button>
+                                                                                <span class="text-warning">Scheduled!</span> 
                                                                             @elseif ($notification->subject->status == "Confirmed")
                                                                                 <span class="text-success">Confirmed!</span>
                                                                             @elseif ($notification->subject->status == "Declined")
@@ -551,12 +527,7 @@
                                                                     <div class="d-flex flex-wrap gap-2 mt-3">
                                                                         <div class="btn-container">
                                                                             @if ($notification->subject->status == "Scheduled")
-                                                                                <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-success waves-effect waves-light interviewConfirm">
-                                                                                    Confirm
-                                                                                </button>
-                                                                                <button type="button" data-bs-interview="{{ Crypt::encryptString(optional($notification->subject)->id) }}" class="btn btn-sm rounded-pill btn-danger waves-effect waves-light interviewDecline">
-                                                                                    Decline
-                                                                                </button>
+                                                                                <span class="text-warning">Scheduled!</span> 
                                                                             @elseif ($notification->subject->status == "Confirmed")
                                                                                 <span class="text-success">Confirmed!</span>
                                                                             @elseif ($notification->subject->status == "Declined")
