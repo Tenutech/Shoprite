@@ -112,6 +112,11 @@ class VacancyController extends Controller
                 $storeBrandIds = Store::where('region_id', $user->region_id)
                     ->pluck('brand_id'); // Get the brand_ids of all stores in the user's region
 
+                // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
+                if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
+                    $storeBrandIds->push(2);
+                }
+
                 // Now get all positions where brand_id is in the store's brand_ids
                 $positions = Position::whereIn('brand_id', $storeBrandIds)
                     ->get();
@@ -120,15 +125,24 @@ class VacancyController extends Controller
                 $storeBrandIds = Store::where('division_id', $user->division_id)
                     ->pluck('brand_id'); // Get the brand_ids of all stores in the user's division
 
+                // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
+                if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
+                    $storeBrandIds->push(2);
+                }
+
                 // Now get all positions where brand_id is in the store's brand_ids
                 $positions = Position::whereIn('brand_id', $storeBrandIds)
                     ->get();
             } elseif ($user->role_id == 6) {
                 // If role_id is 6, check if the user has a brand_id
                 if ($user->brand_id) {
-                    // Get positions where brand_id matches the user's brand_id
-                    $positions = Position::where('brand_id', $user->brand_id)
-                        ->get();
+                    // If $user->brand_id is 2, 3, or 4, get positions where brand_id is 2
+                    if (in_array($user->brand_id, [2, 3, 4])) {
+                        $positions = Position::where('brand_id', 2)->get();
+                    } else {
+                        // Otherwise, get positions where brand_id matches the user's brand_id
+                        $positions = Position::where('brand_id', $user->brand_id)->get();
+                    }
                 }
             }
 
@@ -560,12 +574,12 @@ class VacancyController extends Controller
 
             // Retrieve the vacancy along with its related data
             $vacancy = Vacancy::with([
-                    'position',
-                    'store.brand',
-                    'store.town',
-                    'applicants'
-                ])
-                ->find($vacancyId);
+                'position',
+                'store.brand',
+                'store.town',
+                'applicants'
+            ])
+            ->find($vacancyId);
 
             // If the vacancy doesn't exist, return an error response
             if (!$vacancy) {
