@@ -700,16 +700,16 @@
             </div> <!-- end row -->
 
             <!-------------------------------------------------------------------------------------
-                Demograhpic Information
+                Demographic Information
             -------------------------------------------------------------------------------------->
 
             <div class="row g-3">
-                <!-- Talent Pool Demograhpic -->
+                <!-- Talent Pool Demographic -->
                 <div class="col-xl-4 col-md-4">
                     <div class="card card-animate">
                         <div class="card-header">
                             <h4 class="card-title mb-0">
-                                Demograhpic (Talent Pool)
+                                Demographic (Talent Pool)
                             </h4>
                         </div><!-- end card header -->
             
@@ -719,12 +719,12 @@
                     </div><!-- end card -->
                 </div> <!-- end col -->
 
-                <!-- Interviewed Demograhpic -->
+                <!-- Interviewed Demographic -->
                 <div class="col-xl-4 col-md-4">
                     <div class="card card-animate">
                         <div class="card-header">
                             <h4 class="card-title mb-0">
-                                Demograhpic (Interviewed)
+                                Demographic (Interviewed)
                             </h4>
                         </div><!-- end card header -->
             
@@ -734,12 +734,12 @@
                     </div><!-- end card -->
                 </div> <!-- end col -->
 
-                <!-- Appointed Demograhpic -->
+                <!-- Appointed Demographic -->
                 <div class="col-xl-4 col-md-4">
                     <div class="card card-animate">
                         <div class="card-header">
                             <h4 class="card-title mb-0">
-                                Demograhpic (Appointed)
+                                Demographic (Appointed)
                             </h4>
                         </div><!-- end card header -->
             
