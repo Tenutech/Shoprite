@@ -16,12 +16,12 @@ return new class extends Migration
         Schema::create('notification_settings', function (Blueprint $table) {
             $table->integer('id', true);
             $table->unsignedBigInteger('user_id')->nullable()->index('notification_settings_user_id_foreign');
-            $table->boolean('receive_email_notifications')->nullable()->default(true);
+            $table->boolean('receive_email_notifications')->nullable()->default(false);
             $table->boolean('receive_whatsapp_notifications')->nullable()->default(true);
             $table->boolean('notify_application_submitted')->nullable()->default(true);
             $table->boolean('notify_application_status')->nullable()->default(false);
             $table->boolean('notify_shortlisted')->nullable()->default(false);
-            $table->boolean('notify_interview')->nullable()->default(true);
+            $table->boolean('notify_interview')->nullable()->default(false);
             $table->boolean('notify_vacancy_status')->nullable()->default(false);
             $table->boolean('notify_new_application')->nullable()->default(false);
             $table->timestamp('created_at')->nullable()->useCurrent();
