@@ -11,6 +11,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Support\Facades\Log;
+use Lab404\Impersonate\Models\Impersonate;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -18,6 +19,7 @@ class User extends Authenticatable implements MustVerifyEmail
     use HasFactory;
     use Notifiable;
     use LogsActivity;
+    use Impersonate;
 
     /**
      * The attributes that are mass assignable.

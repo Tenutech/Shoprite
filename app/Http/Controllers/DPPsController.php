@@ -57,6 +57,9 @@ class DPPsController extends Controller
     public function index()
     {
         if (view()->exists('admin.dpps')) {
+            // Auth User
+            $authUser = Auth::user();
+
             //Users
             $users = User::with([
                 'role',
@@ -97,6 +100,7 @@ class DPPsController extends Controller
             $brands = Brand::all();
 
             return view('admin/dpps', [
+                'authUser' => $authUser,
                 'users' => $users,
                 'genders' => $genders,
                 'stores' => $stores,

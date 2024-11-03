@@ -52,6 +52,9 @@ class ManagersController extends Controller
     public function index()
     {
         if (view()->exists('admin.managers')) {
+            // Auth User
+            $authUser = Auth::user();
+
             //Users
             $users = User::with([
                 'role',
@@ -92,6 +95,7 @@ class ManagersController extends Controller
             $brands = Brand::all();
 
             return view('admin/managers', [
+                'authUser' => $authUser,
                 'users' => $users,
                 'genders' => $genders,
                 'stores' => $stores,
