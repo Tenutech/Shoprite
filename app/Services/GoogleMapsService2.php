@@ -6,7 +6,7 @@ use Google_Client;
 use Google_Service_MapsEngine;
 use Illuminate\Support\Facades\Log;
 
-class GoogleMapsService
+class GoogleMapsService2
 {
     protected $client;
     protected $apiKey;
