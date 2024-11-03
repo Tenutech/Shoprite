@@ -52,7 +52,10 @@ class UsersController extends Controller
     public function index()
     {
         if (view()->exists('admin.users')) {
-            //Users
+            // Auth User
+            $authUser = Auth::user();
+
+            // Users
             $users = User::with([
                 'role',
                 'status',
@@ -67,27 +70,28 @@ class UsersController extends Controller
             ->orderby('lastname')
             ->get();
 
-            //Genders
+            // Genders
             $genders = Gender::all();
 
-            //Stores
+            // Stores
             $stores = Store::with([
                 'brand',
                 'town'
             ])->get();
 
-            //Roles
+            // Roles
             $roles = Role::where('id', '>', 1)
                          ->orderby('name')
                          ->get();
 
-            //Divisions
+            // Divisions
             $divisions = Division::all();
 
-            //Regions
+            // Regions
             $regions = Region::all();
 
             return view('admin/users', [
+                'authUser' => $authUser,
                 'users' => $users,
                 'genders' => $genders,
                 'stores' => $stores,

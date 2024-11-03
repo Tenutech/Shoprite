@@ -33,6 +33,14 @@
 
             <div class="d-flex align-items-center">
 
+                @if(Auth::user()->isImpersonated())
+                    <div class="ms-1 header-item d-none d-sm-flex">
+                        <a href="{{ route('impersonate.leave', ['role_id' => Auth::user()->role_id]) }}" class="btn btn-danger">
+                            <span class="icon-on">End</span>
+                        </a>
+                    </div>
+                @endif
+
                 <div class="ms-1 header-item d-none d-sm-flex">
                     <button type="button" class="btn btn-icon btn-topbar btn-ghost-secondary rounded-circle" data-toggle="fullscreen">
                         <i class='bx bx-fullscreen fs-22'></i>

@@ -57,6 +57,9 @@ class RPPsController extends Controller
     public function index()
     {
         if (view()->exists('admin.rpps')) {
+            // Auth User
+            $authUser = Auth::user();
+
             //Users
             $users = User::with([
                 'role',
@@ -97,6 +100,7 @@ class RPPsController extends Controller
             $brands = Brand::all();
 
             return view('admin/rpps', [
+                'authUser' => $authUser,
                 'users' => $users,
                 'genders' => $genders,
                 'stores' => $stores,

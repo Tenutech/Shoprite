@@ -169,6 +169,10 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/super-admins/destroy-multiple', [App\Http\Controllers\SuperAdminsController::class, 'destroyMultiple'])->name('super-admins.destroyMultiple');
 
+    //Impersonate
+
+    Route::get('/impersonate/{id}', [App\Http\Controllers\ImpersonateController::class, 'impersonate'])->name('impersonate');
+
     //Email
 
     Route::get('/email', [App\Http\Controllers\EmailController::class, 'index'])->name('email.index');
@@ -887,6 +891,10 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
     Route::put('/notification-read', [App\Http\Controllers\NotificationController::class, 'notificationRead'])->name('notification.read');
 
     Route::put('/notification-remove', [App\Http\Controllers\NotificationController::class, 'notificationRemove'])->name('notification.remove');
+
+    //Stop Impersonating
+
+    Route::get('/impersonate_leave/{role_id?}', [App\Http\Controllers\ImpersonateController::class, 'stopImpersonating'])->name('impersonate.leave');
 });
 
 /*

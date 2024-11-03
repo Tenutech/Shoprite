@@ -155,6 +155,14 @@
                                                                             Password
                                                                         </a>
                                                                     </li>
+                                                                    @if ($authUser->role_id === 1)
+                                                                        <li>
+                                                                            <a class="dropdown-item impersonate-item-btn" href="{{ route('impersonate', Crypt::encrypt($user->id)) }}">
+                                                                                <i class="ri-switch-line align-bottom me-2 text-muted"></i>
+                                                                                Impersonate
+                                                                            </a>
+                                                                        </li>
+                                                                    @endif
                                                                 </ul>
                                                             </div>
                                                         </li>

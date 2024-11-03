@@ -57,6 +57,9 @@ class DTDPsController extends Controller
     public function index()
     {
         if (view()->exists('admin.dtdps')) {
+            // Auth User
+            $authUser = Auth::user();
+
             //Users
             $users = User::with([
                 'role',
@@ -97,6 +100,7 @@ class DTDPsController extends Controller
             $brands = Brand::all();
 
             return view('admin/dtdps', [
+                'authUser' => $authUser,
                 'users' => $users,
                 'genders' => $genders,
                 'stores' => $stores,
