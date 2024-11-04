@@ -198,7 +198,7 @@ class AdminController extends Controller
                 $averageSituationalScoreTalentPoolApplicants = $this->applicantDataService->getAverageSituationalScoreTalentPoolApplicants($type, null, $startDate, $endDate);
 
                 // Step 10: Fetch application channel data from applicantDataService
-                $totalWhatsAppApplicants = $this->applicantDataService->getTotalWhatsAppApplicants ($type, null, $startDate, $endDate);
+                $totalWhatsAppApplicants = $this->applicantDataService->getTotalWhatsAppApplicants($type, null, $startDate, $endDate);
                 $totalWebsiteApplicants = $this->applicantDataService->getTotalWebsiteApplicants($type, null, $startDate, $endDate);
 
                 // Step 11: Fetch the completion rate and drop of state from applicantDataService
@@ -336,7 +336,7 @@ class AdminController extends Controller
             // Step 10: Fetch application channel data
             $totalWhatsAppApplicants = 0;
             $totalWebsiteApplicants = 0;
-            
+
             // Step 11: Fetch the completion rate and drop of state
             $totalApplicants = 0;
             $totalCompletedApplicants = 0;
