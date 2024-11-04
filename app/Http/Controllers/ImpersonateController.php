@@ -54,7 +54,6 @@ class ImpersonateController extends Controller
      */
     public function stopImpersonating($roleId = null)
     {
-        Log::info($roleId);
         // Access the impersonate manager
         $manager = app(ImpersonateManager::class);
 
