@@ -633,7 +633,20 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::delete('/faqs/destroy/{id}', [App\Http\Controllers\FAQsController::class, 'destroy'])->name('faqs.destroy');
 
     Route::post('/faqs/destroy-multiple', [App\Http\Controllers\FAQsController::class, 'destroyMultiple'])->name('faqs.destroyMultiple');
-});
+
+    /*
+    |--------------------------------------------------------------------------
+    | Reports
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get('/reports/applicants', [App\Http\Controllers\Reports\ApplicantsController::class, 'index'])->name('applicants.reports.index');
+
+    Route::get('/reports/stores', [App\Http\Controllers\Reports\StoresController::class, 'index'])->name('stores.reports.index');
+
+    Route::get('/reports/vacancies', [App\Http\Controllers\Reports\VacanciesController::class, 'index'])->name('vacancies.reports.index');
+
+    });
 
 /*
 |--------------------------------------------------------------------------
