@@ -654,7 +654,7 @@ class ShortlistController extends Controller
 
             // Check if the applicant has interviews scheduled for this vacancy
             $interviews = $applicant->interviews()->where('vacancy_id', $vacancyID)
-                ->whereIn('status', ['Schedule', 'Reschedule', 'Confirmed'])
+                ->whereIn('status', ['Scheduled', 'Reschedule', 'Confirmed'])
                 ->exists();
 
             if ($interviews) {
