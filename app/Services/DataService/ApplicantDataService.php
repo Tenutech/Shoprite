@@ -5,6 +5,7 @@ namespace App\Services\DataService;
 use Carbon\Carbon;
 use App\Models\State;
 use App\Models\Vacancy;
+use App\Models\Store;
 use App\Models\Race;
 use App\Models\Town;
 use App\Models\Province;
@@ -99,6 +100,81 @@ class ApplicantDataService
             return round($totalScore / $applicantCount, 2); // Return the average score rounded to 2 decimal places
         } else {
             return 0; // Return 0 if no applicants with a score are found
+        }
+    }
+
+    /**
+     * Calculate the average assessment score (percentage) for all appointed applicants in vacancies filtered by store, division, or region.
+     *
+     * @param string $type The type of filter (e.g., store, division, region).
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering vacancies.
+     * @param \Carbon\Carbon $endDate The end date for filtering vacancies.
+     * @return float The average assessment score percentage of appointed applicants.
+     */
+    public function getAverageAssessmentScoreApplicantsAppointed(string $type, ?int $id, Carbon $startDate, Carbon $endDate): float
+    {
+        // Retrieve vacancies based on the type (store, division, or region) and within the date range
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])
+            ->when($type === 'store', function ($query) use ($id) {
+                return $query->where('store_id', $id);
+            })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('division_id', $id);
+                });
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->where('region_id', $id);
+                });
+            })
+            ->with(['appointed' => function ($query) {
+                // Only load appointed applicants with literacy, numeracy, and situational scores and questions
+                $query->whereNotNull('literacy_score')
+                      ->whereNotNull('literacy_questions')
+                      ->whereNotNull('numeracy_score')
+                      ->whereNotNull('numeracy_questions')
+                      ->whereNotNull('situational_score')
+                      ->whereNotNull('situational_questions');
+            }])
+            ->get();
+
+        $totalAssessmentPercentage = 0;
+        $applicantCount = 0;
+
+        // Loop through each vacancy and its appointed applicants
+        foreach ($vacancies as $vacancy) {
+            foreach ($vacancy->appointed as $applicant) {
+                // Calculate the literacy percentage
+                $literacyPercentage = $applicant->literacy_questions > 0
+                    ? ($applicant->literacy_score / $applicant->literacy_questions) * 100
+                    : 0;
+
+                // Calculate the numeracy percentage
+                $numeracyPercentage = $applicant->numeracy_questions > 0
+                    ? ($applicant->numeracy_score / $applicant->numeracy_questions) * 100
+                    : 0;
+
+                // Calculate the situational percentage
+                $situationalPercentage = $applicant->situational_questions > 0
+                    ? ($applicant->situational_score / $applicant->situational_questions) * 100
+                    : 0;
+
+                // Calculate the average percentage of the three assessments for this applicant
+                $averageApplicantAssessmentPercentage = ($literacyPercentage + $numeracyPercentage + $situationalPercentage) / 3;
+
+                // Sum up the average percentages
+                $totalAssessmentPercentage += $averageApplicantAssessmentPercentage;
+                $applicantCount++;
+            }
+        }
+
+        // Calculate the overall average assessment score percentage
+        if ($applicantCount > 0) {
+            return round($totalAssessmentPercentage / $applicantCount); // Return the average percentage rounded to 2 decimal places
+        } else {
+            return 0; // Return 0 if no applicants with scores are found
         }
     }
 
@@ -348,7 +424,7 @@ class ApplicantDataService
      * @param \Carbon\Carbon $endDate The end date for filtering applicants.
      * @return array An array containing the percentage of applicants for each race.
      */
-    public function getTalentPoolApplicantsDemographic(string $type, ?int $id, Carbon $startDate, Carbon $endDate): array
+    public function getTalentPoolApplicantsDemographic(string $type, ?int $id, Carbon $startDate, Carbon $endDate, $maxDistanceFromStore): array
     {
         // Retrieve the complete state id
         $completeStateID = State::where('code', 'complete')->value('id');
@@ -356,10 +432,51 @@ class ApplicantDataService
             return []; // Handle case where 'complete' state does not exist
         }
 
-        // Get the total number of talent pool applicants (state >= complete)
-        $totalApplicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
-            ->where('state_id', '>=', $completeStateID)
-            ->count();
+        if ($type != 'all') {
+            // Get the stores based on the type (store, division, or region)
+            $stores = Store::when($type === 'store', function ($query) use ($id) {
+                return $query->where('id', $id);
+            })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->where('division_id', $id);
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->where('region_id', $id);
+            })
+            ->get();
+
+            if ($stores->isEmpty()) {
+                return []; // Return 0 if no stores are found for the given filter
+            }
+
+            // Loop through each store and calculate the applicants' distances within the given range
+            foreach ($stores as $store) {
+                if ($store->coordinates) {
+                    $storeCoordinates = explode(',', $store->coordinates);
+                    $storeLat = floatval($storeCoordinates[0]);
+                    $storeLng = floatval($storeCoordinates[1]);
+
+                    // Get the total number of talent pool applicants (state >= complete)
+                    $totalApplicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                        ->where('state_id', '>=', $completeStateID)
+                        ->whereRaw("
+                            ST_Distance_Sphere(
+                                point(
+                                    SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
+                                    SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                                ), 
+                                point(?, ?)
+                            ) <= ?
+                        ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
+                        ->count();
+                }
+            }
+        } else {
+            // Get the total number of talent pool applicants (state >= complete)
+            $totalApplicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                ->where('state_id', '>=', $completeStateID)
+                ->count();
+        }
 
         if ($totalApplicants === 0) {
             return []; // If no applicants, return an empty array
@@ -404,8 +521,23 @@ class ApplicantDataService
         // Get the total number of interviewed applicants
         $totalInterviewedApplicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
             ->where('state_id', '>=', $completeStateID)
-            ->whereHas('interviews', function ($q) {
+            ->whereHas('interviews', function ($q) use ($type, $id) {
                 $q->whereNotNull('score'); // Only include applicants with a non-null interview score
+
+                 // Apply additional filtering based on type (store, division, or region)
+                if ($type === 'store' && $id) {
+                    $q->whereHas('vacancy', function ($query) use ($id) {
+                        $query->where('store_id', $id);
+                    });
+                } elseif ($type === 'division' && $id) {
+                    $q->whereHas('vacancy.store', function ($query) use ($id) {
+                        $query->where('division_id', $id);
+                    });
+                } elseif ($type === 'region' && $id) {
+                    $q->whereHas('vacancy.store', function ($query) use ($id) {
+                        $query->where('region_id', $id);
+                    });
+                }
             })
             ->count();
 
@@ -456,6 +588,20 @@ class ApplicantDataService
         $totalAppointedApplicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
             ->where('state_id', '>=', $completeStateID)
             ->whereNotNull('appointed_id') // Only include applicants with an appointed_id
+            ->whereHas('vacanciesFilled', function ($q) use ($type, $id) {
+                // Apply additional filtering based on type (store, division, or region)
+                if ($type === 'store' && $id) {
+                    $q->where('store_id', $id);
+                } elseif ($type === 'division' && $id) {
+                    $q->whereHas('store', function ($query) use ($id) {
+                        $query->where('division_id', $id);
+                    });
+                } elseif ($type === 'region' && $id) {
+                    $q->whereHas('store', function ($query) use ($id) {
+                        $query->where('region_id', $id);
+                    });
+                }
+            })
             ->count();
 
         if ($totalAppointedApplicants === 0) {

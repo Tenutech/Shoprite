@@ -952,10 +952,28 @@ if(talentPoolApplicantsDemographicColors){
         responsive: [
             {
                 // For screens smaller than 1700px
-                breakpoint: 1650,
+                breakpoint: 1700,
                 options: {
                     legend: {
                         offsetX: 60 // Set offsetX to 60 for screen sizes under 1700px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1600,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1600px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1550,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1550px
                     }
                 }
             },
@@ -1073,10 +1091,29 @@ if(interviewedApplicantsDemographicColors){
         },
         responsive: [
             {
-                breakpoint: 1650,
+                // For screens smaller than 1700px
+                breakpoint: 1700,
                 options: {
                     legend: {
-                        offsetX: 60
+                        offsetX: 60 // Set offsetX to 60 for screen sizes under 1700px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1600,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1600px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1550,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1550px
                     }
                 }
             },
@@ -1190,10 +1227,29 @@ if(appointedApplicantsDemographicColors){
         },
         responsive: [
             {
-                breakpoint: 1650,
+                // For screens smaller than 1700px
+                breakpoint: 1700,
                 options: {
                     legend: {
-                        offsetX: 60
+                        offsetX: 60 // Set offsetX to 60 for screen sizes under 1700px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1600,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1600px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1550,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1550px
                     }
                 }
             },
@@ -1473,7 +1529,7 @@ function updateDonutChart(chart, score, totalQuestions) {
 
 /*
 |--------------------------------------------------------------------------
-| Update Radial Charts
+| Update Radial Bar Charts
 |--------------------------------------------------------------------------
 */
 

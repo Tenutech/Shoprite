@@ -122,6 +122,7 @@ class RPPController extends Controller
 
             // Step 6: Fetch applicant score data
             $regionAverageScoreApplicantsAppointed = 0;
+            $regionAverageAssessmentScoreApplicantsAppointed = 0;
 
             // Step 7: Fetch talent pool data
             $regionTalentPoolApplicants = 0;
@@ -130,6 +131,11 @@ class RPPController extends Controller
             // Step 8: Fetch applicants appointed data
             $regionApplicantsAppointed = 0;
             $regionApplicantsAppointedByMonth = [];
+
+            // Step 9: Fetch applicant demographic data
+            $regionTalentPoolApplicantsDemographic = [];
+            $regionInterviewedApplicantsDemographic = [];
+            $regionAppointedApplicantsDemographic = [];
 
             // Check if the authenticated user is associated with a region
             if ($regionId !== null) {
@@ -156,6 +162,7 @@ class RPPController extends Controller
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
                 $regionAverageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, $regionId, $startDate, $endDate);
+                $regionAverageAssessmentScoreApplicantsAppointed = $this->applicantDataService->getAverageAssessmentScoreApplicantsAppointed($type, $regionId, $startDate, $endDate);
 
                 // Step 7: Fetch talent pool data from applicantProximityService
                 $regionTalentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, $regionId, $startDate, $endDate, $maxDistanceFromStore);
@@ -164,6 +171,11 @@ class RPPController extends Controller
                 // Step 8: Fetch applicants appointed data from vacancyDataService
                 $regionApplicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, $regionId, $startDate, $endDate);
                 $regionApplicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, $regionId, $startDate, $endDate);
+
+                // Step 9: Fetch applicant demographic data from applicantDataService
+                $regionTalentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, $regionId, $startDate, $endDate, $maxDistanceFromStore);
+                $regionInterviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, $regionId, $startDate, $endDate);
+                $regionAppointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, $regionId, $startDate, $endDate);
             }
 
             // Return the 'rpp/home' view with the calculated data
@@ -182,10 +194,14 @@ class RPPController extends Controller
                 'regionAverageDistanceTalentPoolApplicants' => $regionAverageDistanceTalentPoolApplicants,
                 'regionAverageDistanceApplicantsAppointed' => $regionAverageDistanceApplicantsAppointed,
                 'regionAverageScoreApplicantsAppointed' => $regionAverageScoreApplicantsAppointed,
+                'regionAverageAssessmentScoreApplicantsAppointed' => $regionAverageAssessmentScoreApplicantsAppointed,
                 'regionTalentPoolApplicants' => $regionTalentPoolApplicants,
                 'regionTalentPoolApplicantsByMonth' => $regionTalentPoolApplicantsByMonth,
                 'regionApplicantsAppointed' => $regionApplicantsAppointed,
-                'regionApplicantsAppointedByMonth' => $regionApplicantsAppointedByMonth
+                'regionApplicantsAppointedByMonth' => $regionApplicantsAppointedByMonth,
+                'regionTalentPoolApplicantsDemographic' => $regionTalentPoolApplicantsDemographic,
+                'regionInterviewedApplicantsDemographic' => $regionInterviewedApplicantsDemographic,
+                'regionAppointedApplicantsDemographic' => $regionAppointedApplicantsDemographic
             ]);
         }
 
@@ -251,6 +267,7 @@ class RPPController extends Controller
 
             // Step 6: Fetch applicant score data
             $regionAverageScoreApplicantsAppointed = 0;
+            $regionAverageAssessmentScoreApplicantsAppointed = 0;
 
             // Step 7: Fetch talent pool data
             $regionTalentPoolApplicants = 0;
@@ -259,6 +276,11 @@ class RPPController extends Controller
             // Step 8: Fetch applicants appointed data
             $regionApplicantsAppointed = 0;
             $regionApplicantsAppointedByMonth = [];
+
+            // Step 9: Fetch applicant demographic data
+            $regionTalentPoolApplicantsDemographic = [];
+            $regionInterviewedApplicantsDemographic = [];
+            $regionAppointedApplicantsDemographic = [];
 
             // Check if the authenticated user is associated with a region
             if ($regionId !== null) {
@@ -285,6 +307,7 @@ class RPPController extends Controller
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
                 $regionAverageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, $regionId, $startDate, $endDate);
+                $regionAverageAssessmentScoreApplicantsAppointed = $this->applicantDataService->getAverageAssessmentScoreApplicantsAppointed($type, $regionId, $startDate, $endDate);
 
                 // Step 7: Fetch talent pool data from applicantProximityService
                 $regionTalentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, $regionId, $startDate, $endDate, $maxDistanceFromStore);
@@ -293,6 +316,11 @@ class RPPController extends Controller
                 // Step 8: Fetch applicants appointed data from vacancyDataService
                 $regionApplicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, $regionId, $startDate, $endDate);
                 $regionApplicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, $regionId, $startDate, $endDate);
+
+                // Step 9: Fetch applicant demographic data from applicantDataService
+                $regionTalentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, $regionId, $startDate, $endDate, $maxDistanceFromStore);
+                $regionInterviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, $regionId, $startDate, $endDate);
+                $regionAppointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, $regionId, $startDate, $endDate);
             }
 
             //Data to return
@@ -309,10 +337,14 @@ class RPPController extends Controller
                 'regionAverageDistanceTalentPoolApplicants' => $regionAverageDistanceTalentPoolApplicants,
                 'regionAverageDistanceApplicantsAppointed' => $regionAverageDistanceApplicantsAppointed,
                 'regionAverageScoreApplicantsAppointed' => $regionAverageScoreApplicantsAppointed,
+                'regionAverageAssessmentScoreApplicantsAppointed' => $regionAverageAssessmentScoreApplicantsAppointed,
                 'regionTalentPoolApplicants' => $regionTalentPoolApplicants,
                 'regionTalentPoolApplicantsByMonth' => $regionTalentPoolApplicantsByMonth,
                 'regionApplicantsAppointed' => $regionApplicantsAppointed,
-                'regionApplicantsAppointedByMonth' => $regionApplicantsAppointedByMonth
+                'regionApplicantsAppointedByMonth' => $regionApplicantsAppointedByMonth,
+                'regionTalentPoolApplicantsDemographic' => $regionTalentPoolApplicantsDemographic,
+                'regionInterviewedApplicantsDemographic' => $regionInterviewedApplicantsDemographic,
+                'regionAppointedApplicantsDemographic' => $regionAppointedApplicantsDemographic
             ];
 
             // Return the updated data as JSON

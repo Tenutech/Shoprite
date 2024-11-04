@@ -208,7 +208,7 @@ class AdminController extends Controller
                 $dropOffState = $this->applicantDataService->getdropOffState($type, null, $startDate, $endDate);
 
                 // Step 12: Fetch applicant demographic data from applicantDataService
-                $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate);
+                $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate, $maxDistanceFromStore);
                 $interviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, null, $startDate, $endDate);
                 $appointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, null, $startDate, $endDate);
                 $talentPoolApplicantsProvince = $this->applicantDataService->getTalentPoolApplicantsProvince($type, null, $startDate, $endDate);
@@ -400,7 +400,7 @@ class AdminController extends Controller
                 $dropOffState = $this->applicantDataService->getdropOffState($type, null, $startDate, $endDate);
 
                 // Step 12: Fetch applicant demographic data from applicantDataService
-                $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate);
+                $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate, $maxDistanceFromStore);
                 $interviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, null, $startDate, $endDate);
                 $appointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, null, $startDate, $endDate);
                 $talentPoolApplicantsProvince = $this->applicantDataService->getTalentPoolApplicantsProvince($type, null, $startDate, $endDate);

@@ -714,7 +714,7 @@
                         </div><!-- end card header -->
             
                         <div class="card-body">
-                            <div id="talent_pool_applicants_demographic" data-colors='["--vz-success", "--vz-warning", "--vz-danger", "--vz-secondary"]' class="apex-charts" dir="ltr"></div>
+                            <div id="talent_pool_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
