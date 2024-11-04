@@ -36,9 +36,9 @@ class TopbarServiceProvider extends ServiceProvider
 
             // Notifications where both 'causer' and 'subject' exist
             $notifications = Notification::with([
-                'user', 
-                'causer', 
-                'subject', 
+                'user',
+                'causer',
+                'subject',
                 'type'
             ])
             ->where('user_id', $userID)
