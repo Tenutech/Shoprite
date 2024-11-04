@@ -426,40 +426,80 @@ class ApplicantDataService
      */
     public function getTalentPoolApplicantsDemographic(string $type, ?int $id, Carbon $startDate, Carbon $endDate, $maxDistanceFromStore): array
     {
-        // Retrieve the complete state id
+        // Retrieve the ID of the "complete" state from the States table
+        // This ID will be used to filter applicants based on their state
         $completeStateID = State::where('code', 'complete')->value('id');
         if (!$completeStateID) {
-            return []; // Handle case where 'complete' state does not exist
+            return []; // If the "complete" state is not found, return an empty array
         }
 
-        if ($type != 'all') {
-            // Get the stores based on the type (store, division, or region)
-            $stores = Store::when($type === 'store', function ($query) use ($id) {
-                return $query->where('id', $id);
-            })
-            ->when($type === 'division', function ($query) use ($id) {
-                return $query->where('division_id', $id);
-            })
-            ->when($type === 'region', function ($query) use ($id) {
-                return $query->where('region_id', $id);
-            })
-            ->get();
+        // Initialize an array to store coordinates for stores (used for distance calculation)
+        $storeCoordinates = [];
 
-            if ($stores->isEmpty()) {
-                return []; // Return 0 if no stores are found for the given filter
-            }
+        // If filtering by specific store, division, or region
+        if ($type !== 'all') {
+            // Retrieve stores based on the specified type and ID (store, division, or region)
+            $stores = Store::when($type === 'store', fn($query) => $query->where('id', $id))
+                ->when($type === 'division', fn($query) => $query->where('division_id', $id))
+                ->when($type === 'region', fn($query) => $query->where('region_id', $id))
+                ->get();
 
-            // Loop through each store and calculate the applicants' distances within the given range
+            // For each store, extract its coordinates and add to the storeCoordinates array
             foreach ($stores as $store) {
                 if ($store->coordinates) {
-                    $storeCoordinates = explode(',', $store->coordinates);
-                    $storeLat = floatval($storeCoordinates[0]);
-                    $storeLng = floatval($storeCoordinates[1]);
+                    // Split coordinates into latitude and longitude
+                    $storeCoordinates[] = explode(',', $store->coordinates);
+                }
+            }
 
-                    // Get the total number of talent pool applicants (state >= complete)
-                    $totalApplicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
-                        ->where('state_id', '>=', $completeStateID)
-                        ->whereRaw("
+            // If no valid coordinates are found, return an empty result
+            if (empty($storeCoordinates)) {
+                return [];
+            }
+        }
+
+        // Start building the base query for counting applicants in the talent pool
+        $applicantQuery = Applicant::whereBetween('created_at', [$startDate, $endDate])
+            ->where('state_id', '>=', $completeStateID); // Only include applicants with a state >= 'complete'
+
+        // Apply distance filtering if specific store(s) are involved
+        if ($type !== 'all') {
+            // Use the coordinates of each store and apply the distance filter
+            $applicantQuery->where(function ($query) use ($storeCoordinates, $maxDistanceFromStore) {
+                foreach ($storeCoordinates as [$storeLat, $storeLng]) {
+                    // Calculate distance in meters from each store
+                    $query->orWhereRaw("
+                        ST_Distance_Sphere(
+                            point(
+                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
+                                SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                            ), 
+                            point(?, ?)
+                        ) <= ?
+                    ", [floatval($storeLng), floatval($storeLat), $maxDistanceFromStore * 1000]); // maxDistanceFromStore in meters
+                }
+            });
+        }
+
+        // Count the total number of applicants that match the criteria
+        $totalApplicants = $applicantQuery->count();
+
+        // If there are no applicants, return an empty array
+        if ($totalApplicants === 0) {
+            return [];
+        }
+
+        // Query the Race model to count applicants by race within the specified criteria
+        $demographicCounts = Race::withCount(['applicants' => function ($query) use ($startDate, $endDate, $completeStateID, $storeCoordinates, $maxDistanceFromStore) {
+            // Filter applicants by date range and state
+            $query->whereBetween('created_at', [$startDate, $endDate])
+                ->where('state_id', '>=', $completeStateID);
+
+            // Apply the same distance filter if we are querying specific stores
+            if (!empty($storeCoordinates)) {
+                $query->where(function ($query) use ($storeCoordinates, $maxDistanceFromStore) {
+                    foreach ($storeCoordinates as [$storeLat, $storeLng]) {
+                        $query->orWhereRaw("
                             ST_Distance_Sphere(
                                 point(
                                     SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
@@ -467,37 +507,23 @@ class ApplicantDataService
                                 ), 
                                 point(?, ?)
                             ) <= ?
-                        ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
-                        ->count();
-                }
+                        ", [floatval($storeLng), floatval($storeLat), $maxDistanceFromStore * 1000]);
+                    }
+                });
             }
-        } else {
-            // Get the total number of talent pool applicants (state >= complete)
-            $totalApplicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
-                ->where('state_id', '>=', $completeStateID)
-                ->count();
-        }
-
-        if ($totalApplicants === 0) {
-            return []; // If no applicants, return an empty array
-        }
-
-        // Use the Race model to count applicants by race and calculate percentage
-        $demographicCounts = Race::withCount(['applicants' => function ($query) use ($startDate, $endDate, $completeStateID) {
-            $query->whereBetween('created_at', [$startDate, $endDate])
-                ->where('state_id', '>=', $completeStateID);
         }])
         ->get()
         ->map(function ($race) use ($totalApplicants) {
-            // Calculate percentage for each race
+            // Calculate the percentage for each race based on the total number of applicants
             $percentage = ($race->applicants_count / $totalApplicants) * 100;
             return [
                 'name' => $race->name,
-                'percentage' => round($percentage)
+                'percentage' => round($percentage) // Round percentage to the nearest integer
             ];
         })
         ->toArray();
 
+        // Return the demographic counts with race names and their percentages
         return $demographicCounts;
     }
 
