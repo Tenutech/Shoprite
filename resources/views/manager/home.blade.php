@@ -305,7 +305,7 @@
             -------------------------------------------------------------------------------------->
 
             <div class="row g-3">
-                <!-- Total Vacancies -->
+                <!-- Total Created Vacancies -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100">
                         <div class="position-absolute start-0" style="z-index: 0;">
@@ -317,7 +317,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">
                                     <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Total Vacancies
+                                        Total Created Vacancies
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
                                         <span id="totalVacanciesValue" class="counter-value" data-target="{{ $storeTotalVacancies }}">
@@ -389,7 +389,7 @@
                     </div><!-- end card -->
                 </div> <!--end col -->
             
-                <!-- Total Interviews Completed -->
+                <!-- Total Interviews Conducted -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100">
                         <div class="position-absolute start-0" style="z-index: 0;">
@@ -401,7 +401,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">
                                     <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Interviews Completed
+                                        Interviews Conducted
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
                                         <span id="totalInterviewsCompletedValue" class="counter-value" data-target="{{ $storeTotalInterviewsCompleted }}">
@@ -423,7 +423,7 @@
             -------------------------------------------------------------------------------------->
 
             <div class="row g-3">
-                <!-- Total Applicants Appointed -->
+                <!-- Total Candidates Selected -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100">
                         <div class="position-absolute start-0" style="z-index: 0;">
@@ -435,7 +435,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">
                                     <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Applicants Appointed
+                                        Candidates Selected
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
                                         <span id="totalApplicantsAppointedValue" class="counter-value" data-target="{{ $storeTotalApplicantsAppointed }}">

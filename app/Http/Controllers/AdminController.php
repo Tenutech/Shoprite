@@ -155,7 +155,16 @@ class AdminController extends Controller
             $talentPoolApplicantsDemographic = [];
             $interviewedApplicantsDemographic = [];
             $appointedApplicantsDemographic = [];
+            $talentPoolApplicantsGender = [];
+            $interviewedApplicantsGender = [];
+            $appointedApplicantsGender = [];
             $talentPoolApplicantsProvince = [];
+
+            // Step 13: Fetch store and re-employment data
+            $totalStoresUsingSolution = 0;
+            $totalStores = 0;
+            $totalReEmployedApplicants = 0;
+            $totalAppointedApplicants = 0;
 
             // Check if the authenticated user is active
             if ($authUserId !== null) {
@@ -211,7 +220,16 @@ class AdminController extends Controller
                 $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate, $maxDistanceFromStore);
                 $interviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, null, $startDate, $endDate);
                 $appointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, null, $startDate, $endDate);
+                $talentPoolApplicantsGender = $this->applicantDataService->getTalentPoolApplicantsGender($type, null, $startDate, $endDate, $maxDistanceFromStore);
+                $interviewedApplicantsGender = $this->applicantDataService->getInterviewedApplicantsGender($type, null, $startDate, $endDate);
+                $appointedApplicantsGender = $this->applicantDataService->getAppointedApplicantsGender($type, null, $startDate, $endDate);
                 $talentPoolApplicantsProvince = $this->applicantDataService->getTalentPoolApplicantsProvince($type, null, $startDate, $endDate);
+
+                // Step 13: Fetch store and re-employment data
+                $totalStoresUsingSolution = $this->vacancyDataService->getTotalStoresUsingSolution($type, null, $startDate, $endDate);
+                $totalStores = $this->vacancyDataService->getTotalStores($type, null, $startDate, $endDate);
+                $totalReEmployedApplicants = $this->applicantDataService->getTotalReEmployedApplicants($type, null, $startDate, $endDate);
+                $totalAppointedApplicants = $this->applicantDataService->getTotalAppointedApplicants($type, null, $startDate, $endDate);
             }
 
             // Return the 'admin/home' view with the calculated data
@@ -247,7 +265,14 @@ class AdminController extends Controller
                 'talentPoolApplicantsDemographic' => $talentPoolApplicantsDemographic,
                 'interviewedApplicantsDemographic' => $interviewedApplicantsDemographic,
                 'appointedApplicantsDemographic' => $appointedApplicantsDemographic,
-                'talentPoolApplicantsProvince' => $talentPoolApplicantsProvince
+                'talentPoolApplicantsGender' => $talentPoolApplicantsGender,
+                'interviewedApplicantsGender' => $interviewedApplicantsGender,
+                'appointedApplicantsGender' => $appointedApplicantsGender,
+                'talentPoolApplicantsProvince' => $talentPoolApplicantsProvince,
+                'totalStoresUsingSolution' => $totalStoresUsingSolution,
+                'totalStores' => $totalStores,
+                'totalReEmployedApplicants' => $totalReEmployedApplicants,
+                'totalAppointedApplicants' => $totalAppointedApplicants
             ]);
         }
 
@@ -347,7 +372,16 @@ class AdminController extends Controller
             $talentPoolApplicantsDemographic = [];
             $interviewedApplicantsDemographic = [];
             $appointedApplicantsDemographic = [];
+            $talentPoolApplicantsGender = [];
+            $interviewedApplicantsGender = [];
+            $appointedApplicantsGender = [];
             $talentPoolApplicantsProvince = [];
+
+            // Step 13: Fetch store and re-employment data
+            $totalStoresUsingSolution = 0;
+            $totalStores = 0;
+            $totalReEmployedApplicants = 0;
+            $totalAppointedApplicants = 0;
 
             // Check if the authenticated user is active
             if ($authUserId !== null) {
@@ -403,7 +437,16 @@ class AdminController extends Controller
                 $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate, $maxDistanceFromStore);
                 $interviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, null, $startDate, $endDate);
                 $appointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, null, $startDate, $endDate);
+                $talentPoolApplicantsGender = $this->applicantDataService->getTalentPoolApplicantsGender($type, null, $startDate, $endDate, $maxDistanceFromStore);
+                $interviewedApplicantsGender = $this->applicantDataService->getInterviewedApplicantsGender($type, null, $startDate, $endDate);
+                $appointedApplicantsGender = $this->applicantDataService->getAppointedApplicantsGender($type, null, $startDate, $endDate);
                 $talentPoolApplicantsProvince = $this->applicantDataService->getTalentPoolApplicantsProvince($type, null, $startDate, $endDate);
+
+                // Step 13: Fetch store and re-employment data
+                $totalStoresUsingSolution = $this->vacancyDataService->getTotalStoresUsingSolution($type, null, $startDate, $endDate);
+                $totalStores = $this->vacancyDataService->getTotalStores($type, null, $startDate, $endDate);
+                $totalReEmployedApplicants = $this->applicantDataService->getTotalReEmployedApplicants($type, null, $startDate, $endDate);
+                $totalAppointedApplicants = $this->applicantDataService->getTotalAppointedApplicants($type, null, $startDate, $endDate);
             }
 
             //Data to return
@@ -438,7 +481,14 @@ class AdminController extends Controller
                 'talentPoolApplicantsDemographic' => $talentPoolApplicantsDemographic,
                 'interviewedApplicantsDemographic' => $interviewedApplicantsDemographic,
                 'appointedApplicantsDemographic' => $appointedApplicantsDemographic,
-                'talentPoolApplicantsProvince' => $talentPoolApplicantsProvince
+                'talentPoolApplicantsGender' => $talentPoolApplicantsGender,
+                'interviewedApplicantsGender' => $interviewedApplicantsGender,
+                'appointedApplicantsGender' => $appointedApplicantsGender,
+                'talentPoolApplicantsProvince' => $talentPoolApplicantsProvince,
+                'totalStoresUsingSolution' => $totalStoresUsingSolution,
+                'totalStores' => $totalStores,
+                'totalReEmployedApplicants' => $totalReEmployedApplicants,
+                'totalAppointedApplicants' => $totalAppointedApplicants
             ];
 
             // Return the updated data as JSON
