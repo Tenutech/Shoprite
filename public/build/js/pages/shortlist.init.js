@@ -410,8 +410,8 @@ function loadCandidateListData(datas, page) {
             var bookmark = datas[i].saved_by.length > 0 ? "active" : "";
             var interviewScore = '';
 
-            var isUserProfile = datas[i].avatar ? '<img src="' + datas[i].avatar + '" alt="" class="member-img img-fluid d-block rounded" />'
-                : '<img src="/images/avatar.jpg" alt="" class="member-img img-fluid d-block rounded" />';
+            var isUserProfile = datas[i].avatar ? '<img src="/storage/' + datas[i].avatar + '" alt="" class="member-img img-fluid d-block rounded" />'
+                : '<img src="/storage/images/avatar.jpg" alt="" class="member-img img-fluid d-block rounded" />';
 
             var checksHtml = '<div class="card-footer"><div class="d-flex flex-wrap gap-2">';
             var employment = datas[i].employment || 'I'; // Use 'I' if employment is null
