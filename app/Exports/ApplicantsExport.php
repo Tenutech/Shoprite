@@ -223,7 +223,7 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
             $applicant->terms_conditions ?? '',
             $applicant->public_holidays,
             $applicant->environment,
-            $applicant->consent ?? '',            
+            $applicant->consent ?? '',
             $applicant->disability ?? '',
             $assessmentScore ?? '',
             $applicant->score ?? '',

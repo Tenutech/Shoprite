@@ -271,7 +271,7 @@ class ApplicantsReportDataService
     }
 
     /**
-     * Get the number of talent pool applicants by month and gender within a given distance from the store, division, or region, 
+     * Get the number of talent pool applicants by month and gender within a given distance from the store, division, or region,
      * or all applicants if type is 'all'.
      *
      * @param string|null $type The type of filter (e.g., store, division, region, or all).
@@ -326,7 +326,7 @@ class ApplicantsReportDataService
         // Get stores based on the type (store, division, or region)
         $stores = Store::when($type === 'store', function ($query) use ($id) {
                 return $query->where('id', $id);
-            })
+        })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->where('division_id', $id);
             })
@@ -376,7 +376,7 @@ class ApplicantsReportDataService
     }
 
     /**
-     * Get the number of talent pool applicants by month and race within a given distance from the store, division, or region, 
+     * Get the number of talent pool applicants by month and race within a given distance from the store, division, or region,
      * or all applicants if type is 'all'.
      *
      * @param string|null $type The type of filter (e.g., store, division, region, or all).
@@ -431,7 +431,7 @@ class ApplicantsReportDataService
         // Get stores based on the type (store, division, or region)
         $stores = Store::when($type === 'store', function ($query) use ($id) {
                 return $query->where('id', $id);
-            })
+        })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->where('division_id', $id);
             })
@@ -503,11 +503,21 @@ class ApplicantsReportDataService
         $query = Applicant::whereBetween('created_at', [$startDate, $endDate]);
 
         // Apply all additional filters
-        if (isset($filters['gender_id'])) $query->where('gender_id', $filters['gender_id']);
-        if (isset($filters['race_id'])) $query->where('race_id', $filters['race_id']);
-        if (isset($filters['education_id'])) $query->where('education_id', $filters['education_id']);
-        if (isset($filters['experience_id'])) $query->where('experience_id', $filters['experience_id']);
-        if (isset($filters['employment'])) $query->where('employment', $filters['employment']);
+        if (isset($filters['gender_id'])) {
+            $query->where('gender_id', $filters['gender_id']);
+        }
+        if (isset($filters['race_id'])) {
+            $query->where('race_id', $filters['race_id']);
+        }
+        if (isset($filters['education_id'])) {
+            $query->where('education_id', $filters['education_id']);
+        }
+        if (isset($filters['experience_id'])) {
+            $query->where('experience_id', $filters['experience_id']);
+        }
+        if (isset($filters['employment'])) {
+            $query->where('employment', $filters['employment']);
+        }
 
         // Age, literacy, numeracy, situational, overall filters
         if (isset($filters['min_age']) && isset($filters['max_age'])) {
@@ -572,8 +582,7 @@ class ApplicantsReportDataService
                 [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
                 $query->whereRaw("ST_Distance_Sphere(
                     point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                    point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]
-                );
+                    point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
                 $totalApplicants = $query->count();
             }
         } elseif (!isset($filters['store_id']) && $type !== 'all') {
@@ -583,7 +592,9 @@ class ApplicantsReportDataService
                 ->when($type === 'region', fn($q) => $q->where('region_id', $id))
                 ->get();
 
-            if ($stores->isEmpty()) return 0;
+            if ($stores->isEmpty()) {
+                return 0;
+            }
 
             foreach ($stores as $store) {
                 if ($store->coordinates) {
@@ -591,8 +602,7 @@ class ApplicantsReportDataService
                     $storeQuery = clone $query;
                     $storeQuery->whereRaw("ST_Distance_Sphere(
                         point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                        point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]
-                    );
+                        point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
                     $totalApplicants += $storeQuery->count();
                 }
             }
@@ -716,8 +726,7 @@ class ApplicantsReportDataService
                 [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
                 $query->whereRaw("ST_Distance_Sphere(
                     point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                    point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]
-                );
+                    point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
             }
         } elseif (!isset($filters['store_id']) && $type !== 'all') {
             // Get stores based on type (store, division, or region)
@@ -726,7 +735,9 @@ class ApplicantsReportDataService
                 ->when($type === 'region', fn($q) => $q->where('region_id', $id))
                 ->get();
 
-            if ($stores->isEmpty()) return 0;
+            if ($stores->isEmpty()) {
+                return 0;
+            }
 
             foreach ($stores as $store) {
                 if ($store->coordinates) {
@@ -734,8 +745,7 @@ class ApplicantsReportDataService
                     $storeQuery = clone $query; // Clone the query to apply per-store conditions
                     $storeQuery->whereRaw("ST_Distance_Sphere(
                         point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                        point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]
-                    );
+                        point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
                     $totalApplicants += $storeQuery->count();
                 }
             }
@@ -779,11 +789,21 @@ class ApplicantsReportDataService
         $query = Applicant::whereBetween('created_at', [$startDate, $endDate]);
 
         // Apply additional filters
-        if (isset($filters['gender_id'])) $query->where('gender_id', $filters['gender_id']);
-        if (isset($filters['race_id'])) $query->where('race_id', $filters['race_id']);
-        if (isset($filters['education_id'])) $query->where('education_id', $filters['education_id']);
-        if (isset($filters['experience_id'])) $query->where('experience_id', $filters['experience_id']);
-        if (isset($filters['employment'])) $query->where('employment', $filters['employment']);
+        if (isset($filters['gender_id'])) {
+            $query->where('gender_id', $filters['gender_id']);
+        }
+        if (isset($filters['race_id'])) {
+            $query->where('race_id', $filters['race_id']);
+        }
+        if (isset($filters['education_id'])) {
+            $query->where('education_id', $filters['education_id']);
+        }
+        if (isset($filters['experience_id'])) {
+            $query->where('experience_id', $filters['experience_id']);
+        }
+        if (isset($filters['employment'])) {
+            $query->where('employment', $filters['employment']);
+        }
 
         // Apply range filters for age, literacy, numeracy, situational, and overall scores
         if (isset($filters['min_age']) && isset($filters['max_age'])) {
@@ -847,8 +867,7 @@ class ApplicantsReportDataService
                 [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
                 $query->whereRaw("ST_Distance_Sphere(
                     point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                    point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]
-                );
+                    point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
             }
         } elseif (!isset($filters['store_id']) && $type !== 'all') {
             // If no specific `store_id` is provided, filter based on stores in the specified type (e.g., division, region)
@@ -868,8 +887,7 @@ class ApplicantsReportDataService
                     $storeQuery = clone $query; // Clone to modify query per store
                     $storeQuery->whereRaw("ST_Distance_Sphere(
                         point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                        point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]
-                    );
+                        point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
 
                     // Group applicants by month and accumulate monthly totals
                     foreach ($storeQuery->get() as $applicant) {

@@ -108,11 +108,11 @@ class ApplicantsReportController extends Controller
             $races = Race::all();
 
             //Educations
-            $educations = Education::all(); 
+            $educations = Education::all();
 
             // Experiences
             $experiences = Duration::all();
-            
+
             //Stores logic
             $stores = collect(); // Default to an empty collection
 
@@ -289,7 +289,7 @@ class ApplicantsReportController extends Controller
      *
      * This method retrieves applicant data based on selected filters
      * and exports it as an Excel file. The filters include various
-     * applicant attributes, date range, location-based proximity, 
+     * applicant attributes, date range, location-based proximity,
      * and type (e.g., store, division, or region).
      *
      * @param Request $request The incoming HTTP request containing filters.
@@ -334,7 +334,7 @@ class ApplicantsReportController extends Controller
 
         // Retrieve all filters from the request, excluding '_token', 'date', and 'search_terms'
         $filters = $request->except(['_token', 'date', 'search_terms']);
-        
+
         // Export data to an Excel file, passing filters, type, id, date range, and proximity
         return Excel::download(new ApplicantsExport($type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters), 'Applicants Report.xlsx');
     }

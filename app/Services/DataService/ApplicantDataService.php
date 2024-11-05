@@ -670,7 +670,7 @@ class ApplicantDataService
         // Retrieve the ID of the "complete" state from the States table
         // This ID is used to filter applicants who are in a "complete" or later state
         $completeStateID = State::where('code', 'complete')->value('id');
-        
+
         // If the "complete" state is not found, return an empty array
         if (!$completeStateID) {
             return [];
@@ -786,7 +786,7 @@ class ApplicantDataService
         // Retrieve the ID of the "complete" state from the States table
         // This ID is used to filter applicants who are in a "complete" or later state
         $completeStateID = State::where('code', 'complete')->value('id');
-        
+
         // If the "complete" state is not found, return an empty array
         if (!$completeStateID) {
             return [];
@@ -857,7 +857,7 @@ class ApplicantDataService
         // Retrieve the ID of the "complete" state from the States table
         // This ID is used to filter applicants who are in a "complete" or later state
         $completeStateID = State::where('code', 'complete')->value('id');
-        
+
         // If the "complete" state is not found, return an empty array
         if (!$completeStateID) {
             return [];

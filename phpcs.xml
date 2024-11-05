@@ -12,5 +12,4 @@
             <property name="absoluteLineLimit" value="350" />
         </properties>
     </rule>
-
 </ruleset>
