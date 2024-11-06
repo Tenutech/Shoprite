@@ -306,7 +306,7 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarReports">
                             <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
+                                {{-- <li class="nav-item">
                                     <a class="nav-link" href="{{ route('applicants.reports.index') }}">
                                         Applicants
                                     </a>
@@ -315,7 +315,7 @@
                                     <a class="nav-link" href="{{ route('stores.reports.index') }}">
                                         Stores
                                     </a>
-                                </li>
+                                </li> --}}
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('vacancies.reports.index') }}">
                                         Vacancies

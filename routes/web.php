@@ -645,8 +645,11 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::get('/reports/stores', [App\Http\Controllers\Reports\StoresController::class, 'index'])->name('stores.reports.index');
 
     Route::get('/reports/vacancies', [App\Http\Controllers\Reports\VacanciesController::class, 'index'])->name('vacancies.reports.index');
+    Route::get('/reports/update-vacancy-report', [App\Http\Controllers\Reports\VacanciesController::class, 'getData'])->name('vacancies.reports.updateVacancyReport');
+    Route::get('/admin/vacancies/export/types', [App\Http\Controllers\Reports\VacanciesController::class, 'exportVacancyTypes'])->name('vacancies.reports.export-types');
+    Route::get('/admin/vacancies/export/time', [App\Http\Controllers\Reports\VacanciesController::class, 'exportVacanciesOverTime'])->name('vacancies.reports.export-time');
 
-    });
+});
 
 /*
 |--------------------------------------------------------------------------
