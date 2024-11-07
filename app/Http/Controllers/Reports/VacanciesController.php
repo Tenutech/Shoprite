@@ -75,12 +75,13 @@ class VacanciesController extends Controller
             'store_id' => $request->store_id,
             'user_id' => $request->user_id,
             'type_id' => $request->type_id,
+            'filled_positions' => $request->filled_positions,
             'start_date' => $request->start_date ?? Carbon::now()->startOfYear()->toDateString(),
             'end_date' => $request->end_date ?? Carbon::now()->toDateString(),
         ];
 
         $vacancies = $this->vacanciesDataService->getFilteredVacancies($filters);
-        $chartData = $this->vacanciesDataService->prepareChartData($vacancies);
+        $chartData = $this->vacanciesDataService->prepareChartData($vacancies, $filters['start_date'], $filters['end_date']);
 
         return response()->json([
             'success' => true,
@@ -109,6 +110,7 @@ class VacanciesController extends Controller
             'store_id' => $request->store_id,
             'user_id' => $request->user_id,
             'type_id' => $request->type_id,
+            'filled_positions' => $request->filled_positions,
             'start_date' => $dateRange[0] ?? null,
             'end_date' => $dateRange[1] ?? null,
         ];

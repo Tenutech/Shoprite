@@ -83,7 +83,7 @@
                                         </div>
                                     </div>
                                     <!--end col-->
-                                    <div class="col-xxl-2 col-sm-4">
+                                    <div class="col-xxl-2 col-sm-4 d-none">
                                         <div class="input-light">
                                             <select name="type_id" id="type_id" class="form-control" data-choices
                                             data-choices-search-true>
@@ -91,6 +91,17 @@
                                                 @foreach ($types as $type)
                                                     <option value="{{ $type->id }}">{{ $type->name }}</option>
                                                 @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <!--end col-->
+                                    <div class="col-xxl-2 col-sm-4">
+                                        <div class="input-light">
+                                            <select name="filled_positions" id="filled_positions" class="form-control" data-choices
+                                            data-choices-search-true>
+                                                <option value="">Filled Status</option>
+                                                <option value='0'>Not Filled</option>
+                                                <option value='1'>Filled</option>
                                             </select>
                                         </div>
                                     </div>

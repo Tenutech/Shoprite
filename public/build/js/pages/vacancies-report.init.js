@@ -6,13 +6,7 @@
 // File: job-statistics init js
 // */
 
-
 document.addEventListener("DOMContentLoaded", function () {
-    const monthsOfYear = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-    ];
-
     // Initialize charts as null initially
     window.vacancyTypesByMonthChart = null;
     window.vacanciesOverTimeChart = null;
@@ -31,9 +25,9 @@ function fetchData() {
     const store_id = document.getElementById('store_id').value;
     const user_id = document.getElementById('user_id').value;
     const type_id = document.getElementById('type_id').value;
+    const filled_positions = document.getElementById('filled_positions').value;
     const date_range = document.getElementById('date_range').value;
 
-    // Extract start and end dates from the Flatpickr date range
     let [start_date, end_date] = date_range ? date_range.split(' to ') : [defaultStartDate, defaultEndDate];
 
     $.ajax({
@@ -44,6 +38,7 @@ function fetchData() {
             store_id,
             user_id,
             type_id,
+            filled_positions,
             start_date,
             end_date,
         },
@@ -51,10 +46,8 @@ function fetchData() {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         },
         success: function (response) {
-            console.log(response);
-            const chartData = fillMissingMonths(response.chartData);
-            // Update the dashboard with the new data
-            renderOrUpdateCharts(chartData); // Pass the data to the updateDashboard function
+            renderVacancyTypeBarChart(response.chartData.vacancyTypesByMonth);
+            renderVacanciesOverTimeLineChart(response.chartData.vacanciesOverTime);
             updateTotals(response.chartData.totals);
 
             Swal.fire({
@@ -92,36 +85,111 @@ function fetchData() {
     });
 }
 
-// Ensure all months are present in the data
-function fillMissingMonths(data) {
-    const monthsOfYear = [
-        'January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'
-    ];
+function renderVacancyTypeBarChart(data) {
+    const categories = Object.keys(data);
+    const seriesData = Object.values(data);
 
-    // Fill missing months for vacancy types by month
-    const vacancyTypesByMonth = monthsOfYear.map(month => ({
-        month,
-        FullTime: data.vacancyTypesByMonth[month]?.FullTime || 0,
-        PartTime: data.vacancyTypesByMonth[month]?.PartTime || 0,
-        FixedTerm: data.vacancyTypesByMonth[month]?.FixedTerm || 0,
-        PeakSeason: data.vacancyTypesByMonth[month]?.PeakSeason || 0
-    }));
+    if (window.vacancyTypesByMonthChart) {
+        // Update the chart with new data
+        window.vacancyTypesByMonthChart.updateOptions({
+            series: [
+                { name: 'Full Time', data: seriesData.map(item => item.FullTime) },
+                { name: 'Part Time', data: seriesData.map(item => item.PartTime) },
+                { name: 'Fixed Term', data: seriesData.map(item => item.FixedTerm) },
+                { name: 'Peak Season', data: seriesData.map(item => item.PeakSeason) },
+            ],
+            xaxis: { categories: categories },
+        });
+    } else {
+        window.vacancyTypesByMonthChart = new ApexCharts(document.querySelector("#vacancyTypesByMonthChart"), {
+            chart: {
+                type: 'bar',
+                height: 300,
+                zoom: {
+                    enabled: false
+                },
+                toolbar: {
+                    show: false
+                }
+            },
+            series: [
+                { name: 'Full Time', data: seriesData.map(item => item.FullTime) },
+                { name: 'Part Time', data: seriesData.map(item => item.PartTime) },
+                { name: 'Fixed Term', data: seriesData.map(item => item.FixedTerm) },
+                { name: 'Peak Season', data: seriesData.map(item => item.PeakSeason) },
+            ],
+            xaxis: {
+                categories: categories,
+                title: { text: 'Years' }
+            },
+            yaxis: {
+                title: { text: 'Total Vacancies' },
+                min: 0, // Adjust min to allow smaller values
+                max: Math.max(
+                    ...seriesData.map(item => item.FullTime),
+                    ...seriesData.map(item => item.PartTime),
+                    ...seriesData.map(item => item.FixedTerm),
+                    ...seriesData.map(item => item.PeakSeason)
+                ) + 3 // Set the max value based on the highest number in your data
+            },
+            title: {
+                text: 'Total Vacancies by Type'
+            }
+        });
+        window.vacancyTypesByMonthChart.render();
+    }
+}
 
-    // Fill missing months for total and filled vacancies
-    const totalVacancies = monthsOfYear.map(month => data.vacanciesOverTime.total[month] || 0);
-    const filledVacancies = monthsOfYear.map(month => data.vacanciesOverTime.filled[month] || 0);
+function renderVacanciesOverTimeLineChart(data) {
+    const categories = Object.keys(data);
+    const seriesData = Object.values(data);
 
-    return {
-        vacancyTypesByMonth,
-        monthsOfYear,
-        totalVacancies,
-        filledVacancies
-    };
+    if (window.vacanciesOverTimeChart) {
+        // Update the chart with new data
+        window.vacanciesOverTimeChart.updateOptions({
+            series: [
+                { name: 'Total Vacancies', data: seriesData.map(item => item.total) },
+                { name: 'Filled Vacancies', data: seriesData.map(item => item.filled) },
+            ],
+            xaxis: { categories: categories },
+        });
+    } else {
+        window.vacanciesOverTimeChart = new ApexCharts(document.querySelector("#vacanciesOverTimeChart"), {
+            chart: {
+                type: 'line',
+                height: 300,
+                zoom: {
+                    enabled: false
+                },
+                toolbar: {
+                    show: false
+                }
+            },
+            series: [
+                { name: 'Total Vacancies', data: seriesData.map(item => item.total) },
+                { name: 'Filled Vacancies', data: seriesData.map(item => item.filled) }
+            ],
+            xaxis: {
+                categories: categories,
+                title: { text: 'Years' }
+            },
+            yaxis: {
+                title: { text: 'Vacancies' },
+                min: 0,
+                max: Math.max(
+                    ...seriesData.map(item => item.total),
+                    ...seriesData.map(item => item.filled)
+                ) + 3
+            },
+            title: {
+                text: 'Total Vacancies vs Filled Vacancies'
+            }
+        });
+        window.vacanciesOverTimeChart.render();
+    }
 }
 
 function updateTotals(data) {
-    console.log(data, data.totalPeakSeason, data.totalPartTime);
     let totalFullTime = data.totalFullTime;
     let totalPartTime = data.totalPartTime;
     let totalFixedTerm = data.totalFixedTerm;
@@ -137,124 +205,25 @@ function updateTotals(data) {
     document.getElementById("filledVacancies").innerHTML = filledVacancies;
 }
 
-function renderOrUpdateCharts(data) {
-    // Vacancy Types by Month Bar Chart
-    const vacancyTypesByMonthData = data.vacancyTypesByMonth;
-
-    if (window.vacancyTypesByMonthChart) {
-        // Update the chart with new data
-        window.vacancyTypesByMonthChart.updateOptions({
-            series: [
-                { name: 'Full Time', data: vacancyTypesByMonthData.map(item => item.FullTime) },
-                { name: 'Part Time', data: vacancyTypesByMonthData.map(item => item.PartTime) },
-                { name: 'Fixed Term', data: vacancyTypesByMonthData.map(item => item.FixedTerm) },
-                { name: 'Peak Season', data: vacancyTypesByMonthData.map(item => item.PeakSeason) },
-            ],
-            xaxis: { categories: data.monthsOfYear },
-        });
-    } else {
-        // Create the chart if it doesn't exist
-        window.vacancyTypesByMonthChart = new ApexCharts(document.querySelector("#vacancyTypesByMonthChart"), {
-            chart: {
-                type: 'bar',
-                height: 300,
-                zoom: {
-                    enabled: false
-                },
-                toolbar: {
-                    show: false
-                }
-            },
-            series: [
-                { name: 'Full Time', data: vacancyTypesByMonthData.map(item => item.FullTime) },
-                { name: 'Part Time', data: vacancyTypesByMonthData.map(item => item.PartTime) },
-                { name: 'Fixed Term', data: vacancyTypesByMonthData.map(item => item.FixedTerm) },
-                { name: 'Peak Season', data: vacancyTypesByMonthData.map(item => item.PeakSeason) },
-            ],
-            yaxis: {
-                title: {
-                    text: 'Total Vacancies'
-                },
-                min: 0, // Adjust min to allow smaller values
-                max: Math.max(
-                    ...vacancyTypesByMonthData.map(item => item.FullTime),
-                    ...vacancyTypesByMonthData.map(item => item.PartTime),
-                    ...vacancyTypesByMonthData.map(item => item.FixedTerm),
-                    ...vacancyTypesByMonthData.map(item => item.PeakSeason)
-                ) + 3 // Set the max value based on the highest number in your data
-            },
-            xaxis: { categories: data.monthsOfYear },
-            title: { text: 'Vacancy Types by Month' }
-        });
-        window.vacancyTypesByMonthChart.render();
-    }
-
-    // Vacancies Over Time Line Chart
-    if (window.vacanciesOverTimeChart) {
-        // Update the chart with new data
-        window.vacanciesOverTimeChart.updateOptions({
-            series: [
-                { name: 'Total Vacancies', data: data.totalVacancies },
-                { name: 'Filled Vacancies', data: data.filledVacancies },
-            ],
-            xaxis: { categories: data.monthsOfYear },
-        });
-    } else {
-        // Create the chart if it doesn't exist
-        window.vacanciesOverTimeChart = new ApexCharts(document.querySelector("#vacanciesOverTimeChart"), {
-            chart: {
-                type: 'line',
-                height: 300,
-                zoom: {
-                    enabled: false
-                },
-                toolbar: {
-                    show: false
-                }
-            },
-            dataLabels: {
-                enabled: false,
-            },
-            stroke: {
-                width: [3, 3],
-                curve: 'straight'
-            },
-            series: [
-                { name: 'Total Vacancies', data: data.totalVacancies },
-                { name: 'Filled Vacancies', data: data.filledVacancies },
-            ],
-            yaxis: {
-                title: {
-                    text: 'Total Vacancies'
-                },
-                min: 0, // Adjust min to allow smaller values
-                max: Math.max(...data.totalVacancies, ...data.filledVacancies) + 3 // Set the max value based on the highest number in your data
-            },
-            xaxis: { categories: data.monthsOfYear },
-            title: { text: 'Total Vacancies vs Filled Vacancies' }
-        });
-        window.vacanciesOverTimeChart.render();
-    }
-}
-
 function getFilters() {
     return {
         position_id: document.getElementById('position_id').value,
         store_id: document.getElementById('store_id').value,
         user_id: document.getElementById('user_id').value,
         type_id: document.getElementById('type_id').value,
+        filled_positions: document.getElementById('filled_positions').value,
         date_range: document.getElementById('date_range').value,
     };
 }
 
 function exportVacancyTypes() {
     let filters = getFilters();
-    let url = `{{ route('vacancies.reports.export-types') }}?` + new URLSearchParams(filters).toString();
+    let url = route('vacancies.reports.export-types') + '?' + new URLSearchParams(filters).toString();
     window.open(url, '_blank');
 }
 
 function exportVacanciesOverTime() {
     let filters = getFilters();
-    let url = `{{ route('vacancies.reports.export-time') }}?` + new URLSearchParams(filters).toString();
+    let url = route('vacancies.reports.export-time') + '?' + new URLSearchParams(filters).toString();
     window.open(url, '_blank');
 }
