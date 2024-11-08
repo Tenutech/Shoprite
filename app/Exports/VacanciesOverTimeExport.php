@@ -70,9 +70,9 @@ class VacanciesOverTimeExport implements FromCollection, WithHeadings, WithStyle
         foreach ($data as $month => $counts) {
             $exportData[] = [
                 'Year-Month' => $month,
-                'Total Vacancies' => $counts['Total Vacancies'],
-                'Filled Vacancies' => $counts['Filled Vacancies'],
-                'Total' => $counts['Total'],
+                'Total Vacancies' => $counts['Total Vacancies'] ?? 0,
+                'Filled Vacancies' => $counts['Filled Vacancies'] ?? 0,
+                'Total' => $counts['Total'] ?? 0,
             ];
         }
 

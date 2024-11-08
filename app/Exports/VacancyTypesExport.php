@@ -73,11 +73,11 @@ class VacancyTypesExport implements FromCollection, WithHeadings, WithStyles, Wi
         foreach ($data as $month => $counts) {
             $exportData[] = [
                 'Year-Month' => $month,
-                'FullTime' => $counts['FullTime'],
-                'PartTime' => $counts['PartTime'],
-                'FixedTerm' => $counts['FixedTerm'],
-                'PeakSeason' => $counts['PeakSeason'],
-                'Total' => $counts['Total'],
+                'FullTime' => $counts['FullTime'] ?? 0,
+                'PartTime' => $counts['PartTime'] ?? 0,
+                'FixedTerm' => $counts['FixedTerm'] ?? 0,
+                'PeakSeason' => $counts['PeakSeason'] ?? 0,
+                'Total' => $counts['Total'] ?? 0,
             ];
         }
 

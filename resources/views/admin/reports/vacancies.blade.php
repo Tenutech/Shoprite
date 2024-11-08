@@ -23,12 +23,6 @@
                         <div class="row g-3 mb-0 align-items-center">
                             <div class="col-sm-auto">
                                 <div class="input-group">
-                                    {{-- <input type="text" id="dateFilter"
-                                        class="form-control border-0 dash-filter-picker shadow">
-                                    <div class="input-group-text bg-primary border-primary text-white">
-                                        <i class="ri-calendar-2-line"></i>
-                                    </div> --}}
-                                    <!-- Refresh Button with Tooltip and a gap (margin-left) -->
                                     <button class="btn btn-info ms-2" id="refreshBtn" data-bs-toggle="tooltip"
                                         data-bs-placement="top" title="Refresh data" onclick="location.reload();">
                                         <i class="ri-refresh-line align-bottom"></i>
