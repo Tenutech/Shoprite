@@ -640,13 +640,13 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/reports/applicants', [App\Http\Controllers\Reports\ApplicantsController::class, 'index'])->name('applicants.reports.index');
+    Route::get('/reports/applicants', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'index'])->name('applicants.reports.index');
 
     Route::get('/reports/stores', [App\Http\Controllers\Reports\StoresController::class, 'index'])->name('stores.reports.index');
 
     Route::get('/reports/vacancies', [App\Http\Controllers\Reports\VacanciesController::class, 'index'])->name('vacancies.reports.index');
 
-    });
+});
 
 /*
 |--------------------------------------------------------------------------

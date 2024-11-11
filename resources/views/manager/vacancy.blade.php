@@ -34,7 +34,7 @@
                     </h4>
                 </div><!-- end card header -->
                 <div class="card-body form-steps">
-                    <form class="vertical-navs-step" id="{{ $vacancy ? 'formVacancyUpdate' : 'formVacancy' }}"  enctype="multipart/form-data">
+                    <form class="vertical-navs-step" id="{{ $vacancy ? 'formVacancyUpdate' : 'formVacancy' }}" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" id="id" name="id" value="{{ $vacancy ? Crypt::encryptString($vacancy->id) : '' }}"/>
                         <div class="row gy-5">
