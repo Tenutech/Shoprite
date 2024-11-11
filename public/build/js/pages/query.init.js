@@ -87,6 +87,45 @@ $(document).ready(function() {
     $("#formQuery").submit(function(e){
         e.preventDefault();
 
+        // Get the category select field and check if a category is selected
+        const categorySelect = document.getElementById("category");
+        const categoryValue = categorySelect.value;
+
+        // Reference the container for Choices.js
+        let choicesDiv = categorySelect.closest('.mb-3');
+        let choicesContainer = choicesDiv.querySelector('.choices');
+
+        // Check if category is selected
+        if (!categoryValue) {
+            // Apply error styles if category is not selected
+            if (choicesContainer) {
+                choicesContainer.style.border = '1px solid #f17171';
+            }
+            
+            // Display feedback message
+            let feedbackDiv = choicesDiv.querySelector('.invalid-feedback');
+            if (!feedbackDiv) {
+                // Create feedback div if it doesn't exist
+                feedbackDiv = document.createElement('div');
+                feedbackDiv.classList.add('invalid-feedback');
+                feedbackDiv.textContent = 'Please select a category.';
+                choicesDiv.appendChild(feedbackDiv);
+            }
+            feedbackDiv.style.display = 'block';
+            
+            // Exit the function early since form is invalid
+            return;
+        } else {
+            // Clear error styles if category is valid
+            if (choicesContainer) {
+                choicesContainer.style.border = '';
+            }
+            let feedbackDiv = choicesDiv.querySelector('.invalid-feedback');
+            if (feedbackDiv) {
+                feedbackDiv.style.display = 'none';
+            }
+        }
+
         var formData = new FormData($(this)[0]);
 
         var body = $("#body .ql-editor").html();
@@ -117,6 +156,11 @@ $(document).ready(function() {
                         badgeClass = 'bg-success';
                     }
 
+                    // Format created_at and updated_at dates
+                    let createdAt = new Date(query.created_at).toLocaleString();
+                    let updatedAt = new Date(query.updated_at).toLocaleString();
+                    let categoryName = data.category ? data.category.name : '';
+
                     // Create new accordion item HTML
                     let newQueryHtml = `
                         <div class="accordion-item">
@@ -146,6 +190,16 @@ $(document).ready(function() {
                                         <h6>Answer:</h6>
                                         <p class="text-danger">${query.answer}</p>
                                     </div>` : ''}
+                                    <hr>
+                                    <div class="d-flex justify-content-between text-muted">
+                                        <small>
+                                            Created at: <b>${createdAt}</b> | 
+                                            Updated at: <b>${updatedAt}</b>
+                                        </small>
+                                        <small class="text-end">
+                                            <b>${categoryName}</b>
+                                        </small>
+                                    </div>
                                 </div>
                             </div>
                         </div>
