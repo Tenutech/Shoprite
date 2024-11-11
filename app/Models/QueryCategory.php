@@ -7,36 +7,21 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class Query extends Model
+class QueryCategory extends Model
 {
     use HasFactory;
     use LogsActivity;
 
     protected $fillable = [
-        'jira_issue_id',
-        'user_id',
-        'firstname',
-        'lastname',
-        'email',
-        'phone',
-        'subject',
-        'body',
-        'category_id',
+        'name',
+        'description',
         'severity',
-        'status',
-        'answer'
     ];
 
-    //User
-    public function user()
+    //Queries
+    public function queries()
     {
-        return $this->belongsTo(User::class);
-    }
-
-    //Category
-    public function category()
-    {
-        return $this->belongsTo(QueryCategory::class, 'category_id');
+        return $this->hasMany(Query::class);
     }
 
     /**
