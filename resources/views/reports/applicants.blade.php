@@ -45,10 +45,10 @@
                 <div class="col-12">
                     <div class="d-flex align-items-lg-center flex-lg-row flex-column">
                         <div class="flex-grow-1">
-                            <a href="{{ route('email.export') }}" type="button" class="btn btn-success btn-label">
+                            <button type="button" id="exportReport" class="btn btn-success btn-label">
                                 <i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i>
                                 Export Report
-                            </a>
+                            </button>
                         </div>
                         <div class="mt-3 mt-lg-0">
                             <div class="row g-3 mb-0 align-items-center">
@@ -96,7 +96,7 @@
                                         </span>
                                     </h4>
                                 </div>
-                                <div class="flex-shrink-0 d-none">
+                                <div id="totalApplicantsChart" class="flex-shrink-0 d-none">
                                     <div id="total_applicants" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
                                 </div>
                             </div>
@@ -124,7 +124,7 @@
                                         </span>
                                     </h4>
                                 </div>
-                                <div class="flex-shrink-0 d-none">
+                                <div id="totalApplicantsAppointedChart" class="flex-shrink-0 d-none">
                                     <div id="total_appointed_applicants" data-colors='["--vz-success"]' class="apex-charts" dir="ltr"></div>
                                 </div>
                             </div>
@@ -291,7 +291,7 @@
                                     <label for="experience" class="form-label">
                                         Experience
                                     </label>
-                                    <select class="form-control" id="experience" name="experience_id" data-choices data-choices-search-false>
+                                    <select class="form-control" id="experience" name="duration_id" data-choices data-choices-search-false>
                                         <option value="" selected>Select experience level</option>
                                         @foreach ($experiences as $experience)
                                             <option value="{{ $experience->id }}">
