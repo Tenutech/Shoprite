@@ -200,7 +200,7 @@
                                     <label for="gender" class="form-label">
                                         Gender
                                     </label>
-                                    <select class="form-control" id="gender" name="gender_id" data-choices data-choices-search-false>
+                                    <select class="form-control" id="gender" name="gender_id">
                                         <option value="" selected>Select gender</option>
                                         @foreach ($genders as $gender)
                                             <option value="{{ $gender->id }}">
@@ -221,7 +221,7 @@
                                     <label for="race" class="form-label">
                                         Ethnicity
                                     </label>
-                                    <select class="form-control" id="race" name="race_id" data-choices data-choices-search-false>
+                                    <select class="form-control" id="race" name="race_id">
                                         <option value="" selected>Select ethnicity</option>
                                         @foreach ($races as $race)
                                             <option value="{{ $race->id }}">
@@ -270,7 +270,7 @@
                                     <label for="education" class="form-label">
                                         Highest Qualification
                                     </label>
-                                    <select class="form-control" id="education" name="education_id" data-choices data-choices-search-false>
+                                    <select class="form-control" id="education" name="education_id">
                                         <option value="" selected>Select education level</option>
                                         @foreach ($educations as $education)
                                             <option value="{{ $education->id }}">
@@ -291,7 +291,7 @@
                                     <label for="experience" class="form-label">
                                         Experience
                                     </label>
-                                    <select class="form-control" id="experience" name="duration_id" data-choices data-choices-search-false>
+                                    <select class="form-control" id="experience" name="duration_id">
                                         <option value="" selected>Select experience level</option>
                                         @foreach ($experiences as $experience)
                                             <option value="{{ $experience->id }}">
@@ -418,7 +418,7 @@
                                     <label for="employment" class="form-label">
                                         Employment Status
                                     </label>
-                                    <select class="form-control" id="employment" name="employment" data-choices data-choices-search-false>
+                                    <select class="form-control" id="employment" name="employment">
                                         <option value="" selected>Select employment status</option>
                                         <option value="A">Active Employee</option>
                                         <option value="B">Blacklisted</option>
@@ -439,7 +439,7 @@
                                     <label for="completed" class="form-label">
                                         Application Completed
                                     </label>
-                                    <select class="form-control" id="completed" name="completed" data-choices data-choices-search-false>
+                                    <select class="form-control" id="completed" name="completed">
                                         <option value=""selected>Select complete status</option>
                                         <option value="No">No</option>
                                         <option value="Yes">Yes</option>
@@ -457,7 +457,7 @@
                                     <label for="shortlisted" class="form-label">
                                         Shortlisted
                                     </label>
-                                    <select class="form-control" id="shortlisted" name="shortlisted" data-choices data-choices-search-false>
+                                    <select class="form-control" id="shortlisted" name="shortlisted">
                                         <option value=""selected>Select shortlist status</option>
                                         <option value="No">No</option>
                                         <option value="Yes">Yes</option>
@@ -475,7 +475,7 @@
                                     <label for="interviewed" class="form-label">
                                         Interviewed
                                     </label>
-                                    <select class="form-control" id="interviewed" name="interviewed" data-choices data-choices-search-false>
+                                    <select class="form-control" id="interviewed" name="interviewed">
                                         <option value="" selected>Select interview status</option>
                                         <option value="No">No</option>
                                         <option value="Yes">Yes</option>
@@ -493,7 +493,7 @@
                                     <label for="appointed" class="form-label">
                                         Appointed
                                     </label>
-                                    <select class="form-control" id="appointed" name="appointed" data-choices data-choices-search-false>
+                                    <select class="form-control" id="appointed" name="appointed">
                                         <option value="" selected>Select appointment status</option>
                                         <option value="No">No</option>
                                         <option value="Yes">Yes</option>
@@ -511,7 +511,7 @@
                                     <label for="store" class="form-label">
                                         Store
                                     </label>
-                                    <select class="form-control" id="store" name="store_id" data-choices data-choices-search-true>
+                                    <select class="form-control" id="store" name="store_id">
                                         <option value="" selected>Select store</option>
                                         @foreach ($stores as $store)
                                             <option value="{{ $store->id }}">

@@ -18,11 +18,99 @@ $(document).ready(function() {
     var endDate = new Date(); // Today's date
 
     // Initialize Flatpickr with the #dateFilter selector
-    flatpickr("#date", {
+    var datePicker = flatpickr("#date", {
         mode: "range",
         dateFormat: "d M Y",
         defaultDate: [formatDate(startDate), formatDate(endDate)], // Set default date range
     });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Initialize Choices for Select Fields
+    |--------------------------------------------------------------------------
+    */
+
+    var genderChoice = new Choices('#gender', { searchEnabled: false, shouldSort: true });
+    var raceChoice = new Choices('#race', { searchEnabled: false, shouldSort: true });
+    var educationChoice = new Choices('#education', { searchEnabled: false, shouldSort: true });
+    var experienceChoice = new Choices('#experience', { searchEnabled: false, shouldSort: true });
+    var employmentChoice = new Choices('#employment', { searchEnabled: false, shouldSort: true });
+    var completedChoice = new Choices('#completed', { searchEnabled: false, shouldSort: true });
+    var shortlistedChoice = new Choices('#shortlisted', { searchEnabled: false, shouldSort: true });
+    var interviewedChoice = new Choices('#interviewed', { searchEnabled: false, shouldSort: true });
+    var appointedChoice = new Choices('#appointed', { searchEnabled: false, shouldSort: true });
+    var storeChoice = new Choices('#store', { searchEnabled: true, shouldSort: true });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear Filters Button
+    |--------------------------------------------------------------------------
+    */
+
+    // Call clearFilters on Clear Filters button click
+    $('#clearFilters').on('click', function (event) {
+        event.preventDefault(); // Prevent default action if within a form
+        clearFilters(); // Call the function to clear all fields
+    });
+
+    /*
+    |--------------------------------------------------------------------------
+    | Clear Filters
+    |--------------------------------------------------------------------------
+    */
+
+    // Define the clearFilters function
+    function clearFilters() {
+        // Reset each input and select field individually
+        datePicker.setDate([formatDate(startDate), formatDate(endDate)]); // Reset date field
+
+        // Reset each Choices instance to default (empty)
+        genderChoice.removeActiveItems();
+        genderChoice.setChoiceByValue("");
+        
+        raceChoice.removeActiveItems();
+        raceChoice.setChoiceByValue("");
+        
+        educationChoice.removeActiveItems();
+        educationChoice.setChoiceByValue("");
+        
+        experienceChoice.removeActiveItems();
+        experienceChoice.setChoiceByValue("");
+        
+        employmentChoice.removeActiveItems();
+        employmentChoice.setChoiceByValue("");
+        
+        completedChoice.removeActiveItems();
+        completedChoice.setChoiceByValue("");
+        
+        shortlistedChoice.removeActiveItems();
+        shortlistedChoice.setChoiceByValue("");
+        
+        interviewedChoice.removeActiveItems();
+        interviewedChoice.setChoiceByValue("");
+        
+        appointedChoice.removeActiveItems();
+        appointedChoice.setChoiceByValue("");
+        
+        storeChoice.removeActiveItems();
+        storeChoice.setChoiceByValue("");
+
+        // Clear all number input fields
+        $('#minAge').val('');
+        $('#maxAge').val('');
+        $('#minLiteracy').val('');
+        $('#maxLiteracy').val('');
+        $('#minNumeracy').val('');
+        $('#maxNumeracy').val('');
+        $('#minSituational').val('');
+        $('#maxSituational').val('');
+        $('#minOverall').val('');
+        $('#maxOverall').val('');
+
+        // Optionally reset any validation states or styling
+        $('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
+        $('.invalid-feedback').hide(); // Hide error messages
+    }
 });
 
 /*
@@ -218,7 +306,6 @@ $(document).ready(function() {
         });
     });
 });
-
 
 /*
 |--------------------------------------------------------------------------
