@@ -2,6 +2,7 @@
 
 namespace App\Exports;
 
+use Carbon\Carbon;
 use App\Models\Applicant;
 use App\Models\Store;
 use App\Models\State;
@@ -13,10 +14,13 @@ use Maatwebsite\Excel\Concerns\WithStyles;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Sheet;
-use Carbon\Carbon;
+use Illuminate\Support\Facades\Crypt;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
+use Maatwebsite\Excel\Concerns\WithTitle;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use Illuminate\Support\Facades\Log;
 
-class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithMapping
+class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle
 {
     protected $type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters;
 
@@ -28,6 +32,16 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
         $this->endDate = $endDate;
         $this->maxDistanceFromStore = $maxDistanceFromStore;
         $this->filters = $filters;
+    }
+
+    /**
+     * Set the worksheet title.
+     *
+     * @return string
+     */
+    public function title(): string
+    {
+        return 'Applicants';
     }
 
     /**
@@ -159,35 +173,65 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
      */
     public function map($applicant): array
     {
+        // Retrieve the complete state ID
+        $completeStateID = State::where('code', 'complete')->value('id');
+
+        // Calculate assessment score percentage
+        $assessmentScore = '';
+        if (
+            isset($applicant->literacy_score, $applicant->numeracy_score, $applicant->situational_score) &&
+            isset($applicant->literacy_questions, $applicant->numeracy_questions, $applicant->situational_questions)
+        ) {
+            $totalScore = $applicant->literacy_score + $applicant->numeracy_score + $applicant->situational_score;
+            $totalQuestions = $applicant->literacy_questions + $applicant->numeracy_questions + $applicant->situational_questions;
+            if ($totalQuestions > 0) {
+                $assessmentScore = round(($totalScore / $totalQuestions) * 100);
+            }
+        }
+
+        // Get brands as a comma-separated string
+        $brands = $applicant->brands->pluck('name')->join(', ');
+
+        // Check if the applicant is appointed
+        $appointed = $applicant->appointed_id ? 'Yes' : 'No';
+
+        // Retrieve the SAP Number if appointed
+        $sapNumber = '';
+        if ($appointed === 'Yes') {
+            // Get the latest SAP number from the pivot data if available
+            $sapNumber = $applicant->vacanciesFilled()->latest()->first()->pivot->sap_number ?? '';
+        }
+
         return [
-            $applicant->created_at->format('Y-m-d H:i:s'),
-            $applicant->id_number,
-            $applicant->first_name,
-            $applicant->last_name,
-            $applicant->date_of_birth ? $applicant->date_of_birth->format('Y-m-d') : null,
-            $applicant->age,
-            $applicant->gender,
-            $applicant->cell_number,
-            $applicant->rsa_id_image_url,
-            $applicant->primary_contact_number,
-            $applicant->email,
-            $applicant->agreed_to_terms ? 'Yes' : 'No',
-            $applicant->shift_basis,
-            $applicant->work_environment,
-            $applicant->highest_qualification,
-            $applicant->background_check ? 'Yes' : 'No',
-            $applicant->experience,
-            $applicant->province,
-            $applicant->brands,
-            $applicant->race,
-            $applicant->home_address,
-            $applicant->picture_uploaded ? 'Yes' : 'No',
-            $applicant->disability,
-            $applicant->assessment_score,
-            $applicant->application_source,
-            $applicant->is_duplicate ? 'Yes' : 'No',
-            $applicant->dropped_off ? 'Yes' : 'No',
-            $applicant->drop_off_stage,
+            $applicant->created_at->format('Y-m-d H:i'),
+            $applicant->id_number ?? '',
+            $applicant->documents()->latest()->first() ? url('documents/view/' . Crypt::encryptString($applicant->documents()->latest()->first()->id)) : '',
+            $applicant->firstname ?? '',
+            $applicant->lastname ?? '',
+            $applicant->birth_date ? date('Y-m-d', strtotime($applicant->birth_date)) : '',
+            $applicant->age ?? '',
+            optional($applicant->gender)->name ?? '',
+            optional($applicant->race)->name ?? '',
+            $applicant->phone ?? '',
+            $applicant->email ?? '',
+            optional($applicant->education)->name ?? '',
+            optional($applicant->duration)->name ?? '',
+            optional($applicant->town)->name ?? '',
+            optional(optional($applicant->town)->province)->name ?? '',
+            $brands ?? '',
+            $applicant->location ?? '',
+            $applicant->terms_conditions ?? '',
+            $applicant->public_holidays,
+            $applicant->environment,
+            $applicant->consent ?? '',            
+            $applicant->disability ?? '',
+            $assessmentScore ?? '',
+            $applicant->score ?? '',
+            $applicant->application_type ?? '',
+            $applicant->state_id < $completeStateID ? 'Yes' : 'No',
+            optional($applicant->state)->name ?? '',
+            $appointed ?? '',
+            $sapNumber ?? '',
         ];
     }
 
@@ -199,34 +243,35 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
     public function headings(): array
     {
         return [
-            'Application Date/Time',
+            'Application Date',
             'ID Number',
+            'ID Image URL',
             'First Name',
             'Last Name',
             'Date of Birth',
             'Age',
             'Gender',
-            'Cell Number',
-            'RSA ID Image URL',
-            'Primary Contact Number',
-            'Email Address',
-            'Agreed to Terms & Conditions',
-            'Shift Basis?',
-            'Work Environment',
-            'Highest Qualification',
-            'Condones Background Check',
-            'Experience',
-            'Province',
-            'Brands (Shoprite/Checkers/Usave/All)',
             'Race',
+            'Phone Number',
+            'Email Address',
+            'Highest Qualification',
+            'Experience',
+            'Town',
+            'Province',
+            'Brands',
             'Home Address',
-            'Picture Uploaded',
+            'Terms & Conditions',
+            'Shift Basis',
+            'Work Environment',
+            'Background Check',
             'Disability',
             'Assessment Score',
-            'Source of Application (WhatsApp/URL)',
-            'Duplicate Application',
-            'Drop off? Yes/No',
-            'If Dropped Off, Where in Process?',
+            'Overall Score',
+            'Application Channel',
+            'Drop off',
+            'State',
+            'Appointed',
+            'SAP Number',
         ];
     }
 
@@ -238,9 +283,20 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
      */
     public function styles(Worksheet $sheet)
     {
-        return [
+        // Bold header row
+        $styles = [
             1 => ['font' => ['bold' => true]],
         ];
+
+        // Set left alignment and wrap text for all cells
+        $sheet->getStyle('A:AC')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+
+        // Format specific columns for numbers (e.g., ID Number and Phone)
+        $sheet->getStyle('B')->getNumberFormat()->setFormatCode('0'); // ID Number as an integer
+        $sheet->getStyle('J')->getNumberFormat()->setFormatCode('0'); // Phone Number as an integer
+        $sheet->getStyle('AC')->getNumberFormat()->setFormatCode('0'); // SAP Number as an integer
+
+        return $styles;
     }
 
     /**
@@ -250,6 +306,36 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
      */
     public function columnWidths(): array
     {
-        return array_fill_keys(range('A', 'AB'), 25);
+        return [
+            'A' => 20, // Application Date
+            'B' => 20, // ID Number
+            'C' => 20, // ID Image URL
+            'D' => 20, // First Name
+            'E' => 20, // Last Name
+            'F' => 15, // Date of Birth
+            'G' => 10, // Age
+            'H' => 15, // Gender
+            'I' => 15, // Race
+            'J' => 15, // Phone Number
+            'K' => 25, // Email Address
+            'L' => 20, // Highest Qualification
+            'M' => 20, // Experience
+            'N' => 15, // Town
+            'O' => 15, // Province
+            'P' => 25, // Brands
+            'Q' => 40, // Home Address
+            'R' => 20, // Terms & Conditions
+            'S' => 20, // Shift Basis
+            'T' => 20, // Work Environment
+            'U' => 20, // Background Check
+            'V' => 15, // Disability
+            'W' => 20, // Assessment Score
+            'X' => 20, // Overall Score
+            'Y' => 20, // Application Channel
+            'Z' => 15, // Drop off
+            'AA' => 25, // State
+            'AB' => 15, // State
+            'AC' => 15, // State
+        ];
     }
 }
