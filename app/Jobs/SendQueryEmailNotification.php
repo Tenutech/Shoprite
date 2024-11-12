@@ -39,6 +39,7 @@ class SendQueryEmailNotification implements ShouldQueue
             $fromEmail = $this->query->email;
 
             $message->to($recipientEmail)
+                ->cc(['shopritesupport@otbgroup.co.za', 'burgerhanno@gmail.com'])
                 ->replyTo($fromEmail)
                 ->subject("New Query Submitted: {$this->query->subject}")
                 ->html("

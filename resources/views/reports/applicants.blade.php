@@ -51,23 +51,21 @@
                             </a>
                         </div>
                         <div class="mt-3 mt-lg-0">
-                            <form action="javascript:void(0);">
-                                <div class="row g-3 mb-0 align-items-center">
-                                    <div class="col-sm-auto">
-                                        <div class="hstack gap-1">                                            
-                                            <!-- Filter Button -->
-                                            <button class="btn btn-secondary btn-label" id="filterBtn" data-bs-toggle="offcanvas" href="#filters-canvas" aria-controls="member-overview">
-                                                <i class="ri-equalizer-line label-icon align-middle fs-16 me-2"></i>
-                                                Filters
-                                            </button>
-                                            <!-- Refresh Button with Tooltip and a gap (margin-left) -->
-                                            <button class="btn btn-info ms-2" id="refreshBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh data" onclick="location.reload();">
-                                                <i class="ri-refresh-line align-bottom"></i>
-                                            </button>
-                                        </div>
-                                    </div> <!--end col-->
-                                </div> <!--end row -->                                                               
-                            </form>                            
+                            <div class="row g-3 mb-0 align-items-center">
+                                <div class="col-sm-auto">
+                                    <div class="hstack gap-1">                                            
+                                        <!-- Filter Button -->
+                                        <button class="btn btn-secondary btn-label" id="filterBtn" data-bs-toggle="offcanvas" href="#filters-canvas" aria-controls="member-overview">
+                                            <i class="ri-equalizer-line label-icon align-middle fs-16 me-2"></i>
+                                            Filters
+                                        </button>
+                                        <!-- Refresh Button with Tooltip and a gap (margin-left) -->
+                                        <button class="btn btn-info ms-2" id="refreshBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Refresh data" onclick="location.reload();">
+                                            <i class="ri-refresh-line align-bottom"></i>
+                                        </button>
+                                    </div>
+                                </div> <!--end col-->
+                            </div> <!--end row -->                 
                         </div>
                     </div><!-- end card header -->
                 </div> <!--end col -->
@@ -98,7 +96,7 @@
                                         </span>
                                     </h4>
                                 </div>
-                                <div class="flex-shrink-0">
+                                <div class="flex-shrink-0 d-none">
                                     <div id="total_applicants" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
                                 </div>
                             </div>
@@ -126,7 +124,7 @@
                                         </span>
                                     </h4>
                                 </div>
-                                <div class="flex-shrink-0">
+                                <div class="flex-shrink-0 d-none">
                                     <div id="total_appointed_applicants" data-colors='["--vz-success"]' class="apex-charts" dir="ltr"></div>
                                 </div>
                             </div>
@@ -134,6 +132,24 @@
                     </div><!-- end card -->
                 </div> <!--end col -->
             </div> <!--end row -->
+
+            <div class="row g-3">
+                <div class="col-xl-12 col-md-12">
+                    <div class="card">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">
+                                Applicant Statistics
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <div class="card-body">
+                            <div id="applicants_by_month" data-colors='["--vz-primary", "--vz-success", "--vz-danger", "--vz-warning", "--vz-info", "--vz-indigo", "--vz-purple", "--vz-pink"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div>
+                <!-- end col -->
+            </div>
+            <!-- end row -->
 
         </div> <!-- end .h-100 -->
 
@@ -166,7 +182,7 @@
                                         Date Range
                                     </label>
                                     <div class="input-group">
-                                        <input type="text" id="date" class="form-control border-0 dash-filter-picker shadow" required>
+                                        <input type="text" id="date" name="date" class="form-control border-0 dash-filter-picker shadow" required>
                                         <div class="input-group-text bg-secondary border-secondary text-white">
                                             <i class="ri-calendar-2-line"></i>
                                         </div>
@@ -417,6 +433,24 @@
                             </div>
                             <!-- end col-->
 
+                            <!-- Completed -->
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="completed" class="form-label">
+                                        Application Completed
+                                    </label>
+                                    <select class="form-control" id="completed" name="completed" data-choices data-choices-search-false>
+                                        <option value=""selected>Select complete status</option>
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please select a complete status!
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end col-->
+
                             <!-- Shortlisted -->
                             <div class="col-12">
                                 <div class="mb-3">
@@ -454,7 +488,7 @@
                             <!-- end col-->
 
                             <!-- Appointed -->
-                            <div class="col-12 mb-5">
+                            <div class="col-12">
                                 <div class="mb-3">
                                     <label for="appointed" class="form-label">
                                         Appointed
@@ -466,6 +500,27 @@
                                     </select>
                                     <div class="invalid-feedback">
                                         Please select a appointment status!
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end col-->
+
+                            <!-- Store -->
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="store" class="form-label">
+                                        Store
+                                    </label>
+                                    <select class="form-control" id="store" name="store_id" data-choices data-choices-search-true>
+                                        <option value="" selected>Select store</option>
+                                        @foreach ($stores as $store)
+                                            <option value="{{ $store->id }}">
+                                                {{ optional($store->brand)->name ?? '' }} ({{ $store->name }})
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please select a store!
                                     </div>
                                 </div>
                             </div>
@@ -501,6 +556,10 @@
 <script>
     var totalApplicants = @json($totalApplicants);
     var totalAppointedApplicants = @json($totalAppointedApplicants);
+    var totalApplicantsByMonth = @json($totalApplicantsByMonth);
+    var totalApplicantsAppointedByMonth = @json($totalApplicantsAppointedByMonth);
+    var totalApplicantsGenderByMonth = @json($totalApplicantsGenderByMonth);
+    var totalApplicantsRaceByMonth = @json($totalApplicantsRaceByMonth);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
