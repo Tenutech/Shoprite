@@ -35,11 +35,11 @@ class SendQueryEmailNotification implements ShouldQueue
     {
         // Send the email
         Mail::send([], [], function ($message) {
-            $recipientEmail = 'shopritesupport@otbgroup.co.za';
+            $recipientEmail = 'shoprite@caxsa1727338631.zendesk.com';
             $fromEmail = $this->query->email;
 
             $message->to($recipientEmail)
-                ->replyTo('support@yourdomain.com')
+                ->replyTo($fromEmail)
                 ->subject("New Query Submitted: {$this->query->subject}")
                 ->html("
                     <p>A new query has been submitted:</p>

@@ -640,13 +640,17 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     |--------------------------------------------------------------------------
     */
 
-    Route::get('/reports/applicants', [App\Http\Controllers\Reports\ApplicantsController::class, 'index'])->name('applicants.reports.index');
+    Route::get('/reports/applicants', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'index'])->name('applicants.reports.index');
+
+    Route::post('/reports/applicants/update', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'update'])->name('applicants.reports.update');
+
+    Route::post('/reports/applicants/export', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'export'])->name('applicants.reports.export');
 
     Route::get('/reports/stores', [App\Http\Controllers\Reports\StoresController::class, 'index'])->name('stores.reports.index');
 
     Route::get('/reports/vacancies', [App\Http\Controllers\Reports\VacanciesController::class, 'index'])->name('vacancies.reports.index');
 
-    });
+});
 
 /*
 |--------------------------------------------------------------------------

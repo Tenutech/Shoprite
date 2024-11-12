@@ -195,7 +195,9 @@ class Applicant extends Model
     //Vacancies Filled
     public function vacanciesFilled()
     {
-        return $this->belongsToMany(Vacancy::class, 'vacancy_fills', 'applicant_id', 'vacancy_id')->withTimestamps();
+        return $this->belongsToMany(Vacancy::class, 'vacancy_fills', 'applicant_id', 'vacancy_id')
+                    ->withPivot('sap_number') // Include the sap_number from the pivot table
+                    ->withTimestamps();
     }
 
     //Documents

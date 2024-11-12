@@ -116,6 +116,31 @@
                 @endif
                 @if ($user->role_id <= 2)
                     <li class="nav-item">
+                        <a class="nav-link menu-link" href="#sidebarReports" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarReports">
+                            <i class="ri-line-chart-line"></i>
+                            <span>Reports</span>
+                        </a>
+                        <div class="collapse menu-dropdown" id="sidebarReports">
+                            <ul class="nav nav-sm flex-column">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('applicants.reports.index') }}">
+                                        Applicants
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('stores.reports.index') }}">
+                                        Stores
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('vacancies.reports.index') }}">
+                                        Vacancies
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                    <li class="nav-item d-none">
                         <a class="nav-link menu-link" href="#sidebarApprovals" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarApprovals">
                             <i class="ri-shield-check-line"></i>
                             <span>Approvals</span>
@@ -294,31 +319,6 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('hours.index') }}">
                                         Working Hours
-                                    </a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link menu-link" href="#sidebarReports" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarReports">
-                            <i class="ri-briefcase-3-line"></i>
-                            <span>Reports</span>
-                        </a>
-                        <div class="collapse menu-dropdown" id="sidebarReports">
-                            <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('applicants.reports.index') }}">
-                                        Applicants
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('stores.reports.index') }}">
-                                        Stores
-                                    </a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('vacancies.reports.index') }}">
-                                        Vacancies
                                     </a>
                                 </li>
                             </ul>
