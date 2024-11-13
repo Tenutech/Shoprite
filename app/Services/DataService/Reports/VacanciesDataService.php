@@ -15,19 +15,46 @@ class VacanciesDataService
      */
     public function getFilteredVacancies($filters): Collection
     {
-        return Vacancy::query()
-            ->when($filters['position_id'], fn($query) => $query->where('position_id', $filters['position_id']))
-            ->when($filters['store_id'], fn($query) => $query->where('store_id', $filters['store_id']))
-            ->when($filters['user_id'], fn($query) => $query->where('user_id', $filters['user_id']))
-            ->when($filters['type_id'], fn($query) => $query->where('type_id', $filters['type_id']))
-            ->when($filters['filled_positions'], fn($query) => $query->where('filled_positions', $filters['filled_positions']))
-            ->when($filters['start_date'] && $filters['end_date'], function ($query) use ($filters) {
-                $query->whereBetween('created_at', [
-                    Carbon::parse($filters['start_date']),
-                    Carbon::parse($filters['end_date']),
-                ]);
-            })
-            ->get();
+        $query = Vacancy::query();
+        $this->applyFilters($query, $filters);
+        return $query->get();
+    }
+
+    /**
+     * Apply the given filters to the query.
+     *
+     * @param \Illuminate\Database\Eloquent\Builder $query
+     * @param array $filters
+     * @return void
+     */
+    public function applyFilters($query, array $filters): void
+    {
+        if (!empty($filters['position_id'])) {
+            $query->where('position_id', $filters['position_id']);
+        }
+
+        if (!empty($filters['store_id'])) {
+            $query->where('store_id', $filters['store_id']);
+        }
+
+        if (!empty($filters['user_id'])) {
+            $query->where('user_id', $filters['user_id']);
+        }
+
+        if (!empty($filters['type_id'])) {
+            $query->where('type_id', $filters['type_id']);
+        }
+
+        if (!empty($filters['filled_positions'])) {
+            $query->where('filled_positions', $filters['filled_positions']);
+        }
+
+        if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
+            $query->whereBetween('created_at', [
+                Carbon::parse($filters['start_date']),
+                Carbon::parse($filters['end_date']),
+            ]);
+        }
     }
 
     /**

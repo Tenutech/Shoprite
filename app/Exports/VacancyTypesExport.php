@@ -70,8 +70,9 @@ class VacancyTypesExport implements FromCollection, WithHeadings, WithStyles, Wi
 
         $exportData = [];
 
-        foreach ($data as $month => $counts) {
-            $exportData[] = [
+        // Convert to a collection and calculate grand totals
+        $exportData = collect($data)->map(function ($counts, $month) {
+            return [
                 'Year-Month' => $month,
                 'FullTime' => $counts['FullTime'] ?? 0,
                 'PartTime' => $counts['PartTime'] ?? 0,
@@ -79,10 +80,22 @@ class VacancyTypesExport implements FromCollection, WithHeadings, WithStyles, Wi
                 'PeakSeason' => $counts['PeakSeason'] ?? 0,
                 'Total' => $counts['Total'] ?? 0,
             ];
-        }
+        });
 
-        // Return as a Collection for Excel
-        return new Collection($exportData);
+        // Calculate grand totals for each relevant column
+        $grandTotal = [
+            'Month' => 'Grand Total',
+            'FullTime' => $exportData->sum('FullTime'),
+            'PartTime' => $exportData->sum('PartTime'),
+            'FixedTerm' => $exportData->sum('FixedTerm'),
+            'PeakSeason' => $exportData->sum('PeakSeason'),
+            'Total' => $exportData->sum('Total'),
+        ];
+
+        $exportData->push($grandTotal);
+
+        // Return the collection
+        return $exportData;
     }
 
     /**

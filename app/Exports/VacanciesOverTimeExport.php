@@ -67,17 +67,28 @@ class VacanciesOverTimeExport implements FromCollection, WithHeadings, WithStyle
 
         $exportData = [];
 
-        foreach ($data as $month => $counts) {
-            $exportData[] = [
+        // Convert to a collection and calculate grand totals
+        $exportData = collect($data)->map(function ($counts, $month) {
+            return [
                 'Year-Month' => $month,
                 'Total Vacancies' => $counts['Total Vacancies'] ?? 0,
                 'Filled Vacancies' => $counts['Filled Vacancies'] ?? 0,
                 'Total' => $counts['Total'] ?? 0,
             ];
-        }
+        });
 
-        // Return as a Collection for Excel
-        return new Collection($exportData);
+        // Calculate grand totals for each relevant column
+        $grandTotal = [
+            'Month' => 'Grand Total',
+            'Total Vacancies' => $exportData->sum('Total Vacancies'),
+            'Filled Vacancies' => $exportData->sum('Filled Vacancies'),
+            'Total' => $exportData->sum('Total'),
+        ];
+
+        $exportData->push($grandTotal);
+
+        // Return the collection
+        return $exportData;
     }
 
     /**

@@ -83,23 +83,39 @@ class VacanciesController extends Controller
         $vacancies = $this->vacanciesDataService->getFilteredVacancies($filters);
         $chartData = $this->vacanciesDataService->prepareChartData($vacancies, $filters['start_date'], $filters['end_date']);
 
+        $users = User::whereHas('vacancies', function ($query) use ($filters) {
+            $this->vacanciesDataService->applyFilters($query, $filters);
+        })->get();
+
+        $stores = Store::whereHas('vacancies', function ($query) use ($filters) {
+            $this->vacanciesDataService->applyFilters($query, $filters);
+        })->get();
+
+        $positions = Position::whereHas('vacancies', function ($query) use ($filters) {
+            $this->vacanciesDataService->applyFilters($query, $filters);
+        })->get();
+
         return response()->json([
             'success' => true,
             'message' => 'Data updated successfully!',
             'chartData' => $chartData,
+            'filters' => [
+                'positions' => $positions,
+                'stores' => $stores,
+                'users' => $users,
+            ],
         ]);
     }
-
     public function exportVacancyTypes(Request $request)
     {
         $filters = $this->getFiltersFromRequest($request);
-        return Excel::download(new VacancyTypesExport($filters), 'vacancy_types.xlsx');
+        return Excel::download(new VacancyTypesExport($filters), 'Vacancy Types.xlsx');
     }
 
     public function exportVacanciesOverTime(Request $request)
     {
         $filters = $this->getFiltersFromRequest($request);
-        return Excel::download(new VacanciesOverTimeExport($filters), 'vacancies_over_time.xlsx');
+        return Excel::download(new VacanciesOverTimeExport($filters), 'Vacancies Over Time.xlsx');
     }
 
     private function getFiltersFromRequest(Request $request)
