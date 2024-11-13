@@ -82,6 +82,7 @@ var options = {
     valueNames: [
         "id",
         "name",
+        "brand",
         "description",
         "icon",
         "color",
@@ -153,6 +154,7 @@ document.querySelector("#avatar").addEventListener("change", function () {
 var idField = document.getElementById("field-id"),
     positionImg = document.getElementById("position-img"),
     positionName = document.getElementById("name"),
+    brand = document.getElementById("brand"),
     description = document.getElementById("description"),
     icon = document.getElementById("icon"),
     color = document.getElementById("color"),
@@ -195,6 +197,11 @@ var tr = table.getElementsByTagName("tr");
 var trlist = table.querySelectorAll(".list tr");
 
 var count = 11;
+
+var brandVal = new Choices(brand, {
+    searchEnabled: true,
+    shouldSort: false
+});
 
 var iconVal = new Choices(icon, {
     searchEnabled: true
@@ -250,9 +257,16 @@ addBtn.addEventListener("click", function (e) {
             },
             success:function(data) {
                 if(data.success == true) {
+                    if (brand.value) {
+                        brandValue = brand.options[brand.selectedIndex].text;
+                    } else {
+                        brandValue = '';
+                    }
+
                     positionList.add({
                         id: data.encID,
                         name: positionName.value,
+                        brand: brandValue,
                         description: $("#description .ql-editor").html(),
                         icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
                         color: '<span class="text-'+ color.value +'">'+ color.value +'</span>',
@@ -339,9 +353,16 @@ editBtn.addEventListener("click", function (e) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
                         if (selectedid == itemId) {
+                            if (brand.value) {
+                                brandValue = brand.options[brand.selectedIndex].text;
+                            } else {
+                                brandValue = '';
+                            }
+
                             x.values({
                                 id: idField.value,
                                 name: positionName.value,
+                                brand: brandValue,
                                 description: $("#description .ql-editor").html(),
                                 icon: '<i class="'+ icon.value + ' text-'+ color.value +' fs-18"></i>',
                                 color: '<span class="text-'+ color.value +'">'+ color.value +'</span>',
@@ -501,6 +522,10 @@ function refreshCallbacks() {
 
                 positionName.value = data.position.name;
 
+                if (data.position.brand_id) {
+                    brandVal.setChoiceByValue(data.position.brand_id.toString());
+                }
+
                 $("#description .ql-editor").html(data.position.description);
 
                 if (data.position.icon) {
@@ -519,6 +544,9 @@ function clearFields() {
     positionImg.src = "build/images/position/assistant.jpg";
 
     positionName.value = "";
+
+    brandVal.removeActiveItems();
+    brandVal.setChoiceByValue("");
 
     $("#description .ql-editor").html('');
 
