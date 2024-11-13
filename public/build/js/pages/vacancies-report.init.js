@@ -179,6 +179,14 @@ document.getElementById('clearFilters').addEventListener('click', function (even
     selectedFilters.position_id = '';
     selectedFilters.store_id = '';
     selectedFilters.user_id = '';
+
+    document.getElementById('positionFilter').value = '';
+    document.getElementById('storeFilter').value = '';
+    document.getElementById('userFilter').value = '';
+    document.getElementById('type_id').value = '';
+    document.getElementById('filled_positions').value = '';
+
+    fetchData();
 });
 
 function renderVacancyTypeBarChart(data) {
