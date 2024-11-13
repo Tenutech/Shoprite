@@ -13,25 +13,25 @@ return new class extends Migration
      */
     public function up()
     {
-        // Create the 'query_categories' table
-        Schema::create('query_categories', function (Blueprint $table) {
-            // Adding an auto-incrementing unsigned integer as the primary key
-            $table->id();
-            
-            // Adding 'name' column with type VARCHAR and a max length of 255 characters
-            $table->string('name', 255);
+        // Check if the 'query_categories' table already exists before creating it
+        if (!Schema::hasTable('query_categories')) {
+            Schema::create('query_categories', function (Blueprint $table) {
+                // Adding an auto-incrementing unsigned integer as the primary key
+                $table->id();
 
-            // Adding 'description' column with type TEXT to store additional details about the category
-            // This column can hold a longer description, providing context or examples for each category
-            $table->text('description')->nullable();
+                // Adding 'name' column with type VARCHAR and a max length of 255 characters
+                $table->string('name', 255);
 
-            // Adding 'severity' column with ENUM type, with allowed values: 'Low', 'High', 'Critical'
-            // ENUM is used here to restrict the values that can be inserted into this field
-            $table->enum('severity', ['Low', 'High', 'Critical']);
-            
-            // Adding timestamps for created_at and updated_at columns to track record creation and updates
-            $table->timestamps();
-        });
+                // Adding 'description' column with type TEXT to store additional details about the category
+                $table->text('description')->nullable();
+
+                // Adding 'severity' column with ENUM type, with allowed values: 'Low', 'High', 'Critical'
+                $table->enum('severity', ['Low', 'High', 'Critical']);
+
+                // Adding timestamps for created_at and updated_at columns to track record creation and updates
+                $table->timestamps();
+            });
+        }
     }
 
     /**
