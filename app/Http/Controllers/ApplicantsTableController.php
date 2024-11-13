@@ -263,7 +263,7 @@ class ApplicantsTableController extends Controller
             // Check if the shortlist ID should be cleared
             if (empty($request->shortlist_id) && !empty($applicant->shortlist_id)) {
                 // Find the shortlist with the current applicant's shortlist_id
-                $shortlist = Shortlist::find($applicant->shortlist_id); 
+                $shortlist = Shortlist::find($applicant->shortlist_id);
 
                 if ($shortlist) {
                     // Decode applicant_ids to array, remove the applicant ID, and re-encode it
