@@ -35,7 +35,7 @@ class VacancyFill extends Model
     //SAP Number
     public function sapNumbers()
     {
-        return $this->belongsTo(SapNumber::class);
+        return $this->belongsTo(SapNumber::class, 'sap_number_id');
     }
 
     /**

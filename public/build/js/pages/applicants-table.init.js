@@ -223,6 +223,9 @@ var idField = document.getElementById("field-id"),
     environment = document.getElementById("environment"),
     disability = document.getElementById("disability"),
     state = document.getElementById("state"),
+    shortlist = document.getElementById("shortlist"),
+    appointed = document.getElementById("appointed"),
+    interview = document.getElementById("interview"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
     editBtns = document.getElementsByClassName("edit-item-btn");
@@ -621,6 +624,14 @@ function refreshCallbacks() {
                 if(data.applicant.state_id) {
                     stateVal.setChoiceByValue(data.applicant.state_id.toString());
                 }
+
+                shortlist.value = data.applicant.shortlist_id;
+
+                if (data.applicant.latest_interview) {
+                    interview.value = data.applicant.latest_interview.id;
+                }
+
+                appointed.value = data.applicant.appointed_id;
             });
         }
     });
@@ -746,6 +757,12 @@ function clearFields() {
 
     stateVal.removeActiveItems();
     stateVal.setChoiceByValue("");
+
+    shortlist.value = "";
+
+    appointed.value = "";
+
+    interview.value = "";
 }
 
 // Delete All Records

@@ -27,7 +27,7 @@ class SapNumber extends Model
     //Vacancy Fills
     public function vacancyFills()
     {
-        return $this->hasMany(VacancyFill::class);
+        return $this->hasMany(VacancyFill::class, 'sap_number_id');
     }
 
     /**
