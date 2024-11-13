@@ -276,8 +276,6 @@ class ApplicantsTableController extends Controller
                     }
                 }
 
-                Log::info($applicant->shortlist_id);
-
                 // Clear the applicant's shortlist_id
                 $applicant->shortlist_id = null;
                 $applicant->save();
