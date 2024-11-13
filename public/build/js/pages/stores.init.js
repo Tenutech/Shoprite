@@ -34,9 +34,13 @@ var perPage = 10;
 var options = {
     valueNames: [
         "id",
+        "code",
         "brand",
         "town",
-        "address"
+        "region",
+        "division",
+        "address",
+        "coordinates"
     ],
     page: perPage,
     pagination: true,
@@ -89,9 +93,13 @@ isCount = new DOMParser().parseFromString(
 );
 
 var idField = document.getElementById("field-id"),
+    code = document.getElementById("code"),
     brand = document.getElementById("brand"),
     town = document.getElementById("town"),
+    region = document.getElementById("region"),
+    division = document.getElementById("division"),
     address = document.getElementById("address"),
+    coordinates = document.getElementById("coordinates"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
@@ -142,6 +150,16 @@ var townVal = new Choices(town, {
     shouldSort: false
 });
 
+var regionVal = new Choices(region, {
+    searchEnabled: true,
+    shouldSort: false
+});
+
+var divisionVal = new Choices(division, {
+    searchEnabled: true,
+    shouldSort: false
+});
+
 /*
 |--------------------------------------------------------------------------
 | Add Store
@@ -178,12 +196,30 @@ addBtn.addEventListener("click", function (e) {
                         townValue = '';
                     }
 
+                    if (region.value) {
+                        regionValue = region.options[region.selectedIndex].text;
+                    } else {
+                        regionValue = '';
+                    }
+
+                    if (division.value) {
+                        divisionValue = division.options[division.selectedIndex].text;
+                    } else {
+                        divisionValue = '';
+                    }
+
                     storeList.add({
                         id: data.encID,
+                        code: code.value,
                         brand: brandValue,
                         town: townValue,
-                        address: address.value                 
+                        region: regionValue,
+                        division: divisionValue,
+                        address: address.value,
+                        coordinates: coordinates.value                 
                     });
+
+                    storeList.sort('code', { order: "asc" });
 
                     Swal.fire({
                         position: 'top-end',
@@ -273,15 +309,33 @@ editBtn.addEventListener("click", function (e) {
                                 townValue = '';
                             }
 
+                            if (region.value) {
+                                regionValue = region.options[region.selectedIndex].text;
+                            } else {
+                                regionValue = '';
+                            }
+        
+                            if (division.value) {
+                                divisionValue = division.options[division.selectedIndex].text;
+                            } else {
+                                divisionValue = '';
+                            }
+
                             x.values({
                                 id: idField.value,
+                                code: code.value,
                                 brand: brandValue,
                                 town: townValue,
-                                address: address.value
+                                region: regionValue,
+                                division: divisionValue,
+                                address: address.value,
+                                coordinates: coordinates.value
                             });
                         }
                     });
 
+                    storeList.sort('code', { order: "asc" });
+                    
                     Swal.fire({
                         position: 'top-end',
                         icon: 'success',
@@ -429,6 +483,8 @@ function refreshCallbacks() {
             }).done(function(data) {
                 idField.value = data.encID;
 
+                code.value = data.store.code;
+
                 if (data.store.brand_id) {
                     brandVal.setChoiceByValue(data.store.brand_id.toString());
                 }
@@ -437,20 +493,40 @@ function refreshCallbacks() {
                     townVal.setChoiceByValue(data.store.town_id.toString());
                 }
 
+                if (data.store.region_id) {
+                    regionVal.setChoiceByValue(data.store.region_id.toString());
+                }
+
+                if (data.store.division_id) {
+                    divisionVal.setChoiceByValue(data.store.division_id.toString());
+                }
+
                 address.value = data.store.address;
+
+                coordinates.value = data.store.coordinates;
             });
         }
     });
 }
 
 function clearFields() {
+    code.value = "";
+
     brandVal.removeActiveItems();
     brandVal.setChoiceByValue("");
 
     townVal.removeActiveItems();
     townVal.setChoiceByValue("");
 
+    regionVal.removeActiveItems();
+    regionVal.setChoiceByValue("");
+
+    divisionVal.removeActiveItems();
+    divisionVal.setChoiceByValue("");
+
     address.value = "";
+
+    coordinates.value = "";
 }
 
 // Delete Multiple Records

@@ -276,12 +276,12 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarJobs">
                             <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
+                                <li class="nav-item d-none">
                                     <a class="nav-link" href="{{ route('experience.index') }}">
                                         Experience
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                <li class="nav-item d-none">
                                     <a class="nav-link" href="{{ route('physical.index') }}">
                                         Physical Requirements
                                     </a>
@@ -293,30 +293,30 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('qualifications.index') }}">
-                                        Qualifications
+                                        Qualifications (Value Add)
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('responsibilities.index') }}">
-                                        Responsibilities
+                                        Responsibilities (Purpose)
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                <li class="nav-item d-none">
                                     <a class="nav-link" href="{{ route('salaries.index') }}">
                                         Salary & Benefits
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('skills.index') }}">
-                                        Skills
+                                        Skills (Do Daily)
                                     </a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('success-factors.index') }}">
-                                        Success Factors
+                                        Success Factors (Make You Great)
                                     </a>
                                 </li>
-                                <li class="nav-item">
+                                <li class="nav-item d-none">
                                     <a class="nav-link" href="{{ route('hours.index') }}">
                                         Working Hours
                                     </a>
