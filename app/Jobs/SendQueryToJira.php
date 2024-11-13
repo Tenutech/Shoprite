@@ -46,7 +46,7 @@ class SendQueryToJira implements ShouldQueue
             'High' => 'High',
             'Critical' => 'Highest',
         ];
-        
+
         $priority = $priorityMap[$this->query->severity] ?? 'Medium'; // Default to 'Medium' if severity is not mapped
 
         $issueData = [

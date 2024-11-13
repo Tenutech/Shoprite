@@ -77,7 +77,7 @@ class ShortlistController extends Controller
                 try {
                     $vacancyID = Crypt::decryptString($request->query('id'));
                     $vacancy = Vacancy::find($vacancyID);
-    
+
                     // If vacancy is not found after decryption
                     if (!$vacancy) {
                         return redirect()->route('shortlist.index')->with('error', 'Vacancy not found! Please select a valid vacancy.');
