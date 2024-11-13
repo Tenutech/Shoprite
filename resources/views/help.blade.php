@@ -24,12 +24,14 @@
                                 <p class="text-success fs-16 mt-3">
                                     If you can not find answer to your question in our FAQ, you can always submit a query. We will respond ASAP!
                                 </p>
-                                <div class="hstack flex-wrap gap-2">
-                                    <button type="button" class="btn btn-primary btn-label rounded-pill" data-bs-toggle="modal" data-bs-target="#queryModal">
-                                        <i class="ri-login-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
-                                        Submit a Query
-                                    </button>
-                                </div>
+                                @if ($user->role_id <= 1)
+                                    <div class="hstack flex-wrap gap-2">
+                                        <button type="button" class="btn btn-primary btn-label rounded-pill" data-bs-toggle="modal" data-bs-target="#queryModal">
+                                            <i class="ri-login-circle-line label-icon align-middle rounded-pill fs-16 me-2"></i> 
+                                            Submit a Query
+                                        </button>
+                                    </div>
+                                @endif
                             </div>
                         </div>
                         <div class="col-xxl-3 ms-auto">
@@ -158,6 +160,16 @@
                                                             <p class="text-danger">{!! $query->answer !!}</p>
                                                         </div>
                                                     @endif
+                                                    <hr>
+                                                    <div class="d-flex justify-content-between text-muted">
+                                                        <small>
+                                                            Created at: <b>{{ $query->created_at->format('Y/m/d H:i') }}</b> | 
+                                                            Updated at: <b>{{ $query->updated_at->format('Y/m/d H:i') }}</b>
+                                                        </small>
+                                                        <small class="text-end">
+                                                            <b>{{ optional($query->category)->name }}</b>
+                                                        </small>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
@@ -171,49 +183,63 @@
         </div><!--end col-->
     </div><!--end row-->
 
-    <!-- Modal Query -->
-    <div class="modal fade zoomIn" id="queryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-xl">
-            <div class="modal-content border-0">
-                <div class="modal-header bg-light p-3">
-                    <h5 class="modal-title" id="exampleModalLabel"></h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
+    @if ($user->role_id <= 1)
+        <!-- Modal Query -->
+        <div class="modal fade zoomIn" id="queryModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-xl">
+                <div class="modal-content border-0">
+                    <div class="modal-header bg-light p-3">
+                        <h5 class="modal-title" id="exampleModalLabel"></h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
+                    </div>
+                    <form id="formQuery" enctype="multipart/form-data">
+                        @csrf
+                        <input type="hidden" id="field-id" name="field_id"/>
+                        <div class="modal-body">
+                            <div class="col-lg-12 mb-3">
+
+                                <div class="mb-3">
+                                    <label for="category" class="form-label">
+                                        Category
+                                    </label>
+                                    <select class="form-control" id="category" name="category" data-choices data-choices-search-true>
+                                        <option value="">Select Category</option>
+                                        @foreach ($categories as $category)
+                                            <option value="{{ $category->id }}">
+                                                {{ $category->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <div class="invalid-feedback" style="margin-top: -12px;">Please select a category</div>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="subject" class="form-label">
+                                        Subject
+                                    </label>
+                                    <input type="text" class="form-control" id="subject" name="subject"/>
+                                </div>
+
+                                <div class="mb-3">
+                                    <label for="body" class="form-label">
+                                        Body
+                                    </label>
+                                    <div class="snow-editor" id="body" name="body" style="height: 500px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">                                        
+                            <div class="hstack gap-2 justify-content-end">
+                                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-success" id="add-btn">Submit</button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
-                <form id="formQuery" enctype="multipart/form-data">
-                    @csrf
-                    <input type="hidden" id="field-id" name="field_id"/>
-                    <div class="modal-body">
-                        <div class="col-lg-12 mb-3">
-
-                            <div class="mb-3">
-                                <label for="subject" class="form-label">
-                                    Subject
-                                </label>
-                                <input type="text" class="form-control" id="subject" name="subject"/>
-                            </div>
-
-                            <div class="mb-3">
-                                <label for="body" class="form-label">
-                                    Body
-                                </label>
-                                <div class="snow-editor" id="body" name="body" style="height: 500px;"></div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal-footer">                                        
-                        <div class="hstack gap-2 justify-content-end">
-                            <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-success" id="add-btn">Submit</button>
-                        </div>
-                    </div>
-                </form>
             </div>
         </div>
-    </div>
-    <!--end modal-->
-
-
-
+        <!--end modal-->
+    @endif
 @endsection
 @section('script')
 <script src="{{ URL::asset('build/libs/quill/quill.min.js') }}"></script>
@@ -221,5 +247,5 @@
 <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
 <script src="{{ URL::asset('build/js/pages/query.init.js') }}"></script>
-    <script src="{{ URL::asset('build/js/app.js') }}"></script>
+<script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

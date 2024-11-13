@@ -84,6 +84,9 @@
             </select>
             <div class="invalid-feedback">Please select a vacancy</div>
         </div>
+        @if(session('error'))
+            <div class="alert alert-danger">{{ session('error') }}</div>
+        @endif
     </div>
 
     <div class="col-md-6">
