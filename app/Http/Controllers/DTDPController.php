@@ -122,6 +122,7 @@ class DTDPController extends Controller
 
             // Step 6: Fetch applicant score data
             $divisionAverageScoreApplicantsAppointed = 0;
+            $divisionAverageAssessmentScoreApplicantsAppointed = 0;
 
             // Step 7: Fetch talent pool data
             $divisionTalentPoolApplicants = 0;
@@ -130,6 +131,11 @@ class DTDPController extends Controller
             // Step 8: Fetch applicants appointed data
             $divisionApplicantsAppointed = 0;
             $divisionApplicantsAppointedByMonth = [];
+
+            // Step 9: Fetch applicant demographic data
+            $divisionTalentPoolApplicantsDemographic = [];
+            $divisionInterviewedApplicantsDemographic = [];
+            $divisionAppointedApplicantsDemographic = [];
 
             // Check if the authenticated user is associated with a division
             if ($divisionId !== null) {
@@ -156,6 +162,7 @@ class DTDPController extends Controller
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
                 $divisionAverageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, $divisionId, $startDate, $endDate);
+                $divisionAverageAssessmentScoreApplicantsAppointed = $this->applicantDataService->getAverageAssessmentScoreApplicantsAppointed($type, $divisionId, $startDate, $endDate);
 
                 // Step 7: Fetch talent pool data from applicantProximityService
                 $divisionTalentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
@@ -164,6 +171,11 @@ class DTDPController extends Controller
                 // Step 8: Fetch applicants appointed data from vacancyDataService
                 $divisionApplicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, $divisionId, $startDate, $endDate);
                 $divisionApplicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, $divisionId, $startDate, $endDate);
+
+                // Step 9: Fetch applicant demographic data from applicantDataService
+                $divisionTalentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
+                $divisionInterviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, $divisionId, $startDate, $endDate);
+                $divisionAppointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, $divisionId, $startDate, $endDate);
             }
 
             // Return the 'dtdp/home' view with the calculated data
@@ -182,10 +194,14 @@ class DTDPController extends Controller
                 'divisionAverageDistanceTalentPoolApplicants' => $divisionAverageDistanceTalentPoolApplicants,
                 'divisionAverageDistanceApplicantsAppointed' => $divisionAverageDistanceApplicantsAppointed,
                 'divisionAverageScoreApplicantsAppointed' => $divisionAverageScoreApplicantsAppointed,
+                'divisionAverageAssessmentScoreApplicantsAppointed' => $divisionAverageAssessmentScoreApplicantsAppointed,
                 'divisionTalentPoolApplicants' => $divisionTalentPoolApplicants,
                 'divisionTalentPoolApplicantsByMonth' => $divisionTalentPoolApplicantsByMonth,
                 'divisionApplicantsAppointed' => $divisionApplicantsAppointed,
-                'divisionApplicantsAppointedByMonth' => $divisionApplicantsAppointedByMonth
+                'divisionApplicantsAppointedByMonth' => $divisionApplicantsAppointedByMonth,
+                'divisionTalentPoolApplicantsDemographic' => $divisionTalentPoolApplicantsDemographic,
+                'divisionInterviewedApplicantsDemographic' => $divisionInterviewedApplicantsDemographic,
+                'divisionAppointedApplicantsDemographic' => $divisionAppointedApplicantsDemographic
             ]);
         }
 
@@ -251,6 +267,7 @@ class DTDPController extends Controller
 
             // Step 6: Fetch applicant score data
             $divisionAverageScoreApplicantsAppointed = 0;
+            $divisionAverageAssessmentScoreApplicantsAppointed = 0;
 
             // Step 7: Fetch talent pool data
             $divisionTalentPoolApplicants = 0;
@@ -259,6 +276,11 @@ class DTDPController extends Controller
             // Step 8: Fetch applicants appointed data
             $divisionApplicantsAppointed = 0;
             $divisionApplicantsAppointedByMonth = [];
+
+            // Step 9: Fetch applicant demographic data
+            $divisionTalentPoolApplicantsDemographic = [];
+            $divisionInterviewedApplicantsDemographic = [];
+            $divisionAppointedApplicantsDemographic = [];
 
             // Check if the authenticated user is associated with a division
             if ($divisionId !== null) {
@@ -285,6 +307,7 @@ class DTDPController extends Controller
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
                 $divisionAverageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, $divisionId, $startDate, $endDate);
+                $divisionAverageAssessmentScoreApplicantsAppointed = $this->applicantDataService->getAverageAssessmentScoreApplicantsAppointed($type, $divisionId, $startDate, $endDate);
 
                 // Step 7: Fetch talent pool data from applicantProximityService
                 $divisionTalentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
@@ -293,6 +316,11 @@ class DTDPController extends Controller
                 // Step 8: Fetch applicants appointed data from vacancyDataService
                 $divisionApplicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, $divisionId, $startDate, $endDate);
                 $divisionApplicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, $divisionId, $startDate, $endDate);
+
+                // Step 9: Fetch applicant demographic data from applicantDataService
+                $divisionTalentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
+                $divisionInterviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, $divisionId, $startDate, $endDate);
+                $divisionAppointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, $divisionId, $startDate, $endDate);
             }
 
             //Data to return
@@ -309,10 +337,14 @@ class DTDPController extends Controller
                 'divisionAverageDistanceTalentPoolApplicants' => $divisionAverageDistanceTalentPoolApplicants,
                 'divisionAverageDistanceApplicantsAppointed' => $divisionAverageDistanceApplicantsAppointed,
                 'divisionAverageScoreApplicantsAppointed' => $divisionAverageScoreApplicantsAppointed,
+                'divisionAverageAssessmentScoreApplicantsAppointed' => $divisionAverageAssessmentScoreApplicantsAppointed,
                 'divisionTalentPoolApplicants' => $divisionTalentPoolApplicants,
                 'divisionTalentPoolApplicantsByMonth' => $divisionTalentPoolApplicantsByMonth,
                 'divisionApplicantsAppointed' => $divisionApplicantsAppointed,
-                'divisionApplicantsAppointedByMonth' => $divisionApplicantsAppointedByMonth
+                'divisionApplicantsAppointedByMonth' => $divisionApplicantsAppointedByMonth,
+                'divisionTalentPoolApplicantsDemographic' => $divisionTalentPoolApplicantsDemographic,
+                'divisionInterviewedApplicantsDemographic' => $divisionInterviewedApplicantsDemographic,
+                'divisionAppointedApplicantsDemographic' => $divisionAppointedApplicantsDemographic
             ];
 
             // Return the updated data as JSON

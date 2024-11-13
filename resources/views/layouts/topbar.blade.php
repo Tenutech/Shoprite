@@ -370,7 +370,7 @@
                                                             @php
                                                                 $causer = $notification->causer; // Get the causer from the notification
                                                                 $isApplicant = is_null($causer); // Check if causer is null
-                                                                $avatarPath = $isApplicant ? optional($notification->applicant)->avatar ?? 'avatar.jpg' : 'images/' . $causer->avatar; // Avatar path
+                                                                $avatarPath = $isApplicant ? optional($notification->applicant)->avatar ?? '/storage/images/avatar.jpg' : '/storage/images/' . $causer->avatar; // Avatar path
                                                             @endphp
                                                             <img src="{{ URL::asset($avatarPath) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                             <div class="flex-grow-1">
@@ -438,7 +438,7 @@
                                                             @php
                                                                 $causer = $notification->causer; // Get the causer from the notification
                                                                 $isApplicant = is_null($causer); // Check if causer is null
-                                                                $avatarPath = $isApplicant ? optional($notification->applicant)->avatar ?? 'avatar.jpg' : 'images/' . $causer->avatar; // Avatar path
+                                                                $avatarPath = $isApplicant ? optional($notification->applicant)->avatar ?? '/storage/images/avatar.jpg' : '/storage/images/' . $causer->avatar; // Avatar path
                                                             @endphp
                                                             <img src="{{ URL::asset($avatarPath) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                             <div class="flex-grow-1">
@@ -506,7 +506,7 @@
                                                             @php
                                                                 $causer = $notification->causer; // Get the causer from the notification
                                                                 $isApplicant = is_null($causer); // Check if causer is null
-                                                                $avatarPath = $isApplicant ? optional($notification->applicant)->avatar ?? 'avatar.jpg' : 'images/' . $causer->avatar; // Avatar path
+                                                                $avatarPath = $isApplicant ? optional($notification->applicant)->avatar ?? '/storage/images/avatar.jpg' : '/storage/images/' . $causer->avatar; // Avatar path
                                                             @endphp
                                                             <img src="{{ URL::asset($avatarPath) }}" class="me-3 rounded-circle avatar-xs" alt="user-pic">
                                                             <div class="flex-grow-1">
