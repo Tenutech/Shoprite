@@ -641,7 +641,7 @@
 @section('script')
     <script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/applicants-table.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/applicants-table.init.js') }}?v={{ filemtime(public_path('build/js/pages/applicants-table.init.js')) }}"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.googlemaps.key') }}&libraries=places"></script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
