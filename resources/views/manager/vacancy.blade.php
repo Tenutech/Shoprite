@@ -124,7 +124,7 @@
                                                 <div class="row gy-3">
                                                     <div class="col-md-12">
                                                         <div class="mb-3">
-                                                            <select class="form-control" id="position" name="position_id" data-choices data-choices-search-true required>
+                                                            <select class="form-control" id="position" name="position_id" required>
                                                                 <option value="">Select Position</option>
                                                                 @foreach ($positions as $position)
                                                                     <option value="{{ $position->id }}"
@@ -246,7 +246,7 @@
                                                 <div class="row gy-3">
                                                     <div class="col-md-12">
                                                         <div class="mb-3">
-                                                            <select class="form-control" id="store" name="store_id" data-choices data-choices-search-true required>
+                                                            <select class="form-control" id="store" name="store_id" required>
                                                                 <option value="">Select Store</option>
                                                                 @foreach ($stores as $store)
                                                                     <option value="{{$store->id}}"
@@ -258,7 +258,7 @@
                                                                             {{
                                                                                 ($user && $user->role_id == 6 && $user->store_id != $store->id) ? 'disabled' : ''
                                                                             }}>
-                                                                        {{ $store->brand->name }} ({{ $store->name }})
+                                                                        {{ $store->code }} - {{ $store->brand->name }} ({{ $store->name }})
                                                                     </option>
                                                                 @endforeach
                                                             </select>

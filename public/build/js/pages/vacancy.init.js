@@ -8,6 +8,50 @@ File: Form wizard Js File
 
 /*
 |--------------------------------------------------------------------------
+| Choices
+|--------------------------------------------------------------------------
+*/
+
+$(document).ready(function() {
+    //Position Choices
+    const positionSelect = document.getElementById('position');
+    if (positionSelect) {
+        new Choices(positionSelect, {
+            searchEnabled: true,               // Enable the search feature
+            shouldSort: false,                 // Keep original order if desired
+            searchFields: ['label'],           // Search within the option label
+            searchFloor: 1,                    // Start search after typing 1 character
+            allowHTML: true,                   // Enable HTML content within options
+            fuseOptions: {                     // Fuzzy search options
+                threshold: 0.3,                // Flexibility in search matching
+                distance: 100,                 // Allows substring matching
+                ignoreLocation: true,          // Matches text anywhere in the string
+                findAllMatches: true           // Finds all possible matches
+            }
+        });
+    }
+
+    //Store Choices
+    const storeSelect = document.getElementById('store');
+    if (storeSelect) {
+        new Choices(storeSelect, {
+            searchEnabled: true,               // Enable the search feature
+            shouldSort: true,                 // Keep original order if desired
+            searchFields: ['label'],           // Search within the option label
+            searchFloor: 1,                    // Start search after typing 1 character
+            allowHTML: true,                   // Enable HTML content within options
+            fuseOptions: {                     // Fuzzy search options
+                threshold: 0.3,                // Flexibility in search matching
+                distance: 100,                 // Allows substring matching
+                ignoreLocation: true,          // Matches text anywhere in the string
+                findAllMatches: true           // Finds all possible matches
+            }
+        });
+    }
+});
+
+/*
+|--------------------------------------------------------------------------
 | SAP Numbers
 |--------------------------------------------------------------------------
 */
