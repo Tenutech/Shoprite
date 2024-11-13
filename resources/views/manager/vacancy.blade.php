@@ -128,12 +128,9 @@
                                                                 <option value="">Select Position</option>
                                                                 @foreach ($positions as $position)
                                                                     <option value="{{ $position->id }}"
-                                                                    {{ ($vacancy && $vacancy->position_id == $position->id) ? 'selected' : '' }}>
-                                                                    {{ $position->name }}
-                                                                    <span class="text-{{ optional($position->brand)->color ?: 'danger' }}">
-                                                                        ({{ optional($position->brand)->name ?: 'N/A' }})
-                                                                    </span>
-                                                                </option>
+                                                                        {{ ($vacancy && $vacancy->position_id == $position->id) ? 'selected' : '' }}>
+                                                                        {{ $position->name }} ({{ optional($position->brand)->name ?: 'N/A' }})
+                                                                    </option>
                                                                 @endforeach
                                                             </select>
                                                             @if ($positions->isEmpty())
