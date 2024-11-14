@@ -276,7 +276,7 @@
                                         <select class="form-control" id="store" name="store_id">
                                             <option value="" selected>Select ethnicity</option>
                                             @foreach ($stores as $store)
-                                                <option value="{{ $store->id }}">{{ $store->name }}</option>
+                                                <option value="{{ $store->id }}">{{ $store->code }} - {{ optional($store->brand)->name }} ({{ $store->name }})</option>
                                             @endforeach
                                         </select>
                                         <div class="invalid-feedback">

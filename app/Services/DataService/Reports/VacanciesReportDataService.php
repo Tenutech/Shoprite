@@ -269,181 +269,237 @@ class VacanciesReportDataService
     }
 
     /**
-     * Summary of getFilteredVacancies
-     * @param mixed $filters
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function getFilteredVacancies($filters): Collection
-    {
-        $query = Vacancy::query();
-        $this->applyFilters($query, $filters);
-        return $query->get();
-    }
-
-    /**
-     * Apply the given filters to the query.
+     * Get the total number of filtered vacancies based on multiple criteria.
      *
-     * @param \Illuminate\Database\Eloquent\Builder $query
-     * @param array $filters
-     * @return void
-     */
-    public function applyFilters($query, array $filters): void
+     * @param string $type The type of filter (e.g., store, division, region, or all).
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering.
+     * @param \Carbon\Carbon $endDate The end date for filtering.
+     * @param array $filters An array of additional filters.
+     * @return int The total count of filtered vacancies.
+    */
+    public function getTotalVacanciesFiltered(string $type, ?int $id, string $startDate, string $endDate, array $filters)
     {
-        if (!empty($filters['position_id'])) {
-            $query->where('position_id', $filters['position_id']);
+        // Start building the query using the Vacancy model and filter by date range
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+
+        // Prioritize filtering by store, followed by division, then region using Eloquent relationships
+        if ($type === 'store') {
+            $vacancies->where('store_id', $id);
+        } elseif ($type === 'division') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('division_id', $id);
+            });
+        } elseif ($type === 'region') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('region_id', $id);
+            });
         }
 
-        if (!empty($filters['store_id'])) {
-            $query->where('store_id', $filters['store_id']);
+        // Apply all additional filters
+        if (isset($filters['position_id'])) {
+            $vacancies->where('position_id', $filters['position_id']);
         }
-
-        if (!empty($filters['user_id'])) {
-            $query->where('user_id', $filters['user_id']);
+        if (isset($filters['open_positions'])) {
+            $vacancies->where('open_positions', $filters['open_positions']);
         }
-
-        if (!empty($filters['type_id'])) {
-            $query->where('type_id', $filters['type_id']);
+        if (isset($filters['filled_positions'])) {
+            $vacancies->where('filled_positions', $filters['filled_positions']);
         }
-
-        if (!empty($filters['filled_positions'])) {
-            $query->where('filled_positions', $filters['filled_positions']);
+        if (isset($filters['store_id'])) {
+            $vacancies->where('store_id', $filters['store_id']);
         }
-
-        if (!empty($filters['start_date']) && !empty($filters['end_date'])) {
-            $query->whereBetween('created_at', [
-                Carbon::parse($filters['start_date']),
-                Carbon::parse($filters['end_date']),
-            ]);
+        if (isset($filters['user_id'])) {
+            $vacancies->where('user_id', $filters['user_id']);
         }
+        if (isset($filters['type_id'])) {
+            $vacancies->where('type_id', $filters['type_id']);
+        }
+        
+        // Return the total count of vacancies
+        return $vacancies->count();
     }
 
     /**
-     * Summary of prepareChartData
-     * @param \Illuminate\Database\Eloquent\Collection $vacancies
-     * @param mixed $startDate
-     * @param mixed $endDate
-     * @return array
-     */
-    public function prepareChartData(Collection $vacancies, $startDate, $endDate)
+     * Get the total number of filtered and filled vacancies based on multiple criteria.
+     *
+     * @param string $type The type of filter (e.g., store, division, region, or all).
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering.
+     * @param \Carbon\Carbon $endDate The end date for filtering.
+     * @param array $filters An array of additional filters.
+     * @return int The total count of filtered vacancies.
+    */
+    public function getTotalVacanciesFilledFiltered(string $type, ?int $id, string $startDate, string $endDate, array $filters)
     {
-        $monthsForVacancyTypes = $this->getVacancyTypesRange($startDate, $endDate);
+        // Start building the query using the Vacancy model, filter for filled vacancies (open_positions = 0), and date range
+        $vacancies = Vacancy::where('open_positions', 0)
+            ->whereBetween('created_at', [$startDate, $endDate]);
 
-        $monthsForVacanciesOverTime = $this->getVacanciesOverTimeRange($startDate, $endDate);
-
-         // Group vacancies by year and month
-         $vacancyTypesByYearMonth = $this->getVacancyTypesByYearMonth($vacancies);
-
-        // Group vacancies by year and month
-        $vacanciesOverTimeYearMonth = $this->getVacanciesOverTimeYearMonth($vacancies);
-
-        // Totals for each type of vacancy
-        $totalFullTime = $vacancies->where('type_id', 1)->count();
-        $totalPartTime = $vacancies->where('type_id', 2)->count();
-        $totalFixedTerm = $vacancies->where('type_id', 3)->count();
-        $totalPeakSeason = $vacancies->where('type_id', 4)->count();
-        $totalVacancies = $vacancies->where('open_positions', '!=', 0)->count();
-        $totalFilledVacancies = $vacancies->where('open_positions', 0)->count();
-
-        // Merge actual data with zero-filled months
-        $vacancyTypesByMonth = array_replace($monthsForVacancyTypes, $vacancyTypesByYearMonth);
-        $vacanciesOverTime = array_replace($monthsForVacanciesOverTime, $vacanciesOverTimeYearMonth);
-
-        return [
-            'vacancyTypesByMonth' => $vacancyTypesByMonth,
-            'vacanciesOverTime' => $vacanciesOverTime,
-            'totals' => [
-                'totalFullTime' => $totalFullTime,
-                'totalPartTime' => $totalPartTime,
-                'totalFixedTerm' => $totalFixedTerm,
-                'totalPeakSeason' => $totalPeakSeason,
-                'totalVacancies' => $totalVacancies,
-                'totalFilledVacancies' => $totalFilledVacancies,
-            ]
-        ];
-    }
-
-    /**
-     * Summary of getVacancyTypesRange
-     * @param mixed $startDate
-     * @param mixed $endDate
-     * @return array{FixedTerm: int, FullTime: int, PartTime: int, PeakSeason: int, Total: int[]}
-     */
-    private function getVacancyTypesRange($startDate, $endDate)
-    {
-        $monthsForVacancyTypes = [];
-        $typeCurrent = Carbon::parse($startDate)->startOfMonth();
-        $typeEnd = Carbon::parse($endDate)->startOfMonth();
-
-        while ($typeCurrent <= $typeEnd) {
-            $monthsForVacancyTypes[$typeCurrent->format('Y-F')] = [
-                'FullTime' => 0,
-                'PartTime' => 0,
-                'FixedTerm' => 0,
-                'PeakSeason' => 0,
-                'Total' => 0
-            ];
-            $typeCurrent->addMonth();
+        // Prioritize filtering by store, followed by division, then region using Eloquent relationships
+        if ($type === 'store') {
+            $vacancies->where('store_id', $id);
+        } elseif ($type === 'division') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('division_id', $id);
+            });
+        } elseif ($type === 'region') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('region_id', $id);
+            });
         }
 
-        return $monthsForVacancyTypes;
+        // Apply all additional filters
+        if (isset($filters['position_id'])) {
+            $vacancies->where('position_id', $filters['position_id']);
+        }
+        if (isset($filters['store_id'])) {
+            $vacancies->where('store_id', $filters['store_id']);
+        }
+        if (isset($filters['user_id'])) {
+            $vacancies->where('user_id', $filters['user_id']);
+        }
+        if (isset($filters['type_id'])) {
+            $vacancies->where('type_id', $filters['type_id']);
+        }
+        
+        // Return the total count of vacancies
+        return $vacancies->count();
     }
 
     /**
-     * Summary of getVacanciesOverTimeRange
-     * @param mixed $startDate
-     * @param mixed $endDate
-     * @return array{filled: int, total: int[]}
+     * Get the total number of vacancies created by month within a given date range, filtered by additional criteria.
+     *
+     * @param string $type The type of filter (e.g., store, division, region).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param \Carbon\Carbon $startDate The start date for filtering.
+     * @param \Carbon\Carbon $endDate The end date for filtering.
+     * @param array $filters An array of additional filters.
+     * @return array An array of vacancy counts by month.
      */
-    private function getVacanciesOverTimeRange($startDate, $endDate)
+    public function getTotalVacanciesByMonthFiltered(string $type, ?int $id, $startDate, $endDate, array $filters): array
     {
-        $monthsForVacanciesOverTime = [];
-        $overTimeCurrent = Carbon::parse($startDate)->startOfMonth();
-        $overTimeEnd = Carbon::parse($endDate)->startOfMonth();
-        while ($overTimeCurrent <= $overTimeEnd) {
-            $monthsForVacanciesOverTime[$overTimeCurrent->format('Y-F')] = [
-                'total' => 0,
-                'filled' => 0
-            ];
-            $overTimeCurrent->addMonth();
+        // Initialize an array to hold the results, with months set to 0 from startDate to endDate
+        $vacanciesByMonth = [];
+        $currentDate = $startDate->copy();
+
+        // Loop to populate only the months between startDate and endDate
+        while ($currentDate->lte($endDate)) {
+            $monthName = $currentDate->format('M');
+            $vacanciesByMonth[$monthName] = 0;
+            $currentDate->addMonth();
         }
 
-        return $monthsForVacanciesOverTime;
+        // Start building the query using the Vacancy model and filter by date range
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+
+        // Filter by store, division, or region based on the type parameter
+        if ($type === 'store') {
+            $vacancies->where('store_id', $id);
+        } elseif ($type === 'division') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('division_id', $id);
+            });
+        } elseif ($type === 'region') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('region_id', $id);
+            });
+        }
+
+        // Apply additional filters if provided
+        if (isset($filters['position_id'])) {
+            $vacancies->where('position_id', $filters['position_id']);
+        }
+        if (isset($filters['open_positions'])) {
+            $vacancies->where('open_positions', $filters['open_positions']);
+        }
+        if (isset($filters['filled_positions'])) {
+            $vacancies->where('filled_positions', $filters['filled_positions']);
+        }
+        if (isset($filters['store_id'])) {
+            $vacancies->where('store_id', $filters['store_id']);
+        }
+        if (isset($filters['user_id'])) {
+            $vacancies->where('user_id', $filters['user_id']);
+        }
+        if (isset($filters['type_id'])) {
+            $vacancies->where('type_id', $filters['type_id']);
+        }
+
+        // Retrieve vacancies and group them by the month of their creation date
+        foreach ($vacancies->get() as $vacancy) {
+            $month = $vacancy->created_at->format('M');
+            $vacanciesByMonth[$month]++;
+        }
+
+        return $vacanciesByMonth;
     }
 
     /**
-     * Summary of getVacancyTypesByYearMonth
-     * @param \Illuminate\Database\Eloquent\Collection $vacancies
-     * @return array
+     * Get the total number of vacancies by type within a given date range, with additional filters.
+     *
+     * @param string $type The type of filter (e.g., store, division, region).
+     * @param int|null $id The ID for filtering based on the type.
+     * @param \Carbon\Carbon $startDate The start date for filtering.
+     * @param \Carbon\Carbon $endDate The end date for filtering.
+     * @param array $filters An array of additional filters.
+     * @return array An array with vacancy counts by type.
      */
-    private function getVacancyTypesByYearMonth(Collection $vacancies)
+    public function getTotalVacanciesByTypeFiltered(string $type, ?int $id, $startDate, $endDate, array $filters): array
     {
-        return $vacancies->groupBy(function ($vacancy) {
-            return $vacancy->created_at->format('Y-F');
-        })->map(function ($group) {
-            return [
-                'FullTime' => $group->where('type_id', 1)->count(),
-                'PartTime' => $group->where('type_id', 2)->count(),
-                'FixedTerm' => $group->where('type_id', 3)->count(),
-                'PeakSeason' => $group->where('type_id', 4)->count(),
-                'Total' => $group->count(),
-            ];
-        })->toArray();
-    }
+        // Initialize an array to hold the results, with each type initialized to 0
+        $vacanciesByType = [];
 
-    /**
-     * Summary of getVacanciesOverTimeYearMonth
-     * @param \Illuminate\Database\Eloquent\Collection $vacancies
-     * @return array
-     */
-    private function getVacanciesOverTimeYearMonth(Collection $vacancies)
-    {
-        return $vacancies->groupBy(function ($vacancy) {
-            return $vacancy->created_at->format('Y-F');
-        })->map(function ($group) {
-            return [
-                'total' => $group->where('open_positions', '!=', 0)->count(),
-                'filled' => $group->where('open_positions', 0)->count()
-            ];
-        })->toArray();
+        // Retrieve all available vacancy types
+        $vacancyTypes = Type::all();
+
+        // Initialize each type count to 0
+        foreach ($vacancyTypes as $vacancyType) {
+            $vacanciesByType[$vacancyType->name] = 0;
+        }
+
+        // Start building the query using the Vacancy model and filter by date range
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+
+        // Apply type filtering based on store, division, or region
+        if ($type === 'store') {
+            $vacancies->where('store_id', $id);
+        } elseif ($type === 'division') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('division_id', $id);
+            });
+        } elseif ($type === 'region') {
+            $vacancies->whereHas('store', function ($query) use ($id) {
+                $query->where('region_id', $id);
+            });
+        }
+
+        // Apply additional filters
+        if (isset($filters['position_id'])) {
+            $vacancies->where('position_id', $filters['position_id']);
+        }
+        if (isset($filters['open_positions'])) {
+            $vacancies->where('open_positions', $filters['open_positions']);
+        }
+        if (isset($filters['filled_positions'])) {
+            $vacancies->where('filled_positions', $filters['filled_positions']);
+        }
+        if (isset($filters['store_id'])) {
+            $vacancies->where('store_id', $filters['store_id']);
+        }
+        if (isset($filters['user_id'])) {
+            $vacancies->where('user_id', $filters['user_id']);
+        }
+        if (isset($filters['type_id'])) {
+            $vacancies->where('type_id', $filters['type_id']);
+        }
+
+        // Retrieve filtered vacancies and group them by type
+        foreach ($vacancies->get() as $vacancy) {
+            $vacancyTypeName = $vacancy->type->name; // Get type name directly
+            $vacanciesByType[$vacancyTypeName]++;
+        }
+
+        return $vacanciesByType;
     }
 }

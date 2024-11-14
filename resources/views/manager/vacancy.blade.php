@@ -258,7 +258,7 @@
                                                                             {{
                                                                                 ($user && $user->role_id == 6 && $user->store_id != $store->id) ? 'disabled' : ''
                                                                             }}>
-                                                                        {{ $store->brand->name }} ({{ $store->name }})
+                                                                        {{ optional($store->brand->name) }} ({{ $store->name }})
                                                                     </option>
                                                                 @endforeach
                                                             </select>

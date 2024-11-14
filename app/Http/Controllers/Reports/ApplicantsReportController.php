@@ -82,7 +82,7 @@ class ApplicantsReportController extends Controller
 
             // Initialize variables to 0 or empty before the null check
 
-            // Step 1: Initialize appliacnt data
+            // Step 1: Initialize applicant data
             $totalApplicants = 0;
             $totalAppointedApplicants = 0;
             $totalApplicantsByMonth = [];
@@ -235,7 +235,7 @@ class ApplicantsReportController extends Controller
 
             // Initialize variables to 0 or empty before the null check
 
-            // Step 1: Initialize appliacnt data
+            // Step 1: Initialize applicant data
             $totalApplicants = 0;
             $totalAppointedApplicants = 0;
             $totalApplicantsFiltered = 0;
