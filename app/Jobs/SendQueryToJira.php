@@ -39,14 +39,14 @@ class SendQueryToJira implements ShouldQueue
     {
         $client = new Client();
 
-         // Map severity to Jira priority levels
+        // Map severity to Jira priority levels
         $priorityMap = [
             'Low' => 'Low',
             'Medium' => 'Medium',
             'High' => 'High',
             'Critical' => 'Highest',
         ];
-        
+
         $priority = $priorityMap[$this->query->severity] ?? 'Medium'; // Default to 'Medium' if severity is not mapped
 
         $issueData = [

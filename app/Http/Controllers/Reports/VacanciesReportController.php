@@ -3,43 +3,37 @@
 namespace App\Http\Controllers\Reports;
 
 use Carbon\Carbon;
+use App\Models\Type;
 use App\Models\User;
-use App\Models\Race;
 use App\Models\Store;
-use App\Models\State;
-use App\Models\Gender;
-use App\Models\Setting;
-use App\Models\Duration;
-use App\Models\Education;
-use App\Models\Shortlist;
+use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Auth;
+use App\Exports\VacanciesExport;
 use App\Http\Controllers\Controller;
-use App\Exports\ApplicantsExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-use App\Services\DataService\Reports\ApplicantsReportDataService;
+use App\Services\DataService\Reports\VacanciesReportDataService;
 
-class ApplicantsReportController extends Controller
+class VacanciesReportController extends Controller
 {
-    protected $applicantsReportDataService;
+    protected $vacanciesReportDataService;
 
     /**
      * Constructor method to initialize services and apply middleware.
      *
-     * @param ApplicantsReportDataService $applicantsReportDataService
+     * @param VacanciesReportDataService $vacanciesReportDataService
      * @return void
      */
     public function __construct(
-        ApplicantsReportDataService $applicantsReportDataService
+        VacanciesReportDataService $vacanciesReportDataService
     ) {
         // Apply 'auth' and 'verified' middleware to ensure user is authenticated and verified
         $this->middleware(['auth', 'verified']);
 
         // Inject required services
-        $this->applicantsReportDataService = $applicantsReportDataService;
+        $this->vacanciesReportDataService = $vacanciesReportDataService;
     }
 
     /**
@@ -49,8 +43,7 @@ class ApplicantsReportController extends Controller
      */
     public function index()
     {
-        // Check if the 'reports/applicants' view exists
-        if (view()->exists('reports/applicants')) {
+        if (view()->exists('reports/vacancies')) {
             // Retrieve the ID of the currently authenticated user
             $authUserId = Auth::id();
 
@@ -77,41 +70,69 @@ class ApplicantsReportController extends Controller
                 $id = $authUser->store_id;
             }
 
-            // Get the max proximity from store
-            $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
-
-            // Initialize variables to 0 or empty before the null check
-
-            // Step 1: Initialize applicant data
-            $totalApplicants = 0;
-            $totalAppointedApplicants = 0;
-            $totalApplicantsByMonth = [];
-            $totalApplicantsAppointedByMonth = [];
-            $totalApplicantsGenderByMonth = [];
-            $totalApplicantsRaceByMonth = [];
+            // Step 1: Initialize vacancy data
+            $totalVacancies = 0;
+            $totalVacanciesFilled = 0;
+            $totalVacanciesByMonth = [];
+            $totalVacanciesFilledByMonth = [];
+            $totalVacanciesTypeByMonth = [];
+            $totalVacanciesByType = [];
 
             // Check if the type is active
             if ($type !== null) {
-                // Step 1: Fetch applicant data from ApplicantsReportDataService
-                $totalApplicants = $this->applicantsReportDataService->getTotalApplicants($type, $id, $startDate, $endDate);
-                $totalAppointedApplicants = $this->applicantsReportDataService->getTotalAppointedApplicants($type, $id, $startDate, $endDate);
-                $totalApplicantsByMonth = $this->applicantsReportDataService->getTotalApplicantsByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
-                $totalApplicantsAppointedByMonth = $this->applicantsReportDataService->getTotalApplicantsAppointedByMonth($type, $id, $startDate, $endDate);
-                $totalApplicantsGenderByMonth = $this->applicantsReportDataService->getTotalApplicantsGenderByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
-                $totalApplicantsRaceByMonth = $this->applicantsReportDataService->getTotalApplicantsRaceByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
+                // Step 1: Fetch vacancy data from VacanciesReportDataService
+                $totalVacancies = $this->vacanciesReportDataService->getTotalVacancies($type, $id, $startDate, $endDate);
+                $totalVacanciesFilled = $this->vacanciesReportDataService->getTotalVacanciesFilled($type, $id, $startDate, $endDate);
+                $totalVacanciesByMonth = $this->vacanciesReportDataService->getTotalVacanciesByMonth($type, $id, $startDate, $endDate);
+                $totalVacanciesFilledByMonth = $this->vacanciesReportDataService->getTotalVacanciesFilledByMonth($type, $id, $startDate, $endDate);
+                $totalVacanciesTypeByMonth = $this->vacanciesReportDataService->getTotalVacanciesTypeByMonth($type, $id, $startDate, $endDate);
+                $totalVacanciesByType = $this->vacanciesReportDataService->getTotalVacanciesByType($type, $id, $startDate, $endDate);
             }
 
-            // Genders
-            $genders = Gender::all();
+            //Positions logic based on user role and brand
+            $positions = collect(); // Default to an empty collection
 
-            // Races
-            $races = Race::all();
+            if (in_array($authUser->role_id, [1, 2])) {
+                // If role_id is 1 or 2, get all positions where id > 1
+                $positions = Position::where('id', '>', 1)->get();
+            } elseif ($authUser->role_id == 3) {
+                // If role_id is 3, get all positions where brand_id is in the stores matching region_id
+                $storeBrandIds = Store::where('region_id', $authUser->region_id)
+                    ->pluck('brand_id'); // Get the brand_ids of all stores in the user's region
 
-            //Educations
-            $educations = Education::all();
+                // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
+                if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
+                    $storeBrandIds->push(2);
+                }
 
-            // Experiences
-            $experiences = Duration::all();
+                // Now get all positions where brand_id is in the store's brand_ids
+                $positions = Position::whereIn('brand_id', $storeBrandIds)
+                    ->get();
+            } elseif ($authUser->role_id == 4) {
+                // If role_id is 4, get all positions where brand_id is in the stores matching division_id
+                $storeBrandIds = Store::where('division_id', $authUser->division_id)
+                    ->pluck('brand_id'); // Get the brand_ids of all stores in the user's division
+
+                // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
+                if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
+                    $storeBrandIds->push(2);
+                }
+
+                // Now get all positions where brand_id is in the store's brand_ids
+                $positions = Position::whereIn('brand_id', $storeBrandIds)
+                    ->get();
+            } elseif ($authUser->role_id == 6) {
+                // If role_id is 6, check if the user has a brand_id
+                if ($authUser->brand_id) {
+                    // If $authUser->brand_id is 2, 3, or 4, get positions where brand_id is 2
+                    if (in_array($authUser->brand_id, [2, 3, 4])) {
+                        $positions = Position::where('brand_id', 2)->get();
+                    } else {
+                        // Otherwise, get positions where brand_id matches the user's brand_id
+                        $positions = Position::where('brand_id', $authUser->brand_id)->get();
+                    }
+                }
+            }
 
             //Stores logic
             $stores = collect(); // Default to an empty collection
@@ -137,24 +158,29 @@ class ApplicantsReportController extends Controller
                     ->get();
             }
 
-            // Return the 'reports/applicants' view with the calculated data
-            return view('reports/applicants', [
-                'totalApplicants' => $totalApplicants,
-                'totalAppointedApplicants' => $totalAppointedApplicants,
-                'totalApplicantsByMonth' => $totalApplicantsByMonth,
-                'totalApplicantsAppointedByMonth' => $totalApplicantsAppointedByMonth,
-                'totalApplicantsGenderByMonth' => $totalApplicantsGenderByMonth,
-                'totalApplicantsRaceByMonth' => $totalApplicantsRaceByMonth,
-                'genders' => $genders,
-                'races' => $races,
-                'educations' => $educations,
-                'experiences' => $experiences,
+            // Users
+            $authUsers = User::whereHas('vacancies')->get();
+
+            // Types
+            $types = Type::distinct('type_id')->get();
+
+            // Return the 'reports/vacancies' view with the provided data
+            return view('reports/vacancies', [
+                'totalVacancies' => $totalVacancies,
+                'totalVacanciesFilled' => $totalVacanciesFilled,
+                'totalVacanciesByMonth' => $totalVacanciesByMonth,
+                'totalVacanciesFilledByMonth' => $totalVacanciesFilledByMonth,
+                'totalVacanciesTypeByMonth' => $totalVacanciesTypeByMonth,
+                'totalVacanciesByType' => $totalVacanciesByType,
+                'positions' => $positions,
                 'stores' => $stores,
+                'users' => $authUsers,
+                'types' => $types,
             ]);
         }
 
-        // If the view 'admin/home' does not exist, return a 404 error page
-        return view('404');
+        // If the view 'reports/vacancies' does not exist, return a 404 error page
+         return view('404');
     }
 
     /**
@@ -173,26 +199,12 @@ class ApplicantsReportController extends Controller
             // Validate Input
             $request->validate([
                 'date' => 'required|string',
-                'gender_id' => 'nullable|integer|exists:genders,id',
-                'race_id' => 'nullable|integer|exists:races,id',
-                'min_age' => 'nullable|integer|min:18|max:80',
-                'max_age' => 'nullable|integer|min:18|max:80|gte:min_age',
-                'education_id' => 'nullable|integer|exists:educations,id',
-                'duration_id' => 'nullable|integer|exists:durations,id',
-                'min_literacy' => 'nullable|integer|min:0|max:10',
-                'max_literacy' => 'nullable|integer|min:0|max:10|gte:min_literacy',
-                'min_numeracy' => 'nullable|integer|min:0|max:10',
-                'max_numeracy' => 'nullable|integer|min:0|max:10|gte:min_numeracy',
-                'min_situational' => 'nullable|integer|min:0|max:10',
-                'max_situational' => 'nullable|integer|min:0|max:10|gte:min_situational',
-                'min_overall' => 'nullable|numeric|min:0|max:5',
-                'max_overall' => 'nullable|numeric|min:0|max:5|gte:min_overall',
-                'employment' => 'nullable|string|in:A,B,I,P,N',
-                'completed' => 'nullable|string|in:Yes,No',
-                'shortlisted' => 'nullable|string|in:Yes,No',
-                'interviewed' => 'nullable|string|in:Yes,No',
-                'appointed' => 'nullable|string|in:Yes,No',
+                'position_id' => 'nullable|integer|exists:positions,id',
+                'open_positions' => 'nullable|integer|min:1|max:10',
+                'filled_positions' => 'nullable|integer|min:1|max:10|lte:open_positions',
                 'store_id' => 'nullable|integer|exists:stores,id',
+                'user_id' => 'nullable|integer|exists:users,id',
+                'type_id' => 'nullable|integer|exists:types,id'
             ]);
 
             // Retrieve the ID of the currently authenticated user
@@ -227,38 +239,35 @@ class ApplicantsReportController extends Controller
                 $id = $authUser->store_id;
             }
 
-            // Get the max proximity from store
-            $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
-
             // Extract filters by removing `_token`, `date`, and `search_terms` from the request
             $filters = Arr::except($request->all(), ['_token', 'date', 'search_terms']);
 
             // Initialize variables to 0 or empty before the null check
 
-            // Step 1: Initialize applicant data
-            $totalApplicants = 0;
-            $totalAppointedApplicants = 0;
-            $totalApplicantsFiltered = 0;
-            $totalAppointedApplicantsFiltered = 0;
-            $totalApplicantsByMonthFiltered = [];
+            // Step 1: Initialize vacancy data
+            $totalVacancies = 0;
+            $totalVacanciesFiltered = 0;
+            $totalVacanciesFilledFiltered = 0;
+            $totalVacanciesByMonthFiltered = [];
+            $totalVacanciesByTypeFiltered = [];
 
             // Check if the type is active
             if ($type !== null) {
-                // Step 1: Fetch applicant data from ApplicantsReportDataService
-                $totalApplicants = $this->applicantsReportDataService->getTotalApplicants($type, $id, $startDate, $endDate);
-                $totalAppointedApplicants = $this->applicantsReportDataService->getTotalAppointedApplicants($type, $id, $startDate, $endDate);
-                $totalApplicantsFiltered = $this->applicantsReportDataService->getTotalApplicantsFiltered($type, $id, $startDate, $endDate, $filters);
-                $totalAppointedApplicantsFiltered = $this->applicantsReportDataService->getTotalAppointedApplicantsFiltered($type, $id, $startDate, $endDate, $filters);
-                $totalApplicantsByMonthFiltered = $this->applicantsReportDataService->getTotalApplicantsByMonthFiltered($type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters);
+                // Step 1: Fetch vacancy data from VacanciesReportDataService
+                $totalVacancies = $this->vacanciesReportDataService->getTotalVacancies($type, $id, $startDate, $endDate);
+                $totalVacanciesFiltered = $this->vacanciesReportDataService->getTotalVacanciesFiltered($type, $id, $startDate, $endDate, $filters);
+                $totalVacanciesFilledFiltered = $this->vacanciesReportDataService->getTotalVacanciesFilledFiltered($type, $id, $startDate, $endDate, $filters);
+                $totalVacanciesByMonthFiltered = $this->vacanciesReportDataService->getTotalVacanciesByMonthFiltered($type, $id, $startDate, $endDate, $filters);
+                $totalVacanciesByTypeFiltered = $this->vacanciesReportDataService->getTotalVacanciesByTypeFiltered($type, $id, $startDate, $endDate, $filters);
             }
 
             //Data to return
             $data = [
-                'totalApplicants' => $totalApplicants,
-                'totalAppointedApplicants' => $totalAppointedApplicants,
-                'totalApplicantsFiltered' => $totalApplicantsFiltered,
-                'totalAppointedApplicantsFiltered' => $totalAppointedApplicantsFiltered,
-                'totalApplicantsByMonthFiltered' => $totalApplicantsByMonthFiltered
+                'totalVacancies' => $totalVacancies,
+                'totalVacanciesFiltered' => $totalVacanciesFiltered,
+                'totalVacanciesFilledFiltered' => $totalVacanciesFilledFiltered,
+                'totalVacanciesByMonthFiltered' => $totalVacanciesByMonthFiltered,
+                'totalVacanciesByTypeFiltered' => $totalVacanciesByTypeFiltered
             ];
 
             // Return the updated data as JSON
@@ -285,11 +294,11 @@ class ApplicantsReportController extends Controller
     }
 
     /**
-     * Export filtered applicants data to an Excel report.
+     * Export filtered vacancies data to an Excel report.
      *
-     * This method retrieves applicant data based on selected filters
+     * This method retrieves vacancy data based on selected filters
      * and exports it as an Excel file. The filters include various
-     * applicant attributes, date range, location-based proximity,
+     * vacancy attributes, date range, position,
      * and type (e.g., store, division, or region).
      *
      * @param Request $request The incoming HTTP request containing filters.
@@ -329,13 +338,10 @@ class ApplicantsReportController extends Controller
         $startDate = Carbon::parse($startDateString)->startOfDay();
         $endDate = Carbon::parse($endDateString)->endOfDay();
 
-        // Retrieve the maximum proximity distance in kilometers for filtering applicants, default to 50km
-        $maxDistanceFromStore = $request->input('maxDistanceFromStore', 50);
-
         // Retrieve all filters from the request, excluding '_token', 'date', and 'search_terms'
         $filters = $request->except(['_token', 'date', 'search_terms']);
 
         // Export data to an Excel file, passing filters, type, id, date range, and proximity
-        return Excel::download(new ApplicantsExport($type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters), 'Applicants Report.xlsx');
+        return Excel::download(new VacanciesExport($type, $id, $startDate, $endDate, $filters), 'Vacancies Report.xlsx');
     }
 }

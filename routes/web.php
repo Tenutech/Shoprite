@@ -648,8 +648,11 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::get('/reports/stores', [App\Http\Controllers\Reports\StoresController::class, 'index'])->name('stores.reports.index');
 
-    Route::get('/reports/vacancies', [App\Http\Controllers\Reports\VacanciesController::class, 'index'])->name('vacancies.reports.index');
+    Route::get('/reports/vacancies', [App\Http\Controllers\Reports\VacanciesReportController::class, 'index'])->name('vacancies.reports.index');
 
+    Route::post('/reports/vacancies/update', [App\Http\Controllers\Reports\VacanciesReportController::class, 'update'])->name('vacancies.reports.update');
+
+    Route::post('/admin/vacancies/export', [App\Http\Controllers\Reports\VacanciesReportController::class, 'export'])->name('vacancies.reports.export');
 });
 
 /*

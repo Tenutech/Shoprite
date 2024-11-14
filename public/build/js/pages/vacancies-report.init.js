@@ -1,10 +1,10 @@
-/*
-Template Name: Orient - Admin & Dashboard Template
-Author: OTB Group
-Website: https://orient.tenutech.com/
-Contact: admin@tenutech.com
-File: job-statistics init js
-*/
+// /*
+// Template Name: Orient - Admin & Dashboard Template
+// Author: OTB Group
+// Website: https://orient.tenutech.com/
+// Contact: admin@tenutech.com
+// File: job-statistics init js
+// */
 
 $(document).ready(function() {
     /*
@@ -30,16 +30,10 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    var genderChoice = new Choices('#gender', { searchEnabled: false, shouldSort: true });
-    var raceChoice = new Choices('#race', { searchEnabled: false, shouldSort: true });
-    var educationChoice = new Choices('#education', { searchEnabled: false, shouldSort: true });
-    var experienceChoice = new Choices('#experience', { searchEnabled: false, shouldSort: true });
-    var employmentChoice = new Choices('#employment', { searchEnabled: false, shouldSort: true });
-    var completedChoice = new Choices('#completed', { searchEnabled: false, shouldSort: true });
-    var shortlistedChoice = new Choices('#shortlisted', { searchEnabled: false, shouldSort: true });
-    var interviewedChoice = new Choices('#interviewed', { searchEnabled: false, shouldSort: true });
-    var appointedChoice = new Choices('#appointed', { searchEnabled: false, shouldSort: true });
+    var positionChoice = new Choices('#position', { searchEnabled: false, shouldSort: true });
     var storeChoice = new Choices('#store', { searchEnabled: true, shouldSort: true });
+    var userChoice = new Choices('#user', { searchEnabled: true, shouldSort: true });
+    var typeChoice = new Choices('#type', { searchEnabled: false, shouldSort: true });
 
     /*
     |--------------------------------------------------------------------------
@@ -65,47 +59,21 @@ $(document).ready(function() {
         datePicker.setDate([formatDate(startDate), formatDate(endDate)]); // Reset date field
 
         // Reset each Choices instance to default (empty)
-        genderChoice.removeActiveItems();
-        genderChoice.setChoiceByValue("");
-        
-        raceChoice.removeActiveItems();
-        raceChoice.setChoiceByValue("");
-        
-        educationChoice.removeActiveItems();
-        educationChoice.setChoiceByValue("");
-        
-        experienceChoice.removeActiveItems();
-        experienceChoice.setChoiceByValue("");
-        
-        employmentChoice.removeActiveItems();
-        employmentChoice.setChoiceByValue("");
-        
-        completedChoice.removeActiveItems();
-        completedChoice.setChoiceByValue("");
-        
-        shortlistedChoice.removeActiveItems();
-        shortlistedChoice.setChoiceByValue("");
-        
-        interviewedChoice.removeActiveItems();
-        interviewedChoice.setChoiceByValue("");
-        
-        appointedChoice.removeActiveItems();
-        appointedChoice.setChoiceByValue("");
+        positionChoice.removeActiveItems();
+        positionChoice.setChoiceByValue("");
         
         storeChoice.removeActiveItems();
         storeChoice.setChoiceByValue("");
+        
+        userChoice.removeActiveItems();
+        userChoice.setChoiceByValue("");
+        
+        typeChoice.removeActiveItems();
+        typeChoice.setChoiceByValue("");
 
         // Clear all number input fields
-        $('#minAge').val('');
-        $('#maxAge').val('');
-        $('#minLiteracy').val('');
-        $('#maxLiteracy').val('');
-        $('#minNumeracy').val('');
-        $('#maxNumeracy').val('');
-        $('#minSituational').val('');
-        $('#maxSituational').val('');
-        $('#minOverall').val('');
-        $('#maxOverall').val('');
+        $('#openPositions').val('');
+        $('#filledPositions').val('');
 
         // Optionally reset any validation states or styling
         $('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
@@ -137,7 +105,7 @@ $(document).ready(function() {
         var formData = new FormData($('#formFilters')[0]);
 
         $.ajax({
-            url: route("applicants.reports.export"),
+            url: route("vacancies.reports.export"),
             method: 'POST',
             data: formData,
             processData: false,  // Required for FormData
@@ -215,11 +183,7 @@ $(document).ready(function() {
 
         // Define min-max field pairs
         const validationPairs = [
-            { min: '#minAge', max: '#maxAge', message: 'Max age must be greater than or equal to min age.' },
-            { min: '#minLiteracy', max: '#maxLiteracy', message: 'Max literacy score must be greater than or equal to min literacy score.' },
-            { min: '#minNumeracy', max: '#maxNumeracy', message: 'Max numeracy score must be greater than or equal to min numeracy score.' },
-            { min: '#minSituational', max: '#maxSituational', message: 'Max situational score must be greater than or equal to min situational score.' },
-            { min: '#minOverall', max: '#maxOverall', message: 'Max overall score must be greater than or equal to min overall score.' }
+            { min: '#openPositions', max: '#filledPositions', message: 'Open positions must be greater than or equal to filled positions.' }
         ];
 
         let isValid = true;
@@ -255,7 +219,7 @@ $(document).ready(function() {
         var formData = new FormData(this);
 
         $.ajax({
-            url: route("applicants.reports.update"),
+            url: route("vacancies.reports.update"),
             method: 'POST',
             data: formData,
             processData: false,  // Required for FormData
@@ -361,15 +325,15 @@ function getChartColorsArray(chartId) {
 
 /*
 |--------------------------------------------------------------------------
-| Total Applicants
+| Total Vacancies
 |--------------------------------------------------------------------------
 */
 
-// Total Applicants
-var totalApplicantsColors = getChartColorsArray("total_applicants");
+// Total Vacancies
+var totalVacanciesColors = getChartColorsArray("total_vacancies");
 
-// Total Applicants Chart
-if (totalApplicantsColors) {
+// Total Vacancies Chart
+if (totalVacanciesColors) {
     var options = {
         series: [0], // Use the calculated percentage
         chart: {
@@ -409,26 +373,36 @@ if (totalApplicantsColors) {
                 }
             }
         },
-        colors: totalApplicantsColors
+        colors: totalVacanciesColors
     };
 
-    var totalApplicantsChart = new ApexCharts(document.querySelector("#total_applicants"), options);
-    totalApplicantsChart.render();
+    var totalVacanciesChart = new ApexCharts(document.querySelector("#total_vacancies"), options);
+    totalVacanciesChart.render();
 }
 
 /*
 |--------------------------------------------------------------------------
-| Total Appointed Applicants
+| Total Vacancies Filled
 |--------------------------------------------------------------------------
 */
 
-// Total Appointed Applicants
-var totalAppointedApplicantsColors = getChartColorsArray("total_appointed_applicants");
+// Total Vacancies Filled
+var totalVacanciesFilledColors = getChartColorsArray("total_vacancies_filled");
 
-// Total Appointed Applicants Chart
-if (totalAppointedApplicantsColors) {
+// Calculate percentage of filled vacancies
+var totalVacancies = totalVacancies || 0;
+var totalVacanciesFilled = totalVacanciesFilled || 0;
+var percentageFilled = 0;
+
+// Check for divide by zero and calculate percentage
+if (totalVacancies > 0) {
+    percentageFilled = Math.round((totalVacanciesFilled / totalVacancies) * 100);
+}
+
+// Total Vacancies Filled Chart
+if (totalVacanciesFilledColors) {
     var options = {
-        series: [0], // Use the calculated percentage
+        series: [percentageFilled], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -466,49 +440,40 @@ if (totalAppointedApplicantsColors) {
                 }
             }
         },
-        colors: totalAppointedApplicantsColors
+        colors: totalVacanciesFilledColors
     };
 
-    var totalAppointedApplicantsChart = new ApexCharts(document.querySelector("#total_appointed_applicants"), options);
-    totalAppointedApplicantsChart.render();
+    var totalVacanciesFilledChart = new ApexCharts(document.querySelector("#total_vacancies_filled"), options);
+    totalVacanciesFilledChart.render();
 }
 
 /*
 |--------------------------------------------------------------------------
-| Total Applicants By Month
+| Total Vacancies By Month
 |--------------------------------------------------------------------------
 */
 
-//  Total Applicants By Month Chart
-var applicantsByMonthColors = getChartColorsArray("applicants_by_month");
+//  Total Vacancies By Month Chart
+var vacanciesByMonthColors = getChartColorsArray("vacancies_by_month");
 
 // Prepare default months from January to December
 var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
 // Prepare the data for the chart
-var totalApplicantsData = totalApplicantsByMonth && Object.keys(totalApplicantsByMonth).length > 0
-    ? Object.values(totalApplicantsByMonth) // Extract values if not empty
+var totalVacanciesData = totalVacanciesByMonth && Object.keys(totalVacanciesByMonth).length > 0
+    ? Object.values(totalVacanciesByMonth) // Extract values if not empty
     : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
 
-var totalApplicantsAppointedData = totalApplicantsAppointedByMonth && Object.keys(totalApplicantsAppointedByMonth).length > 0
-    ? Object.values(totalApplicantsAppointedByMonth) // Extract values if not empty
+var totalVacanciesFilledData = totalVacanciesFilledByMonth && Object.keys(totalVacanciesFilledByMonth).length > 0
+    ? Object.values(totalVacanciesFilledByMonth) // Extract values if not empty
     : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
 
-// Get gender-specific data (dashed lines for gender)
-var genderSeries = [];
-Object.keys(totalApplicantsGenderByMonth).forEach(function(gender) {
-    genderSeries.push({
-        name: gender,
-        data: Object.values(totalApplicantsGenderByMonth[gender])
-    });
-});
-
-// Get race-specific data (different dashed lines for race)
-var raceSeries = [];
-Object.keys(totalApplicantsRaceByMonth).forEach(function(race) {
-    raceSeries.push({
-        name: race,
-        data: Object.values(totalApplicantsRaceByMonth[race])
+// Get type-specific data (dashed lines for type)
+var typeSeries = [];
+Object.keys(totalVacanciesTypeByMonth).forEach(function(type) {
+    typeSeries.push({
+        name: type,
+        data: Object.values(totalVacanciesTypeByMonth[type])
     });
 });
 
@@ -516,26 +481,25 @@ Object.keys(totalApplicantsRaceByMonth).forEach(function(race) {
 var seriesData = [
     {
         name: 'Total',
-        data: totalApplicantsData
+        data: totalVacanciesData
     },
     {
-        name: 'Appointed',
-        data: totalApplicantsAppointedData
+        name: 'Filled',
+        data: totalVacanciesFilledData
     },
-    ...genderSeries,
-    ...raceSeries
+    ...typeSeries
 ];
 
 // Get the months (x-axis categories)
-var months = Object.keys(totalApplicantsByMonth).length > 0 
-    ? Object.keys(totalApplicantsByMonth)  // Use the months from data if available
+var months = Object.keys(totalVacanciesByMonth).length > 0 
+    ? Object.keys(totalVacanciesByMonth)  // Use the months from data if available
     : defaultMonths; // Use default months if data is empty
 
 // Calculate monthly totals for percentages
-var monthlyTotals = totalApplicantsData
+var monthlyTotals = totalVacanciesData
 
-// Total Applicants By Month Chart
-if (applicantsByMonthColors) {
+// Total Vacancies By Month Chart
+if (vacanciesByMonthColors) {
     var options = {
         chart: {
             height: 380,
@@ -547,14 +511,14 @@ if (applicantsByMonthColors) {
                 show: true,
             }
         },
-        colors: applicantsByMonthColors,
+        colors: vacanciesByMonthColors,
         dataLabels: {
             enabled: false
         },
         stroke: {
-            width: [3, 3, 3, 3, 3, 3, 3, 3],
+            width: [3, 3, 3, 3, 3, 3],
             curve: 'straight',
-            dashArray: [0, 0, 8, 8, 5, 5, 5, 5]
+            dashArray: [0, 0, 8, 8, 8, 8]
         },
         series: seriesData,
         title: {
@@ -592,8 +556,66 @@ if (applicantsByMonthColors) {
         }
     }
 
-    var applicantsByMonthChart = new ApexCharts(document.querySelector("#applicants_by_month"), options);
-    applicantsByMonthChart.render();
+    var vacanciesByMonthChart = new ApexCharts(document.querySelector("#vacancies_by_month"), options);
+    vacanciesByMonthChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Total Vacancies By Type
+|--------------------------------------------------------------------------
+*/
+
+// Total Vacancies By Type Chart
+var vacanciesByTypeColors = getChartColorsArray("vacancies_by_type");
+
+// Extract categories (keys) and data (values) from the object
+var vacncyCategories = Object.keys(totalVacanciesByType);
+var vacancyData = Object.values(totalVacanciesByType);
+
+// Total Vacancies By Type Chart
+if (vacanciesByTypeColors) {
+    var options = {
+        series: [{
+            name: 'Total',
+            data: vacancyData // Use the vacancyData array here
+        }],
+        chart: {
+            type: 'bar',
+            height: 350,
+            zoom: {
+                enabled: true
+            },
+            toolbar: {
+                show: true,
+            }
+        },
+        colors: vacanciesByTypeColors,
+        plotOptions: {
+            bar: {
+                columnWidth: '45%',
+                distributed: true,
+            }
+        },
+        dataLabels: {
+            enabled: false
+        },
+        legend: {
+            show: false
+        },
+        xaxis: {
+            categories: vacncyCategories, // Use the vacncyCategories array here
+            labels: {
+                style: {
+                    colors: vacanciesByTypeColors,
+                    fontSize: '12px'
+                }
+            }
+        }
+    };
+
+    var vacanciesByTypeChart = new ApexCharts(document.querySelector("#vacancies_by_type"), options);
+    vacanciesByTypeChart.render();
 }
 
 /*
@@ -604,22 +626,24 @@ if (applicantsByMonthColors) {
 
 // Function to update elements on the dashboard
 function updateDashboard(data) {
-    // Update total applicants
-    $('#totalApplicantsValue').text(data.totalApplicantsFiltered);
+    // Update total vacancies
+    $('#totalVacanciesValue').text(data.totalVacanciesFiltered);
 
-    // Update total appointed applicants
-    $('#totalAppointedApplicantsValue').text(data.totalAppointedApplicantsFiltered);
+    // Update total vacancies filled
+    $('#totalVacanciesFilledValue').text(data.totalVacanciesFilledFiltered);
 
     // Update radial charts
-    updateRadialChart(totalApplicantsChart, data.totalApplicantsFiltered, data.totalApplicants);
-    updateRadialChart(totalAppointedApplicantsChart, data.totalAppointedApplicantsFiltered, data.totalAppointedApplicants);
+    updateRadialChart(totalVacanciesChart, data.totalVacanciesFiltered, data.totalVacancies);
+    updateRadialChart(totalVacanciesFilledChart, data.totalVacanciesFilledFiltered, data.totalVacanciesFiltered);
 
     // Remove 'd-none' class to show the charts after updating them
-    $('#totalApplicantsChart').removeClass('d-none');
-    $('#totalApplicantsAppointedChart').removeClass('d-none');
+    $('#totalVacanciesChart').removeClass('d-none');
 
-    // Update the "Applicants By Month" chart
-    updateLineCharts(applicantsByMonthChart, data.totalApplicantsByMonthFiltered);
+    // Update the "Vacancies By Month" chart
+    updateLineCharts(vacanciesByMonthChart, data.totalVacanciesByMonthFiltered);
+
+    // Update the "Total Vacancies By Type" chart
+    updateColumnCharts(vacanciesByTypeChart, data.totalVacanciesByTypeFiltered);
 }
 
 /*
@@ -646,22 +670,22 @@ function updateRadialChart(chartInstance, filledValue, totalValue) {
 |--------------------------------------------------------------------------
 */
 
-function updateLineCharts(chartInstance, totalApplicantsByMonth) {
+function updateLineCharts(chartInstance, totalVacanciesByMonth) {
     // Get default months from January to December
     var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    // Prepare the data for the Talent Pool By Month Chart
-    var totalApplicantsData = totalApplicantsByMonth && Object.keys(totalApplicantsByMonth).length > 0
-        ? Object.values(totalApplicantsByMonth) // Extract values if not empty
+    // Prepare the data for the Vacancies By Month Chart
+    var totalVacanciesData = totalVacanciesByMonth && Object.keys(totalVacanciesByMonth).length > 0
+        ? Object.values(totalVacanciesByMonth) // Extract values if not empty
         : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
 
     // Get the months (x-axis categories)
-    var months = Object.keys(totalApplicantsByMonth).length > 0 
-        ? Object.keys(totalApplicantsByMonth)  // Use the months from data if available
+    var months = Object.keys(totalVacanciesByMonth).length > 0 
+        ? Object.keys(totalVacanciesByMonth)  // Use the months from data if available
         : defaultMonths; // Use default months if data is empty
 
     // Calculate max value for the y-axis dynamically
-    var maxYValue = Math.max(...totalApplicantsData) + 5; // Add buffer to the maximum value
+    var maxYValue = Math.max(...totalVacanciesData) + 5; // Add buffer to the maximum value
 
     // Update chart options
     chartInstance.updateOptions({
@@ -677,7 +701,40 @@ function updateLineCharts(chartInstance, totalApplicantsByMonth) {
     chartInstance.updateSeries([
         {
             name: "Total",
-            data: totalApplicantsData // Use dynamic data for total applicants
+            data: totalVacanciesData // Use dynamic data for total vacancies
         },
+    ]);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Column Charts
+|--------------------------------------------------------------------------
+*/
+
+function updateColumnCharts(chartInstance, totalVacanciesByType) {
+    // Extract categories (keys) and data (values) from the object
+    var vacancyCategories = Object.keys(totalVacanciesByType);
+    var vacancyData = Object.values(totalVacanciesByType);
+
+    // Update chart options
+    chartInstance.updateOptions({
+        xaxis: {
+            categories: vacancyCategories, // Update x-axis categories with new data
+            labels: {
+                style: {
+                    colors: vacanciesByTypeColors, // Colors for each category label
+                    fontSize: '12px'
+                }
+            }
+        }
+    });
+
+    // Update chart series data
+    chartInstance.updateSeries([
+        {
+            name: "Total",
+            data: vacancyData // Use the new data for the series
+        }
     ]);
 }
