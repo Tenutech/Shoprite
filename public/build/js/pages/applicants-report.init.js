@@ -558,7 +558,6 @@ if (applicantsByMonthColors) {
         },
         series: seriesData,
         title: {
-            text: 'Applicants',
             align: 'left',
             style: {
                 fontWeight: 500,
@@ -605,7 +604,7 @@ if (applicantsByMonthColors) {
 
 // Function to update elements on the dashboard
 function updateDashboard(data) {
-    // Update total appointed applicants
+    // Update total applicants
     $('#totalApplicantsValue').text(data.totalApplicantsFiltered);
 
     // Update total appointed applicants

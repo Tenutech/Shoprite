@@ -133,6 +133,10 @@
                 </div> <!--end col -->
             </div> <!--end row -->
 
+            <!-------------------------------------------------------------------------------------
+                Applicants By Month
+            -------------------------------------------------------------------------------------->
+
             <div class="row g-3">
                 <div class="col-xl-12 col-md-12">
                     <div class="card">
@@ -203,9 +207,7 @@
                                     <select class="form-control" id="gender" name="gender_id">
                                         <option value="" selected>Select gender</option>
                                         @foreach ($genders as $gender)
-                                            <option value="{{ $gender->id }}">
-                                                {{ $gender->name }}
-                                            </option>
+                                            <option value="{{ $gender->id }}">{{ $gender->name }}</option>
                                         @endforeach
                                     </select>
                                     <div class="invalid-feedback">
@@ -273,9 +275,7 @@
                                     <select class="form-control" id="education" name="education_id">
                                         <option value="" selected>Select education level</option>
                                         @foreach ($educations as $education)
-                                            <option value="{{ $education->id }}">
-                                                {{ $education->name }}
-                                            </option>
+                                            <option value="{{ $education->id }}">{{ $education->name }}</option>
                                         @endforeach
                                     </select>
                                     <div class="invalid-feedback">
@@ -294,9 +294,7 @@
                                     <select class="form-control" id="experience" name="duration_id">
                                         <option value="" selected>Select experience level</option>
                                         @foreach ($experiences as $experience)
-                                            <option value="{{ $experience->id }}">
-                                                {{ $experience->name }}
-                                            </option>
+                                            <option value="{{ $experience->id }}">{{ $experience->name }}</option>
                                         @endforeach
                                     </select>
                                     <div class="invalid-feedback">
@@ -514,9 +512,7 @@
                                     <select class="form-control" id="store" name="store_id">
                                         <option value="" selected>Select store</option>
                                         @foreach ($stores as $store)
-                                            <option value="{{ $store->id }}">
-                                                {{ optional($store->brand)->name ?? '' }} ({{ $store->name }})
-                                            </option>
+                                            <option value="{{ $store->id }}">{{ $store->code }} - {{ optional($store->brand)->name ?? '' }} ({{ $store->name }})</option>
                                         @endforeach
                                     </select>
                                     <div class="invalid-feedback">
@@ -553,20 +549,20 @@
 
 @endsection
 @section('script')
-<script>
-    var totalApplicants = @json($totalApplicants);
-    var totalAppointedApplicants = @json($totalAppointedApplicants);
-    var totalApplicantsByMonth = @json($totalApplicantsByMonth);
-    var totalApplicantsAppointedByMonth = @json($totalApplicantsAppointedByMonth);
-    var totalApplicantsGenderByMonth = @json($totalApplicantsGenderByMonth);
-    var totalApplicantsRaceByMonth = @json($totalApplicantsRaceByMonth);
-</script>
-<!-- sweet alert -->
-<script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
-<!-- apexcharts -->
-<script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
-<script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js')}}"></script>
-<!-- dashboard init -->
-<script src="{{URL::asset('build/js/pages/applicants-report.init.js')}}?v={{ filemtime(public_path('build/js/pages/applicants-report.init.js')) }}"></script>
-<script src="{{ URL::asset('build/js/app.js') }}"></script>
+    <script>
+        var totalApplicants = @json($totalApplicants);
+        var totalAppointedApplicants = @json($totalAppointedApplicants);
+        var totalApplicantsByMonth = @json($totalApplicantsByMonth);
+        var totalApplicantsAppointedByMonth = @json($totalApplicantsAppointedByMonth);
+        var totalApplicantsGenderByMonth = @json($totalApplicantsGenderByMonth);
+        var totalApplicantsRaceByMonth = @json($totalApplicantsRaceByMonth);
+    </script>
+    <!-- sweet alert -->
+    <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
+    <!-- apexcharts -->
+    <script src="{{ URL::asset('build/libs/apexcharts/apexcharts.min.js') }}"></script>
+    <script src="{{ URL::asset('build/libs/swiper/swiper-bundle.min.js')}}"></script>
+    <!-- dashboard init -->
+    <script src="{{URL::asset('build/js/pages/applicants-report.init.js')}}?v={{ filemtime(public_path('build/js/pages/applicants-report.init.js')) }}"></script>
+    <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

@@ -43,7 +43,7 @@ class ApplicantsReportController extends Controller
     }
 
     /**
-     * Display the admin dashboard.
+     * Display the reports dashboard.
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
