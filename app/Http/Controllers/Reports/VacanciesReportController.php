@@ -13,6 +13,7 @@ use App\Exports\VacanciesExport;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
 use App\Services\DataService\Reports\VacanciesReportDataService;
 
@@ -204,7 +205,8 @@ class VacanciesReportController extends Controller
                 'filled_positions' => 'nullable|integer|min:1|max:10|lte:open_positions',
                 'store_id' => 'nullable|integer|exists:stores,id',
                 'user_id' => 'nullable|integer|exists:users,id',
-                'type_id' => 'nullable|integer|exists:types,id'
+                'type_id' => 'nullable|integer|exists:types,id',
+                'unactioned' => 'nullable|string|in:Yes,No'
             ]);
 
             // Retrieve the ID of the currently authenticated user

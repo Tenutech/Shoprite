@@ -56,23 +56,40 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
         $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
 
         // Apply all additional filters
-        if (isset($filters['position_id'])) {
-            $query->where('position_id', $filters['position_id']);
+        if (isset($this->filters['position_id'])) {
+            $query->where('position_id', $this->filters['position_id']);
         }
-        if (isset($filters['open_positions'])) {
-            $query->where('open_positions', $filters['open_positions']);
+        if (isset($this->filters['open_positions'])) {
+            $query->where('open_positions', $this->filters['open_positions']);
         }
-        if (isset($filters['filled_positions'])) {
-            $query->where('filled_positions', $filters['filled_positions']);
+        if (isset($this->filters['filled_positions'])) {
+            $query->where('filled_positions', $this->filters['filled_positions']);
         }
-        if (isset($filters['store_id'])) {
-            $query->where('store_id', $filters['store_id']);
+        if (isset($this->filters['store_id'])) {
+            $query->where('store_id', $this->filters['store_id']);
         }
-        if (isset($filters['user_id'])) {
-            $query->where('user_id', $filters['user_id']);
+        if (isset($this->filters['user_id'])) {
+            $query->where('user_id', $this->filters['user_id']);
         }
-        if (isset($filters['type_id'])) {
-            $query->where('type_id', $filters['type_id']);
+        if (isset($this->filters['type_id'])) {
+            $query->where('type_id', $this->filters['type_id']);
+        }
+
+        // Apply the `unactioned` filter
+        if (isset($this->filters['unactioned'])) {
+            if ($this->filters['unactioned'] === 'No') {
+                // Get vacancies where shortlists exist and `applicant_ids` is not empty
+                $query->whereHas('shortlists', function ($query) {
+                    $query->whereNotNull('applicant_ids')->where('applicant_ids', '!=', '[]');
+                });
+            } elseif ($this->filters['unactioned'] === 'Yes') {
+                // Get vacancies with no shortlists or where shortlists exist but `applicant_ids` is null or empty
+                $query->whereDoesntHave('shortlists')
+                    ->orWhereHas('shortlists', function ($query) {
+                        $query->whereNull('applicant_ids')
+                            ->orWhere('applicant_ids', '[]');
+                    });
+            }
         }
 
         // Return the collection of filtered applicants

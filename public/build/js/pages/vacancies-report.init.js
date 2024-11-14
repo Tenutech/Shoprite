@@ -34,6 +34,7 @@ $(document).ready(function() {
     var storeChoice = new Choices('#store', { searchEnabled: true, shouldSort: true });
     var userChoice = new Choices('#user', { searchEnabled: true, shouldSort: true });
     var typeChoice = new Choices('#type', { searchEnabled: false, shouldSort: true });
+    var unactionedChoice = new Choices('#unactioned', { searchEnabled: false, shouldSort: true });
 
     /*
     |--------------------------------------------------------------------------
@@ -70,6 +71,9 @@ $(document).ready(function() {
         
         typeChoice.removeActiveItems();
         typeChoice.setChoiceByValue("");
+
+        unactionedChoice.removeActiveItems();
+        unactionedChoice.setChoiceByValue("");
 
         // Clear all number input fields
         $('#openPositions').val('');

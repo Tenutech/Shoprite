@@ -323,6 +323,24 @@
                                     </div>
                                 </div>
                                 <!-- end col-->
+
+                                <!-- Unactioned -->
+                                <div class="col-12">
+                                    <div class="mb-3">
+                                        <label for="unactioned" class="form-label">
+                                            Vacancy Unactioned
+                                        </label>
+                                        <select class="form-control" id="unactioned" name="unactioned">
+                                            <option value=""selected>Select unactioned status</option>
+                                            <option value="No">No</option>
+                                            <option value="Yes">Yes</option>
+                                        </select>
+                                        <div class="invalid-feedback">
+                                            Please select a unactioned status!
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- end col-->
                             </div>
                             <div style="height: 100px;"></div>
                         </div>

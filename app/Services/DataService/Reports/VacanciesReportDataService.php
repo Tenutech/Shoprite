@@ -315,6 +315,23 @@ class VacanciesReportDataService
         if (isset($filters['type_id'])) {
             $vacancies->where('type_id', $filters['type_id']);
         }
+
+        // Apply the `unactioned` filter
+        if (isset($filters['unactioned'])) {
+            if ($filters['unactioned'] === 'No') {
+                // Get vacancies where shortlists exist and `applicant_ids` is not empty
+                $vacancies->whereHas('shortlists', function ($query) {
+                    $query->whereNotNull('applicant_ids')->where('applicant_ids', '!=', '[]');
+                });
+            } elseif ($filters['unactioned'] === 'Yes') {
+                // Get vacancies with no shortlists or where shortlists exist but `applicant_ids` is null or empty
+                $vacancies->whereDoesntHave('shortlists')
+                    ->orWhereHas('shortlists', function ($query) {
+                        $query->whereNull('applicant_ids')
+                            ->orWhere('applicant_ids', '[]');
+                    });
+            }
+        }
         
         // Return the total count of vacancies
         return $vacancies->count();
@@ -333,8 +350,7 @@ class VacanciesReportDataService
     public function getTotalVacanciesFilledFiltered(string $type, ?int $id, string $startDate, string $endDate, array $filters)
     {
         // Start building the query using the Vacancy model, filter for filled vacancies (open_positions = 0), and date range
-        $vacancies = Vacancy::where('open_positions', 0)
-            ->whereBetween('created_at', [$startDate, $endDate]);
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -362,6 +378,26 @@ class VacanciesReportDataService
         if (isset($filters['type_id'])) {
             $vacancies->where('type_id', $filters['type_id']);
         }
+
+        // Apply the `unactioned` filter
+        if (isset($filters['unactioned'])) {
+            if ($filters['unactioned'] === 'No') {
+                // Get vacancies where shortlists exist and `applicant_ids` is not empty
+                $vacancies->whereHas('shortlists', function ($query) {
+                    $query->whereNotNull('applicant_ids')->where('applicant_ids', '!=', '[]');
+                });
+            } elseif ($filters['unactioned'] === 'Yes') {
+                // Get vacancies with no shortlists or where shortlists exist but `applicant_ids` is null or empty
+                $vacancies->whereDoesntHave('shortlists')
+                    ->orWhereHas('shortlists', function ($query) {
+                        $query->whereNull('applicant_ids')
+                            ->orWhere('applicant_ids', '[]');
+                    });
+            }
+        }
+
+        // Filter for vacancies where open_positions is 0
+        $vacancies->where('open_positions', 0);
         
         // Return the total count of vacancies
         return $vacancies->count();
@@ -424,6 +460,23 @@ class VacanciesReportDataService
         }
         if (isset($filters['type_id'])) {
             $vacancies->where('type_id', $filters['type_id']);
+        }
+
+        // Apply the `unactioned` filter
+        if (isset($filters['unactioned'])) {
+            if ($filters['unactioned'] === 'No') {
+                // Get vacancies where shortlists exist and `applicant_ids` is not empty
+                $vacancies->whereHas('shortlists', function ($query) {
+                    $query->whereNotNull('applicant_ids')->where('applicant_ids', '!=', '[]');
+                });
+            } elseif ($filters['unactioned'] === 'Yes') {
+                // Get vacancies with no shortlists or where shortlists exist but `applicant_ids` is null or empty
+                $vacancies->whereDoesntHave('shortlists')
+                    ->orWhereHas('shortlists', function ($query) {
+                        $query->whereNull('applicant_ids')
+                            ->orWhere('applicant_ids', '[]');
+                    });
+            }
         }
 
         // Retrieve vacancies and group them by the month of their creation date
@@ -492,6 +545,23 @@ class VacanciesReportDataService
         }
         if (isset($filters['type_id'])) {
             $vacancies->where('type_id', $filters['type_id']);
+        }
+
+        // Apply the `unactioned` filter
+        if (isset($filters['unactioned'])) {
+            if ($filters['unactioned'] === 'No') {
+                // Get vacancies where shortlists exist and `applicant_ids` is not empty
+                $vacancies->whereHas('shortlists', function ($query) {
+                    $query->whereNotNull('applicant_ids')->where('applicant_ids', '!=', '[]');
+                });
+            } elseif ($filters['unactioned'] === 'Yes') {
+                // Get vacancies with no shortlists or where shortlists exist but `applicant_ids` is null or empty
+                $vacancies->whereDoesntHave('shortlists')
+                    ->orWhereHas('shortlists', function ($query) {
+                        $query->whereNull('applicant_ids')
+                            ->orWhere('applicant_ids', '[]');
+                    });
+            }
         }
 
         // Retrieve filtered vacancies and group them by type
