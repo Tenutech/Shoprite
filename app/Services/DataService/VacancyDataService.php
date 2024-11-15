@@ -106,12 +106,6 @@ class VacancyDataService
         return $interviews->count();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Total Interviews Completed
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Get total number of completed interviews for a specific type within a date range.
      *

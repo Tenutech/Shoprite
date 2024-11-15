@@ -211,7 +211,7 @@ class VacanciesReportController extends Controller
     }
 
     /**
-     * Update the appliacnts reports dashboard data based on a selected filters.
+     * Update the vacancies reports dashboard data based on a selected filters.
      *
      * This method is triggered via an AJAX request and retrieves
      * updated statistics for the applicants reports on the selected
@@ -229,6 +229,8 @@ class VacanciesReportController extends Controller
                 'position_id' => 'nullable|integer|exists:positions,id',
                 'open_positions' => 'nullable|integer|min:1|max:10',
                 'filled_positions' => 'nullable|integer|min:1|max:10|lte:open_positions',
+                'division_id' => 'nullable|integer|exists:divisions,id',
+                'region_id' => 'nullable|integer|exists:regions,id',
                 'store_id' => 'nullable|integer|exists:stores,id',
                 'user_id' => 'nullable|integer|exists:users,id',
                 'type_id' => 'nullable|integer|exists:types,id',

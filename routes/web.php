@@ -646,11 +646,11 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/reports/applicants/export', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'export'])->name('applicants.reports.export');
 
-    Route::get('/reports/stores', [App\Http\Controllers\Reports\StoresController::class, 'index'])->name('stores.reports.index');
+    Route::get('/reports/stores', [App\Http\Controllers\Reports\StoresReportController::class, 'index'])->name('stores.reports.index');
 
-    Route::post('/reports/stores/updateData', [App\Http\Controllers\Reports\StoresController::class, 'updateData'])->name('stores.reports.update');
+    Route::post('/reports/stores/update', [App\Http\Controllers\Reports\StoresReportController::class, 'update'])->name('stores.reports.update');
     
-    Route::post('/reports/stores/export', [App\Http\Controllers\Reports\StoresController::class, 'export'])->name('stores.reports.export');
+    Route::post('/reports/stores/export', [App\Http\Controllers\Reports\StoresReportController::class, 'export'])->name('stores.reports.export');
 
     Route::get('/reports/vacancies', [App\Http\Controllers\Reports\VacanciesReportController::class, 'index'])->name('vacancies.reports.index');
 

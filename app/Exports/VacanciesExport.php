@@ -43,13 +43,13 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
     }
 
     /**
-     * Retrieve the applicants based on filters.
+     * Retrieve the vacancies based on filters.
      *
      * @return \Illuminate\Support\Collection
      */
     public function collection()
     {
-        // Start building the query for applicants
+        // Start building the query for vacancies
         $query = Vacancy::query();
 
         // Apply date range filter
@@ -98,7 +98,7 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             }
         }
 
-        // Return the collection of filtered applicants
+        // Return the collection of filtered vacancies
         return $query->get();
     }
 

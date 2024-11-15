@@ -412,17 +412,6 @@
         var totalVacanciesFilledByMonth = @json($totalVacanciesFilledByMonth);
         var totalVacanciesTypeByMonth = @json($totalVacanciesTypeByMonth);
         var totalVacanciesByType = @json($totalVacanciesByType);
-
-        // Define default dates for Flatpickr
-        const defaultStartDate = new Date(new Date().getFullYear(), 0, 1); // Start of the current year
-        const defaultEndDate = new Date(); // Today's date
-
-        // Initialize Flatpickr with default date range
-        const dateRangePicker = flatpickr("#date_range", {
-            mode: "range",
-            dateFormat: "Y-m-d",
-            defaultDate: [defaultStartDate, defaultEndDate]
-        });
     </script>
     <!-- sweet alert -->
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

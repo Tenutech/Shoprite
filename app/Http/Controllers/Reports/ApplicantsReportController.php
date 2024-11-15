@@ -158,7 +158,7 @@ class ApplicantsReportController extends Controller
     }
 
     /**
-     * Update the appliacnts reports dashboard data based on a selected filters.
+     * Update the applicants reports dashboard data based on a selected filters.
      *
      * This method is triggered via an AJAX request and retrieves
      * updated statistics for the applicants reports on the selected

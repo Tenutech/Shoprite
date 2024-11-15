@@ -30,21 +30,33 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
+    // Cache the original town options
+    const townOptionsCache = [...document.getElementById('town').options].map(option => ({
+        value: option.value,
+        label: option.textContent,
+        provinceId: option.getAttribute('province-id'),
+    }));
+
     // Cache the original store options
     const storeOptionsCache = [...document.getElementById('store').options].map(option => ({
         value: option.value,
         label: option.textContent,
+        brandId: option.getAttribute('brand-id'),
+        provinceId: option.getAttribute('province-id'),
+        townId: option.getAttribute('town-id'),
         divisionId: option.getAttribute('division-id'),
         regionId: option.getAttribute('region-id'),
     }));
 
-    var positionChoice = new Choices('#position', { searchEnabled: false, shouldSort: true });
+    var brandChoice = new Choices('#brand', { searchEnabled: true, shouldSort: true });
+    var provinceChoice = new Choices('#province', { searchEnabled: true, shouldSort: true });
+    var townChoice = new Choices('#town', { searchEnabled: true, shouldSort: true });
     var divisionChoice = new Choices('#division', { searchEnabled: true, shouldSort: true });
     var regionChoice = new Choices('#region', { searchEnabled: true, shouldSort: true });
     var storeChoice = new Choices('#store', { searchEnabled: true, shouldSort: true });
-    var userChoice = new Choices('#user', { searchEnabled: true, shouldSort: true });
-    var typeChoice = new Choices('#type', { searchEnabled: false, shouldSort: true });
-    var unactionedChoice = new Choices('#unactioned', { searchEnabled: false, shouldSort: true });
+
+    // Filtered options cache
+    let filteredStoreOptions = [...storeOptionsCache]; // Start with all store options
 
     /*
     |--------------------------------------------------------------------------
@@ -70,8 +82,14 @@ $(document).ready(function() {
         datePicker.setDate([formatDate(startDate), formatDate(endDate)]); // Reset date field
 
         // Reset each Choices instance to default (empty)
-        positionChoice.removeActiveItems();
-        positionChoice.setChoiceByValue("");
+        brandChoice.removeActiveItems();
+        brandChoice.setChoiceByValue("");
+
+        provinceChoice.removeActiveItems();
+        provinceChoice.setChoiceByValue("");
+        
+        townChoice.removeActiveItems();
+        townChoice.setChoiceByValue("");
         
         divisionChoice.removeActiveItems();
         divisionChoice.setChoiceByValue("");
@@ -82,19 +100,6 @@ $(document).ready(function() {
         storeChoice.removeActiveItems();
         storeChoice.setChoiceByValue("");
         
-        userChoice.removeActiveItems();
-        userChoice.setChoiceByValue("");
-        
-        typeChoice.removeActiveItems();
-        typeChoice.setChoiceByValue("");
-
-        unactionedChoice.removeActiveItems();
-        unactionedChoice.setChoiceByValue("");
-
-        // Clear all number input fields
-        $('#openPositions').val('');
-        $('#filledPositions').val('');
-
         // Optionally reset any validation states or styling
         $('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
         $('.invalid-feedback').hide(); // Hide error messages
@@ -106,25 +111,25 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    // Set store options based on division
-    document.getElementById('division').addEventListener('change', function () {
-        // Get the selected division ID
-        const selectedDivisionId = this.value;
+    // Set town options based on province
+    document.getElementById('province').addEventListener('change', function () {
+        // Get the selected province ID
+        const selectedProvinceId = this.value;
 
-        // Reset the store options
-        storeChoice.clearStore(); // Clears the current Choices options
+        // Reset the town options
+        townChoice.clearStore(); // Clears the current Choices options
 
-        if (selectedDivisionId === "") {
-            // If no division is selected, reset to all stores
-            storeChoice.setChoices(
+        if (selectedProvinceId === "") {
+            // If no province is selected, reset to all towns
+            townChoice.setChoices(
                 [
                     {
                         value: '',
-                        label: 'Select store',
+                        label: 'Select town',
                         selected: true, // Make this the selected option
                         disabled: false,
                     },
-                    ...storeOptionsCache.map(option => ({
+                    ...townOptionsCache.map(option => ({
                         value: option.value,
                         label: option.label,
                         selected: false,
@@ -135,16 +140,16 @@ $(document).ready(function() {
                 true
             );
         } else {
-            // Filter the cached store options based on the selected division
-            const filteredOptions = storeOptionsCache.filter(option => option.divisionId == selectedDivisionId);
+            // Filter the cached town options based on the selected province
+            const filteredOptions = townOptionsCache.filter(option => option.provinceId == selectedProvinceId);
 
             if (filteredOptions.length > 0) {
-                // Add the "Select store" option followed by the filtered store options
-                storeChoice.setChoices(
+                // Add the "Select town" option followed by the filtered town options
+                townChoice.setChoices(
                     [
                         {
                             value: '',
-                            label: 'Select store',
+                            label: 'Select town',
                             selected: true, // Make this the selected option
                             disabled: false,
                         },
@@ -159,12 +164,12 @@ $(document).ready(function() {
                     true
                 );
             } else {
-                // Add "No stores available" option if no matches
-                storeChoice.setChoices(
+                // Add "No towns available" option if no matches
+                townChoice.setChoices(
                     [
                         {
                             value: '',
-                            label: 'No stores available',
+                            label: 'No towns available',
                             selected: true,
                             disabled: true, // Make this option disabled
                         },
@@ -176,17 +181,30 @@ $(document).ready(function() {
             }
         }
     });
-    
-    // Set store options based on region
-    document.getElementById('region').addEventListener('change', function () {
-        // Get the selected region ID
-        const selectedRegionId = this.value;
 
-        // Reset the store options
+    // Update store options based on the current filter selections
+    function updateStoreOptions() {
+        // Get selected filter values
+        const selectedBrandId = document.getElementById('brand').value;
+        const selectedProvinceId = document.getElementById('province').value;
+        const selectedTownId = document.getElementById('town').value;
+        const selectedDivisionId = document.getElementById('division').value;
+        const selectedRegionId = document.getElementById('region').value;
+
+        // Filter the store options based on the selected values
+        filteredStoreOptions = storeOptionsCache.filter(option => {
+            return (
+                (!selectedBrandId || option.brandId == selectedBrandId) &&
+                (!selectedProvinceId || option.provinceId == selectedProvinceId) &&
+                (!selectedTownId || option.townId == selectedTownId) &&
+                (!selectedDivisionId || option.divisionId == selectedDivisionId) &&
+                (!selectedRegionId || option.regionId == selectedRegionId)
+            );
+        });
+
+        // Update the store options in the Choices instance
         storeChoice.clearStore(); // Clears the current Choices options
-
-        if (selectedRegionId === "") {
-            // If no region is selected, reset to all stores
+        if (filteredStoreOptions.length > 0) {
             storeChoice.setChoices(
                 [
                     {
@@ -195,7 +213,7 @@ $(document).ready(function() {
                         selected: true, // Make this the selected option
                         disabled: false,
                     },
-                    ...storeOptionsCache.map(option => ({
+                    ...filteredStoreOptions.map(option => ({
                         value: option.value,
                         label: option.label,
                         selected: false,
@@ -206,46 +224,26 @@ $(document).ready(function() {
                 true
             );
         } else {
-            // Filter the cached store options based on the selected region
-            const filteredOptions = storeOptionsCache.filter(option => option.regionId == selectedRegionId);
-
-            if (filteredOptions.length > 0) {
-                // Add the "Select store" option followed by the filtered store options
-                storeChoice.setChoices(
-                    [
-                        {
-                            value: '',
-                            label: 'Select store',
-                            selected: true, // Make this the selected option
-                            disabled: false,
-                        },
-                        ...filteredOptions.map(option => ({
-                            value: option.value,
-                            label: option.label,
-                            selected: false,
-                        })),
-                    ],
-                    'value',
-                    'label',
-                    true
-                );
-            } else {
-                // Add "No stores available" option if no matches
-                storeChoice.setChoices(
-                    [
-                        {
-                            value: '',
-                            label: 'No stores available',
-                            selected: true,
-                            disabled: true, // Make this option disabled
-                        },
-                    ],
-                    'value',
-                    'label',
-                    true
-                );
-            }
+            // Add "No stores available" option if no matches
+            storeChoice.setChoices(
+                [
+                    {
+                        value: '',
+                        label: 'No stores available',
+                        selected: true,
+                        disabled: true, // Make this option disabled
+                    },
+                ],
+                'value',
+                'label',
+                true
+            );
         }
+    }
+
+    // Attach change events for each filter
+    ['brand', 'province', 'town', 'division', 'region'].forEach(filterId => {
+        document.getElementById(filterId).addEventListener('change', updateStoreOptions);
     });
 });
 
@@ -273,7 +271,7 @@ $(document).ready(function() {
         var formData = new FormData($('#formFilters')[0]);
 
         $.ajax({
-            url: route("vacancies.reports.export"),
+            url: route("stores.reports.export"),
             method: 'POST',
             data: formData,
             processData: false,  // Required for FormData
@@ -286,7 +284,7 @@ $(document).ready(function() {
                 var downloadUrl = window.URL.createObjectURL(response);
                 var link = document.createElement('a');
                 link.href = downloadUrl;
-                link.download = "Vacancies Report.xlsx"; // File name
+                link.download = "Stores Report.xlsx"; // File name
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -345,38 +343,6 @@ $(document).ready(function() {
     $('#formFilters').on('submit', function(event) {
         event.preventDefault(); // Prevent default form submission
 
-        // Clear previous validation feedback
-        $('.is-invalid').removeClass('is-invalid');
-        $('.invalid-feedback').hide();
-
-        // Define min-max field pairs
-        const validationPairs = [
-            { min: '#openPositions', max: '#filledPositions', message: 'Open positions must be greater than or equal to filled positions.' }
-        ];
-
-        let isValid = true;
-
-        // Perform validation
-        validationPairs.forEach(pair => {
-            const minVal = parseFloat($(pair.min).val());
-            const maxVal = parseFloat($(pair.max).val());
-
-            // If both fields have values, check if max is less than min
-            if (!isNaN(minVal) && !isNaN(maxVal) && maxVal < minVal) {
-                isValid = false;
-                // Mark fields as invalid
-                $(pair.min).addClass('is-invalid');
-                $(pair.max).addClass('is-invalid');
-                // Display custom error message
-                $(pair.max).next('.invalid-feedback').text(pair.message).show();
-            }
-        });
-
-        if (!isValid) {
-            // If validation fails, do not proceed with AJAX
-            return;
-        }
-
         // Reference the filter button and update it to show a centered loading spinner
         var filterBtn = $('#filter');
         filterBtn.removeClass('btn-label').addClass('d-flex justify-content-center');
@@ -387,12 +353,13 @@ $(document).ready(function() {
         var formData = new FormData(this);
 
         $.ajax({
-            url: route("vacancies.reports.update"),
+            url: route("stores.reports.update"),
             method: 'POST',
             data: formData,
             processData: false,  // Required for FormData
             contentType: false,  // Required for FormData
             success: function(response) {
+                console.log(response.data);
                 // Update the dashboard with the new data
                 updateDashboard(response.data); // Pass the data to the updateDashboard function
 
@@ -493,17 +460,26 @@ function getChartColorsArray(chartId) {
 
 /*
 |--------------------------------------------------------------------------
-| Total Vacancies
+| Total Applicants Appointed
 |--------------------------------------------------------------------------
 */
 
-// Total Vacancies
-var totalVacanciesColors = getChartColorsArray("total_vacancies");
+// Total Applicants Appointed
+var totalApplicantsAppointedColors = getChartColorsArray("total_applicants_appointed");
 
-// Total Vacancies Chart
-if (totalVacanciesColors) {
+// Calculate percentage of appointed applicants
+var totalApplicantsAppointed = totalApplicantsAppointed || 0;
+var percentageAppointed = 0;
+
+// Check for divide by zero and calculate percentage for appointed applicants
+if (totalInterviewsScheduled > 0) {
+    percentageAppointed = Math.round((totalApplicantsAppointed / totalInterviewsScheduled) * 100);
+}
+
+// Total Applicants Appointed Chart
+if (totalApplicantsAppointedColors) {
     var options = {
-        series: [0], // Use the calculated percentage
+        series: [percentageAppointed], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -541,36 +517,36 @@ if (totalVacanciesColors) {
                 }
             }
         },
-        colors: totalVacanciesColors
+        colors: totalApplicantsAppointedColors
     };
 
-    var totalVacanciesChart = new ApexCharts(document.querySelector("#total_vacancies"), options);
-    totalVacanciesChart.render();
+    var totalApplicantsAppointedChart = new ApexCharts(document.querySelector("#total_applicants_appointed"), options);
+    totalApplicantsAppointedChart.render();
 }
 
 /*
 |--------------------------------------------------------------------------
-| Total Vacancies Filled
+| Total Interviews Completed
 |--------------------------------------------------------------------------
 */
 
-// Total Vacancies Filled
-var totalVacanciesFilledColors = getChartColorsArray("total_vacancies_filled");
+// Total Interviews Completed
+var totalInterviewsCompletedColors = getChartColorsArray("total_interviews_completed");
 
-// Calculate percentage of filled vacancies
-var totalVacancies = totalVacancies || 0;
-var totalVacanciesFilled = totalVacanciesFilled || 0;
-var percentageFilled = 0;
+// Calculate percentage of completed interviews
+var totalInterviewsScheduled = totalInterviewsScheduled || 0;
+var totalInterviewsCompleted = totalInterviewsCompleted || 0;
+var percentageCompleted = 0;
 
 // Check for divide by zero and calculate percentage
-if (totalVacancies > 0) {
-    percentageFilled = Math.round((totalVacanciesFilled / totalVacancies) * 100);
+if (totalInterviewsScheduled > 0) {
+    percentageCompleted = Math.round((totalInterviewsCompleted / totalInterviewsScheduled) * 100);
 }
 
-// Total Vacancies Filled Chart
-if (totalVacanciesFilledColors) {
+// Total Interviews Completed Chart
+if (totalInterviewsCompletedColors) {
     var options = {
-        series: [percentageFilled], // Use the calculated percentage
+        series: [percentageCompleted], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -608,182 +584,11 @@ if (totalVacanciesFilledColors) {
                 }
             }
         },
-        colors: totalVacanciesFilledColors
+        colors: totalInterviewsCompletedColors
     };
 
-    var totalVacanciesFilledChart = new ApexCharts(document.querySelector("#total_vacancies_filled"), options);
-    totalVacanciesFilledChart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Total Vacancies By Month
-|--------------------------------------------------------------------------
-*/
-
-//  Total Vacancies By Month Chart
-var vacanciesByMonthColors = getChartColorsArray("vacancies_by_month");
-
-// Prepare default months from January to December
-var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-// Prepare the data for the chart
-var totalVacanciesData = totalVacanciesByMonth && Object.keys(totalVacanciesByMonth).length > 0
-    ? Object.values(totalVacanciesByMonth) // Extract values if not empty
-    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
-
-var totalVacanciesFilledData = totalVacanciesFilledByMonth && Object.keys(totalVacanciesFilledByMonth).length > 0
-    ? Object.values(totalVacanciesFilledByMonth) // Extract values if not empty
-    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
-
-// Get type-specific data (dashed lines for type)
-var typeSeries = [];
-Object.keys(totalVacanciesTypeByMonth).forEach(function(type) {
-    typeSeries.push({
-        name: type,
-        data: Object.values(totalVacanciesTypeByMonth[type])
-    });
-});
-
-// Prepare final series data, including total and appointed (solid lines)
-var seriesData = [
-    {
-        name: 'Total',
-        data: totalVacanciesData
-    },
-    {
-        name: 'Filled',
-        data: totalVacanciesFilledData
-    },
-    ...typeSeries
-];
-
-// Get the months (x-axis categories)
-var months = Object.keys(totalVacanciesByMonth).length > 0 
-    ? Object.keys(totalVacanciesByMonth)  // Use the months from data if available
-    : defaultMonths; // Use default months if data is empty
-
-// Calculate monthly totals for percentages
-var monthlyTotals = totalVacanciesData
-
-// Total Vacancies By Month Chart
-if (vacanciesByMonthColors) {
-    var options = {
-        chart: {
-            height: 380,
-            type: 'line',
-            zoom: {
-                enabled: true
-            },
-            toolbar: {
-                show: true,
-            }
-        },
-        colors: vacanciesByMonthColors,
-        dataLabels: {
-            enabled: false
-        },
-        stroke: {
-            width: [3, 3, 3, 3, 3, 3],
-            curve: 'straight',
-            dashArray: [0, 0, 8, 8, 8, 8]
-        },
-        series: seriesData,
-        title: {
-            align: 'left',
-            style: {
-                fontWeight: 500,
-            },
-        },
-        markers: {
-            size: 0,
-
-            hover: {
-                sizeOffset: 6
-            }
-        },
-        xaxis: {
-            categories: months,
-        },
-        tooltip: {
-            y: {
-                formatter: function(val, { seriesIndex, dataPointIndex, w }) {
-                    // Skip percentage calculation for "Total" series (index 0)
-                    if (seriesIndex === 0) {
-                        return val;
-                    }
-                    // Calculate percentage for other series
-                    var totalForMonth = monthlyTotals[dataPointIndex];
-                    var percentage = totalForMonth > 0 ? Math.round((val / totalForMonth) * 100) : 0;
-                    return val + " (" + percentage + "%)";
-                }
-            }
-        },
-        grid: {
-            borderColor: '#f1f1f1',
-        }
-    }
-
-    var vacanciesByMonthChart = new ApexCharts(document.querySelector("#vacancies_by_month"), options);
-    vacanciesByMonthChart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Total Vacancies By Type
-|--------------------------------------------------------------------------
-*/
-
-// Total Vacancies By Type Chart
-var vacanciesByTypeColors = getChartColorsArray("vacancies_by_type");
-
-// Extract categories (keys) and data (values) from the object
-var vacncyCategories = Object.keys(totalVacanciesByType);
-var vacancyData = Object.values(totalVacanciesByType);
-
-// Total Vacancies By Type Chart
-if (vacanciesByTypeColors) {
-    var options = {
-        series: [{
-            name: 'Total',
-            data: vacancyData // Use the vacancyData array here
-        }],
-        chart: {
-            type: 'bar',
-            height: 350,
-            zoom: {
-                enabled: true
-            },
-            toolbar: {
-                show: true,
-            }
-        },
-        colors: vacanciesByTypeColors,
-        plotOptions: {
-            bar: {
-                columnWidth: '45%',
-                distributed: true,
-            }
-        },
-        dataLabels: {
-            enabled: false
-        },
-        legend: {
-            show: false
-        },
-        xaxis: {
-            categories: vacncyCategories, // Use the vacncyCategories array here
-            labels: {
-                style: {
-                    colors: vacanciesByTypeColors,
-                    fontSize: '12px'
-                }
-            }
-        }
-    };
-
-    var vacanciesByTypeChart = new ApexCharts(document.querySelector("#vacancies_by_type"), options);
-    vacanciesByTypeChart.render();
+    var totalInterviewsCompletedChart = new ApexCharts(document.querySelector("#total_interviews_completed"), options);
+    totalInterviewsCompletedChart.render();
 }
 
 /*
@@ -794,24 +599,30 @@ if (vacanciesByTypeColors) {
 
 // Function to update elements on the dashboard
 function updateDashboard(data) {
-    // Update total vacancies
-    $('#totalVacanciesValue').text(data.totalVacanciesFiltered);
+    // Update total applicants appointed
+    $('#totalApplicantsAppointedValue').text(data.totalApplicantsAppointedFiltered);
 
-    // Update total vacancies filled
-    $('#totalVacanciesFilledValue').text(data.totalVacanciesFilledFiltered);
+    // Update total interviews completed
+    $('#totalInterviewsCompletedValue').text(data.totalInterviewsCompletedFiltered);
+
+    // Update hire to interview ratio
+    $('#hireToInterviewRatioValue').text(data.hireToInterviewRatioDisplayFiltered);
+
+    // Update average time to shortlist
+    $('#averageTimeToShortlistValue').text(data.averageTimeToShortlistFiltered);
+
+    // Update average time to hire
+    $('#averageTimeToHireValue').text(data.averageTimeToHireFiltered);
+
+    // Update average distance applicants appointed
+    $('#averageDistanceApplicantsAppointedValue').text(data.averageDistanceApplicantsAppointedFiltered);
+
+    // Update average assessment score applicants appointed
+    $('#averageAssessmentScoreApplicantsAppointedValue').text(data.averageAssessmentScoreApplicantsAppointedFiltered);
 
     // Update radial charts
-    updateRadialChart(totalVacanciesChart, data.totalVacanciesFiltered, data.totalVacancies);
-    updateRadialChart(totalVacanciesFilledChart, data.totalVacanciesFilledFiltered, data.totalVacanciesFiltered);
-
-    // Remove 'd-none' class to show the charts after updating them
-    $('#totalVacanciesChart').removeClass('d-none');
-
-    // Update the "Vacancies By Month" chart
-    updateLineCharts(vacanciesByMonthChart, data.totalVacanciesByMonthFiltered);
-
-    // Update the "Total Vacancies By Type" chart
-    updateColumnCharts(vacanciesByTypeChart, data.totalVacanciesByTypeFiltered);
+    updateRadialChart(totalApplicantsAppointedChart, data.totalApplicantsAppointedFiltered, data.totalApplicantsAppointed);
+    updateRadialChart(totalInterviewsCompletedChart, data.totalInterviewsCompletedFiltered, data.totalInterviewsCompleted);
 }
 
 /*
@@ -830,79 +641,4 @@ function updateRadialChart(chartInstance, filledValue, totalValue) {
 
     // Update the series of the passed chart instance
     chartInstance.updateSeries([percentage]);
-}
-
-/*
-|--------------------------------------------------------------------------
-| Update Line Charts
-|--------------------------------------------------------------------------
-*/
-
-function updateLineCharts(chartInstance, totalVacanciesByMonth) {
-    // Get default months from January to December
-    var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-
-    // Prepare the data for the Vacancies By Month Chart
-    var totalVacanciesData = totalVacanciesByMonth && Object.keys(totalVacanciesByMonth).length > 0
-        ? Object.values(totalVacanciesByMonth) // Extract values if not empty
-        : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
-
-    // Get the months (x-axis categories)
-    var months = Object.keys(totalVacanciesByMonth).length > 0 
-        ? Object.keys(totalVacanciesByMonth)  // Use the months from data if available
-        : defaultMonths; // Use default months if data is empty
-
-    // Calculate max value for the y-axis dynamically
-    var maxYValue = Math.max(...totalVacanciesData) + 5; // Add buffer to the maximum value
-
-    // Update chart options
-    chartInstance.updateOptions({
-        xaxis: {
-            categories: months // Update x-axis with dynamic months
-        },
-        yaxis: {
-            max: maxYValue // Dynamically update the y-axis maximum
-        }
-    });
-
-    // Update chart series data
-    chartInstance.updateSeries([
-        {
-            name: "Total",
-            data: totalVacanciesData // Use dynamic data for total vacancies
-        },
-    ]);
-}
-
-/*
-|--------------------------------------------------------------------------
-| Update Column Charts
-|--------------------------------------------------------------------------
-*/
-
-function updateColumnCharts(chartInstance, totalVacanciesByType) {
-    // Extract categories (keys) and data (values) from the object
-    var vacancyCategories = Object.keys(totalVacanciesByType);
-    var vacancyData = Object.values(totalVacanciesByType);
-
-    // Update chart options
-    chartInstance.updateOptions({
-        xaxis: {
-            categories: vacancyCategories, // Update x-axis categories with new data
-            labels: {
-                style: {
-                    colors: vacanciesByTypeColors, // Colors for each category label
-                    fontSize: '12px'
-                }
-            }
-        }
-    });
-
-    // Update chart series data
-    chartInstance.updateSeries([
-        {
-            name: "Total",
-            data: vacancyData // Use the new data for the series
-        }
-    ]);
 }
