@@ -9,10 +9,12 @@ use App\Models\Race;
 use App\Models\Brand;
 use App\Models\State;
 use App\Models\Gender;
+use App\Models\Shortlist;
 use App\Models\Document;
 use App\Models\Duration;
 use App\Models\Education;
 use App\Models\Applicant;
+use App\Models\VacancyFill;
 use App\Models\Notification;
 use Illuminate\Http\Request;
 use App\Models\ScoreWeighting;
@@ -24,6 +26,7 @@ use App\Http\Requests\UpdateApplicantRequest;
 use Illuminate\Validation\Rule;
 use App\Jobs\ProcessUserIdNumber;
 use App\Jobs\SendIdNumberToSap;
+use Illuminate\Support\Facades\Log;
 
 class ApplicantsTableController extends Controller
 {
@@ -117,7 +120,8 @@ class ApplicantsTableController extends Controller
                 'education',
                 'duration',
                 'brands',
-                'state'
+                'state',
+                'latestInterview'
             ])->findOrFail($applicantID);
 
             $latitude = '';
@@ -151,7 +155,7 @@ class ApplicantsTableController extends Controller
     |--------------------------------------------------------------------------
     */
 
-    public function update(UpdateApplicantRequest $request)
+    public function update(Request $request)
     {
         //Applicant ID
         $applicantId = Crypt::decryptString($request->field_id);
@@ -163,7 +167,7 @@ class ApplicantsTableController extends Controller
         $request->validate([
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'email' => ['sometimes', 'nullable', 'string', 'email', 'max:191', Rule::unique('applicants')->ignore($applicantId)],
+            'email' => ['nullable', 'string', 'email', 'max:191', Rule::unique('applicants')->ignore($applicantId)],
             'phone' => ['required', 'string', 'max:191', Rule::unique('applicants')->ignore($applicantId)],
             'id_number' => ['required', 'string', 'max:13', Rule::unique('applicants')->ignore($applicantId)],
             'employment' => ['required', 'in:A,B,I,N,P'],
@@ -254,6 +258,52 @@ class ApplicantsTableController extends Controller
 
                 // Sync the brands with the applicant
                 $applicant->brands()->sync($brandData);
+            }
+
+            // Check if the shortlist ID should be cleared
+            if (empty($request->shortlist_id) && !empty($applicant->shortlist_id)) {
+                // Find the shortlist with the current applicant's shortlist_id
+                $shortlist = Shortlist::find($applicant->shortlist_id);
+
+                if ($shortlist) {
+                    // Decode applicant_ids to array, remove the applicant ID, and re-encode it
+                    $applicantIds = json_decode($shortlist->applicant_ids, true);
+
+                    if (($key = array_search($applicant->id, $applicantIds)) !== false) {
+                        unset($applicantIds[$key]);
+                        $shortlist->applicant_ids = json_encode(array_values($applicantIds)); // Re-index array
+                        $shortlist->save();
+                    }
+                }
+
+                // Clear the applicant's shortlist_id
+                $applicant->shortlist_id = null;
+                $applicant->save();
+            }
+
+            // Delete interviews if interview_id is empty and applicant has interviews
+            if (empty($request->interview_id) && $applicant->interviews()->exists()) {
+                $applicant->interviews()->where('applicant_id', $applicant->id)->delete();
+            }
+
+            // Clear appointed record if appointed_id is empty and applicant has an appointed record
+            if (empty($request->appointed_id) && !empty($applicant->appointed_id)) {
+                // Retrieve the VacancyFill record
+                $vacancyFill = VacancyFill::find($applicant->appointed_id);
+
+                if ($vacancyFill) {
+                    // Delete the associated SAP Number record, if it exists
+                    if ($vacancyFill->sapNumbers) {
+                        $vacancyFill->sapNumbers()->delete();
+                    }
+
+                    // Delete the VacancyFill record
+                    $vacancyFill->delete();
+
+                    // Set applicant's appointed_id to null
+                    $applicant->appointed_id = null;
+                    $applicant->save();
+                }
             }
 
             DB::commit(); // Commit the transaction

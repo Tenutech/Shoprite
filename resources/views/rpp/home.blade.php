@@ -78,11 +78,233 @@
             </div> <!--end row -->
 
             <!-------------------------------------------------------------------------------------
+                Time
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Time to Shortlist -->
+                <div class="col-xl-4 col-md-4" id="averageTimeToShortlistColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Time to Shortlist
+                                    </p>
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="averageTimeToShortlistValue">
+                                            {{ $regionAverageTimeToShortlist }}
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-secondary mb-0">
+                                            Store Average
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
+                                            <i data-feather="watch" class="text-secondary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+
+                <!-- Time to Hire -->
+                <div class="col-xl-4 col-md-4" id="averageTimeToHireColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Time to Hire
+                                    </p>
+                                    <h2 class="mt-4 ff-secondary fw-bold">
+                                        <span id="averageTimeToHireValue">
+                                            {{ $regionAverageTimeToHire }}
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-secondary mb-0">
+                                            Store Average
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
+                                            <i data-feather="watch" class="text-secondary"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+
+                <!-- Adoption Rate -->
+                <div class="col-xl-4 col-md-4" id="adoptionRateColumn">
+                    <div class="card card-animate">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="fw-semibold text-muted mb-0">
+                                        Adoption Rate
+                                    </p>
+                                    <h2 class="mt-4 ff-success fw-bold">
+                                        <span id="adoptionRateValue">
+                                            {{ $regionAdoptionRate }}%
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        <span class="badge bg-light text-success mb-0" id="adoptionRate">
+                                           Percentage
+                                        </span>
+                                    </p>
+                                </div>
+                                <div>
+                                    <div class="avatar-sm flex-shrink-0">
+                                        <span class="avatar-title bg-success-subtle rounded-circle fs-2">
+                                            <i data-feather="user-check" class="text-success"></i>
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Proximity
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Average Proximity Talent Pool -->
+                <div class="col-xl-6 col-md-6">
+                    <div class="card card-animate">
+                        <div class="card-header bg-secondary">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1 text-white">
+                                    Average Proximity (Talent Pool)
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                    <span id="averageDistanceTalentPoolApplicantsValue" class="counter-value"  data-target="{{ $regionAverageDistanceTalentPoolApplicants }}">
+                                        0
+                                    </span>km 
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average distance of talent pool
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col -->
+
+                <!-- Average Proximity Appointed -->
+                <div class="col-xl-6 col-md-6">
+                    <div class="card card-animate">
+                        <div class="card-header bg-secondary">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1 text-white">
+                                    Average Proximity (Succesfull Placements)
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                    <span id="averageDistanceApplicantsAppointedValue" class="counter-value"  data-target="{{ $regionAverageDistanceApplicantsAppointed }}">
+                                        0
+                                    </span>km 
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average distance for succesfull placements
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col -->
+            </div>
+
+            <!-------------------------------------------------------------------------------------
+                Scores
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Average Score -->
+                <div class="col-xl-6 col-md-6">
+                    <div class="card card-animate">
+                        <div class="card-header bg-success">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1 text-white">
+                                    Average Score
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                        <span id="averageScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $regionAverageScoreApplicantsAppointed }}">
+                                            0
+                                        </span>
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average score for succesfull placements
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col -->
+
+                <!-- Average Assessment Score -->
+                <div class="col-xl-6 col-md-6">
+                    <div class="card card-animate">
+                        <div class="card-header bg-success">
+                            <div class="d-flex">
+                                <h5 class="card-title mb-0 flex-grow-1 text-white">
+                                    Average Assessment Score
+                                </h5>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <h2 class="mt-4 ff-primary fw-bold">
+                                        <span id="averageAssessmentScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $regionAverageAssessmentScoreApplicantsAppointed }}">
+                                            0
+                                        </span>%
+                                    </h2>
+                                    <p class="mb-0 text-muted">
+                                        Average assessment score for succesfull placements
+                                    </p>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div>
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+
+            <!-------------------------------------------------------------------------------------
                 Vacancies
             -------------------------------------------------------------------------------------->
 
             <div class="row g-3">
-                <!-- Total Vacancies -->
+                <!-- Total Created Vacancies -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100">
                         <div class="position-absolute start-0" style="z-index: 0;">
@@ -94,7 +316,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">
                                     <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Total Vacancies
+                                        Total Created Vacancies
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
                                         <span id="totalVacanciesValue" class="counter-value" data-target="{{ $regionTotalVacancies }}">
@@ -166,7 +388,7 @@
                     </div><!-- end card -->
                 </div> <!--end col -->
             
-                <!-- Total Interviews Completed -->
+                <!-- Total Interviews Conducted -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100">
                         <div class="position-absolute start-0" style="z-index: 0;">
@@ -178,7 +400,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">
                                     <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Interviews Completed
+                                        Interviews Conducted
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
                                         <span id="totalInterviewsCompletedValue" class="counter-value" data-target="{{ $regionTotalInterviewsCompleted }}">
@@ -200,7 +422,7 @@
             -------------------------------------------------------------------------------------->
 
             <div class="row g-3">
-                <!-- Total Applicants Appointed -->
+                <!-- Total Candidates Selected -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100">
                         <div class="position-absolute start-0" style="z-index: 0;">
@@ -212,7 +434,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">
                                     <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Applicants Appointed
+                                        Candidates Selected
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
                                         <span id="totalApplicantsAppointedValue" class="counter-value" data-target="{{ $regionTotalApplicantsAppointed }}">
@@ -258,191 +480,53 @@
             </div> <!--end row -->
 
             <!-------------------------------------------------------------------------------------
-                Time
+                Demographic Information
             -------------------------------------------------------------------------------------->
 
             <div class="row g-3">
-                <!-- Time to Shortlist -->
-                <div class="col-xl-4 col-md-4" id="averageTimeToShortlistColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Time to Shortlist
-                                    </p>
-                                    <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="averageTimeToShortlistValue">
-                                            {{ $regionAverageTimeToShortlist }}
-                                        </span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0">
-                                            Region Average
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card -->
-                </div> <!-- end col -->
-
-                <!-- Time to Hire -->
-                <div class="col-xl-4 col-md-4" id="averageTimeToHireColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Time to Hire
-                                    </p>
-                                    <h2 class="mt-4 ff-secondary fw-bold">
-                                        <span id="averageTimeToHireValue">
-                                            {{ $regionAverageTimeToHire }}
-                                        </span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-secondary mb-0">
-                                            Region Average
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-secondary-subtle rounded-circle fs-2">
-                                            <i data-feather="watch" class="text-secondary"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card -->
-                </div> <!-- end col -->
-
-                <!-- Adoption Rate -->
-                <div class="col-xl-4 col-md-4" id="adoptionRateColumn">
-                    <div class="card card-animate">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="fw-semibold text-muted mb-0">
-                                        Adoption Rate
-                                    </p>
-                                    <h2 class="mt-4 ff-success fw-bold">
-                                        <span id="adoptionRateValue">
-                                            {{ $regionAdoptionRate }}%
-                                        </span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        <span class="badge bg-light text-success mb-0" id="adoptionRate">
-                                           Percentage
-                                        </span>
-                                    </p>
-                                </div>
-                                <div>
-                                    <div class="avatar-sm flex-shrink-0">
-                                        <span class="avatar-title bg-success-subtle rounded-circle fs-2">
-                                            <i data-feather="user-check" class="text-success"></i>
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div> <!-- end card -->
-                </div> <!-- end col -->
-            </div> <!-- end row -->
-
-            <!-------------------------------------------------------------------------------------
-                Proximity & Score
-            -------------------------------------------------------------------------------------->
-
-            <div class="row g-3">
-                <!-- Average Proximity Talent Pool -->
+                <!-- Talent Pool Demographic -->
                 <div class="col-xl-4 col-md-4">
                     <div class="card card-animate">
                         <div class="card-header">
-                            <div class="d-flex">
-                                <h5 class="card-title mb-0 flex-grow-1">
-                                    Average Proximity (Talent Pool)
-                                </h5>
-                            </div>
-                        </div>
+                            <h4 class="card-title mb-0">
+                                Demographic (Talent Pool)
+                            </h4>
+                        </div><!-- end card header -->
+            
                         <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h2 class="mt-4 ff-primary fw-bold">
-                                    <span id="averageDistanceTalentPoolApplicantsValue" class="counter-value"  data-target="{{ $regionAverageDistanceTalentPoolApplicants }}">
-                                        0
-                                    </span>km 
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        Average distance of talent pool
-                                    </p>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div>
+                            <div id="talent_pool_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
                 </div> <!-- end col -->
 
-                <!-- Average Proximity Appointed -->
+                <!-- Interviewed Demographic -->
                 <div class="col-xl-4 col-md-4">
                     <div class="card card-animate">
                         <div class="card-header">
-                            <div class="d-flex">
-                                <h5 class="card-title mb-0 flex-grow-1">
-                                    Average Proximity (Succesfull Placements)
-                                </h5>
-                            </div>
-                        </div>
+                            <h4 class="card-title mb-0">
+                                Demographic (Interviewed)
+                            </h4>
+                        </div><!-- end card header -->
+            
                         <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h2 class="mt-4 ff-primary fw-bold">
-                                    <span id="averageDistanceApplicantsAppointedValue" class="counter-value"  data-target="{{ $storeAverageDistanceApplicantsAppointed }}">
-                                        0
-                                    </span>km 
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        Average distance for succesfull placements
-                                    </p>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div>
+                            <div id="interviewed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
                 </div> <!-- end col -->
 
-                <!-- Average Score -->
+                <!-- Appointed Demographic -->
                 <div class="col-xl-4 col-md-4">
                     <div class="card card-animate">
                         <div class="card-header">
-                            <div class="d-flex">
-                                <h5 class="card-title mb-0 flex-grow-1">
-                                    Average Score
-                                </h5>
-                            </div>
-                        </div>
+                            <h4 class="card-title mb-0">
+                                Demographic (Appointed)
+                            </h4>
+                        </div><!-- end card header -->
+            
                         <div class="card-body">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="averageScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $storeAverageScoreApplicantsAppointed }}">
-                                            0
-                                        </span>
-                                    </h2>
-                                    <p class="mb-0 text-muted">
-                                        Average score for succesfull placements
-                                    </p>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div>
+                            <div id="appointed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
                 </div> <!-- end col -->
             </div> <!-- end row -->
 
@@ -450,7 +534,6 @@
                 Applicants
             -------------------------------------------------------------------------------------->
             
-
             <div class="row g-3">
                 <div class="col-xl-12 col-md-12">
                     <div class="card card-animate">
@@ -516,6 +599,9 @@
     var regionTotalApplicantsRegretted = @json($regionTotalApplicantsRegretted);
     var regionTalentPoolApplicantsByMonth = @json($regionTalentPoolApplicantsByMonth);
     var regionApplicantsAppointedByMonth = @json($regionApplicantsAppointedByMonth);
+    var regionTalentPoolApplicantsDemographic = @json($regionTalentPoolApplicantsDemographic);
+    var regionInterviewedApplicantsDemographic = @json($regionInterviewedApplicantsDemographic);
+    var regionAppointedApplicantsDemographic = @json($regionAppointedApplicantsDemographic);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

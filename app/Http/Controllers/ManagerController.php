@@ -124,6 +124,7 @@ class ManagerController extends Controller
 
             // Step 6: Fetch applicant score data
             $storeAverageScoreApplicantsAppointed = 0;
+            $storeAverageAssessmentScoreApplicantsAppointed = 0;
 
             // Step 7: Fetch talent pool data
             $storeTalentPoolApplicants = 0;
@@ -132,6 +133,11 @@ class ManagerController extends Controller
             // Step 8: Fetch applicants appointed data
             $storeApplicantsAppointed = 0;
             $storeApplicantsAppointedByMonth = [];
+
+            // Step 9: Fetch applicant demographic data
+            $storeTalentPoolApplicantsDemographic = [];
+            $storeInterviewedApplicantsDemographic = [];
+            $storeAppointedApplicantsDemographic = [];
 
             // Check if the authenticated user is associated with a store
             if ($storeId !== null) {
@@ -158,6 +164,7 @@ class ManagerController extends Controller
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
                 $storeAverageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, $storeId, $startDate, $endDate);
+                $storeAverageAssessmentScoreApplicantsAppointed = $this->applicantDataService->getAverageAssessmentScoreApplicantsAppointed($type, $storeId, $startDate, $endDate);
 
                 // Step 7: Fetch talent pool data from applicantProximityService
                 $storeTalentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, $storeId, $startDate, $endDate, $maxDistanceFromStore);
@@ -166,6 +173,11 @@ class ManagerController extends Controller
                 // Step 8: Fetch applicants appointed data from vacancyDataService
                 $storeApplicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, $storeId, $startDate, $endDate);
                 $storeApplicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, $storeId, $startDate, $endDate);
+
+                // Step 9: Fetch applicant demographic data from applicantDataService
+                $storeTalentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, $storeId, $startDate, $endDate, $maxDistanceFromStore);
+                $storeInterviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, $storeId, $startDate, $endDate);
+                $storeAppointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, $storeId, $startDate, $endDate);
             }
 
             // Return the 'manager/home' view with the calculated data
@@ -184,10 +196,14 @@ class ManagerController extends Controller
                 'storeAverageDistanceTalentPoolApplicants' => $storeAverageDistanceTalentPoolApplicants,
                 'storeAverageDistanceApplicantsAppointed' => $storeAverageDistanceApplicantsAppointed,
                 'storeAverageScoreApplicantsAppointed' => $storeAverageScoreApplicantsAppointed,
+                'storeAverageAssessmentScoreApplicantsAppointed' => $storeAverageAssessmentScoreApplicantsAppointed,
                 'storeTalentPoolApplicants' => $storeTalentPoolApplicants,
                 'storeTalentPoolApplicantsByMonth' => $storeTalentPoolApplicantsByMonth,
                 'storeApplicantsAppointed' => $storeApplicantsAppointed,
-                'storeApplicantsAppointedByMonth' => $storeApplicantsAppointedByMonth
+                'storeApplicantsAppointedByMonth' => $storeApplicantsAppointedByMonth,
+                'storeTalentPoolApplicantsDemographic' => $storeTalentPoolApplicantsDemographic,
+                'storeInterviewedApplicantsDemographic' => $storeInterviewedApplicantsDemographic,
+                'storeAppointedApplicantsDemographic' => $storeAppointedApplicantsDemographic
             ]);
         }
 
@@ -253,6 +269,7 @@ class ManagerController extends Controller
 
             // Step 6: Fetch applicant score data
             $storeAverageScoreApplicantsAppointed = 0;
+            $storeAverageAssessmentScoreApplicantsAppointed = 0;
 
             // Step 7: Fetch talent pool data
             $storeTalentPoolApplicants = 0;
@@ -261,6 +278,11 @@ class ManagerController extends Controller
             // Step 8: Fetch applicants appointed data
             $storeApplicantsAppointed = 0;
             $storeApplicantsAppointedByMonth = [];
+
+            // Step 9: Fetch applicant demographic data
+            $storeTalentPoolApplicantsDemographic = [];
+            $storeInterviewedApplicantsDemographic = [];
+            $storeAppointedApplicantsDemographic = [];
 
             // Check if the authenticated user is associated with a store
             if ($storeId !== null) {
@@ -287,6 +309,7 @@ class ManagerController extends Controller
 
                 // Step 6: Fetch applicant score data from ApplicantDataService
                 $storeAverageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, $storeId, $startDate, $endDate);
+                $storeAverageAssessmentScoreApplicantsAppointed = $this->applicantDataService->getAverageAssessmentScoreApplicantsAppointed($type, $storeId, $startDate, $endDate);
 
                 // Step 7: Fetch talent pool data from applicantProximityService
                 $storeTalentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, $storeId, $startDate, $endDate, $maxDistanceFromStore);
@@ -295,6 +318,11 @@ class ManagerController extends Controller
                 // Step 8: Fetch applicants appointed data from vacancyDataService
                 $storeApplicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, $storeId, $startDate, $endDate);
                 $storeApplicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, $storeId, $startDate, $endDate);
+
+                // Step 9: Fetch applicant demographic data from applicantDataService
+                $storeTalentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, $storeId, $startDate, $endDate, $maxDistanceFromStore);
+                $storeInterviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, $storeId, $startDate, $endDate);
+                $storeAppointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, $storeId, $startDate, $endDate);
             }
 
             //Data to return
@@ -311,10 +339,14 @@ class ManagerController extends Controller
                 'storeAverageDistanceTalentPoolApplicants' => $storeAverageDistanceTalentPoolApplicants,
                 'storeAverageDistanceApplicantsAppointed' => $storeAverageDistanceApplicantsAppointed,
                 'storeAverageScoreApplicantsAppointed' => $storeAverageScoreApplicantsAppointed,
+                'storeAverageAssessmentScoreApplicantsAppointed' => $storeAverageAssessmentScoreApplicantsAppointed,
                 'storeTalentPoolApplicants' => $storeTalentPoolApplicants,
                 'storeTalentPoolApplicantsByMonth' => $storeTalentPoolApplicantsByMonth,
                 'storeApplicantsAppointed' => $storeApplicantsAppointed,
-                'storeApplicantsAppointedByMonth' => $storeApplicantsAppointedByMonth
+                'storeApplicantsAppointedByMonth' => $storeApplicantsAppointedByMonth,
+                'storeTalentPoolApplicantsDemographic' => $storeTalentPoolApplicantsDemographic,
+                'storeInterviewedApplicantsDemographic' => $storeInterviewedApplicantsDemographic,
+                'storeAppointedApplicantsDemographic' => $storeAppointedApplicantsDemographic
             ];
 
             // Return the updated data as JSON

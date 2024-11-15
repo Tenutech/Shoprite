@@ -6,6 +6,8 @@ use Exception;
 use App\Models\Town;
 use App\Models\Store;
 use App\Models\Brand;
+use App\Models\Region;
+use App\Models\Division;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
@@ -47,8 +49,10 @@ class StoresController extends Controller
             //Stores
             $stores = Store::with([
                 'brand',
-                'town'
-            ])->get();
+                'town',
+                'region',
+                'division'
+            ])->orderByRaw('CAST(code AS UNSIGNED) ASC')->get();
 
             //Brands
             $brands = Brand::all();
@@ -56,10 +60,18 @@ class StoresController extends Controller
             //Towns
             $towns = Town::all();
 
+            //Regions
+            $regions = Region::all();
+
+            //Divisions
+            $divisions = Division::all();
+
             return view('admin/stores', [
                 'stores' => $stores,
                 'brands' => $brands,
-                'towns' => $towns
+                'towns' => $towns,
+                'regions' => $regions,
+                'divisions' => $divisions
             ]);
         }
         return view('404');
@@ -75,17 +87,25 @@ class StoresController extends Controller
     {
         //Validate
         $request->validate([
+            'code' => 'required|integer|min:1',
             'brand' => 'required|integer|min:1|exists:brands,id',
             'town' => 'required|integer|min:1|exists:towns,id',
-            'address' => 'sometimes|nullable|string|max:255'
+            'region' => 'required|integer|min:1|exists:regions,id',
+            'division' => 'required|integer|min:1|exists:divisions,id',
+            'address' => 'required|nullable|string|max:255',
+            'coordinates' => 'required|nullable|string|max:255'
         ]);
 
         try {
             //Store Create
             $store = Store::create([
+                'code' => $request->code,
                 'brand_id' => $request->brand,
                 'town_id' => $request->town,
-                'address' => $request->address ?: null
+                'region_id' => $request->region,
+                'division_id' => $request->division,
+                'address' => $request->address ?: null,
+                'coordinates' => $request->coordinates ?: null
             ]);
 
             $encID = Crypt::encryptString($store->id);
@@ -143,20 +163,27 @@ class StoresController extends Controller
 
         //Validate
         $request->validate([
+            'code' => 'required|integer|min:1',
             'brand' => 'required|integer|min:1|exists:brands,id',
             'town' => 'required|integer|min:1|exists:towns,id',
-            'address' => 'sometimes|nullable|string|max:255'
+            'region' => 'required|integer|min:1|exists:regions,id',
+            'division' => 'required|integer|min:1|exists:divisions,id',
+            'address' => 'required|nullable|string|max:255',
+            'coordinates' => 'required|nullable|string|max:255'
         ]);
-
 
         try {
             //Store
             $store = Store::findorfail($storeID);
 
             //Store Update
+            $store->code = $request->code;
             $store->brand_id = $request->brand;
             $store->town_id = $request->town;
+            $store->region_id = $request->region;
+            $store->division_id = $request->division;
             $store->address = $request->address ?: null;
+            $store->coordinates = $request->coordinates ?: null;
             $store->save();
 
             return response()->json([

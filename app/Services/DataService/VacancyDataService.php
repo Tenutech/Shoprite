@@ -3,6 +3,7 @@
 namespace App\Services\DataService;
 
 use Carbon\Carbon;
+use App\Models\Store;
 use App\Models\Vacancy;
 use App\Models\Interview;
 use Illuminate\Support\Facades\DB;
@@ -379,21 +380,21 @@ class VacancyDataService
         $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
                 return $query->where('store_id', $id);
         })
-            ->when($type === 'division', function ($query) use ($id) {
-                return $query->whereHas('store', function ($q) use ($id) {
-                    $q->where('division_id', $id);
-                });
-            })
-            ->when($type === 'region', function ($query) use ($id) {
-                return $query->whereHas('store', function ($q) use ($id) {
-                    $q->where('region_id', $id);
-                });
-            })
-            ->with(['appointed' => function ($query) use ($startDate, $endDate) {
-                // Only fetch appointed applicants within the date range
-                $query->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
-            }])
-            ->get();
+        ->when($type === 'division', function ($query) use ($id) {
+            return $query->whereHas('store', function ($q) use ($id) {
+                $q->where('division_id', $id);
+            });
+        })
+        ->when($type === 'region', function ($query) use ($id) {
+            return $query->whereHas('store', function ($q) use ($id) {
+                $q->where('region_id', $id);
+            });
+        })
+        ->with(['appointed' => function ($query) use ($startDate, $endDate) {
+            // Only fetch appointed applicants within the date range
+            $query->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
+        }])
+        ->get();
 
         // Initialize the total count
         $totalAppointed = 0;
@@ -502,5 +503,42 @@ class VacancyDataService
         }
 
         return $query->value('avg_time_to_hire');
+    }
+
+    /**
+     * Get the total number of stores using the solution within a given date range.
+     *
+     * A store is considered to be using the solution if it has at least one vacancy
+     * with at least one appointed applicant, and the vacancy was created within the specified date range.
+     *
+     * @param string $type The type of filter (e.g., store, division, region, or all).
+     * @param int|null $id The ID of the store, division, or region to filter (null for 'all').
+     * @param \Carbon\Carbon $startDate The start date for filtering vacancies.
+     * @param \Carbon\Carbon $endDate The end date for filtering vacancies.
+     * @return int The total count of stores using the solution.
+     */
+    public function getTotalStoresUsingSolution(string $type, ?int $id, $startDate, $endDate): int
+    {
+        // Retrieve stores that have at least one vacancy with at least one appointed applicant
+        // and the vacancy was created within the specified date range
+        $totalStores = Store::whereHas('vacancies', function ($vacancyQuery) use ($startDate, $endDate) {
+            // Filter vacancies based on the created_at date range and the presence of appointed applicants
+            $vacancyQuery->whereBetween('created_at', [$startDate, $endDate])
+                        ->whereHas('appointed');
+        })->count();
+
+        // Return the count of stores using the solution
+        return $totalStores;
+    }
+
+    /**
+     * Get the total number of stores.
+     *
+     * @return int The total count of stores.
+     */
+    public function getTotalStores(string $type, ?int $id, $startDate, $endDate): int
+    {
+        // Count and return the total number of stores
+        return Store::count();
     }
 }

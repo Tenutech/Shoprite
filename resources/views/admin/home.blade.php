@@ -75,186 +75,6 @@
             </div> <!--end row -->
 
             <!-------------------------------------------------------------------------------------
-                Vacancies
-            -------------------------------------------------------------------------------------->
-
-            <div class="row g-3">
-                <!-- Total Vacancies -->
-                <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
-                        <div class="position-absolute start-0" style="z-index: 0;">
-                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
-                                <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
-                            </svg>
-                        </div>
-                        <div class="card-body" style="z-index:1 ;">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Total Vacancies
-                                    </p>
-                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalVacanciesValue" class="counter-value" data-target="{{ $totalVacancies }}">
-                                            0
-                                        </span>
-                                    </h4>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div><!-- end card -->
-                </div> <!--end col -->
-            
-                <!-- Total Vacancies Filled -->
-                <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
-                        <div class="position-absolute start-0" style="z-index: 0;">
-                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
-                                <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
-                            </svg>
-                        </div>
-                        <div class="card-body" style="z-index:1 ;">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Total Vacancies Filled
-                                    </p>
-                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalVacanciesFilledValue" class="counter-value" data-target="{{ $totalVacanciesFilled }}">
-                                            0
-                                        </span>
-                                    </h4>
-                                </div>
-                                <div class="flex-shrink-0">
-                                    <div id="total_vacancies_filled" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div><!-- end card -->
-                </div> <!--end col -->
-            </div> <!--end row -->
-            
-            <!-------------------------------------------------------------------------------------
-                Interviews
-            -------------------------------------------------------------------------------------->
-
-            <div class="row g-3">
-                <!-- Total Interviews Scheduled -->
-                <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
-                        <div class="position-absolute start-0" style="z-index: 0;">
-                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
-                                <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
-                            </svg>
-                        </div>
-                        <div class="card-body" style="z-index:1 ;">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Interviews Scheduled
-                                    </p>
-                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalInterviewsScheduledValue"  class="counter-value" data-target="{{ $totalInterviewsScheduled }}">
-                                            0
-                                        </span>
-                                    </h4>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div><!-- end card -->
-                </div> <!--end col -->
-            
-                <!-- Total Interviews Completed -->
-                <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
-                        <div class="position-absolute start-0" style="z-index: 0;">
-                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
-                                <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
-                            </svg>
-                        </div>
-                        <div class="card-body" style="z-index:1 ;">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Interviews Completed
-                                    </p>
-                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalInterviewsCompletedValue" class="counter-value" data-target="{{ $totalInterviewsCompleted }}">
-                                            0
-                                        </span>
-                                    </h4>
-                                </div>
-                                <div class="flex-shrink-0">
-                                    <div id="total_interviews_completed" data-colors='["--vz-secondary"]' class="apex-charts" dir="ltr"></div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div><!-- end card -->
-                </div> <!--end col -->
-            </div> <!--end row -->
-
-            <!-------------------------------------------------------------------------------------
-                Applicants
-            -------------------------------------------------------------------------------------->
-
-            <div class="row g-3">
-                <!-- Total Applicants Appointed -->
-                <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
-                        <div class="position-absolute start-0" style="z-index: 0;">
-                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
-                                <path id="Shape 8" class="s2" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
-                            </svg>
-                        </div>
-                        <div class="card-body" style="z-index:1 ;">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Applicants Appointed
-                                    </p>
-                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalApplicantsAppointedValue" class="counter-value" data-target="{{ $totalApplicantsAppointed }}">
-                                            0
-                                        </span>
-                                    </h4>
-                                </div>
-                                <div class="flex-shrink-0">
-                                    <div id="total_applicants_appointed" data-colors='["--vz-success"]' class="apex-charts" dir="ltr"></div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div><!-- end card -->
-                </div> <!--end col -->
-            
-                <!-- Total Applicants Regretted -->
-                <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
-                        <div class="position-absolute start-0" style="z-index: 0;">
-                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
-                                <path id="Shape 8" class="s3" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
-                            </svg>
-                        </div>
-                        <div class="card-body" style="z-index:1 ;">
-                            <div class="d-flex align-items-center">
-                                <div class="flex-grow-1 overflow-hidden">
-                                    <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Applicants Regretted
-                                    </p>
-                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalApplicantsRegrettedValue" class="counter-value" data-target="{{ $totalApplicantsRegretted }}">
-                                            0
-                                        </span>
-                                    </h4>
-                                </div>
-                                <div class="flex-shrink-0">
-                                    <div id="total_applicants_regretted" data-colors='["--vz-danger"]' class="apex-charts" dir="ltr"></div>
-                                </div>
-                            </div>
-                        </div><!-- end card body -->
-                    </div><!-- end card -->
-                </div> <!--end col -->
-            </div> <!--end row -->
-
-            <!-------------------------------------------------------------------------------------
                 Time
             -------------------------------------------------------------------------------------->
 
@@ -417,54 +237,6 @@
             </div> <!-- end row -->
 
             <!-------------------------------------------------------------------------------------
-                Applicants
-            -------------------------------------------------------------------------------------->
-            
-
-            <div class="row g-3">
-                <div class="col-xl-12 col-md-12">
-                    <div class="card card-animate">
-                        <div class="card-header border-0 align-items-center d-flex">
-                            <h4 class="card-title mb-0 flex-grow-1">Talent Pool</h4>
-                        </div><!-- end card header -->
-
-                        <div class="card-header p-0 border-0 bg-white bg-opacity-10">
-                            <div class="row g-0 text-center">
-                                <div class="col-6 col-sm-6">
-                                    <div class="p-3 border border-dashed border-start-0">
-                                        <h5 class="mb-1">
-                                            <span id="talentPoolApplicantsValue" class="counter-value" data-target="{{ $talentPoolApplicants }}">
-                                                0
-                                            </span>
-                                        </h5>
-                                        <p class="text-muted mb-0">
-                                            Total Talent Pool
-                                        </p>
-                                    </div>
-                                </div> <!--end col -->
-                                <div class="col-6 col-sm-6">
-                                    <div class="p-3 border border-dashed border-start-0">
-                                        <h5 class="mb-1">
-                                            <span id="applicantsAppointedValue" class="counter-value" data-target="{{ $applicantsAppointed }}">
-                                                0
-                                            </span>
-                                        </h5>
-                                        <p class="text-muted mb-0">
-                                            Total Appointed
-                                        </p>
-                                    </div>
-                                </div> <!--end col -->
-                            </div>
-                        </div><!-- end card header -->
-            
-                        <div class="card-body">
-                            <div id="talent_pool_by_month" data-colors='["--vz-primary", "--vz-success"]' class="apex-charts" dir="ltr"></div>
-                        </div> <!-- end card-body -->
-                    </div> <!-- end card -->
-                </div> <!-- end col -->
-            </div> <!-- end row -->
-
-            <!-------------------------------------------------------------------------------------
                 Overall Scores
             -------------------------------------------------------------------------------------->
 
@@ -570,6 +342,234 @@
             </div> <!-- end row -->
 
             <!-------------------------------------------------------------------------------------
+                Vacancies
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Total Created Vacancies -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Total Created Vacancies
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalVacanciesValue" class="counter-value" data-target="{{ $totalVacancies }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            
+                <!-- Total Vacancies Filled -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Total Vacancies Filled
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalVacanciesFilledValue" class="counter-value" data-target="{{ $totalVacanciesFilled }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_vacancies_filled" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            </div> <!--end row -->
+            
+            <!-------------------------------------------------------------------------------------
+                Interviews
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Total Interviews Scheduled -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Interviews Scheduled
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalInterviewsScheduledValue"  class="counter-value" data-target="{{ $totalInterviewsScheduled }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            
+                <!-- Total Interviews Conducted -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Interviews Conducted
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalInterviewsCompletedValue" class="counter-value" data-target="{{ $totalInterviewsCompleted }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_interviews_completed" data-colors='["--vz-secondary"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            </div> <!--end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Applicants
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Total Candidates Selected -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s2" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Candidates Selected
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalApplicantsAppointedValue" class="counter-value" data-target="{{ $totalApplicantsAppointed }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_applicants_appointed" data-colors='["--vz-success"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            
+                <!-- Total Applicants Regretted -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s3" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Applicants Regretted
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalApplicantsRegrettedValue" class="counter-value" data-target="{{ $totalApplicantsRegretted }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_applicants_regretted" data-colors='["--vz-danger"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            </div> <!--end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Applicants
+            -------------------------------------------------------------------------------------->
+            
+
+            <div class="row g-3">
+                <div class="col-xl-12 col-md-12">
+                    <div class="card card-animate">
+                        <div class="card-header border-0 align-items-center d-flex">
+                            <h4 class="card-title mb-0 flex-grow-1">Talent Pool</h4>
+                        </div><!-- end card header -->
+
+                        <div class="card-header p-0 border-0 bg-white bg-opacity-10">
+                            <div class="row g-0 text-center">
+                                <div class="col-6 col-sm-6">
+                                    <div class="p-3 border border-dashed border-start-0">
+                                        <h5 class="mb-1">
+                                            <span id="talentPoolApplicantsValue" class="counter-value" data-target="{{ $talentPoolApplicants }}">
+                                                0
+                                            </span>
+                                        </h5>
+                                        <p class="text-muted mb-0">
+                                            Total Talent Pool
+                                        </p>
+                                    </div>
+                                </div> <!--end col -->
+                                <div class="col-6 col-sm-6">
+                                    <div class="p-3 border border-dashed border-start-0">
+                                        <h5 class="mb-1">
+                                            <span id="applicantsAppointedValue" class="counter-value" data-target="{{ $applicantsAppointed }}">
+                                                0
+                                            </span>
+                                        </h5>
+                                        <p class="text-muted mb-0">
+                                            Total Appointed
+                                        </p>
+                                    </div>
+                                </div> <!--end col -->
+                            </div>
+                        </div><!-- end card header -->
+            
+                        <div class="card-body">
+                            <div id="talent_pool_by_month" data-colors='["--vz-primary", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                        </div> <!-- end card-body -->
+                    </div> <!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+
+            <!-------------------------------------------------------------------------------------
                 Application Channels
             -------------------------------------------------------------------------------------->
 
@@ -632,7 +632,7 @@
             </div> <!--end row -->
 
             <!-------------------------------------------------------------------------------------
-                Completion & Drp Off State
+                Completion & Drop Off State
             -------------------------------------------------------------------------------------->
 
             <div class="row g-3">
@@ -700,6 +700,68 @@
             </div> <!-- end row -->
 
             <!-------------------------------------------------------------------------------------
+                Stores & Re-Employment
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Total Stores Using Solution -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s3" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Total Stores Using Solution
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalsStoresUsingSolutionValue" class="counter-value" data-target="{{ $totalStoresUsingSolution }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_stores_using_solution" data-colors='["--vz-danger"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            
+                <!-- Total Re-Employed Applicants -->
+                <div class="col-xl-6 col-md-6 d-flex">
+                    <div class="card card-animate overflow-hidden w-100">
+                        <div class="position-absolute start-0" style="z-index: 0;">
+                            <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
+                                <path id="Shape 8" class="s4" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
+                            </svg>
+                        </div>
+                        <div class="card-body" style="z-index:1 ;">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1 overflow-hidden">
+                                    <p class="fw-semibold text-muted text-truncate mb-3">
+                                        Total Re-Employed Candidates
+                                    </p>
+                                    <h4 class="fs-22 fw-bold ff-secondary mb-0">
+                                        <span id="totalReEmployedApplicantsValue" class="counter-value" data-target="{{ $totalReEmployedApplicants }}">
+                                            0
+                                        </span>
+                                    </h4>
+                                </div>
+                                <div class="flex-shrink-0">
+                                    <div id="total_re_employed_applicants" data-colors='["--vz-warning"]' class="apex-charts" dir="ltr"></div>
+                                </div>
+                            </div>
+                        </div><!-- end card body -->
+                    </div><!-- end card -->
+                </div> <!--end col -->
+            </div> <!--end row -->
+
+            <!-------------------------------------------------------------------------------------
                 Demographic Information
             -------------------------------------------------------------------------------------->
 
@@ -714,7 +776,7 @@
                         </div><!-- end card header -->
             
                         <div class="card-body">
-                            <div id="talent_pool_applicants_demographic" data-colors='["--vz-success", "--vz-warning", "--vz-danger", "--vz-secondary"]' class="apex-charts" dir="ltr"></div>
+                            <div id="talent_pool_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
@@ -745,6 +807,57 @@
             
                         <div class="card-body">
                             <div id="appointed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div> <!-- end col -->
+            </div> <!-- end row -->
+
+            <!-------------------------------------------------------------------------------------
+                Gender Information
+            -------------------------------------------------------------------------------------->
+
+            <div class="row g-3">
+                <!-- Talent Pool Gender -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">
+                                Gender (Talent Pool)
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <div class="card-body">
+                            <div id="talent_pool_applicants_gender" data-colors='["--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div> <!-- end col -->
+
+                <!-- Interviewed Gender -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">
+                                Gender (Interviewed)
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <div class="card-body">
+                            <div id="interviewed_applicants_gender" data-colors='["--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                        </div><!-- end card-body -->
+                    </div><!-- end card -->
+                </div> <!-- end col -->
+
+                <!-- Appointed Gender -->
+                <div class="col-xl-4 col-md-4">
+                    <div class="card card-animate">
+                        <div class="card-header">
+                            <h4 class="card-title mb-0">
+                                Gender (Appointed)
+                            </h4>
+                        </div><!-- end card header -->
+            
+                        <div class="card-body">
+                            <div id="appointed_applicants_gender" data-colors='["--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
@@ -805,7 +918,14 @@
     var talentPoolApplicantsDemographic = @json($talentPoolApplicantsDemographic);
     var interviewedApplicantsDemographic = @json($interviewedApplicantsDemographic);
     var appointedApplicantsDemographic = @json($appointedApplicantsDemographic);
+    var talentPoolApplicantsGender = @json($talentPoolApplicantsGender);
+    var interviewedApplicantsGender = @json($interviewedApplicantsGender);
+    var appointedApplicantsGender = @json($appointedApplicantsGender);
     var talentPoolApplicantsProvince = @json($talentPoolApplicantsProvince);
+    var totalStoresUsingSolution = @json($totalStoresUsingSolution);
+    var totalStores = @json($totalStores);
+    var totalReEmployedApplicants = @json($totalReEmployedApplicants);
+    var totalAppointedApplicants = @json($totalAppointedApplicants);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

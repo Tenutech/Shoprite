@@ -68,7 +68,7 @@
                                     <option value="10" selected>10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
-                                    <option value="{{count($applicants)}}">All</option>
+                                    <option value="100">100</option>
                                 </select>
                             </div>
                         </div>
@@ -324,9 +324,8 @@
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="email" class="form-label">
                                                         Email
-                                                        <span class="text-danger">*</span>
                                                     </label>
-                                                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter email address" required/>
+                                                    <input type="email" id="email" name="email" class="form-control" placeholder="Enter email address"/>
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
@@ -398,6 +397,20 @@
                                                         <option value="No">No</option>
                                                         <option value="Yes">Yes</option>
                                                     </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="shortlist" class="form-label">
+                                                        Shortlist
+                                                    </label>
+                                                    <input type="number" id="shortlist" name="shortlist_id" class="form-control" placeholder="Enter shortlist ID"/>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="appointed" class="form-label">
+                                                        Appointed
+                                                    </label>
+                                                    <input type="number" id="appointed" name="appointed_id" class="form-control" placeholder="Enter appointed ID"/>
                                                 </div>
                                                 <!--end col-->
                                             </div>
@@ -495,6 +508,13 @@
                                                             <option value="{{ $state->id }}">{{ $state->name }}</option>
                                                         @endforeach
                                                     </select>
+                                                </div>
+                                                <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="interview" class="form-label">
+                                                        Interview
+                                                    </label>
+                                                    <input type="number" id="interview" name="interview_id" class="form-control" placeholder="Enter interview ID"/>
                                                 </div>
                                                 <!--end col-->
                                             </div>
@@ -621,7 +641,7 @@
 @section('script')
     <script src="{{ URL::asset('build/libs/list.js/list.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/applicants-table.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/applicants-table.init.js') }}?v={{ filemtime(public_path('build/js/pages/applicants-table.init.js')) }}"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.googlemaps.key') }}&libraries=places"></script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\Brand;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -45,8 +46,12 @@ class PositionsController extends Controller
             // Fetch positions where name is not "Any" or "Other"
             $positions = Position::whereNotIn('name', ['Any', 'Other'])->get();
 
+            //Brands
+            $brands = Brand::all();
+
             return view('admin/positions', [
-                'positions' => $positions
+                'positions' => $positions,
+                'brands' => $brands
             ]);
         }
         return view('404');
@@ -62,8 +67,12 @@ class PositionsController extends Controller
     {
         //Validate
         $request->validate([
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
-            'name' => 'required|string|max:191'
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+            'name' => 'required|string|max:191',
+            'brand' => 'required|integer|min:1|exists:brands,id',
+            'description' => 'nullable|string',
+            'icon' => 'nullable|string|max:50',
+            'color' => 'nullable|string|in:primary,secondary,success,info,warning,danger,dark',
         ]);
 
         try {
@@ -80,6 +89,7 @@ class PositionsController extends Controller
             //Position Create
             $position = Position::create([
                 'name' => $request->name,
+                'brand_id' => $request->brand,
                 'description' => $request->description && $request->description != '<p></p>'  && $request->description != '<p><br></p>' ? $request->description : null,
                 'icon' => $request->icon ?: null,
                 'color' => $request->color ?: null,
@@ -141,8 +151,12 @@ class PositionsController extends Controller
 
         //Validate
         $request->validate([
-            'avatar' => ['image' ,'mimes:jpg,jpeg,png','max:1024'],
-            'name' => 'required|string|max:191'
+            'avatar' => 'nullable|image|mimes:jpg,jpeg,png|max:1024',
+            'name' => 'required|string|max:191',
+            'brand' => 'required|integer|min:1|exists:brands,id',
+            'description' => 'nullable|string',
+            'icon' => 'nullable|string|max:50',
+            'color' => 'nullable|string|in:primary,secondary,success,info,warning,danger,dark',
         ]);
 
         try {
@@ -171,6 +185,7 @@ class PositionsController extends Controller
 
             //Position Update
             $position->name = $request->name;
+            $position->brand_id = $request->brand;
             $position->description = $request->description && $request->description != '<p></p>'  && $request->description != '<p><br></p>' ? $request->description : null;
             $position->icon = $request->icon ?: null;
             $position->color = $request->color ?: null;

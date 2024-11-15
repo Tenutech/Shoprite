@@ -526,6 +526,418 @@ if (talentPoolByMonth) {
 
 /*
 |--------------------------------------------------------------------------
+| Talent Pool Applicants Demographic
+|--------------------------------------------------------------------------
+*/
+
+// Talent Pool Applicants Demographic
+var talentPoolApplicantsDemographicColors = getChartColorsArray("talent_pool_applicants_demographic");
+
+// Extract percentages and labels dynamically from regionTalentPoolApplicantsDemographic
+var talentPoolApplicantsDemographicSeries = [];
+var talentPoolApplicantsDemographicLabels = [];
+
+regionTalentPoolApplicantsDemographic.forEach(function (item) {
+    talentPoolApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
+    talentPoolApplicantsDemographicLabels.push(item.name);       // Extract the race name
+});
+
+// Talent Pool Applicants Demographic Chart
+if(talentPoolApplicantsDemographicColors){
+    var options = {
+        series: talentPoolApplicantsDemographicSeries,
+        chart: {
+            height: 350,
+            type: 'radialBar',
+        },
+        plotOptions: {
+            radialBar: {
+                offsetY: 0,
+                startAngle: 0,
+                endAngle: 270,
+                hollow: {
+                    margin: 5,
+                    size: '30%',
+                    background: 'transparent',
+                    image: undefined,
+                },
+                dataLabels: {
+                    name: {
+                        show: false,
+                    },
+                    value: {
+                        show: false,
+                    }
+                }
+            }
+        },
+        colors: talentPoolApplicantsDemographicColors,
+        labels: talentPoolApplicantsDemographicLabels,
+        legend: {
+            show: true,
+            floating: true,
+            fontSize: '16px',
+            position: 'left',
+            offsetX: 80,
+            offsetY: 15,
+            labels: {
+                useSeriesColors: true,
+            },
+            markers: {
+                size: 0
+            },
+            formatter: function (seriesName, opts) {
+                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+            },
+            itemMargin: {
+                vertical: 3
+            }
+        },
+        responsive: [
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1700,
+                options: {
+                    legend: {
+                        offsetX: 60 // Set offsetX to 60 for screen sizes under 1700px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1600,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1600px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1550,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1550px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1500,
+                options: {
+                    legend: {
+                        offsetX: 10 // Set offsetX to 60 for screen sizes under 1700px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1250,
+                options: {
+                    legend: {
+                        offsetX: -20 // Set offsetX to 60 for screen sizes under 1700px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 768px (tablet and mobile)
+                breakpoint: 768,
+                options: {
+                    legend: {
+                        offsetX: 180, // Adjust the horizontal offset for medium screens
+                    }
+                }
+            },
+            {
+                // For screens smaller than 480px (mobile)
+                breakpoint: 480,
+                options: {
+                    legend: {
+                        offsetX: -30 // Adjust the horizontal offset for small screens
+                    }
+                }
+            }
+        ]
+    };
+
+    var talentPoolApplicantsDemographicChart = new ApexCharts(document.querySelector("#talent_pool_applicants_demographic"), options);
+    talentPoolApplicantsDemographicChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Interviewed Applicants Demographic
+|--------------------------------------------------------------------------
+*/
+
+// Interviewed Applicants Demographic
+var interviewedApplicantsDemographicColors = getChartColorsArray("interviewed_applicants_demographic");
+
+// Extract percentages and labels dynamically from regionInterviewedApplicantsDemographic
+var interviewedApplicantsDemographicSeries = [];
+var interviewedApplicantsDemographicLabels = [];
+
+regionInterviewedApplicantsDemographic.forEach(function (item) {
+    interviewedApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
+    interviewedApplicantsDemographicLabels.push(item.name);       // Extract the race name
+});
+
+// Interviewed Applicants Demographic Chart
+if(interviewedApplicantsDemographicColors){
+    var options = {
+        series: interviewedApplicantsDemographicSeries,
+        chart: {
+            height: 350,
+            type: 'radialBar',
+        },
+        plotOptions: {
+            radialBar: {
+                offsetY: 0,
+                startAngle: 0,
+                endAngle: 270,
+                hollow: {
+                    margin: 5,
+                    size: '30%',
+                    background: 'transparent',
+                    image: undefined,
+                },
+                dataLabels: {
+                    name: {
+                        show: false,
+                    },
+                    value: {
+                        show: false,
+                    }
+                }
+            }
+        },
+        colors: interviewedApplicantsDemographicColors,
+        labels: interviewedApplicantsDemographicLabels,
+        legend: {
+            show: true,
+            floating: true,
+            fontSize: '16px',
+            position: 'left',
+            offsetX: 80,
+            offsetY: 15,
+            labels: {
+                useSeriesColors: true,
+            },
+            markers: {
+                size: 0
+            },
+            formatter: function (seriesName, opts) {
+                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+            },
+            itemMargin: {
+                vertical: 3
+            }
+        },
+        responsive: [
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1700,
+                options: {
+                    legend: {
+                        offsetX: 60 // Set offsetX to 60 for screen sizes under 1700px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1600,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1600px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1550,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1550px
+                    }
+                }
+            },
+            {
+                breakpoint: 1500,
+                options: {
+                    legend: {
+                        offsetX: 10
+                    }
+                }
+            },
+            {
+                breakpoint: 1250,
+                options: {
+                    legend: {
+                        offsetX: -20
+                    }
+                }
+            },
+            {
+                breakpoint: 768,
+                options: {
+                    legend: {
+                        offsetX: 180
+                    }
+                }
+            },
+            {
+                breakpoint: 480,
+                options: {
+                    legend: {
+                        offsetX: -30
+                    }
+                }
+            }
+        ]
+    };
+
+    var interviewedApplicantsDemographicChart = new ApexCharts(document.querySelector("#interviewed_applicants_demographic"), options);
+    interviewedApplicantsDemographicChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Appointed Applicants Demographic
+|--------------------------------------------------------------------------
+*/
+
+// Appointed Applicants Demographic
+var appointedApplicantsDemographicColors = getChartColorsArray("appointed_applicants_demographic");
+
+// Extract percentages and labels dynamically from regionAppointedApplicantsDemographic
+var appointedApplicantsDemographicSeries = [];
+var appointedApplicantsDemographicLabels = [];
+
+regionAppointedApplicantsDemographic.forEach(function (item) {
+    appointedApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
+    appointedApplicantsDemographicLabels.push(item.name);       // Extract the race name
+});
+
+// Appointed Applicants Demographic Chart
+if(appointedApplicantsDemographicColors){
+    var options = {
+        series: appointedApplicantsDemographicSeries,
+        chart: {
+            height: 350,
+            type: 'radialBar',
+        },
+        plotOptions: {
+            radialBar: {
+                offsetY: 0,
+                startAngle: 0,
+                endAngle: 270,
+                hollow: {
+                    margin: 5,
+                    size: '30%',
+                    background: 'transparent',
+                    image: undefined,
+                },
+                dataLabels: {
+                    name: {
+                        show: false,
+                    },
+                    value: {
+                        show: false,
+                    }
+                }
+            }
+        },
+        colors: appointedApplicantsDemographicColors,
+        labels: appointedApplicantsDemographicLabels,
+        legend: {
+            show: true,
+            floating: true,
+            fontSize: '16px',
+            position: 'left',
+            offsetX: 80,
+            offsetY: 15,
+            labels: {
+                useSeriesColors: true,
+            },
+            markers: {
+                size: 0
+            },
+            formatter: function (seriesName, opts) {
+                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+            },
+            itemMargin: {
+                vertical: 3
+            }
+        },
+        responsive: [
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1700,
+                options: {
+                    legend: {
+                        offsetX: 60 // Set offsetX to 60 for screen sizes under 1700px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1600,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1600px
+                    }
+                }
+            },
+            {
+                // For screens smaller than 1700px
+                breakpoint: 1550,
+                options: {
+                    legend: {
+                        offsetX: 30 // Set offsetX to 30 for screen sizes under 1550px
+                    }
+                }
+            },
+            {
+                breakpoint: 1500,
+                options: {
+                    legend: {
+                        offsetX: 10
+                    }
+                }
+            },
+            {
+                breakpoint: 1250,
+                options: {
+                    legend: {
+                        offsetX: -20
+                    }
+                }
+            },
+            {
+                breakpoint: 768,
+                options: {
+                    legend: {
+                        offsetX: 180
+                    }
+                }
+            },
+            {
+                breakpoint: 480,
+                options: {
+                    legend: {
+                        offsetX: -30
+                    }
+                }
+            }
+        ]
+    };
+
+    var appointedApplicantsDemographicChart = new ApexCharts(document.querySelector("#appointed_applicants_demographic"), options);
+    appointedApplicantsDemographicChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
 | Update Dashboard
 |--------------------------------------------------------------------------
 */
@@ -568,6 +980,9 @@ function updateDashboard(data) {
     // Update average score of appointed applicants
     $('#averageScoreApplicantsAppointedValue').text(data.regionAverageScoreApplicantsAppointed);
 
+    // Update average assessmet score of appointed applicants
+    $('#averageAssessmentScoreApplicantsAppointedValue').text(data.regionAverageAssessmentScoreApplicantsAppointed);
+
     // Update talent pool applicants
     $('#talentPoolApplicantsValue').text(data.regionTalentPoolApplicants);
 
@@ -582,6 +997,11 @@ function updateDashboard(data) {
 
     // Update the "Talent Pool By Month" chart
     updateLineCharts(talentPoolByMonthChart, data.regionTalentPoolApplicantsByMonth, data.regionApplicantsAppointedByMonth);
+
+    // Update demographic charts
+    updateRadialBarChart(talentPoolApplicantsDemographicChart, data.regionTalentPoolApplicantsDemographic);
+    updateRadialBarChart(interviewedApplicantsDemographicChart, data.regionInterviewedApplicantsDemographic);
+    updateRadialBarChart(appointedApplicantsDemographicChart, data.regionAppointedApplicantsDemographic);
 }
 
 /*
@@ -650,4 +1070,36 @@ function updateLineCharts(chartInstance, regionTalentPoolApplicantsByMonth, regi
             data: appointedData // Use dynamic data for Appointed
         }
     ]);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Radial Bar Charts
+|--------------------------------------------------------------------------
+*/
+
+function updateRadialBarChart(chart, demographicData) {
+    // Initialize the series and labels with default values for all races
+    var demographicSeries = {
+        'African': 0,
+        'Coloured': 0,
+        'Indian': 0,
+        'White': 0
+    };
+
+    // Populate the series from demographicData (ensure all races have counts)
+    demographicData.forEach(function (item) {
+        // Update the corresponding race count from demographicData
+        if (demographicSeries.hasOwnProperty(item.name)) {
+            demographicSeries[item.name] = item.percentage;
+        }
+    });
+
+    // Convert the object into arrays for chart update
+    var seriesArray = Object.values(demographicSeries);
+
+    // Update the chart
+    chart.updateOptions({
+        series: seriesArray,  // Updated series with all races
+    });
 }

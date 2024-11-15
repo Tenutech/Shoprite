@@ -2701,7 +2701,7 @@ class ChatService
                     // Handle invalid responses that are neither 'yes' nor 'no'.
 
                     // Send an error message listing the valid options ('1' Yes, '2' No)
-                    $errorMessage = "Invalid option. Please reply with:\n\n1. Yes\n2. No";
+                    $errorMessage = "Dear {$applicant->firstname},\n\n" . "You have been scheduled for an interview. Would you like to view the details? 📆\n\n" . "1. Yes\n2. No";
                     $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
                 }
             } else {
@@ -2953,7 +2953,7 @@ class ChatService
 
                         // Send a confirmation message
                         $messages = [
-                            "Thank you, we have noted the new date and time *" . ($formattedDate) . "*. We have notified the relevant parties and we will get back to you with as soon as possible. 📆"
+                            "Thank you, we have noted the new date and time *" . ($formattedDate) . "*. We have notified the relevant parties and we will get back to you as soon as possible. 📆"
                         ];
 
                         // Update the applicant's state to 'complete' after noting the new interview date and time.

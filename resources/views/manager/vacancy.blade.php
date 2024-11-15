@@ -34,7 +34,7 @@
                     </h4>
                 </div><!-- end card header -->
                 <div class="card-body form-steps">
-                    <form class="vertical-navs-step" id="{{ $vacancy ? 'formVacancyUpdate' : 'formVacancy' }}"  enctype="multipart/form-data">
+                    <form class="vertical-navs-step" id="{{ $vacancy ? 'formVacancyUpdate' : 'formVacancy' }}" enctype="multipart/form-data">
                         @csrf
                         <input type="hidden" id="id" name="id" value="{{ $vacancy ? Crypt::encryptString($vacancy->id) : '' }}"/>
                         <div class="row gy-5">
@@ -124,16 +124,13 @@
                                                 <div class="row gy-3">
                                                     <div class="col-md-12">
                                                         <div class="mb-3">
-                                                            <select class="form-control" id="position" name="position_id" data-choices data-choices-search-true required>
+                                                            <select class="form-control" id="position" name="position_id" required>
                                                                 <option value="">Select Position</option>
                                                                 @foreach ($positions as $position)
                                                                     <option value="{{ $position->id }}"
-                                                                    {{ ($vacancy && $vacancy->position_id == $position->id) ? 'selected' : '' }}>
-                                                                    {{ $position->name }}
-                                                                    <span class="text-{{ optional($position->brand)->color ?: 'danger' }}">
-                                                                        ({{ optional($position->brand)->name ?: 'N/A' }})
-                                                                    </span>
-                                                                </option>
+                                                                        {{ ($vacancy && $vacancy->position_id == $position->id) ? 'selected' : '' }}>
+                                                                        {{ $position->name }} ({{ optional($position->brand)->name ?: 'N/A' }})
+                                                                    </option>
                                                                 @endforeach
                                                             </select>
                                                             @if ($positions->isEmpty())
@@ -246,7 +243,7 @@
                                                 <div class="row gy-3">
                                                     <div class="col-md-12">
                                                         <div class="mb-3">
-                                                            <select class="form-control" id="store" name="store_id" data-choices data-choices-search-true required>
+                                                            <select class="form-control" id="store" name="store_id" required>
                                                                 <option value="">Select Store</option>
                                                                 @foreach ($stores as $store)
                                                                     <option value="{{$store->id}}"
@@ -258,7 +255,7 @@
                                                                             {{
                                                                                 ($user && $user->role_id == 6 && $user->store_id != $store->id) ? 'disabled' : ''
                                                                             }}>
-                                                                        {{ $store->brand->name }} ({{ $store->name }})
+                                                                        {{ $store->code }} - {{ $store->brand->name }} ({{ $store->name }})
                                                                     </option>
                                                                 @endforeach
                                                             </select>
