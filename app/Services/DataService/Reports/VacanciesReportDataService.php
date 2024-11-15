@@ -306,6 +306,12 @@ class VacanciesReportDataService
         if (isset($filters['filled_positions'])) {
             $vacancies->where('filled_positions', $filters['filled_positions']);
         }
+        if (isset($filters['division_id'])) {
+            $vacancies->where('division_id', $filters['division_id']);
+        }
+        if (isset($filters['region_id'])) {
+            $vacancies->where('region_id', $filters['region_id']);
+        }
         if (isset($filters['store_id'])) {
             $vacancies->where('store_id', $filters['store_id']);
         }
@@ -368,6 +374,12 @@ class VacanciesReportDataService
         // Apply all additional filters
         if (isset($filters['position_id'])) {
             $vacancies->where('position_id', $filters['position_id']);
+        }
+        if (isset($filters['division_id'])) {
+            $vacancies->where('division_id', $filters['division_id']);
+        }
+        if (isset($filters['region_id'])) {
+            $vacancies->where('region_id', $filters['region_id']);
         }
         if (isset($filters['store_id'])) {
             $vacancies->where('store_id', $filters['store_id']);
@@ -451,6 +463,12 @@ class VacanciesReportDataService
         }
         if (isset($filters['filled_positions'])) {
             $vacancies->where('filled_positions', $filters['filled_positions']);
+        }
+        if (isset($filters['division_id'])) {
+            $vacancies->where('division_id', $filters['division_id']);
+        }
+        if (isset($filters['region_id'])) {
+            $vacancies->where('region_id', $filters['region_id']);
         }
         if (isset($filters['store_id'])) {
             $vacancies->where('store_id', $filters['store_id']);
@@ -536,6 +554,12 @@ class VacanciesReportDataService
         }
         if (isset($filters['filled_positions'])) {
             $vacancies->where('filled_positions', $filters['filled_positions']);
+        }
+        if (isset($filters['division_id'])) {
+            $vacancies->where('division_id', $filters['division_id']);
+        }
+        if (isset($filters['region_id'])) {
+            $vacancies->where('region_id', $filters['region_id']);
         }
         if (isset($filters['store_id'])) {
             $vacancies->where('store_id', $filters['store_id']);

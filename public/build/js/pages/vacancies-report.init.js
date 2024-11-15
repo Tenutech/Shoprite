@@ -30,7 +30,17 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
+    // Cache the original store options
+    const storeOptionsCache = [...document.getElementById('store').options].map(option => ({
+        value: option.value,
+        label: option.textContent,
+        divisionId: option.getAttribute('division-id'),
+        regionId: option.getAttribute('region-id'),
+    }));
+
     var positionChoice = new Choices('#position', { searchEnabled: false, shouldSort: true });
+    var divisionChoice = new Choices('#division', { searchEnabled: true, shouldSort: true });
+    var regionChoice = new Choices('#region', { searchEnabled: true, shouldSort: true });
     var storeChoice = new Choices('#store', { searchEnabled: true, shouldSort: true });
     var userChoice = new Choices('#user', { searchEnabled: true, shouldSort: true });
     var typeChoice = new Choices('#type', { searchEnabled: false, shouldSort: true });
@@ -63,6 +73,12 @@ $(document).ready(function() {
         positionChoice.removeActiveItems();
         positionChoice.setChoiceByValue("");
         
+        divisionChoice.removeActiveItems();
+        divisionChoice.setChoiceByValue("");
+
+        regionChoice.removeActiveItems();
+        regionChoice.setChoiceByValue("");
+
         storeChoice.removeActiveItems();
         storeChoice.setChoiceByValue("");
         
@@ -83,6 +99,154 @@ $(document).ready(function() {
         $('.is-invalid').removeClass('is-invalid'); // Remove validation error classes
         $('.invalid-feedback').hide(); // Hide error messages
     }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Change Choices Options
+    |--------------------------------------------------------------------------
+    */
+
+    // Set store options based on division
+    document.getElementById('division').addEventListener('change', function () {
+        // Get the selected division ID
+        const selectedDivisionId = this.value;
+
+        // Reset the store options
+        storeChoice.clearStore(); // Clears the current Choices options
+
+        if (selectedDivisionId === "") {
+            // If no division is selected, reset to all stores
+            storeChoice.setChoices(
+                [
+                    {
+                        value: '',
+                        label: 'Select store',
+                        selected: true, // Make this the selected option
+                        disabled: false,
+                    },
+                    ...storeOptionsCache.map(option => ({
+                        value: option.value,
+                        label: option.label,
+                        selected: false,
+                    })),
+                ],
+                'value',
+                'label',
+                true
+            );
+        } else {
+            // Filter the cached store options based on the selected division
+            const filteredOptions = storeOptionsCache.filter(option => option.divisionId == selectedDivisionId);
+
+            if (filteredOptions.length > 0) {
+                // Add the "Select store" option followed by the filtered store options
+                storeChoice.setChoices(
+                    [
+                        {
+                            value: '',
+                            label: 'Select store',
+                            selected: true, // Make this the selected option
+                            disabled: false,
+                        },
+                        ...filteredOptions.map(option => ({
+                            value: option.value,
+                            label: option.label,
+                            selected: false,
+                        })),
+                    ],
+                    'value',
+                    'label',
+                    true
+                );
+            } else {
+                // Add "No stores available" option if no matches
+                storeChoice.setChoices(
+                    [
+                        {
+                            value: '',
+                            label: 'No stores available',
+                            selected: true,
+                            disabled: true, // Make this option disabled
+                        },
+                    ],
+                    'value',
+                    'label',
+                    true
+                );
+            }
+        }
+    });
+    
+    // Set store options based on region
+    document.getElementById('region').addEventListener('change', function () {
+        // Get the selected region ID
+        const selectedRegionId = this.value;
+
+        // Reset the store options
+        storeChoice.clearStore(); // Clears the current Choices options
+
+        if (selectedRegionId === "") {
+            // If no region is selected, reset to all stores
+            storeChoice.setChoices(
+                [
+                    {
+                        value: '',
+                        label: 'Select store',
+                        selected: true, // Make this the selected option
+                        disabled: false,
+                    },
+                    ...storeOptionsCache.map(option => ({
+                        value: option.value,
+                        label: option.label,
+                        selected: false,
+                    })),
+                ],
+                'value',
+                'label',
+                true
+            );
+        } else {
+            // Filter the cached store options based on the selected region
+            const filteredOptions = storeOptionsCache.filter(option => option.regionId == selectedRegionId);
+
+            if (filteredOptions.length > 0) {
+                // Add the "Select store" option followed by the filtered store options
+                storeChoice.setChoices(
+                    [
+                        {
+                            value: '',
+                            label: 'Select store',
+                            selected: true, // Make this the selected option
+                            disabled: false,
+                        },
+                        ...filteredOptions.map(option => ({
+                            value: option.value,
+                            label: option.label,
+                            selected: false,
+                        })),
+                    ],
+                    'value',
+                    'label',
+                    true
+                );
+            } else {
+                // Add "No stores available" option if no matches
+                storeChoice.setChoices(
+                    [
+                        {
+                            value: '',
+                            label: 'No stores available',
+                            selected: true,
+                            disabled: true, // Make this option disabled
+                        },
+                    ],
+                    'value',
+                    'label',
+                    true
+                );
+            }
+        }
+    });
 });
 
 /*

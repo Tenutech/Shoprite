@@ -6,6 +6,8 @@ use Carbon\Carbon;
 use App\Models\Type;
 use App\Models\User;
 use App\Models\Store;
+use App\Models\Region;
+use App\Models\Division;
 use App\Models\Position;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -135,11 +137,33 @@ class VacanciesReportController extends Controller
                 }
             }
 
-            //Stores logic
+            // Regions logic
+            $regions = collect(); // Default to an empty collection
+
+            if (in_array($authUser->role_id, [1, 2])) {
+                // If role_id is 1 or 2, get all regions
+                $regions = Region::all();
+            } elseif ($authUser->role_id == 3 && $authUser->region_id) {
+                // If role_id is 3, get all regions where id = authUser->region_id
+                $regions = Region::where('id', $authUser->region_id)->get();
+            }
+
+            // Divisions logic
+            $divisions = collect(); // Default to an empty collection
+
+            if (in_array($authUser->role_id, [1, 2])) {
+                // If role_id is 1 or 2, get all divisions
+                $divisions = Division::all();
+            } elseif ($authUser->role_id == 3 && $authUser->division_id) {
+                // If role_id is 3, get all divisions where id = authUser->division_id
+                $divisions = Division::where('id', $authUser->division_id)->get();
+            }
+
+            // Stores logic
             $stores = collect(); // Default to an empty collection
 
             if (in_array($authUser->role_id, [1, 2])) {
-                // If role_id is 1 or 2, get all stores where id > 1
+                // If role_id is 1 or 2, get all stores
                 $stores = Store::with(['brand', 'town'])
                     ->get();
             } elseif ($authUser->role_id == 3) {
@@ -160,7 +184,7 @@ class VacanciesReportController extends Controller
             }
 
             // Users
-            $authUsers = User::whereHas('vacancies')->get();
+            $users = User::whereHas('vacancies')->get();
 
             // Types
             $types = Type::distinct('type_id')->get();
@@ -174,8 +198,10 @@ class VacanciesReportController extends Controller
                 'totalVacanciesTypeByMonth' => $totalVacanciesTypeByMonth,
                 'totalVacanciesByType' => $totalVacanciesByType,
                 'positions' => $positions,
+                'regions' => $regions,
+                'divisions' => $divisions,
                 'stores' => $stores,
-                'users' => $authUsers,
+                'users' => $users,
                 'types' => $types,
             ]);
         }
