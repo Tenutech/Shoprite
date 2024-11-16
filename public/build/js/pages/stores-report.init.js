@@ -359,7 +359,6 @@ $(document).ready(function() {
             processData: false,  // Required for FormData
             contentType: false,  // Required for FormData
             success: function(response) {
-                console.log(response.data);
                 // Update the dashboard with the new data
                 updateDashboard(response.data); // Pass the data to the updateDashboard function
 

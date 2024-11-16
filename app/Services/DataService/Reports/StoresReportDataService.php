@@ -564,27 +564,25 @@ class StoresReportDataService
                     $q->where('region_id', $id);
                 });
             })
-            ->when(isset($filters['brand_id']), function ($query) use ($filters) {
-                return $query->where('brand_id', $filters['brand_id']);
-            })
-            ->when(isset($filters['province_id']), function ($query) use ($filters) {
-                return $query->whereHas('store.town', function ($q) use ($filters) {
-                    $q->where('province_id', $filters['province_id']);
-                });
-            })
-            ->when(isset($filters['town_id']), function ($query) use ($filters) {
-                return $query->where('town_id', $filters['town_id']);
-            })
-            ->when(isset($filters['store_id']), function ($query) use ($filters) {
-                return $query->where('store_id', $filters['store_id']);
-            })
-            ->when(isset($filters['division_id']), function ($query) use ($filters) {
-                return $query->whereHas('store', function ($q) use ($filters) {
+            ->whereHas('store', function ($query) use ($filters) {
+                $query->when(isset($filters['brand_id']), function ($q) use ($filters) {
+                    $q->where('brand_id', $filters['brand_id']);
+                })
+                ->when(isset($filters['province_id']), function ($q) use ($filters) {
+                    $q->whereHas('town', function ($subQuery) use ($filters) {
+                        $subQuery->where('province_id', $filters['province_id']);
+                    });
+                })
+                ->when(isset($filters['town_id']), function ($q) use ($filters) {
+                    $q->where('town_id', $filters['town_id']);
+                })
+                ->when(isset($filters['store_id']), function ($q) use ($filters) {
+                    $q->where('id', $filters['store_id']);
+                })
+                ->when(isset($filters['division_id']), function ($q) use ($filters) {
                     $q->where('division_id', $filters['division_id']);
-                });
-            })
-            ->when(isset($filters['region_id']), function ($query) use ($filters) {
-                return $query->whereHas('store', function ($q) use ($filters) {
+                })
+                ->when(isset($filters['region_id']), function ($q) use ($filters) {
                     $q->where('region_id', $filters['region_id']);
                 });
             })
@@ -662,27 +660,25 @@ class StoresReportDataService
                     $q->where('region_id', $id);
                 });
             })
-            ->when(isset($filters['brand_id']), function ($query) use ($filters) {
-                return $query->where('brand_id', $filters['brand_id']);
-            })
-            ->when(isset($filters['province_id']), function ($query) use ($filters) {
-                return $query->whereHas('store.town', function ($q) use ($filters) {
-                    $q->where('province_id', $filters['province_id']);
-                });
-            })
-            ->when(isset($filters['town_id']), function ($query) use ($filters) {
-                return $query->where('town_id', $filters['town_id']);
-            })
-            ->when(isset($filters['store_id']), function ($query) use ($filters) {
-                return $query->where('store_id', $filters['store_id']);
-            })
-            ->when(isset($filters['division_id']), function ($query) use ($filters) {
-                return $query->whereHas('store', function ($q) use ($filters) {
+            ->whereHas('store', function ($query) use ($filters) {
+                $query->when(isset($filters['brand_id']), function ($q) use ($filters) {
+                    $q->where('brand_id', $filters['brand_id']);
+                })
+                ->when(isset($filters['province_id']), function ($q) use ($filters) {
+                    $q->whereHas('town', function ($subQuery) use ($filters) {
+                        $subQuery->where('province_id', $filters['province_id']);
+                    });
+                })
+                ->when(isset($filters['town_id']), function ($q) use ($filters) {
+                    $q->where('town_id', $filters['town_id']);
+                })
+                ->when(isset($filters['store_id']), function ($q) use ($filters) {
+                    $q->where('id', $filters['store_id']);
+                })
+                ->when(isset($filters['division_id']), function ($q) use ($filters) {
                     $q->where('division_id', $filters['division_id']);
-                });
-            })
-            ->when(isset($filters['region_id']), function ($query) use ($filters) {
-                return $query->whereHas('store', function ($q) use ($filters) {
+                })
+                ->when(isset($filters['region_id']), function ($q) use ($filters) {
                     $q->where('region_id', $filters['region_id']);
                 });
             })
@@ -772,7 +768,7 @@ class StoresReportDataService
 
         // Apply additional filters
         if (isset($filters['brand_id'])) {
-            $applicants->whereHas('vacancyFill.vacancy', function ($query) use ($filters) {
+            $applicants->whereHas('vacancyFill.vacancy.store', function ($query) use ($filters) {
                 $query->where('brand_id', $filters['brand_id']);
             });
         }
@@ -784,7 +780,7 @@ class StoresReportDataService
         }
 
         if (isset($filters['town_id'])) {
-            $applicants->whereHas('store', function ($q) use ($filters) {
+            $applicants->whereHas('vacancyFill.vacancy.store', function ($q) use ($filters) {
                 $q->where('town_id', $filters['town_id']);
             });
         }
@@ -796,13 +792,13 @@ class StoresReportDataService
         }
 
         if (isset($filters['division_id'])) {
-            $applicants->whereHas('vacancyFill.vacancy', function ($query) use ($filters) {
+            $applicants->whereHas('vacancyFill.vacancy.store', function ($query) use ($filters) {
                 $query->where('division_id', $filters['division_id']);
             });
         }
 
         if (isset($filters['region_id'])) {
-            $applicants->whereHas('vacancyFill.vacancy', function ($query) use ($filters) {
+            $applicants->whereHas('vacancyFill.vacancy.store', function ($query) use ($filters) {
                 $query->where('region_id', $filters['region_id']);
             });
         }
@@ -857,11 +853,6 @@ class StoresReportDataService
                     $q->where('town_id', $filters['town_id']);
                 });
             }
-            if (isset($filters['store_id'])) {
-                $query->whereHas('store', function ($q) use ($filters) {
-                    $q->where('id', $filters['store_id']);
-                });
-            }
             if (isset($filters['division_id'])) {
                 $query->whereHas('store', function ($q) use ($filters) {
                     $q->where('division_id', $filters['division_id']);
@@ -870,6 +861,11 @@ class StoresReportDataService
             if (isset($filters['region_id'])) {
                 $query->whereHas('store', function ($q) use ($filters) {
                     $q->where('region_id', $filters['region_id']);
+                });
+            }
+            if (isset($filters['store_id'])) {
+                $query->whereHas('store', function ($q) use ($filters) {
+                    $q->where('id', $filters['store_id']);
                 });
             }
         });
@@ -908,7 +904,9 @@ class StoresReportDataService
                 });
             })
             ->when(isset($filters['brand_id']), function ($query) use ($filters) {
-                return $query->where('brand_id', $filters['brand_id']);
+                return $query->whereHas('store', function ($q) use ($filters) {
+                    $q->where('brand_id', $filters['brand_id']);
+                });
             })
             ->when(isset($filters['province_id']), function ($query) use ($filters) {
                 return $query->whereHas('store.town', function ($q) use ($filters) {
@@ -916,7 +914,19 @@ class StoresReportDataService
                 });
             })
             ->when(isset($filters['town_id']), function ($query) use ($filters) {
-                return $query->where('town_id', $filters['town_id']);
+                return $query->whereHas('store', function ($q) use ($filters) {
+                    $q->where('town_id', $filters['town_id']);
+                });
+            })
+            ->when(isset($filters['division_id']), function ($query) use ($filters) {
+                return $query->whereHas('store', function ($q) use ($filters) {
+                    $q->where('division_id', $filters['division_id']);
+                });
+            })
+            ->when(isset($filters['region_id']), function ($query) use ($filters) {
+                return $query->whereHas('store', function ($q) use ($filters) {
+                    $q->where('region_id', $filters['region_id']);
+                });
             })
             ->when(isset($filters['store_id']), function ($query) use ($filters) {
                 return $query->where('store_id', $filters['store_id']);
@@ -987,15 +997,29 @@ class StoresReportDataService
                 });
             })
             ->when(isset($filters['brand_id']), function ($query) use ($filters) {
-                return $query->where('brand_id', $filters['brand_id']);
+                return $query->whereHas('store', function ($q) use ($filters) {
+                    $q->where('brand_id', $filters['brand_id']);
+                });
             })
             ->when(isset($filters['province_id']), function ($query) use ($filters) {
                 return $query->whereHas('store.town', function ($q) use ($filters) {
                     $q->where('province_id', $filters['province_id']);
                 });
             })
+            ->when(isset($filters['division_id']), function ($query) use ($filters) {
+                return $query->whereHas('store', function ($q) use ($filters) {
+                    $q->where('division_id', $filters['division_id']);
+                });
+            })
+            ->when(isset($filters['region_id']), function ($query) use ($filters) {
+                return $query->whereHas('store', function ($q) use ($filters) {
+                    $q->where('region_id', $filters['region_id']);
+                });
+            })
             ->when(isset($filters['town_id']), function ($query) use ($filters) {
-                return $query->where('town_id', $filters['town_id']);
+                return $query->whereHas('store', function ($q) use ($filters) {
+                    $q->where('town_id', $filters['town_id']);
+                });
             })
             ->when(isset($filters['store_id']), function ($query) use ($filters) {
                 return $query->where('store_id', $filters['store_id']);
@@ -1093,18 +1117,6 @@ class StoresReportDataService
             });
         }
 
-        if (isset($filters['town_id'])) {
-            $interviews->whereHas('vacancy.store.town', function ($query) use ($filters) {
-                $query->where('id', $filters['town_id']);
-            });
-        }
-
-        if (isset($filters['store_id'])) {
-            $interviews->whereHas('vacancy', function ($query) use ($filters) {
-                $query->where('store_id', $filters['store_id']);
-            });
-        }
-
         if (isset($filters['division_id'])) {
             $interviews->whereHas('vacancy.store', function ($query) use ($filters) {
                 $query->where('division_id', $filters['division_id']);
@@ -1114,6 +1126,18 @@ class StoresReportDataService
         if (isset($filters['region_id'])) {
             $interviews->whereHas('vacancy.store', function ($query) use ($filters) {
                 $query->where('region_id', $filters['region_id']);
+            });
+        }
+
+        if (isset($filters['town_id'])) {
+            $interviews->whereHas('vacancy.store', function ($query) use ($filters) {
+                $query->where('town_id', $filters['town_id']);
+            });
+        }
+
+        if (isset($filters['store_id'])) {
+            $interviews->whereHas('vacancy', function ($query) use ($filters) {
+                $query->where('store_id', $filters['store_id']);
             });
         }
 
