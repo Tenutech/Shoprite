@@ -869,6 +869,33 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::post('/delete-profile', [App\Http\Controllers\ProfileController::class, 'deleteProfile'])->name('profile.delete');
 
+    // Signature File Routes
+
+    Route::group(['prefix' => 'signature-files'], function () {
+        Route::get('/', [App\Http\Controllers\SignatureFiles\SignatureFileController::class, 'index'])->name('signature-files.index');
+        Route::get('/create', [App\Http\Controllers\SignatureFiles\SignatureFileController::class, 'create'])->name('signature-files.create');
+        Route::post('/', [App\Http\Controllers\SignatureFiles\SignatureFileController::class, 'store'])->name('signature-files.store');
+        Route::get('/{id}', [App\Http\Controllers\SignatureFiles\SignatureFileController::class, 'show'])->name('signature-files.show');
+        Route::get('/{id}/edit', [App\Http\Controllers\SignatureFiles\SignatureFileController::class, 'edit'])->name('signature-files.edit');
+        Route::put('/{id}', [App\Http\Controllers\SignatureFiles\SignatureFileController::class, 'update'])->name('signature-files.update');
+        Route::delete('/{id}', [App\Http\Controllers\SignatureFiles\SignatureFileController::class, 'destroy'])->name('signature-files.destroy');
+    });
+
+    // Signature Process Routes
+
+    Route::group(['prefix' => 'signature-process'], function () {
+        Route::get('/{id}/prepare', [App\Http\Controllers\SignatureFiles\SignatureProcessController::class, 'prepare'])->name('signature-process.prepare');
+        Route::post('/{id}/send', [App\Http\Controllers\SignatureFiles\SignatureProcessController::class, 'send'])->name('signature-process.send');
+        Route::get('/{id}/sign', [App\Http\Controllers\SignatureFiles\SignatureProcessController::class, 'sign'])->name('signature-process.sign');
+        Route::post('/{id}/sign', [App\Http\Controllers\SignatureFiles\SignatureProcessController::class, 'storeSignature'])->name('signature-process.store-signature');
+    });
+
+    // Audit Trail Routes
+
+    Route::group(['prefix' => 'audit-trails'], function () {
+        Route::get('/{id}', [App\Http\Controllers\SignatureFiles\AuditTrailController::class, 'index'])->name('audit-trails.index');
+    });
+
     //My Profile Settings
 
     Route::get('/profile-settings', [App\Http\Controllers\ProfileSettingsController::class, 'index'])->name('profile-settings.index');

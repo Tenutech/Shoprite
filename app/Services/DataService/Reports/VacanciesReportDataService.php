@@ -338,7 +338,7 @@ class VacanciesReportDataService
                     });
             }
         }
-        
+
         // Return the total count of vacancies
         return $vacancies->count();
     }
@@ -410,7 +410,7 @@ class VacanciesReportDataService
 
         // Filter for vacancies where open_positions is 0
         $vacancies->where('open_positions', 0);
-        
+
         // Return the total count of vacancies
         return $vacancies->count();
     }
