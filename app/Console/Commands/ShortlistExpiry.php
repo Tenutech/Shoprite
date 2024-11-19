@@ -60,7 +60,7 @@ class ShortlistExpiry extends Command
                         $lastInterviewDatePlusExpiry = Carbon::parse($lastInterview->scheduled_date)->addDays($shortlistExpiryDays);
 
                         // Check if today is <= the last interview's scheduled_date plus shortlistExpiryDays and status is 'Scheduled'
-                        if (Carbon::now()->lte($lastInterviewDatePlusExpiry) && $lastInterview->status == 'Scheduled') {
+                        if (Carbon::now()->lte($lastInterviewDatePlusExpiry) && in_array($lastInterview->status, ['Scheduled', 'Confirmed', 'Reschedule', 'Completed', 'Appointed'])) {
                             $removeApplicant = false;
                         }
                     }
