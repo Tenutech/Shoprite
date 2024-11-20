@@ -36,7 +36,7 @@ class ShortlistExpiry extends Command
         $shortlistExpiryDays = $shortlistExpirySetting ? (int)$shortlistExpirySetting->value : 14; // Default to 14 days if not set
 
         // Fetch only the shortlists where the expiry period has passed
-        $shortlists = Shortlist::where('created_at', '<=', now()->subDays($shortlistExpiryDays))->get();
+        $shortlists = Shortlist::where('updated_at', '<=', now()->subDays($shortlistExpiryDays))->get();
 
         foreach ($shortlists as $shortlist) {
             //Applicant Ids
