@@ -605,7 +605,7 @@ function updateDashboard(data) {
     $('#totalInterviewsCompletedValue').text(data.totalInterviewsCompletedFiltered);
 
     // Update hire to interview ratio
-    $('#hireToInterviewRatioValue').text(data.hireToInterviewRatioDisplayFiltered);
+    $('#hireToInterviewRatioValue').text(data.hireToInterviewRatioDisplay);
 
     // Update average time to shortlist
     $('#averageTimeToShortlistValue').text(data.averageTimeToShortlistFiltered);
