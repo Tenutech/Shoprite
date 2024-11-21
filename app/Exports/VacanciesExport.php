@@ -66,10 +66,14 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             $query->where('filled_positions', $this->filters['filled_positions']);
         }
         if (isset($this->filters['division_id'])) {
-            $query->where('division_id', $this->filters['division_id']);
+            $query->whereHas('store', function ($subQuery) {
+                $subQuery->where('division_id', $this->filters['division_id']);
+            });
         }
         if (isset($this->filters['region_id'])) {
-            $query->where('region_id', $this->filters['region_id']);
+            $query->whereHas('store', function ($subQuery) {
+                $subQuery->where('region_id', $this->filters['region_id']);
+            });
         }
         if (isset($this->filters['store_id'])) {
             $query->where('store_id', $this->filters['store_id']);

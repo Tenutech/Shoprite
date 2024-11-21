@@ -307,10 +307,14 @@ class VacanciesReportDataService
             $vacancies->where('filled_positions', $filters['filled_positions']);
         }
         if (isset($filters['division_id'])) {
-            $vacancies->where('division_id', $filters['division_id']);
-        }
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('division_id', $filters['division_id']);
+            });
+        }        
         if (isset($filters['region_id'])) {
-            $vacancies->where('region_id', $filters['region_id']);
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('region_id', $filters['region_id']);
+            });
         }
         if (isset($filters['store_id'])) {
             $vacancies->where('store_id', $filters['store_id']);
@@ -376,10 +380,14 @@ class VacanciesReportDataService
             $vacancies->where('position_id', $filters['position_id']);
         }
         if (isset($filters['division_id'])) {
-            $vacancies->where('division_id', $filters['division_id']);
-        }
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('division_id', $filters['division_id']);
+            });
+        }        
         if (isset($filters['region_id'])) {
-            $vacancies->where('region_id', $filters['region_id']);
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('region_id', $filters['region_id']);
+            });
         }
         if (isset($filters['store_id'])) {
             $vacancies->where('store_id', $filters['store_id']);
@@ -465,10 +473,14 @@ class VacanciesReportDataService
             $vacancies->where('filled_positions', $filters['filled_positions']);
         }
         if (isset($filters['division_id'])) {
-            $vacancies->where('division_id', $filters['division_id']);
-        }
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('division_id', $filters['division_id']);
+            });
+        }        
         if (isset($filters['region_id'])) {
-            $vacancies->where('region_id', $filters['region_id']);
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('region_id', $filters['region_id']);
+            });
         }
         if (isset($filters['store_id'])) {
             $vacancies->where('store_id', $filters['store_id']);
@@ -556,10 +568,14 @@ class VacanciesReportDataService
             $vacancies->where('filled_positions', $filters['filled_positions']);
         }
         if (isset($filters['division_id'])) {
-            $vacancies->where('division_id', $filters['division_id']);
-        }
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('division_id', $filters['division_id']);
+            });
+        }        
         if (isset($filters['region_id'])) {
-            $vacancies->where('region_id', $filters['region_id']);
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('region_id', $filters['region_id']);
+            });
         }
         if (isset($filters['store_id'])) {
             $vacancies->where('store_id', $filters['store_id']);

@@ -55,26 +55,26 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
 
         // Apply additional filters
-        if (isset($filters['brand_id'])) {
-            $query->where('brand_id', $filters['brand_id']);
+        if (isset($this->filters['brand_id'])) {
+            $query->where('brand_id', $this->filters['brand_id']);
         }
 
-        if (isset($filters['province_id'])) {
-            $query->whereHas('town', function ($q) use ($filters) {
-                $q->where('province_id', $filters['province_id']);
+        if (isset($this->filters['province_id'])) {
+            $query->whereHas('town', function ($q) {
+                $q->where('province_id', $this->filters['province_id']);
             });
         }
 
-        if (isset($filters['town_id'])) {
-            $query->where('town_id', $filters['town_id']);
+        if (isset($this->filters['town_id'])) {
+            $query->where('town_id', $this->filters['town_id']);
         }
 
-        if (isset($filters['division_id'])) {
-            $query->where('division_id', $filters['division_id']);
+        if (isset($this->filters['division_id'])) {
+            $query->where('division_id', $this->filters['division_id']);
         }
 
-        if (isset($filters['region_id'])) {
-            $query->where('region_id', $filters['region_id']);
+        if (isset($this->filters['region_id'])) {
+            $query->where('region_id', $this->filters['region_id']);
         }
 
         // Return the collection of filtered stores

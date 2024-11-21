@@ -229,7 +229,7 @@
                                         <select class="form-control" id="position" name="position_id">
                                             <option value="" selected>Select position</option>
                                             @foreach ($positions as $position)
-                                                <option value="{{ $position->id }}">{{ $position->name }}</option>
+                                                <option value="{{ $position->id }}">{{ $position->name }} ({{ optional($position->brand)->name ?: 'N/A' }})</option>
                                             @endforeach
                                         </select>
                                         <div class="invalid-feedback">

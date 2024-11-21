@@ -278,7 +278,7 @@ class ApplicantsReportController extends Controller
             // Return other errors
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve data!',
+                'message' => $e->getMessage(),
                 'error' => $e->getMessage()
             ], 400);
         }

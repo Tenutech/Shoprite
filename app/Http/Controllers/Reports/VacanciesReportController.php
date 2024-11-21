@@ -227,8 +227,8 @@ class VacanciesReportController extends Controller
             $request->validate([
                 'date' => 'required|string',
                 'position_id' => 'nullable|integer|exists:positions,id',
-                'open_positions' => 'nullable|integer|min:1|max:10',
-                'filled_positions' => 'nullable|integer|min:1|max:10|lte:open_positions',
+                'open_positions' => 'nullable|integer|min:0|max:10',
+                'filled_positions' => 'nullable|integer|min:0|max:10|lte:open_positions',
                 'division_id' => 'nullable|integer|exists:divisions,id',
                 'region_id' => 'nullable|integer|exists:regions,id',
                 'store_id' => 'nullable|integer|exists:stores,id',
@@ -317,8 +317,8 @@ class VacanciesReportController extends Controller
             // Return other errors
             return response()->json([
                 'success' => false,
-                'message' => 'Failed to retrieve data!',
-                'error' => $e->getMessage()
+                'message' => $e->getMessage(),
+                'error' => $e
             ], 400);
         }
     }
