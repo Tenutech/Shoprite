@@ -503,6 +503,44 @@
                             </div>
                             <!-- end col-->
 
+                            <!-- Division -->
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="division" class="form-label">
+                                        Division
+                                    </label>
+                                    <select class="form-control" id="division" name="division_id">
+                                        <option value="" selected>Select division</option>
+                                        @foreach ($divisions as $division)
+                                            <option value="{{ $division->id }}">{{ $division->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please select a division!
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end col -->
+
+                            <!-- Region -->
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="region" class="form-label">
+                                        Region
+                                    </label>
+                                    <select class="form-control" id="region" name="region_id">
+                                        <option value="" selected>Select region</option>
+                                        @foreach ($regions as $region)
+                                            <option value="{{ $region->id }}">{{ $region->name }}</option>
+                                        @endforeach
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please select a region!
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end col -->
+
                             <!-- Store -->
                             <div class="col-12">
                                 <div class="mb-3">
@@ -512,7 +550,7 @@
                                     <select class="form-control" id="store" name="store_id">
                                         <option value="" selected>Select store</option>
                                         @foreach ($stores as $store)
-                                            <option value="{{ $store->id }}">{{ $store->code }} - {{ optional($store->brand)->name ?? '' }} ({{ $store->name }})</option>
+                                            <option value="{{ $store->id }}" division-id="{{ $store->division_id }}" region-id="{{ $store->region_id }}">{{ $store->code }} - {{ optional($store->brand)->name }} ({{ $store->name }})</option>
                                         @endforeach
                                     </select>
                                     <div class="invalid-feedback">
@@ -520,7 +558,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <!-- end col-->
+                            <!-- end col -->
                         </div>
                         <div style="height: 100px;"></div>
                     </div>

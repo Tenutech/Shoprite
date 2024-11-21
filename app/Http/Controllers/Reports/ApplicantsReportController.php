@@ -8,6 +8,8 @@ use App\Models\Race;
 use App\Models\Store;
 use App\Models\State;
 use App\Models\Gender;
+use App\Models\Region;
+use App\Models\Division;
 use App\Models\Setting;
 use App\Models\Duration;
 use App\Models\Education;
@@ -113,6 +115,28 @@ class ApplicantsReportController extends Controller
             // Experiences
             $experiences = Duration::all();
 
+            // Regions logic
+            $regions = collect(); // Default to an empty collection
+
+            if (in_array($authUser->role_id, [1, 2])) {
+                // If role_id is 1 or 2, get all regions
+                $regions = Region::all();
+            } elseif ($authUser->role_id == 3 && $authUser->region_id) {
+                // If role_id is 3, get all regions where id = authUser->region_id
+                $regions = Region::where('id', $authUser->region_id)->get();
+            }
+
+            // Divisions logic
+            $divisions = collect(); // Default to an empty collection
+
+            if (in_array($authUser->role_id, [1, 2])) {
+                // If role_id is 1 or 2, get all divisions
+                $divisions = Division::all();
+            } elseif ($authUser->role_id == 3 && $authUser->division_id) {
+                // If role_id is 3, get all divisions where id = authUser->division_id
+                $divisions = Division::where('id', $authUser->division_id)->get();
+            }
+
             //Stores logic
             $stores = collect(); // Default to an empty collection
 
@@ -149,6 +173,8 @@ class ApplicantsReportController extends Controller
                 'races' => $races,
                 'educations' => $educations,
                 'experiences' => $experiences,
+                'regions' => $regions,
+                'divisions' => $divisions,
                 'stores' => $stores,
             ]);
         }

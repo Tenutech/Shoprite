@@ -12,6 +12,7 @@ use App\Models\Vacancy;
 use App\Models\Province;
 use App\Models\Applicant;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ApplicantsReportDataService
 {
@@ -499,8 +500,8 @@ class ApplicantsReportDataService
             return 0;
         }
 
-        // Base query to filter applicants within the date range
-        $query = Applicant::whereBetween('created_at', [$startDate, $endDate]);
+        // Base query for applicants
+        $query = Applicant::query();
 
         // Apply all additional filters
         if (isset($filters['gender_id'])) {
@@ -551,6 +552,21 @@ class ApplicantsReportDataService
         if (isset($filters['shortlisted'])) {
             if ($filters['shortlisted'] === 'Yes') {
                 $query->whereNotNull('shortlist_id');
+
+                // Apply geographic filters for shortlisted applicants
+                if (isset($filters['division_id'])) {
+                    $query->whereHas('shortlist.vacancy.store', function ($storeQuery) use ($filters) {
+                        $storeQuery->where('division_id', $filters['division_id']);
+                    });
+                } elseif (isset($filters['region_id'])) {
+                    $query->whereHas('shortlist.vacancy.store', function ($storeQuery) use ($filters) {
+                        $storeQuery->where('region_id', $filters['region_id']);
+                    });
+                } elseif (isset($filters['store_id'])) {
+                    $query->whereHas('shortlist.vacancy', function ($vacancyQuery) use ($filters) {
+                        $vacancyQuery->where('store_id', $filters['store_id']);
+                    });
+                }
             } elseif ($filters['shortlisted'] === 'No') {
                 $query->whereNull('shortlist_id');
             }
@@ -559,42 +575,73 @@ class ApplicantsReportDataService
         // Interviewed filter
         if (isset($filters['interviewed'])) {
             if ($filters['interviewed'] === 'Yes') {
-                $query->whereHas('interviews');
+                $query->whereHas('interviews', function ($interviewQuery) {
+                    $interviewQuery->whereNotNull('score');
+                });
             } elseif ($filters['interviewed'] === 'No') {
-                $query->doesntHave('interviews');
+                $query->where(function ($q) {
+                    $q->doesntHave('interviews')
+                    ->orWhereHas('interviews', function ($interviewQuery) {
+                        $interviewQuery->whereNull('score');
+                    });
+                });
+            }
+
+            if (isset($filters['division_id'])) {
+                $query->whereHas('interviews.vacancy.store', function ($storeQuery) use ($filters) {
+                    $storeQuery->where('division_id', $filters['division_id']);
+                });
+            } elseif (isset($filters['region_id'])) {
+                $query->whereHas('interviews.vacancy.store', function ($storeQuery) use ($filters) {
+                    $storeQuery->where('region_id', $filters['region_id']);
+                });
+            } elseif (isset($filters['store_id'])) {
+                $query->whereHas('interviews.vacancy', function ($vacancyQuery) use ($filters) {
+                    $vacancyQuery->where('store_id', $filters['store_id']);
+                });
             }
         }
 
         // Appointed filter
-        if (isset($filters['appointed'])) {
-            if ($filters['appointed'] === 'Yes') {
-                $query->whereNotNull('appointed_id');
-            } elseif ($filters['appointed'] === 'No') {
-                $query->whereNull('appointed_id');
-            }
+        if (isset($filters['appointed']) && $filters['appointed'] === 'Yes') {
+            $query->whereNotNull('appointed_id') // Ensure only appointed applicants
+                ->whereHas('vacanciesFilled', function ($vacancyQuery) use ($filters, $startDate, $endDate) {
+                    // Apply date range to `vacancy_fills.created_at`
+                    $vacancyQuery->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
+
+                    // Apply geographic filtering based on division, region, or store
+                    if (isset($filters['division_id'])) {
+                        $vacancyQuery->whereHas('store', function ($storeQuery) use ($filters) {
+                            $storeQuery->where('division_id', $filters['division_id']);
+                        });
+                    } elseif (isset($filters['region_id'])) {
+                        $vacancyQuery->whereHas('store', function ($storeQuery) use ($filters) {
+                            $storeQuery->where('region_id', $filters['region_id']);
+                        });
+                    } elseif (isset($filters['store_id'])) {
+                        $vacancyQuery->where('store_id', $filters['store_id']);
+                    }
+                });
+        } else {
+            // Default date range filter for applicants
+            $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
         $totalApplicants = 0;
-        if (isset($filters['store_id'])) {
-            // Filter by specific store
-            $store = Store::find($filters['store_id']);
-            if ($store && $store->coordinates) {
-                [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
-                $query->whereRaw("ST_Distance_Sphere(
-                    point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                    point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
-                $totalApplicants = $query->count();
-            }
-        } elseif (!isset($filters['store_id']) && $type !== 'all') {
-            // Loop through stores based on type (store, division, or region)
-            $stores = Store::when($type === 'store', fn($q) => $q->where('id', $id))
-                ->when($type === 'division', fn($q) => $q->where('division_id', $id))
-                ->when($type === 'region', fn($q) => $q->where('region_id', $id))
-                ->get();
 
-            if ($stores->isEmpty()) {
-                return 0;
-            }
+        // Only apply geographic filtering if `shortlisted`, `interviewed`, or `appointed` do not explicitly exclude applicants
+        if ((!isset($filters['shortlisted']) || $filters['shortlisted'] == 'No') && (!isset($filters['interviewed']) || $filters['interviewed'] == 'No') && (!isset($filters['appointed']) || $filters['appointed'] == 'No') && (isset($filters['store_id']) || isset($filters['region_id']) || isset($filters['division_id']))) {
+            // Get stores based on the filter priority: division -> region -> store
+            $stores = Store::when(isset($filters['division_id']), function ($query) use ($filters) {
+                    return $query->where('division_id', $filters['division_id']);
+                })
+                ->when(isset($filters['region_id']), function ($query) use ($filters) {
+                    return $query->where('region_id', $filters['region_id']);
+                })
+                ->when(isset($filters['store_id']), function ($query) use ($filters) {
+                    return $query->where('id', $filters['store_id']);
+                })
+                ->get();
 
             foreach ($stores as $store) {
                 if ($store->coordinates) {
@@ -607,7 +654,7 @@ class ApplicantsReportDataService
                 }
             }
         } else {
-            // If `store_id` is set or `type` is `all`, return the count directly
+            // If no specific store, division, or region is set, count all applicants
             $totalApplicants = $query->count();
         }
 
@@ -639,13 +686,21 @@ class ApplicantsReportDataService
                 // Apply the date range filter on the vacancy_fills created_at
                 $vacancyQuery->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
 
-                // Apply additional filtering based on the type
-                if ($type === 'store') {
-                    $vacancyQuery->where('store_id', $id);
-                } elseif ($type === 'division') {
-                    $vacancyQuery->where('division_id', $id);
-                } elseif ($type === 'region') {
-                    $vacancyQuery->where('region_id', $id);
+                // Apply geographic filters
+                if (isset($filters['division_id'])) {
+                    $stores = Store::where('division_id', $filters['division_id'])->get();
+                    if ($stores->isEmpty()) {
+                        return; // Exit early if no stores match
+                    }
+                    $vacancyQuery->whereIn('store_id', $stores->pluck('id'));
+                } elseif (isset($filters['region_id'])) {
+                    $stores = Store::where('region_id', $filters['region_id'])->get();
+                    if ($stores->isEmpty()) {
+                        return; // Exit early if no stores match
+                    }
+                    $vacancyQuery->whereIn('store_id', $stores->pluck('id'));
+                } elseif (isset($filters['store_id'])) {
+                    $vacancyQuery->where('store_id', $filters['store_id']);
                 }
             });
 
@@ -704,6 +759,21 @@ class ApplicantsReportDataService
         if (isset($filters['shortlisted'])) {
             if ($filters['shortlisted'] === 'Yes') {
                 $query->whereNotNull('shortlist_id');
+
+                // Apply geographic filters for shortlisted applicants
+                if (isset($filters['division_id'])) {
+                    $query->whereHas('shortlist.vacancy.store', function ($storeQuery) use ($filters) {
+                        $storeQuery->where('division_id', $filters['division_id']);
+                    });
+                } elseif (isset($filters['region_id'])) {
+                    $query->whereHas('shortlist.vacancy.store', function ($storeQuery) use ($filters) {
+                        $storeQuery->where('region_id', $filters['region_id']);
+                    });
+                } elseif (isset($filters['store_id'])) {
+                    $query->whereHas('shortlist.vacancy', function ($vacancyQuery) use ($filters) {
+                        $vacancyQuery->where('store_id', $filters['store_id']);
+                    });
+                }
             } elseif ($filters['shortlisted'] === 'No') {
                 $query->whereNull('shortlist_id');
             }
@@ -712,47 +782,35 @@ class ApplicantsReportDataService
         // Interviewed filter
         if (isset($filters['interviewed'])) {
             if ($filters['interviewed'] === 'Yes') {
-                $query->whereHas('interviews');
+                $query->whereHas('interviews', function ($interviewQuery) {
+                    $interviewQuery->whereNotNull('score');
+                });
             } elseif ($filters['interviewed'] === 'No') {
-                $query->doesntHave('interviews');
+                $query->where(function ($q) {
+                    $q->doesntHave('interviews')
+                    ->orWhereHas('interviews', function ($interviewQuery) {
+                        $interviewQuery->whereNull('score');
+                    });
+                });
+            }
+
+            if (isset($filters['division_id'])) {
+                $query->whereHas('interviews.vacancy.store', function ($storeQuery) use ($filters) {
+                    $storeQuery->where('division_id', $filters['division_id']);
+                });
+            } elseif (isset($filters['region_id'])) {
+                $query->whereHas('interviews.vacancy.store', function ($storeQuery) use ($filters) {
+                    $storeQuery->where('region_id', $filters['region_id']);
+                });
+            } elseif (isset($filters['store_id'])) {
+                $query->whereHas('interviews.vacancy', function ($vacancyQuery) use ($filters) {
+                    $vacancyQuery->where('store_id', $filters['store_id']);
+                });
             }
         }
-
-        // Proximity and store filtering
-        $totalApplicants = 0;
-        if (isset($filters['store_id'])) {
-            $store = Store::find($filters['store_id']);
-            if ($store && $store->coordinates) {
-                [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
-                $query->whereRaw("ST_Distance_Sphere(
-                    point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                    point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
-            }
-        } elseif (!isset($filters['store_id']) && $type !== 'all') {
-            // Get stores based on type (store, division, or region)
-            $stores = Store::when($type === 'store', fn($q) => $q->where('id', $id))
-                ->when($type === 'division', fn($q) => $q->where('division_id', $id))
-                ->when($type === 'region', fn($q) => $q->where('region_id', $id))
-                ->get();
-
-            if ($stores->isEmpty()) {
-                return 0;
-            }
-
-            foreach ($stores as $store) {
-                if ($store->coordinates) {
-                    [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
-                    $storeQuery = clone $query; // Clone the query to apply per-store conditions
-                    $storeQuery->whereRaw("ST_Distance_Sphere(
-                        point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                        point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
-                    $totalApplicants += $storeQuery->count();
-                }
-            }
-        } else {
-            // If `store_id` is set or `type` is `all`, return the count directly
-            $totalApplicants = $query->count();
-        }
+        
+        // Default: Count all applicants appointed within the date range
+        $totalApplicants = $query->count();
 
         return $totalApplicants;
     }
@@ -785,8 +843,8 @@ class ApplicantsReportDataService
             return $applicantsByMonth;
         }
 
-        // Set up the base query to filter applicants within the date range
-        $query = Applicant::whereBetween('created_at', [$startDate, $endDate]);
+        // Base query for applicants
+        $query = Applicant::query();
 
         // Apply additional filters
         if (isset($filters['gender_id'])) {
@@ -837,6 +895,21 @@ class ApplicantsReportDataService
         if (isset($filters['shortlisted'])) {
             if ($filters['shortlisted'] === 'Yes') {
                 $query->whereNotNull('shortlist_id');
+
+                // Apply geographic filters for shortlisted applicants
+                if (isset($filters['division_id'])) {
+                    $query->whereHas('shortlist.vacancy.store', function ($storeQuery) use ($filters) {
+                        $storeQuery->where('division_id', $filters['division_id']);
+                    });
+                } elseif (isset($filters['region_id'])) {
+                    $query->whereHas('shortlist.vacancy.store', function ($storeQuery) use ($filters) {
+                        $storeQuery->where('region_id', $filters['region_id']);
+                    });
+                } elseif (isset($filters['store_id'])) {
+                    $query->whereHas('shortlist.vacancy', function ($vacancyQuery) use ($filters) {
+                        $vacancyQuery->where('store_id', $filters['store_id']);
+                    });
+                }
             } elseif ($filters['shortlisted'] === 'No') {
                 $query->whereNull('shortlist_id');
             }
@@ -845,51 +918,80 @@ class ApplicantsReportDataService
         // Interviewed filter
         if (isset($filters['interviewed'])) {
             if ($filters['interviewed'] === 'Yes') {
-                $query->whereHas('interviews');
+                $query->whereHas('interviews', function ($interviewQuery) {
+                    $interviewQuery->whereNotNull('score');
+                });
             } elseif ($filters['interviewed'] === 'No') {
-                $query->doesntHave('interviews');
+                $query->where(function ($q) {
+                    $q->doesntHave('interviews')
+                    ->orWhereHas('interviews', function ($interviewQuery) {
+                        $interviewQuery->whereNull('score');
+                    });
+                });
+            }
+
+            if (isset($filters['division_id'])) {
+                $query->whereHas('interviews.vacancy.store', function ($storeQuery) use ($filters) {
+                    $storeQuery->where('division_id', $filters['division_id']);
+                });
+            } elseif (isset($filters['region_id'])) {
+                $query->whereHas('interviews.vacancy.store', function ($storeQuery) use ($filters) {
+                    $storeQuery->where('region_id', $filters['region_id']);
+                });
+            } elseif (isset($filters['store_id'])) {
+                $query->whereHas('interviews.vacancy', function ($vacancyQuery) use ($filters) {
+                    $vacancyQuery->where('store_id', $filters['store_id']);
+                });
             }
         }
 
         // Appointed filter
-        if (isset($filters['appointed'])) {
-            if ($filters['appointed'] === 'Yes') {
-                $query->whereNotNull('appointed_id');
-            } elseif ($filters['appointed'] === 'No') {
-                $query->whereNull('appointed_id');
-            }
+        if (isset($filters['appointed']) && $filters['appointed'] === 'Yes') {
+            $query->whereNotNull('appointed_id') // Ensure only appointed applicants
+                ->whereHas('vacanciesFilled', function ($vacancyQuery) use ($filters, $startDate, $endDate) {
+                    // Apply date range to `vacancy_fills.created_at`
+                    $vacancyQuery->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
+
+                    // Apply geographic filtering based on division, region, or store
+                    if (isset($filters['division_id'])) {
+                        $vacancyQuery->whereHas('store', function ($storeQuery) use ($filters) {
+                            $storeQuery->where('division_id', $filters['division_id']);
+                        });
+                    } elseif (isset($filters['region_id'])) {
+                        $vacancyQuery->whereHas('store', function ($storeQuery) use ($filters) {
+                            $storeQuery->where('region_id', $filters['region_id']);
+                        });
+                    } elseif (isset($filters['store_id'])) {
+                        $vacancyQuery->where('store_id', $filters['store_id']);
+                    }
+                });
+        } else {
+            // Default date range filter for applicants
+            $query->whereBetween('created_at', [$startDate, $endDate]);
         }
 
-        if (isset($filters['store_id'])) {
-            // Filter by proximity to a specific store if `store_id` is provided
-            $store = Store::find($filters['store_id']);
-            if ($store && $store->coordinates) {
-                [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
-                $query->whereRaw("ST_Distance_Sphere(
-                    point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                    point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
-            }
-        } elseif (!isset($filters['store_id']) && $type !== 'all') {
-            // If no specific `store_id` is provided, filter based on stores in the specified type (e.g., division, region)
-            $stores = Store::when($type === 'store', fn($q) => $q->where('id', $id))
-                ->when($type === 'division', fn($q) => $q->where('division_id', $id))
-                ->when($type === 'region', fn($q) => $q->where('region_id', $id))
+        // Only apply geographic filtering if `shortlisted`, `interviewed`, or `appointed` do not explicitly exclude applicants
+        if ((!isset($filters['shortlisted']) || $filters['shortlisted'] == 'No') && (!isset($filters['interviewed']) || $filters['interviewed'] == 'No') && (!isset($filters['appointed']) || $filters['appointed'] == 'No') && (isset($filters['store_id']) || isset($filters['region_id']) || isset($filters['division_id']))) {
+            // Get stores based on the filter priority: division -> region -> store
+            $stores = Store::when(isset($filters['division_id']), function ($query) use ($filters) {
+                    return $query->where('division_id', $filters['division_id']);
+                })
+                ->when(isset($filters['region_id']), function ($query) use ($filters) {
+                    return $query->where('region_id', $filters['region_id']);
+                })
+                ->when(isset($filters['store_id']), function ($query) use ($filters) {
+                    return $query->where('id', $filters['store_id']);
+                })
                 ->get();
 
-            if ($stores->isEmpty()) {
-                return $applicantsByMonth;
-            }
-
-            // Loop through stores to get applicants per store based on proximity
             foreach ($stores as $store) {
                 if ($store->coordinates) {
                     [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
-                    $storeQuery = clone $query; // Clone to modify query per store
+                    $storeQuery = clone $query;
                     $storeQuery->whereRaw("ST_Distance_Sphere(
                         point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
                         point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
 
-                    // Group applicants by month and accumulate monthly totals
                     foreach ($storeQuery->get() as $applicant) {
                         $month = $applicant->created_at->format('M');
                         $applicantsByMonth[$month]++;
@@ -897,7 +999,7 @@ class ApplicantsReportDataService
                 }
             }
         } else {
-            // If type is 'all' or `store_id` is provided, group applicants directly by month
+            // Group applicants directly by month
             foreach ($query->get() as $applicant) {
                 $month = $applicant->created_at->format('M');
                 $applicantsByMonth[$month]++;
