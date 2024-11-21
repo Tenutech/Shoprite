@@ -318,7 +318,7 @@ class VacanciesReportController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
-                'error' => $e
+                'error' => $e->getMessage()
             ], 400);
         }
     }
