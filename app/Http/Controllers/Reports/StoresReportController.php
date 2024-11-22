@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Reports;
 
 use Carbon\Carbon;
-
 use App\Models\User;
 use App\Models\Town;
 use App\Models\Brand;

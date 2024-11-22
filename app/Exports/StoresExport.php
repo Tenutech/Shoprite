@@ -114,7 +114,7 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         $averageDistanceApplicantsPlaced = $this->calculateAverageDistanceApplicantsPlaced($store);
 
         // Calculate Average Assessment Score of Applicants Placed
-    $averageAssessmentScoreApplicantsPlaced = $this->calculateAverageAssessmentScoreApplicantsPlaced($store);
+        $averageAssessmentScoreApplicantsPlaced = $this->calculateAverageAssessmentScoreApplicantsPlaced($store);
 
         return [
             $store->code ?? '',
@@ -146,8 +146,8 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             'Name',
             'Town',
             'Region',
-            'Division',            
-            'Province',            
+            'Division',
+            'Province',
             'Address',
             'Total Applicants Placed',
             'Total Interviews Conducted',
