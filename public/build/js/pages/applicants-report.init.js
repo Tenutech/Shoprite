@@ -737,6 +737,15 @@ if (applicantsByMonthColors) {
         xaxis: {
             categories: months,
         },
+        yaxis: {
+            min: 0, // Start the y-axis at 0
+            labels: {
+                formatter: function (val) {
+                    return Math.round(val); // Ensure rounded values on the y-axis
+                }
+            },
+            forceNiceScale: true, // Force a nice scale for the y-axis
+        },
         tooltip: {
             y: {
                 formatter: function(val, { seriesIndex, dataPointIndex, w }) {
@@ -833,7 +842,12 @@ function updateLineCharts(chartInstance, totalApplicantsByMonth) {
             categories: months // Update x-axis with dynamic months
         },
         yaxis: {
-            max: maxYValue // Dynamically update the y-axis maximum
+            min: 0, // Always start at 0
+            labels: {
+                formatter: function (val) {
+                    return Math.round(val); // Round y-axis labels to whole numbers
+                }
+            }
         }
     });
 

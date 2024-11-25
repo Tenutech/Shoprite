@@ -37,9 +37,18 @@
 @endsection
 @section('content')
 
+@component('components.breadcrumb')
+    @slot('li_1')
+        Reports
+    @endslot
+    @slot('title')
+        Applicants
+    @endslot
+@endcomponent
+
+
 <div class="row">
     <div class="col">
-
         <div class="h-100">
             <div class="row mb-3 pb-1">
                 <div class="col-12">
@@ -566,7 +575,7 @@
                     
                     <!-- Sticky footer at the bottom -->
                     <div class="offcanvas-footer p-3 hstack gap-3 text-center position-absolute w-100 bg-white" style="bottom: 0;">
-                        <button class="btn btn-light btn-label w-100" id="clearFilters">
+                        <button class="btn btn-light btn-label w-100" id="clearFilters" onclick="location.reload();">
                             <i class="ri-delete-bin-fill label-icon align-middle fs-16 me-2"></i> 
                             Clear Filters
                         </button>

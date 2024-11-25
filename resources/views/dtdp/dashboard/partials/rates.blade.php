@@ -33,7 +33,7 @@
                     </div><!-- end col -->
                     <div class="col">
                         <div class="mt-3 mt-md-0 py-4 px-3">
-                            <h5 class="text-muted text-uppercase fs-13">Adoption Rate </h5>
+                            <h5 class="text-muted text-uppercase fs-13">Placement Rate </h5>
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0">
                                     <i class="ri-pulse-line display-6 text-muted"></i>
@@ -58,7 +58,7 @@
                 <div class="row row-cols-lg-3 row-cols-md-3 row-cols-1 g-0">
                     <div class="col">
                         <div class="mt-3 mt-lg-0 py-4 px-3">
-                            <h5 class="text-muted text-uppercase fs-13">Adoption Rate </h5>
+                            <h5 class="text-muted text-uppercase fs-13">Placement Rate </h5>
                             <div class="d-flex align-items-center">
                                 <div class="flex-shrink-0">
                                     <i class="ri-trophy-line display-6 text-muted"></i>

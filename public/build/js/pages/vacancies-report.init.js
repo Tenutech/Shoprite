@@ -34,11 +34,13 @@ $(document).ready(function() {
     const storeOptionsCache = [...document.getElementById('store').options].map(option => ({
         value: option.value,
         label: option.textContent,
+        brandId: option.getAttribute('brand-id'),
         divisionId: option.getAttribute('division-id'),
         regionId: option.getAttribute('region-id'),
     }));
 
     var positionChoice = new Choices('#position', { searchEnabled: false, shouldSort: true });
+    var brandChoice = new Choices('#brand', { searchEnabled: true, shouldSort: true });
     var divisionChoice = new Choices('#division', { searchEnabled: true, shouldSort: true });
     var regionChoice = new Choices('#region', { searchEnabled: true, shouldSort: true });
     var storeChoice = new Choices('#store', { searchEnabled: true, shouldSort: true });
@@ -72,6 +74,9 @@ $(document).ready(function() {
         // Reset each Choices instance to default (empty)
         positionChoice.removeActiveItems();
         positionChoice.setChoiceByValue("");
+
+        brandChoice.removeActiveItems();
+        brandChoice.setChoiceByValue("");
         
         divisionChoice.removeActiveItems();
         divisionChoice.setChoiceByValue("");
@@ -106,16 +111,25 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    // Set store options based on division
-    document.getElementById('division').addEventListener('change', function () {
-        // Get the selected division ID
-        const selectedDivisionId = this.value;
+    // Update store options based on the current filter selections
+    function updateStoreOptions() {
+        // Get selected filter values
+        const selectedBrandId = document.getElementById('brand').value;
+        const selectedDivisionId = document.getElementById('division').value;
+        const selectedRegionId = document.getElementById('region').value;
 
-        // Reset the store options
+        // Filter the store options based on the selected values
+        filteredStoreOptions = storeOptionsCache.filter(option => {
+            return (
+                (!selectedBrandId || option.brandId == selectedBrandId) &&
+                (!selectedDivisionId || option.divisionId == selectedDivisionId) &&
+                (!selectedRegionId || option.regionId == selectedRegionId)
+            );
+        });
+
+        // Update the store options in the Choices instance
         storeChoice.clearStore(); // Clears the current Choices options
-
-        if (selectedDivisionId === "") {
-            // If no division is selected, reset to all stores
+        if (filteredStoreOptions.length > 0) {
             storeChoice.setChoices(
                 [
                     {
@@ -124,7 +138,7 @@ $(document).ready(function() {
                         selected: true, // Make this the selected option
                         disabled: false,
                     },
-                    ...storeOptionsCache.map(option => ({
+                    ...filteredStoreOptions.map(option => ({
                         value: option.value,
                         label: option.label,
                         selected: false,
@@ -135,117 +149,26 @@ $(document).ready(function() {
                 true
             );
         } else {
-            // Filter the cached store options based on the selected division
-            const filteredOptions = storeOptionsCache.filter(option => option.divisionId == selectedDivisionId);
-
-            if (filteredOptions.length > 0) {
-                // Add the "Select store" option followed by the filtered store options
-                storeChoice.setChoices(
-                    [
-                        {
-                            value: '',
-                            label: 'Select store',
-                            selected: true, // Make this the selected option
-                            disabled: false,
-                        },
-                        ...filteredOptions.map(option => ({
-                            value: option.value,
-                            label: option.label,
-                            selected: false,
-                        })),
-                    ],
-                    'value',
-                    'label',
-                    true
-                );
-            } else {
-                // Add "No stores available" option if no matches
-                storeChoice.setChoices(
-                    [
-                        {
-                            value: '',
-                            label: 'No stores available',
-                            selected: true,
-                            disabled: true, // Make this option disabled
-                        },
-                    ],
-                    'value',
-                    'label',
-                    true
-                );
-            }
-        }
-    });
-    
-    // Set store options based on region
-    document.getElementById('region').addEventListener('change', function () {
-        // Get the selected region ID
-        const selectedRegionId = this.value;
-
-        // Reset the store options
-        storeChoice.clearStore(); // Clears the current Choices options
-
-        if (selectedRegionId === "") {
-            // If no region is selected, reset to all stores
+            // Add "No stores available" option if no matches
             storeChoice.setChoices(
                 [
                     {
                         value: '',
-                        label: 'Select store',
-                        selected: true, // Make this the selected option
-                        disabled: false,
+                        label: 'No stores available',
+                        selected: true,
+                        disabled: true, // Make this option disabled
                     },
-                    ...storeOptionsCache.map(option => ({
-                        value: option.value,
-                        label: option.label,
-                        selected: false,
-                    })),
                 ],
                 'value',
                 'label',
                 true
             );
-        } else {
-            // Filter the cached store options based on the selected region
-            const filteredOptions = storeOptionsCache.filter(option => option.regionId == selectedRegionId);
-
-            if (filteredOptions.length > 0) {
-                // Add the "Select store" option followed by the filtered store options
-                storeChoice.setChoices(
-                    [
-                        {
-                            value: '',
-                            label: 'Select store',
-                            selected: true, // Make this the selected option
-                            disabled: false,
-                        },
-                        ...filteredOptions.map(option => ({
-                            value: option.value,
-                            label: option.label,
-                            selected: false,
-                        })),
-                    ],
-                    'value',
-                    'label',
-                    true
-                );
-            } else {
-                // Add "No stores available" option if no matches
-                storeChoice.setChoices(
-                    [
-                        {
-                            value: '',
-                            label: 'No stores available',
-                            selected: true,
-                            disabled: true, // Make this option disabled
-                        },
-                    ],
-                    'value',
-                    'label',
-                    true
-                );
-            }
         }
+    }
+
+    // Attach change events for each filter
+    ['brand', 'division', 'region'].forEach(filterId => {
+        document.getElementById(filterId).addEventListener('change', updateStoreOptions);
     });
 });
 
@@ -705,6 +628,15 @@ if (vacanciesByMonthColors) {
         xaxis: {
             categories: months,
         },
+        yaxis: {
+            min: 0, // Start the y-axis at 0
+            labels: {
+                formatter: function (val) {
+                    return Math.round(val); // Ensure rounded values on the y-axis
+                }
+            },
+            forceNiceScale: true, // Force a nice scale for the y-axis
+        },
         tooltip: {
             y: {
                 formatter: function(val, { seriesIndex, dataPointIndex, w }) {
@@ -779,7 +711,15 @@ if (vacanciesByTypeColors) {
                     fontSize: '12px'
                 }
             }
-        }
+        },
+        yaxis: {
+            min: 0, // Always start y-axis at 0
+            labels: {
+                formatter: function (val) {
+                    return Math.round(val); // Round y-axis labels to whole numbers
+                }
+            }
+        },
     };
 
     var vacanciesByTypeChart = new ApexCharts(document.querySelector("#vacancies_by_type"), options);
@@ -861,7 +801,12 @@ function updateLineCharts(chartInstance, totalVacanciesByMonth) {
             categories: months // Update x-axis with dynamic months
         },
         yaxis: {
-            max: maxYValue // Dynamically update the y-axis maximum
+            min: 0, // Always start at 0
+            labels: {
+                formatter: function (val) {
+                    return Math.round(val); // Round y-axis labels to whole numbers
+                }
+            }
         }
     });
 
@@ -895,6 +840,9 @@ function updateColumnCharts(chartInstance, totalVacanciesByType) {
                     fontSize: '12px'
                 }
             }
+        },
+        yaxis: {
+            min: 0, // Always start y-axis at 0
         }
     });
 

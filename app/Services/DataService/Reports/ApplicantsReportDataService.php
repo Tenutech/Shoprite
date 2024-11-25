@@ -831,7 +831,9 @@ class ApplicantsReportDataService
         // Initialize an array to hold monthly counts, with each month from startDate to endDate set to 0
         $applicantsByMonth = [];
         $currentDate = $startDate->copy();
-        while ($currentDate->lte($endDate)) {
+        $currentEndDate = $endDate->copy();
+
+        while ($currentDate->lte($currentEndDate->endOfMonth())) {
             $monthName = $currentDate->format('M');
             $applicantsByMonth[$monthName] = 0;
             $currentDate->addMonth();

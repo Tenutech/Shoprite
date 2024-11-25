@@ -6,6 +6,7 @@ use Carbon\Carbon;
 use App\Models\Type;
 use App\Models\User;
 use App\Models\Store;
+use App\Models\Brand;
 use App\Models\Region;
 use App\Models\Division;
 use App\Models\Position;
@@ -137,6 +138,50 @@ class VacanciesReportController extends Controller
                 }
             }
 
+            // Brands logic
+            $brands = collect(); // Default to an empty collection
+
+            if (in_array($authUser->role_id, [1, 2])) {
+                // If role_id is 1 or 2, get all brands where id > 1
+                $brands = Brand::where('id', '>', 1)->get();
+            } elseif ($authUser->role_id == 3) {
+                // If role_id is 3, get all brands where id matches the brands in stores in the user's region
+                $storeBrandIds = Store::where('region_id', $authUser->region_id)
+                    ->pluck('brand_id'); // Get the brand_ids of all stores in the user's region
+            
+                // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
+                if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
+                    $storeBrandIds->push(2);
+                }
+            
+                // Get all brands where id is in the store's brand_ids
+                $brands = Brand::whereIn('id', $storeBrandIds)->get();
+            } elseif ($authUser->role_id == 4) {
+                // If role_id is 4, get all brands where id matches the brands in stores in the user's division
+                $storeBrandIds = Store::where('division_id', $authUser->division_id)
+                    ->pluck('brand_id'); // Get the brand_ids of all stores in the user's division
+            
+                // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
+                if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
+                    $storeBrandIds->push(2);
+                }
+            
+                // Get all brands where id is in the store's brand_ids
+                $brands = Brand::whereIn('id', $storeBrandIds)->get();
+            } elseif ($authUser->role_id == 6) {
+                // If role_id is 6, get all brands where id matches the brand of the users store
+                $storeBrandIds = Store::where('id', $authUser->store_id)
+                    ->pluck('brand_id'); // Get the brand_ids of all stores in the user's division
+            
+                // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
+                if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
+                    $storeBrandIds->push(2);
+                }
+            
+                // Get all brands where id is in the store's brand_ids
+                $brands = Brand::whereIn('id', $storeBrandIds)->get();
+            }
+
             // Regions logic
             $regions = collect(); // Default to an empty collection
 
@@ -198,6 +243,7 @@ class VacanciesReportController extends Controller
                 'totalVacanciesTypeByMonth' => $totalVacanciesTypeByMonth,
                 'totalVacanciesByType' => $totalVacanciesByType,
                 'positions' => $positions,
+                'brands' => $brands,
                 'regions' => $regions,
                 'divisions' => $divisions,
                 'stores' => $stores,
@@ -229,6 +275,7 @@ class VacanciesReportController extends Controller
                 'position_id' => 'nullable|integer|exists:positions,id',
                 'open_positions' => 'nullable|integer|min:0|max:10',
                 'filled_positions' => 'nullable|integer|min:0|max:10|lte:open_positions',
+                'brand_id' => 'nullable|integer|exists:brands,id',
                 'division_id' => 'nullable|integer|exists:divisions,id',
                 'region_id' => 'nullable|integer|exists:regions,id',
                 'store_id' => 'nullable|integer|exists:stores,id',

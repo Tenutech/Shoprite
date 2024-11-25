@@ -38,13 +38,13 @@
 @section('content')
 
 @component('components.breadcrumb')
-        @slot('li_1')
-            Reports
-        @endslot
-        @slot('title')
-            Stores
-        @endslot
-    @endcomponent
+    @slot('li_1')
+        Reports
+    @endslot
+    @slot('title')
+        Stores
+    @endslot
+@endcomponent
 
 
 <div class="row">
@@ -361,7 +361,7 @@
                             <!-- end col -->
 
                             <!-- Provinces -->
-                            <div class="col-12">
+                            <div class="col-12 d-none">
                                 <div class="mb-3">
                                     <label for="province" class="form-label">
                                         Province
@@ -380,7 +380,7 @@
                             <!-- end col -->
 
                             <!-- Town -->
-                            <div class="col-12">
+                            <div class="col-12 d-none">
                                 <div class="mb-3">
                                     <label for="town" class="form-label">
                                         Town
@@ -465,7 +465,7 @@
                     
                     <!-- Sticky footer at the bottom -->
                     <div class="offcanvas-footer p-3 hstack gap-3 text-center position-absolute w-100 bg-white" style="bottom: 0;">
-                        <button class="btn btn-light btn-label w-100" id="clearFilters">
+                        <button class="btn btn-light btn-label w-100" id="clearFilters" onclick="location.reload();">
                             <i class="ri-delete-bin-fill label-icon align-middle fs-16 me-2"></i> 
                             Clear Filters
                         </button>
@@ -482,7 +482,6 @@
 
     </div> <!-- end col -->
 </div> <!-- end row -->
-
 
 @endsection
 @section('script')

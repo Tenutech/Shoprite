@@ -5,6 +5,7 @@ namespace App\Services\DataService\Reports;
 use Carbon\Carbon;
 use App\Models\Type;
 use App\Models\Vacancy;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Collection;
 
 class VacanciesReportDataService
@@ -306,6 +307,11 @@ class VacanciesReportDataService
         if (isset($filters['filled_positions'])) {
             $vacancies->where('filled_positions', $filters['filled_positions']);
         }
+        if (isset($filters['brand_id'])) {
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('brand_id', $filters['brand_id']);
+            });
+        } 
         if (isset($filters['division_id'])) {
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('division_id', $filters['division_id']);
@@ -379,6 +385,11 @@ class VacanciesReportDataService
         if (isset($filters['position_id'])) {
             $vacancies->where('position_id', $filters['position_id']);
         }
+        if (isset($filters['brand_id'])) {
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('brand_id', $filters['brand_id']);
+            });
+        }
         if (isset($filters['division_id'])) {
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('division_id', $filters['division_id']);
@@ -437,13 +448,14 @@ class VacanciesReportDataService
     {
         // Initialize an array to hold the results, with months set to 0 from startDate to endDate
         $vacanciesByMonth = [];
-        $currentDate = $startDate->copy();
+        $currentDate = $startDate->copy()->startOfMonth(); // Start at the beginning of the month
+        $currentEndDate = $endDate->copy();
 
-        // Loop to populate only the months between startDate and endDate
-        while ($currentDate->lte($endDate)) {
+        // Loop to populate the months between startDate and endDate (inclusive)
+        while ($currentDate->lte($currentEndDate->endOfMonth())) { // Ensure we include all months up to the end of the month
             $monthName = $currentDate->format('M');
-            $vacanciesByMonth[$monthName] = 0;
-            $currentDate->addMonth();
+            $vacanciesByMonth[$monthName] = 0; // Initialize count for each month
+            $currentDate->addMonth(); // Move to the next month
         }
 
         // Start building the query using the Vacancy model and filter by date range
@@ -472,11 +484,16 @@ class VacanciesReportDataService
         if (isset($filters['filled_positions'])) {
             $vacancies->where('filled_positions', $filters['filled_positions']);
         }
+        if (isset($filters['brand_id'])) {
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('brand_id', $filters['brand_id']);
+            });
+        }
         if (isset($filters['division_id'])) {
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('division_id', $filters['division_id']);
             });
-        }        
+        }
         if (isset($filters['region_id'])) {
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('region_id', $filters['region_id']);
@@ -495,12 +512,10 @@ class VacanciesReportDataService
         // Apply the `unactioned` filter
         if (isset($filters['unactioned'])) {
             if ($filters['unactioned'] === 'No') {
-                // Get vacancies where shortlists exist and `applicant_ids` is not empty
                 $vacancies->whereHas('shortlists', function ($query) {
                     $query->whereNotNull('applicant_ids')->where('applicant_ids', '!=', '[]');
                 });
             } elseif ($filters['unactioned'] === 'Yes') {
-                // Get vacancies with no shortlists or where shortlists exist but `applicant_ids` is null or empty
                 $vacancies->whereDoesntHave('shortlists')
                     ->orWhereHas('shortlists', function ($query) {
                         $query->whereNull('applicant_ids')
@@ -512,7 +527,10 @@ class VacanciesReportDataService
         // Retrieve vacancies and group them by the month of their creation date
         foreach ($vacancies->get() as $vacancy) {
             $month = $vacancy->created_at->format('M');
-            $vacanciesByMonth[$month]++;
+            // Increment only if the month exists in the initialized array
+            if (array_key_exists($month, $vacanciesByMonth)) {
+                $vacanciesByMonth[$month]++;
+            }
         }
 
         return $vacanciesByMonth;
@@ -567,6 +585,11 @@ class VacanciesReportDataService
         if (isset($filters['filled_positions'])) {
             $vacancies->where('filled_positions', $filters['filled_positions']);
         }
+        if (isset($filters['brand_id'])) {
+            $vacancies->whereHas('store', function ($query) use ($filters) {
+                $query->where('brand_id', $filters['brand_id']);
+            });
+        } 
         if (isset($filters['division_id'])) {
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('division_id', $filters['division_id']);

@@ -272,6 +272,7 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
             optional(optional($applicant->town)->province)->name ?? '',
             $brands ?? '',
             $applicant->location ?? '',
+            $applicant->location_type ?? '',
             $applicant->terms_conditions ?? '',
             $applicant->public_holidays,
             $applicant->environment,
@@ -312,6 +313,7 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
             'Province',
             'Brands',
             'Home Address',
+            'Location Type',
             'Terms & Conditions',
             'Shift Basis',
             'Work Environment',
@@ -341,12 +343,12 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
         ];
 
         // Set left alignment and wrap text for all cells
-        $sheet->getStyle('A:AC')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle('A:AD')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
         // Format specific columns for numbers (e.g., ID Number and Phone)
         $sheet->getStyle('B')->getNumberFormat()->setFormatCode('0'); // ID Number as an integer
         $sheet->getStyle('J')->getNumberFormat()->setFormatCode('0'); // Phone Number as an integer
-        $sheet->getStyle('AC')->getNumberFormat()->setFormatCode('0'); // SAP Number as an integer
+        $sheet->getStyle('AD')->getNumberFormat()->setFormatCode('0'); // SAP Number as an integer
 
         return $styles;
     }
@@ -376,18 +378,19 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
             'O' => 15, // Province
             'P' => 25, // Brands
             'Q' => 40, // Home Address
-            'R' => 20, // Terms & Conditions
-            'S' => 20, // Shift Basis
-            'T' => 20, // Work Environment
-            'U' => 20, // Background Check
-            'V' => 15, // Disability
-            'W' => 20, // Assessment Score
-            'X' => 20, // Overall Score
-            'Y' => 20, // Application Channel
-            'Z' => 15, // Drop off
-            'AA' => 25, // State
-            'AB' => 15, // State
-            'AC' => 15, // State
+            'R' => 15, // Location Type
+            'S' => 20, // Terms & Conditions
+            'T' => 20, // Shift Basis
+            'U' => 20, // Work Environment
+            'V' => 20, // Background Check
+            'W' => 15, // Disability
+            'X' => 20, // Assessment Score
+            'Y' => 20, // Overall Score
+            'Z' => 20, // Application Channel
+            'AA' => 15, // Drop off
+            'AB' => 25, // State
+            'AC' => 15, // Appointed
+            'AD' => 15, // Sap Number
         ];
     }
 }

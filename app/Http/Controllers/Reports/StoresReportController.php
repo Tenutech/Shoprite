@@ -117,8 +117,49 @@ class StoresReportController extends Controller
                 }
             }
 
-            // Brands
-            $brands = Brand::where('id', '>', 1)->get();
+            // Brands logic
+            $brands = collect(); // Default to an empty collection
+
+            if (in_array($authUser->role_id, [1, 2])) {
+                // If role_id is 1 or 2, get all brands where id > 1
+                $brands = Brand::where('id', '>', 1)->get();
+            } elseif ($authUser->role_id == 3) {
+                // If role_id is 3, get all brands where id matches the brands in stores in the user's region
+                $storeBrandIds = Store::where('region_id', $authUser->region_id)
+                    ->pluck('brand_id'); // Get the brand_ids of all stores in the user's region
+            
+                // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
+                if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
+                    $storeBrandIds->push(2);
+                }
+            
+                // Get all brands where id is in the store's brand_ids
+                $brands = Brand::whereIn('id', $storeBrandIds)->get();
+            } elseif ($authUser->role_id == 4) {
+                // If role_id is 4, get all brands where id matches the brands in stores in the user's division
+                $storeBrandIds = Store::where('division_id', $authUser->division_id)
+                    ->pluck('brand_id'); // Get the brand_ids of all stores in the user's division
+            
+                // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
+                if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
+                    $storeBrandIds->push(2);
+                }
+            
+                // Get all brands where id is in the store's brand_ids
+                $brands = Brand::whereIn('id', $storeBrandIds)->get();
+            } elseif ($authUser->role_id == 6) {
+                // If role_id is 6, get all brands where id matches the brand of the users store
+                $storeBrandIds = Store::where('id', $authUser->store_id)
+                    ->pluck('brand_id'); // Get the brand_ids of all stores in the user's division
+            
+                // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
+                if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
+                    $storeBrandIds->push(2);
+                }
+            
+                // Get all brands where id is in the store's brand_ids
+                $brands = Brand::whereIn('id', $storeBrandIds)->get();
+            }
 
             // Provinces
             $provinces = Province::all();
