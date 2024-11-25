@@ -3251,11 +3251,6 @@ class ChatService
                     $interactiveOptions = $messageData['interactive_options'] ?? [];
                 }
 
-                // Check if current message is the same as the last one
-                if ($lastMessage === $body) {
-                    continue; // Skip sending this message
-                }
-
                 // Prepare the API URL
                 $url = "https://graph.facebook.com/v20.0/$from/messages";
 
