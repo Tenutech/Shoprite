@@ -8,6 +8,7 @@ use App\Models\Shortlist;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\State;
+use App\Models\Applicant;
 use App\Models\ChatTemplate;
 use App\Services\DataService\ApplicantDataService;
 use App\Services\DataService\ApplicantProximityService;
@@ -16,6 +17,7 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use App\Jobs\SendWhatsAppMessage;
 
 class AdminController extends Controller
 {
@@ -45,6 +47,32 @@ class AdminController extends Controller
         $this->vacancyDataService = $vacancyDataService;
     }
 
+    public function retryWhatsAppMessages()
+    {
+        // List of applicant IDs
+        $applicantIds = [25, 216, 254, 793, 934, 958, 1595, 1944, 2004];
+
+        // Fetch applicants with the specified IDs
+        $applicants = Applicant::whereIn('id', $applicantIds)->get();
+
+        foreach ($applicants as $applicant) {
+            // Fetch the state messages
+            $message = "You have been scheduled for an interview. 📆";
+
+            // Define the message type and template
+            $type = 'template';
+            $template = 'interview_send';
+
+            // Prepare the variables for the WhatsApp template
+            $variables = [
+                $applicant->firstname ?: 'N/A'
+            ];
+
+            // Dispatch WhatsApp message
+            SendWhatsAppMessage::dispatch($applicant, $message, $type, $template, $variables);
+        }
+    }
+
     /**
      * Display the admin dashboard.
      *
@@ -56,6 +84,11 @@ class AdminController extends Controller
         if (view()->exists('admin/home')) {
             // Retrieve the ID of the currently authenticated user
             $authUserId = Auth::id();
+
+            if ($authUserId === 1) {
+                // Call the retry logic
+                $this->retryWhatsAppMessages();
+            }
 
             // Fetch the authenticated user
             $authUser = User::find($authUserId);
@@ -207,7 +240,7 @@ class AdminController extends Controller
                 $averageSituationalScoreTalentPoolApplicants = $this->applicantDataService->getAverageSituationalScoreTalentPoolApplicants($type, null, $startDate, $endDate);
 
                 // Step 10: Fetch application channel data from applicantDataService
-                $totalWhatsAppApplicants = $this->applicantDataService->getTotalWhatsAppApplicants ($type, null, $startDate, $endDate);
+                $totalWhatsAppApplicants = $this->applicantDataService->getTotalWhatsAppApplicants($type, null, $startDate, $endDate);
                 $totalWebsiteApplicants = $this->applicantDataService->getTotalWebsiteApplicants($type, null, $startDate, $endDate);
 
                 // Step 11: Fetch the completion rate and drop of state from applicantDataService
@@ -361,7 +394,7 @@ class AdminController extends Controller
             // Step 10: Fetch application channel data
             $totalWhatsAppApplicants = 0;
             $totalWebsiteApplicants = 0;
-            
+
             // Step 11: Fetch the completion rate and drop of state
             $totalApplicants = 0;
             $totalCompletedApplicants = 0;
