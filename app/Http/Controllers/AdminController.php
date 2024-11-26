@@ -45,22 +45,6 @@ class AdminController extends Controller
         $this->vacancyDataService = $vacancyDataService;
     }
 
-    public function trimUserNames()
-    {
-        // Fetch all users
-        $users = User::all();
-
-        // Loop through each user
-        foreach ($users as $user) {
-            // Trim the trailing spaces from firstname and lastname
-            $user->firstname = trim($user->firstname);
-            $user->lastname = trim($user->lastname);
-
-            // Save the updated user
-            $user->save();
-        }
-    }
-
     /**
      * Display the admin dashboard.
      *
@@ -70,7 +54,6 @@ class AdminController extends Controller
     {
         // Check if the 'admin/home' view exists
         if (view()->exists('admin/home')) {
-            $this->trimUserNames();
             // Retrieve the ID of the currently authenticated user
             $authUserId = Auth::id();
 
