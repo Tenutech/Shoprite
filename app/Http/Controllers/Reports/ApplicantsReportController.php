@@ -218,7 +218,8 @@ class ApplicantsReportController extends Controller
                 'shortlisted' => 'nullable|string|in:Yes,No',
                 'interviewed' => 'nullable|string|in:Yes,No',
                 'appointed' => 'nullable|string|in:Yes,No',
-                'store_id' => 'nullable|integer|exists:stores,id',
+                'store_id' => 'nullable|array',
+                'store_id.*' => 'integer|exists:stores,id',
             ]);
 
             // Retrieve the ID of the currently authenticated user

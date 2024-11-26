@@ -577,7 +577,9 @@ class StoresReportDataService
                     $q->where('town_id', $filters['town_id']);
                 })
                 ->when(isset($filters['store_id']), function ($q) use ($filters) {
-                    $q->where('id', $filters['store_id']);
+                    if (is_array($filters['store_id'])) {
+                        $q->whereIn('id', $filters['store_id']);
+                    }
                 })
                 ->when(isset($filters['division_id']), function ($q) use ($filters) {
                     $q->where('division_id', $filters['division_id']);
@@ -673,7 +675,9 @@ class StoresReportDataService
                     $q->where('town_id', $filters['town_id']);
                 })
                 ->when(isset($filters['store_id']), function ($q) use ($filters) {
-                    $q->where('id', $filters['store_id']);
+                    if (is_array($filters['store_id'])) {
+                        $q->whereIn('id', $filters['store_id']);
+                    }
                 })
                 ->when(isset($filters['division_id']), function ($q) use ($filters) {
                     $q->where('division_id', $filters['division_id']);
@@ -780,14 +784,16 @@ class StoresReportDataService
         }
 
         if (isset($filters['town_id'])) {
-            $applicants->whereHas('vacancyFill.vacancy.store', function ($q) use ($filters) {
-                $q->where('town_id', $filters['town_id']);
+            $applicants->whereHas('vacancyFill.vacancy.store', function ($query) use ($filters) {
+                $query->where('town_id', $filters['town_id']);
             });
         }
 
         if (isset($filters['store_id'])) {
             $applicants->whereHas('vacancyFill.vacancy', function ($query) use ($filters) {
-                $query->where('store_id', $filters['store_id']);
+                if (is_array($filters['store_id'])) {
+                    $query->whereIn('store_id', $filters['store_id']);
+                }
             });
         }
 
@@ -865,7 +871,9 @@ class StoresReportDataService
             }
             if (isset($filters['store_id'])) {
                 $query->whereHas('store', function ($q) use ($filters) {
-                    $q->where('id', $filters['store_id']);
+                    if (is_array($filters['store_id'])) {
+                        $q->whereIn('id', $filters['store_id']);
+                    }
                 });
             }
         });
@@ -929,7 +937,9 @@ class StoresReportDataService
                 });
             })
             ->when(isset($filters['store_id']), function ($query) use ($filters) {
-                return $query->where('store_id', $filters['store_id']);
+                if (is_array($filters['store_id'])) {
+                    return $query->whereIn('store_id', $filters['store_id']);
+                }
             })
             ->whereBetween('created_at', [$startDate, $endDate])
             ->with(['store', 'appointed']) // Load store and appointed applicants relationships
@@ -1022,7 +1032,9 @@ class StoresReportDataService
                 });
             })
             ->when(isset($filters['store_id']), function ($query) use ($filters) {
-                return $query->where('store_id', $filters['store_id']);
+                if (is_array($filters['store_id'])) {
+                    return $query->whereIn('store_id', $filters['store_id']);
+                }
             })
             ->with(['appointed' => function ($query) {
                 // Only load appointed applicants with literacy, numeracy, and situational scores and questions
@@ -1137,9 +1149,12 @@ class StoresReportDataService
 
         if (isset($filters['store_id'])) {
             $interviews->whereHas('vacancy', function ($query) use ($filters) {
-                $query->where('store_id', $filters['store_id']);
+                if (is_array($filters['store_id'])) {
+                    $query->whereIn('store_id', $filters['store_id']);
+                }
             });
         }
+        
 
         // Return the total count of completed interviews
         return $interviews->count();

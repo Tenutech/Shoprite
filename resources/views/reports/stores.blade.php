@@ -442,8 +442,8 @@
                                     <label for="store" class="form-label">
                                         Store
                                     </label>
-                                    <select class="form-control" id="store" name="store_id">
-                                        <option value="" selected>Select store</option>
+                                    <select class="form-control" id="store" name="store_id[]" multiple>
+                                        <option value="" disabled>Select store</option>
                                         @foreach ($stores as $store)
                                             <option value="{{ $store->id }}" 
                                                 brand-id="{{ $store->brand_id }}" 

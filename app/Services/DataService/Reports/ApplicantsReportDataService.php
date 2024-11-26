@@ -564,9 +564,11 @@ class ApplicantsReportDataService
                     });
                 } elseif (isset($filters['store_id'])) {
                     $query->whereHas('shortlist.vacancy', function ($vacancyQuery) use ($filters) {
-                        $vacancyQuery->where('store_id', $filters['store_id']);
+                        if (is_array($filters['store_id'])) {
+                            $vacancyQuery->whereIn('store_id', $filters['store_id']);
+                        }
                     });
-                }
+                }                
             } elseif ($filters['shortlisted'] === 'No') {
                 $query->whereNull('shortlist_id');
             }
@@ -597,9 +599,11 @@ class ApplicantsReportDataService
                 });
             } elseif (isset($filters['store_id'])) {
                 $query->whereHas('interviews.vacancy', function ($vacancyQuery) use ($filters) {
-                    $vacancyQuery->where('store_id', $filters['store_id']);
+                    if (is_array($filters['store_id'])) {
+                        $vacancyQuery->whereIn('store_id', $filters['store_id']);
+                    }
                 });
-            }
+            }            
         }
 
         // Appointed filter
@@ -619,8 +623,10 @@ class ApplicantsReportDataService
                             $storeQuery->where('region_id', $filters['region_id']);
                         });
                     } elseif (isset($filters['store_id'])) {
-                        $vacancyQuery->where('store_id', $filters['store_id']);
-                    }
+                        if (is_array($filters['store_id'])) {
+                            $vacancyQuery->whereIn('store_id', $filters['store_id']);
+                        }
+                    }  
                 });
         } else {
             // Default date range filter for applicants
@@ -639,7 +645,9 @@ class ApplicantsReportDataService
                     return $query->where('region_id', $filters['region_id']);
                 })
                 ->when(isset($filters['store_id']), function ($query) use ($filters) {
-                    return $query->where('id', $filters['store_id']);
+                    if (is_array($filters['store_id'])) {
+                        return $query->whereIn('id', $filters['store_id']);
+                    }
                 })
                 ->get();
 
@@ -700,7 +708,9 @@ class ApplicantsReportDataService
                     }
                     $vacancyQuery->whereIn('store_id', $stores->pluck('id'));
                 } elseif (isset($filters['store_id'])) {
-                    $vacancyQuery->where('store_id', $filters['store_id']);
+                    if (is_array($filters['store_id'])) {
+                        $vacancyQuery->whereIn('store_id', $filters['store_id']);
+                    }
                 }
             });
 
@@ -769,11 +779,13 @@ class ApplicantsReportDataService
                     $query->whereHas('shortlist.vacancy.store', function ($storeQuery) use ($filters) {
                         $storeQuery->where('region_id', $filters['region_id']);
                     });
-                } elseif (isset($filters['store_id'])) {
+                }elseif (isset($filters['store_id'])) {
                     $query->whereHas('shortlist.vacancy', function ($vacancyQuery) use ($filters) {
-                        $vacancyQuery->where('store_id', $filters['store_id']);
+                        if (is_array($filters['store_id'])) {
+                            $vacancyQuery->whereIn('store_id', $filters['store_id']);
+                        }
                     });
-                }
+                }                
             } elseif ($filters['shortlisted'] === 'No') {
                 $query->whereNull('shortlist_id');
             }
@@ -804,9 +816,11 @@ class ApplicantsReportDataService
                 });
             } elseif (isset($filters['store_id'])) {
                 $query->whereHas('interviews.vacancy', function ($vacancyQuery) use ($filters) {
-                    $vacancyQuery->where('store_id', $filters['store_id']);
+                    if (is_array($filters['store_id'])) {
+                        $vacancyQuery->whereIn('store_id', $filters['store_id']);
+                    }
                 });
-            }
+            }            
         }
         
         // Default: Count all applicants appointed within the date range
@@ -909,9 +923,11 @@ class ApplicantsReportDataService
                     });
                 } elseif (isset($filters['store_id'])) {
                     $query->whereHas('shortlist.vacancy', function ($vacancyQuery) use ($filters) {
-                        $vacancyQuery->where('store_id', $filters['store_id']);
+                        if (is_array($filters['store_id'])) {
+                            $vacancyQuery->whereIn('store_id', $filters['store_id']);
+                        }
                     });
-                }
+                }                
             } elseif ($filters['shortlisted'] === 'No') {
                 $query->whereNull('shortlist_id');
             }
@@ -942,9 +958,11 @@ class ApplicantsReportDataService
                 });
             } elseif (isset($filters['store_id'])) {
                 $query->whereHas('interviews.vacancy', function ($vacancyQuery) use ($filters) {
-                    $vacancyQuery->where('store_id', $filters['store_id']);
+                    if (is_array($filters['store_id'])) {
+                        $vacancyQuery->whereIn('store_id', $filters['store_id']);
+                    }
                 });
-            }
+            }            
         }
 
         // Appointed filter
@@ -964,8 +982,10 @@ class ApplicantsReportDataService
                             $storeQuery->where('region_id', $filters['region_id']);
                         });
                     } elseif (isset($filters['store_id'])) {
-                        $vacancyQuery->where('store_id', $filters['store_id']);
-                    }
+                        if (is_array($filters['store_id'])) {
+                            $vacancyQuery->whereIn('store_id', $filters['store_id']);
+                        }
+                    }                    
                 });
         } else {
             // Default date range filter for applicants
@@ -982,8 +1002,10 @@ class ApplicantsReportDataService
                     return $query->where('region_id', $filters['region_id']);
                 })
                 ->when(isset($filters['store_id']), function ($query) use ($filters) {
-                    return $query->where('id', $filters['store_id']);
-                })
+                    if (is_array($filters['store_id'])) {
+                        return $query->whereIn('id', $filters['store_id']);
+                    }
+                })                
                 ->get();
 
             foreach ($stores as $store) {

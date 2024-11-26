@@ -77,6 +77,12 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             $query->where('region_id', $this->filters['region_id']);
         }
 
+        if (isset($this->filters['store_id'])) {
+            if (is_array($this->filters['store_id'])) {
+                $query->whereIn('id', $this->filters['store_id']);
+            }
+        }
+
         // Return the collection of filtered stores
         return $query->get();
     }

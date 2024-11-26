@@ -323,7 +323,9 @@ class VacanciesReportDataService
             });
         }
         if (isset($filters['store_id'])) {
-            $vacancies->where('store_id', $filters['store_id']);
+            if (is_array($filters['store_id'])) {
+                $vacancies->whereIn('store_id', $filters['store_id']);
+            }
         }
         if (isset($filters['user_id'])) {
             $vacancies->where('user_id', $filters['user_id']);
@@ -401,7 +403,9 @@ class VacanciesReportDataService
             });
         }
         if (isset($filters['store_id'])) {
-            $vacancies->where('store_id', $filters['store_id']);
+            if (is_array($filters['store_id'])) {
+                $vacancies->whereIn('store_id', $filters['store_id']);
+            }
         }
         if (isset($filters['user_id'])) {
             $vacancies->where('user_id', $filters['user_id']);
@@ -500,7 +504,9 @@ class VacanciesReportDataService
             });
         }
         if (isset($filters['store_id'])) {
-            $vacancies->where('store_id', $filters['store_id']);
+            if (is_array($filters['store_id'])) {
+                $vacancies->whereIn('store_id', $filters['store_id']);
+            }
         }
         if (isset($filters['user_id'])) {
             $vacancies->where('user_id', $filters['user_id']);
@@ -601,7 +607,9 @@ class VacanciesReportDataService
             });
         }
         if (isset($filters['store_id'])) {
-            $vacancies->where('store_id', $filters['store_id']);
+            if (is_array($filters['store_id'])) {
+                $vacancies->whereIn('store_id', $filters['store_id']);
+            }
         }
         if (isset($filters['user_id'])) {
             $vacancies->where('user_id', $filters['user_id']);

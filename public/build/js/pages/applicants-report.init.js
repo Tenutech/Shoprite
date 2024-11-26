@@ -49,7 +49,7 @@ $(document).ready(function() {
     var appointedChoice = new Choices('#appointed', { searchEnabled: false, shouldSort: true });
     var divisionChoice = new Choices('#division', { searchEnabled: true, shouldSort: true });
     var regionChoice = new Choices('#region', { searchEnabled: true, shouldSort: true });
-    var storeChoice = new Choices('#store', { searchEnabled: true, shouldSort: true });
+    var storeChoice = new Choices('#store', { searchEnabled: true, shouldSort: true, removeItemButton: true });
 
     /*
     |--------------------------------------------------------------------------

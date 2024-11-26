@@ -278,7 +278,8 @@ class VacanciesReportController extends Controller
                 'brand_id' => 'nullable|integer|exists:brands,id',
                 'division_id' => 'nullable|integer|exists:divisions,id',
                 'region_id' => 'nullable|integer|exists:regions,id',
-                'store_id' => 'nullable|integer|exists:stores,id',
+                'store_id' => 'nullable|array',
+                'store_id.*' => 'integer|exists:stores,id',
                 'user_id' => 'nullable|integer|exists:users,id',
                 'type_id' => 'nullable|integer|exists:types,id',
                 'unactioned' => 'nullable|string|in:Yes,No'

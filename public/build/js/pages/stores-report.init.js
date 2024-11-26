@@ -53,7 +53,7 @@ $(document).ready(function() {
     var townChoice = new Choices('#town', { searchEnabled: true, shouldSort: true });
     var divisionChoice = new Choices('#division', { searchEnabled: true, shouldSort: true });
     var regionChoice = new Choices('#region', { searchEnabled: true, shouldSort: true });
-    var storeChoice = new Choices('#store', { searchEnabled: true, shouldSort: true });
+    var storeChoice = new Choices('#store', { searchEnabled: true, shouldSort: true, removeItemButton: true });
 
     // Filtered options cache
     let filteredStoreOptions = [...storeOptionsCache]; // Start with all store options

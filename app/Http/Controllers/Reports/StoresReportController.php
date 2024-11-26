@@ -260,7 +260,8 @@ class StoresReportController extends Controller
                 'town_id' => 'nullable|integer|exists:towns,id',
                 'division_id' => 'nullable|integer|exists:divisions,id',
                 'region_id' => 'nullable|integer|exists:regions,id',
-                'store_id' => 'nullable|integer|exists:stores,id',
+                'store_id' => 'nullable|array',
+                'store_id.*' => 'integer|exists:stores,id',
             ]);
 
             // Retrieve the ID of the currently authenticated user

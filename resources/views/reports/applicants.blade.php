@@ -556,8 +556,8 @@
                                     <label for="store" class="form-label">
                                         Store
                                     </label>
-                                    <select class="form-control" id="store" name="store_id">
-                                        <option value="" selected>Select store</option>
+                                    <select class="form-control" id="store" name="store_id[]" multiple>
+                                        <option value="" disabled>Select store</option>
                                         @foreach ($stores as $store)
                                             <option value="{{ $store->id }}" division-id="{{ $store->division_id }}" region-id="{{ $store->region_id }}">{{ $store->code }} - {{ optional($store->brand)->name }} ({{ $store->name }})</option>
                                         @endforeach

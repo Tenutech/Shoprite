@@ -114,7 +114,9 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
                     });
                 } elseif (isset($this->filters['store_id'])) {
                     $query->whereHas('shortlist.vacancy', function ($vacancyQuery) {
-                        $vacancyQuery->where('store_id', $this->filters['store_id']);
+                        if (is_array($this->filters['store_id'])) {
+                            $vacancyQuery->whereIn('store_id', $this->filters['store_id']);
+                        }
                     });
                 }
             } elseif ($this->filters['shortlisted'] === 'No') {
@@ -145,11 +147,13 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
                 $query->whereHas('interviews.vacancy.store', function ($storeQuery) {
                     $storeQuery->where('region_id', $this->filters['region_id']);
                 });
-            } elseif (isset($this->filters['store_id'])) {
+            }elseif (isset($this->filters['store_id'])) {
                 $query->whereHas('interviews.vacancy', function ($vacancyQuery) {
-                    $vacancyQuery->where('store_id', $this->filters['store_id']);
+                    if (is_array($this->filters['store_id'])) {
+                        $vacancyQuery->whereIn('store_id', $this->filters['store_id']);
+                    }
                 });
-            }
+            }            
         }
 
         // Appointed filter
@@ -168,9 +172,11 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
                         $vacancyQuery->whereHas('store', function ($storeQuery) {
                             $storeQuery->where('region_id', $this->filters['region_id']);
                         });
-                    } elseif (isset($this->filters['store_id'])) {
-                        $vacancyQuery->where('store_id', $this->filters['store_id']);
-                    }
+                    }elseif (isset($this->filters['store_id'])) {
+                        if (is_array($this->filters['store_id'])) {
+                            $vacancyQuery->whereIn('store_id', $this->filters['store_id']);
+                        }
+                    }                    
                 });
         } else {
             // Default date range filter for non-appointed applicants
@@ -187,8 +193,10 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
                     return $query->where('region_id', $this->filters['region_id']);
                 })
                 ->when(isset($this->filters['store_id']), function ($query) {
-                    return $query->where('id', $this->filters['store_id']);
-                })
+                    if (is_array($this->filters['store_id'])) {
+                        return $query->whereIn('id', $this->filters['store_id']);
+                    }
+                })                
                 ->get();
 
             // Early return if no stores match the criteria

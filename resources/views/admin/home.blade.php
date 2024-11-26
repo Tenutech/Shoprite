@@ -669,7 +669,7 @@
 
                 <!-- Drop Off State -->
                 <div class="col-xl-6 col-md-6" id="dropOffStateColumn">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" title="{!! $dropOffChat ? $dropOffChat->message : '' !!}">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
