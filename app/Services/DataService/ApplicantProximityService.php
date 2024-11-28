@@ -212,7 +212,7 @@ class ApplicantProximityService
         // Otherwise, proceed with filtering by store, division, or region
         $stores = Store::when($type === 'store', function ($query) use ($id) {
                 return $query->where('id', $id);
-        })
+            })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->where('division_id', $id);
             })
