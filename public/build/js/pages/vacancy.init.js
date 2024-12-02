@@ -34,18 +34,22 @@ $(document).ready(function() {
     //Store Choices
     const storeSelect = document.getElementById('store');
     if (storeSelect) {
-        new Choices(storeSelect, {
-            searchEnabled: true,               // Enable the search feature
-            shouldSort: true,                 // Keep original order if desired
-            searchFields: ['label'],           // Search within the option label
-            searchFloor: 1,                    // Start search after typing 1 character
-            allowHTML: true,                   // Enable HTML content within options
-            fuseOptions: {                     // Fuzzy search options
-                threshold: 0.3,                // Flexibility in search matching
-                distance: 100,                 // Allows substring matching
-                ignoreLocation: true,          // Matches text anywhere in the string
-                findAllMatches: true           // Finds all possible matches
+        const transformedStores = stores.map(store => ({
+            value: store.id,
+            label: `${store.code} - ${store.brand.name} (${store.name})`,
+            customProperties: {
+                region: store.region.name,
+                division: store.division.name
             }
+        }));
+
+        // Initialize Choices
+        new Choices(storeSelect, {
+            choices: transformedStores, // Pass the transformed stores
+            searchEnabled: true,        // Enable search
+            shouldSort: true,           // Sort the options
+            searchFields: ['label', 'customProperties.region', 'customProperties.division'], // Searchable fields
+            allowHTML: true,            // Allow HTML content in labels
         });
     }
 });

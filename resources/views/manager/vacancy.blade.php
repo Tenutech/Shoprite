@@ -244,21 +244,8 @@
                                                     <div class="col-md-12">
                                                         <div class="mb-3">
                                                             <select class="form-control" id="store" name="store_id" required>
-                                                                <option value="">Select Store</option>
-                                                                @foreach ($stores as $store)
-                                                                    <option value="{{$store->id}}"
-                                                                            {{
-                                                                                ($vacancy && $vacancy->store_id == $store->id)
-                                                                                ? 'selected'
-                                                                                : ((!$vacancy && $user && $user->store_id == $store->id) ? 'selected' : '')
-                                                                            }}
-                                                                            {{
-                                                                                ($user && $user->role_id == 6 && $user->store_id != $store->id) ? 'disabled' : ''
-                                                                            }}>
-                                                                        {{ $store->code }} - {{ $store->brand->name }} ({{ $store->name }})
-                                                                    </option>
-                                                                @endforeach
-                                                            </select>
+                                                                <option value="">Select Store</option>                                                                
+                                                            </select>                                                            
                                                             <div class="invalid-feedback">Please select a store</div>
                                                         </div>
                                                     </div>
@@ -562,6 +549,9 @@
     <!-- end row -->
 @endsection
 @section('script')
+    <script>
+        var stores = @json($stores);
+    </script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/@simonwep/pickr/pickr.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/quill/quill.min.js') }}"></script>

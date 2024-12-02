@@ -236,6 +236,19 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
         // Retrieve the complete state ID
         $completeStateID = State::where('code', 'complete')->value('id');
 
+        // Calculate individual literacy, numeracy, and situational percentages
+        $literacyPercentage = isset($applicant->literacy_score, $applicant->literacy_questions) && $applicant->literacy_questions > 0
+            ? round(($applicant->literacy_score / $applicant->literacy_questions) * 100)
+            : '';
+
+        $numeracyPercentage = isset($applicant->numeracy_score, $applicant->numeracy_questions) && $applicant->numeracy_questions > 0
+            ? round(($applicant->numeracy_score / $applicant->numeracy_questions) * 100)
+            : '';
+
+        $situationalPercentage = isset($applicant->situational_score, $applicant->situational_questions) && $applicant->situational_questions > 0
+            ? round(($applicant->situational_score / $applicant->situational_questions) * 100)
+            : '';
+
         // Calculate assessment score percentage
         $assessmentScore = '';
         if (
@@ -286,6 +299,9 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
             $applicant->environment,
             $applicant->consent ?? '',
             $applicant->disability ?? '',
+            $literacyPercentage,
+            $numeracyPercentage,
+            $situationalPercentage,
             $assessmentScore ?? '',
             $applicant->score ?? '',
             $applicant->application_type ?? '',
@@ -327,11 +343,14 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
             'Work Environment',
             'Background Check',
             'Disability',
-            'Assessment Score',
-            'Overall Score',
+            'Literacy Score (%)',
+            'Numeracy Score (%)',
+            'Situational Awareness Score (%)',
+            'Total Assessment Score (%)',
+            'Overall Candidate Score',
             'Application Channel',
             'Drop off',
-            'State',
+            'Workflow Stage',
             'Appointed',
             'SAP Number',
         ];
@@ -351,12 +370,17 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
         ];
 
         // Set left alignment and wrap text for all cells
-        $sheet->getStyle('A:AD')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle('A:AG')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
         // Format specific columns for numbers (e.g., ID Number and Phone)
         $sheet->getStyle('B')->getNumberFormat()->setFormatCode('0'); // ID Number as an integer
         $sheet->getStyle('J')->getNumberFormat()->setFormatCode('0'); // Phone Number as an integer
-        $sheet->getStyle('AD')->getNumberFormat()->setFormatCode('0'); // SAP Number as an integer
+        $sheet->getStyle('X')->getNumberFormat()->setFormatCode('0'); // Literacy Score as an integer
+        $sheet->getStyle('Y')->getNumberFormat()->setFormatCode('0'); // Numeracy Score as an integer
+        $sheet->getStyle('Z')->getNumberFormat()->setFormatCode('0'); // Situational Score as an integer
+        $sheet->getStyle('AA')->getNumberFormat()->setFormatCode('0'); // Total Assessment Score as an integer
+        $sheet->getStyle('AB')->getNumberFormat()->setFormatCode('0'); // Overall Score Score as an integer
+        $sheet->getStyle('AG')->getNumberFormat()->setFormatCode('0'); // SAP Number as an integer
 
         return $styles;
     }
@@ -392,13 +416,16 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
             'U' => 20, // Work Environment
             'V' => 20, // Background Check
             'W' => 15, // Disability
-            'X' => 20, // Assessment Score
-            'Y' => 20, // Overall Score
-            'Z' => 20, // Application Channel
-            'AA' => 15, // Drop off
-            'AB' => 25, // State
-            'AC' => 15, // Appointed
-            'AD' => 15, // Sap Number
+            'X' => 15, // Literacy Score
+            'Y' => 15, // Numeracy Score
+            'Z' => 15, // Situational Awareness Score
+            'AA' => 20, // Total Assessment Score
+            'AB' => 20, // Overall Score
+            'AC' => 20, // Application Channel
+            'AD' => 15, // Drop off
+            'AE' => 25, // State
+            'AF' => 15, // Appointed
+            'AG' => 15, // Sap Number
         ];
     }
 }

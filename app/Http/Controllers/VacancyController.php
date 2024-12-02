@@ -77,8 +77,8 @@ class VacancyController extends Controller
             $store = Store::with([
                 'brand',
                 'town',
-                'region',
-                'division'
+                'division',
+                'region'
             ])
             ->where('id', $user->store_id)
             ->first();
@@ -151,21 +151,21 @@ class VacancyController extends Controller
 
             if (in_array($user->role_id, [1, 2])) {
                 // If role_id is 1 or 2, get all stores where id > 1
-                $stores = Store::with(['brand', 'town'])
+                $stores = Store::with(['brand', 'town', 'division', 'region'])
                     ->get();
             } elseif ($user->role_id == 3) {
                 // If role_id is 3, get all stores where region_id = user->region_id
-                $stores = Store::with(['brand', 'town'])
+                $stores = Store::with(['brand', 'town', 'division', 'region'])
                     ->where('region_id', $user->region_id)
                     ->get();
             } elseif ($user->role_id == 4) {
                 // If role_id is 4, get all stores where division_id = user->division_id
-                $stores = Store::with(['brand', 'town'])
+                $stores = Store::with(['brand', 'town', 'division', 'region'])
                     ->where('division_id', $user->division_id)
                     ->get();
             } elseif ($user->role_id == 6) {
                 // Get stores where store_id is = user->store_id
-                $stores = Store::with(['brand', 'town'])
+                $stores = Store::with(['brand', 'town', 'division', 'region'])
                     ->where('id', $user->store_id)
                     ->get();
             }

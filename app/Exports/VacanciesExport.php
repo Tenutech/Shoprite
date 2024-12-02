@@ -126,19 +126,22 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
 
         // Prepare appointed applicants with their sap numbers
         $appointedApplicants = $vacancy->appointed->map(function ($applicant) {
-            return $applicant->firstname . ' ' . $applicant->lastname . ' - ' . $applicant->pivot->sap_number;
+            return $applicant->firstname . ' ' . $applicant->lastname . ' (' . $applicant->id_number . ') - ' . $applicant->pivot->sap_number;
         })->implode("\n"); // Join each entry with a new line for better readability in Excel
 
         return [
-            optional($vacancy->position)->name ?? '',
-            optional($vacancy->store)->code ?? '',
             optional(optional($vacancy->store)->brand)->name ?? '',
+            optional(optional($vacancy->store)->division)->name ?? '',
+            optional(optional($vacancy->store)->region)->name ?? '',
             optional($vacancy->store)->name ?? '',
-            (optional($vacancy->user)->firstname ?? '') . ' ' . (optional($vacancy->user)->lastname ?? ''),
+            optional($vacancy->store)->code ?? '', 
+            optional($vacancy->position)->name ?? '',
+            optional($vacancy->position)->description ?? '',
+            $sapNumbers,
             optional($vacancy->type)->name ?? '',
+            (optional($vacancy->user)->firstname ?? '') . ' ' . (optional($vacancy->user)->lastname ?? ''),           
             $vacancy->open_positions === 0 ? '0' : ($vacancy->open_positions ?? '0'),
             $vacancy->filled_positions === 0 ? '0' : ($vacancy->filled_positions ?? '0'),
-            $sapNumbers,
             $appointedApplicants,
             $vacancy->created_at->format('Y-m-d H:i'),
             $vacancy->open_positions === 0 ? $vacancy->updated_at->format('Y-m-d H:i') : '',
@@ -153,18 +156,21 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
     public function headings(): array
     {
         return [
-            'Position',
-            'Branch Code',
             'Brand',
-            'Store Name',
+            'Division',
+            'Region',
+            'Branch Name',
+            'Store Code', 
+            'Position',
+            'Position Description',
+            'SAP Position Number(s)',
+            'Position Type',
             'User',
-            'Type',
             'Open Positions',
             'Filled Positions',
-            'SAP Numbers',
-            'Appointed',
-            'Created At',
-            'Filled At',
+            'Successful Candidate(s)',
+            'Created On',
+            'Filled On',
         ];
     }
 
@@ -182,17 +188,17 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
         ];
 
         // Set left alignment and wrap text for all cells
-        $sheet->getStyle('A:L')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle('A:O')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
         // Format specific columns for numbers (e.g., Open Positions and Filled Positions)
-        $sheet->getStyle('G')->getNumberFormat()->setFormatCode('0'); // Open Positions as an integer
-        $sheet->getStyle('H')->getNumberFormat()->setFormatCode('0'); // Filled Positions as an integer
+        $sheet->getStyle('K')->getNumberFormat()->setFormatCode('0'); // Open Positions as an integer
+        $sheet->getStyle('L')->getNumberFormat()->setFormatCode('0'); // Filled Positions as an integer
 
-        // Set left alignment and wrap text for all cells in the sap numbers column (I)
-        $sheet->getStyle('I')->getAlignment()->setWrapText(true);
+        // Set left alignment and wrap text for all cells in the sap numbers column (H)
+        $sheet->getStyle('H')->getAlignment()->setWrapText(true);
 
-        // Set left alignment and wrap text for all cells in the appointed column (J)
-        $sheet->getStyle('J')->getAlignment()->setWrapText(true);
+        // Set left alignment and wrap text for all cells in the successful candidate column (M)
+        $sheet->getStyle('M')->getAlignment()->setWrapText(true);
 
         return $styles;
     }
@@ -205,18 +211,21 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
     public function columnWidths(): array
     {
         return [
-            'A' => 25, // Position
-            'B' => 25, // Branch Code
-            'C' => 25, // Brand
-            'D' => 35, // Store Name
-            'E' => 20, // User
-            'F' => 20, // Type
-            'G' => 20, // Open Positions
-            'H' => 20, // Filled Positions
-            'I' => 20, // Sap Numbers
-            'J' => 35, // Appointed
-            'K' => 20, // Created At
-            'L' => 20, // Updated At
+            'A' => 20, // Brand
+            'B' => 20, // Region
+            'C' => 20, // Division
+            'D' => 25, // Branch Name
+            'E' => 20, // Store Code
+            'F' => 25, // Position
+            'G' => 35, // Position Description
+            'H' => 25, // SAP Position Number(s)
+            'I' => 25, // Position Type
+            'J' => 20, // User
+            'K' => 20, // Open Positions
+            'L' => 20, // Filled Positions
+            'M' => 50, // Successful Candidate(s)
+            'N' => 20, // Created On
+            'O' => 20, // Updated On
         ];
     }
 }

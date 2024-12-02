@@ -95,20 +95,28 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
      */
     public function map($store): array
     {
-        // Count total applicants placed at this store
-        $totalApplicantsPlaced = $store->vacancies->reduce(function ($carry, $vacancy) {
-            return $carry + $vacancy->appointed()->count();
-        }, 0);
+        // Get total vacancies for the store
+        $totalVacancies = $store->vacancies->count() ?? 0;
 
         // Count total interviews conducted (score is not null)
         $totalInterviewsConducted = $store->vacancies->reduce(function ($carry, $vacancy) {
             return $carry + $vacancy->interviews()->whereNotNull('score')->count();
         }, 0);
 
+        // Count total applicants placed at this store
+        $totalApplicantsPlaced = $store->vacancies->reduce(function ($carry, $vacancy) {
+            return $carry + $vacancy->appointed()->count();
+        }, 0);
+
         // Calculate Hire to Interview Ratio
         $hireToInterviewRatio = $totalApplicantsPlaced > 0
         ? '1 to ' . round($totalInterviewsConducted / $totalApplicantsPlaced, 1)
         : '0 to 0';
+
+        // Calculate percentage of successful interviews
+        $successfulInterviewsPercentage = $totalInterviewsConducted > 0
+        ? round(($totalApplicantsPlaced / $totalInterviewsConducted) * 100)
+        : 0;    
 
         // Calculate Average Time to Shortlist
         $averageTimeToShortlist = $this->calculateAverageTimeToShortlist($store);
@@ -120,20 +128,21 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         $averageDistanceApplicantsPlaced = $this->calculateAverageDistanceApplicantsPlaced($store);
 
         // Calculate Average Assessment Score of Applicants Placed
-    $averageAssessmentScoreApplicantsPlaced = $this->calculateAverageAssessmentScoreApplicantsPlaced($store);
+        $averageAssessmentScoreApplicantsPlaced = $this->calculateAverageAssessmentScoreApplicantsPlaced($store);
 
         return [
-            $store->code ?? '',
             optional($store->brand)->name ?? '',
-            $store->name ?? '',
-            optional($store->town)->name ?? '',
             optional($store->division)->name ?? '',
             optional($store->region)->name ?? '',
+            $store->code ?? '',            
+            $store->name ?? '',
             optional(optional($store->town)->province)->name ?? '',
+            optional($store->town)->name ?? '',
             $store->address ?? '',
+            $totalVacancies === 0 ? '0' : ($totalVacancies ?? '0'),
             $totalApplicantsPlaced === 0 ? '0' : ($totalApplicantsPlaced ?? '0'),
             $totalInterviewsConducted === 0 ? '0' : ($totalInterviewsConducted ?? '0'),
-            $hireToInterviewRatio,
+            $successfulInterviewsPercentage . '%',
             $averageTimeToShortlist,
             $averageTimeToHire,
             $averageDistanceApplicantsPlaced . 'km',
@@ -147,17 +156,18 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
     public function headings(): array
     {
         return [
-            'Branch Code',
             'Brand',
-            'Store Name',
-            'Town',
             'Division',
             'Region',
-            'Province',            
+            'Store Code',            
+            'Branch Name',
+            'Province',
+            'Town',          
             'Address',
+            'Total Vacancies',
             'Total Applicants Placed',
             'Total Interviews Conducted',
-            'Hire To Interview Ratio',
+            'Percentage of Interviews Successful',
             'Average Time to Shortlist',
             'Average Time to Hire',
             'Average Distance of Applicants Placed',
@@ -179,12 +189,13 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         ];
 
         // Set left alignment and wrap text for all cells
-        $sheet->getStyle('A:O')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle('A:P')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
         // Format specific columns for numbers (e.g., Code)
-        $sheet->getStyle('A')->getNumberFormat()->setFormatCode('0'); // Code as an integer
-        $sheet->getStyle('I')->getNumberFormat()->setFormatCode('0'); // Total applicants as an integer
-        $sheet->getStyle('J')->getNumberFormat()->setFormatCode('0'); // Total interviews as an integer
+        $sheet->getStyle('D')->getNumberFormat()->setFormatCode('0'); // Code as an integer
+        $sheet->getStyle('I')->getNumberFormat()->setFormatCode('0'); // Total vaacncies as an integer
+        $sheet->getStyle('J')->getNumberFormat()->setFormatCode('0'); // Total applicants as an integer
+        $sheet->getStyle('K')->getNumberFormat()->setFormatCode('0'); // Total interviews as an integer
 
         // Set left alignment and wrap text for all relevant cells
         $sheet->getStyle('I')->getAlignment()->setWrapText(true);
@@ -194,6 +205,7 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         $sheet->getStyle('M')->getAlignment()->setWrapText(true);
         $sheet->getStyle('N')->getAlignment()->setWrapText(true);
         $sheet->getStyle('O')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('P')->getAlignment()->setWrapText(true);
 
         return $styles;
     }
@@ -206,21 +218,22 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
     public function columnWidths(): array
     {
         return [
-            'A' => 15, // Branch Code
-            'B' => 20, // Brand
-            'C' => 30, // Name
-            'D' => 20, // Town
-            'E' => 20, // Region
-            'F' => 20, // Division
-            'G' => 20, // Province
+            'A' => 20, // Brand
+            'B' => 20, // Region
+            'C' => 20, // Division
+            'D' => 15, // Store Code            
+            'E' => 30, // Branch Name
+            'F' => 20, // Province
+            'G' => 20, // Town
             'H' => 35, // Address
-            'I' => 20, // Total Applicants Placed
+            'I' => 20, // Total Vacancies
             'J' => 20, // Total Interviews Conducted
-            'K' => 20, // Hire To Interview Ratio
-            'L' => 20, // Average Time to Shortlist
-            'M' => 20, // Average Time to Hire
-            'N' => 20, // Average Distance of Applicants Placed
-            'O' => 20, // Average Assessment Score of Applicants Placed
+            'K' => 20, // Total Applicants Placed
+            'L' => 20, // Percentage of Interviews Successfull
+            'M' => 20, // Average Time to Shortlist
+            'N' => 20, // Average Time to Hire
+            'O' => 20, // Average Distance of Applicants Placed
+            'P' => 20, // Average Assessment Score of Applicants Placed
         ];
     }
 
