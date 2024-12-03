@@ -16,7 +16,7 @@ $(document).ready(function() {
     //Position Choices
     const positionSelect = document.getElementById('position');
     if (positionSelect) {
-        new Choices(positionSelect, {
+        const positionChoices = new Choices(positionSelect, {
             searchEnabled: true,               // Enable the search feature
             shouldSort: false,                 // Keep original order if desired
             searchFields: ['label'],           // Search within the option label
@@ -34,23 +34,31 @@ $(document).ready(function() {
     //Store Choices
     const storeSelect = document.getElementById('store');
     if (storeSelect) {
-        const transformedStores = stores.map(store => ({
-            value: store.id,
-            label: `${store.code} - ${store.brand.name} (${store.name})`,
+        const transformedStores = stores.map(storeItem => ({
+            value: storeItem.id.toString(), // Ensure value is a string
+            label: `${storeItem.code} - ${storeItem.brand.name} (${storeItem.name})`,
             customProperties: {
-                region: store.region.name,
-                division: store.division.name
+                region: storeItem.region.name,
+                division: storeItem.division.name
             }
         }));
 
         // Initialize Choices
-        new Choices(storeSelect, {
+        const storeChoices = new Choices(storeSelect, {
             choices: transformedStores, // Pass the transformed stores
             searchEnabled: true,        // Enable search
             shouldSort: true,           // Sort the options
             searchFields: ['label', 'customProperties.region', 'customProperties.division'], // Searchable fields
             allowHTML: true,            // Allow HTML content in labels
         });
+
+        // Set the selected value if `store` exists
+        if (store) {
+            const matchingOption = transformedStores.find(item => item.value === store.id.toString());
+            if (matchingOption) {
+                storeChoices.setChoiceByValue(store.id.toString()); // Set the value
+            }
+        }
     }
 });
 
