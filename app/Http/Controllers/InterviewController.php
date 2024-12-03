@@ -672,6 +672,7 @@ class InterviewController extends Controller
                 ], 400);
             }
 
+            /*
             // Check if the rescheduled date is after the original scheduled date
             if ($rescheduleDateTime->lt($interview->scheduled_date)) {
                 return response()->json([
@@ -679,6 +680,7 @@ class InterviewController extends Controller
                     'message' => 'The rescheduled date must be after the scheduled date.',
                 ], 400);
             }
+            */
 
             // Determine the reschedule update based on the user's role
             $rescheduleBy = ($user->role_id <= 6) ? 'Manager' : 'Applicant';
