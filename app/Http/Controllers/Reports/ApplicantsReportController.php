@@ -129,7 +129,7 @@ class ApplicantsReportController extends Controller
             // Regions logic
             $regions = collect(); // Default to an empty collection
 
-            if (in_array($authUser->role_id, [1, 2])) {
+            if (in_array($authUser->role_id, [1, 2, 4, 5])) {
                 // If role_id is 1 or 2, get all regions
                 $regions = Region::all();
             } elseif ($authUser->role_id == 3 && $authUser->region_id) {
