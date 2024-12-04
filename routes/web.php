@@ -634,29 +634,38 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/faqs/destroy-multiple', [App\Http\Controllers\FAQsController::class, 'destroyMultiple'])->name('faqs.destroyMultiple');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Reports
-    |--------------------------------------------------------------------------
-    */
+    // Applicants Reports
 
     Route::get('/reports/applicants', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'index'])->name('applicants.reports.index');
 
     Route::post('/reports/applicants/update', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'update'])->name('applicants.reports.update');
 
     Route::post('/reports/applicants/export', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'export'])->name('applicants.reports.export');
+});
 
-    Route::get('/reports/stores', [App\Http\Controllers\Reports\StoresReportController::class, 'index'])->name('stores.reports.index');
+/*
+|--------------------------------------------------------------------------
+| Reports
+|--------------------------------------------------------------------------
+*/
 
-    Route::post('/reports/stores/update', [App\Http\Controllers\Reports\StoresReportController::class, 'update'])->name('stores.reports.update');
+// Reports for Stores and Vacancies (Restricted to roles 3, 4, 5)
+Route::prefix('admin/reports')->middleware(['auth', 'verified', 'role:1,2,3,4,5', 'user.activity'])->group(function () {
+    // Stores Reports
+
+    Route::get('/stores', [App\Http\Controllers\Reports\StoresReportController::class, 'index'])->name('stores.reports.index');
     
-    Route::post('/reports/stores/export', [App\Http\Controllers\Reports\StoresReportController::class, 'export'])->name('stores.reports.export');
+    Route::post('/stores/update', [App\Http\Controllers\Reports\StoresReportController::class, 'update'])->name('stores.reports.update');
 
-    Route::get('/reports/vacancies', [App\Http\Controllers\Reports\VacanciesReportController::class, 'index'])->name('vacancies.reports.index');
+    Route::post('/stores/export', [App\Http\Controllers\Reports\StoresReportController::class, 'export'])->name('stores.reports.export');
 
-    Route::post('/reports/vacancies/update', [App\Http\Controllers\Reports\VacanciesReportController::class, 'update'])->name('vacancies.reports.update');
+    // Vacancies Reports
 
-    Route::post('/admin/vacancies/export', [App\Http\Controllers\Reports\VacanciesReportController::class, 'export'])->name('vacancies.reports.export');
+    Route::get('/vacancies', [App\Http\Controllers\Reports\VacanciesReportController::class, 'index'])->name('vacancies.reports.index');
+
+    Route::post('/vacancies/update', [App\Http\Controllers\Reports\VacanciesReportController::class, 'update'])->name('vacancies.reports.update');
+
+    Route::post('/vacancies/export', [App\Http\Controllers\Reports\VacanciesReportController::class, 'export'])->name('vacancies.reports.export');
 });
 
 /*
@@ -665,7 +674,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('rpp')->middleware(['auth', 'verified', 'role:3', 'user.activity'])->group(function () {
+Route::prefix('rpp')->middleware(['auth', 'verified', 'role:1,2,3', 'user.activity'])->group(function () {
     //Home
 
     Route::get('/home', [App\Http\Controllers\RPPController::class, 'index'])->name('rpp.home');
@@ -681,7 +690,7 @@ Route::prefix('rpp')->middleware(['auth', 'verified', 'role:3', 'user.activity']
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('dtdp')->middleware(['auth', 'verified', 'role:4', 'user.activity'])->group(function () {
+Route::prefix('dtdp')->middleware(['auth', 'verified', 'role:1,2,4', 'user.activity'])->group(function () {
     //Home
 
     Route::get('/home', [App\Http\Controllers\DTDPController::class, 'index'])->name('dtdp.home');
@@ -699,7 +708,7 @@ Route::prefix('dtdp')->middleware(['auth', 'verified', 'role:4', 'user.activity'
 |--------------------------------------------------------------------------
 */
 
-Route::prefix('dpp')->middleware(['auth', 'verified', 'role:5', 'user.activity'])->group(function () {
+Route::prefix('dpp')->middleware(['auth', 'verified', 'role:1,2,5', 'user.activity'])->group(function () {
     //Home
 
     Route::get('/home', [App\Http\Controllers\DPPController::class, 'index'])->name('dpp.home');

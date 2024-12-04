@@ -399,15 +399,15 @@
                             <!-- end col -->
 
                             <!-- Division -->
-                            <div class="col-12">
+                            <div class="col-12 {{ $authUser->role_id == 3 ? 'd-none' : '' }}">
                                 <div class="mb-3">
                                     <label for="division" class="form-label">
                                         Division
                                     </label>
-                                    <select class="form-control" id="division" name="division_id">
+                                    <select class="form-control" id="division" name="division_id" {{ ($authUser->role_id == 4 || $authUser->role_id == 5) ? 'disabled' : '' }}>
                                         <option value="" selected>Select division</option>
                                         @foreach ($divisions as $division)
-                                            <option value="{{ $division->id }}">{{ $division->name }}</option>
+                                            <option value="{{ $division->id }}" {{ ($authUser->role_id == 4 || $authUser->role_id == 5)&& $authUser->division_id == $division->id ? 'selected' : '' }}>{{ $division->name }}</option>
                                         @endforeach
                                     </select>
                                     <div class="invalid-feedback">
@@ -423,10 +423,10 @@
                                     <label for="region" class="form-label">
                                         Region
                                     </label>
-                                    <select class="form-control" id="region" name="region_id">
+                                    <select class="form-control" id="region" name="region_id" {{ $authUser->role_id == 3 ? 'disabled' : '' }}>
                                         <option value="" selected>Select region</option>
                                         @foreach ($regions as $region)
-                                            <option value="{{ $region->id }}">{{ $region->name }}</option>
+                                            <option value="{{ $region->id }}" {{ $authUser->role_id == 3 && $authUser->region_id == $region->id ? 'selected' : '' }}>{{ $region->name }}</option>
                                         @endforeach
                                     </select>
                                     <div class="invalid-feedback">

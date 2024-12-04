@@ -173,7 +173,7 @@ class StoresReportController extends Controller
             if (in_array($authUser->role_id, [1, 2])) {
                 // If role_id is 1 or 2, get all divisions
                 $divisions = Division::all();
-            } elseif ($authUser->role_id == 3 && $authUser->division_id) {
+            } elseif (($authUser->role_id == 4 || $authUser->role_id == 5) && $authUser->division_id) {
                 // If role_id is 3, get all divisions where id = authUser->division_id
                 $divisions = Division::where('id', $authUser->division_id)->get();
             }
@@ -181,7 +181,7 @@ class StoresReportController extends Controller
             // Regions logic
             $regions = collect(); // Default to an empty collection
 
-            if (in_array($authUser->role_id, [1, 2])) {
+            if (in_array($authUser->role_id, [1, 2, 4, 5])) {
                 // If role_id is 1 or 2, get all regions
                 $regions = Region::all();
             } elseif ($authUser->role_id == 3 && $authUser->region_id) {
@@ -201,7 +201,7 @@ class StoresReportController extends Controller
                 $stores = Store::with(['brand', 'town'])
                     ->where('region_id', $authUser->region_id)
                     ->get();
-            } elseif ($authUser->role_id == 4) {
+            } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
                 // If role_id is 4, get all stores where division_id = user->division_id
                 $stores = Store::with(['brand', 'town'])
                     ->where('division_id', $authUser->division_id)
@@ -215,6 +215,7 @@ class StoresReportController extends Controller
 
             // Return the 'reports/stores' view with the calculated data
             return view('reports/stores', [
+                'authUser' => $authUser,
                 'averageTimeToShortlist' => $averageTimeToShortlist,
                 'averageTimeToHire' => $averageTimeToHire,
                 'totalApplicantsAppointed' => $totalApplicantsAppointed,

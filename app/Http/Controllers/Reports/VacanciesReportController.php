@@ -182,6 +182,17 @@ class VacanciesReportController extends Controller
                 $brands = Brand::whereIn('id', $storeBrandIds)->get();
             }
 
+            // Divisions logic
+            $divisions = collect(); // Default to an empty collection
+
+            if (in_array($authUser->role_id, [1, 2])) {
+                // If role_id is 1 or 2, get all divisions
+                $divisions = Division::all();
+            } elseif (($authUser->role_id == 4 || $authUser->role_id == 5) && $authUser->division_id) {
+                // If role_id is 3, get all divisions where id = authUser->division_id
+                $divisions = Division::where('id', $authUser->division_id)->get();
+            }
+
             // Regions logic
             $regions = collect(); // Default to an empty collection
 
@@ -191,17 +202,6 @@ class VacanciesReportController extends Controller
             } elseif ($authUser->role_id == 3 && $authUser->region_id) {
                 // If role_id is 3, get all regions where id = authUser->region_id
                 $regions = Region::where('id', $authUser->region_id)->get();
-            }
-
-            // Divisions logic
-            $divisions = collect(); // Default to an empty collection
-
-            if (in_array($authUser->role_id, [1, 2])) {
-                // If role_id is 1 or 2, get all divisions
-                $divisions = Division::all();
-            } elseif ($authUser->role_id == 3 && $authUser->division_id) {
-                // If role_id is 3, get all divisions where id = authUser->division_id
-                $divisions = Division::where('id', $authUser->division_id)->get();
             }
 
             // Stores logic
@@ -216,7 +216,7 @@ class VacanciesReportController extends Controller
                 $stores = Store::with(['brand', 'town'])
                     ->where('region_id', $authUser->region_id)
                     ->get();
-            } elseif ($authUser->role_id == 4) {
+            } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
                 // If role_id is 4, get all stores where division_id = user->division_id
                 $stores = Store::with(['brand', 'town'])
                     ->where('division_id', $authUser->division_id)
@@ -236,6 +236,7 @@ class VacanciesReportController extends Controller
 
             // Return the 'reports/vacancies' view with the provided data
             return view('reports/vacancies', [
+                'authUser' => $authUser,
                 'totalVacancies' => $totalVacancies,
                 'totalVacanciesFilled' => $totalVacanciesFilled,
                 'totalVacanciesByMonth' => $totalVacanciesByMonth,
@@ -244,8 +245,8 @@ class VacanciesReportController extends Controller
                 'totalVacanciesByType' => $totalVacanciesByType,
                 'positions' => $positions,
                 'brands' => $brands,
-                'regions' => $regions,
                 'divisions' => $divisions,
+                'regions' => $regions,
                 'stores' => $stores,
                 'users' => $users,
                 'types' => $types,

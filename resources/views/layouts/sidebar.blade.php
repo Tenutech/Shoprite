@@ -114,7 +114,7 @@
                         </a>
                     </li>
                 @endif
-                @if ($user->role_id <= 2)
+                @if ($user->role_id <= 5)
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarReports" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarReports">
                             <i class="ri-line-chart-line"></i>
@@ -122,11 +122,13 @@
                         </a>
                         <div class="collapse menu-dropdown" id="sidebarReports">
                             <ul class="nav nav-sm flex-column">
-                                <li class="nav-item">
-                                    <a class="nav-link" href="{{ route('applicants.reports.index') }}">
-                                        Applicants
-                                    </a>
-                                </li>
+                                @if ($user->role_id <= 2)
+                                    <li class="nav-item">
+                                        <a class="nav-link" href="{{ route('applicants.reports.index') }}">
+                                            Applicants
+                                        </a>
+                                    </li>
+                                @endif
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('stores.reports.index') }}">
                                         Stores
@@ -140,6 +142,8 @@
                             </ul>
                         </div>
                     </li>
+                @endif
+                @if ($user->role_id <= 2)
                     <li class="nav-item d-none">
                         <a class="nav-link menu-link" href="#sidebarApprovals" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarApprovals">
                             <i class="ri-shield-check-line"></i>
