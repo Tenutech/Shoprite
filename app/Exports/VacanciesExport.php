@@ -136,7 +136,6 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             optional($vacancy->store)->name ?? '',
             optional($vacancy->store)->code ?? '', 
             optional($vacancy->position)->name ?? '',
-            optional($vacancy->position)->description ?? '',
             $sapNumbers,
             optional($vacancy->type)->name ?? '',
             (optional($vacancy->user)->firstname ?? '') . ' ' . (optional($vacancy->user)->lastname ?? ''),           
@@ -162,7 +161,6 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'Branch Name',
             'Store Code', 
             'Position',
-            'Position Description',
             'SAP Position Number(s)',
             'Position Type',
             'User',
@@ -188,17 +186,17 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
         ];
 
         // Set left alignment and wrap text for all cells
-        $sheet->getStyle('A:O')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle('A:N')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
         // Format specific columns for numbers (e.g., Open Positions and Filled Positions)
-        $sheet->getStyle('K')->getNumberFormat()->setFormatCode('0'); // Open Positions as an integer
-        $sheet->getStyle('L')->getNumberFormat()->setFormatCode('0'); // Filled Positions as an integer
+        $sheet->getStyle('J')->getNumberFormat()->setFormatCode('0'); // Open Positions as an integer
+        $sheet->getStyle('K')->getNumberFormat()->setFormatCode('0'); // Filled Positions as an integer
 
-        // Set left alignment and wrap text for all cells in the sap numbers column (H)
-        $sheet->getStyle('H')->getAlignment()->setWrapText(true);
+        // Set left alignment and wrap text for all cells in the sap numbers column (G)
+        $sheet->getStyle('G')->getAlignment()->setWrapText(true);
 
-        // Set left alignment and wrap text for all cells in the successful candidate column (M)
-        $sheet->getStyle('M')->getAlignment()->setWrapText(true);
+        // Set left alignment and wrap text for all cells in the successful candidate column (L)
+        $sheet->getStyle('L')->getAlignment()->setWrapText(true);
 
         return $styles;
     }
@@ -217,15 +215,14 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'D' => 25, // Branch Name
             'E' => 20, // Store Code
             'F' => 25, // Position
-            'G' => 35, // Position Description
-            'H' => 25, // SAP Position Number(s)
-            'I' => 25, // Position Type
-            'J' => 20, // User
-            'K' => 20, // Open Positions
-            'L' => 20, // Filled Positions
-            'M' => 50, // Successful Candidate(s)
-            'N' => 20, // Created On
-            'O' => 20, // Updated On
+            'G' => 25, // SAP Position Number(s)
+            'H' => 25, // Position Type
+            'I' => 20, // User
+            'J' => 20, // Open Positions
+            'K' => 20, // Filled Positions
+            'L' => 50, // Successful Candidate(s)
+            'M' => 20, // Created On
+            'N' => 20, // Updated On
         ];
     }
 }
