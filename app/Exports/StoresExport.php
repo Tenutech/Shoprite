@@ -134,14 +134,14 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             optional($store->brand)->name ?? '',
             optional($store->division)->name ?? '',
             optional($store->region)->name ?? '',
-            $store->code ?? '',            
             $store->name ?? '',
+            $store->code ?? '',
             optional(optional($store->town)->province)->name ?? '',
             optional($store->town)->name ?? '',
             $store->address ?? '',
             $totalVacancies === 0 ? '0' : ($totalVacancies ?? '0'),
-            $totalApplicantsPlaced === 0 ? '0' : ($totalApplicantsPlaced ?? '0'),
             $totalInterviewsConducted === 0 ? '0' : ($totalInterviewsConducted ?? '0'),
+            $totalApplicantsPlaced === 0 ? '0' : ($totalApplicantsPlaced ?? '0'),
             $successfulInterviewsPercentage . '%',
             $averageTimeToShortlist,
             $averageTimeToHire,
@@ -159,19 +159,19 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             'Brand',
             'Division',
             'Region',
-            'Store Code',            
             'Branch Name',
+            'Branch Code',
             'Province',
             'Town',          
-            'Address',
+            'Branch Address',
             'Total Vacancies',
-            'Total Applicants Placed',
             'Total Interviews Conducted',
+            'Total Placed Candidates',
             'Percentage of Interviews Successful',
             'Average Time to Shortlist',
-            'Average Time to Hire',
-            'Average Distance of Applicants Placed',
-            'Average Assement Score of Applicants Placed',
+            'Average Time to Placement',
+            'Average Distance of Placed Candidates',
+            'Average Assessment Score of Placed Candidates',
         ];
     }
 
@@ -192,7 +192,7 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         $sheet->getStyle('A:P')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
         // Format specific columns for numbers (e.g., Code)
-        $sheet->getStyle('D')->getNumberFormat()->setFormatCode('0'); // Code as an integer
+        $sheet->getStyle('E')->getNumberFormat()->setFormatCode('0'); // Code as an integer
         $sheet->getStyle('I')->getNumberFormat()->setFormatCode('0'); // Total vaacncies as an integer
         $sheet->getStyle('J')->getNumberFormat()->setFormatCode('0'); // Total applicants as an integer
         $sheet->getStyle('K')->getNumberFormat()->setFormatCode('0'); // Total interviews as an integer
@@ -221,19 +221,19 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             'A' => 20, // Brand
             'B' => 20, // Region
             'C' => 20, // Division
-            'D' => 15, // Store Code            
-            'E' => 30, // Branch Name
+            'D' => 30, // Branch Name            
+            'E' => 15, // Branch Code
             'F' => 20, // Province
             'G' => 20, // Town
             'H' => 35, // Address
             'I' => 20, // Total Vacancies
             'J' => 20, // Total Interviews Conducted
-            'K' => 20, // Total Applicants Placed
+            'K' => 20, // Total Placed Candidates
             'L' => 20, // Percentage of Interviews Successfull
             'M' => 20, // Average Time to Shortlist
-            'N' => 20, // Average Time to Hire
-            'O' => 20, // Average Distance of Applicants Placed
-            'P' => 20, // Average Assessment Score of Applicants Placed
+            'N' => 20, // Average Time to Placement
+            'O' => 20, // Average Distance of Placed Candidates
+            'P' => 20, // Average Assessment Score of Placed Candidates
         ];
     }
 

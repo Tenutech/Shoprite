@@ -142,8 +142,8 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             $vacancy->open_positions === 0 ? '0' : ($vacancy->open_positions ?? '0'),
             $vacancy->filled_positions === 0 ? '0' : ($vacancy->filled_positions ?? '0'),
             $appointedApplicants,
-            Carbon::parse($vacancy->getOriginal('created_at'))->format('Y-m-d H:i'),
-            $vacancy->open_positions === 0 ? Carbon::parse($vacancy->getOriginal('updated_at'))->format('Y-m-d H:i') : '',
+            $vacancy->created_at->format('Y-m-d H:i'),
+            $vacancy->open_positions === 0 ? $vacancy->updated_at->format('Y-m-d H:i') : '',
         ];
     }
 
@@ -214,7 +214,7 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'C' => 20, // Division
             'D' => 25, // Branch Name
             'E' => 20, // Store Code
-            'F' => 25, // Position
+            'F' => 30, // Position Description
             'G' => 25, // SAP Position Number(s)
             'H' => 25, // Position Type
             'I' => 20, // User
