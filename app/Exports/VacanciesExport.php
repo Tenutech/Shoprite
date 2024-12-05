@@ -142,8 +142,8 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             $vacancy->open_positions === 0 ? '0' : ($vacancy->open_positions ?? '0'),
             $vacancy->filled_positions === 0 ? '0' : ($vacancy->filled_positions ?? '0'),
             $appointedApplicants,
-            $vacancy->created_at->format('Y-m-d H:i'),
-            $vacancy->open_positions === 0 ? $vacancy->updated_at->format('Y-m-d H:i') : '',
+            Carbon::parse($vacancy->getOriginal('created_at'))->format('Y-m-d H:i'),
+            $vacancy->open_positions === 0 ? Carbon::parse($vacancy->getOriginal('updated_at'))->format('Y-m-d H:i') : '',
         ];
     }
 
