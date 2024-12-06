@@ -166,7 +166,7 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             'Branch Address',
             'Total Vacancies',
             'Total Interviews Conducted',
-            'Total Placed Candidates',
+            'Total Candidates Placed',
             'Percentage of Interviews Successful',
             'Average Time to Shortlist',
             'Average Time to Placement',

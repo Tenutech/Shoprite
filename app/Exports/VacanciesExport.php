@@ -159,7 +159,7 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'Division',
             'Region',
             'Branch Name',
-            'Store Code', 
+            'Branch Code', 
             'Position Description',
             'SAP Position Number(s)',
             'Position Type',
