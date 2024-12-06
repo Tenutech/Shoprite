@@ -166,7 +166,7 @@ class ChatService
     * @param  int    $type
     * @return void
     */
-    protected function logMessage($applicantID, $message = null, $type, $messageId = null, $status = null, $template = null)
+    protected function logMessage($applicantID, $message = null, $type = null, $messageId = null, $status = null, $template = null)
     {
         try {
             // Create a new chat entry with the provided message data
@@ -3232,8 +3232,6 @@ class ChatService
 
     public function sendAndLogMessages($applicant, $messages, $client, $to, $from, $token)
     {
-        static $lastMessage = null; // Static variable to remember the last message sent
-
         foreach ($messages as $messageData) { // Ensure $messageData is used to clarify it's an array from messages
             try {
                 // Check if $messageData is a string and adjust accordingly
@@ -3318,9 +3316,6 @@ class ChatService
                 // Extract the response body and decode it to capture the message ID
                 $responseData = json_decode($response->getBody()->getContents(), true);
                 $messageId = $responseData['messages'][0]['id'] ?? null; // Extract the message ID from the response
-
-                // Update the last message sent
-                $lastMessage = $body;
 
                 // Log the outgoing message with the message ID, status as 'Sent', and template if applicable
                 $this->logMessage($applicant->id, $body, 2, $messageId, 'Sent', $template);

@@ -972,10 +972,10 @@ function updateDashboard(data) {
     $('#adoptionRateValue').text(data.regionAdoptionRate + '%');
 
     // Update average distance talent pool applicants
-    $('#averageDistanceTalentPoolApplicantsValue').text(data.regionAverageDistanceTalentPoolApplicants + ' km');
+    $('#averageDistanceTalentPoolApplicantsValue').text(data.regionAverageDistanceTalentPoolApplicants);
 
     // Update average distance applicants appointed
-    $('#averageDistanceApplicantsAppointedValue').text(data.regionAverageDistanceApplicantsAppointed + ' km');
+    $('#averageDistanceApplicantsAppointedValue').text(data.regionAverageDistanceApplicantsAppointed);
 
     // Update average score of appointed applicants
     $('#averageScoreApplicantsAppointedValue').text(data.regionAverageScoreApplicantsAppointed);

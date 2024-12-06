@@ -70,6 +70,7 @@
                                         </th>
                                         <th class="sort d-none" data-sort="id" scope="col">ID</th>
                                         <th class="sort" data-sort="name" scope="col">Name</th>
+                                        <th class="sort" data-sort="brand" scope="col">Brand</th>
                                         <th class="sort" data-sort="description" scope="col">Description</th>
                                         <th class="sort" data-sort="icon" scope="col">Icon</th>
                                         <th class="sort" data-sort="color" scope="col">Color</th>
@@ -88,6 +89,7 @@
                                                 </th>
                                                 <td class="id d-none">{{ Crypt::encryptstring($position->id) }}</td>
                                                 <td class="name">{{ $position->name }}</td>
+                                                <td class="brand">{{ optional($position->brand)->name }}</td>
                                                 <td class="description" style="white-space: pre-wrap;">{!! $position->description !!}</td>
                                                 <td class="icon"><i class="{{ $position->icon }} text-{{ $position->color }} fs-18"></i></td>
                                                 <td class="color"><span class="text-{{ $position->color }}">{{ $position->color }}</span></td>
@@ -128,6 +130,7 @@
                                             </th>
                                             <td class="id d-none"></td>
                                             <td class="name"></td>
+                                            <td class="brand"></td>
                                             <td class="description" style="white-space: pre-wrap;"></td>
                                             <td class="icon"></td>
                                             <td class="color"></td>
@@ -230,6 +233,18 @@
                                                     Name
                                                 </label>
                                                 <input type="text" class="form-control" id="name" name="name" required>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="brand" class="form-label">
+                                                    Brand
+                                                </label>
+                                                <select id="brand" name="brand" class="form-control" required>
+                                                    <option value="" selected>Select Brand</option>
+                                                    @foreach ($brands as $brand)
+                                                        <option value="{{ $brand->id }}">{{ $brand->name }}</option>
+                                                    @endforeach
+                                                </select>
                                             </div>
 
                                             <div class="mb-3">

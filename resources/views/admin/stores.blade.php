@@ -69,9 +69,13 @@
                                             </div>
                                         </th>
                                         <th class="sort d-none" data-sort="id" scope="col">ID</th>
+                                        <th class="sort" data-sort="code" scope="col">Code</th>
                                         <th class="sort" data-sort="brand" scope="col">Brand</th>                                        
                                         <th class="sort" data-sort="town" scope="col">Town</th>
-                                        <th class="sort" data-sort="address" scope="col">Address</th>              
+                                        <th class="sort" data-sort="region" scope="col">Region</th>
+                                        <th class="sort" data-sort="division" scope="col">Division</th>
+                                        <th class="sort" data-sort="address" scope="col">Address</th>
+                                        <th class="sort" data-sort="coordinates" scope="col">Coordinates</th>              
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -85,9 +89,13 @@
                                                     </div>
                                                 </th>
                                                 <td class="id d-none">{{ Crypt::encryptstring($store->id) }}</td>
+                                                <td class="code">{{ $store->code }}</td>
                                                 <td class="brand">{{ optional($store->brand)->name }}</td>
                                                 <td class="town">{{ optional($store->town)->name }}</td>
+                                                <td class="region">{{ optional($store->region)->name }}</td>
+                                                <td class="division">{{ optional($store->division)->name }}</td>
                                                 <td class="address">{{ $store->address }}</td>
+                                                <td class="coordinates">{{ $store->coordinates }}</td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
                                                         <li class="list-inline-item">
@@ -123,9 +131,13 @@
                                                 </div>
                                             </th>
                                             <td class="id d-none"></td>
+                                            <td class="code"></td>
                                             <td class="brand"></td>
                                             <td class="town"></td>
+                                            <td class="region"></td>
+                                            <td class="division"></td>
                                             <td class="address"></td>
+                                            <td class="coordinates"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -195,7 +207,14 @@
                                     @csrf
                                     <input type="hidden" id="field-id" name="field_id"/>
                                     <div class="modal-body">
-                                        <div class="col-lg-12 mb-3">    
+                                        <div class="col-lg-12 mb-3">  
+                                            <div class="mb-3">
+                                                <label for="code" class="form-label">
+                                                    Branch Code
+                                                </label>
+                                                <input type="number" id="code" name="code" class="form-control" placeholder="Enter branch code" required/>
+                                            </div>
+
                                             <div class="mb-3">
                                                 <label for="brand" class="form-label">
                                                     Brand
@@ -220,11 +239,42 @@
                                                 </select>
                                             </div>
 
+                                            <div class="col-lg-12 mb-3">
+                                                <label for="region"class="form-label">
+                                                    Region
+                                                </label>
+                                                <select id="region" name="region" class="form-control">
+                                                    <option value="" selected>Select Region</option>
+                                                    @foreach ($regions as $region)
+                                                        <option value="{{ $region->id }}">{{ $region->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="division" class="form-label">
+                                                    Division
+                                                </label>
+                                                <select id="division" name="division" class="form-control">
+                                                    <option value="" selected>Select Division</option>
+                                                    @foreach ($divisions as $division)
+                                                        <option value="{{ $division->id }}">{{ $division->name }}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+
                                             <div class="mb-3">
                                                 <label for="address" class="form-label">
                                                     Address
                                                 </label>
-                                                <input type="text" class="form-control" id="address" name="address">
+                                                <input type="text" id="address" name="address" class="form-control" placeholder="Enter store address" required>
+                                            </div>
+
+                                            <div class="mb-3">
+                                                <label for="code" class="form-label">
+                                                    Coordinates
+                                                </label>
+                                                <input type="text" id="coordinates" name="coordinates" class="form-control" placeholder="Enter store coordinates" required/>
                                             </div>
                                         </div>                                        
                                     </div>
@@ -286,6 +336,6 @@
     <script src="{{ URL::asset('build/libs/list.pagination.js/list.pagination.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <script src="{{ URL::asset('build/libs/quill/quill.min.js') }}"></script>
-    <script src="{{ URL::asset('build/js/pages/stores.init.js') }}"></script>
+    <script src="{{ URL::asset('build/js/pages/stores.init.js') }}?v={{ filemtime(public_path('build/js/pages/stores.init.js')) }}"></script>
     <script src="{{ URL::asset('build/js/app.js') }}"></script>
 @endsection

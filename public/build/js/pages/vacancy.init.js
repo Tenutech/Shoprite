@@ -8,6 +8,62 @@ File: Form wizard Js File
 
 /*
 |--------------------------------------------------------------------------
+| Choices
+|--------------------------------------------------------------------------
+*/
+
+$(document).ready(function() {
+    //Position Choices
+    const positionSelect = document.getElementById('position');
+    if (positionSelect) {
+        const positionChoices = new Choices(positionSelect, {
+            searchEnabled: true,               // Enable the search feature
+            shouldSort: false,                 // Keep original order if desired
+            searchFields: ['label'],           // Search within the option label
+            searchFloor: 1,                    // Start search after typing 1 character
+            allowHTML: true,                   // Enable HTML content within options
+            fuseOptions: {                     // Fuzzy search options
+                threshold: 0.3,                // Flexibility in search matching
+                distance: 100,                 // Allows substring matching
+                ignoreLocation: true,          // Matches text anywhere in the string
+                findAllMatches: true           // Finds all possible matches
+            }
+        });
+    }
+
+    //Store Choices
+    const storeSelect = document.getElementById('store');
+    if (storeSelect) {
+        const transformedStores = stores.map(storeItem => ({
+            value: storeItem.id.toString(), // Ensure value is a string
+            label: `${storeItem.code} - ${storeItem.brand.name} (${storeItem.name})`,
+            customProperties: {
+                region: storeItem.region.name,
+                division: storeItem.division.name
+            }
+        }));
+
+        // Initialize Choices
+        const storeChoices = new Choices(storeSelect, {
+            choices: transformedStores, // Pass the transformed stores
+            searchEnabled: true,        // Enable search
+            shouldSort: true,           // Sort the options
+            searchFields: ['label', 'customProperties.region', 'customProperties.division'], // Searchable fields
+            allowHTML: true,            // Allow HTML content in labels
+        });
+
+        // Set the selected value if `store` exists
+        if (store) {
+            const matchingOption = transformedStores.find(item => item.value === store.id.toString());
+            if (matchingOption) {
+                storeChoices.setChoiceByValue(store.id.toString()); // Set the value
+            }
+        }
+    }
+});
+
+/*
+|--------------------------------------------------------------------------
 | SAP Numbers
 |--------------------------------------------------------------------------
 */

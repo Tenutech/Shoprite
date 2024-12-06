@@ -158,7 +158,7 @@ class GoogleMapsService
             }
 
             // Log a warning if the geocoding request failed
-            Log::warning('Geocoding API returned status: ' . $data['status']);
+            //Log::warning('Geocoding API returned status: ' . $data['status']);
             return null;
         } catch (\Exception $e) {
             // Log the error message for debugging

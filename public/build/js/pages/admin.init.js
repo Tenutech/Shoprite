@@ -1929,10 +1929,10 @@ function updateDashboard(data) {
     $('#adoptionRateValue').text(data.adoptionRate + '%');
 
     // Update average distance talent pool applicants
-    $('#averageDistanceTalentPoolApplicantsValue').text(data.averageDistanceTalentPoolApplicants + ' km');
+    $('#averageDistanceTalentPoolApplicantsValue').text(data.averageDistanceTalentPoolApplicants);
 
     // Update average distance applicants appointed
-    $('#averageDistanceApplicantsAppointedValue').text(data.averageDistanceApplicantsAppointed + ' km');
+    $('#averageDistanceApplicantsAppointedValue').text(data.averageDistanceApplicantsAppointed);
 
     // Update talent pool applicants
     $('#talentPoolApplicantsValue').text(data.talentPoolApplicants);

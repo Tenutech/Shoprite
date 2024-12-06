@@ -143,14 +143,14 @@
                     </div> <!-- end card -->
                 </div> <!-- end col -->
 
-                <!-- Adoption Rate -->
+                <!-- Placement Rate -->
                 <div class="col-xl-4 col-md-4" id="adoptionRateColumn">
                     <div class="card card-animate">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <p class="fw-semibold text-muted mb-0">
-                                        Adoption Rate
+                                        Placement Rate
                                     </p>
                                     <h2 class="mt-4 ff-success fw-bold">
                                         <span id="adoptionRateValue">
@@ -523,8 +523,7 @@
 
             <!-------------------------------------------------------------------------------------
                 Applicants
-            -------------------------------------------------------------------------------------->
-            
+            -------------------------------------------------------------------------------------->       
 
             <div class="row g-3">
                 <div class="col-xl-12 col-md-12">
@@ -670,7 +669,7 @@
 
                 <!-- Drop Off State -->
                 <div class="col-xl-6 col-md-6" id="dropOffStateColumn">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" data-html="true" title="{!! $dropOffChat ? $dropOffChat->message : '' !!}">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>

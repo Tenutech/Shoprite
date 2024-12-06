@@ -77,8 +77,8 @@ class VacancyController extends Controller
             $store = Store::with([
                 'brand',
                 'town',
-                'region',
-                'division'
+                'division',
+                'region'
             ])
             ->where('id', $user->store_id)
             ->first();
@@ -151,21 +151,21 @@ class VacancyController extends Controller
 
             if (in_array($user->role_id, [1, 2])) {
                 // If role_id is 1 or 2, get all stores where id > 1
-                $stores = Store::with(['brand', 'town'])
+                $stores = Store::with(['brand', 'town', 'division', 'region'])
                     ->get();
             } elseif ($user->role_id == 3) {
                 // If role_id is 3, get all stores where region_id = user->region_id
-                $stores = Store::with(['brand', 'town'])
+                $stores = Store::with(['brand', 'town', 'division', 'region'])
                     ->where('region_id', $user->region_id)
                     ->get();
             } elseif ($user->role_id == 4) {
                 // If role_id is 4, get all stores where division_id = user->division_id
-                $stores = Store::with(['brand', 'town'])
+                $stores = Store::with(['brand', 'town', 'division', 'region'])
                     ->where('division_id', $user->division_id)
                     ->get();
             } elseif ($user->role_id == 6) {
                 // Get stores where store_id is = user->store_id
-                $stores = Store::with(['brand', 'town'])
+                $stores = Store::with(['brand', 'town', 'division', 'region'])
                     ->where('id', $user->store_id)
                     ->get();
             }
@@ -232,11 +232,26 @@ class VacancyController extends Controller
             ],
             'open_positions' => 'required|integer|min:1|max:10', // Ensure open positions is a number between 1 and 10
             'sap_numbers' => 'required|array', // Validate that sap_numbers is an array
-            'sap_numbers.*' => ['digits:8', // Each sap number must be exactly 8 digits
-                function ($attribute, $value, $fail) {
-                    // Ensure each SAP number is unique in the database
-                    if (DB::table('sap_numbers')->where('sap_number', $value)->exists()) {
-                        $fail('The SAP number ' . $value . ' has already been taken.');
+            'sap_numbers.*' => ['digits:8',
+                function ($attribute, $value, $fail) use ($userID) {
+                    $sapNumber = SapNumber::with(['vacancy', 'vacancyFills'])->where('sap_number', $value)->first();
+
+                    if ($sapNumber) {
+                        if ($sapNumber->vacancy->user_id !== $userID) {
+                            $fail('The SAP number ' . $value . ' has already been taken.');
+                        } else if ($sapNumber->vacancy->user_id === $userID) {
+                            // Handle SAP number reassignment
+                            DB::transaction(function () use ($sapNumber) {
+                                // Delete associated vacancy fills
+                                $sapNumber->vacancyFills()->delete();
+
+                                // Update the associated vacancy
+                                $vacancy = $sapNumber->vacancy;
+                                $vacancy->open_positions = max(0, $vacancy->open_positions + 1);
+                                $vacancy->filled_positions = max(0, $vacancy->filled_positions - 1);
+                                $vacancy->save();
+                            });
+                        }
                     }
                 }
             ],
@@ -279,9 +294,18 @@ class VacancyController extends Controller
 
             // Create the SAP numbers associated with the vacancy
             foreach ($request->sap_numbers as $sap) {
-                $vacancy->sapNumbers()->create([
-                    'sap_number' => $sap, // Insert each SAP number
-                ]);
+                $sapNumber = SapNumber::where('sap_number', $sap)->first();
+    
+                if ($sapNumber && $sapNumber->vacancy->user_id === $userID) {
+                    // Update the SAP number to the new vacancy after creation
+                    $sapNumber->vacancy_id = $vacancy->id;
+                    $sapNumber->save();
+                } else {
+                    // Create a new SAP number for the vacancy
+                    $vacancy->sapNumbers()->create([
+                        'sap_number' => $sap,
+                    ]);
+                }
             }
 
             // If the vacancy was successfully created, create a notification

@@ -41,7 +41,6 @@ class ImpersonateController extends Controller
             }
 
             return redirect()->back()->with('error', 'Unauthorized impersonation attempt.');
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error', 'Failed to impersonate user.');
         }

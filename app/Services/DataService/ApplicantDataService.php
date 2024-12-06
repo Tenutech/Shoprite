@@ -12,6 +12,7 @@ use App\Models\Town;
 use App\Models\Province;
 use App\Models\Applicant;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ApplicantDataService
 {
@@ -546,12 +547,12 @@ class ApplicantDataService
         }
 
         // Get the total number of interviewed applicants
-        $totalInterviewedApplicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
-            ->where('state_id', '>=', $completeStateID)
-            ->whereHas('interviews', function ($q) use ($type, $id) {
-                $q->whereNotNull('score'); // Only include applicants with a non-null interview score
+        $totalInterviewedApplicants = Applicant::where('state_id', '>=', $completeStateID)
+            ->whereHas('interviews', function ($q) use ($type, $id, $startDate, $endDate) {
+                $q->whereBetween('created_at', [$startDate, $endDate]) // Filter interviews by date
+                    ->whereNotNull('score'); // Only include applicants with a non-null interview score
 
-                 // Apply additional filtering based on type (store, division, or region)
+                // Apply additional filtering based on type (store, division, or region)
                 if ($type === 'store' && $id) {
                     $q->whereHas('vacancy', function ($query) use ($id) {
                         $query->where('store_id', $id);
@@ -573,11 +574,26 @@ class ApplicantDataService
         }
 
         // Use the Race model to count interviewed applicants by race and calculate percentage
-        $demographicCounts = Race::withCount(['applicants' => function ($query) use ($startDate, $endDate, $completeStateID) {
-            $query->whereBetween('created_at', [$startDate, $endDate])
-                ->where('state_id', '>=', $completeStateID)
-                ->whereHas('interviews', function ($q) {
-                    $q->whereNotNull('score'); // Only include applicants with a non-null interview score
+        $demographicCounts = Race::withCount(['applicants' => function ($query) use ($startDate, $endDate, $completeStateID, $type, $id) {
+            $query->where('state_id', '>=', $completeStateID)
+                ->whereHas('interviews', function ($q) use ($startDate, $endDate, $type, $id) {
+                    $q->whereBetween('created_at', [$startDate, $endDate]) // Filter interviews by date
+                        ->whereNotNull('score'); // Only include applicants with a non-null interview score
+
+                    // Apply additional filtering based on type (store, division, or region)
+                    if ($type === 'store' && $id) {
+                        $q->whereHas('vacancy', function ($query) use ($id) {
+                            $query->where('store_id', $id);
+                        });
+                    } elseif ($type === 'division' && $id) {
+                        $q->whereHas('vacancy.store', function ($query) use ($id) {
+                            $query->where('division_id', $id);
+                        });
+                    } elseif ($type === 'region' && $id) {
+                        $q->whereHas('vacancy.store', function ($query) use ($id) {
+                            $query->where('region_id', $id);
+                        });
+                    }
                 });
         }])
         ->get()
@@ -612,10 +628,11 @@ class ApplicantDataService
         }
 
         // Get the total number of appointed applicants
-        $totalAppointedApplicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
-            ->where('state_id', '>=', $completeStateID)
+        $totalAppointedApplicants = Applicant::where('state_id', '>=', $completeStateID)
             ->whereNotNull('appointed_id') // Only include applicants with an appointed_id
-            ->whereHas('vacanciesFilled', function ($q) use ($type, $id) {
+            ->whereHas('vacanciesFilled', function ($q) use ($type, $id, $startDate, $endDate) {
+                $q->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]); // Specify table for created_at
+
                 // Apply additional filtering based on type (store, division, or region)
                 if ($type === 'store' && $id) {
                     $q->where('store_id', $id);
@@ -636,10 +653,25 @@ class ApplicantDataService
         }
 
         // Use the Race model to count appointed applicants by race and calculate percentage
-        $demographicCounts = Race::withCount(['applicants' => function ($query) use ($startDate, $endDate, $completeStateID) {
-            $query->whereBetween('created_at', [$startDate, $endDate])
-                ->where('state_id', '>=', $completeStateID)
-                ->whereNotNull('appointed_id'); // Only include applicants with an appointed_id
+        $demographicCounts = Race::withCount(['applicants' => function ($query) use ($startDate, $endDate, $completeStateID, $type, $id) {
+            $query->where('state_id', '>=', $completeStateID)
+                ->whereNotNull('appointed_id') // Only include applicants with an appointed_id
+                ->whereHas('vacanciesFilled', function ($q) use ($startDate, $endDate, $type, $id) {
+                    $q->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]); // Specify table for created_at
+        
+                    // Apply additional filtering based on type (store, division, or region)
+                    if ($type === 'store' && $id) {
+                        $q->where('store_id', $id);
+                    } elseif ($type === 'division' && $id) {
+                        $q->whereHas('store', function ($query) use ($id) {
+                            $query->where('division_id', $id);
+                        });
+                    } elseif ($type === 'region' && $id) {
+                        $q->whereHas('store', function ($query) use ($id) {
+                            $query->where('region_id', $id);
+                        });
+                    }
+                });
         }])
         ->get()
         ->map(function ($race) use ($totalAppointedApplicants) {
@@ -650,7 +682,7 @@ class ApplicantDataService
                 'percentage' => round($percentage)
             ];
         })
-        ->toArray();
+        ->toArray();        
 
         return $demographicCounts;
     }
@@ -670,7 +702,7 @@ class ApplicantDataService
         // Retrieve the ID of the "complete" state from the States table
         // This ID is used to filter applicants who are in a "complete" or later state
         $completeStateID = State::where('code', 'complete')->value('id');
-        
+
         // If the "complete" state is not found, return an empty array
         if (!$completeStateID) {
             return [];
@@ -786,7 +818,7 @@ class ApplicantDataService
         // Retrieve the ID of the "complete" state from the States table
         // This ID is used to filter applicants who are in a "complete" or later state
         $completeStateID = State::where('code', 'complete')->value('id');
-        
+
         // If the "complete" state is not found, return an empty array
         if (!$completeStateID) {
             return [];
@@ -857,7 +889,7 @@ class ApplicantDataService
         // Retrieve the ID of the "complete" state from the States table
         // This ID is used to filter applicants who are in a "complete" or later state
         $completeStateID = State::where('code', 'complete')->value('id');
-        
+
         // If the "complete" state is not found, return an empty array
         if (!$completeStateID) {
             return [];

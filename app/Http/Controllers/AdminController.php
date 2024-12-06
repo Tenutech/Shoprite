@@ -150,6 +150,7 @@ class AdminController extends Controller
             $totalCompletedApplicants = 0;
             $completionRate = 0;
             $dropOffState = 'None';
+            $dropOffChat = '';
 
             // Step 12: Fetch applicant demographic data
             $talentPoolApplicantsDemographic = [];
@@ -215,6 +216,15 @@ class AdminController extends Controller
                 $totalCompletedApplicants = $this->applicantDataService->getTotalCompletedApplicants($type, null, $startDate, $endDate);
                 $completionRate = ($totalApplicants > 0) ? round($totalCompletedApplicants / $totalApplicants * 100) : 0;
                 $dropOffState = $this->applicantDataService->getdropOffState($type, null, $startDate, $endDate);
+                if (!empty($dropOffState)) {
+                    // Find the State where name matches $dropOffState
+                    $state = State::where('name', $dropOffState)->first();
+
+                    // If the state exists, get the corresponding ChatTemplate
+                    if ($state) {
+                        $dropOffChat = ChatTemplate::where('state_id', $state->id)->first();
+                    }
+                }
 
                 // Step 12: Fetch applicant demographic data from applicantDataService
                 $talentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, null, $startDate, $endDate, $maxDistanceFromStore);
@@ -262,6 +272,7 @@ class AdminController extends Controller
                 'totalWebsiteApplicants' => $totalWebsiteApplicants,
                 'completionRate' => $completionRate,
                 'dropOffState' => $dropOffState,
+                'dropOffChat' => $dropOffChat,
                 'talentPoolApplicantsDemographic' => $talentPoolApplicantsDemographic,
                 'interviewedApplicantsDemographic' => $interviewedApplicantsDemographic,
                 'appointedApplicantsDemographic' => $appointedApplicantsDemographic,
