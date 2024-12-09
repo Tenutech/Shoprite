@@ -218,7 +218,7 @@
                         <div class="card-header bg-secondary">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1 text-white">
-                                    Average Proximity (Succesfull Placements)
+                                    Average Proximity (Successful Placements)
                                 </h5>
                             </div>
                         </div>
@@ -231,7 +231,7 @@
                                     </span>km 
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        Average distance for succesfull placements
+                                        Average distance for successful placements
                                     </p>
                                 </div>
                             </div>
@@ -264,7 +264,7 @@
                                         </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        Average score for succesfull placements
+                                        Average score for successful placements
                                     </p>
                                 </div>
                             </div>
@@ -291,7 +291,7 @@
                                         </span>%
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        Average assessment score for succesfull placements
+                                        Average assessment score for successful placements
                                     </p>
                                 </div>
                             </div>
