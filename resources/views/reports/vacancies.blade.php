@@ -321,7 +321,7 @@
                                     <label for="region" class="form-label">
                                         Region
                                     </label>
-                                    <select class="form-control" id="region" name="region_id" {{ $authUser->role_id == 3 ? 'disabled' : '' }}>
+                                    <select class="form-control" id="region" name="region_id">
                                         <option value="" selected>Select region</option>
                                         @foreach ($regions as $region)
                                             <option value="{{ $region->id }}" {{ $authUser->role_id == 3 && $authUser->region_id == $region->id ? 'selected' : '' }}>{{ $region->name }}</option>

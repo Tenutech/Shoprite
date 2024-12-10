@@ -14,7 +14,14 @@ class Region extends Model
 
     protected $fillable = [
         'name',
+        'division_id'
     ];
+
+    // Division
+    public function division()
+    {
+        return $this->belongsTo(Division::class);
+    }
 
     // Stores
     public function stores()
