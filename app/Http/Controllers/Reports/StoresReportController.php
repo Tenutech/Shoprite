@@ -199,7 +199,7 @@ class StoresReportController extends Controller
             } elseif ($authUser->role_id == 3) {
                 // If role_id is 3, get all stores where region_id = user->region_id
                 $stores = Store::with(['brand', 'town'])
-                    ->where('region_id', $authUser->region_id)
+                    ->where('division_id', $authUser->division_id)
                     ->get();
             } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
                 // If role_id is 4, get all stores where division_id = user->division_id

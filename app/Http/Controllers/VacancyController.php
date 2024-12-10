@@ -156,7 +156,7 @@ class VacancyController extends Controller
             } elseif ($user->role_id == 3) {
                 // If role_id is 3, get all stores where region_id = user->region_id
                 $stores = Store::with(['brand', 'town', 'division', 'region'])
-                    ->where('region_id', $user->region_id)
+                    ->where('division_id', $user->division_id)
                     ->get();
             } elseif ($user->role_id == 4) {
                 // If role_id is 4, get all stores where division_id = user->division_id
