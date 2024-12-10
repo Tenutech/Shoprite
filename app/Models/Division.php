@@ -16,6 +16,12 @@ class Division extends Model
         'name',
     ];
 
+    // Regions
+    public function regions()
+    {
+        return $this->hasMany(Region::class);
+    }
+
     // Stores
     public function stores()
     {

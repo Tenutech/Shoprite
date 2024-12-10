@@ -199,9 +199,9 @@ class VacanciesReportController extends Controller
             if (in_array($authUser->role_id, [1, 2, 4, 5])) {
                 // If role_id is 1 or 2, get all regions
                 $regions = Region::all();
-            } elseif ($authUser->role_id == 3 && $authUser->region_id) {
-                // If role_id is 3, get all regions where id = authUser->region_id
-                $regions = Region::where('id', $authUser->region_id)->get();
+            } elseif (in_array($authUser->role_id, [3, 4, 5]) && $authUser->division_id) {
+                // If role_id is 3 or 4 or 5, get all regions where division_id = authUser->division_id
+                $regions = Region::where('division_id', $authUser->division_id)->get();
             }
 
             // Stores logic

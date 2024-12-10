@@ -98,7 +98,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">
                                     <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Succesfull Placements
+                                        Successful Placements
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
                                         <span id="totalApplicantsAppointedValue"  class="counter-value" data-target="{{ $totalApplicantsAppointed }}">
@@ -249,7 +249,7 @@
                         <div class="card-header bg-secondary">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1 text-white">
-                                    Average Proximity (Succesfull Placements)
+                                    Average Proximity (Successful Placements)
                                 </h5>
                             </div>
                         </div>
@@ -262,7 +262,7 @@
                                     </span>km 
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        Average distance for succesfull placements
+                                        Average distance for successful placements
                                     </p>
                                 </div>
                             </div>
@@ -276,7 +276,7 @@
                         <div class="card-header bg-success">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1 text-white">
-                                    Average Assessment Score (Succesfull Placements)
+                                    Average Assessment Score (Successful Placements)
                                 </h5>
                             </div>
                         </div>
@@ -289,7 +289,7 @@
                                     </span>% 
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        Average assessments score of succesfull placements
+                                        Average assessments score of successful placements
                                     </p>
                                 </div>
                             </div>
@@ -423,7 +423,7 @@
                                     <label for="region" class="form-label">
                                         Region
                                     </label>
-                                    <select class="form-control" id="region" name="region_id" {{ $authUser->role_id == 3 ? 'disabled' : '' }}>
+                                    <select class="form-control" id="region" name="region_id">
                                         <option value="" selected>Select region</option>
                                         @foreach ($regions as $region)
                                             <option value="{{ $region->id }}" {{ $authUser->role_id == 3 && $authUser->region_id == $region->id ? 'selected' : '' }}>{{ $region->name }}</option>
