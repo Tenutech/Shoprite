@@ -38,7 +38,7 @@ class SendQueryEmailNotification implements ShouldQueue
     {
         // Send the email
         Mail::send([], [], function ($message) {
-            $recipientEmail = 'shoprite@caxsa1727338631.zendesk.com';
+            $recipientEmail = 'shoprite@caxsa.zendesk.com';
             $fromEmail = $this->query->email;
 
             $message->to($recipientEmail)
