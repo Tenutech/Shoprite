@@ -324,45 +324,62 @@ class ApplicantsReportController extends Controller
      */
     public function export(Request $request)
     {
-        // Retrieve the ID of the currently authenticated user
-        $authUserId = Auth::id();
+        Log::info('Export function called.');
 
-        // Fetch the authenticated user
-        $authUser = User::find($authUserId);
+        try {
+            // Retrieve the ID of the currently authenticated user
+            $authUserId = Auth::id();
+            Log::info('Authenticated user ID: ' . $authUserId);
 
-        // Set the type to 'all' to filter all vacancies
-        $type = 'all';
-        $id = null;
+            // Fetch the authenticated user
+            $authUser = User::find($authUserId);
+            Log::info('Authenticated user details: ', $authUser->toArray());
 
-        // Set the $type based on the role_id of $authUser
-        if ($authUser->role_id == 3) {
-            $type = 'region';
-            $id = $authUser->region_id;
-        } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
-            $type = 'division';
-            $id = $authUser->devision_id;
-        } elseif ($authUser->role_id == 6) {
-            $type = 'store';
-            $id = $authUser->store_id;
+            // Set the type to 'all' to filter all vacancies
+            $type = 'all';
+            $id = null;
+
+            // Set the $type based on the role_id of $authUser
+            if ($authUser->role_id == 3) {
+                $type = 'region';
+                $id = $authUser->region_id;
+            } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
+                $type = 'division';
+                $id = $authUser->devision_id;
+            } elseif ($authUser->role_id == 6) {
+                $type = 'store';
+                $id = $authUser->store_id;
+            }
+            Log::info("Type: $type, ID: $id");
+
+            // Extract and parse the date range from the request
+            $dateRange = $request->input('date'); // Assuming 'date' is the input field name in your form
+            Log::info('Date range input: ' . $dateRange);
+
+            // Split the date range string into start and end dates
+            [$startDateString, $endDateString] = explode(' to ', $dateRange);
+            $startDate = Carbon::parse($startDateString)->startOfDay();
+            $endDate = Carbon::parse($endDateString)->endOfDay();
+            Log::info("Start date: $startDate, End date: $endDate");
+
+            // Retrieve the maximum proximity distance in kilometers for filtering applicants, default to 50km
+            $maxDistanceFromStore = $request->input('maxDistanceFromStore', 50);
+            Log::info('Max distance from store: ' . $maxDistanceFromStore);
+
+            // Retrieve all filters from the request, excluding '_token', 'date', and 'search_terms'
+            $filters = $request->except(['_token', 'date', 'search_terms']);
+            Log::info('Filters: ', $filters);
+
+            // Export data to an Excel file
+            $fileName = 'Applicants Report.xlsx';
+            Log::info('Starting Excel export with filename: ' . $fileName);
+            return Excel::download(new ApplicantsExport($type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters), $fileName);
+
+        } catch (\Exception $e) {
+            Log::error('Error during export: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString()
+            ]);
+            return response()->json(['error' => 'An error occurred during export. Please try again later.'], 500);
         }
-
-        // Extract and parse the date range from the request
-        $dateRange = $request->input('date'); // Assuming 'date' is the input field name in your form
-
-        // Split the date range string into start and end dates
-        [$startDateString, $endDateString] = explode(' to ', $dateRange);
-
-        // Parse the start and end dates
-        $startDate = Carbon::parse($startDateString)->startOfDay();
-        $endDate = Carbon::parse($endDateString)->endOfDay();
-
-        // Retrieve the maximum proximity distance in kilometers for filtering applicants, default to 50km
-        $maxDistanceFromStore = $request->input('maxDistanceFromStore', 50);
-
-        // Retrieve all filters from the request, excluding '_token', 'date', and 'search_terms'
-        $filters = $request->except(['_token', 'date', 'search_terms']);
-
-        // Export data to an Excel file, passing filters, type, id, date range, and proximity
-        return Excel::download(new ApplicantsExport($type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters), 'Applicants Report.xlsx');
     }
 }
