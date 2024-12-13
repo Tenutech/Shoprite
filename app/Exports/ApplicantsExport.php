@@ -22,7 +22,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Illuminate\Support\Facades\Log;
 
-class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle, WithChunkReading
+class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle, WithChunkReading
 {
     protected $type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters;
 
@@ -51,7 +51,7 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
      *
      * @return \Illuminate\Support\Collection
      */
-    public function query()
+    public function collection()
     {
         // Start building the query for applicants
         $query = Applicant::query();
@@ -220,12 +220,11 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
             }
 
             // Combine all store queries
-            $query->whereIn('store_id', $stores->pluck('id'));
-            return $query;
+            return $storeQueries->map(fn($q) => $q->get())->flatten();
         }
         
         // Return the collection of filtered applicants
-        return $query;
+        return $query->get();
     }
 
     /**
