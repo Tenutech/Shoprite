@@ -300,46 +300,64 @@ $(document).ready(function() {
         // Get the form data from #formFilters
         var formData = new FormData($('#formFilters')[0]);
 
-        // Make the AJAX request to trigger the report export
         $.ajax({
-            url: route('applicants.reports.export'), // Adjust to your route name
+            url: route("applicants.reports.export"),
             method: 'POST',
             data: formData,
-            processData: false, // Required for FormData
-            contentType: false, // Required for FormData
-            success: function (response) {
+            processData: false,  // Required for FormData
+            contentType: false,  // Required for FormData
+            xhrFields: {
+                responseType: 'blob' // Important to handle binary data from server response
+            },
+            success: function(response) {
+                // Create a link element to download the file
+                var downloadUrl = window.URL.createObjectURL(response);
+                var link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = "Applicants Report.xlsx"; // File name
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
                 // Display success notification
                 Swal.fire({
                     position: 'top-end',
                     icon: 'success',
-                    title: response.message || 'The report is being processed and will be emailed to you shortly!',
+                    title: 'Report exported successfully!',
                     showConfirmButton: false,
-                    timer: 3000,
+                    timer: 2000,
+                    showCloseButton: true,
                     toast: true
                 });
             },
-            error: function (jqXHR) {
+            error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+
+                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
+                } else {
+                    message = 'An error occurred while processing your request. Please try again later.';
+                }
+
                 // Display error notification
-                const message =
-                    jqXHR.responseJSON && jqXHR.responseJSON.message
-                        ? jqXHR.responseJSON.message
-                        : 'An error occurred while processing your request. Please try again later.';
-                
                 Swal.fire({
                     position: 'top-end',
                     icon: 'error',
                     title: message,
                     showConfirmButton: false,
                     timer: 5000,
+                    showCloseButton: true,
                     toast: true
                 });
             },
-            complete: function () {
-                // Re-enable the button and restore the original state
-                exportBtn.prop('disabled', false).html(`
-                    <i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i>
-                    Export Report
-                `);
+            complete: function() {
+                // Re-enable the button, restore original text, and re-add btn-label class
+                exportBtn.prop('disabled', false);
+                exportBtn.html('<i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i> Export Report'); // Original button text
+                exportBtn.removeClass('d-flex justify-content-center').addClass('btn-label'); // Restore original class
+                exportBtn.css('width', ''); // Remove the fixed width
             }
         });
     });
