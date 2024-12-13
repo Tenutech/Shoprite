@@ -8,6 +8,8 @@ use App\Models\Store;
 use App\Models\State;
 use Illuminate\Contracts\View\View;
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\WithChunkReading;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -20,7 +22,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Illuminate\Support\Facades\Log;
 
-class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle
+class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle, WithChunkReading
 {
     protected $type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters;
 
@@ -49,7 +51,7 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
      *
      * @return \Illuminate\Support\Collection
      */
-    public function collection()
+    public function query()
     {
         // Start building the query for applicants
         $query = Applicant::query();
@@ -218,11 +220,12 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
             }
 
             // Combine all store queries
-            return $storeQueries->map(fn($q) => $q->get())->flatten();
+            $query->whereIn('store_id', $stores->pluck('id'));
+            return $query;
         }
         
         // Return the collection of filtered applicants
-        return $query->get();
+        return $query;
     }
 
     /**
@@ -427,5 +430,13 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
             'AF' => 15, // Appointed
             'AG' => 15, // Sap Number
         ];
+    }
+
+    /**
+     * Define the chunk size for reading data.
+     */
+    public function chunkSize(): int
+    {
+        return 1000; // Adjust the chunk size as needed
     }
 }
