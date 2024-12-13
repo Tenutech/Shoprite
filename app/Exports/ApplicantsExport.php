@@ -7,7 +7,7 @@ use App\Models\Applicant;
 use App\Models\Store;
 use App\Models\State;
 use Illuminate\Contracts\View\View;
-use Maatwebsite\Excel\Concerns\FromQuery;
+use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
 use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithStyles;
@@ -20,7 +20,7 @@ use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Illuminate\Support\Facades\Log;
 
-class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle
+class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle
 {
     protected $type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters;
 
@@ -45,11 +45,11 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
     }
 
     /**
-     * Define the query to fetch data in chunks.
+     * Retrieve the applicants based on filters.
      *
-     * @return \Illuminate\Database\Query\Builder
+     * @return \Illuminate\Support\Collection
      */
-    public function query()
+    public function collection()
     {
         // Start building the query for applicants
         $query = Applicant::query();
@@ -222,7 +222,7 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
         }
         
         // Return the collection of filtered applicants
-        return $query;
+        return $query->get();
     }
 
     /**
