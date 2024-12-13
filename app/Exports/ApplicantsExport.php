@@ -222,7 +222,7 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
         }
         
         // Return the collection of filtered applicants
-        return $query->get();
+        return $query;
     }
 
     /**
