@@ -437,6 +437,6 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
      */
     public function chunkSize(): int
     {
-        return 500; // Adjust the chunk size as needed
+        return 1000; // Adjust the chunk size as needed
     }
 }
