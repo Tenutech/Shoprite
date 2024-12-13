@@ -312,7 +312,7 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
             optional($applicant->state)->name ?? '',
             $appointed ?? '',
             $sapNumber ?? '',
-        ];
+        ]; 
     }
 
     /**
