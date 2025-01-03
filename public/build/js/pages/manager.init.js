@@ -25,12 +25,10 @@ $(document).ready(function() {
     |--------------------------------------------------------------------------
     */
 
-    // Get today's date
+    // Get the first day of the current year and today's date
+    var startDate = new Date(new Date().getFullYear(), 0, 1); // Start of the year
     var endDate = new Date(); // Today's date
 
-    // Calculate the start date as the start of the same month 12 months ago
-    var startDate = new Date(endDate.getFullYear() - 1, endDate.getMonth(), 1); // Start of the month 12 months ago
-    
     // Initialize Flatpickr with the #dateFilter selector
     flatpickr("#dateFilter", {
         mode: "range",
