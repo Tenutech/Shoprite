@@ -514,7 +514,7 @@ class AdminController extends Controller
                 'success' => false,
                 'message' => 'Failed to retrieve data!',
                 'error' => $e
-            ], 400); 
+            ], 400);
         }
     }
 }
