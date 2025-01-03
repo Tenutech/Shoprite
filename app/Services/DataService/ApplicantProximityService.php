@@ -8,6 +8,7 @@ use App\Models\Vacancy;
 use App\Models\Applicant;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ApplicantProximityService
 {
@@ -278,6 +279,12 @@ class ApplicantProximityService
             $currentDate->addMonth();
         }
 
+        // Ensure the last month is included
+        $lastMonth = $endDate->format('M');
+        if (!array_key_exists($lastMonth, $applicantsByMonth)) {
+            $applicantsByMonth[$lastMonth] = 0;
+        }
+
         // Retrieve the complete state id
         $completeStateID = State::where('code', 'complete')->value('id');
         if (!$completeStateID) {
@@ -293,7 +300,10 @@ class ApplicantProximityService
             // Group applicants by the month of their creation date and count them
             foreach ($applicants as $applicant) {
                 $month = $applicant->created_at->format('M');
-                $applicantsByMonth[$month]++;
+                // Increment the count for the corresponding month if it exists
+                if (isset($applicantsByMonth[$month])) {
+                    $applicantsByMonth[$month]++;
+                }
             }
 
             return $applicantsByMonth;
@@ -339,7 +349,10 @@ class ApplicantProximityService
                 // Group applicants by the month of their creation date and count them
                 foreach ($applicants as $applicant) {
                     $month = $applicant->created_at->format('M');
-                    $applicantsByMonth[$month]++;
+                    // Increment the count for the corresponding month if it exists
+                    if (isset($applicantsByMonth[$month])) {
+                        $applicantsByMonth[$month]++;
+                    }
                 }
             }
         }

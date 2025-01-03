@@ -423,6 +423,12 @@ class VacancyDataService
             $currentDate->addMonth();
         }
 
+        // Ensure the last month is included
+        $lastMonth = $endDate->format('M');
+        if (!array_key_exists($lastMonth, $applicantsByMonth)) {
+            $applicantsByMonth[$lastMonth] = 0;
+        }
+
         // Retrieve vacancies based on the type (store, division, or region) and within the date range
         $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
                 return $query->where('store_id', $id);
