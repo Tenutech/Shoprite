@@ -88,6 +88,18 @@ class ShortlistController extends Controller
                 }
             }
 
+            // Initialize $sapNumbers as an empty collection
+            $sapNumbers = collect();
+
+            if ($vacancy) {
+                // Fetch unused SAP numbers for the specific vacancy
+                $sapNumbers = SapNumber::where('vacancy_id', $vacancyID)
+                ->whereDoesntHave('vacancyFills', function ($query) {
+                    $query->whereNotNull('vacancy_id'); // Ensure it's filtered for active usage
+                })
+                ->get();
+            }
+
             //Vacancies
             $vacancies = Vacancy::with([
                 'position',
@@ -146,6 +158,7 @@ class ShortlistController extends Controller
                 'user'  => $user,
                 'vacancyID'  => $vacancyID,
                 'vacancy'  => $vacancy,
+                'sapNumbers' => $sapNumbers,
                 'vacancies'  => $vacancies,
                 'shortlistedApplicants' => $shortlistedApplicants,
                 'towns' => $towns,

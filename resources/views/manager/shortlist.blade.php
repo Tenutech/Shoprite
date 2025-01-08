@@ -584,16 +584,16 @@
                             <label for="sapNumber" class="form-label">
                                 SAP Number
                             </label>
-                            <select class="form-control" id="sapNumber" name="sap_number" {{ (isset($vacancy) && $vacancy->availableSapNumbers->count() === 1) ? 'disabled' : 'required' }}>
-                                @if(isset($vacancy) && $vacancy->availableSapNumbers->isNotEmpty())
-                                    @if($vacancy->availableSapNumbers->count() === 1)
+                            <select class="form-control" id="sapNumber" name="sap_number" {{ $sapNumbers->count() === 1 ? 'disabled' : 'required' }}>
+                                @if($sapNumbers->isNotEmpty())
+                                    @if($sapNumbers->count() === 1)
                                         <!-- Automatically select the single SAP Number -->
-                                        @foreach ($vacancy->availableSapNumbers as $sapNumber)
+                                        @foreach ($sapNumbers as $sapNumber)
                                             <option value="{{ Crypt::encryptString($sapNumber->id) }}" selected>{{ $sapNumber->sap_number }}</option>
                                         @endforeach
                                     @else
                                         <option value="">Select SAP Number</option>
-                                        @foreach ($vacancy->availableSapNumbers as $sapNumber)
+                                        @foreach ($sapNumbers as $sapNumber)
                                             <option value="{{ Crypt::encryptString($sapNumber->id) }}">{{ $sapNumber->sap_number }}</option>
                                         @endforeach
                                     @endif
