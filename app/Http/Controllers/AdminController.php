@@ -513,7 +513,7 @@ class AdminController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to retrieve data!',
-                'error' => $e
+                'error' => $e->getMessage()
             ], 400); 
         }
     }

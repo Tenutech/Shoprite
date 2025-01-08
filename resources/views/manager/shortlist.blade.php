@@ -561,15 +561,15 @@
                             </label>
                             <select class="form-control" id="vacancyFill" name="vacancy_id_visible" data-choices data-choices-search-true {{ $vacancyID ? 'disabled' : 'required' }}>
                                 @if($vacancyID)
-                                    @foreach ($vacancies as $vacancy)
-                                        @if($vacancyID == $vacancy->id)
-                                            <option value="{{ Crypt::encryptString($vacancy->id) }}" selected>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->name }})</option>
+                                    @foreach ($vacancies as $vacancyToFill)
+                                        @if($vacancyID == $vacancyToFill->id)
+                                            <option value="{{ Crypt::encryptString($vacancyToFill->id) }}" selected>{{ $vacancyToFill->position->name }}: ({{ $vacancyToFill->store->brand->name }} - {{ $vacancyToFill->store->name }})</option>
                                         @endif
                                     @endforeach
                                 @else
                                     <option value="">Select Vacancy</option>
-                                    @foreach ($vacancies as $vacancy)
-                                        <option value="{{ Crypt::encryptString($vacancy->id) }}" {{ ($vacancyID && $vacancyID == $vacancy->id) ? 'selected' : '' }}>{{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->town->name }})</option>
+                                    @foreach ($vacancies as $vacancyToFill)
+                                        <option value="{{ Crypt::encryptString($vacancyToFill->id) }}" {{ ($vacancyID && $vacancyID == $vacancyToFill->id) ? 'selected' : '' }}>{{ $vacancyToFill->position->name }}: ({{ $vacancyToFill->store->brand->name }} - {{ $vacancyToFill->store->town->name }})</option>
                                     @endforeach
                                 @endif
                             </select>
