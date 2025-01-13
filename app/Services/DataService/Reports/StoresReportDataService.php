@@ -763,9 +763,9 @@ class StoresReportDataService
 
         // Apply additional filters based on the $type and $id
         if ($type !== 'all') {
-            $applicants->whereHas('vacancyFill.vacancy', function ($query) use ($type, $id) {
+            $applicants->whereHas('vacancyFill.vacancy.store', function ($query) use ($type, $id) {
                 if ($type === 'store') {
-                    $query->where('store_id', $id);
+                    $query->where('id', $id);
                 } elseif ($type === 'division') {
                     $query->where('division_id', $id);
                 } elseif ($type === 'region') {

@@ -120,64 +120,39 @@ $(document).ready(function() {
         townChoice.clearStore(); // Clears the current Choices options
 
         if (selectedProvinceId === "") {
-            // If no province is selected, reset to all towns
+            // Reset to all towns if no province is selected
             townChoice.setChoices(
-                [
-                    {
-                        value: '',
-                        label: 'Select town',
-                        selected: true, // Make this the selected option
-                        disabled: false,
-                    },
-                    ...townOptionsCache.map(option => ({
-                        value: option.value,
-                        label: option.label,
-                        selected: false,
-                    })),
-                ],
+                townOptionsCache.map(option => ({
+                    value: option.value,
+                    label: option.label,
+                    selected: false,
+                })),
                 'value',
                 'label',
                 true
             );
+            townChoice.setValue([]); // Ensure no default selection
         } else {
             // Filter the cached town options based on the selected province
             const filteredOptions = townOptionsCache.filter(option => option.provinceId == selectedProvinceId);
-
+    
             if (filteredOptions.length > 0) {
-                // Add the "Select town" option followed by the filtered town options
+                // Populate Choices with filtered town options
                 townChoice.setChoices(
-                    [
-                        {
-                            value: '',
-                            label: 'Select town',
-                            selected: true, // Make this the selected option
-                            disabled: false,
-                        },
-                        ...filteredOptions.map(option => ({
-                            value: option.value,
-                            label: option.label,
-                            selected: false,
-                        })),
-                    ],
+                    filteredOptions.map(option => ({
+                        value: option.value,
+                        label: option.label,
+                        selected: false,
+                    })),
                     'value',
                     'label',
                     true
                 );
+                townChoice.setValue([]); // Ensure no default selection
             } else {
-                // Add "No towns available" option if no matches
-                townChoice.setChoices(
-                    [
-                        {
-                            value: '',
-                            label: 'No towns available',
-                            selected: true,
-                            disabled: true, // Make this option disabled
-                        },
-                    ],
-                    'value',
-                    'label',
-                    true
-                );
+                // If no towns are available, clear the selection and show placeholder
+                townChoice.setChoices([], 'value', 'label', true); // Clear all options
+                townChoice.setValue([]); // Ensure no default selection
             }
         }
     });
@@ -204,40 +179,20 @@ $(document).ready(function() {
 
         // Update the store options in the Choices instance
         storeChoice.clearStore(); // Clears the current Choices options
+
         if (filteredStoreOptions.length > 0) {
+            // Populate Choices with filtered store options
             storeChoice.setChoices(
-                [
-                    {
-                        value: '',
-                        label: 'Select store',
-                        selected: true, // Make this the selected option
-                        disabled: false,
-                    },
-                    ...filteredStoreOptions.map(option => ({
-                        value: option.value,
-                        label: option.label,
-                        selected: false,
-                    })),
-                ],
+                filteredStoreOptions.map(option => ({
+                    value: option.value,
+                    label: option.label,
+                    selected: false,
+                })),
                 'value',
                 'label',
                 true
             );
-        } else {
-            // Add "No stores available" option if no matches
-            storeChoice.setChoices(
-                [
-                    {
-                        value: '',
-                        label: 'No stores available',
-                        selected: true,
-                        disabled: true, // Make this option disabled
-                    },
-                ],
-                'value',
-                'label',
-                true
-            );
+            storeChoice.setValue([]); // Ensure no default selection
         }
     }
 

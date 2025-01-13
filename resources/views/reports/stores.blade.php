@@ -426,7 +426,7 @@
                                     <select class="form-control" id="region" name="region_id">
                                         <option value="" selected>Select region</option>
                                         @foreach ($regions as $region)
-                                            <option value="{{ $region->id }}" {{ $authUser->role_id == 3 && $authUser->region_id == $region->id ? 'selected' : '' }}>{{ $region->name }}</option>
+                                            <option value="{{ $region->id }}">{{ $region->name }}</option>
                                         @endforeach
                                     </select>
                                     <div class="invalid-feedback">
