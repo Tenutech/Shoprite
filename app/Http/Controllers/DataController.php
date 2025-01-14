@@ -16,7 +16,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 
-
 class DataController extends Controller
 {
     protected $applicantDataService;
@@ -110,7 +109,7 @@ class DataController extends Controller
     public function getTimeMetrics(Request $request)
     {
         // Retrieve common metrics data
-        $data = $this->getCommonMetricsData();        
+        $data = $this->getCommonMetricsData();
 
         // Define the date range (from the start of the year to the end of today)
         $startDate = $data['startDate'];
@@ -164,7 +163,7 @@ class DataController extends Controller
     public function getProximityMetrics(Request $request)
     {
         // Retrieve common metrics data
-        $data = $this->getCommonMetricsData();        
+        $data = $this->getCommonMetricsData();
 
         // Define the date range (from the start of the year to the end of today)
         $startDate = $data['startDate'];
@@ -421,7 +420,7 @@ class DataController extends Controller
      * Retrieve talent pool-related metrics.
      *
      * This method calculates and returns key metrics related to the talent pool,
-     * including the total number of talent pool applicants, applicants appointed, 
+     * including the total number of talent pool applicants, applicants appointed,
      * and the monthly breakdown for both metrics.
      * The data is returned as a JSON response.
      *

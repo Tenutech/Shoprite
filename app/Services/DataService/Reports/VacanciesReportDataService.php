@@ -311,12 +311,12 @@ class VacanciesReportDataService
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('brand_id', $filters['brand_id']);
             });
-        } 
+        }
         if (isset($filters['division_id'])) {
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('division_id', $filters['division_id']);
             });
-        }        
+        }
         if (isset($filters['region_id'])) {
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('region_id', $filters['region_id']);
@@ -350,7 +350,7 @@ class VacanciesReportDataService
                     });
             }
         }
-        
+
         // Return the total count of vacancies
         return $vacancies->count();
     }
@@ -396,7 +396,7 @@ class VacanciesReportDataService
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('division_id', $filters['division_id']);
             });
-        }        
+        }
         if (isset($filters['region_id'])) {
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('region_id', $filters['region_id']);
@@ -433,7 +433,7 @@ class VacanciesReportDataService
 
         // Filter for vacancies where open_positions is 0
         $vacancies->where('open_positions', 0);
-        
+
         // Return the total count of vacancies
         return $vacancies->count();
     }
@@ -595,12 +595,12 @@ class VacanciesReportDataService
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('brand_id', $filters['brand_id']);
             });
-        } 
+        }
         if (isset($filters['division_id'])) {
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('division_id', $filters['division_id']);
             });
-        }        
+        }
         if (isset($filters['region_id'])) {
             $vacancies->whereHas('store', function ($query) use ($filters) {
                 $query->where('region_id', $filters['region_id']);

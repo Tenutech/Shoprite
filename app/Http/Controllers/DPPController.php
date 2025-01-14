@@ -87,7 +87,7 @@ class DPPController extends Controller
             // Define the date range (from the start of the year to the end of today)
             $startDate = Carbon::now()->subYear()->startOfMonth(); // Start of the same month 12 months ago
             $endDate = Carbon::now()->endOfDay(); // End of today
-            
+
             // Set the type to 'division' to filter vacancies by the specific division ID in the query
             $type = 'division';
 

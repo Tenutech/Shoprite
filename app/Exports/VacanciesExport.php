@@ -21,7 +21,11 @@ use Illuminate\Support\Facades\Log;
 
 class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle
 {
-    protected $type, $id, $startDate, $endDate, $filters;
+    protected $type;
+    protected $id;
+    protected $startDate;
+    protected $endDate;
+    protected $filters;
 
     public function __construct($type, $id, $startDate, $endDate, $filters)
     {
@@ -134,11 +138,11 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             optional(optional($vacancy->store)->division)->name ?? '',
             optional(optional($vacancy->store)->region)->name ?? '',
             optional($vacancy->store)->name ?? '',
-            optional($vacancy->store)->code ?? '', 
+            optional($vacancy->store)->code ?? '',
             optional($vacancy->position)->name ?? '',
             $sapNumbers,
             optional($vacancy->type)->name ?? '',
-            (optional($vacancy->user)->firstname ?? '') . ' ' . (optional($vacancy->user)->lastname ?? ''),           
+            (optional($vacancy->user)->firstname ?? '') . ' ' . (optional($vacancy->user)->lastname ?? ''),
             $vacancy->open_positions === 0 ? '0' : ($vacancy->open_positions ?? '0'),
             $vacancy->filled_positions === 0 ? '0' : ($vacancy->filled_positions ?? '0'),
             $appointedApplicants,
@@ -159,7 +163,7 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'Division',
             'Region',
             'Branch Name',
-            'Branch Code', 
+            'Branch Code',
             'Position Description',
             'SAP Position Number(s)',
             'Position Type',

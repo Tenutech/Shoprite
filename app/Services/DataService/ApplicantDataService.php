@@ -658,7 +658,7 @@ class ApplicantDataService
                 ->whereNotNull('appointed_id') // Only include applicants with an appointed_id
                 ->whereHas('vacanciesFilled', function ($q) use ($startDate, $endDate, $type, $id) {
                     $q->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]); // Specify table for created_at
-        
+
                     // Apply additional filtering based on type (store, division, or region)
                     if ($type === 'store' && $id) {
                         $q->where('store_id', $id);
@@ -682,7 +682,7 @@ class ApplicantDataService
                 'percentage' => round($percentage)
             ];
         })
-        ->toArray();        
+        ->toArray();
 
         return $demographicCounts;
     }
