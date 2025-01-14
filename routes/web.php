@@ -734,6 +734,35 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,6', 'use
 
     Route::get('/update-dashboard', [App\Http\Controllers\ManagerController::class, 'updateDashboard'])->name('manager.updateDashboard');
 
+    //Fetch Data
+    Route::get('/api/time-metrics', [App\Http\Controllers\DataController::class, 'getTimeMetrics'])->name('time.metrics');
+
+    Route::get('/api/proximity-metrics', [App\Http\Controllers\DataController::class, 'getProximityMetrics'])->name('proximity.metrics');
+
+    Route::get('/api/average-score-metrics', [App\Http\Controllers\DataController::class, 'getAverageScoreMetrics'])->name('average-score.metrics');
+
+    Route::get('/api/assessment-scores-metrics', [App\Http\Controllers\DataController::class, 'getAssessmentScores'])->name('assessment-scores.metrics');
+
+    Route::get('/api/vacancies-metrics', [App\Http\Controllers\DataController::class, 'getVacanciesMetrics'])->name('vacancies.metrics');
+
+    Route::get('/api/interviews-metrics', [App\Http\Controllers\DataController::class, 'getInterviewsMetrics'])->name('interviews.metrics');
+
+    Route::get('/api/applicants-metrics', [App\Http\Controllers\DataController::class, 'getApplicantsMetrics'])->name('applicants.metrics');
+
+    Route::get('/api/talent-pool-metrics', [App\Http\Controllers\DataController::class, 'getTalentPoolMetrics'])->name('talent-pool.metrics');
+
+    Route::get('/api/application-channels-metrics', [App\Http\Controllers\DataController::class, 'getApplicationChannelsMetrics'])->name('application-channels.metrics');
+
+    Route::get('/api/application-completion-metrics', [App\Http\Controllers\DataController::class, 'getApplicationCompletionMetrics'])->name('application-completion.metrics');
+
+    Route::get('/api/stores-metrics', [App\Http\Controllers\DataController::class, 'getStoresMetrics'])->name('stores.metrics');
+
+    Route::get('/api/demographic-metrics', [App\Http\Controllers\DataController::class, 'getDemographicMetrics'])->name('demographic.metrics');
+
+    Route::get('/api/gender-metrics', [App\Http\Controllers\DataController::class, 'getGenderMetrics'])->name('gender.metrics');
+
+    Route::get('/api/province-metrics', [App\Http\Controllers\DataController::class, 'getProvinceMetrics'])->name('province.metrics');
+
     //User Profile
 
     Route::get('/user-profile', [App\Http\Controllers\UserProfileController::class, 'index'])->name('user-profile.index');
@@ -744,7 +773,7 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,6', 'use
 
     Route::get('/applicants-data', [App\Http\Controllers\ApplicantsController::class, 'applicants'])->name('applicants.data');
 
-    //vacancies
+    //Vacancies
 
     Route::get('/vacancies', [App\Http\Controllers\ManagerController::class, 'vacancies'])->name('manager.vacancies');
 

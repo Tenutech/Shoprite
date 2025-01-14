@@ -408,31 +408,31 @@ class VacancyDataService
      * @param int|null $id The ID of the store, division, or region to filter.
      * @param \Carbon\Carbon $startDate The start date for filtering appointments.
      * @param \Carbon\Carbon $endDate The end date for filtering appointments.
-     * @return array An array of appointed applicants grouped by month.
+     * @return array An array of appointed applicants grouped by month and year.
      */
     public function getApplicantsAppointedByMonth(string $type, ?int $id, $startDate, $endDate): array
     {
-        // Initialize an array to hold the results, with months set to 0 from startDate to endDate
+        // Initialize an array to hold the results, with months and years set to 0 from startDate to endDate
         $applicantsByMonth = [];
         $currentDate = $startDate->copy();
 
-        // Loop to populate only the months between startDate and endDate
+        // Loop to populate months and years from startDate to endDate
         while ($currentDate->lte($endDate)) {
-            $monthName = $currentDate->format('M');
-            $applicantsByMonth[$monthName] = 0;
+            $monthYear = $currentDate->format("M'y"); // Format as Jan'24
+            $applicantsByMonth[$monthYear] = 0;
             $currentDate->addMonth();
         }
 
         // Ensure the last month is included
-        $lastMonth = $endDate->format('M');
-        if (!array_key_exists($lastMonth, $applicantsByMonth)) {
-            $applicantsByMonth[$lastMonth] = 0;
+        $lastMonthYear = $endDate->format("M'y");
+        if (!array_key_exists($lastMonthYear, $applicantsByMonth)) {
+            $applicantsByMonth[$lastMonthYear] = 0;
         }
 
         // Retrieve vacancies based on the type (store, division, or region) and within the date range
         $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
                 return $query->where('store_id', $id);
-        })
+            })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->whereHas('store', function ($q) use ($id) {
                     $q->where('division_id', $id);
@@ -448,14 +448,14 @@ class VacancyDataService
             }])
             ->get();
 
-        // Group appointed applicants by the month of their appointment date and count them
+        // Group appointed applicants by the month and year of their appointment date and count them
         foreach ($vacancies as $vacancy) {
             foreach ($vacancy->appointed as $applicant) {
-                // Get the month name from the created_at date in the vacancy_fills table (the appointment date)
-                $month = $applicant->pivot->created_at->format('M');
-                // Increment the count for the corresponding month
-                if (isset($applicantsByMonth[$month])) {
-                    $applicantsByMonth[$month]++;
+                // Get the month and year from the created_at date in the vacancy_fills table (the appointment date)
+                $monthYear = $applicant->pivot->created_at->format("M'y"); // Format as Jan'24
+                // Increment the count for the corresponding month and year
+                if (isset($applicantsByMonth[$monthYear])) {
+                    $applicantsByMonth[$monthYear]++;
                 }
             }
         }

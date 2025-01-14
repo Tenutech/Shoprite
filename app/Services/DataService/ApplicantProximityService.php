@@ -268,21 +268,21 @@ class ApplicantProximityService
      */
     public function getTalentPoolApplicantsByMonth(string $type = null, ?int $id = null, $startDate, $endDate, $maxDistanceFromStore): array
     {
-        // Initialize an array to hold the results, with months set to 0 from startDate to endDate
+        // Initialize an array to hold the results, with months and years set to 0 from startDate to endDate
         $applicantsByMonth = [];
         $currentDate = $startDate->copy();
 
-        // Loop to populate only the months between startDate and endDate
+        // Loop to populate only the months and years between startDate and endDate
         while ($currentDate->lte($endDate)) {
-            $monthName = $currentDate->format('M');
-            $applicantsByMonth[$monthName] = 0;
+            $monthYear = $currentDate->format("M'y"); // Format as Jan'24
+            $applicantsByMonth[$monthYear] = 0;
             $currentDate->addMonth();
         }
 
         // Ensure the last month is included
-        $lastMonth = $endDate->format('M');
-        if (!array_key_exists($lastMonth, $applicantsByMonth)) {
-            $applicantsByMonth[$lastMonth] = 0;
+        $lastMonthYear = $endDate->format("M'y");
+        if (!array_key_exists($lastMonthYear, $applicantsByMonth)) {
+            $applicantsByMonth[$lastMonthYear] = 0;
         }
 
         // Retrieve the complete state id
@@ -291,28 +291,24 @@ class ApplicantProximityService
             return $applicantsByMonth; // Return if 'complete' state does not exist
         }
 
-        // If the type is 'all', retrieve all applicants within the date range and group them by month
         if ($type === 'all') {
             $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
                 ->where('state_id', '>=', $completeStateID)
                 ->get();
 
-            // Group applicants by the month of their creation date and count them
             foreach ($applicants as $applicant) {
-                $month = $applicant->created_at->format('M');
-                // Increment the count for the corresponding month if it exists
-                if (isset($applicantsByMonth[$month])) {
-                    $applicantsByMonth[$month]++;
+                $monthYear = $applicant->created_at->format("M'y"); // Format as Jan'24
+                if (isset($applicantsByMonth[$monthYear])) {
+                    $applicantsByMonth[$monthYear]++;
                 }
             }
 
             return $applicantsByMonth;
         }
 
-        // Get stores based on the type (store, division, or region)
         $stores = Store::when($type === 'store', function ($query) use ($id) {
                 return $query->where('id', $id);
-        })
+            })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->where('division_id', $id);
             })
@@ -322,17 +318,15 @@ class ApplicantProximityService
             ->get();
 
         if ($stores->isEmpty()) {
-            return $applicantsByMonth; // Return the array with months initialized to 0 if no stores found
+            return $applicantsByMonth;
         }
 
-        // Loop through each store and calculate the applicants by month within the given distance
         foreach ($stores as $store) {
             if ($store->coordinates) {
                 $storeCoordinates = explode(',', $store->coordinates);
                 $storeLat = floatval($storeCoordinates[0]);
                 $storeLng = floatval($storeCoordinates[1]);
 
-                // Retrieve applicants within the distance range using MySQL ST_Distance_Sphere
                 $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
                     ->where('state_id', '>=', $completeStateID)
                     ->whereRaw("
@@ -343,15 +337,13 @@ class ApplicantProximityService
                             ), 
                             point(?, ?)
                         ) <= ?
-                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
+                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000])
                     ->get();
 
-                // Group applicants by the month of their creation date and count them
                 foreach ($applicants as $applicant) {
-                    $month = $applicant->created_at->format('M');
-                    // Increment the count for the corresponding month if it exists
-                    if (isset($applicantsByMonth[$month])) {
-                        $applicantsByMonth[$month]++;
+                    $monthYear = $applicant->created_at->format("M'y"); // Format as Jan'24
+                    if (isset($applicantsByMonth[$monthYear])) {
+                        $applicantsByMonth[$monthYear]++;
                     }
                 }
             }
