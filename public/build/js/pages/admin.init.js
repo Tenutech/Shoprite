@@ -6,6 +6,9 @@ Contact: admin@tenutech.com
 File: job-statistics init js
 */
 
+// Enable lazy loading by default
+let allowLazyLoading = true;
+
 $(document).ready(function() {
     /*
     |--------------------------------------------------------------------------
@@ -40,7 +43,24 @@ $(document).ready(function() {
             if (selectedDates.length === 2) {
                 var startDate = selectedDates[0];
                 var endDate = selectedDates[1];
-    
+
+                // Disable lazy loading when date range changes
+                allowLazyLoading = false;
+
+                // Get the button and replace its content with the spinner
+                const calendarBtn = document.getElementById('calendarBtn');
+                const originalContent = calendarBtn.innerHTML; // Save original content
+                calendarBtn.innerHTML = '<div class="spinner-border spinner-border-sm text-white" role="status"></div>';
+
+                // Hide Spinners
+                hideSpinner("talent_pool_applicants_demographic_container");
+                hideSpinner("interviewed_applicants_demographic_container");
+                hideSpinner("appointed_applicants_demographic_container");
+                hideSpinner("talent_pool_applicants_gender_container");
+                hideSpinner("interviewed_applicants_gender_container");
+                hideSpinner("appointed_applicants_gender_container");
+                hideSpinner("talent_pool_applicants_province_container");
+        
                 // Send the date range via AJAX to update the dashboard
                 $.ajax({
                     url: route('admin.updateDashboard'),
@@ -87,6 +107,10 @@ $(document).ready(function() {
                             showCloseButton: true,
                             toast: true
                         });
+                    },
+                    complete: function () {
+                        // Revert the button content back to the original icon
+                        calendarBtn.innerHTML = originalContent;
                     }
                 });
             }
@@ -310,7 +334,7 @@ function lazyLoadMetrics(rowId, type, routeName) {
     const metricsRow = document.getElementById(rowId);
 
     const observer = new IntersectionObserver(function (entries) {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && allowLazyLoading) {
             fetchMetrics(type, routeName); // Fetch data when the row is visible
             observer.disconnect(); // Stop observing after data is loaded
         }
@@ -2021,6 +2045,15 @@ function updateDashboard(data) {
 
     // Update completion rate
     $('#completionRateValue').text(data.completionRate);
+
+    // Update drop off state
+    $('#dropOffStateValue').text(data.dropOffState);
+
+    // Update stores using the solution
+    $('#totalsStoresUsingSolutionValue').text(data.totalStoresUsingSolution);
+    
+    // Update re-employed applicants
+    $('#totalReEmployedApplicantsValue').text(data.totalReEmployedApplicants);
 
     // Update radial charts
     updateRadialChart(totalVacanciesFilledChart, data.totalVacanciesFilled, data.totalVacancies);

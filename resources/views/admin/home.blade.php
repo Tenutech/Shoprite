@@ -58,7 +58,7 @@
                                     <div class="col-sm-auto">
                                         <div class="input-group">
                                             <input type="text" id="dateFilter" class="form-control border-0 dash-filter-picker shadow">
-                                            <div class="input-group-text bg-primary border-primary text-white">
+                                            <div class="input-group-text bg-primary border-primary text-white" id="calendarBtn">
                                                 <i class="ri-calendar-2-line"></i>
                                             </div>
                                             <!-- Refresh Button with Tooltip and a gap (margin-left) -->
