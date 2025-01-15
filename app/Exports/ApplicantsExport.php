@@ -24,7 +24,12 @@ use Illuminate\Support\Facades\Log;
 
 class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle, WithChunkReading
 {
-    protected $type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters;
+    protected $type;
+    protected $id;
+    protected $startDate;
+    protected $endDate;
+    protected $maxDistanceFromStore;
+    protected $filters;
 
     public function __construct($type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters)
     {

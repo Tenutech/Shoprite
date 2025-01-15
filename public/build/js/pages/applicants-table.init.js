@@ -138,44 +138,11 @@ var options = {
         "race",
         "score",
     ],
-    page: perPage,
-    pagination: true,
-    plugins: [
-        ListPagination({
-            left: 2,
-            right: 2
-        })
-    ]
+    page: perPage
 };
 
 // Init list
-var applicantsTableList = new List("applicantsTableList", options).on("updated", function (list) {
-    list.matchingItems.length == 0 ?
-        (document.getElementsByClassName("noresult")[0].style.display = "block") :
-        (document.getElementsByClassName("noresult")[0].style.display = "none");
-    var isFirst = list.i == 1;
-    var isLast = list.i > list.matchingItems.length - list.page;
-    // make the Prev and Nex buttons disabled on first and last pages accordingly
-    (document.querySelector(".pagination-prev.disabled")) ? document.querySelector(".pagination-prev.disabled").classList.remove("disabled"): '';
-    (document.querySelector(".pagination-next.disabled")) ? document.querySelector(".pagination-next.disabled").classList.remove("disabled"): '';
-    if (isFirst) {
-        document.querySelector(".pagination-prev").classList.add("disabled");
-    }
-    if (isLast) {
-        document.querySelector(".pagination-next").classList.add("disabled");
-    }
-    if (list.matchingItems.length <= perPage) {
-        document.querySelector(".pagination-wrap").style.display = "none";
-    } else {
-        document.querySelector(".pagination-wrap").style.display = "flex";
-    }
-
-    if (list.matchingItems.length > 0) {
-        document.getElementsByClassName("noresult")[0].style.display = "none";
-    } else {
-        document.getElementsByClassName("noresult")[0].style.display = "block";
-    }
-});
+var applicantsTableList = new List("applicantsTableList", options).on("updated", function (list) {});
 
 var perPageSelect = document.getElementById("per-page-select");
 perPageSelect.addEventListener("change", function() {
@@ -851,38 +818,342 @@ function deleteMultiple(){
     }
 }
 
-// Prevent default behavior for all pagination links created by List.js
-document.querySelectorAll(".listjs-pagination a").forEach(function(anchor) {
-    anchor.addEventListener("click", function(event) {
-        event.preventDefault();
+/*
+|--------------------------------------------------------------------------
+| Pagination
+|--------------------------------------------------------------------------
+*/
+
+$(document).on('click', '.pagination a, .pagination-prev, .pagination-next', function (e) {
+    e.preventDefault();
+
+    // Extract the page number from the data-i attribute
+    const page = parseInt($(this).attr('data-i'), 10);
+    if (!page || page < 1) return; // Prevent invalid page numbers
+
+    const perPage = $('#per-page-select').val() || 10; // Fetch per-page value if needed
+    const searchQuery = $('#search').val().trim(); // Get the search term
+    const url = route('applicants-table.fetchApplicants'); // Ensure this route is defined
+
+    $.ajax({
+        url: url,
+        type: 'GET',
+        data: { page: page, per_page: perPage, search: searchQuery },
+        success: function (response) {
+            // Clear the existing list
+            applicantsTableList.clear();
+
+            // Add new data to the list
+            response.data.forEach(applicant => {
+                applicantsTableList.add({
+                    id: applicant.encrypted_id,
+                    name: `
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <img src="${applicant.avatar || 'images/avatar.jpg'}" alt="" class="avatar-xs rounded-circle">
+                            </div>
+                            <div class="flex-grow-1 ms-2 name">${applicant.firstname || ''} ${applicant.lastname || ''}</div>
+                        </div>
+                    `,
+                    id_number: applicant.id_number,
+                    phone: applicant.phone,
+                    employment: (() => {
+                        let employmentStatus = 'Inconclusive';
+                        let statusClass = 'dark';
+                        switch (applicant.employment) {
+                            case 'A':
+                                employmentStatus = 'Active Employee';
+                                statusClass = 'warning';
+                                break;
+                            case 'B':
+                                employmentStatus = 'Blacklisted';
+                                statusClass = 'danger';
+                                break;
+                            case 'P':
+                                employmentStatus = 'Previously Employed';
+                                statusClass = 'info';
+                                break;
+                            case 'N':
+                                employmentStatus = 'Not an Employee';
+                                statusClass = 'success';
+                                break;
+                            case 'I':
+                            default:
+                                employmentStatus = 'Inconclusive';
+                                statusClass = 'dark';
+                                break;
+                        }
+                        return `<span class="badge bg-${statusClass}-subtle text-${statusClass} text-uppercase">${employmentStatus}</span>`;
+                    })(),
+                    state: applicant.state ? applicant.state.name : '',
+                    email: applicant.email,
+                    town: applicant.town ? applicant.town.name : '',
+                    age: applicant.age || 'N/A',
+                    gender: applicant.gender ? applicant.gender.name : '',
+                    race: applicant.race ? applicant.race.name : '',
+                    score: applicant.score || 'N/A',
+                });
+            });
+
+            // Update pagination buttons
+            updatePagination(response);
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            let message = ''; // Initialize the message variable
+
+            if (jqXHR.status === 400 || jqXHR.status === 422) {
+                message = jqXHR.responseJSON.message;
+            } else if (textStatus === 'timeout') {
+                message = 'The request timed out. Please try again later.';
+            } else {
+                message = 'An error occurred while processing your request. Please try again later.';
+            }
+
+            // Trigger the Swal notification with the dynamic message
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: message,
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+                toast: true
+            });
+        }
     });
 });
 
-document.querySelector(".pagination-wrap").addEventListener("click", function(event) {
-    // If the clicked element or its parent has the class .pagination-prev
-    if (event.target.classList.contains("pagination-prev") || (event.target.parentElement && event.target.parentElement.classList.contains("pagination-prev"))) {
-        event.preventDefault();
-        const activeElement = document.querySelector(".pagination.listjs-pagination")?.querySelector(".active");
-        if (activeElement) {
-            const previousElement = activeElement.previousElementSibling;
-            if (previousElement && previousElement.children[0]) {
-                previousElement.children[0].click();
+// Update pagination buttons dynamically
+function updatePagination(response) {
+    const paginationWrapper = document.querySelector('.pagination-wrap-2 ul');
+    const currentPage = response.current_page;
+    const lastPage = response.last_page;
+    const perPage = $('#per-page-select').val() || 10; // Get the updated perPage value
+
+    let paginationHTML = '';
+
+    // Previous Button
+    const prevPage = currentPage - 1 > 0 ? currentPage - 1 : 0;
+    document.querySelector('.pagination-prev').setAttribute('data-i', prevPage);
+    document.querySelector('.pagination-prev').setAttribute('data-page', perPage);
+    document.querySelector('.pagination-prev').classList.toggle('disabled', currentPage === 1);
+
+    // Page Numbers
+    const pageWindow = 2;
+    for (let page = Math.max(1, currentPage - pageWindow); page <= Math.min(lastPage, currentPage + pageWindow); page++) {
+        paginationHTML += `
+            <li class="${page === currentPage ? 'active' : ''}">
+                <a class="page" href="#" data-i="${page}" data-page="${perPage}">${page}</a>
+            </li>
+        `;
+    }
+
+    // Ellipsis for skipped pages
+    if (currentPage > pageWindow + 1) {
+        paginationHTML = `<li class="disabled"><a class="page" href="#">...</a></li>` + paginationHTML;
+    }
+    if (currentPage < lastPage - pageWindow) {
+        paginationHTML += `<li class="disabled"><a class="page" href="#">...</a></li>`;
+    }
+
+    // Replace Pagination Numbers
+    paginationWrapper.innerHTML = paginationHTML;
+
+    // Next Button
+    const nextPage = currentPage + 1 <= lastPage ? currentPage + 1 : lastPage;
+    document.querySelector('.pagination-next').setAttribute('data-i', nextPage);
+    document.querySelector('.pagination-next').setAttribute('data-page', perPage);
+    document.querySelector('.pagination-next').classList.toggle('disabled', currentPage === lastPage);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Page Selection
+|--------------------------------------------------------------------------
+*/
+
+$(document).on('change', '#per-page-select', function () {
+    const perPage = parseInt($(this).val(), 10) || 10; // Get the selected per-page value
+    const searchQuery = $('#search').val().trim(); // Get the search term
+    const currentPage = parseInt($('.pagination .active a').data('i'), 10) || 1; // Get the current page from pagination
+    const url = route('applicants-table.fetchApplicants'); // Ensure the route is correct
+
+    // AJAX request to fetch the updated data
+    $.ajax({
+        url: url,
+        type: 'GET',
+        data: { page: currentPage, per_page: perPage, search: searchQuery },
+        success: function (response) {
+            // Clear the existing list
+            applicantsTableList.clear();
+
+            // Add new data to the list
+            response.data.forEach(applicant => {
+                applicantsTableList.add({
+                    id: applicant.encrypted_id,
+                    name: `
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <img src="${applicant.avatar || 'images/avatar.jpg'}" alt="" class="avatar-xs rounded-circle">
+                            </div>
+                            <div class="flex-grow-1 ms-2 name">${applicant.firstname || ''} ${applicant.lastname || ''}</div>
+                        </div>
+                    `,
+                    id_number: applicant.id_number,
+                    phone: applicant.phone,
+                    employment: (() => {
+                        let employmentStatus = 'Inconclusive';
+                        let statusClass = 'dark';
+                        switch (applicant.employment) {
+                            case 'A':
+                                employmentStatus = 'Active Employee';
+                                statusClass = 'warning';
+                                break;
+                            case 'B':
+                                employmentStatus = 'Blacklisted';
+                                statusClass = 'danger';
+                                break;
+                            case 'P':
+                                employmentStatus = 'Previously Employed';
+                                statusClass = 'info';
+                                break;
+                            case 'N':
+                                employmentStatus = 'Not an Employee';
+                                statusClass = 'success';
+                                break;
+                            case 'I':
+                            default:
+                                employmentStatus = 'Inconclusive';
+                                statusClass = 'dark';
+                                break;
+                        }
+                        return `<span class="badge bg-${statusClass}-subtle text-${statusClass} text-uppercase">${employmentStatus}</span>`;
+                    })(),
+                    state: applicant.state ? applicant.state.name : '',
+                    email: applicant.email,
+                    town: applicant.town ? applicant.town.name : '',
+                    age: applicant.age || 'N/A',
+                    gender: applicant.gender ? applicant.gender.name : '',
+                    race: applicant.race ? applicant.race.name : '',
+                    score: applicant.score || 'N/A',
+                });
+            });
+
+            // Update pagination buttons
+            updatePagination(response);
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            let message = '';
+
+            if (jqXHR.status === 400 || jqXHR.status === 422) {
+                message = jqXHR.responseJSON.message;
+            } else if (textStatus === 'timeout') {
+                message = 'The request timed out. Please try again later.';
+            } else {
+                message = 'An error occurred while processing your request. Please try again later.';
             }
-        }
-    }
 
-    // If the clicked element or its parent is in the .listjs-pagination
-    if (event.target.closest(".listjs-pagination")) {
-        event.preventDefault();
-        event.target.click();
-    }
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: message,
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+                toast: true,
+            });
+        },
+    });
+});
 
-    // If the clicked element or its parent has the class .pagination-next
-    if (event.target.classList.contains("pagination-next") || (event.target.parentElement && event.target.parentElement.classList.contains("pagination-next"))) {
-        event.preventDefault();
-        const activeElement = document.querySelector(".pagination.listjs-pagination")?.querySelector(".active");
-        if (activeElement && activeElement.nextElementSibling && activeElement.nextElementSibling.children[0]) {
-            activeElement.nextElementSibling.children[0].click();
-        }
-    }
+/*
+|--------------------------------------------------------------------------
+| Search
+|--------------------------------------------------------------------------
+*/
+
+$(document).on('input', '#search', function () {
+    const searchQuery = $(this).val().trim(); // Get the search term
+    const perPage = $('#per-page-select').val() || 10; // Fetch per-page value
+    const url = route('applicants-table.fetchApplicants'); // Ensure this route is defined
+
+    // Debounce to prevent too many requests while typing
+    clearTimeout(window.searchTimeout);
+    window.searchTimeout = setTimeout(() => {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: { search: searchQuery, per_page: perPage },
+            success: function (response) {
+                // Clear the existing list
+                applicantsTableList.clear();
+
+                if (response.data.length === 0) {
+                    // Show the "No Results Found" message
+                    $('.noresult').show(); // Make the message visible
+                } else {
+                    // Hide the "No Results Found" message
+                    $('.noresult').hide();        
+
+                    // Add new data to the list
+                    response.data.forEach(applicant => {
+                        applicantsTableList.add({
+                            id: applicant.encrypted_id,
+                            name: `
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <img src="${applicant.avatar || 'images/avatar.jpg'}" alt="" class="avatar-xs rounded-circle">
+                                    </div>
+                                    <div class="flex-grow-1 ms-2 name">${applicant.firstname || ''} ${applicant.lastname || ''}</div>
+                                </div>
+                            `,
+                            id_number: applicant.id_number,
+                            phone: applicant.phone,
+                            employment: (() => {
+                                let employmentStatus = 'Inconclusive';
+                                let statusClass = 'dark';
+                                switch (applicant.employment) {
+                                    case 'A':
+                                        employmentStatus = 'Active Employee';
+                                        statusClass = 'warning';
+                                        break;
+                                    case 'B':
+                                        employmentStatus = 'Blacklisted';
+                                        statusClass = 'danger';
+                                        break;
+                                    case 'P':
+                                        employmentStatus = 'Previously Employed';
+                                        statusClass = 'info';
+                                        break;
+                                    case 'N':
+                                        employmentStatus = 'Not an Employee';
+                                        statusClass = 'success';
+                                        break;
+                                    case 'I':
+                                    default:
+                                        employmentStatus = 'Inconclusive';
+                                        statusClass = 'dark';
+                                        break;
+                                }
+                                return `<span class="badge bg-${statusClass}-subtle text-${statusClass} text-uppercase">${employmentStatus}</span>`;
+                            })(),
+                            state: applicant.state ? applicant.state.name : '',
+                            email: applicant.email,
+                            town: applicant.town ? applicant.town.name : '',
+                            age: applicant.age || 'N/A',
+                            gender: applicant.gender ? applicant.gender.name : '',
+                            race: applicant.race ? applicant.race.name : '',
+                            score: applicant.score || 'N/A',
+                        });
+                    });
+
+                    // Update pagination buttons
+                    updatePagination(response);
+                }
+            },
+            error: function (xhr) {
+                console.error('Error fetching data:', xhr.responseText);
+            }
+        });
+    }, 300); // Debounce delay in milliseconds
 });

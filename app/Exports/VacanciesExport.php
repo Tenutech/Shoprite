@@ -21,7 +21,11 @@ use Illuminate\Support\Facades\Log;
 
 class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle
 {
-    protected $type, $id, $startDate, $endDate, $filters;
+    protected $type;
+    protected $id;
+    protected $startDate;
+    protected $endDate;
+    protected $filters;
 
     public function __construct($type, $id, $startDate, $endDate, $filters)
     {

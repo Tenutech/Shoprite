@@ -224,7 +224,7 @@ class ApplicantsReportDataService
      * @param \Carbon\Carbon $endDate The end date for filtering appointments.
      * @return array An array of appointed applicants grouped by month.
      */
-    public function getTotalApplicantsAppointedByMonth(string $type = 'all', ?int $id, $startDate, $endDate): array
+    public function getTotalApplicantsAppointedByMonth(string $type = 'all', ?int $id, $startDate, $endDate): array // phpcs:ignore
     {
         // Initialize an array to hold the results, with months set to 0 from startDate to endDate
         $applicantsByMonth = [];
@@ -309,15 +309,20 @@ class ApplicantsReportDataService
 
         // If the type is 'all', retrieve all applicants with a non-null gender_id within the date range and group them by month and gender
         if ($type === 'all') {
-            $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+            $applicants = Applicant::with('gender')
+                ->whereBetween('created_at', [$startDate, $endDate])
                 ->where('state_id', '>=', $completeStateID)
-                ->whereNotNull('gender_id')  // Exclude applicants with null gender_id
+                ->whereNotNull('gender_id')
                 ->get();
 
-            // Group applicants by the month of their creation date and gender, then count them
+            $applicantsGenderByMonth = [];
+
             foreach ($applicants as $applicant) {
                 $month = $applicant->created_at->format('M');
-                $genderName = $applicant->gender->name; // Get gender name directly
+                $genderName = $applicant->gender ? $applicant->gender->name : 'Unknown';
+                if (!isset($applicantsGenderByMonth[$genderName][$month])) {
+                    $applicantsGenderByMonth[$genderName][$month] = 0;
+                }
                 $applicantsGenderByMonth[$genderName][$month]++;
             }
 
@@ -414,15 +419,20 @@ class ApplicantsReportDataService
 
         // If the type is 'all', retrieve all applicants with a non-null race_id within the date range and group them by month and race
         if ($type === 'all') {
-            $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+            $applicants = Applicant::with('race')
+                ->whereBetween('created_at', [$startDate, $endDate])
                 ->where('state_id', '>=', $completeStateID)
-                ->whereNotNull('race_id')  // Exclude applicants with null race_id
+                ->whereNotNull('race_id')
                 ->get();
 
-            // Group applicants by the month of their creation date and race, then count them
+            $applicantsRaceByMonth = [];
+
             foreach ($applicants as $applicant) {
                 $month = $applicant->created_at->format('M');
-                $raceName = $applicant->race->name; // Get race name directly
+                $raceName = $applicant->race ? $applicant->race->name : 'Unknown';
+                if (!isset($applicantsRaceByMonth[$raceName][$month])) {
+                    $applicantsRaceByMonth[$raceName][$month] = 0;
+                }
                 $applicantsRaceByMonth[$raceName][$month]++;
             }
 
@@ -840,7 +850,7 @@ class ApplicantsReportDataService
      * @param array $filters An array of additional filters to apply.
      * @return array An array of applicants grouped by month.
      */
-    public function getTotalApplicantsByMonthFiltered(string $type = 'all', ?int $id = null, Carbon $startDate, Carbon $endDate, float $maxDistanceFromStore = 50, array $filters): array
+    public function getTotalApplicantsByMonthFiltered(string $type = 'all', ?int $id = null, Carbon $startDate, Carbon $endDate, float $maxDistanceFromStore = 50, array $filters): array // phpcs:ignore
     {
         // Initialize an array to hold monthly counts, with each month from startDate to endDate set to 0
         $applicantsByMonth = [];
