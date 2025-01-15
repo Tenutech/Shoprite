@@ -62,7 +62,7 @@ class ApplicantsReportController extends Controller
         $authUser = User::find($authUserId);
 
         // Define the date range (from the start of the year to the end of today)
-        $startDate = Carbon::now()->subYear()->startOfMonth();
+        $startDate = Carbon::now()->startOfYear();
         $endDate = Carbon::now()->endOfDay();
 
         // Determine the $type and $id based on the user's role
@@ -138,22 +138,22 @@ class ApplicantsReportController extends Controller
             // Initialize variables to 0 or empty before the null check
 
             // Step 1: Initialize applicant data
-            $totalApplicants = 0;
-            $totalAppointedApplicants = 0;
-            $totalApplicantsByMonth = [];
-            $totalApplicantsAppointedByMonth = [];
-            $totalApplicantsGenderByMonth = [];
-            $totalApplicantsRaceByMonth = [];
+            //$totalApplicants = 0;
+            //$totalAppointedApplicants = 0;
+            //$totalApplicantsByMonth = [];
+            //$totalApplicantsAppointedByMonth = [];
+            //$totalApplicantsGenderByMonth = [];
+            //$totalApplicantsRaceByMonth = [];
 
             // Check if the type is active
             if ($type !== null) {
                 // Step 1: Fetch applicant data from ApplicantsReportDataService
-                $totalApplicants = $this->applicantsReportDataService->getTotalApplicants($type, $id, $startDate, $endDate);
-                $totalAppointedApplicants = $this->applicantsReportDataService->getTotalAppointedApplicants($type, $id, $startDate, $endDate);
-                $totalApplicantsByMonth = $this->applicantsReportDataService->getTotalApplicantsByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
-                $totalApplicantsAppointedByMonth = $this->applicantsReportDataService->getTotalApplicantsAppointedByMonth($type, $id, $startDate, $endDate);
-                $totalApplicantsGenderByMonth = $this->applicantsReportDataService->getTotalApplicantsGenderByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
-                $totalApplicantsRaceByMonth = $this->applicantsReportDataService->getTotalApplicantsRaceByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
+                //$totalApplicants = $this->applicantsReportDataService->getTotalApplicants($type, $id, $startDate, $endDate);
+                //$totalAppointedApplicants = $this->applicantsReportDataService->getTotalAppointedApplicants($type, $id, $startDate, $endDate);
+                //$totalApplicantsByMonth = $this->applicantsReportDataService->getTotalApplicantsByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
+                //$totalApplicantsAppointedByMonth = $this->applicantsReportDataService->getTotalApplicantsAppointedByMonth($type, $id, $startDate, $endDate);
+                //$totalApplicantsGenderByMonth = $this->applicantsReportDataService->getTotalApplicantsGenderByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
+                //$totalApplicantsRaceByMonth = $this->applicantsReportDataService->getTotalApplicantsRaceByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
             }
 
             // Genders
@@ -216,12 +216,12 @@ class ApplicantsReportController extends Controller
 
             // Return the 'reports/applicants' view with the calculated data
             return view('reports/applicants', [
-                'totalApplicants' => $totalApplicants,
-                'totalAppointedApplicants' => $totalAppointedApplicants,
-                'totalApplicantsByMonth' => $totalApplicantsByMonth,
-                'totalApplicantsAppointedByMonth' => $totalApplicantsAppointedByMonth,
-                'totalApplicantsGenderByMonth' => $totalApplicantsGenderByMonth,
-                'totalApplicantsRaceByMonth' => $totalApplicantsRaceByMonth,
+                //'totalApplicants' => $totalApplicants,
+                //'totalAppointedApplicants' => $totalAppointedApplicants,
+                //'totalApplicantsByMonth' => $totalApplicantsByMonth,
+                //'totalApplicantsAppointedByMonth' => $totalApplicantsAppointedByMonth,
+                //'totalApplicantsGenderByMonth' => $totalApplicantsGenderByMonth,
+                //'totalApplicantsRaceByMonth' => $totalApplicantsRaceByMonth,
                 'genders' => $genders,
                 'races' => $races,
                 'educations' => $educations,

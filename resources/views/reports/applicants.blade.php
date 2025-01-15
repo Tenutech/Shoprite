@@ -100,7 +100,7 @@
                                         Total Applicants
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalApplicantsValue" data-target="{{ $totalApplicants }}">
+                                        <span id="totalApplicantsValue">
                                             <div class="spinner-border text-primary" role="status" style="font-size: 12px;">
                                                 <span class="sr-only">Loading...</span>
                                             </div>
@@ -130,7 +130,7 @@
                                         Total Appointed Applicants
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalAppointedApplicantsValue" data-target="{{ $totalAppointedApplicants }}">
+                                        <span id="totalAppointedApplicantsValue">
                                             <div class="spinner-border text-success" role="status" style="font-size: 12px;">
                                                 <span class="sr-only">Loading...</span>
                                             </div>
@@ -601,14 +601,6 @@
 
 @endsection
 @section('script')
-    <script>
-        var totalApplicants = @json($totalApplicants);
-        var totalAppointedApplicants = @json($totalAppointedApplicants);
-        var totalApplicantsByMonth = @json($totalApplicantsByMonth);
-        var totalApplicantsAppointedByMonth = @json($totalApplicantsAppointedByMonth);
-        var totalApplicantsGenderByMonth = @json($totalApplicantsGenderByMonth);
-        var totalApplicantsRaceByMonth = @json($totalApplicantsRaceByMonth);
-    </script>
     <!-- sweet alert -->
     <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>
     <!-- apexcharts -->

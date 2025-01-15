@@ -549,7 +549,8 @@ function updateMetrics(type, data) {
             break;
 
         case 'graph-metrics':
-            //updateLineCharts(talentPoolByMonthChart, data.talentPoolApplicantsByMonth, data.applicantsAppointedByMonth);
+            updateGraph(applicantsByMonthChart, data.totalApplicantsByMonth, data.totalApplicantsAppointedByMonth, data.totalApplicantsGenderByMonth, data.totalApplicantsRaceByMonth);
+            hideSpinner("graph_container");
             break;
 
         default:
@@ -756,54 +757,26 @@ var applicantsByMonthColors = getChartColorsArray("applicants_by_month");
 // Prepare default months from January to December
 var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// Prepare the data for the chart
-var totalApplicantsData = totalApplicantsByMonth && Object.keys(totalApplicantsByMonth).length > 0
-    ? Object.values(totalApplicantsByMonth) // Extract values if not empty
-    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
-
-var totalApplicantsAppointedData = totalApplicantsAppointedByMonth && Object.keys(totalApplicantsAppointedByMonth).length > 0
-    ? Object.values(totalApplicantsAppointedByMonth) // Extract values if not empty
-    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
-
-// Get gender-specific data (dashed lines for gender)
-var genderSeries = [];
-Object.keys(totalApplicantsGenderByMonth).forEach(function(gender) {
-    genderSeries.push({
-        name: gender,
-        data: Object.values(totalApplicantsGenderByMonth[gender])
-    });
-});
-
-// Get race-specific data (different dashed lines for race)
-var raceSeries = [];
-Object.keys(totalApplicantsRaceByMonth).forEach(function(race) {
-    raceSeries.push({
-        name: race,
-        data: Object.values(totalApplicantsRaceByMonth[race])
-    });
-});
+// Placeholder data for initialization
+var placeholderData = new Array(12).fill(0); // Array of 12 zeros (one for each month)
 
 // Prepare final series data, including total and appointed (solid lines)
 var seriesData = [
     {
         name: 'Total',
-        data: totalApplicantsData
+        data: placeholderData
     },
     {
         name: 'Appointed',
-        data: totalApplicantsAppointedData
-    },
-    ...genderSeries,
-    ...raceSeries
+        data: placeholderData
+    }
 ];
 
 // Get the months (x-axis categories)
-var months = Object.keys(totalApplicantsByMonth).length > 0 
-    ? Object.keys(totalApplicantsByMonth)  // Use the months from data if available
-    : defaultMonths; // Use default months if data is empty
+var months = defaultMonths; // Use default months if data is empty
 
 // Calculate monthly totals for percentages
-var monthlyTotals = totalApplicantsData
+var monthlyTotals = placeholderData
 
 // Total Applicants By Month Chart
 if (applicantsByMonthColors) {
@@ -855,11 +828,17 @@ if (applicantsByMonthColors) {
         },
         tooltip: {
             y: {
-                formatter: function(val, { seriesIndex, dataPointIndex, w }) {
+                formatter: function (val, { seriesIndex, dataPointIndex }) {
+                    // Handle edge cases where monthlyTotals might not be ready
+                    if (!monthlyTotals || !Array.isArray(monthlyTotals) || dataPointIndex >= monthlyTotals.length) {
+                        return val;
+                    }
+        
                     // Skip percentage calculation for "Total" series (index 0)
                     if (seriesIndex === 0) {
                         return val;
                     }
+        
                     // Calculate percentage for other series
                     var totalForMonth = monthlyTotals[dataPointIndex];
                     var percentage = totalForMonth > 0 ? Math.round((val / totalForMonth) * 100) : 0;
@@ -874,6 +853,98 @@ if (applicantsByMonthColors) {
 
     var applicantsByMonthChart = new ApexCharts(document.querySelector("#applicants_by_month"), options);
     applicantsByMonthChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Graph
+|--------------------------------------------------------------------------
+*/
+
+function updateGraph(
+    chart,
+    totalApplicantsByMonth,
+    totalApplicantsAppointedByMonth,
+    totalApplicantsGenderByMonth,
+    totalApplicantsRaceByMonth
+) {
+    // Prepare updated data for "Total" and "Appointed"
+    var updatedTotalApplicantsData = totalApplicantsByMonth && Object.keys(totalApplicantsByMonth).length > 0
+        ? Object.values(totalApplicantsByMonth)
+        : new Array(12).fill(0);
+
+    var updatedTotalAppointedData = totalApplicantsAppointedByMonth && Object.keys(totalApplicantsAppointedByMonth).length > 0
+        ? Object.values(totalApplicantsAppointedByMonth)
+        : new Array(12).fill(0);
+
+    // Update monthly totals for tooltip percentage calculations
+    monthlyTotals = updatedTotalApplicantsData;
+
+    // Prepare gender-specific data
+    var genderSeries = [];
+    if (totalApplicantsGenderByMonth) {
+        Object.keys(totalApplicantsGenderByMonth).forEach(function (gender) {
+            genderSeries.push({
+                name: gender,
+                data: Object.values(totalApplicantsGenderByMonth[gender])
+            });
+        });
+    }
+
+    // Prepare race-specific data
+    var raceSeries = [];
+    if (totalApplicantsRaceByMonth) {
+        Object.keys(totalApplicantsRaceByMonth).forEach(function (race) {
+            raceSeries.push({
+                name: race,
+                data: Object.values(totalApplicantsRaceByMonth[race])
+            });
+        });
+    }
+
+    // Combine all series data
+    var updatedSeriesData = [
+        {
+            name: 'Total',
+            data: updatedTotalApplicantsData
+        },
+        {
+            name: 'Appointed',
+            data: updatedTotalAppointedData
+        },
+        ...genderSeries,
+        ...raceSeries
+    ];
+
+    // Update the chart with new data
+    chart.updateOptions({
+        series: updatedSeriesData,
+        xaxis: {
+            categories: Object.keys(totalApplicantsByMonth).length > 0
+                ? Object.keys(totalApplicantsByMonth)
+                : defaultMonths // Use default months if no data is available
+        },
+        tooltip: {
+            y: {
+                formatter: function (val, { seriesIndex, dataPointIndex }) {
+                    // Handle edge cases where monthlyTotals might not be ready
+                    if (!monthlyTotals || !Array.isArray(monthlyTotals) || dataPointIndex >= monthlyTotals.length) {
+                        return val;
+                    }
+
+                    // Skip percentage calculation for "Total" series (index 0)
+                    if (seriesIndex === 0) {
+                        return val;
+                    }
+
+                    // Calculate percentage for other series
+                    var totalForMonth = monthlyTotals[dataPointIndex];
+                    var percentage = totalForMonth > 0 ? Math.round((val / totalForMonth) * 100) : 0;
+                    return val + " (" + percentage + "%)";
+                }
+            }
+        }
+    });
 }
 
 /*
