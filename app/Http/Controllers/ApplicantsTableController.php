@@ -428,6 +428,7 @@ class ApplicantsTableController extends Controller
                 'active employee' => 'A',
                 'active' => 'A',
                 'blacklisted' => 'B',
+                'blacklist' => 'B',
                 'previously employed' => 'P',
                 'previously' => 'P',
                 'not an employee' => 'N',
