@@ -55,9 +55,9 @@ it('returns the correct number of applicants by month for division', function ()
     $applicantsByMonth = $service->getTalentPoolApplicantsByMonth('division', $division->id, $startDate, $endDate, $maxDistanceFromStore);
     
     expect($applicantsByMonth)->toEqual([
-        'Jan' => 1,
-        'Feb' => 1,
-        'Mar' => 1,
+        "Jan'23" => 1,
+        "Feb'23" => 1,
+        "Mar'23" => 1,
     ]);
 });
 
@@ -101,8 +101,8 @@ it('returns the correct number of applicants by month for region', function () {
     $applicantsByMonth = $service->getTalentPoolApplicantsByMonth('region', $region->id, $startDate, $endDate, $maxDistanceFromStore);
 
     expect($applicantsByMonth)->toEqual([
-        'Jan' => 1,
-        'Feb' => 1,
-        'Mar' => 1,
+        "Jan'23" => 1,
+        "Feb'23" => 1,
+        "Mar'23" => 1,
     ]);
 });
