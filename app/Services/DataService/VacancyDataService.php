@@ -432,7 +432,7 @@ class VacancyDataService
         // Retrieve vacancies based on the type (store, division, or region) and within the date range
         $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
                 return $query->where('store_id', $id);
-            })
+        })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->whereHas('store', function ($q) use ($id) {
                     $q->where('division_id', $id);

@@ -5,6 +5,7 @@ Website: https://orient.tenutech.com/
 Contact: admin@tenutech.com
 File: job-statistics init js
 */
+let allowLazyLoading = true;
 
 $(document).ready(function() {
     /*
@@ -40,7 +41,7 @@ $(document).ready(function() {
             if (selectedDates.length === 2) {
                 var startDate = selectedDates[0];
                 var endDate = selectedDates[1];
-    
+
                 // Send the date range via AJAX to update the dashboard
                 $.ajax({
                     url: route('dpp.updateDashboard'),
@@ -64,11 +65,11 @@ $(document).ready(function() {
                             timer: 2000,
                             showCloseButton: true,
                             toast: true
-                        })    
+                        })
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         let message = ''; // Initialize the message variable
-                    
+
                         if (jqXHR.status === 400 || jqXHR.status === 422) {
                             message = jqXHR.responseJSON.message;
                         } else if (textStatus === 'timeout') {
@@ -76,7 +77,7 @@ $(document).ready(function() {
                         } else {
                             message = 'An error occurred while processing your request. Please try again later.';
                         }
-                    
+
                         // Trigger the Swal notification with the dynamic message
                         Swal.fire({
                             position: 'top-end',
@@ -144,6 +145,163 @@ function getChartColorsArray(chartId) {
                 }
             }
         });
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Metrics
+|--------------------------------------------------------------------------
+*/
+
+// Helper function to display 'N/A' for invalid values and the value itself for valid numbers (including 0)
+function formatValue(value) {
+    return value !== null && value !== undefined ? value : 'N/A';
+}
+
+// Function to update the metrics on the page for each type
+function updateMetrics(type, data) {
+    switch (type) {
+        case 'time-metrics':
+            document.getElementById('averageTimeToShortlistValue').textContent = formatValue(data.averageTimeToShortlist);
+            document.getElementById('averageTimeToHireValue').textContent = formatValue(data.averageTimeToHire);
+            document.getElementById('adoptionRateValue').textContent = data.adoptionRate !== null && data.adoptionRate !== undefined ? `${data.adoptionRate}%` : 'N/A';
+            break;
+
+        case 'proximity-metrics':
+            document.getElementById('averageDistanceTalentPoolApplicantsValue').textContent = data.averageDistanceTalentPoolApplicants !== null && data.averageDistanceTalentPoolApplicants !== undefined ? `${data.averageDistanceTalentPoolApplicants} km` : 'N/A';
+            document.getElementById('averageDistanceApplicantsAppointedValue').textContent = data.averageDistanceApplicantsAppointed !== null && data.averageDistanceApplicantsAppointed !== undefined ? `${data.averageDistanceApplicantsAppointed} km` : 'N/A';
+            break;
+
+        case 'average-score-metrics':
+            document.getElementById('averageScoreTalentPoolApplicants').textContent = formatValue(data.averageScoreTalentPoolApplicants);
+            document.getElementById('averageScoreApplicantsAppointedValue').textContent = formatValue(data.averageScoreApplicantsAppointed);
+            break;
+
+        case 'assessment-score-metrics':
+            updateDonutChart(averageLiteracyScoreChart, data.averageLiteracyScoreTalentPoolApplicants, data.literacyQuestionsCount);
+            hideSpinner("literacy_chart_container");
+            updateDonutChart(averageNumeracyScoreChart, data.averageNumeracyScoreTalentPoolApplicants, data.numeracyQuestionsCount);
+            hideSpinner("numeracy_chart_container");
+            updateDonutChart(averageSituationalScoreChart, data.averageSituationalScoreTalentPoolApplicants, data.situationalQuestionsCount);
+            hideSpinner("situational_chart_container");
+            break;
+
+        case 'vacancies-metrics':
+            document.getElementById('totalVacanciesValue').textContent = formatValue(data.totalVacancies);
+            document.getElementById('totalVacanciesFilledValue').textContent = formatValue(data.totalVacanciesFilled);
+            updateRadialChart(totalVacanciesFilledChart, data.totalVacanciesFilled, data.totalVacancies);
+            break;
+
+        case 'interviews-metrics':
+            document.getElementById('totalInterviewsScheduledValue').textContent = formatValue(data.totalInterviewsScheduled);
+            document.getElementById('totalInterviewsCompletedValue').textContent = formatValue(data.totalInterviewsCompleted);
+            updateRadialChart(totalInterviewsCompletedChart, data.totalInterviewsCompleted, data.totalInterviewsScheduled);
+            break;
+
+        case 'applicants-metrics':
+            document.getElementById('totalApplicantsAppointedValue').textContent = formatValue(data.totalApplicantsAppointed);
+            document.getElementById('totalApplicantsRegrettedValue').textContent = formatValue(data.totalApplicantsRegretted);
+            updateRadialChart(totalApplicantsAppointedChart, data.totalApplicantsAppointed, data.totalInterviewsScheduled);
+            updateRadialChart(totalApplicantsRegrettedChart, data.totalApplicantsRegretted, data.totalInterviewsScheduled);
+            break;
+
+        case 'talent-pool-metrics':
+            document.getElementById('talentPoolApplicantsValue').textContent = formatValue(data.talentPoolApplicants);
+            document.getElementById('applicantsAppointedValue').textContent = formatValue(data.applicantsAppointed);
+            updateLineCharts(talentPoolByMonthChart, data.talentPoolApplicantsByMonth, data.applicantsAppointedByMonth);
+            break;
+
+        case 'demographic-metrics':
+            updateRadialBarChart(talentPoolApplicantsDemographicChart, data.talentPoolApplicantsDemographic);
+            hideSpinner("talent_pool_applicants_demographic_container");
+            updateRadialBarChart(interviewedApplicantsDemographicChart, data.interviewedApplicantsDemographic);
+            hideSpinner("interviewed_applicants_demographic_container");
+            updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
+            hideSpinner("appointed_applicants_demographic_container");
+            break;
+
+        default:
+            console.error('Unknown metrics type:', type);
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Fetch Metrics
+|--------------------------------------------------------------------------
+*/
+
+// Function to fetch metrics data from the API
+function fetchMetrics(type, routeName) {
+    const apiUrl = route(routeName); // Use Ziggy to dynamically generate the route URL
+
+    fetch(apiUrl)
+        .then((response) => response.json())
+        .then((data) => {
+            updateMetrics(type, data); // Update the metrics on the page
+        })
+        .catch((error) => {
+            console.error(`Error loading ${type} data:`, error);
+        });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Lazy Load Data
+|--------------------------------------------------------------------------
+*/
+
+// Function to lazy load metrics for a specific row
+function lazyLoadMetrics(rowId, type, routeName) {
+    const metricsRow = document.getElementById(rowId);
+
+    const observer = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting && allowLazyLoading) {
+            fetchMetrics(type, routeName); // Fetch data when the row is visible
+            observer.disconnect(); // Stop observing after data is loaded
+        }
+    });
+
+    observer.observe(metricsRow);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Initialize Lazy Loading for All Metrics
+|--------------------------------------------------------------------------
+*/
+
+document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadMetrics('timeRow', 'time-metrics', 'dpp.time.metrics');
+    lazyLoadMetrics('proximityRow', 'proximity-metrics', 'dpp.proximity.metrics');
+    lazyLoadMetrics('averageScoresRow', 'average-score-metrics', 'dpp.average-score.metrics');
+    lazyLoadMetrics('vacanciesRow', 'vacancies-metrics', 'dpp.vacancies.metrics');
+    lazyLoadMetrics('interviewsRow', 'interviews-metrics', 'dpp.interviews.metrics');
+    lazyLoadMetrics('applicantsRow', 'applicants-metrics', 'dpp.applicants.metrics');
+    lazyLoadMetrics('talentPoolRow', 'talent-pool-metrics', 'dpp.talent-pool.metrics');
+    lazyLoadMetrics('demographicRow', 'demographic-metrics', 'dpp.demographic.metrics');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Show and Hide Spinners
+|--------------------------------------------------------------------------
+*/
+
+// Show the spinner in the header
+function showSpinner(containerId) {
+    const spinner = document.querySelector(`#${containerId} .spinner-border`);
+    if (spinner) {
+        spinner.classList.remove('d-none');
+    }
+}
+
+// Hide the spinner in the header
+function hideSpinner(containerId) {
+    const spinner = document.querySelector(`#${containerId} .spinner-border`);
+    if (spinner) {
+        spinner.classList.add('d-none');
     }
 }
 
@@ -420,27 +578,16 @@ if (totalApplicantsRegretted) {
 */
 
 //  Talent Pool By Month Chart
-var talentPoolByMonth = getChartColorsArray("talent_pool_by_month");
+var talentPoolByMonthColors = getChartColorsArray("talent_pool_by_month");
 
 // Prepare default months from January to December
 var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// Prepare the data for the chart
-var talentPoolData = divisionTalentPoolApplicantsByMonth && Object.keys(divisionTalentPoolApplicantsByMonth).length > 0
-    ? Object.values(divisionTalentPoolApplicantsByMonth) // Extract values if not empty
-    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
-    
-var appointedData = divisionApplicantsAppointedByMonth && Object.keys(divisionApplicantsAppointedByMonth).length > 0
-    ? Object.values(divisionApplicantsAppointedByMonth) // Extract values if not empty
-    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
-
 // Get the months (x-axis categories)
-var months = Object.keys(divisionApplicantsAppointedByMonth).length > 0 
-    ? Object.keys(divisionApplicantsAppointedByMonth)  // Use the months from data if available
-    : defaultMonths; // Use default months if data is empty
+var months = defaultMonths; // Use default months if data is empty
 
 //  Talent Pool By Month Chart
-if (talentPoolByMonth) {
+if (talentPoolByMonthColors) {
     var options = {
         chart: {
             height: 380,
@@ -452,7 +599,7 @@ if (talentPoolByMonth) {
                 show: false
             }
         },
-        colors: talentPoolByMonth,
+        colors: talentPoolByMonthColors,
         dataLabels: {
             enabled: false,
         },
@@ -462,11 +609,11 @@ if (talentPoolByMonth) {
         },
         series: [{
                 name: "Total Talent Pool",
-                data: talentPoolData // Use dynamic data for Talent Pool
+                data: [] // Use dynamic data for Talent Pool
             },
             {
                 name: "Total Appointed",
-                data: appointedData // Use dynamic data for Appointed
+                data: [] // Use dynamic data for Appointed
             }
         ],
         title: {
@@ -498,7 +645,7 @@ if (talentPoolByMonth) {
                 text: 'Total Applicants'
             },
             min: 0, // Adjust min to allow smaller values
-            max: Math.max(...talentPoolData, ...appointedData) + 5 // Set the max value based on the highest number in your data
+            max: 5000 // Set the max value based on the highest number in your data
         },
         legend: {
             position: 'top',
@@ -535,14 +682,9 @@ if (talentPoolByMonth) {
 // Talent Pool Applicants Demographic
 var talentPoolApplicantsDemographicColors = getChartColorsArray("talent_pool_applicants_demographic");
 
-// Extract percentages and labels dynamically from divisionTalentPoolApplicantsDemographic
+// Extract percentages and labels dynamically from talentPoolApplicantsDemographic
 var talentPoolApplicantsDemographicSeries = [];
-var talentPoolApplicantsDemographicLabels = [];
-
-divisionTalentPoolApplicantsDemographic.forEach(function (item) {
-    talentPoolApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
-    talentPoolApplicantsDemographicLabels.push(item.name);       // Extract the race name
-});
+var talentPoolApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Talent Pool Applicants Demographic Chart
 if(talentPoolApplicantsDemographicColors){
@@ -675,14 +817,9 @@ if(talentPoolApplicantsDemographicColors){
 // Interviewed Applicants Demographic
 var interviewedApplicantsDemographicColors = getChartColorsArray("interviewed_applicants_demographic");
 
-// Extract percentages and labels dynamically from divisionInterviewedApplicantsDemographic
+// Extract percentages and labels dynamically from interviewedApplicantsDemographic
 var interviewedApplicantsDemographicSeries = [];
-var interviewedApplicantsDemographicLabels = [];
-
-divisionInterviewedApplicantsDemographic.forEach(function (item) {
-    interviewedApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
-    interviewedApplicantsDemographicLabels.push(item.name);       // Extract the race name
-});
+var interviewedApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Interviewed Applicants Demographic Chart
 if(interviewedApplicantsDemographicColors){
@@ -811,14 +948,9 @@ if(interviewedApplicantsDemographicColors){
 // Appointed Applicants Demographic
 var appointedApplicantsDemographicColors = getChartColorsArray("appointed_applicants_demographic");
 
-// Extract percentages and labels dynamically from divisionAppointedApplicantsDemographic
+// Extract percentages and labels dynamically from appointedApplicantsDemographic
 var appointedApplicantsDemographicSeries = [];
-var appointedApplicantsDemographicLabels = [];
-
-divisionAppointedApplicantsDemographic.forEach(function (item) {
-    appointedApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
-    appointedApplicantsDemographicLabels.push(item.name);       // Extract the race name
-});
+var appointedApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Appointed Applicants Demographic Chart
 if(appointedApplicantsDemographicColors){
@@ -1030,22 +1162,22 @@ function updateRadialChart(chartInstance, filledValue, totalValue) {
 |--------------------------------------------------------------------------
 */
 
-function updateLineCharts(chartInstance, divisionTalentPoolApplicantsByMonth, divisionpplicantsAppointedByMonth) {
+function updateLineCharts(chartInstance, talentPoolApplicantsByMonth, applicantsAppointedByMonth) {
     // Get default months from January to December
     var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     // Prepare the data for the Talent Pool By Month Chart
-    var talentPoolData = divisionTalentPoolApplicantsByMonth && Object.keys(divisionTalentPoolApplicantsByMonth).length > 0
-        ? Object.values(divisionTalentPoolApplicantsByMonth) // Extract values if not empty
+    var talentPoolData = talentPoolApplicantsByMonth && Object.keys(talentPoolApplicantsByMonth).length > 0
+        ? Object.values(talentPoolApplicantsByMonth) // Extract values if not empty
         : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
 
-    var appointedData = divisionApplicantsAppointedByMonth && Object.keys(divisionApplicantsAppointedByMonth).length > 0
-        ? Object.values(divisionApplicantsAppointedByMonth) // Extract values if not empty
+    var appointedData = applicantsAppointedByMonth && Object.keys(applicantsAppointedByMonth).length > 0
+        ? Object.values(applicantsAppointedByMonth) // Extract values if not empty
         : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
 
     // Get the months (x-axis categories)
-    var months = Object.keys(divisionTalentPoolApplicantsByMonth).length > 0 
-        ? Object.keys(divisionTalentPoolApplicantsByMonth)  // Use the months from data if available
+    var months = Object.keys(talentPoolApplicantsByMonth).length > 0
+        ? Object.keys(talentPoolApplicantsByMonth)  // Use the months from data if available
         : defaultMonths; // Use default months if data is empty
 
     // Calculate max value for the y-axis dynamically

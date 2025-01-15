@@ -654,7 +654,7 @@ Route::prefix('admin/reports')->middleware(['auth', 'verified', 'role:1,2,3,4,5'
     // Stores Reports
 
     Route::get('/stores', [App\Http\Controllers\Reports\StoresReportController::class, 'index'])->name('stores.reports.index');
-    
+
     Route::post('/stores/update', [App\Http\Controllers\Reports\StoresReportController::class, 'update'])->name('stores.reports.update');
 
     Route::post('/stores/export', [App\Http\Controllers\Reports\StoresReportController::class, 'export'])->name('stores.reports.export');
@@ -715,6 +715,24 @@ Route::prefix('dpp')->middleware(['auth', 'verified', 'role:1,2,5', 'user.activi
 
     Route::get('/update-dashboard', [App\Http\Controllers\DTDPController::class, 'updateDashboard'])->name('dpp.updateDashboard');
 
+    //Fetch Data
+    Route::get('/api/time-metrics', [App\Http\Controllers\DataController::class, 'getTimeMetrics'])->name('dpp.time.metrics');
+
+    Route::get('/api/proximity-metrics', [App\Http\Controllers\DataController::class, 'getProximityMetrics'])->name('dpp.proximity.metrics');
+
+    Route::get('/api/average-score-metrics', [App\Http\Controllers\DataController::class, 'getAverageScoreMetrics'])->name('dpp.average-score.metrics');
+
+    Route::get('/api/assessment-scores-metrics', [App\Http\Controllers\DataController::class, 'getAssessmentScores'])->name('dpp.assessment-scores.metrics');
+
+    Route::get('/api/vacancies-metrics', [App\Http\Controllers\DataController::class, 'getVacanciesMetrics'])->name('dpp.vacancies.metrics');
+
+    Route::get('/api/interviews-metrics', [App\Http\Controllers\DataController::class, 'getInterviewsMetrics'])->name('dpp.interviews.metrics');
+
+    Route::get('/api/applicants-metrics', [App\Http\Controllers\DataController::class, 'getApplicantsMetrics'])->name('dpp.applicants.metrics');
+
+    Route::get('/api/talent-pool-metrics', [App\Http\Controllers\DataController::class, 'getTalentPoolMetrics'])->name('dpp.talent-pool.metrics');
+
+    Route::get('/api/demographic-metrics', [App\Http\Controllers\DataController::class, 'getDemographicMetrics'])->name('dpp.demographic.metrics');
 
     //Update Data
 

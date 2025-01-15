@@ -568,7 +568,7 @@ class ApplicantsReportDataService
                             $vacancyQuery->whereIn('store_id', $filters['store_id']);
                         }
                     });
-                }                
+                }
             } elseif ($filters['shortlisted'] === 'No') {
                 $query->whereNull('shortlist_id');
             }
@@ -603,7 +603,7 @@ class ApplicantsReportDataService
                         $vacancyQuery->whereIn('store_id', $filters['store_id']);
                     }
                 });
-            }            
+            }
         }
 
         // Appointed filter
@@ -626,7 +626,7 @@ class ApplicantsReportDataService
                         if (is_array($filters['store_id'])) {
                             $vacancyQuery->whereIn('store_id', $filters['store_id']);
                         }
-                    }  
+                    }
                 });
         } else {
             // Default date range filter for applicants
@@ -640,7 +640,7 @@ class ApplicantsReportDataService
             // Get stores based on the filter priority: division -> region -> store
             $stores = Store::when(isset($filters['division_id']), function ($query) use ($filters) {
                     return $query->where('division_id', $filters['division_id']);
-                })
+            })
                 ->when(isset($filters['region_id']), function ($query) use ($filters) {
                     return $query->where('region_id', $filters['region_id']);
                 })
@@ -779,13 +779,13 @@ class ApplicantsReportDataService
                     $query->whereHas('shortlist.vacancy.store', function ($storeQuery) use ($filters) {
                         $storeQuery->where('region_id', $filters['region_id']);
                     });
-                }elseif (isset($filters['store_id'])) {
+                } elseif (isset($filters['store_id'])) {
                     $query->whereHas('shortlist.vacancy', function ($vacancyQuery) use ($filters) {
                         if (is_array($filters['store_id'])) {
                             $vacancyQuery->whereIn('store_id', $filters['store_id']);
                         }
                     });
-                }                
+                }
             } elseif ($filters['shortlisted'] === 'No') {
                 $query->whereNull('shortlist_id');
             }
@@ -820,9 +820,9 @@ class ApplicantsReportDataService
                         $vacancyQuery->whereIn('store_id', $filters['store_id']);
                     }
                 });
-            }            
+            }
         }
-        
+
         // Default: Count all applicants appointed within the date range
         $totalApplicants = $query->count();
 
@@ -927,7 +927,7 @@ class ApplicantsReportDataService
                             $vacancyQuery->whereIn('store_id', $filters['store_id']);
                         }
                     });
-                }                
+                }
             } elseif ($filters['shortlisted'] === 'No') {
                 $query->whereNull('shortlist_id');
             }
@@ -962,7 +962,7 @@ class ApplicantsReportDataService
                         $vacancyQuery->whereIn('store_id', $filters['store_id']);
                     }
                 });
-            }            
+            }
         }
 
         // Appointed filter
@@ -985,7 +985,7 @@ class ApplicantsReportDataService
                         if (is_array($filters['store_id'])) {
                             $vacancyQuery->whereIn('store_id', $filters['store_id']);
                         }
-                    }                    
+                    }
                 });
         } else {
             // Default date range filter for applicants
@@ -997,7 +997,7 @@ class ApplicantsReportDataService
             // Get stores based on the filter priority: division -> region -> store
             $stores = Store::when(isset($filters['division_id']), function ($query) use ($filters) {
                     return $query->where('division_id', $filters['division_id']);
-                })
+            })
                 ->when(isset($filters['region_id']), function ($query) use ($filters) {
                     return $query->where('region_id', $filters['region_id']);
                 })
@@ -1005,7 +1005,7 @@ class ApplicantsReportDataService
                     if (is_array($filters['store_id'])) {
                         return $query->whereIn('id', $filters['store_id']);
                     }
-                })                
+                })
                 ->get();
 
             foreach ($stores as $store) {

@@ -49,7 +49,7 @@
                                 Hello, {{ Auth::user()->firstname }}!
                             </h4>
                             <p class="text-muted mb-0">
-                                Here's what's happening with the 
+                                Here's what's happening with the
                                 @if (isset($division))
                                     ({{ $division->name }})
                                 @endif division today.
@@ -71,7 +71,7 @@
                                         </div>
                                     </div> <!--end col-->
                                 </div> <!--end row -->
-                            </form>                            
+                            </form>
                         </div>
                     </div><!-- end card header -->
                 </div> <!--end col -->
@@ -81,7 +81,7 @@
                 Time
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="timeRow">
                 <!-- Time to Shortlist -->
                 <div class="col-xl-4 col-md-4" id="averageTimeToShortlistColumn">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The time from when a vacancy is created until the shortlist is generated.">
@@ -93,8 +93,13 @@
                                     </p>
                                     <h2 class="mt-4 ff-secondary fw-bold">
                                         <span id="averageTimeToShortlistValue">
-                                            {{ $divisionAverageTimeToShortlist }}
+                                            <div class="spinner-border text-secondary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
+                                        {{-- <span id="averageTimeToShortlistValue">
+                                            {{ $divisionAverageTimeToShortlist }}
+                                        </span> --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0">
@@ -125,8 +130,13 @@
                                     </p>
                                     <h2 class="mt-4 ff-secondary fw-bold">
                                         <span id="averageTimeToHireValue">
-                                            {{ $divisionAverageTimeToHire }}
+                                            <div class="spinner-border text-secondary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
+                                        {{-- <span id="averageTimeToHireValue">
+                                            {{ $divisionAverageTimeToHire }}
+                                        </span> --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0">
@@ -157,7 +167,9 @@
                                     </p>
                                     <h2 class="mt-4 ff-success fw-bold">
                                         <span id="adoptionRateValue">
-                                            {{ $divisionAdoptionRate }}%
+                                            <div class="spinner-border text-success" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
@@ -183,7 +195,7 @@
                 Proximity
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="proximityRow">
                 <!-- Average Proximity Talent Pool -->
                 <div class="col-xl-6 col-md-6">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average distance between the candidates in the talent pool and the store.">
@@ -198,9 +210,14 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                    <span id="averageDistanceTalentPoolApplicantsValue" class="counter-value"  data-target="{{ $divisionAverageDistanceTalentPoolApplicants }}">
+                                        <span id="averageDistanceTalentPoolApplicantsValue">
+                                            <div class="spinner-border text-body" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </span>
+                                    {{-- <span id="averageDistanceTalentPoolApplicantsValue" class="counter-value"  data-target="{{ $divisionAverageDistanceTalentPoolApplicants }}">
                                         0
-                                    </span>km 
+                                    </span>km --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average distance of talent pool
@@ -225,9 +242,14 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                    <span id="averageDistanceApplicantsAppointedValue" class="counter-value"  data-target="{{ $divisionAverageDistanceApplicantsAppointed }}">
+                                        <span id="averageDistanceApplicantsAppointedValue">
+                                            <div class="spinner-border text-body" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </span>
+                                    {{-- <span id="averageDistanceApplicantsAppointedValue" class="counter-value"  data-target="{{ $divisionAverageDistanceApplicantsAppointed }}">
                                         0
-                                    </span>km 
+                                    </span>km --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average distance for successful placements
@@ -243,7 +265,7 @@
                 Scores
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="averageScoresRow">
                 <!-- Average Score -->
                 <div class="col-xl-6 col-md-6">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average overall score of candidates successfully placed.">
@@ -258,9 +280,14 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="averageScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $divisionAverageScoreApplicantsAppointed }}">
-                                            0
+                                        <span id="averageScoreTalentPoolApplicants">
+                                            <div class="spinner-border text-body" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
+                                        {{-- <span id="averageScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $divisionAverageScoreApplicantsAppointed }}">
+                                            0
+                                        </span> --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average score for successful placements
@@ -272,7 +299,7 @@
                 </div> <!-- end col -->
 
                 <!-- Average Assessment Score -->
-                <div class="col-xl-6 col-md-6">
+                <div class="col-xl-6 col-md-6" id="assessmentScoresRow">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average assessment score of candidates successfully placed.">
                         <div class="card-header bg-success">
                             <div class="d-flex">
@@ -285,9 +312,14 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="averageAssessmentScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $divisionAverageAssessmentScoreApplicantsAppointed }}">
-                                            0
+                                        <span id="averageScoreApplicantsAppointedValue">
+                                            <div class="spinner-border text-body" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>%
+                                        {{-- <span id="averageAssessmentScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $divisionAverageAssessmentScoreApplicantsAppointed }}">
+                                            0
+                                        </span>% --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average assessment score for successful placements
@@ -303,7 +335,7 @@
                 Vacancies
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="vacanciesRow">
                 <!-- Total Created Vacancies -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of vacancies created.">
@@ -319,16 +351,21 @@
                                         Total Created Vacancies
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalVacanciesValue" class="counter-value" data-target="{{ $divisionTotalVacancies }}">
-                                            0
+                                        <span id="totalVacanciesValue">
+                                            <div class="spinner-border text-primary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
+                                        {{-- <span id="totalVacanciesValue" class="counter-value" data-target="{{ $divisionTotalVacancies }}">
+                                            0
+                                        </span> --}}
                                     </h4>
                                 </div>
                             </div>
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Vacancies Filled -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of vacancies successfully filled.">
@@ -344,9 +381,14 @@
                                         Total Vacancies Filled
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalVacanciesFilledValue" class="counter-value" data-target="{{ $divisionTotalVacanciesFilled }}">
-                                            0
+                                        <span id="totalVacanciesFilledValue">
+                                            <div class="spinner-border text-primary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
+                                        {{-- <span id="totalVacanciesFilledValue" class="counter-value" data-target="{{ $divisionTotalVacanciesFilled }}">
+                                            0
+                                        </span> --}}
                                     </h4>
                                 </div>
                                 <div class="flex-shrink-0">
@@ -357,12 +399,12 @@
                     </div><!-- end card -->
                 </div> <!--end col -->
             </div> <!--end row -->
-            
+
             <!-------------------------------------------------------------------------------------
                 Interviews
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="interviewsRow">
                 <!-- Total Interviews Scheduled -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of interviews scheduled.">
@@ -378,16 +420,21 @@
                                         Interviews Scheduled
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalInterviewsScheduledValue"  class="counter-value" data-target="{{ $divisionTotalInterviewsScheduled }}">
-                                            0
+                                        <span id="totalInterviewsScheduledValue">
+                                            <div class="spinner-border text-secondary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
+                                        {{-- <span id="totalInterviewsScheduledValue"  class="counter-value" data-target="{{ $divisionTotalInterviewsScheduled }}">
+                                            0
+                                        </span> --}}
                                     </h4>
                                 </div>
                             </div>
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Interviews Conducted -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of interviews successfully conducted.">
@@ -403,9 +450,14 @@
                                         Interviews Conducted
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalInterviewsCompletedValue" class="counter-value" data-target="{{ $divisionTotalInterviewsCompleted }}">
-                                            0
+                                        <span id="totalInterviewsCompletedValue">
+                                            <div class="spinner-border text-secondary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
+                                        {{-- <span id="totalInterviewsCompletedValue" class="counter-value" data-target="{{ $divisionTotalInterviewsCompleted }}">
+                                            0
+                                        </span> --}}
                                     </h4>
                                 </div>
                                 <div class="flex-shrink-0">
@@ -421,7 +473,7 @@
                 Applicants
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="applicantsRow">
                 <!-- Total Candidates Selected -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates selected for a position. This also indicates the percentage compared to the total scheduled interviews.">
@@ -437,9 +489,14 @@
                                         Candidates Selected
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalApplicantsAppointedValue" class="counter-value" data-target="{{ $divisionTotalApplicantsAppointed }}">
-                                            0
+                                        <span id="totalApplicantsAppointedValue">
+                                            <div class="spinner-border text-success" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
+                                        {{-- <span id="totalApplicantsAppointedValue" class="counter-value" data-target="{{ $divisionTotalApplicantsAppointed }}">
+                                            0
+                                        </span> --}}
                                     </h4>
                                 </div>
                                 <div class="flex-shrink-0">
@@ -449,7 +506,7 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Applicants Regretted -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates who recieved a regret notification. This also indicates the percentage compared to the total scheduled interviews.">
@@ -465,9 +522,14 @@
                                         Candidates Regretted
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalApplicantsRegrettedValue" class="counter-value" data-target="{{ $divisionTotalApplicantsRegretted }}">
-                                            0
+                                        <span id="totalApplicantsRegrettedValue">
+                                            <div class="spinner-border text-danger" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
+                                        {{-- <span id="totalApplicantsRegrettedValue" class="counter-value" data-target="{{ $divisionTotalApplicantsRegretted }}">
+                                            0
+                                        </span> --}}
                                     </h4>
                                 </div>
                                 <div class="flex-shrink-0">
@@ -483,7 +545,7 @@
                 Demographic Information
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="demographicRow">
                 <!-- Talent Pool Demographic -->
                 <div class="col-xl-4 col-md-4">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates in the talent pool.">
@@ -492,7 +554,7 @@
                                 Demographic (Talent Pool)
                             </h4>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="talent_pool_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card-body -->
@@ -507,7 +569,7 @@
                                 Demographic (Interviewed)
                             </h4>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="interviewed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card-body -->
@@ -522,7 +584,7 @@
                                 Demographic (Appointed)
                             </h4>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="appointed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card-body -->
@@ -534,7 +596,7 @@
                 Applicants
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="talentPoolRow">
                 <div class="col-xl-12 col-md-12">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This graph displays the total candidates that joined the talent pool compared to the total candidates appointed on a month-to-month basis.">
                         <div class="card-header border-0 align-items-center d-flex">
@@ -546,9 +608,14 @@
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
                                         <h5 class="mb-1">
-                                            <span id="talentPoolApplicantsValue" class="counter-value" data-target="{{ $divisionTalentPoolApplicants }}">
-                                                0
+                                            <span id="talentPoolApplicantsValue">
+                                                <div class="spinner-border text-body" role="status" style="width:1.5rem; height:1.5rem; font-size: 10px;">
+                                                    <span class="sr-only">Loading...</span>
+                                                </div>
                                             </span>
+                                            {{-- <span id="talentPoolApplicantsValue" class="counter-value" data-target="{{ $divisionTalentPoolApplicants }}">
+                                                0
+                                            </span> --}}
                                         </h5>
                                         <p class="text-muted mb-0">
                                             Total Talent Pool
@@ -558,9 +625,14 @@
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
                                         <h5 class="mb-1">
-                                            <span id="applicantsAppointedValue" class="counter-value" data-target="{{ $divisionApplicantsAppointed }}">
-                                                0
+                                            <span id="applicantsAppointedValue">
+                                                <div class="spinner-border text-body" role="status" style="width:1.5rem; height:1.5rem; font-size: 10px;">
+                                                    <span class="sr-only">Loading...</span>
+                                                </div>
                                             </span>
+                                            {{-- <span id="applicantsAppointedValue" class="counter-value" data-target="{{ $divisionApplicantsAppointed }}">
+                                                0
+                                            </span> --}}
                                         </h5>
                                         <p class="text-muted mb-0">
                                             Total Appointed
@@ -569,7 +641,7 @@
                                 </div> <!--end col -->
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="talent_pool_by_month" data-colors='["--vz-primary", "--vz-success"]' class="apex-charts" dir="ltr"></div>
                         </div> <!-- end card-body -->
@@ -591,17 +663,7 @@
 @section('script')
 <script>
     var shortlist = @json($shortlist);
-    var divisionTotalVacancies = @json($divisionTotalVacancies);
-    var divisionTotalVacanciesFilled = @json($divisionTotalVacanciesFilled);
-    var divisionTotalInterviewsScheduled = @json($divisionTotalInterviewsScheduled);
-    var divisionTotalInterviewsCompleted = @json($divisionTotalInterviewsCompleted);
-    var divisionTotalApplicantsAppointed = @json($divisionTotalApplicantsAppointed);
-    var divisionTotalApplicantsRegretted = @json($divisionTotalApplicantsRegretted);
-    var divisionTalentPoolApplicantsByMonth = @json($divisionTalentPoolApplicantsByMonth);
-    var divisionApplicantsAppointedByMonth = @json($divisionApplicantsAppointedByMonth);
-    var divisionTalentPoolApplicantsDemographic = @json($divisionTalentPoolApplicantsDemographic);
-    var divisionInterviewedApplicantsDemographic = @json($divisionInterviewedApplicantsDemographic);
-    var divisionAppointedApplicantsDemographic = @json($divisionAppointedApplicantsDemographic);
+    var division = @json($division);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

@@ -87,7 +87,7 @@ class DPPController extends Controller
             // Define the date range (from the start of the year to the end of today)
             $startDate = Carbon::now()->subYear()->startOfMonth(); // Start of the same month 12 months ago
             $endDate = Carbon::now()->endOfDay(); // End of today
-            
+
             // Set the type to 'division' to filter vacancies by the specific division ID in the query
             $type = 'division';
 
@@ -245,106 +245,106 @@ class DPPController extends Controller
             // Initialize variables to 0 or empty before the null check
 
             // Step 1: Initialize vacancy data
-            $divisionTotalVacancies = 0;
-            $divisionTotalVacanciesFilled = 0;
+            // $divisionTotalVacancies = 0;
+            // $divisionTotalVacanciesFilled = 0;
 
-            // Step 2: Initialize interview data
-            $divisionTotalInterviewsScheduled = 0;
-            $divisionTotalInterviewsCompleted = 0;
+            // // Step 2: Initialize interview data
+            // $divisionTotalInterviewsScheduled = 0;
+            // $divisionTotalInterviewsCompleted = 0;
 
-            // Step 3: Initialize appointed and regretted applicant data
-            $divisionTotalApplicantsAppointed = 0;
-            $divisionTotalApplicantsRegretted = 0;
+            // // Step 3: Initialize appointed and regretted applicant data
+            // $divisionTotalApplicantsAppointed = 0;
+            // $divisionTotalApplicantsRegretted = 0;
 
-            // Step 4: Initialize time data
-            $divisionAverageTimeToShortlist = 0;
-            $divisionAverageTimeToHire = 0;
-            $divisionAdoptionRate = 0;
+            // // Step 4: Initialize time data
+            // $divisionAverageTimeToShortlist = 0;
+            // $divisionAverageTimeToHire = 0;
+            // $divisionAdoptionRate = 0;
 
-            // Step 5: Initialize proximity data
-            $divisionAverageDistanceTalentPoolApplicants = 0;
-            $divisionAverageDistanceApplicantsAppointed = 0;
+            // // Step 5: Initialize proximity data
+            // $divisionAverageDistanceTalentPoolApplicants = 0;
+            // $divisionAverageDistanceApplicantsAppointed = 0;
 
-            // Step 6: Fetch applicant score data
-            $divisionAverageScoreApplicantsAppointed = 0;
-            $divisionAverageAssessmentScoreApplicantsAppointed = 0;
+            // // Step 6: Fetch applicant score data
+            // $divisionAverageScoreApplicantsAppointed = 0;
+            // $divisionAverageAssessmentScoreApplicantsAppointed = 0;
 
-            // Step 7: Fetch talent pool data
-            $divisionTalentPoolApplicants = 0;
-            $divisionTalentPoolApplicantsByMonth = [];
+            // // Step 7: Fetch talent pool data
+            // $divisionTalentPoolApplicants = 0;
+            // $divisionTalentPoolApplicantsByMonth = [];
 
-            // Step 8: Fetch applicants appointed data
-            $divisionApplicantsAppointed = 0;
-            $divisionApplicantsAppointedByMonth = [];
+            // // Step 8: Fetch applicants appointed data
+            // $divisionApplicantsAppointed = 0;
+            // $divisionApplicantsAppointedByMonth = [];
 
-            // Step 9: Fetch applicant demographic data
-            $divisionTalentPoolApplicantsDemographic = [];
-            $divisionInterviewedApplicantsDemographic = [];
-            $divisionAppointedApplicantsDemographic = [];
+            // // Step 9: Fetch applicant demographic data
+            // $divisionTalentPoolApplicantsDemographic = [];
+            // $divisionInterviewedApplicantsDemographic = [];
+            // $divisionAppointedApplicantsDemographic = [];
 
             // Check if the authenticated user is associated with a division
             if ($divisionId !== null) {
                 // Step 1: Fetch vacancy data from VacancyDataService
-                $divisionTotalVacancies = $this->vacancyDataService->getTotalVacancies($type, $divisionId, $startDate, $endDate);
-                $divisionTotalVacanciesFilled = $this->vacancyDataService->getTotalVacanciesFilled($type, $divisionId, $startDate, $endDate);
+                // $divisionTotalVacancies = $this->vacancyDataService->getTotalVacancies($type, $divisionId, $startDate, $endDate);
+                // $divisionTotalVacanciesFilled = $this->vacancyDataService->getTotalVacanciesFilled($type, $divisionId, $startDate, $endDate);
 
-                // Step 2: Fetch interview data from VacancyDataService
-                $divisionTotalInterviewsScheduled = $this->vacancyDataService->getTotalInterviewsScheduled($type, $divisionId, $startDate, $endDate);
-                $divisionTotalInterviewsCompleted = $this->vacancyDataService->getTotalInterviewsCompleted($type, $divisionId, $startDate, $endDate);
+                // // Step 2: Fetch interview data from VacancyDataService
+                // $divisionTotalInterviewsScheduled = $this->vacancyDataService->getTotalInterviewsScheduled($type, $divisionId, $startDate, $endDate);
+                // $divisionTotalInterviewsCompleted = $this->vacancyDataService->getTotalInterviewsCompleted($type, $divisionId, $startDate, $endDate);
 
-                // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
-                $divisionTotalApplicantsAppointed = $this->vacancyDataService->getTotalApplicantsAppointed($type, $divisionId, $startDate, $endDate);
-                $divisionTotalApplicantsRegretted = $this->vacancyDataService->getTotalApplicantsRegretted($type, $divisionId, $startDate, $endDate);
+                // // Step 3: Fetch appointed and regretted applicant data from VacancyDataService
+                // $divisionTotalApplicantsAppointed = $this->vacancyDataService->getTotalApplicantsAppointed($type, $divisionId, $startDate, $endDate);
+                // $divisionTotalApplicantsRegretted = $this->vacancyDataService->getTotalApplicantsRegretted($type, $divisionId, $startDate, $endDate);
 
-                // Step 4: Fetch time data from VacancyDataService
-                $divisionAverageTimeToShortlist = $this->vacancyDataService->getAverageTimeToShortlist($type, $divisionId, $startDate, $endDate);
-                $divisionAverageTimeToHire = $this->vacancyDataService->getAverageTimeToHire($type, $divisionId, $startDate, $endDate);
-                $divisionAdoptionRate = ($divisionTotalVacancies > 0) ? round($divisionTotalVacanciesFilled / $divisionTotalVacancies * 100) : 0;
+                // // Step 4: Fetch time data from VacancyDataService
+                // $divisionAverageTimeToShortlist = $this->vacancyDataService->getAverageTimeToShortlist($type, $divisionId, $startDate, $endDate);
+                // $divisionAverageTimeToHire = $this->vacancyDataService->getAverageTimeToHire($type, $divisionId, $startDate, $endDate);
+                // $divisionAdoptionRate = ($divisionTotalVacancies > 0) ? round($divisionTotalVacanciesFilled / $divisionTotalVacancies * 100) : 0;
 
-                // Step 5: Fetch proximity data from ApplicantProximityService
-                $divisionAverageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
-                $divisionAverageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $divisionId, $startDate, $endDate);
+                // // Step 5: Fetch proximity data from ApplicantProximityService
+                // $divisionAverageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
+                // $divisionAverageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $divisionId, $startDate, $endDate);
 
-                // Step 6: Fetch applicant score data from ApplicantDataService
-                $divisionAverageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, $divisionId, $startDate, $endDate);
-                $divisionAverageAssessmentScoreApplicantsAppointed = $this->applicantDataService->getAverageAssessmentScoreApplicantsAppointed($type, $divisionId, $startDate, $endDate);
+                // // Step 6: Fetch applicant score data from ApplicantDataService
+                // $divisionAverageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, $divisionId, $startDate, $endDate);
+                // $divisionAverageAssessmentScoreApplicantsAppointed = $this->applicantDataService->getAverageAssessmentScoreApplicantsAppointed($type, $divisionId, $startDate, $endDate);
 
-                // Step 7: Fetch talent pool data from applicantProximityService
-                $divisionTalentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
-                $divisionTalentPoolApplicantsByMonth = $this->applicantProximityService->getTalentPoolApplicantsByMonth($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
+                // // Step 7: Fetch talent pool data from applicantProximityService
+                // $divisionTalentPoolApplicants = $this->applicantProximityService->getTalentPoolApplicants($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
+                // $divisionTalentPoolApplicantsByMonth = $this->applicantProximityService->getTalentPoolApplicantsByMonth($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
 
-                // Step 8: Fetch applicants appointed data from vacancyDataService
-                $divisionApplicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, $divisionId, $startDate, $endDate);
-                $divisionApplicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, $divisionId, $startDate, $endDate);
+                // // Step 8: Fetch applicants appointed data from vacancyDataService
+                // $divisionApplicantsAppointed = $this->vacancyDataService->getApplicantsAppointed($type, $divisionId, $startDate, $endDate);
+                // $divisionApplicantsAppointedByMonth = $this->vacancyDataService->getApplicantsAppointedByMonth($type, $divisionId, $startDate, $endDate);
 
-                // Step 9: Fetch applicant demographic data from applicantDataService
-                $divisionTalentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
-                $divisionInterviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, $divisionId, $startDate, $endDate);
-                $divisionAppointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, $divisionId, $startDate, $endDate);
+                // // Step 9: Fetch applicant demographic data from applicantDataService
+                // $divisionTalentPoolApplicantsDemographic = $this->applicantDataService->getTalentPoolApplicantsDemographic($type, $divisionId, $startDate, $endDate, $maxDistanceFromStore);
+                // $divisionInterviewedApplicantsDemographic = $this->applicantDataService->getInterviewedApplicantsDemographic($type, $divisionId, $startDate, $endDate);
+                // $divisionAppointedApplicantsDemographic = $this->applicantDataService->getAppointedApplicantsDemographic($type, $divisionId, $startDate, $endDate);
             }
 
             //Data to return
             $data = [
-                'divisionTotalVacancies' => $divisionTotalVacancies,
-                'divisionTotalVacanciesFilled' => $divisionTotalVacanciesFilled,
-                'divisionTotalInterviewsScheduled' => $divisionTotalInterviewsScheduled,
-                'divisionTotalInterviewsCompleted' => $divisionTotalInterviewsCompleted,
-                'divisionTotalApplicantsAppointed' => $divisionTotalApplicantsAppointed,
-                'divisionTotalApplicantsRegretted' => $divisionTotalApplicantsRegretted,
-                'divisionAverageTimeToShortlist' => $divisionAverageTimeToShortlist,
-                'divisionAverageTimeToHire' => $divisionAverageTimeToHire,
-                'divisionAdoptionRate' => $divisionAdoptionRate,
-                'divisionAverageDistanceTalentPoolApplicants' => $divisionAverageDistanceTalentPoolApplicants,
-                'divisionAverageDistanceApplicantsAppointed' => $divisionAverageDistanceApplicantsAppointed,
-                'divisionAverageScoreApplicantsAppointed' => $divisionAverageScoreApplicantsAppointed,
-                'divisionAverageAssessmentScoreApplicantsAppointed' => $divisionAverageAssessmentScoreApplicantsAppointed,
-                'divisionTalentPoolApplicants' => $divisionTalentPoolApplicants,
-                'divisionTalentPoolApplicantsByMonth' => $divisionTalentPoolApplicantsByMonth,
-                'divisionApplicantsAppointed' => $divisionApplicantsAppointed,
-                'divisionApplicantsAppointedByMonth' => $divisionApplicantsAppointedByMonth,
-                'divisionTalentPoolApplicantsDemographic' => $divisionTalentPoolApplicantsDemographic,
-                'divisionInterviewedApplicantsDemographic' => $divisionInterviewedApplicantsDemographic,
-                'divisionAppointedApplicantsDemographic' => $divisionAppointedApplicantsDemographic
+                // 'divisionTotalVacancies' => $divisionTotalVacancies,
+                // 'divisionTotalVacanciesFilled' => $divisionTotalVacanciesFilled,
+                // 'divisionTotalInterviewsScheduled' => $divisionTotalInterviewsScheduled,
+                // 'divisionTotalInterviewsCompleted' => $divisionTotalInterviewsCompleted,
+                // 'divisionTotalApplicantsAppointed' => $divisionTotalApplicantsAppointed,
+                // 'divisionTotalApplicantsRegretted' => $divisionTotalApplicantsRegretted,
+                // 'divisionAverageTimeToShortlist' => $divisionAverageTimeToShortlist,
+                // 'divisionAverageTimeToHire' => $divisionAverageTimeToHire,
+                // 'divisionAdoptionRate' => $divisionAdoptionRate,
+                // 'divisionAverageDistanceTalentPoolApplicants' => $divisionAverageDistanceTalentPoolApplicants,
+                // 'divisionAverageDistanceApplicantsAppointed' => $divisionAverageDistanceApplicantsAppointed,
+                // 'divisionAverageScoreApplicantsAppointed' => $divisionAverageScoreApplicantsAppointed,
+                // 'divisionAverageAssessmentScoreApplicantsAppointed' => $divisionAverageAssessmentScoreApplicantsAppointed,
+                // 'divisionTalentPoolApplicants' => $divisionTalentPoolApplicants,
+                // 'divisionTalentPoolApplicantsByMonth' => $divisionTalentPoolApplicantsByMonth,
+                // 'divisionApplicantsAppointed' => $divisionApplicantsAppointed,
+                // 'divisionApplicantsAppointedByMonth' => $divisionApplicantsAppointedByMonth,
+                // 'divisionTalentPoolApplicantsDemographic' => $divisionTalentPoolApplicantsDemographic,
+                // 'divisionInterviewedApplicantsDemographic' => $divisionInterviewedApplicantsDemographic,
+                // 'divisionAppointedApplicantsDemographic' => $divisionAppointedApplicantsDemographic
             ];
 
             // Return the updated data as JSON

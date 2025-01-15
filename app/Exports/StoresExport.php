@@ -116,7 +116,7 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         // Calculate percentage of successful interviews
         $successfulInterviewsPercentage = $totalInterviewsConducted > 0
         ? round(($totalApplicantsPlaced / $totalInterviewsConducted) * 100)
-        : 0;    
+        : 0;
 
         // Calculate Average Time to Shortlist
         $averageTimeToShortlist = $this->calculateAverageTimeToShortlist($store);
@@ -162,7 +162,7 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             'Branch Name',
             'Branch Code',
             'Province',
-            'Town',          
+            'Town',
             'Branch Address',
             'Total Vacancies',
             'Total Interviews Conducted',
@@ -221,7 +221,7 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             'A' => 20, // Brand
             'B' => 20, // Region
             'C' => 20, // Division
-            'D' => 30, // Branch Name            
+            'D' => 30, // Branch Name
             'E' => 15, // Branch Code
             'F' => 20, // Province
             'G' => 20, // Town
