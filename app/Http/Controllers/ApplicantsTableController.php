@@ -69,6 +69,7 @@ class ApplicantsTableController extends Controller
             ])
             ->orderby('firstname')
             ->orderby('lastname')
+            ->take(10)
             ->get();
 
             // Genders
@@ -400,6 +401,39 @@ class ApplicantsTableController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to delete applicants!',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Applicant Pagination
+    |--------------------------------------------------------------------------
+    */
+
+    public function fetchApplicants(Request $request)
+    {
+        try {
+            $perPage = $request->get('per_page', 10); // Default to 10 items per page
+            $applicants = Applicant::with(['town', 'gender', 'race', 'education', 'duration', 'brands', 'state'])
+                ->orderBy('firstname')
+                ->orderBy('lastname')
+                ->paginate($perPage);
+
+            return response()->json([
+                'success' => true,
+                'current_page' => $applicants->currentPage(),
+                'last_page' => $applicants->lastPage(),
+                'prev_page_url' => $applicants->previousPageUrl(),
+                'next_page_url' => $applicants->nextPageUrl(),
+                'data' => $applicants->items(),
+                'path' => $applicants->path(),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch applicants!',
                 'error' => $e->getMessage()
             ], 500);
         }
