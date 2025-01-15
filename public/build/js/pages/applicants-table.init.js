@@ -832,12 +832,13 @@ $(document).on('click', '.pagination a, .pagination-prev, .pagination-next', fun
     if (!page || page < 1) return; // Prevent invalid page numbers
 
     const perPage = $('#per-page-select').val() || 10; // Fetch per-page value if needed
+    const searchQuery = $('#search').val().trim(); // Get the search term
     const url = route('applicants-table.fetchApplicants'); // Ensure this route is defined
 
     $.ajax({
         url: url,
         type: 'GET',
-        data: { page: page, per_page: perPage },
+        data: { page: page, per_page: perPage, search: searchQuery },
         success: function (response) {
             // Clear the existing list
             applicantsTableList.clear();
@@ -845,17 +846,51 @@ $(document).on('click', '.pagination a, .pagination-prev, .pagination-next', fun
             // Add new data to the list
             response.data.forEach(applicant => {
                 applicantsTableList.add({
-                    id: applicant.id,
-                    name: `${applicant.firstname} ${applicant.lastname}`,
+                    id: applicant.encrypted_id,
+                    name: `
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <img src="${applicant.avatar || 'images/avatar.jpg'}" alt="" class="avatar-xs rounded-circle">
+                            </div>
+                            <div class="flex-grow-1 ms-2 name">${applicant.firstname || ''} ${applicant.lastname || ''}</div>
+                        </div>
+                    `,
                     id_number: applicant.id_number,
                     phone: applicant.phone,
-                    employment: applicant.employment,
-                    state: applicant.state ? applicant.state.name : 'N/A',
+                    employment: (() => {
+                        let employmentStatus = 'Inconclusive';
+                        let statusClass = 'dark';
+                        switch (applicant.employment) {
+                            case 'A':
+                                employmentStatus = 'Active Employee';
+                                statusClass = 'warning';
+                                break;
+                            case 'B':
+                                employmentStatus = 'Blacklisted';
+                                statusClass = 'danger';
+                                break;
+                            case 'P':
+                                employmentStatus = 'Previously Employed';
+                                statusClass = 'info';
+                                break;
+                            case 'N':
+                                employmentStatus = 'Not an Employee';
+                                statusClass = 'success';
+                                break;
+                            case 'I':
+                            default:
+                                employmentStatus = 'Inconclusive';
+                                statusClass = 'dark';
+                                break;
+                        }
+                        return `<span class="badge bg-${statusClass}-subtle text-${statusClass} text-uppercase">${employmentStatus}</span>`;
+                    })(),
+                    state: applicant.state ? applicant.state.name : '',
                     email: applicant.email,
-                    town: applicant.town ? applicant.town.name : 'N/A',
-                    age: applicant.age,
-                    gender: applicant.gender ? applicant.gender.name : 'N/A',
-                    race: applicant.race ? applicant.race.name : 'N/A',
+                    town: applicant.town ? applicant.town.name : '',
+                    age: applicant.age || 'N/A',
+                    gender: applicant.gender ? applicant.gender.name : '',
+                    race: applicant.race ? applicant.race.name : '',
                     score: applicant.score || 'N/A',
                 });
             });
@@ -939,41 +974,70 @@ function updatePagination(response) {
 
 $(document).on('change', '#per-page-select', function () {
     const perPage = parseInt($(this).val(), 10) || 10; // Get the selected per-page value
+    const searchQuery = $('#search').val().trim(); // Get the search term
     const currentPage = parseInt($('.pagination .active a').data('i'), 10) || 1; // Get the current page from pagination
     const url = route('applicants-table.fetchApplicants'); // Ensure the route is correct
-
-    console.log(`Fetching with perPage: ${perPage}, currentPage: ${currentPage}`);
 
     // AJAX request to fetch the updated data
     $.ajax({
         url: url,
         type: 'GET',
-        data: { page: currentPage, per_page: perPage },
+        data: { page: currentPage, per_page: perPage, search: searchQuery },
         success: function (response) {
-            console.log('Server response for perPage change:', response);
-
             // Clear the existing list
             applicantsTableList.clear();
 
             // Add new data to the list
             response.data.forEach(applicant => {
                 applicantsTableList.add({
-                    id: applicant.id,
-                    name: `${applicant.firstname} ${applicant.lastname}`,
+                    id: applicant.encrypted_id,
+                    name: `
+                        <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0">
+                                <img src="${applicant.avatar || 'images/avatar.jpg'}" alt="" class="avatar-xs rounded-circle">
+                            </div>
+                            <div class="flex-grow-1 ms-2 name">${applicant.firstname || ''} ${applicant.lastname || ''}</div>
+                        </div>
+                    `,
                     id_number: applicant.id_number,
                     phone: applicant.phone,
-                    employment: applicant.employment,
-                    state: applicant.state ? applicant.state.name : 'N/A',
+                    employment: (() => {
+                        let employmentStatus = 'Inconclusive';
+                        let statusClass = 'dark';
+                        switch (applicant.employment) {
+                            case 'A':
+                                employmentStatus = 'Active Employee';
+                                statusClass = 'warning';
+                                break;
+                            case 'B':
+                                employmentStatus = 'Blacklisted';
+                                statusClass = 'danger';
+                                break;
+                            case 'P':
+                                employmentStatus = 'Previously Employed';
+                                statusClass = 'info';
+                                break;
+                            case 'N':
+                                employmentStatus = 'Not an Employee';
+                                statusClass = 'success';
+                                break;
+                            case 'I':
+                            default:
+                                employmentStatus = 'Inconclusive';
+                                statusClass = 'dark';
+                                break;
+                        }
+                        return `<span class="badge bg-${statusClass}-subtle text-${statusClass} text-uppercase">${employmentStatus}</span>`;
+                    })(),
+                    state: applicant.state ? applicant.state.name : '',
                     email: applicant.email,
-                    town: applicant.town ? applicant.town.name : 'N/A',
-                    age: applicant.age,
-                    gender: applicant.gender ? applicant.gender.name : 'N/A',
-                    race: applicant.race ? applicant.race.name : 'N/A',
+                    town: applicant.town ? applicant.town.name : '',
+                    age: applicant.age || 'N/A',
+                    gender: applicant.gender ? applicant.gender.name : '',
+                    race: applicant.race ? applicant.race.name : '',
                     score: applicant.score || 'N/A',
                 });
             });
-
-            console.log('Updated list after perPage change');
 
             // Update pagination buttons
             updatePagination(response);
@@ -1000,4 +1064,96 @@ $(document).on('change', '#per-page-select', function () {
             });
         },
     });
+});
+
+/*
+|--------------------------------------------------------------------------
+| Search
+|--------------------------------------------------------------------------
+*/
+
+$(document).on('input', '#search', function () {
+    const searchQuery = $(this).val().trim(); // Get the search term
+    const perPage = $('#per-page-select').val() || 10; // Fetch per-page value
+    const url = route('applicants-table.fetchApplicants'); // Ensure this route is defined
+
+    // Debounce to prevent too many requests while typing
+    clearTimeout(window.searchTimeout);
+    window.searchTimeout = setTimeout(() => {
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: { search: searchQuery, per_page: perPage },
+            success: function (response) {
+                // Clear the existing list
+                applicantsTableList.clear();
+
+                if (response.data.length === 0) {
+                    // Show the "No Results Found" message
+                    $('.noresult').show(); // Make the message visible
+                } else {
+                    // Hide the "No Results Found" message
+                    $('.noresult').hide();        
+
+                    // Add new data to the list
+                    response.data.forEach(applicant => {
+                        applicantsTableList.add({
+                            id: applicant.encrypted_id,
+                            name: `
+                                <div class="d-flex align-items-center">
+                                    <div class="flex-shrink-0">
+                                        <img src="${applicant.avatar || 'images/avatar.jpg'}" alt="" class="avatar-xs rounded-circle">
+                                    </div>
+                                    <div class="flex-grow-1 ms-2 name">${applicant.firstname || ''} ${applicant.lastname || ''}</div>
+                                </div>
+                            `,
+                            id_number: applicant.id_number,
+                            phone: applicant.phone,
+                            employment: (() => {
+                                let employmentStatus = 'Inconclusive';
+                                let statusClass = 'dark';
+                                switch (applicant.employment) {
+                                    case 'A':
+                                        employmentStatus = 'Active Employee';
+                                        statusClass = 'warning';
+                                        break;
+                                    case 'B':
+                                        employmentStatus = 'Blacklisted';
+                                        statusClass = 'danger';
+                                        break;
+                                    case 'P':
+                                        employmentStatus = 'Previously Employed';
+                                        statusClass = 'info';
+                                        break;
+                                    case 'N':
+                                        employmentStatus = 'Not an Employee';
+                                        statusClass = 'success';
+                                        break;
+                                    case 'I':
+                                    default:
+                                        employmentStatus = 'Inconclusive';
+                                        statusClass = 'dark';
+                                        break;
+                                }
+                                return `<span class="badge bg-${statusClass}-subtle text-${statusClass} text-uppercase">${employmentStatus}</span>`;
+                            })(),
+                            state: applicant.state ? applicant.state.name : '',
+                            email: applicant.email,
+                            town: applicant.town ? applicant.town.name : '',
+                            age: applicant.age || 'N/A',
+                            gender: applicant.gender ? applicant.gender.name : '',
+                            race: applicant.race ? applicant.race.name : '',
+                            score: applicant.score || 'N/A',
+                        });
+                    });
+
+                    // Update pagination buttons
+                    updatePagination(response);
+                }
+            },
+            error: function (xhr) {
+                console.error('Error fetching data:', xhr.responseText);
+            }
+        });
+    }, 300); // Debounce delay in milliseconds
 });

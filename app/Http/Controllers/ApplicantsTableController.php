@@ -416,10 +416,69 @@ class ApplicantsTableController extends Controller
     {
         try {
             $perPage = $request->get('per_page', 10); // Default to 10 items per page
-            $applicants = Applicant::with(['town', 'gender', 'race', 'education', 'duration', 'brands', 'state'])
+            $search = $request->get('search', ''); // Search keyword
+
+            $applicantsQuery = Applicant::with(['town', 'gender', 'race', 'education', 'duration', 'brands', 'state'])
                 ->orderBy('firstname')
-                ->orderBy('lastname')
-                ->paginate($perPage);
+                ->orderBy('lastname');
+
+            // Map human-readable terms to employment codes
+            $employmentMapping = [
+                'inconclusive' => 'I',
+                'active employee' => 'A',
+                'active' => 'A',
+                'blacklisted' => 'B',
+                'previously employed' => 'P',
+                'previously' => 'P',
+                'not an employee' => 'N',
+                'not employee' => 'N',
+            ];
+
+            $employmentCode = null;
+
+            // Normalize the search term for case-insensitive matching
+            if (!empty($search)) {
+                $lowerSearch = strtolower($search); // Convert search term to lowercase
+                if (array_key_exists($lowerSearch, $employmentMapping)) {
+                    $employmentCode = $employmentMapping[$lowerSearch];
+                }
+            }
+
+            // Apply filters to the query
+            $applicantsQuery->where(function ($query) use ($search, $employmentCode) {
+                $lowerSearch = strtolower($search); // Normalize search term for all filters
+
+                // Filter by employment code if applicable
+                $query->when($employmentCode, function ($q) use ($employmentCode) {
+                    $q->orWhere('employment', $employmentCode);
+                });
+
+                // Apply case-insensitive search for other fields
+                $query->when(!$employmentCode, function ($q) use ($lowerSearch) {
+                    $q->whereRaw('LOWER(firstname) LIKE ?', ["$lowerSearch%"])
+                        ->orWhereRaw('LOWER(lastname) LIKE ?', ["$lowerSearch%"])
+                        ->orWhereRaw('LOWER(id_number) LIKE ?', ["$lowerSearch%"])
+                        ->orWhereRaw('LOWER(phone) LIKE ?', ["$lowerSearch%"])
+                        ->orWhereRaw('LOWER(employment) LIKE ?', ["$lowerSearch%"])
+                        ->orWhereHas('state', function ($q) use ($lowerSearch) {
+                            $q->whereRaw('LOWER(name) LIKE ?', ["$lowerSearch%"]);
+                        })
+                        ->orWhereRaw('LOWER(email) LIKE ?', ["$lowerSearch%"])
+                        ->orWhereHas('town', function ($q) use ($lowerSearch) {
+                            $q->whereRaw('LOWER(name) LIKE ?', ["$lowerSearch%"]);
+                        })
+                        ->orWhereRaw('LOWER(age) LIKE ?', ["$lowerSearch%"])
+                        ->orWhereHas('gender', function ($q) use ($lowerSearch) {
+                            $q->whereRaw('LOWER(name) LIKE ?', ["$lowerSearch%"]);
+                        })
+                        ->orWhereHas('race', function ($q) use ($lowerSearch) {
+                            $q->whereRaw('LOWER(name) LIKE ?', ["$lowerSearch%"]);
+                        })
+                        ->orWhereRaw('LOWER(score) LIKE ?', ["$lowerSearch%"]);
+                });
+            });
+
+            $applicants = $applicantsQuery->paginate($perPage);
 
             return response()->json([
                 'success' => true,

@@ -47,7 +47,7 @@
                     <div class="row g-3">
                         <div class="col-md-8">
                             <div class="search-box">
-                                <input type="text" class="form-control search" placeholder="Search for applicant...">
+                                <input type="text" class="form-control" id="search" placeholder="Search for applicant...">
                                 <i class="ri-search-line search-icon"></i>
                             </div>
                         </div>
