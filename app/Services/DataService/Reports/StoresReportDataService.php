@@ -8,6 +8,7 @@ use App\Models\Store;
 use App\Models\Vacancy;
 use App\Models\Applicant;
 use App\Models\Interview;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\DB;
 
 class StoresReportDataService
@@ -24,21 +25,8 @@ class StoresReportDataService
     public function getAverageTimeToShortlist(string $type = null, ?int $id = null, Carbon $startDate, Carbon $endDate): string
     {
         // Retrieve vacancies within the specified date range using Eloquent and filter by store, division, or region
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])
-            ->when($type === 'store', function ($query) use ($id) {
-                return $query->where('store_id', $id);
-            })
-            ->when($type === 'division', function ($query) use ($id) {
-                return $query->whereHas('store', function ($q) use ($id) {
-                    $q->where('division_id', $id);
-                });
-            })
-            ->when($type === 'region', function ($query) use ($id) {
-                return $query->whereHas('store', function ($q) use ($id) {
-                    $q->where('region_id', $id);
-                });
-            })
-            ->with('shortlists')
+        $vacancies = $this->getBaseVacancyQuery($type, $id, $startDate, $endDate)
+            ->with('shortlists') // Load shortlists relationship
             ->get();
 
         $totalTimeInSeconds = 0;
@@ -97,24 +85,13 @@ class StoresReportDataService
     public function getAverageTimeToHire(string $type = null, ?int $id = null, Carbon $startDate, Carbon $endDate): string
     {
         // Retrieve vacancies within the specified date range using Eloquent and filter by store, division, or region
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])
-            ->when($type === 'store', function ($query) use ($id) {
-                return $query->where('store_id', $id);
-            })
-            ->when($type === 'division', function ($query) use ($id) {
-                return $query->whereHas('store', function ($q) use ($id) {
-                    $q->where('division_id', $id);
-                });
-            })
-            ->when($type === 'region', function ($query) use ($id) {
-                return $query->whereHas('store', function ($q) use ($id) {
-                    $q->where('region_id', $id);
-                });
-            })
-            ->with(['appointed' => function ($query) {
+        $vacancyQuery = $this->getBaseVacancyQuery($type, $id, $startDate, $endDate);
+
+        $vacancies = $vacancyQuery->with([
+            'appointed' => function ($query) {
                 $query->orderBy('vacancy_fills.created_at', 'asc'); // Order by first appointment
-            }])
-            ->get();
+            }
+        ])->get();
 
         $totalTimeInSeconds = 0;
         $hiringCount = 0;
@@ -1162,5 +1139,33 @@ class StoresReportDataService
 
         // Return the total count of completed interviews
         return $interviews->count();
+    }
+
+    /**
+     * Generate the base query for vacancies.
+     *
+     * @param string|null $type The type of filter (e.g., 'store', 'division', 'region').
+     * @param int|null $id The ID for filtering (e.g., store_id, division_id, or region_id).
+     * @param \Carbon\Carbon $startDate The start date for filtering.
+     * @param \Carbon\Carbon $endDate The end date for filtering.
+     * @return Builder
+     */
+    protected function getBaseVacancyQuery(?string $type, ?int $id, Carbon $startDate, Carbon $endDate): Builder
+    {
+        return Vacancy::select('id', 'store_id', 'created_at')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->when($type === 'store', function ($query) use ($id) {
+                return $query->where('store_id', $id);
+            })
+            ->when($type === 'division', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->select('id', 'division_id')->where('division_id', $id);
+                });
+            })
+            ->when($type === 'region', function ($query) use ($id) {
+                return $query->whereHas('store', function ($q) use ($id) {
+                    $q->select('id', 'region_id')->where('region_id', $id);
+                });
+            });
     }
 }
