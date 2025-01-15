@@ -231,7 +231,7 @@ class ApplicantsReportController extends Controller
      * Retrieve talent pool-related metrics.
      *
      * This method calculates and returns key metrics related to the talent pool,
-     * including the total number of talent pool applicants, applicants appointed, 
+     * including the total number of talent pool applicants, applicants appointed,
      * and the monthly breakdown for both metrics.
      * The data is returned as a JSON response.
      *
