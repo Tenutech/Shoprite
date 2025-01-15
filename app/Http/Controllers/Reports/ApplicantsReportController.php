@@ -112,50 +112,6 @@ class ApplicantsReportController extends Controller
             // Fetch the authenticated user
             $authUser = User::find($authUserId);
 
-            // Define the date range (from the start of the year to the end of today)
-            $startDate = Carbon::now()->startOfYear();
-            $endDate = Carbon::now()->endOfDay();
-
-            // Set the type to 'all' to filter all vacancies
-            $type = 'all';
-            $id = null;
-
-            // Set the $type based on the role_id of $authUser
-            if ($authUser->role_id == 3) {
-                $type = 'region';
-                $id = $authUser->region_id;
-            } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
-                $type = 'division';
-                $id = $authUser->devision_id;
-            } elseif ($authUser->role_id == 6) {
-                $type = 'store';
-                $id = $authUser->store_id;
-            }
-
-            // Get the max proximity from store
-            $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
-
-            // Initialize variables to 0 or empty before the null check
-
-            // Step 1: Initialize applicant data
-            //$totalApplicants = 0;
-            //$totalAppointedApplicants = 0;
-            //$totalApplicantsByMonth = [];
-            //$totalApplicantsAppointedByMonth = [];
-            //$totalApplicantsGenderByMonth = [];
-            //$totalApplicantsRaceByMonth = [];
-
-            // Check if the type is active
-            if ($type !== null) {
-                // Step 1: Fetch applicant data from ApplicantsReportDataService
-                //$totalApplicants = $this->applicantsReportDataService->getTotalApplicants($type, $id, $startDate, $endDate);
-                //$totalAppointedApplicants = $this->applicantsReportDataService->getTotalAppointedApplicants($type, $id, $startDate, $endDate);
-                //$totalApplicantsByMonth = $this->applicantsReportDataService->getTotalApplicantsByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
-                //$totalApplicantsAppointedByMonth = $this->applicantsReportDataService->getTotalApplicantsAppointedByMonth($type, $id, $startDate, $endDate);
-                //$totalApplicantsGenderByMonth = $this->applicantsReportDataService->getTotalApplicantsGenderByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
-                //$totalApplicantsRaceByMonth = $this->applicantsReportDataService->getTotalApplicantsRaceByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
-            }
-
             // Genders
             $genders = Gender::all();
 
@@ -216,19 +172,13 @@ class ApplicantsReportController extends Controller
 
             // Return the 'reports/applicants' view with the calculated data
             return view('reports/applicants', [
-                //'totalApplicants' => $totalApplicants,
-                //'totalAppointedApplicants' => $totalAppointedApplicants,
-                //'totalApplicantsByMonth' => $totalApplicantsByMonth,
-                //'totalApplicantsAppointedByMonth' => $totalApplicantsAppointedByMonth,
-                //'totalApplicantsGenderByMonth' => $totalApplicantsGenderByMonth,
-                //'totalApplicantsRaceByMonth' => $totalApplicantsRaceByMonth,
                 'genders' => $genders,
                 'races' => $races,
                 'educations' => $educations,
                 'experiences' => $experiences,
                 'divisions' => $divisions,
                 'regions' => $regions,
-                'stores' => $stores,
+                'stores' => $stores
             ]);
         }
 
