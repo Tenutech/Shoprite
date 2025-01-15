@@ -84,7 +84,7 @@
             <div class="row g-3">
                 <!-- Time to Shortlist -->
                 <div class="col-xl-4 col-md-4" id="averageTimeToShortlistColumn">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The time from when a vacancy is created until the shortlist is generated.">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -116,7 +116,7 @@
 
                 <!-- Time to Hire -->
                 <div class="col-xl-4 col-md-4" id="averageTimeToHireColumn">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The time from when a vacancy is created until a candidate is successfully placed.">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -148,7 +148,7 @@
 
                 <!-- Placement Rate -->
                 <div class="col-xl-4 col-md-4" id="adoptionRateColumn">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The percentage of vacancies successfully filled.">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -186,7 +186,7 @@
             <div class="row g-3">
                 <!-- Average Proximity Talent Pool -->
                 <div class="col-xl-6 col-md-6">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average distance between the candidates in the talent pool and the store.">
                         <div class="card-header bg-secondary">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1 text-white">
@@ -213,7 +213,7 @@
 
                 <!-- Average Proximity Appointed -->
                 <div class="col-xl-6 col-md-6">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average distance between successfully appointed candidates and the store.">
                         <div class="card-header bg-secondary">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1 text-white">
@@ -246,7 +246,7 @@
             <div class="row g-3">
                 <!-- Average Score -->
                 <div class="col-xl-6 col-md-6">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average overall score of candidates successfully placed.">
                         <div class="card-header bg-success">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1 text-white">
@@ -306,7 +306,7 @@
             <div class="row g-3">
                 <!-- Total Created Vacancies -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of vacancies created.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -331,7 +331,7 @@
             
                 <!-- Total Vacancies Filled -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of vacancies successfully filled.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -365,7 +365,7 @@
             <div class="row g-3">
                 <!-- Total Interviews Scheduled -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of interviews scheduled.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -390,7 +390,7 @@
             
                 <!-- Total Interviews Conducted -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of interviews successfully conducted.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -424,7 +424,7 @@
             <div class="row g-3">
                 <!-- Total Candidates Selected -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates selected for a position. This also indicates the percentage compared to the total scheduled interviews.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s2" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -452,7 +452,7 @@
             
                 <!-- Total Applicants Regretted -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates who recieved a regret notification. This also indicates the percentage compared to the total scheduled interviews.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s3" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -462,7 +462,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">
                                     <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Applicants Regretted
+                                        Candidates Regretted
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
                                         <span id="totalApplicantsRegrettedValue" class="counter-value" data-target="{{ $regionTotalApplicantsRegretted }}">
@@ -486,7 +486,7 @@
             <div class="row g-3">
                 <!-- Talent Pool Demographic -->
                 <div class="col-xl-4 col-md-4">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates in the talent pool.">
                         <div class="card-header">
                             <h4 class="card-title mb-0">
                                 Demographic (Talent Pool)
@@ -501,7 +501,7 @@
 
                 <!-- Interviewed Demographic -->
                 <div class="col-xl-4 col-md-4">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates who have been interviewed.">
                         <div class="card-header">
                             <h4 class="card-title mb-0">
                                 Demographic (Interviewed)
@@ -516,7 +516,7 @@
 
                 <!-- Appointed Demographic -->
                 <div class="col-xl-4 col-md-4">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates who have been successfully placed.">
                         <div class="card-header">
                             <h4 class="card-title mb-0">
                                 Demographic (Appointed)
@@ -536,7 +536,7 @@
             
             <div class="row g-3">
                 <div class="col-xl-12 col-md-12">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This graph displays the total candidates that joined the talent pool compared to the total candidates appointed on a month-to-month basis.">
                         <div class="card-header border-0 align-items-center d-flex">
                             <h4 class="card-title mb-0 flex-grow-1">Talent Pool</h4>
                         </div><!-- end card header -->

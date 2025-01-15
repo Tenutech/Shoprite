@@ -253,7 +253,7 @@
             <div class="row g-3" id="averageScoresRow">
                 <!-- Average Score Talent Pool -->
                 <div class="col-xl-6 col-md-6">
-                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average score of candidates in the talent pool based on the weightings.">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average overall score of candidates in the talent pool based on the weightings.">
                         <div class="card-header">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1">
@@ -282,7 +282,7 @@
 
                 <!-- Average Score Successful Placements -->
                 <div class="col-xl-6 col-md-6">
-                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average score of candidates successfully placed.">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average overall score of candidates successfully placed.">
                         <div class="card-header">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1">
