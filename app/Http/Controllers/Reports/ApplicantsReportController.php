@@ -46,6 +46,58 @@ class ApplicantsReportController extends Controller
     }
 
     /**
+     * Retrieve common data for metrics calculations.
+     *
+     * This method fetches the authenticated user, determines the date range,
+     * and sets the type and ID based on the user's role.
+     *
+     * @return array An array containing authUser, startDate, endDate, type, and id.
+     */
+    protected function getCommonMetricsData()
+    {
+        // Retrieve the ID of the currently authenticated user
+        $authUserId = Auth::id();
+
+        // Fetch the authenticated user
+        $authUser = User::find($authUserId);
+
+        // Define the date range (from the start of the year to the end of today)
+        $startDate = Carbon::now()->subYear()->startOfMonth();
+        $endDate = Carbon::now()->endOfDay();
+
+        // Determine the $type and $id based on the user's role
+        $type = null;
+        $id = null;
+
+        if ($authUser) {
+            if (in_array($authUser->role_id, [1, 2])) {
+                $type = 'all';
+            } elseif ($authUser->role_id == 3) {
+                $type = 'region';
+                $id = $authUser->region_id;
+            } elseif (in_array($authUser->role_id, [4, 5])) {
+                $type = 'division';
+                $id = $authUser->division_id;
+            } elseif ($authUser->role_id == 6) {
+                $type = 'store';
+                $id = $authUser->store_id;
+            }
+        }
+
+        // Get the max proximity from store
+        $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;
+
+        return [
+            'authUser' => $authUser,
+            'startDate' => $startDate,
+            'endDate' => $endDate,
+            'maxDistanceFromStore' => $maxDistanceFromStore,
+            'type' => $type,
+            'id' => $id
+        ];
+    }
+
+    /**
      * Display the reports dashboard.
      *
      * @return \Illuminate\Contracts\Support\Renderable
@@ -182,6 +234,97 @@ class ApplicantsReportController extends Controller
 
         // If the view 'admin/home' does not exist, return a 404 error page
         return view('404');
+    }
+
+    /**
+     * Retrieve applicants-related metrics.
+     *
+     * This method calculates and returns key metrics related to applicants,
+     * including the total number of applicants and the total number of applicants appointed.
+     * The data is returned as a JSON response.
+     *
+     * @param Request $request The HTTP request instance.
+     * @return \Illuminate\Http\JsonResponse A JSON response containing the metrics.
+     */
+    public function getApplicantsMetrics(Request $request)
+    {
+        // Retrieve common metrics data
+        $data = $this->getCommonMetricsData();
+
+        // Define the date range (from the start of the year to the end of today)
+        $startDate = $data['startDate'];
+        $endDate = $data['endDate'];
+
+        // Determine the $type and $id based on the user's role
+        $type = $data['type'];
+        $id = $data['id'];
+
+        // Initialize variables to 0 before the null check
+        $totalApplicants = 0;
+        $totalAppointedApplicants = 0;
+
+        // Fetch scores only if $type is not null
+        if ($type !== null) {
+            // Fetch vacancy data from VacancyDataService
+            $totalApplicants = $this->applicantsReportDataService->getTotalApplicants($type, $id, $startDate, $endDate);
+            $totalAppointedApplicants = $this->applicantsReportDataService->getTotalAppointedApplicants($type, $id, $startDate, $endDate);
+        }
+
+        // Return the calculated metrics as a JSON response
+        return response()->json([
+            'totalApplicants' => $totalApplicants,
+            'totalAppointedApplicants' => $totalAppointedApplicants
+        ]);
+    }
+
+    /**
+     * Retrieve talent pool-related metrics.
+     *
+     * This method calculates and returns key metrics related to the talent pool,
+     * including the total number of talent pool applicants, applicants appointed, 
+     * and the monthly breakdown for both metrics.
+     * The data is returned as a JSON response.
+     *
+     * @param Request $request The HTTP request instance.
+     * @return \Illuminate\Http\JsonResponse A JSON response containing the metrics.
+     */
+    public function getApplicantsGraphMetrics(Request $request)
+    {
+        // Retrieve common metrics data
+        $data = $this->getCommonMetricsData();
+
+        // Define the date range (from the start of the year to the end of today)
+        $startDate = $data['startDate'];
+        $endDate = $data['endDate'];
+
+        // Determine the $type and $id based on the user's role
+        $type = $data['type'];
+        $id = $data['id'];
+
+        // Get the max proximity from store
+        $maxDistanceFromStore = $data['maxDistanceFromStore'];
+
+        // Initialize variables to 0 or empty arrays before the null check
+        $totalApplicantsByMonth = [];
+        $totalApplicantsAppointedByMonth = [];
+        $totalApplicantsGenderByMonth = [];
+        $totalApplicantsRaceByMonth = [];
+
+        // Fetch scores only if $type is not null
+        if ($type !== null) {
+            $totalApplicantsByMonth = $this->applicantsReportDataService->getTotalApplicantsByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
+            $totalApplicantsAppointedByMonth = $this->applicantsReportDataService->getTotalApplicantsAppointedByMonth($type, $id, $startDate, $endDate);
+            $totalApplicantsGenderByMonth = $this->applicantsReportDataService->getTotalApplicantsGenderByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
+            $totalApplicantsRaceByMonth = $this->applicantsReportDataService->getTotalApplicantsRaceByMonth($type, $id, $startDate, $endDate, $maxDistanceFromStore);
+        }
+
+        // Return the calculated metrics as a JSON response
+        return response()->json([
+            'totalApplicantsByMonth' => $totalApplicantsByMonth,
+            'totalApplicantsAppointedByMonth' => $totalApplicantsAppointedByMonth,
+            'totalApplicantsGenderByMonth' => $totalApplicantsGenderByMonth,
+            'totalApplicantsRaceByMonth' => $totalApplicantsRaceByMonth
+        ]);
     }
 
     /**

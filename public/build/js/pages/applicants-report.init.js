@@ -6,6 +6,9 @@ Contact: admin@tenutech.com
 File: job-statistics init js
 */
 
+// Enable lazy loading by default
+let allowLazyLoading = true;
+
 $(document).ready(function() {
     /*
     |--------------------------------------------------------------------------
@@ -462,6 +465,9 @@ $(document).ready(function() {
                 });
             },
             complete: function() {
+                // Disable lazy loading when date range changes
+                allowLazyLoading = false;
+
                 // Re-enable the button, restore original text, and re-add btn-label class
                 filterBtn.prop('disabled', false);
                 filterBtn.html('<i class="ri-equalizer-fill label-icon align-middle fs-16 me-2"></i> Filter'); // Original button text
@@ -520,6 +526,107 @@ function getChartColorsArray(chartId) {
                 }
             }
         });
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Metrics
+|--------------------------------------------------------------------------
+*/
+
+// Helper function to display 'N/A' for invalid values and the value itself for valid numbers (including 0)
+function formatValue(value) {
+    return value !== null && value !== undefined ? value : 'N/A';
+}
+
+// Function to update the metrics on the page for each type
+function updateMetrics(type, data) {
+    switch (type) {
+        case 'applicants-metrics':
+            document.getElementById('totalApplicantsValue').textContent = formatValue(data.totalApplicants);
+            document.getElementById('totalAppointedApplicantsValue').textContent = formatValue(data.totalAppointedApplicants);
+            break;
+
+        case 'graph-metrics':
+            //updateLineCharts(talentPoolByMonthChart, data.talentPoolApplicantsByMonth, data.applicantsAppointedByMonth);
+            break;
+
+        default:
+            console.error('Unknown metrics type:', type);
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Fetch Metrics
+|--------------------------------------------------------------------------
+*/
+
+// Function to fetch metrics data from the API
+function fetchMetrics(type, routeName) {
+    const apiUrl = route(routeName); // Use Ziggy to dynamically generate the route URL
+
+    fetch(apiUrl)
+        .then((response) => response.json())
+        .then((data) => {
+            updateMetrics(type, data); // Update the metrics on the page
+        })
+        .catch((error) => {
+            console.error(`Error loading ${type} data:`, error);
+        });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Lazy Load Data
+|--------------------------------------------------------------------------
+*/
+
+// Function to lazy load metrics for a specific row
+function lazyLoadMetrics(rowId, type, routeName) {
+    const metricsRow = document.getElementById(rowId);
+
+    const observer = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting && allowLazyLoading) {
+            fetchMetrics(type, routeName); // Fetch data when the row is visible
+            observer.disconnect(); // Stop observing after data is loaded
+        }
+    });
+
+    observer.observe(metricsRow);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Initialize Lazy Loading for All Metrics
+|--------------------------------------------------------------------------
+*/
+
+document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadMetrics('applicantsRow', 'applicants-metrics', 'applicants.reports.metrics');
+    lazyLoadMetrics('graphRow', 'graph-metrics', 'graph.reports.metrics');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Show and Hide Spinners
+|--------------------------------------------------------------------------
+*/
+
+// Show the spinner in the header
+function showSpinner(containerId) {
+    const spinner = document.querySelector(`#${containerId} .spinner-border`);
+    if (spinner) {
+        spinner.classList.remove('d-none');
+    }
+}
+
+// Hide the spinner in the header
+function hideSpinner(containerId) {
+    const spinner = document.querySelector(`#${containerId} .spinner-border`);
+    if (spinner) {
+        spinner.classList.add('d-none');
     }
 }
 

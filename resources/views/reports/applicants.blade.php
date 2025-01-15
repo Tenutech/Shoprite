@@ -84,7 +84,7 @@
                 Applicant Totals
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="applicantsRow">
                 <!-- Total Applicants -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100">
@@ -100,8 +100,10 @@
                                         Total Applicants
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalApplicantsValue" class="counter-value" data-target="{{ $totalApplicants }}">
-                                            0
+                                        <span id="totalApplicantsValue" data-target="{{ $totalApplicants }}">
+                                            <div class="spinner-border text-primary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h4>
                                 </div>
@@ -128,8 +130,10 @@
                                         Total Appointed Applicants
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalAppointedApplicantsValue" class="counter-value" data-target="{{ $totalAppointedApplicants }}">
-                                            0
+                                        <span id="totalAppointedApplicantsValue" data-target="{{ $totalAppointedApplicants }}">
+                                            <div class="spinner-border text-success" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h4>
                                 </div>
@@ -146,13 +150,14 @@
                 Applicants By Month
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
-                <div class="col-xl-12 col-md-12">
+            <div class="row g-3"  id="graphRow">
+                <div class="col-xl-12 col-md-12" id="graph_container">
                     <div class="card">
-                        <div class="card-header">
-                            <h4 class="card-title mb-0">
-                                Applicant Statistics
-                            </h4>
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h4 class="card-title mb-0">Applicant Statistics</h4>
+                            <div class="spinner-border text-primary" role="status" style="width:1.5rem; height:1.5rem; font-size: 12px;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
                         </div><!-- end card header -->
             
                         <div class="card-body">
