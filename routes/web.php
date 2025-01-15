@@ -65,6 +65,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/applicants-table/destroy-multiple', [App\Http\Controllers\ApplicantsTableController::class, 'destroyMultiple'])->name('applicants-table.destroyMultiple');
 
+    Route::get('/api/applicants/fetch', [App\Http\Controllers\ApplicantsTableController::class, 'fetchApplicants'])->name('applicants-table.fetchApplicants');
+
     //Users
 
     Route::get('/users', [App\Http\Controllers\UsersController::class, 'index'])->name('users.index');
