@@ -37,8 +37,15 @@ class VacancyDataService
             });
         }
 
+        // Calculate the sum of open_positions and filled_positions, treating null as 0
+        $totalOpenPositions = $vacancies->sum(DB::raw('COALESCE(open_positions, 0)'));
+        $totalFilledPositions = $vacancies->sum(DB::raw('COALESCE(filled_positions, 0)'));
+
+        // Return the combined total of open_positions and filled_positions
+        $totalVacancies = $totalOpenPositions + $totalFilledPositions;
+
         // Return the total count of vacancies
-        return $vacancies->count();
+        return $totalVacancies;
     }
 
     /**
@@ -53,8 +60,7 @@ class VacancyDataService
     public function getTotalVacanciesFilled(string $type, ?int $id, string $startDate, string $endDate)
     {
         // Start building the query using the Vacancy model, filter for filled vacancies (open_positions = 0), and date range
-        $vacancies = Vacancy::where('open_positions', 0)
-            ->whereBetween('created_at', [$startDate, $endDate]);
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -69,8 +75,11 @@ class VacancyDataService
             });
         }
 
-        // Return the total count of filled vacancies
-        return $vacancies->count();
+        // Calculate the total sum of filled_positions, treating null as 0
+        $totalFilledPositions = $vacancies->sum(DB::raw('COALESCE(filled_positions, 0)'));
+
+        // Return the total filled positions
+        return $totalFilledPositions;
     }
 
     /**

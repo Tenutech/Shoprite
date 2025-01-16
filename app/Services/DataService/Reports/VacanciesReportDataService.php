@@ -5,6 +5,7 @@ namespace App\Services\DataService\Reports;
 use Carbon\Carbon;
 use App\Models\Type;
 use App\Models\Vacancy;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Database\Eloquent\Collection;
 
@@ -37,8 +38,15 @@ class VacanciesReportDataService
             });
         }
 
+        // Calculate the sum of open_positions and filled_positions, treating null as 0
+        $totalOpenPositions = $vacancies->sum(DB::raw('COALESCE(open_positions, 0)'));
+        $totalFilledPositions = $vacancies->sum(DB::raw('COALESCE(filled_positions, 0)'));
+
+        // Return the combined total of open_positions and filled_positions
+        $totalVacancies = $totalOpenPositions + $totalFilledPositions;
+
         // Return the total count of vacancies
-        return $vacancies->count();
+        return $totalVacancies;
     }
 
     /**
@@ -69,8 +77,11 @@ class VacanciesReportDataService
             });
         }
 
-        // Return the total count of filled vacancies
-        return $vacancies->count();
+        // Calculate the total sum of filled_positions, treating null as 0
+        $totalFilledPositions = $vacancies->sum(DB::raw('COALESCE(filled_positions, 0)'));
+
+        // Return the total filled positions
+        return $totalFilledPositions;
     }
 
     /**
@@ -111,11 +122,14 @@ class VacanciesReportDataService
             });
         }
 
-        // Retrieve vacancies and group them by the month of their creation date
-        foreach ($vacancies->get() as $vacancy) {
-            $month = $vacancy->created_at->format('M');
-            $vacanciesByMonth[$month]++;
-        }
+        // Group vacancies by month and calculate the total vacancies for each month
+        $vacancies->get()->groupBy(function ($vacancy) {
+            return $vacancy->created_at->format('M');
+        })->each(function ($vacancies, $month) use (&$vacanciesByMonth) {
+            $totalOpenPositions = $vacancies->sum(fn ($v) => $v->open_positions ?? 0);
+            $totalFilledPositions = $vacancies->sum(fn ($v) => $v->filled_positions ?? 0);
+            $vacanciesByMonth[$month] = $totalOpenPositions + $totalFilledPositions;
+        });
 
         return $vacanciesByMonth;
     }
@@ -160,10 +174,11 @@ class VacanciesReportDataService
         }
 
         // Retrieve vacancies and group them by the month of their updated_at date
-        foreach ($vacancies->get() as $vacancy) {
-            $month = $vacancy->updated_at->format('M');
-            $filledVacanciesByMonth[$month]++;
-        }
+        $vacancies->get()->groupBy(function ($vacancy) {
+            return $vacancy->updated_at->format('M');
+        })->each(function ($vacancies, $month) use (&$filledVacanciesByMonth) {
+            $filledVacanciesByMonth[$month] = $vacancies->sum(fn($v) => $v->filled_positions ?? 0);
+        });
 
         return $filledVacanciesByMonth;
     }
@@ -212,12 +227,19 @@ class VacanciesReportDataService
             });
         }
 
-        // Retrieve vacancies and group them by the month of their created_at date and type
-        foreach ($vacancies->get() as $vacancy) {
-            $month = $vacancy->created_at->format('M');
-            $vacancyTypeName = $vacancy->type->name; // Get type name directly
-            $vacanciesTypeByMonth[$vacancyTypeName][$month]++;
-        }
+        // Retrieve vacancies, group them by month and type, and calculate totals
+        $vacancies->get()
+        ->groupBy(function ($vacancy) {
+            return $vacancy->created_at->format('M');
+        })
+        ->each(function ($vacancies, $month) use (&$vacanciesTypeByMonth) {
+            $vacancies->groupBy(fn($vacancy) => $vacancy->type->name)
+                ->each(function ($typeVacancies, $typeName) use ($month, &$vacanciesTypeByMonth) {
+                    $totalOpenPositions = $typeVacancies->sum(fn($v) => $v->open_positions ?? 0);
+                    $totalFilledPositions = $typeVacancies->sum(fn($v) => $v->filled_positions ?? 0);
+                    $vacanciesTypeByMonth[$typeName][$month] = $totalOpenPositions + $totalFilledPositions;
+                });
+        });
 
         return $vacanciesTypeByMonth;
     }
@@ -260,11 +282,13 @@ class VacanciesReportDataService
             });
         }
 
-        // Retrieve vacancies and group them by type
-        foreach ($vacancies->get() as $vacancy) {
-            $vacancyTypeName = $vacancy->type->name; // Get type name directly
-            $vacanciesByType[$vacancyTypeName]++;
-        }
+        // Retrieve vacancies, group them by type, and calculate totals
+        $vacancies->get()->groupBy(fn($vacancy) => $vacancy->type->name)
+            ->each(function ($vacancies, $typeName) use (&$vacanciesByType) {
+                $totalOpenPositions = $vacancies->sum(fn($v) => $v->open_positions ?? 0);
+                $totalFilledPositions = $vacancies->sum(fn($v) => $v->filled_positions ?? 0);
+                $vacanciesByType[$typeName] = $totalOpenPositions + $totalFilledPositions;
+            });
 
         return $vacanciesByType;
     }
@@ -351,8 +375,15 @@ class VacanciesReportDataService
             }
         }
 
+        // Calculate the sum of open_positions and filled_positions, treating null as 0
+        $totalOpenPositions = $vacancies->sum(DB::raw('COALESCE(open_positions, 0)'));
+        $totalFilledPositions = $vacancies->sum(DB::raw('COALESCE(filled_positions, 0)'));
+
+        // Return the combined total of open_positions and filled_positions
+        $totalVacancies = $totalOpenPositions + $totalFilledPositions;
+
         // Return the total count of vacancies
-        return $vacancies->count();
+        return $totalVacancies;
     }
 
     /**
@@ -431,11 +462,11 @@ class VacanciesReportDataService
             }
         }
 
-        // Filter for vacancies where open_positions is 0
-        $vacancies->where('open_positions', 0);
+        // Calculate the total sum of filled_positions, treating null as 0
+        $totalFilledPositions = $vacancies->sum(DB::raw('COALESCE(filled_positions, 0)'));
 
-        // Return the total count of vacancies
-        return $vacancies->count();
+        // Return the total filled positions
+        return $totalFilledPositions;
     }
 
     /**
@@ -530,14 +561,14 @@ class VacanciesReportDataService
             }
         }
 
-        // Retrieve vacancies and group them by the month of their creation date
-        foreach ($vacancies->get() as $vacancy) {
-            $month = $vacancy->created_at->format('M');
-            // Increment only if the month exists in the initialized array
-            if (array_key_exists($month, $vacanciesByMonth)) {
-                $vacanciesByMonth[$month]++;
-            }
-        }
+        // Group vacancies by month and calculate the total vacancies for each month
+        $vacancies->get()->groupBy(function ($vacancy) {
+            return $vacancy->created_at->format('M');
+        })->each(function ($vacancies, $month) use (&$vacanciesByMonth) {
+            $totalOpenPositions = $vacancies->sum(fn ($v) => $v->open_positions ?? 0);
+            $totalFilledPositions = $vacancies->sum(fn ($v) => $v->filled_positions ?? 0);
+            $vacanciesByMonth[$month] = $totalOpenPositions + $totalFilledPositions;
+        });
 
         return $vacanciesByMonth;
     }
@@ -635,11 +666,13 @@ class VacanciesReportDataService
             }
         }
 
-        // Retrieve filtered vacancies and group them by type
-        foreach ($vacancies->get() as $vacancy) {
-            $vacancyTypeName = $vacancy->type->name; // Get type name directly
-            $vacanciesByType[$vacancyTypeName]++;
-        }
+        // Retrieve vacancies, group them by type, and calculate totals
+        $vacancies->get()->groupBy(fn($vacancy) => $vacancy->type->name)
+            ->each(function ($vacancies, $typeName) use (&$vacanciesByType) {
+                $totalOpenPositions = $vacancies->sum(fn($v) => $v->open_positions ?? 0);
+                $totalFilledPositions = $vacancies->sum(fn($v) => $v->filled_positions ?? 0);
+                $vacanciesByType[$typeName] = $totalOpenPositions + $totalFilledPositions;
+            });
 
         return $vacanciesByType;
     }
