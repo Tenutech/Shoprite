@@ -223,6 +223,11 @@ function updateMetrics(type, data) {
             hideSpinner("interviewed_applicants_demographic_container");
             updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
             hideSpinner("appointed_applicants_demographic_container");
+
+            // Update demographic totals
+            updateDemographicTotals(data.talentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
+            updateDemographicTotals(data.interviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
+            updateDemographicTotals(data.appointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
             break;
 
         case 'talent-pool-metrics':
@@ -1108,6 +1113,11 @@ function updateDashboard(data) {
     updateRadialBarChart(talentPoolApplicantsDemographicChart, data.regionTalentPoolApplicantsDemographic);
     updateRadialBarChart(interviewedApplicantsDemographicChart, data.regionInterviewedApplicantsDemographic);
     updateRadialBarChart(appointedApplicantsDemographicChart, data.regionAppointedApplicantsDemographic);
+
+    // Update demographic totals
+    updateDemographicTotals(data.regionTalentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
+    updateDemographicTotals(data.regionInterviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
+    updateDemographicTotals(data.regionAppointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
 }
 
 /*
@@ -1208,4 +1218,47 @@ function updateRadialBarChart(chart, demographicData) {
     chart.updateOptions({
         series: seriesArray,  // Updated series with all races
     });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Demographic Totals
+|--------------------------------------------------------------------------
+*/
+
+// Function to update demographic totals with row ID
+function updateDemographicTotals(demographicData, rowId) {
+    const rowElement = document.getElementById(rowId);
+    if (rowElement) {
+        // Define demographic categories to handle the empty data case
+        const categories = ["African", "Coloured", "Indian", "White"];
+        
+        if (demographicData.length === 0) {
+            // If data is empty, set all totals to 0
+            categories.forEach(category => {
+                const totalElement = rowElement.querySelector(`.${category}`);
+                if (totalElement) {
+                    totalElement.textContent = `0`;
+                }
+            });
+        } else {
+            // Otherwise, update the totals with actual data
+            demographicData.forEach(demo => {
+                const totalElement = rowElement.querySelector(`.${demo.name}`);
+                if (totalElement) {
+                    totalElement.textContent = `${demo.total}`;
+                }
+            });
+
+            // Handle categories not present in the demographicData
+            categories.forEach(category => {
+                if (!demographicData.some(demo => demo.name === category)) {
+                    const totalElement = rowElement.querySelector(`.${category}`);
+                    if (totalElement) {
+                        totalElement.textContent = `0`;
+                    }
+                }
+            });
+        }
+    }
 }

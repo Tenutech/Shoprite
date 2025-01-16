@@ -282,6 +282,11 @@ function updateMetrics(type, data) {
             hideSpinner("interviewed_applicants_demographic_container");
             updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
             hideSpinner("appointed_applicants_demographic_container");
+
+            // Update demographic totals
+            updateDemographicTotals(data.talentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
+            updateDemographicTotals(data.interviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
+            updateDemographicTotals(data.appointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
             break;
 
         case 'gender-metrics':
@@ -291,6 +296,11 @@ function updateMetrics(type, data) {
             hideSpinner("interviewed_applicants_gender_container");
             updateRadialBarChartGender(appointedApplicantsGenderChart, data.appointedApplicantsGender);
             hideSpinner("appointed_applicants_gender_container");
+
+            // Update gender totals
+            updateGenderTotals(data.talentPoolApplicantsGender, "talent_pool_applicants_gender_totals");
+            updateGenderTotals(data.interviewedApplicantsGender, "interviewed_applicants_gender_totals");
+            updateGenderTotals(data.appointedApplicantsGender, "appointed_applicants_gender_totals");
             break;
 
         case 'province-metrics':
@@ -2078,10 +2088,20 @@ function updateDashboard(data) {
     updateRadialBarChart(interviewedApplicantsDemographicChart, data.interviewedApplicantsDemographic);
     updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
 
+    // Update demographic totals
+    updateDemographicTotals(data.talentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
+    updateDemographicTotals(data.interviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
+    updateDemographicTotals(data.appointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
+
     // Update gender charts
     updateRadialBarChartGender(talentPoolApplicantsGenderChart, data.talentPoolApplicantsGender);
     updateRadialBarChartGender(interviewedApplicantsGenderChart, data.interviewedApplicantsGender);
     updateRadialBarChartGender(appointedApplicantsGenderChart, data.appointedApplicantsGender);
+
+    // Update gender totals
+    updateGenderTotals(data.talentPoolApplicantsGender, "talent_pool_applicants_gender_totals");
+    updateGenderTotals(data.interviewedApplicantsGender, "interviewed_applicants_gender_totals");
+    updateGenderTotals(data.appointedApplicantsGender, "appointed_applicants_gender_totals");
 
     // Update the treemap chart with the new province data
     updateTreemapChart(talentPoolApplicantsProvinceChart, data.talentPoolApplicantsProvince);
@@ -2214,6 +2234,49 @@ function updateRadialBarChart(chart, demographicData) {
 
 /*
 |--------------------------------------------------------------------------
+| Update Demographic Totals
+|--------------------------------------------------------------------------
+*/
+
+// Function to update demographic totals with row ID
+function updateDemographicTotals(demographicData, rowId) {
+    const rowElement = document.getElementById(rowId);
+    if (rowElement) {
+        // Define demographic categories to handle the empty data case
+        const categories = ["African", "Coloured", "Indian", "White"];
+        
+        if (demographicData.length === 0) {
+            // If data is empty, set all totals to 0
+            categories.forEach(category => {
+                const totalElement = rowElement.querySelector(`.${category}`);
+                if (totalElement) {
+                    totalElement.textContent = `0`;
+                }
+            });
+        } else {
+            // Otherwise, update the totals with actual data
+            demographicData.forEach(demo => {
+                const totalElement = rowElement.querySelector(`.${demo.name}`);
+                if (totalElement) {
+                    totalElement.textContent = `${demo.total}`;
+                }
+            });
+
+            // Handle categories not present in the demographicData
+            categories.forEach(category => {
+                if (!demographicData.some(demo => demo.name === category)) {
+                    const totalElement = rowElement.querySelector(`.${category}`);
+                    if (totalElement) {
+                        totalElement.textContent = `0`;
+                    }
+                }
+            });
+        }
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
 | Update Radial Bar Charts Gender
 |--------------------------------------------------------------------------
 */
@@ -2240,6 +2303,49 @@ function updateRadialBarChartGender(chart, genderData) {
     chart.updateOptions({
         series: seriesArray,  // Updated series with all races
     });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Gender Totals
+|--------------------------------------------------------------------------
+*/
+
+// Function to update gender totals with row ID
+function updateGenderTotals(genderData, rowId) {
+    const rowElement = document.getElementById(rowId);
+    if (rowElement) {
+        // Define gender categories to handle the empty data case
+        const categories = ["Male", "Female", "Non-Binary", "Other"];
+
+        if (genderData.length === 0) {
+            // If data is empty, set all totals to 0
+            categories.forEach(category => {
+                const totalElement = rowElement.querySelector(`.${category}`);
+                if (totalElement) {
+                    totalElement.textContent = `0`;
+                }
+            });
+        } else {
+            // Otherwise, update the totals with actual data
+            genderData.forEach(demo => {
+                const totalElement = rowElement.querySelector(`.${demo.name}`);
+                if (totalElement) {
+                    totalElement.textContent = `${demo.total}`;
+                }
+            });
+
+            // Handle categories not present in the genderData
+            categories.forEach(category => {
+                if (!genderData.some(demo => demo.name === category)) {
+                    const totalElement = rowElement.querySelector(`.${category}`);
+                    if (totalElement) {
+                        totalElement.textContent = `0`;
+                    }
+                }
+            });
+        }
+    }
 }
 
 /*

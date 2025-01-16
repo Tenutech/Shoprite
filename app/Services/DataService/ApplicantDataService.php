@@ -520,6 +520,7 @@ class ApplicantDataService
             $percentage = ($race->applicants_count / $totalApplicants) * 100;
             return [
                 'name' => $race->name,
+                'total' => $race->applicants_count, // Include the total count
                 'percentage' => round($percentage) // Round percentage to the nearest integer
             ];
         })
@@ -602,6 +603,7 @@ class ApplicantDataService
             $percentage = ($race->applicants_count / $totalInterviewedApplicants) * 100;
             return [
                 'name' => $race->name,
+                'total' => $race->applicants_count, // Include the total count
                 'percentage' => round($percentage)
             ];
         })
@@ -679,6 +681,7 @@ class ApplicantDataService
             $percentage = ($race->applicants_count / $totalAppointedApplicants) * 100;
             return [
                 'name' => $race->name,
+                'total' => $race->applicants_count, // Include the total count
                 'percentage' => round($percentage)
             ];
         })
@@ -795,6 +798,7 @@ class ApplicantDataService
             $percentage = ($gender->applicants_count / $totalApplicants) * 100;
             return [
                 'name' => $gender->name,
+                'total' => $gender->applicants_count, // Include the total count
                 'percentage' => round($percentage) // Round percentage to the nearest integer
             ];
         })
@@ -866,6 +870,7 @@ class ApplicantDataService
             $percentage = ($gender->applicants_count / $totalInterviewedApplicants) * 100;
             return [
                 'name' => $gender->name,
+                'total' => $gender->applicants_count, // Include the total count
                 'percentage' => round($percentage) // Round percentage to the nearest integer
             ];
         })
@@ -932,6 +937,7 @@ class ApplicantDataService
             $percentage = ($gender->applicants_count / $totalAppointedApplicants) * 100;
             return [
                 'name' => $gender->name,
+                'total' => $gender->applicants_count, // Include the total count
                 'percentage' => round($percentage) // Round percentage to the nearest integer
             ];
         })
