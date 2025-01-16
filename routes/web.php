@@ -685,6 +685,8 @@ Route::prefix('rpp')->middleware(['auth', 'verified', 'role:1,2,3', 'user.activi
 
     Route::get('/home', [App\Http\Controllers\RPPController::class, 'index'])->name('rpp.home');
 
+    Route::get('/update-dashboard', [App\Http\Controllers\RPPController::class, 'updateDashboard'])->name('rpp.updateDashboard');
+
     //Update Data
 
     Route::get('/updateData', [App\Http\Controllers\RPPController::class, 'updateData'])->name('rpp.updateData');

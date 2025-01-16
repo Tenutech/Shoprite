@@ -62,7 +62,7 @@
                                     <div class="col-sm-auto">
                                         <div class="input-group">
                                             <input type="text" id="dateFilter" class="form-control border-0 dash-filter-picker shadow">
-                                            <div class="input-group-text bg-primary border-primary text-white">
+                                            <div class="input-group-text bg-primary border-primary text-white" id="calendarBtn">
                                                 <i class="ri-calendar-2-line"></i>
                                             </div>
                                             <!-- Refresh Button with Tooltip and a gap (margin-left) -->
@@ -98,9 +98,6 @@
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                        {{-- <span id="averageTimeToShortlistValue">
-                                            {{ $storeAverageTimeToShortlist }}
-                                        </span> --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0">
@@ -135,9 +132,6 @@
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                        {{-- <span id="averageTimeToHireValue">
-                                            {{ $storeAverageTimeToHire }}
-                                        </span> --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-secondary mb-0">
@@ -172,9 +166,6 @@
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                        {{-- <span id="adoptionRateValue">
-                                            {{ $storeAdoptionRate }}%
-                                        </span> --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         <span class="badge bg-light text-success mb-0" id="adoptionRate">
@@ -219,9 +210,6 @@
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                    {{-- <span id="averageDistanceTalentPoolApplicantsValue" class="counter-value"  data-target="{{ $storeAverageDistanceTalentPoolApplicants }}">
-                                        0
-                                    </span>km --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average distance of talent pool
@@ -251,9 +239,6 @@
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                    {{-- <span id="averageDistanceApplicantsAppointedValue" class="counter-value"  data-target="{{ $storeAverageDistanceApplicantsAppointed }}">
-                                        0
-                                    </span>km --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average distance for successful placements
@@ -284,14 +269,11 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="averageScoreTalentPoolApplicants">
+                                        <span id="averageScoreApplicantsAppointedValue">
                                             <div class="spinner-border text-body" role="status" style="font-size: 12px;">
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                        {{-- <span id="averageScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $storeAverageScoreApplicantsAppointed }}">
-                                            0
-                                        </span> --}}
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average score for successful placements
@@ -303,7 +285,7 @@
                 </div> <!-- end col -->
 
                 <!-- Average Assessment Score -->
-                <div class="col-xl-6 col-md-6" id="assessmentScoresRow">
+                <div class="col-xl-6 col-md-6">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average assessment score of candidates successfully placed.">
                         <div class="card-header bg-success">
                             <div class="d-flex">
@@ -316,14 +298,11 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="averageScoreApplicantsAppointedValue">
+                                        <span id="averageAssessmentScoreApplicantsAppointedValue">
                                             <div class="spinner-border text-body" role="status" style="font-size: 12px;">
                                                 <span class="sr-only">Loading...</span>
                                             </div>
-                                        </span>%
-                                        {{-- <span id="averageAssessmentScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $storeAverageAssessmentScoreApplicantsAppointed }}">
-                                            0
-                                        </span>% --}}
+                                        </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average assessment score for successful placements
@@ -360,9 +339,6 @@
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                        {{-- <span id="totalVacanciesValue" class="counter-value" data-target="{{ $storeTotalVacancies }}">
-                                            0
-                                        </span> --}}
                                     </h4>
                                 </div>
                             </div>
@@ -390,9 +366,6 @@
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                        {{-- <span id="totalVacanciesFilledValue" class="counter-value" data-target="{{ $storeTotalVacanciesFilled }}">
-                                            0
-                                        </span> --}}
                                     </h4>
                                 </div>
                                 <div class="flex-shrink-0">
@@ -429,9 +402,6 @@
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                        {{-- <span id="totalInterviewsScheduledValue"  class="counter-value" data-target="{{ $storeTotalInterviewsScheduled }}">
-                                            0
-                                        </span> --}}
                                     </h4>
                                 </div>
                             </div>
@@ -459,9 +429,6 @@
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                        {{-- <span id="totalInterviewsCompletedValue" class="counter-value" data-target="{{ $storeTotalInterviewsCompleted }}">
-                                            0
-                                        </span> --}}
                                     </h4>
                                 </div>
                                 <div class="flex-shrink-0">
@@ -498,9 +465,6 @@
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                        {{-- <span id="totalApplicantsAppointedValue" class="counter-value" data-target="{{ $storeTotalApplicantsAppointed }}">
-                                            0
-                                        </span> --}}
                                     </h4>
                                 </div>
                                 <div class="flex-shrink-0">
@@ -531,9 +495,6 @@
                                                 <span class="sr-only">Loading...</span>
                                             </div>
                                         </span>
-                                        {{-- <span id="totalApplicantsRegrettedValue" class="counter-value" data-target="{{ $storeTotalApplicantsRegretted }}">
-                                            0
-                                        </span> --}}
                                     </h4>
                                 </div>
                                 <div class="flex-shrink-0">
@@ -551,12 +512,15 @@
 
             <div class="row g-3" id="demographicRow">
                 <!-- Talent Pool Demographic -->
-                <div class="col-xl-4 col-md-4">
+                <div class="col-xl-4 col-md-4" id="talent_pool_applicants_demographic_container">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates in the talent pool.">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="card-title mb-0">
                                 Demographic (Talent Pool)
                             </h4>
+                            <div class="spinner-border text-primary" role="status" style="width:1.5rem; height:1.5rem; font-size: 12px;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
                         </div><!-- end card header -->
 
                         <div class="card-body">
@@ -566,12 +530,15 @@
                 </div> <!-- end col -->
 
                 <!-- Interviewed Demographic -->
-                <div class="col-xl-4 col-md-4">
+                <div class="col-xl-4 col-md-4" id="interviewed_applicants_demographic_container">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates who have been interviewed.">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="card-title mb-0">
                                 Demographic (Interviewed)
                             </h4>
+                            <div class="spinner-border text-primary" role="status" style="width:1.5rem; height:1.5rem; font-size: 12px;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
                         </div><!-- end card header -->
 
                         <div class="card-body">
@@ -581,12 +548,15 @@
                 </div> <!-- end col -->
 
                 <!-- Appointed Demographic -->
-                <div class="col-xl-4 col-md-4">
+                <div class="col-xl-4 col-md-4" id="appointed_applicants_demographic_container">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates who have been successfully placed.">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="card-title mb-0">
                                 Demographic (Appointed)
                             </h4>
+                            <div class="spinner-border text-primary" role="status" style="width:1.5rem; height:1.5rem; font-size: 12px;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
                         </div><!-- end card header -->
 
                         <div class="card-body">
@@ -617,9 +587,6 @@
                                                     <span class="sr-only">Loading...</span>
                                                 </div>
                                             </span>
-                                            {{-- <span id="talentPoolApplicantsValue" class="counter-value" data-target="{{ $storeTalentPoolApplicants }}">
-                                                0
-                                            </span> --}}
                                         </h5>
                                         <p class="text-muted mb-0">
                                             Total Talent Pool
@@ -634,9 +601,6 @@
                                                     <span class="sr-only">Loading...</span>
                                                 </div>
                                             </span>
-                                            {{-- <span id="applicantsAppointedValue" class="counter-value" data-target="{{ $storeApplicantsAppointed }}">
-                                                0
-                                            </span> --}}
                                         </h5>
                                         <p class="text-muted mb-0">
                                             Total Appointed

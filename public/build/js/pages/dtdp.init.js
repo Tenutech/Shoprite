@@ -5,6 +5,8 @@ Website: https://orient.tenutech.com/
 Contact: admin@tenutech.com
 File: job-statistics init js
 */
+
+// Enable lazy loading by default
 let allowLazyLoading = true;
 
 $(document).ready(function() {
@@ -41,6 +43,19 @@ $(document).ready(function() {
             if (selectedDates.length === 2) {
                 var startDate = selectedDates[0];
                 var endDate = selectedDates[1];
+
+                // Disable lazy loading when date range changes
+                allowLazyLoading = false;
+
+                // Get the button and replace its content with the spinner
+                const calendarBtn = document.getElementById('calendarBtn');
+                const originalContent = calendarBtn.innerHTML; // Save original content
+                calendarBtn.innerHTML = '<div class="spinner-border spinner-border-sm text-white" role="status"></div>';
+
+                // Hide Spinners
+                hideSpinner("talent_pool_applicants_demographic_container");
+                hideSpinner("interviewed_applicants_demographic_container");
+                hideSpinner("appointed_applicants_demographic_container");
 
                 // Send the date range via AJAX to update the dashboard
                 $.ajax({
@@ -88,6 +103,10 @@ $(document).ready(function() {
                             showCloseButton: true,
                             toast: true
                         });
+                    },
+                    complete: function () {
+                        // Revert the button content back to the original icon
+                        calendarBtn.innerHTML = originalContent;
                     }
                 });
             }
@@ -174,17 +193,8 @@ function updateMetrics(type, data) {
             break;
 
         case 'average-score-metrics':
-            document.getElementById('averageScoreTalentPoolApplicants').textContent = formatValue(data.averageScoreTalentPoolApplicants);
             document.getElementById('averageScoreApplicantsAppointedValue').textContent = formatValue(data.averageScoreApplicantsAppointed);
-            break;
-
-        case 'assessment-score-metrics':
-            updateDonutChart(averageLiteracyScoreChart, data.averageLiteracyScoreTalentPoolApplicants, data.literacyQuestionsCount);
-            hideSpinner("literacy_chart_container");
-            updateDonutChart(averageNumeracyScoreChart, data.averageNumeracyScoreTalentPoolApplicants, data.numeracyQuestionsCount);
-            hideSpinner("numeracy_chart_container");
-            updateDonutChart(averageSituationalScoreChart, data.averageSituationalScoreTalentPoolApplicants, data.situationalQuestionsCount);
-            hideSpinner("situational_chart_container");
+            document.getElementById('averageAssessmentScoreApplicantsAppointedValue').textContent = data.averageAssessmentScoreApplicantsAppointed !== null && data.averageAssessmentScoreApplicantsAppointed !== undefined ? `${data.averageAssessmentScoreApplicantsAppointed}%` : 'N/A';
             break;
 
         case 'vacancies-metrics':
@@ -206,12 +216,6 @@ function updateMetrics(type, data) {
             updateRadialChart(totalApplicantsRegrettedChart, data.totalApplicantsRegretted, data.totalInterviewsScheduled);
             break;
 
-        case 'talent-pool-metrics':
-            document.getElementById('talentPoolApplicantsValue').textContent = formatValue(data.talentPoolApplicants);
-            document.getElementById('applicantsAppointedValue').textContent = formatValue(data.applicantsAppointed);
-            updateLineCharts(talentPoolByMonthChart, data.talentPoolApplicantsByMonth, data.applicantsAppointedByMonth);
-            break;
-
         case 'demographic-metrics':
             updateRadialBarChart(talentPoolApplicantsDemographicChart, data.talentPoolApplicantsDemographic);
             hideSpinner("talent_pool_applicants_demographic_container");
@@ -219,6 +223,12 @@ function updateMetrics(type, data) {
             hideSpinner("interviewed_applicants_demographic_container");
             updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
             hideSpinner("appointed_applicants_demographic_container");
+            break;
+
+        case 'talent-pool-metrics':
+            document.getElementById('talentPoolApplicantsValue').textContent = formatValue(data.talentPoolApplicants);
+            document.getElementById('applicantsAppointedValue').textContent = formatValue(data.applicantsAppointed);
+            updateLineCharts(talentPoolByMonthChart, data.talentPoolApplicantsByMonth, data.applicantsAppointedByMonth);
             break;
 
         default:
@@ -279,8 +289,8 @@ document.addEventListener('DOMContentLoaded', function () {
     lazyLoadMetrics('vacanciesRow', 'vacancies-metrics', 'vacancies.metrics');
     lazyLoadMetrics('interviewsRow', 'interviews-metrics', 'interviews.metrics');
     lazyLoadMetrics('applicantsRow', 'applicants-metrics', 'applicants.metrics');
-    lazyLoadMetrics('talentPoolRow', 'talent-pool-metrics', 'talent-pool.metrics');
     lazyLoadMetrics('demographicRow', 'demographic-metrics', 'demographic.metrics');
+    lazyLoadMetrics('talentPoolRow', 'talent-pool-metrics', 'talent-pool.metrics');
 });
 
 /*
@@ -314,20 +324,10 @@ function hideSpinner(containerId) {
 // Total Vacancies Filled
 var totalVacanciesFilled = getChartColorsArray("total_vacancies_filled");
 
-// Calculate percentage of filled vacancies
-var divisionTotalVacancies = divisionTotalVacancies || 0;
-var divisionTotalVacanciesFilled = divisionTotalVacanciesFilled || 0;
-var percentageFilled = 0;
-
-// Check for divide by zero and calculate percentage
-if (divisionTotalVacancies > 0) {
-    percentageFilled = Math.round((divisionTotalVacanciesFilled / divisionTotalVacancies) * 100);
-}
-
 // Total Vacancies Filled Chart
 if (totalVacanciesFilled) {
     var options = {
-        series: [percentageFilled], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -381,20 +381,10 @@ if (totalVacanciesFilled) {
 // Total Interviews Completed
 var totalInterviewsCompleted = getChartColorsArray("total_interviews_completed");
 
-// Calculate percentage of completed interviews
-var divisionTotalInterviewsScheduled = divisionTotalInterviewsScheduled || 0;
-var divisionTotalInterviewsCompleted = divisionTotalInterviewsCompleted || 0;
-var percentageCompleted = 0;
-
-// Check for divide by zero and calculate percentage
-if (divisionTotalInterviewsScheduled > 0) {
-    percentageCompleted = Math.round((divisionTotalInterviewsCompleted / divisionTotalInterviewsScheduled) * 100);
-}
-
 // Total Interviews Completed Chart
 if (totalInterviewsCompleted) {
     var options = {
-        series: [percentageCompleted], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -448,19 +438,10 @@ if (totalInterviewsCompleted) {
 // Total Applicants Appointed
 var totalApplicantsAppointed = getChartColorsArray("total_applicants_appointed");
 
-// Calculate percentage of appointed applicants
-var divisionTotalApplicantsAppointed = divisionTotalApplicantsAppointed || 0;
-var percentageAppointed = 0;
-
-// Check for divide by zero and calculate percentage for appointed applicants
-if (divisionTotalInterviewsScheduled > 0) {
-    percentageAppointed = Math.round((divisionTotalApplicantsAppointed / divisionTotalInterviewsScheduled) * 100);
-}
-
 // Total Applicants Appointed Chart
 if (totalApplicantsAppointed) {
     var options = {
-        series: [percentageAppointed], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -514,19 +495,10 @@ if (totalApplicantsAppointed) {
 // Total Applicants Regretted
 var totalApplicantsRegretted = getChartColorsArray("total_applicants_regretted");
 
-// Calculate percentage of regretted applicants
-var divisionTotalApplicantsRegretted = divisionTotalApplicantsRegretted || 0;
-var percentageRegretted = 0;
-
-// Check for divide by zero and calculate percentage for regretted applicants
-if (divisionTotalInterviewsScheduled > 0) {
-    percentageRegretted = Math.round((divisionTotalApplicantsRegretted / divisionTotalInterviewsScheduled) * 100);
-}
-
 // Total Applicants Regretted Chart
 if (totalApplicantsRegretted) {
     var options = {
-        series: [percentageRegretted], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -1115,7 +1087,7 @@ function updateDashboard(data) {
     $('#averageScoreApplicantsAppointedValue').text(data.divisionAverageScoreApplicantsAppointed);
 
     // Update average assessmet score of appointed applicants
-    $('#averageAssessmentScoreApplicantsAppointedValue').text(data.divisionAverageAssessmentScoreApplicantsAppointed);
+    $('#averageAssessmentScoreApplicantsAppointedValue').text(data.divisionAverageAssessmentScoreApplicantsAppointed + '%');
 
     // Update talent pool applicants
     $('#talentPoolApplicantsValue').text(data.divisionTalentPoolApplicants);

@@ -222,18 +222,21 @@ class DataController extends Controller
         // Initialize variables to 0 or empty before the null check
         $averageScoreTalentPoolApplicants = 0;
         $averageScoreApplicantsAppointed = 0;
+        $averageAssessmentScoreApplicantsAppointed = 0;
 
         // Fetch scores only if $type is not null
         if ($type !== null) {
             // Fetch score data from ApplicantDataService
             $averageScoreTalentPoolApplicants = $this->applicantDataService->getAverageScoreTalentPoolApplicants($type, $id, $startDate, $endDate);
             $averageScoreApplicantsAppointed = $this->applicantDataService->getAverageScoreApplicantsAppointed($type, $id, $startDate, $endDate);
+            $averageAssessmentScoreApplicantsAppointed = $this->applicantDataService->getAverageAssessmentScoreApplicantsAppointed($type, $id, $startDate, $endDate);
         }
 
         // Return the calculated metrics as a JSON response
         return response()->json([
             'averageScoreTalentPoolApplicants' => $averageScoreTalentPoolApplicants,
-            'averageScoreApplicantsAppointed' => $averageScoreApplicantsAppointed
+            'averageScoreApplicantsAppointed' => $averageScoreApplicantsAppointed,
+            'averageAssessmentScoreApplicantsAppointed' => $averageAssessmentScoreApplicantsAppointed
         ]);
     }
 
