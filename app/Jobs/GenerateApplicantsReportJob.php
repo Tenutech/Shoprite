@@ -2,15 +2,16 @@
 
 namespace App\Jobs;
 
+use App\Exports\ApplicantsExport;
+use App\Mail\ReportReadyMail;
+use App\Models\Download;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use App\Exports\ApplicantsExport;
-use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\ReportReadyMail;
 use Illuminate\Support\Facades\File;
 
 class GenerateApplicantsReportJob implements ShouldQueue
@@ -28,6 +29,7 @@ class GenerateApplicantsReportJob implements ShouldQueue
     public $endDate; // The end date of the report range
     public $maxDistanceFromStore; // Maximum proximity distance for filtering applicants
     public $filters; // Additional filters for the report
+    public $download;
 
     /**
      * Create a new job instance.
@@ -40,7 +42,7 @@ class GenerateApplicantsReportJob implements ShouldQueue
      * @param int $maxDistanceFromStore The max distance in kilometers
      * @param array $filters Additional filters
      */
-    public function __construct($authUser, $type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters)
+    public function __construct($authUser, Download $download, $type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters)
     {
         $this->authUser = $authUser;
         $this->type = $type;
@@ -49,6 +51,7 @@ class GenerateApplicantsReportJob implements ShouldQueue
         $this->endDate = $endDate;
         $this->maxDistanceFromStore = $maxDistanceFromStore;
         $this->filters = $filters;
+        $this->download = $download;
     }
 
     /**
@@ -63,9 +66,21 @@ class GenerateApplicantsReportJob implements ShouldQueue
 
             // Store the report in the storage/app/reports directory
             Excel::store(
-                new ApplicantsExport($this->type, $this->id, $this->startDate, $this->endDate, $this->maxDistanceFromStore, $this->filters),
+                new ApplicantsExport(
+                    $this->type,
+                    $this->id,
+                    $this->startDate,
+                    $this->endDate,
+                    $this->maxDistanceFromStore,
+                    $this->filters
+                ),
                 $filePath
             );
+
+            $this->download->update([
+                'file_path' => $filePath,
+                'status' => 'completed',
+            ]);
 
             // Clean up previous exports
             $this->deleteOldReports();

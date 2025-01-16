@@ -74,6 +74,14 @@
                         </li>
                     @endif
                 @endif
+                @if ($user->role_id < 2)
+                    <li class="nav-item">
+                        <a class="nav-link menu-link" href="{{ route('downloads.index') }}">
+                            <i class="ri-briefcase-line"></i>
+                            <span>My Downloads</span>
+                        </a>
+                    </li>
+                @endif
                 @if (in_array($user->role_id, [1,2,3,4,6]))
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="#sidebarVacancies" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarVacancies">

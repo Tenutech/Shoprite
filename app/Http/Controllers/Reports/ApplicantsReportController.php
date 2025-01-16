@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Reports;
 
 use Carbon\Carbon;
 use App\Models\User;
+use App\Models\Download;
 use App\Models\Race;
 use App\Models\Store;
 use App\Models\State;
@@ -418,45 +419,79 @@ class ApplicantsReportController extends Controller
      */
     public function export(Request $request)
     {
-        // Retrieve the ID of the currently authenticated user
-        $authUserId = Auth::id();
+        $download = Download::create([
+            'user_id' => auth()->id(),
+            'file_name' => 'Applicants Export',
+            'type' => 'export',
+            'status' => 'pending',
+        ]);
 
-        // Fetch the authenticated user
-        $authUser = User::find($authUserId);
+        GenerateApplicantsReportJob::dispatch(
+            User::find(Auth::id()),
+            $download,
+            $request->type,
+            $request->id,
+            $request->startDate,
+            $request->endDate,
+            $request->maxDistanceFromStore,
+            $request->filters
+        );
 
-        // Set the type to 'all' to filter all vacancies
-        $type = 'all';
-        $id = null;
-
-        // Set the $type based on the role_id of $authUser
-        if ($authUser->role_id == 3) {
-            $type = 'region';
-            $id = $authUser->region_id;
-        } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
-            $type = 'division';
-            $id = $authUser->devision_id;
-        } elseif ($authUser->role_id == 6) {
-            $type = 'store';
-            $id = $authUser->store_id;
-        }
-
-        // Extract and parse the date range from the request
-        $dateRange = $request->input('date'); // Assuming 'date' is the input field name in your form
-
-        // Split the date range string into start and end dates
-        [$startDateString, $endDateString] = explode(' to ', $dateRange);
-
-        // Parse the start and end dates
-        $startDate = Carbon::parse($startDateString)->startOfDay();
-        $endDate = Carbon::parse($endDateString)->endOfDay();
-
-        // Retrieve the maximum proximity distance in kilometers for filtering applicants, default to 50km
-        $maxDistanceFromStore = $request->input('maxDistanceFromStore', 50);
-
-        // Retrieve all filters from the request, excluding '_token', 'date', and 'search_terms'
-        $filters = $request->except(['_token', 'date', 'search_terms']);
-
-        // Export data to an Excel file, passing filters, type, id, date range, and proximity
-        return Excel::download(new ApplicantsExport($type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters), 'Applicants Report.xlsx');
+        return response()->json(['message' => 'Export started. You will be notified when it’s ready.', 'download_id' => $download->id]);
     }
+
+    /**
+     * Export filtered applicants data to an Excel report.
+     *
+     * This method retrieves applicant data based on selected filters
+     * and exports it as an Excel file. The filters include various
+     * applicant attributes, date range, location-based proximity,
+     * and type (e.g., store, division, or region).
+     *
+     * @param Request $request The incoming HTTP request containing filters.
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse An Excel file download response.
+     */
+    // public function export(Request $request)
+    // {
+    //     // Retrieve the ID of the currently authenticated user
+    //     $authUserId = Auth::id();
+
+    //     // Fetch the authenticated user
+    //     $authUser = User::find($authUserId);
+
+    //     // Set the type to 'all' to filter all vacancies
+    //     $type = 'all';
+    //     $id = null;
+
+    //     // Set the $type based on the role_id of $authUser
+    //     if ($authUser->role_id == 3) {
+    //         $type = 'region';
+    //         $id = $authUser->region_id;
+    //     } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
+    //         $type = 'division';
+    //         $id = $authUser->devision_id;
+    //     } elseif ($authUser->role_id == 6) {
+    //         $type = 'store';
+    //         $id = $authUser->store_id;
+    //     }
+
+    //     // Extract and parse the date range from the request
+    //     $dateRange = $request->input('date'); // Assuming 'date' is the input field name in your form
+
+    //     // Split the date range string into start and end dates
+    //     [$startDateString, $endDateString] = explode(' to ', $dateRange);
+
+    //     // Parse the start and end dates
+    //     $startDate = Carbon::parse($startDateString)->startOfDay();
+    //     $endDate = Carbon::parse($endDateString)->endOfDay();
+
+    //     // Retrieve the maximum proximity distance in kilometers for filtering applicants, default to 50km
+    //     $maxDistanceFromStore = $request->input('maxDistanceFromStore', 50);
+
+    //     // Retrieve all filters from the request, excluding '_token', 'date', and 'search_terms'
+    //     $filters = $request->except(['_token', 'date', 'search_terms']);
+
+    //     // Export data to an Excel file, passing filters, type, id, date range, and proximity
+    //     return Excel::download(new ApplicantsExport($type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters), 'Applicants Report.xlsx');
+    // }
 }
