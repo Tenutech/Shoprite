@@ -127,12 +127,21 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
     {
         $rows = [];
 
-        // Calculate the total number of rows required
-        $totalPositions = ($vacancy->open_positions ?? 0) + ($vacancy->filled_positions ?? 0);
+        // Collect all SAP numbers
         $sapNumbers = $vacancy->sapNumbers->pluck('sap_number')->toArray();
 
-        // Loop to create multiple rows based on total positions
-        for ($i = 0; $i < $totalPositions; $i++) {
+        // Map the appointed applicants by their SAP numbers
+        $appointedApplicantsBySap = $vacancy->appointed->mapWithKeys(function ($applicant) {
+            return [$applicant->pivot->sap_number => $applicant->firstname . ' ' . $applicant->lastname . ' (' . $applicant->id_number . ') - ' . $applicant->pivot->sap_number];
+        });
+
+        // Loop to create rows for each SAP number
+        foreach ($sapNumbers as $currentSapNumber) {
+            // Determine open_positions and filled_positions
+            $isFilled = isset($appointedApplicantsBySap[$currentSapNumber]);
+            $openPositions = $isFilled ? '0' : 1;
+            $filledPositions = $isFilled ? 1 : '0';
+
             $rows[] = [
                 optional(optional($vacancy->store)->brand)->name ?? '',
                 optional(optional($vacancy->store)->division)->name ?? '',
@@ -140,16 +149,14 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
                 optional($vacancy->store)->name ?? '',
                 optional($vacancy->store)->code ?? '',
                 optional($vacancy->position)->name ?? '',
-                $sapNumbers[$i] ?? '', // Assign each SAP number to its own row
+                $currentSapNumber, // Assign each SAP number to its own row
                 optional($vacancy->type)->name ?? '',
                 (optional($vacancy->user)->firstname ?? '') . ' ' . (optional($vacancy->user)->lastname ?? ''),
-                $vacancy->open_positions === 0 ? '0' : ($vacancy->open_positions ?? '0'),
-                $vacancy->filled_positions === 0 ? '0' : ($vacancy->filled_positions ?? '0'),
-                $vacancy->appointed->map(function ($applicant) {
-                    return $applicant->firstname . ' ' . $applicant->lastname . ' (' . $applicant->id_number . ') - ' . $applicant->pivot->sap_number;
-                })->implode("\n"), // Join each entry with a new line
+                $openPositions, // Open positions for this SAP number
+                $filledPositions, // Filled positions for this SAP number
+                $appointedApplicantsBySap[$currentSapNumber] ?? '', // Match appointed applicant to the current SAP number
                 $vacancy->created_at->format('Y-m-d H:i'),
-                $vacancy->open_positions === 0 ? $vacancy->updated_at->format('Y-m-d H:i') : '',
+                $isFilled ? $vacancy->updated_at->format('Y-m-d H:i') : '',
             ];
         }
 
