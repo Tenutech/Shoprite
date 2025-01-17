@@ -62,41 +62,66 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
     public function query()
     {
         $query = Applicant::query()
-                ->select([
-                    'applicants.*',
-                    'states.code as state_code', // Joined state code
-                    'states.name as state_name', // Joined state name
-                    'educations.name as education_name', 
-                    'durations.name as duration_name', 
-                    'genders.name as gender_name',
-                    'races.name as race_name',
-                    'towns.name as town_name', // Joined town name
-                    'provinces.name as province_name', // Joined province name
-                    DB::raw("
-                        (
+            ->select([
+                'applicants.id',
+                'applicants.created_at',
+                'applicants.id_number',
+                'applicants.firstname',
+                'applicants.lastname',
+                'applicants.birth_date',
+                'applicants.age',
+                'applicants.literacy_score',
+                'applicants.literacy_questions',
+                'applicants.numeracy_score',
+                'applicants.numeracy_questions',
+                'applicants.situational_score',
+                'applicants.situational_questions',
+                'applicants.score',
+                'applicants.phone',
+                'applicants.email',
+                'applicants.location',
+                'applicants.location_type',
+                'applicants.terms_conditions',
+                'applicants.public_holidays',
+                'applicants.environment',
+                'applicants.consent',
+                'applicants.disability',
+                'applicants.application_type',
+                'applicants.state_id',
+                'states.name as state_name',
+                'educations.name as education_name',
+                'durations.name as duration_name',
+                'genders.name as gender_name',
+                'races.name as race_name',
+                'towns.name as town_name',
+                'provinces.name as province_name',
+                DB::raw("
+                    (
                         SELECT GROUP_CONCAT(DISTINCT brands.name SEPARATOR ', ')
                         FROM applicant_brands
                         JOIN brands ON applicant_brands.brand_id = brands.id
                         WHERE applicant_brands.applicant_id = applicants.id
-                        ) as brand_names
-                    "),
-                    DB::raw("(
+                    ) as brand_names
+                "),
+                DB::raw("
+                    (
                         SELECT vacancy_fills.sap_number
                         FROM vacancy_fills
                         WHERE vacancy_fills.applicant_id = applicants.id
                         ORDER BY vacancy_fills.created_at DESC
                         LIMIT 1
-                    ) as latest_sap_number")
-                ])
-                ->leftJoin('states', 'applicants.state_id', '=', 'states.id')
-                ->leftJoin('educations', 'applicants.education_id', '=', 'educations.id')
-                ->leftJoin('durations', 'applicants.duration_id', '=', 'durations.id')
-                ->leftJoin('genders', 'applicants.gender_id', '=', 'genders.id')
-                ->leftJoin('races', 'applicants.race_id', '=', 'races.id')
-                ->leftJoin('towns', 'applicants.town_id', '=', 'towns.id')
-                ->leftJoin('provinces', 'towns.province_id', '=', 'provinces.id'); 
+                    ) as latest_sap_number
+                ")
+            ])
+            ->leftJoin('states', 'applicants.state_id', '=', 'states.id')
+            ->leftJoin('educations', 'applicants.education_id', '=', 'educations.id')
+            ->leftJoin('durations', 'applicants.duration_id', '=', 'durations.id')
+            ->leftJoin('genders', 'applicants.gender_id', '=', 'genders.id')
+            ->leftJoin('races', 'applicants.race_id', '=', 'races.id')
+            ->leftJoin('towns', 'applicants.town_id', '=', 'towns.id')
+            ->leftJoin('provinces', 'towns.province_id', '=', 'provinces.id');
 
-        // Apply all additional filters
+        // Apply filters
         if (isset($this->filters['gender_id'])) {
             $query->where('applicants.gender_id', $this->filters['gender_id']);
         }
@@ -117,7 +142,6 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
             $query->where('applicants.employment', $this->filters['employment']);
         }
 
-        // Age, literacy, numeracy, situational, and overall score filters
         if (isset($this->filters['min_age']) && isset($this->filters['max_age'])) {
             $query->whereBetween('applicants.age', [$this->filters['min_age'], $this->filters['max_age']]);
         }
@@ -138,7 +162,6 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
             $query->whereBetween('applicants.score', [$this->filters['min_overall'], $this->filters['max_overall']]);
         }
 
-        // Completed filter
         if (isset($this->filters['completed'])) {
             $completeStateID = State::where('code', 'complete')->value('id');
             if ($this->filters['completed'] === 'Yes') {
@@ -148,80 +171,21 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
             }
         }
 
-        // Shortlisted filter with geographic constraints
         if (isset($this->filters['shortlisted'])) {
-            if ($this->filters['shortlisted'] === 'Yes') {
-                $query->whereNotNull('applicants.shortlist_id');
-            } else {
-                $query->whereNull('applicants.shortlist_id');
-            }
-
-            if (isset($this->filters['division_id']) || isset($this->filters['region_id']) || isset($this->filters['store_id'])) {
-                $query->whereHas('shortlist.vacancy.store', function ($storeQuery) {
-                    if (isset($this->filters['division_id'])) {
-                        $storeQuery->where('division_id', $this->filters['division_id']);
-                    }
-                    if (isset($this->filters['region_id'])) {
-                        $storeQuery->where('region_id', $this->filters['region_id']);
-                    }
-                    if (isset($this->filters['store_id'])) {
-                        $storeQuery->whereIn('store_id', (array) $this->filters['store_id']);
-                    }
-                });
-            }
+            $query->whereNotNull('applicants.shortlist_id');
         }
 
-        // Interviewed filter with geographic constraints
         if (isset($this->filters['interviewed'])) {
-            if ($this->filters['interviewed'] === 'Yes') {
-                $query->whereHas('interviews', function ($interviewQuery) {
-                    $interviewQuery->whereNotNull('score');
-                });
-            } else {
-                $query->whereDoesntHave('interviews')
-                    ->orWhereHas('interviews', function ($interviewQuery) {
-                        $interviewQuery->whereNull('score');
-                    });
-            }
-
-            if (isset($this->filters['division_id']) || isset($this->filters['region_id']) || isset($this->filters['store_id'])) {
-                $query->whereHas('interviews.vacancy.store', function ($storeQuery) {
-                    if (isset($this->filters['division_id'])) {
-                        $storeQuery->where('division_id', $this->filters['division_id']);
-                    }
-                    if (isset($this->filters['region_id'])) {
-                        $storeQuery->where('region_id', $this->filters['region_id']);
-                    }
-                    if (isset($this->filters['store_id'])) {
-                        $storeQuery->whereIn('store_id', (array) $this->filters['store_id']);
-                    }
-                });
-            }
+            $query->whereHas('interviews', function ($interviewQuery) {
+                $interviewQuery->whereNotNull('score');
+            });
         }
 
-        // Appointed filter with geographic constraints
-        if (isset($this->filters['appointed']) && $this->filters['appointed'] === 'Yes') {
-            $query->whereNotNull('applicants.appointed_id')
-                ->whereHas('vacanciesFilled', function ($vacancyQuery) {
-                    $vacancyQuery->whereBetween('vacancy_fills.created_at', [$this->startDate, $this->endDate]);
-
-                    if (isset($this->filters['division_id']) || isset($this->filters['region_id']) || isset($this->filters['store_id'])) {
-                        $vacancyQuery->whereHas('store', function ($storeQuery) {
-                            if (isset($this->filters['division_id'])) {
-                                $storeQuery->where('division_id', $this->filters['division_id']);
-                            }
-                            if (isset($this->filters['region_id'])) {
-                                $storeQuery->where('region_id', $this->filters['region_id']);
-                            }
-                            if (isset($this->filters['store_id'])) {
-                                $storeQuery->whereIn('store_id', (array) $this->filters['store_id']);
-                            }
-                        });
-                    }
-                });
-        } else {
-            $query->whereBetween('applicants.created_at', [$this->startDate, $this->endDate]);
+        if (isset($this->filters['appointed'])) {
+            $query->whereNotNull('applicants.appointed_id');
         }
+
+        $query->whereBetween('applicants.created_at', [$this->startDate, $this->endDate]);
 
         return $query;
     }
@@ -264,9 +228,6 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
             $assessmentScore = round(($totalScore / $totalQuestions) * 100);
         }
 
-        // Check if the applicant is appointed
-        $appointed = $applicant->appointed_id ? 'Yes' : 'No';
-
         return [
             $applicant->created_at->format('Y-m-d H:i'),
             $applicant->id_number ?? '',
@@ -298,7 +259,7 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
             $applicant->application_type ?? '',
             $applicant->state_id < $this->completeStateID ? 'Yes' : 'No',
             $applicant->state_name ?? '',
-            $appointed,
+            $applicant->appointed_id ? 'Yes' : 'No',
             $applicant->latest_sap_number ?? ''
         ];
     }

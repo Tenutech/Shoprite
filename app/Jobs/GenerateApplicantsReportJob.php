@@ -96,8 +96,21 @@ class GenerateApplicantsReportJob implements ShouldQueue
                     ->attach(storage_path("app/{$zipFilePath}")); // Attach the ZIP file
             });
         } catch (\Exception $e) {
-            // Optionally, you can retry or handle the exception in another way
-            throw $e; // Re-throw to mark the job as failed
+            // Send error email
+            Mail::send([], [], function ($message) use ($e) {
+                $message->to($this->authUser->email) // Recipient email
+                    ->from('noreply@otbgroup.co.za', 'Shoprite - Job Opportunities') // Set the "from" address and name
+                    ->subject('Error Generating Applicants Report') // Email subject
+                    ->html( // Use HTML for the body
+                        "<p>Dear {$this->authUser->firstname},</p>
+                        <p>An error occurred while generating your report. Reason: {$e->getMessage()}</p>
+                        <p>Please submit a query to the support team for further assistance.</p>
+                        <p>Kind Regards,<br>Shoprite Job Opportunities</p>"
+                    );
+            });
+    
+            // Optionally log the error or rethrow it to mark the job as failed
+            throw $e;
         }
     }
 
