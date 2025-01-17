@@ -647,6 +647,10 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::get('/api/applicants-metrics', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'getApplicantsMetrics'])->name('applicants.reports.metrics');
 
     Route::get('/api/graph-metrics', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'getApplicantsGraphMetrics'])->name('graph.reports.metrics');
+
+    Route::get('/downloads', [App\Http\Controllers\DownloadController::class, 'index'])->name('downloads.index');
+    Route::get('/downloads/{download}/download', [App\Http\Controllers\DownloadController::class, 'download'])->name('downloads.download');
+
 });
 
 /*
