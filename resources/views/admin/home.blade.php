@@ -67,8 +67,8 @@
                                             </button>
                                         </div>
                                     </div> <!--end col-->
-                                </div> <!--end row -->                                                               
-                            </form>                            
+                                </div> <!--end row -->
+                            </form>
                         </div>
                     </div><!-- end card header -->
                 </div> <!--end col -->
@@ -234,7 +234,7 @@
                                             <div class="spinner-border text-body" role="status" style="font-size: 12px;">
                                                 <span class="sr-only">Loading...</span>
                                             </div>
-                                        </span> 
+                                        </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average distance for successful placements
@@ -324,13 +324,13 @@
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="literacy_chart" data-colors='["--vz-primary"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
-            
+
                 <!-- Average Numeracy Score Talent Pool -->
                 <div class="col-xl-4 col-md-4" id="numeracy_chart_container">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average numeracy assessment score of candidates in the talent pool.">
@@ -340,13 +340,13 @@
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="numeracy_chart" data-colors='["--vz-info"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
-            
+
                 <!-- Average Situational Score Talent Pool -->
                 <div class="col-xl-4 col-md-4" id="situational_chart_container">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average situational assessment score of candidates in the talent pool.">
@@ -356,13 +356,13 @@
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="situational_chart" data-colors='["--vz-danger"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
-            </div> <!-- end row -->            
+            </div> <!-- end row -->
 
             <!-------------------------------------------------------------------------------------
                 Vacancies
@@ -395,7 +395,7 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Vacancies Filled -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of vacancies successfully filled.">
@@ -426,7 +426,7 @@
                     </div><!-- end card -->
                 </div> <!--end col -->
             </div> <!--end row -->
-            
+
             <!-------------------------------------------------------------------------------------
                 Interviews
             -------------------------------------------------------------------------------------->
@@ -458,7 +458,7 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Interviews Conducted -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of interviews successfully conducted.">
@@ -488,7 +488,7 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            </div> <!--end row -->            
+            </div> <!--end row -->
 
             <!-------------------------------------------------------------------------------------
                 Applicants
@@ -524,7 +524,7 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Applicants Regretted -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates who recieved a regret notification. This also indicates the percentage compared to the total scheduled interviews.">
@@ -558,7 +558,7 @@
 
             <!-------------------------------------------------------------------------------------
                 Talent Pool vs Appointed
-            -------------------------------------------------------------------------------------->       
+            -------------------------------------------------------------------------------------->
 
             <div class="row g-3" id="talentPoolRow">
                 <div class="col-xl-12 col-md-12">
@@ -599,7 +599,7 @@
                                 </div> <!--end col -->
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="talent_pool_by_month" data-colors='["--vz-primary", "--vz-success"]' class="apex-charts" dir="ltr"></div>
                         </div> <!-- end card-body -->
@@ -641,7 +641,7 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Website -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of applications submitted via website.">
@@ -779,7 +779,7 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Re-Employed Applicants -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates who were re-employed after leaving the organization.">
@@ -827,39 +827,14 @@
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="talent_pool_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
-                            <div class="row text-center" id="talent_pool_applicants_demographic_totals">
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-primary me-2"></i>
-                                        <span class="African"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-info me-2"></i>
-                                        <span class="Coloured"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
-                                        <span class="Indian"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
-                                        <span class="White"></span>
-                                    </p>
-                                </div>
-                            </div><!-- end -->
+                            <div class="row text-center" id="talent_pool_applicants_demographic_totals"></div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
-            
+
                 <!-- Interviewed Demographic -->
                 <div class="col-xl-4 col-md-4" id="interviewed_applicants_demographic_container">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates who have been interviewed.">
@@ -871,39 +846,14 @@
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="interviewed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
-                            <div class="row text-center" id="interviewed_pool_applicants_demographic_totals">
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-primary me-2"></i>
-                                        <span class="African"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-info me-2"></i>
-                                        <span class="Coloured"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
-                                        <span class="Indian"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
-                                        <span class="White"></span>
-                                    </p>
-                                </div>
-                            </div><!-- end -->
+                            <div class="row text-center" id="interviewed_pool_applicants_demographic_totals"></div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
-            
+
                 <!-- Appointed Demographic -->
                 <div class="col-xl-4 col-md-4" id="appointed_applicants_demographic_container">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates who have been successfully placed.">
@@ -915,40 +865,15 @@
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="appointed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
-                            <div class="row text-center" id="appointed_pool_applicants_demographic_totals">
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-primary me-2"></i>
-                                        <span class="African"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-info me-2"></i>
-                                        <span class="Coloured"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
-                                        <span class="Indian"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
-                                        <span class="White"></span>
-                                    </p>
-                                </div>
-                            </div><!-- end -->
+                            <div class="row text-center" id="appointed_pool_applicants_demographic_totals"></div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
             </div> <!-- end row -->
-            
+
             <!-------------------------------------------------------------------------------------
                 Gender Information
             -------------------------------------------------------------------------------------->
@@ -965,27 +890,14 @@
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="talent_pool_applicants_gender" data-colors='["--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
-                            <div class="row text-center" id="talent_pool_applicants_gender_totals">
-                                <div class="col-sm-6">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
-                                        <span class="Male"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-6">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
-                                        <span class="Female"></span>
-                                    </p>
-                                </div>   
-                            </div><!-- end -->
+                            <div class="row text-center" id="talent_pool_applicants_gender_totals"></div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
-            
+
                 <!-- Interviewed Gender -->
                 <div class="col-xl-4 col-md-4" id="interviewed_applicants_gender_container">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the gender distribution of candidates who have been interviewed.">
@@ -997,27 +909,14 @@
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="interviewed_applicants_gender" data-colors='["--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
-                            <div class="row text-center" id="interviewed_applicants_gender_totals">
-                                <div class="col-sm-6">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
-                                        <span class="Male"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-6">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
-                                        <span class="Female"></span>
-                                    </p>
-                                </div>
-                            </div><!-- end -->
+                            <div class="row text-center" id="interviewed_applicants_gender_totals"></div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
-            
+
                 <!-- Appointed Gender -->
                 <div class="col-xl-4 col-md-4" id="appointed_applicants_gender_container">
                     <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the gender distribution of candidates who have been successfully placed.">
@@ -1029,27 +928,14 @@
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="appointed_applicants_gender" data-colors='["--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
-                            <div class="row text-center" id="appointed_applicants_gender_totals">
-                                <div class="col-sm-6">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
-                                        <span class="Male"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-6">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
-                                        <span class="Female"></span>
-                                    </p>
-                                </div>                                
-                            </div><!-- end -->
+                            <div class="row text-center" id="appointed_applicants_gender_totals"></div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
-            </div> <!-- end row -->            
+            </div> <!-- end row -->
 
             <!-------------------------------------------------------------------------------------
                 Province Information
@@ -1067,13 +953,13 @@
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="talent_pool_applicants_province" data-colors='["--vz-primary", "--vz-secondary", "--vz-info", "--vz-success", "--vz-warning", "--vz-danger", "--vz-pink", "--vz-gray", "--vz-purple"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
-            </div> <!-- end row -->            
+            </div> <!-- end row -->
 
             @if ($shortlist)
                 @include('manager.partials.shortlist-modal', ['shortlist' => $shortlist])
