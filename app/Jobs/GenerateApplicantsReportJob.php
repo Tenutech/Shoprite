@@ -12,6 +12,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ReportReadyMail;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 
 class GenerateApplicantsReportJob implements ShouldQueue
 {
@@ -57,21 +58,33 @@ class GenerateApplicantsReportJob implements ShouldQueue
     public function handle()
     {
         try {
-            // Generate a unique filename for the report
-            $fileName = "Applicants_Report_" . now()->timestamp . ".xlsx";
+            // Generate the file name
+            $fileName = 'Applicants_Report_' . now()->format('Y_m_d_H_i_s') . '.csv';
             $filePath = "reports/{$fileName}";
+            $zipFileName = 'Applicants_Report_' . now()->format('Y_m_d_H_i_s') . '.zip';
+            $zipFilePath = "reports/{$zipFileName}";
 
-            // Store the report in the storage/app/reports directory
+            // Export the file and save it to storage
             Excel::store(
                 new ApplicantsExport($this->type, $this->id, $this->startDate, $this->endDate, $this->maxDistanceFromStore, $this->filters),
                 $filePath
             );
 
+            // Compress the file into a ZIP archive
+            $zip = new \ZipArchive();
+            $zipFullPath = storage_path("app/{$zipFilePath}");
+            if ($zip->open($zipFullPath, \ZipArchive::CREATE) === true) {
+                $zip->addFile(storage_path("app/{$filePath}"), $fileName); // Add the CSV file to the ZIP
+                $zip->close();
+            } else {
+                throw new \Exception("Failed to create ZIP file.");
+            }
+
             // Clean up previous exports
             $this->deleteOldReports();
 
             // Send the email using the Mail facade
-            Mail::send([], [], function ($message) use ($filePath) {
+            Mail::send([], [], function ($message) use ($zipFilePath) {
                 $message->to($this->authUser->email) // Recipient email
                     ->from('noreply@otbgroup.co.za', 'Shoprite - Job Opportunities') // Set the "from" address and name
                     ->subject('Your Applicants Report is Ready') // Email subject
@@ -80,7 +93,7 @@ class GenerateApplicantsReportJob implements ShouldQueue
                         <p>Please see attached the applicants report.</p>
                         <p>Kind Regards,<br>Shoprite Job Opportunities</p>"
                     )
-                    ->attach(storage_path("app/{$filePath}")); // Attach the report file
+                    ->attach(storage_path("app/{$zipFilePath}")); // Attach the ZIP file
             });
         } catch (\Exception $e) {
             // Optionally, you can retry or handle the exception in another way

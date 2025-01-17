@@ -21,8 +21,9 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use Maatwebsite\Excel\Concerns\WithTitle;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
 
-class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle, WithChunkReading
+class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle, WithChunkReading
 {
     protected $type;
     protected $id;
@@ -30,6 +31,7 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
     protected $endDate;
     protected $maxDistanceFromStore;
     protected $filters;
+    protected $completeStateID;
 
     public function __construct($type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters)
     {
@@ -39,6 +41,7 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
         $this->endDate = $endDate;
         $this->maxDistanceFromStore = $maxDistanceFromStore;
         $this->filters = $filters;
+        $this->completeStateID = State::where('code', 'complete')->value('id');
     }
 
     /**
@@ -54,183 +57,175 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
     /**
      * Retrieve the applicants based on filters.
      *
-     * @return \Illuminate\Support\Collection
+     * @return \Illuminate\Database\Query\Builder
      */
-    public function collection()
+    public function query()
     {
-        // Start building the query for applicants
-        $query = Applicant::query();
+        $query = Applicant::query()
+                ->select([
+                    'applicants.*',
+                    'states.code as state_code', // Joined state code
+                    'states.name as state_name', // Joined state name
+                    'educations.name as education_name', 
+                    'durations.name as duration_name', 
+                    'genders.name as gender_name',
+                    'races.name as race_name',
+                    'towns.name as town_name', // Joined town name
+                    'provinces.name as province_name', // Joined province name
+                    DB::raw("
+                        (
+                        SELECT GROUP_CONCAT(DISTINCT brands.name SEPARATOR ', ')
+                        FROM applicant_brands
+                        JOIN brands ON applicant_brands.brand_id = brands.id
+                        WHERE applicant_brands.applicant_id = applicants.id
+                        ) as brand_names
+                    "),
+                    DB::raw("(
+                        SELECT vacancy_fills.sap_number
+                        FROM vacancy_fills
+                        WHERE vacancy_fills.applicant_id = applicants.id
+                        ORDER BY vacancy_fills.created_at DESC
+                        LIMIT 1
+                    ) as latest_sap_number")
+                ])
+                ->leftJoin('states', 'applicants.state_id', '=', 'states.id')
+                ->leftJoin('educations', 'applicants.education_id', '=', 'educations.id')
+                ->leftJoin('durations', 'applicants.duration_id', '=', 'durations.id')
+                ->leftJoin('genders', 'applicants.gender_id', '=', 'genders.id')
+                ->leftJoin('races', 'applicants.race_id', '=', 'races.id')
+                ->leftJoin('towns', 'applicants.town_id', '=', 'towns.id')
+                ->leftJoin('provinces', 'towns.province_id', '=', 'provinces.id'); 
 
         // Apply all additional filters
         if (isset($this->filters['gender_id'])) {
-            $query->where('gender_id', $this->filters['gender_id']);
+            $query->where('applicants.gender_id', $this->filters['gender_id']);
         }
+
         if (isset($this->filters['race_id'])) {
-            $query->where('race_id', $this->filters['race_id']);
+            $query->where('applicants.race_id', $this->filters['race_id']);
         }
+
         if (isset($this->filters['education_id'])) {
-            $query->where('education_id', $this->filters['education_id']);
+            $query->where('applicants.education_id', $this->filters['education_id']);
         }
-        if (isset($this->filters['experience_id'])) {
-            $query->where('experience_id', $this->filters['experience_id']);
+
+        if (isset($this->filters['duration_id'])) {
+            $query->where('applicants.duration_id', $this->filters['duration_id']);
         }
+
         if (isset($this->filters['employment'])) {
-            $query->where('employment', $this->filters['employment']);
+            $query->where('applicants.employment', $this->filters['employment']);
         }
 
         // Age, literacy, numeracy, situational, and overall score filters
         if (isset($this->filters['min_age']) && isset($this->filters['max_age'])) {
-            $query->whereBetween('age', [$this->filters['min_age'], $this->filters['max_age']]);
+            $query->whereBetween('applicants.age', [$this->filters['min_age'], $this->filters['max_age']]);
         }
+
         if (isset($this->filters['min_literacy']) && isset($this->filters['max_literacy'])) {
-            $query->whereBetween('literacy_score', [$this->filters['min_literacy'], $this->filters['max_literacy']]);
+            $query->whereBetween('applicants.literacy_score', [$this->filters['min_literacy'], $this->filters['max_literacy']]);
         }
+
         if (isset($this->filters['min_numeracy']) && isset($this->filters['max_numeracy'])) {
-            $query->whereBetween('numeracy_score', [$this->filters['min_numeracy'], $this->filters['max_numeracy']]);
+            $query->whereBetween('applicants.numeracy_score', [$this->filters['min_numeracy'], $this->filters['max_numeracy']]);
         }
+
         if (isset($this->filters['min_situational']) && isset($this->filters['max_situational'])) {
-            $query->whereBetween('situational_score', [$this->filters['min_situational'], $this->filters['max_situational']]);
+            $query->whereBetween('applicants.situational_score', [$this->filters['min_situational'], $this->filters['max_situational']]);
         }
+
         if (isset($this->filters['min_overall']) && isset($this->filters['max_overall'])) {
-            $query->whereBetween('overall_score', [$this->filters['min_overall'], $this->filters['max_overall']]);
+            $query->whereBetween('applicants.score', [$this->filters['min_overall'], $this->filters['max_overall']]);
         }
 
         // Completed filter
         if (isset($this->filters['completed'])) {
             $completeStateID = State::where('code', 'complete')->value('id');
             if ($this->filters['completed'] === 'Yes') {
-                $query->where('state_id', '>=', $completeStateID);
+                $query->where('applicants.state_id', '>=', $completeStateID);
             } elseif ($this->filters['completed'] === 'No') {
-                $query->where('state_id', '<', $completeStateID);
+                $query->where('applicants.state_id', '<', $completeStateID);
             }
         }
 
-        // Shortlisted filter
+        // Shortlisted filter with geographic constraints
         if (isset($this->filters['shortlisted'])) {
             if ($this->filters['shortlisted'] === 'Yes') {
-                $query->whereNotNull('shortlist_id');
+                $query->whereNotNull('applicants.shortlist_id');
+            } else {
+                $query->whereNull('applicants.shortlist_id');
+            }
 
-                // Apply geographic filters for shortlisted applicants
-                if (isset($this->filters['division_id'])) {
-                    $query->whereHas('shortlist.vacancy.store', function ($storeQuery) {
+            if (isset($this->filters['division_id']) || isset($this->filters['region_id']) || isset($this->filters['store_id'])) {
+                $query->whereHas('shortlist.vacancy.store', function ($storeQuery) {
+                    if (isset($this->filters['division_id'])) {
                         $storeQuery->where('division_id', $this->filters['division_id']);
-                    });
-                } elseif (isset($this->filters['region_id'])) {
-                    $query->whereHas('shortlist.vacancy.store', function ($storeQuery) {
+                    }
+                    if (isset($this->filters['region_id'])) {
                         $storeQuery->where('region_id', $this->filters['region_id']);
-                    });
-                } elseif (isset($this->filters['store_id'])) {
-                    $query->whereHas('shortlist.vacancy', function ($vacancyQuery) {
-                        if (is_array($this->filters['store_id'])) {
-                            $vacancyQuery->whereIn('store_id', $this->filters['store_id']);
-                        }
-                    });
-                }
-            } elseif ($this->filters['shortlisted'] === 'No') {
-                $query->whereNull('shortlist_id');
+                    }
+                    if (isset($this->filters['store_id'])) {
+                        $storeQuery->whereIn('store_id', (array) $this->filters['store_id']);
+                    }
+                });
             }
         }
 
-        // Interviewed filter
+        // Interviewed filter with geographic constraints
         if (isset($this->filters['interviewed'])) {
             if ($this->filters['interviewed'] === 'Yes') {
                 $query->whereHas('interviews', function ($interviewQuery) {
                     $interviewQuery->whereNotNull('score');
                 });
-            } elseif ($this->filters['interviewed'] === 'No') {
-                $query->where(function ($q) {
-                    $q->doesntHave('interviews')
+            } else {
+                $query->whereDoesntHave('interviews')
                     ->orWhereHas('interviews', function ($interviewQuery) {
                         $interviewQuery->whereNull('score');
                     });
-                });
             }
 
-            if (isset($this->filters['division_id'])) {
+            if (isset($this->filters['division_id']) || isset($this->filters['region_id']) || isset($this->filters['store_id'])) {
                 $query->whereHas('interviews.vacancy.store', function ($storeQuery) {
-                    $storeQuery->where('division_id', $this->filters['division_id']);
-                });
-            } elseif (isset($this->filters['region_id'])) {
-                $query->whereHas('interviews.vacancy.store', function ($storeQuery) {
-                    $storeQuery->where('region_id', $this->filters['region_id']);
-                });
-            } elseif (isset($this->filters['store_id'])) {
-                $query->whereHas('interviews.vacancy', function ($vacancyQuery) {
-                    if (is_array($this->filters['store_id'])) {
-                        $vacancyQuery->whereIn('store_id', $this->filters['store_id']);
+                    if (isset($this->filters['division_id'])) {
+                        $storeQuery->where('division_id', $this->filters['division_id']);
+                    }
+                    if (isset($this->filters['region_id'])) {
+                        $storeQuery->where('region_id', $this->filters['region_id']);
+                    }
+                    if (isset($this->filters['store_id'])) {
+                        $storeQuery->whereIn('store_id', (array) $this->filters['store_id']);
                     }
                 });
             }
         }
 
-        // Appointed filter
+        // Appointed filter with geographic constraints
         if (isset($this->filters['appointed']) && $this->filters['appointed'] === 'Yes') {
-            $query->whereNotNull('appointed_id') // Only include appointed applicants
+            $query->whereNotNull('applicants.appointed_id')
                 ->whereHas('vacanciesFilled', function ($vacancyQuery) {
-                    // Apply the date range to vacancy_fills.created_at
                     $vacancyQuery->whereBetween('vacancy_fills.created_at', [$this->startDate, $this->endDate]);
 
-                    // Apply geographic filters for appointed applicants
-                    if (isset($this->filters['division_id'])) {
+                    if (isset($this->filters['division_id']) || isset($this->filters['region_id']) || isset($this->filters['store_id'])) {
                         $vacancyQuery->whereHas('store', function ($storeQuery) {
-                            $storeQuery->where('division_id', $this->filters['division_id']);
+                            if (isset($this->filters['division_id'])) {
+                                $storeQuery->where('division_id', $this->filters['division_id']);
+                            }
+                            if (isset($this->filters['region_id'])) {
+                                $storeQuery->where('region_id', $this->filters['region_id']);
+                            }
+                            if (isset($this->filters['store_id'])) {
+                                $storeQuery->whereIn('store_id', (array) $this->filters['store_id']);
+                            }
                         });
-                    } elseif (isset($this->filters['region_id'])) {
-                        $vacancyQuery->whereHas('store', function ($storeQuery) {
-                            $storeQuery->where('region_id', $this->filters['region_id']);
-                        });
-                    } elseif (isset($this->filters['store_id'])) {
-                        if (is_array($this->filters['store_id'])) {
-                            $vacancyQuery->whereIn('store_id', $this->filters['store_id']);
-                        }
                     }
                 });
         } else {
-            // Default date range filter for non-appointed applicants
-            $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
+            $query->whereBetween('applicants.created_at', [$this->startDate, $this->endDate]);
         }
 
-        // Store proximity and type filtering
-        if ((!isset($this->filters['shortlisted']) || $this->filters['shortlisted'] == 'No') && (!isset($this->filters['interviewed']) || $this->filters['interviewed'] == 'No') && (!isset($this->filters['appointed']) || $this->filters['appointed'] == 'No') && (isset($this->filters['store_id']) || isset($this->filters['region_id']) || isset($this->filters['division_id']))) {
-            // Get stores based on the filter priority: division -> region -> store
-            $stores = Store::when(isset($this->filters['division_id']), function ($query) {
-                    return $query->where('division_id', $this->filters['division_id']);
-            })
-                ->when(isset($this->filters['region_id']), function ($query) {
-                    return $query->where('region_id', $this->filters['region_id']);
-                })
-                ->when(isset($this->filters['store_id']), function ($query) {
-                    if (is_array($this->filters['store_id'])) {
-                        return $query->whereIn('id', $this->filters['store_id']);
-                    }
-                })
-                ->get();
-
-            // Early return if no stores match the criteria
-            if ($stores->isEmpty()) {
-                return collect([]); // Return an empty collection
-            }
-
-            // Build a query for each store in proximity if applicable
-            $storeQueries = collect([]);
-            foreach ($stores as $store) {
-                if ($store->coordinates) {
-                    [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
-                    $storeQuery = clone $query;
-                    $storeQuery->whereRaw("ST_Distance_Sphere(
-                        point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                        point(?, ?)) <= ?", [$storeLng, $storeLat, $this->maxDistanceFromStore * 1000]);
-                    $storeQueries->push($storeQuery);
-                }
-            }
-
-            // Combine all store queries
-            return $storeQueries->map(fn($q) => $q->get())->flatten();
-        }
-
-        // Return the collection of filtered applicants
-        return $query->get();
+        return $query;
     }
+
 
     /**
      * Map data for each row.
@@ -240,65 +235,54 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
      */
     public function map($applicant): array
     {
-        // Retrieve the complete state ID
-        $completeStateID = State::where('code', 'complete')->value('id');
-
-        // Calculate individual literacy, numeracy, and situational percentages
-        $literacyPercentage = isset($applicant->literacy_score, $applicant->literacy_questions) && $applicant->literacy_questions > 0
+        // If literacy_questions exists and > 0, calculate percentage; otherwise, show an empty string.
+        $literacyPercentage = ($applicant->literacy_questions ?? 0) > 0
             ? round(($applicant->literacy_score / $applicant->literacy_questions) * 100)
             : '';
 
-        $numeracyPercentage = isset($applicant->numeracy_score, $applicant->numeracy_questions) && $applicant->numeracy_questions > 0
+        // Same logic for numeracy
+        $numeracyPercentage = ($applicant->numeracy_questions ?? 0) > 0
             ? round(($applicant->numeracy_score / $applicant->numeracy_questions) * 100)
             : '';
 
-        $situationalPercentage = isset($applicant->situational_score, $applicant->situational_questions) && $applicant->situational_questions > 0
+        // Same logic for situational
+        $situationalPercentage = ($applicant->situational_questions ?? 0) > 0
             ? round(($applicant->situational_score / $applicant->situational_questions) * 100)
             : '';
 
-        // Calculate assessment score percentage
-        $assessmentScore = '';
-        if (
-            isset($applicant->literacy_score, $applicant->numeracy_score, $applicant->situational_score) &&
-            isset($applicant->literacy_questions, $applicant->numeracy_questions, $applicant->situational_questions)
-        ) {
-            $totalScore = $applicant->literacy_score + $applicant->numeracy_score + $applicant->situational_score;
-            $totalQuestions = $applicant->literacy_questions + $applicant->numeracy_questions + $applicant->situational_questions;
-            if ($totalQuestions > 0) {
-                $assessmentScore = round(($totalScore / $totalQuestions) * 100);
-            }
-        }
+        // Calculate the total assessment score only if at least one of literacy, numeracy, situational questions is > 0
+        $totalQuestions = ($applicant->literacy_questions ?? 0)
+                        + ($applicant->numeracy_questions ?? 0)
+                        + ($applicant->situational_questions ?? 0);
 
-        // Get brands as a comma-separated string
-        $brands = $applicant->brands->pluck('name')->join(', ');
+        $assessmentScore = '';
+        if ($totalQuestions > 0) {
+            $totalScore = ($applicant->literacy_score ?? 0)
+                        + ($applicant->numeracy_score ?? 0)
+                        + ($applicant->situational_score ?? 0);
+
+            $assessmentScore = round(($totalScore / $totalQuestions) * 100);
+        }
 
         // Check if the applicant is appointed
         $appointed = $applicant->appointed_id ? 'Yes' : 'No';
 
-        // Retrieve the SAP Number if appointed
-        $sapNumber = '';
-        if ($appointed === 'Yes') {
-            // Get the latest SAP number from the pivot data if available
-            $sapNumber = $applicant->vacanciesFilled()->latest()->first()->pivot->sap_number ?? '';
-        }
-
         return [
             $applicant->created_at->format('Y-m-d H:i'),
             $applicant->id_number ?? '',
-            $applicant->documents()->latest()->first() ? url('documents/view/' . Crypt::encryptString($applicant->documents()->latest()->first()->id)) : '',
             $applicant->firstname ?? '',
             $applicant->lastname ?? '',
             $applicant->birth_date ? date('Y-m-d', strtotime($applicant->birth_date)) : '',
             $applicant->age ?? '',
-            optional($applicant->gender)->name ?? '',
-            optional($applicant->race)->name ?? '',
+            $applicant->gender_name ?? '',
+            $applicant->race_name ?? '',
             $applicant->phone ?? '',
             $applicant->email ?? '',
-            optional($applicant->education)->name ?? '',
-            optional($applicant->duration)->name ?? '',
-            optional($applicant->town)->name ?? '',
-            optional(optional($applicant->town)->province)->name ?? '',
-            $brands ?? '',
+            $applicant->education_name ?? '',
+            $applicant->duration_name ?? '',
+            $applicant->town_name ?? '',
+            $applicant->province_name ?? '',
+            $applicant->brand_names ?? '',
             $applicant->location ?? '',
             $applicant->location_type ?? '',
             $applicant->terms_conditions ?? '',
@@ -309,13 +293,13 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
             $literacyPercentage,
             $numeracyPercentage,
             $situationalPercentage,
-            $assessmentScore ?? '',
+            $assessmentScore,
             $applicant->score ?? '',
             $applicant->application_type ?? '',
-            $applicant->state_id < $completeStateID ? 'Yes' : 'No',
-            optional($applicant->state)->name ?? '',
-            $appointed ?? '',
-            $sapNumber ?? '',
+            $applicant->state_id < $this->completeStateID ? 'Yes' : 'No',
+            $applicant->state_name ?? '',
+            $appointed,
+            $applicant->latest_sap_number ?? ''
         ];
     }
 
@@ -329,7 +313,6 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
         return [
             'Application Date',
             'ID Number',
-            'ID Image URL',
             'First Name',
             'Last Name',
             'Date of Birth',
@@ -377,17 +360,17 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
         ];
 
         // Set left alignment and wrap text for all cells
-        $sheet->getStyle('A:AG')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle('A:AF')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
         // Format specific columns for numbers (e.g., ID Number and Phone)
         $sheet->getStyle('B')->getNumberFormat()->setFormatCode('0'); // ID Number as an integer
-        $sheet->getStyle('J')->getNumberFormat()->setFormatCode('0'); // Phone Number as an integer
-        $sheet->getStyle('X')->getNumberFormat()->setFormatCode('0'); // Literacy Score as an integer
-        $sheet->getStyle('Y')->getNumberFormat()->setFormatCode('0'); // Numeracy Score as an integer
-        $sheet->getStyle('Z')->getNumberFormat()->setFormatCode('0'); // Situational Score as an integer
-        $sheet->getStyle('AA')->getNumberFormat()->setFormatCode('0'); // Total Assessment Score as an integer
-        $sheet->getStyle('AB')->getNumberFormat()->setFormatCode('0'); // Overall Score Score as an integer
-        $sheet->getStyle('AG')->getNumberFormat()->setFormatCode('0'); // SAP Number as an integer
+        $sheet->getStyle('I')->getNumberFormat()->setFormatCode('0'); // Phone Number as an integer
+        $sheet->getStyle('W')->getNumberFormat()->setFormatCode('0'); // Literacy Score as an integer
+        $sheet->getStyle('X')->getNumberFormat()->setFormatCode('0'); // Numeracy Score as an integer
+        $sheet->getStyle('Y')->getNumberFormat()->setFormatCode('0'); // Situational Score as an integer
+        $sheet->getStyle('Z')->getNumberFormat()->setFormatCode('0'); // Total Assessment Score as an integer
+        $sheet->getStyle('AA')->getNumberFormat()->setFormatCode('0'); // Overall Score Score as an integer
+        $sheet->getStyle('AF')->getNumberFormat()->setFormatCode('0'); // SAP Number as an integer
 
         return $styles;
     }
@@ -402,37 +385,36 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
         return [
             'A' => 20, // Application Date
             'B' => 20, // ID Number
-            'C' => 20, // ID Image URL
-            'D' => 20, // First Name
-            'E' => 20, // Last Name
-            'F' => 15, // Date of Birth
-            'G' => 10, // Age
-            'H' => 15, // Gender
-            'I' => 15, // Race
-            'J' => 15, // Phone Number
-            'K' => 25, // Email Address
-            'L' => 20, // Highest Qualification
-            'M' => 20, // Experience
-            'N' => 15, // Town
-            'O' => 15, // Province
-            'P' => 25, // Brands
-            'Q' => 40, // Home Address
-            'R' => 15, // Location Type
-            'S' => 20, // Terms & Conditions
-            'T' => 20, // Shift Basis
-            'U' => 20, // Work Environment
-            'V' => 20, // Background Check
-            'W' => 15, // Disability
-            'X' => 15, // Literacy Score
-            'Y' => 15, // Numeracy Score
-            'Z' => 15, // Situational Awareness Score
-            'AA' => 20, // Total Assessment Score
-            'AB' => 20, // Overall Score
-            'AC' => 20, // Application Channel
-            'AD' => 15, // Drop off
-            'AE' => 25, // State
-            'AF' => 15, // Appointed
-            'AG' => 15, // Sap Number
+            'C' => 20, // First Name
+            'D' => 20, // Last Name
+            'E' => 15, // Date of Birth
+            'F' => 10, // Age
+            'G' => 15, // Gender
+            'H' => 15, // Race
+            'I' => 15, // Phone Number
+            'J' => 25, // Email Address
+            'K' => 20, // Highest Qualification
+            'L' => 20, // Experience
+            'M' => 15, // Town
+            'N' => 15, // Province
+            'O' => 25, // Brands
+            'P' => 40, // Home Address
+            'Q' => 15, // Location Type
+            'R' => 20, // Terms & Conditions
+            'S' => 20, // Shift Basis
+            'T' => 20, // Work Environment
+            'U' => 20, // Background Check
+            'V' => 15, // Disability
+            'W' => 15, // Literacy Score
+            'X' => 15, // Numeracy Score
+            'Y' => 15, // Situational Awareness Score
+            'Z' => 20, // Total Assessment Score
+            'AA' => 20, // Overall Score
+            'AB' => 20, // Application Channel
+            'AC' => 15, // Drop off
+            'AD' => 25, // State
+            'AE' => 15, // Appointed
+            'AF' => 15, // Sap Number
         ];
     }
 

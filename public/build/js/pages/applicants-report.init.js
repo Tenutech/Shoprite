@@ -309,26 +309,26 @@ $(document).ready(function() {
             data: formData,
             processData: false,  // Required for FormData
             contentType: false,  // Required for FormData
-            xhrFields: {
-                responseType: 'blob' // Important to handle binary data from server response
-            },
+            //xhrFields: {
+                //responseType: 'blob' // Important to handle binary data from server response
+            //},
             success: function(response) {
                 // Create a link element to download the file
-                var downloadUrl = window.URL.createObjectURL(response);
-                var link = document.createElement('a');
-                link.href = downloadUrl;
-                link.download = "Applicants Report.xlsx"; // File name
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                //var downloadUrl = window.URL.createObjectURL(response);
+                //var link = document.createElement('a');
+                //link.href = downloadUrl;
+                //link.download = "Applicants Report.xlsx"; // File name
+                //document.body.appendChild(link);
+                //link.click();
+                //document.body.removeChild(link);
 
                 // Display success notification
                 Swal.fire({
                     position: 'top-end',
                     icon: 'success',
-                    title: 'Report exported successfully!',
+                    title: response.message,
                     showConfirmButton: false,
-                    timer: 2000,
+                    timer: 5000,
                     showCloseButton: true,
                     toast: true
                 });
