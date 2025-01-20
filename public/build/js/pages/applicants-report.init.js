@@ -317,7 +317,7 @@ $(document).ready(function() {
                 var downloadUrl = window.URL.createObjectURL(response);
                 var link = document.createElement('a');
                 link.href = downloadUrl;
-                link.download = "Applicants Report.xlsx"; // File name
+                link.download = "Applicants Report.csv"; // File name
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
@@ -328,7 +328,7 @@ $(document).ready(function() {
                     icon: 'success',
                     title: 'Report exported successfully!',
                     showConfirmButton: false,
-                    timer: 2000,
+                    timer: 5000,
                     showCloseButton: true,
                     toast: true
                 });
@@ -336,12 +336,12 @@ $(document).ready(function() {
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
 
-                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
                     message = 'The request timed out. Please try again later.';
                 } else {
-                    message = 'An error occurred while processing your request. Please try again later.';
+                    message = 'An error occurred during export. Please try again later.';
                 }
 
                 // Display error notification
