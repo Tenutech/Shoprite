@@ -450,7 +450,7 @@ class ApplicantsReportController extends Controller
             $completeStateID = State::where('code', 'complete')->value('id');
             $filters = $request->except(['_token', 'date', 'search_terms']);
 
-            $pythonPath = realpath(base_path('../shared/myenv/bin/python'));
+            $pythonPath = '/var/www/qa.apply.shoprite.jobs/shared/myenv/bin/python';
             $scriptPath = base_path('python/exports/applicants_export.py');
             $process = new Process([
                 //'python',
