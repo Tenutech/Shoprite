@@ -15,10 +15,7 @@ use Illuminate\Support\Facades\File;
 
 class GenerateApplicantsReportJob implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
-    use Queueable;
-    use SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     // Variables to hold the job's input data
     public $authUser; // The authenticated user
@@ -81,7 +78,8 @@ class GenerateApplicantsReportJob implements ShouldQueue
                         <p>Kind Regards,<br>Shoprite Job Opportunities</p>"
                     )
                     ->attach(storage_path("app/{$filePath}")); // Attach the report file
-            });
+            });            
+
         } catch (\Exception $e) {
             // Optionally, you can retry or handle the exception in another way
             throw $e; // Re-throw to mark the job as failed
@@ -94,7 +92,7 @@ class GenerateApplicantsReportJob implements ShouldQueue
     protected function deleteOldReports()
     {
         $reportsDirectory = storage_path('app/reports');
-
+        
         // Get all files in the reports directory
         $files = File::files($reportsDirectory);
 
