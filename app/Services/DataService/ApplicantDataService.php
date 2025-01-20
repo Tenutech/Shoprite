@@ -520,6 +520,7 @@ class ApplicantDataService
             $percentage = ($race->applicants_count / $totalApplicants) * 100;
             return [
                 'name' => $race->name,
+                'total' => $race->applicants_count, // Include the total count
                 'percentage' => round($percentage) // Round percentage to the nearest integer
             ];
         })
@@ -602,6 +603,7 @@ class ApplicantDataService
             $percentage = ($race->applicants_count / $totalInterviewedApplicants) * 100;
             return [
                 'name' => $race->name,
+                'total' => $race->applicants_count, // Include the total count
                 'percentage' => round($percentage)
             ];
         })
@@ -658,7 +660,7 @@ class ApplicantDataService
                 ->whereNotNull('appointed_id') // Only include applicants with an appointed_id
                 ->whereHas('vacanciesFilled', function ($q) use ($startDate, $endDate, $type, $id) {
                     $q->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]); // Specify table for created_at
-        
+
                     // Apply additional filtering based on type (store, division, or region)
                     if ($type === 'store' && $id) {
                         $q->where('store_id', $id);
@@ -679,10 +681,11 @@ class ApplicantDataService
             $percentage = ($race->applicants_count / $totalAppointedApplicants) * 100;
             return [
                 'name' => $race->name,
+                'total' => $race->applicants_count, // Include the total count
                 'percentage' => round($percentage)
             ];
         })
-        ->toArray();        
+        ->toArray();
 
         return $demographicCounts;
     }
@@ -795,6 +798,7 @@ class ApplicantDataService
             $percentage = ($gender->applicants_count / $totalApplicants) * 100;
             return [
                 'name' => $gender->name,
+                'total' => $gender->applicants_count, // Include the total count
                 'percentage' => round($percentage) // Round percentage to the nearest integer
             ];
         })
@@ -866,6 +870,7 @@ class ApplicantDataService
             $percentage = ($gender->applicants_count / $totalInterviewedApplicants) * 100;
             return [
                 'name' => $gender->name,
+                'total' => $gender->applicants_count, // Include the total count
                 'percentage' => round($percentage) // Round percentage to the nearest integer
             ];
         })
@@ -932,6 +937,7 @@ class ApplicantDataService
             $percentage = ($gender->applicants_count / $totalAppointedApplicants) * 100;
             return [
                 'name' => $gender->name,
+                'total' => $gender->applicants_count, // Include the total count
                 'percentage' => round($percentage) // Round percentage to the nearest integer
             ];
         })

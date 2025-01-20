@@ -65,6 +65,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/applicants-table/destroy-multiple', [App\Http\Controllers\ApplicantsTableController::class, 'destroyMultiple'])->name('applicants-table.destroyMultiple');
 
+    Route::get('/api/applicants/fetch', [App\Http\Controllers\ApplicantsTableController::class, 'fetchApplicants'])->name('applicants-table.fetchApplicants');
+
     //Users
 
     Route::get('/users', [App\Http\Controllers\UsersController::class, 'index'])->name('users.index');
@@ -641,6 +643,10 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::post('/reports/applicants/update', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'update'])->name('applicants.reports.update');
 
     Route::post('/reports/applicants/export', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'export'])->name('applicants.reports.export');
+
+    Route::get('/api/applicants-metrics', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'getApplicantsMetrics'])->name('applicants.reports.metrics');
+
+    Route::get('/api/graph-metrics', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'getApplicantsGraphMetrics'])->name('graph.reports.metrics');
 });
 
 /*
@@ -654,7 +660,7 @@ Route::prefix('admin/reports')->middleware(['auth', 'verified', 'role:1,2,3,4,5'
     // Stores Reports
 
     Route::get('/stores', [App\Http\Controllers\Reports\StoresReportController::class, 'index'])->name('stores.reports.index');
-    
+
     Route::post('/stores/update', [App\Http\Controllers\Reports\StoresReportController::class, 'update'])->name('stores.reports.update');
 
     Route::post('/stores/export', [App\Http\Controllers\Reports\StoresReportController::class, 'export'])->name('stores.reports.export');
@@ -678,6 +684,8 @@ Route::prefix('rpp')->middleware(['auth', 'verified', 'role:1,2,3', 'user.activi
     //Home
 
     Route::get('/home', [App\Http\Controllers\RPPController::class, 'index'])->name('rpp.home');
+
+    Route::get('/update-dashboard', [App\Http\Controllers\RPPController::class, 'updateDashboard'])->name('rpp.updateDashboard');
 
     //Update Data
 
@@ -715,6 +723,24 @@ Route::prefix('dpp')->middleware(['auth', 'verified', 'role:1,2,5', 'user.activi
 
     Route::get('/update-dashboard', [App\Http\Controllers\DTDPController::class, 'updateDashboard'])->name('dpp.updateDashboard');
 
+    //Fetch Data
+    Route::get('/api/time-metrics', [App\Http\Controllers\DataController::class, 'getTimeMetrics'])->name('dpp.time.metrics');
+
+    Route::get('/api/proximity-metrics', [App\Http\Controllers\DataController::class, 'getProximityMetrics'])->name('dpp.proximity.metrics');
+
+    Route::get('/api/average-score-metrics', [App\Http\Controllers\DataController::class, 'getAverageScoreMetrics'])->name('dpp.average-score.metrics');
+
+    Route::get('/api/assessment-scores-metrics', [App\Http\Controllers\DataController::class, 'getAssessmentScores'])->name('dpp.assessment-scores.metrics');
+
+    Route::get('/api/vacancies-metrics', [App\Http\Controllers\DataController::class, 'getVacanciesMetrics'])->name('dpp.vacancies.metrics');
+
+    Route::get('/api/interviews-metrics', [App\Http\Controllers\DataController::class, 'getInterviewsMetrics'])->name('dpp.interviews.metrics');
+
+    Route::get('/api/applicants-metrics', [App\Http\Controllers\DataController::class, 'getApplicantsMetrics'])->name('dpp.applicants.metrics');
+
+    Route::get('/api/talent-pool-metrics', [App\Http\Controllers\DataController::class, 'getTalentPoolMetrics'])->name('dpp.talent-pool.metrics');
+
+    Route::get('/api/demographic-metrics', [App\Http\Controllers\DataController::class, 'getDemographicMetrics'])->name('dpp.demographic.metrics');
 
     //Update Data
 
@@ -734,6 +760,35 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,6', 'use
 
     Route::get('/update-dashboard', [App\Http\Controllers\ManagerController::class, 'updateDashboard'])->name('manager.updateDashboard');
 
+    //Fetch Data
+    Route::get('/api/time-metrics', [App\Http\Controllers\DataController::class, 'getTimeMetrics'])->name('time.metrics');
+
+    Route::get('/api/proximity-metrics', [App\Http\Controllers\DataController::class, 'getProximityMetrics'])->name('proximity.metrics');
+
+    Route::get('/api/average-score-metrics', [App\Http\Controllers\DataController::class, 'getAverageScoreMetrics'])->name('average-score.metrics');
+
+    Route::get('/api/assessment-scores-metrics', [App\Http\Controllers\DataController::class, 'getAssessmentScores'])->name('assessment-scores.metrics');
+
+    Route::get('/api/vacancies-metrics', [App\Http\Controllers\DataController::class, 'getVacanciesMetrics'])->name('vacancies.metrics');
+
+    Route::get('/api/interviews-metrics', [App\Http\Controllers\DataController::class, 'getInterviewsMetrics'])->name('interviews.metrics');
+
+    Route::get('/api/applicants-metrics', [App\Http\Controllers\DataController::class, 'getApplicantsMetrics'])->name('applicants.metrics');
+
+    Route::get('/api/talent-pool-metrics', [App\Http\Controllers\DataController::class, 'getTalentPoolMetrics'])->name('talent-pool.metrics');
+
+    Route::get('/api/application-channels-metrics', [App\Http\Controllers\DataController::class, 'getApplicationChannelsMetrics'])->name('application-channels.metrics');
+
+    Route::get('/api/application-completion-metrics', [App\Http\Controllers\DataController::class, 'getApplicationCompletionMetrics'])->name('application-completion.metrics');
+
+    Route::get('/api/stores-metrics', [App\Http\Controllers\DataController::class, 'getStoresMetrics'])->name('stores.metrics');
+
+    Route::get('/api/demographic-metrics', [App\Http\Controllers\DataController::class, 'getDemographicMetrics'])->name('demographic.metrics');
+
+    Route::get('/api/gender-metrics', [App\Http\Controllers\DataController::class, 'getGenderMetrics'])->name('gender.metrics');
+
+    Route::get('/api/province-metrics', [App\Http\Controllers\DataController::class, 'getProvinceMetrics'])->name('province.metrics');
+
     //User Profile
 
     Route::get('/user-profile', [App\Http\Controllers\UserProfileController::class, 'index'])->name('user-profile.index');
@@ -744,7 +799,7 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,6', 'use
 
     Route::get('/applicants-data', [App\Http\Controllers\ApplicantsController::class, 'applicants'])->name('applicants.data');
 
-    //vacancies
+    //Vacancies
 
     Route::get('/vacancies', [App\Http\Controllers\ManagerController::class, 'vacancies'])->name('manager.vacancies');
 

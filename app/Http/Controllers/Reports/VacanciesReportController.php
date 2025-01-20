@@ -148,36 +148,36 @@ class VacanciesReportController extends Controller
                 // If role_id is 3, get all brands where id matches the brands in stores in the user's region
                 $storeBrandIds = Store::where('region_id', $authUser->region_id)
                     ->pluck('brand_id'); // Get the brand_ids of all stores in the user's region
-            
+
                 // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
                 if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
                     $storeBrandIds->push(2);
                 }
-            
+
                 // Get all brands where id is in the store's brand_ids
                 $brands = Brand::whereIn('id', $storeBrandIds)->get();
             } elseif ($authUser->role_id == 4) {
                 // If role_id is 4, get all brands where id matches the brands in stores in the user's division
                 $storeBrandIds = Store::where('division_id', $authUser->division_id)
                     ->pluck('brand_id'); // Get the brand_ids of all stores in the user's division
-            
+
                 // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
                 if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
                     $storeBrandIds->push(2);
                 }
-            
+
                 // Get all brands where id is in the store's brand_ids
                 $brands = Brand::whereIn('id', $storeBrandIds)->get();
             } elseif ($authUser->role_id == 6) {
                 // If role_id is 6, get all brands where id matches the brand of the users store
                 $storeBrandIds = Store::where('id', $authUser->store_id)
                     ->pluck('brand_id'); // Get the brand_ids of all stores in the user's division
-            
+
                 // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
                 if ($storeBrandIds->contains(3) || $storeBrandIds->contains(4)) {
                     $storeBrandIds->push(2);
                 }
-            
+
                 // Get all brands where id is in the store's brand_ids
                 $brands = Brand::whereIn('id', $storeBrandIds)->get();
             }

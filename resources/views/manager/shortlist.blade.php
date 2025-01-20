@@ -266,6 +266,30 @@
                     Disability
                 </button>
 
+                <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="ri-user-add-line label-icon align-middle rounded-pill fs-16 me-2"></i>
+                        Age
+                    </button>
+                    <ul class="dropdown-menu">
+                        <a class="dropdown-item filter-button" data-bs-filter="age;18-30">
+                            18-30
+                        </a>
+                        <a class="dropdown-item filter-button" data-bs-filter="age;30-40">
+                            30-40
+                        </a>
+                        <a class="dropdown-item filter-button" data-bs-filter="age;40-50">
+                            40-50
+                        </a>
+                        <a class="dropdown-item filter-button" data-bs-filter="age;50-60">
+                            50-60
+                        </a>
+                        <a class="dropdown-item filter-button" data-bs-filter="age;60-70">
+                            60-70
+                        </a>
+                    </ul>
+                </div>
+
                 <div class="live-preview mt-4">
                     <div class="d-flex flex-wrap gap-2 align-items-center" id="filterBadges"></div>
                 </div>

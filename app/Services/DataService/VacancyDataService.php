@@ -37,8 +37,15 @@ class VacancyDataService
             });
         }
 
+        // Calculate the sum of open_positions and filled_positions, treating null as 0
+        $totalOpenPositions = $vacancies->sum(DB::raw('COALESCE(open_positions, 0)'));
+        $totalFilledPositions = $vacancies->sum(DB::raw('COALESCE(filled_positions, 0)'));
+
+        // Return the combined total of open_positions and filled_positions
+        $totalVacancies = $totalOpenPositions + $totalFilledPositions;
+
         // Return the total count of vacancies
-        return $vacancies->count();
+        return $totalVacancies;
     }
 
     /**
@@ -53,8 +60,7 @@ class VacancyDataService
     public function getTotalVacanciesFilled(string $type, ?int $id, string $startDate, string $endDate)
     {
         // Start building the query using the Vacancy model, filter for filled vacancies (open_positions = 0), and date range
-        $vacancies = Vacancy::where('open_positions', 0)
-            ->whereBetween('created_at', [$startDate, $endDate]);
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -69,8 +75,11 @@ class VacancyDataService
             });
         }
 
-        // Return the total count of filled vacancies
-        return $vacancies->count();
+        // Calculate the total sum of filled_positions, treating null as 0
+        $totalFilledPositions = $vacancies->sum(DB::raw('COALESCE(filled_positions, 0)'));
+
+        // Return the total filled positions
+        return $totalFilledPositions;
     }
 
     /**
@@ -408,25 +417,25 @@ class VacancyDataService
      * @param int|null $id The ID of the store, division, or region to filter.
      * @param \Carbon\Carbon $startDate The start date for filtering appointments.
      * @param \Carbon\Carbon $endDate The end date for filtering appointments.
-     * @return array An array of appointed applicants grouped by month.
+     * @return array An array of appointed applicants grouped by month and year.
      */
     public function getApplicantsAppointedByMonth(string $type, ?int $id, $startDate, $endDate): array
     {
-        // Initialize an array to hold the results, with months set to 0 from startDate to endDate
+        // Initialize an array to hold the results, with months and years set to 0 from startDate to endDate
         $applicantsByMonth = [];
         $currentDate = $startDate->copy();
 
-        // Loop to populate only the months between startDate and endDate
+        // Loop to populate months and years from startDate to endDate
         while ($currentDate->lte($endDate)) {
-            $monthName = $currentDate->format('M');
-            $applicantsByMonth[$monthName] = 0;
+            $monthYear = $currentDate->format("M'y"); // Format as Jan'24
+            $applicantsByMonth[$monthYear] = 0;
             $currentDate->addMonth();
         }
 
         // Ensure the last month is included
-        $lastMonth = $endDate->format('M');
-        if (!array_key_exists($lastMonth, $applicantsByMonth)) {
-            $applicantsByMonth[$lastMonth] = 0;
+        $lastMonthYear = $endDate->format("M'y");
+        if (!array_key_exists($lastMonthYear, $applicantsByMonth)) {
+            $applicantsByMonth[$lastMonthYear] = 0;
         }
 
         // Retrieve vacancies based on the type (store, division, or region) and within the date range
@@ -448,14 +457,14 @@ class VacancyDataService
             }])
             ->get();
 
-        // Group appointed applicants by the month of their appointment date and count them
+        // Group appointed applicants by the month and year of their appointment date and count them
         foreach ($vacancies as $vacancy) {
             foreach ($vacancy->appointed as $applicant) {
-                // Get the month name from the created_at date in the vacancy_fills table (the appointment date)
-                $month = $applicant->pivot->created_at->format('M');
-                // Increment the count for the corresponding month
-                if (isset($applicantsByMonth[$month])) {
-                    $applicantsByMonth[$month]++;
+                // Get the month and year from the created_at date in the vacancy_fills table (the appointment date)
+                $monthYear = $applicant->pivot->created_at->format("M'y"); // Format as Jan'24
+                // Increment the count for the corresponding month and year
+                if (isset($applicantsByMonth[$monthYear])) {
+                    $applicantsByMonth[$monthYear]++;
                 }
             }
         }

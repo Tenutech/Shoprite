@@ -239,7 +239,7 @@ class VacancyController extends Controller
                     if ($sapNumber) {
                         if ($sapNumber->vacancy->user_id !== $userID) {
                             $fail('The SAP number ' . $value . ' has already been taken.');
-                        } else if ($sapNumber->vacancy->user_id === $userID) {
+                        } elseif ($sapNumber->vacancy->user_id === $userID) {
                             // Handle SAP number reassignment
                             DB::transaction(function () use ($sapNumber) {
                                 // Delete associated vacancy fills
@@ -295,7 +295,7 @@ class VacancyController extends Controller
             // Create the SAP numbers associated with the vacancy
             foreach ($request->sap_numbers as $sap) {
                 $sapNumber = SapNumber::where('sap_number', $sap)->first();
-    
+
                 if ($sapNumber && $sapNumber->vacancy->user_id === $userID) {
                     // Update the SAP number to the new vacancy after creation
                     $sapNumber->vacancy_id = $vacancy->id;

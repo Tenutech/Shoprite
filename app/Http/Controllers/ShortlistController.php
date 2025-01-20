@@ -331,6 +331,22 @@ class ShortlistController extends Controller
                         continue;
                     }
 
+                    if ($key === 'age') {
+                        // Handle age filter
+                        if (is_array($values)) {
+                            $query->where(function ($query) use ($values) {
+                                foreach ($values as $range) {
+                                    if (preg_match('/^(\d+)-(\d+)$/', $range, $matches)) {
+                                        $startAge = (int)$matches[1];
+                                        $endAge = (int)$matches[2];
+                                        $query->orWhereBetween('age', [$startAge, $endAge]);
+                                    }
+                                }
+                            });
+                        }
+                        continue;
+                    }
+
                     if (is_array($values)) {
                         // If the filter is an array, use whereIn to filter for any of the values
                         $query->whereIn($key, $values);

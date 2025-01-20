@@ -6,6 +6,9 @@ Contact: admin@tenutech.com
 File: job-statistics init js
 */
 
+// Enable lazy loading by default
+let allowLazyLoading = true;
+
 $(document).ready(function() {
     /*
     |--------------------------------------------------------------------------
@@ -40,7 +43,24 @@ $(document).ready(function() {
             if (selectedDates.length === 2) {
                 var startDate = selectedDates[0];
                 var endDate = selectedDates[1];
-    
+
+                // Disable lazy loading when date range changes
+                allowLazyLoading = false;
+
+                // Get the button and replace its content with the spinner
+                const calendarBtn = document.getElementById('calendarBtn');
+                const originalContent = calendarBtn.innerHTML; // Save original content
+                calendarBtn.innerHTML = '<div class="spinner-border spinner-border-sm text-white" role="status"></div>';
+
+                // Hide Spinners
+                hideSpinner("talent_pool_applicants_demographic_container");
+                hideSpinner("interviewed_applicants_demographic_container");
+                hideSpinner("appointed_applicants_demographic_container");
+                hideSpinner("talent_pool_applicants_gender_container");
+                hideSpinner("interviewed_applicants_gender_container");
+                hideSpinner("appointed_applicants_gender_container");
+                hideSpinner("talent_pool_applicants_province_container");
+        
                 // Send the date range via AJAX to update the dashboard
                 $.ajax({
                     url: route('admin.updateDashboard'),
@@ -87,6 +107,10 @@ $(document).ready(function() {
                             showCloseButton: true,
                             toast: true
                         });
+                    },
+                    complete: function () {
+                        // Revert the button content back to the original icon
+                        calendarBtn.innerHTML = originalContent;
                     }
                 });
             }
@@ -149,6 +173,428 @@ function getChartColorsArray(chartId) {
 
 /*
 |--------------------------------------------------------------------------
+| Update Metrics
+|--------------------------------------------------------------------------
+*/
+
+// Helper function to display 'N/A' for invalid values and the value itself for valid numbers (including 0)
+function formatValue(value) {
+    return value !== null && value !== undefined ? value : 'N/A';
+}
+
+// Function to update the metrics on the page for each type
+function updateMetrics(type, data) {
+    switch (type) {
+        case 'time-metrics':
+            document.getElementById('averageTimeToShortlistValue').textContent = formatValue(data.averageTimeToShortlist);
+            document.getElementById('averageTimeToHireValue').textContent = formatValue(data.averageTimeToHire);
+            document.getElementById('adoptionRateValue').textContent = data.adoptionRate !== null && data.adoptionRate !== undefined ? `${data.adoptionRate}%` : 'N/A';
+            break;
+
+        case 'proximity-metrics':
+            document.getElementById('averageDistanceTalentPoolApplicantsValue').textContent = data.averageDistanceTalentPoolApplicants !== null && data.averageDistanceTalentPoolApplicants !== undefined ? `${data.averageDistanceTalentPoolApplicants} km` : 'N/A';
+            document.getElementById('averageDistanceApplicantsAppointedValue').textContent = data.averageDistanceApplicantsAppointed !== null && data.averageDistanceApplicantsAppointed !== undefined ? `${data.averageDistanceApplicantsAppointed} km` : 'N/A';
+            break;
+
+        case 'average-score-metrics':
+            document.getElementById('averageScoreTalentPoolApplicantsValue').textContent = formatValue(data.averageScoreTalentPoolApplicants);
+            document.getElementById('averageScoreApplicantsAppointedValue').textContent = formatValue(data.averageScoreApplicantsAppointed);
+            break;
+
+        case 'assessment-score-metrics':
+            updateDonutChart(averageLiteracyScoreChart, data.averageLiteracyScoreTalentPoolApplicants, data.literacyQuestionsCount);
+            hideSpinner("literacy_chart_container");
+            updateDonutChart(averageNumeracyScoreChart, data.averageNumeracyScoreTalentPoolApplicants, data.numeracyQuestionsCount);
+            hideSpinner("numeracy_chart_container");
+            updateDonutChart(averageSituationalScoreChart, data.averageSituationalScoreTalentPoolApplicants, data.situationalQuestionsCount);
+            hideSpinner("situational_chart_container");
+            break;
+
+        case 'vacancies-metrics':
+            document.getElementById('totalVacanciesValue').textContent = formatValue(data.totalVacancies);
+            document.getElementById('totalVacanciesFilledValue').textContent = formatValue(data.totalVacanciesFilled);
+            updateRadialChart(totalVacanciesFilledChart, data.totalVacanciesFilled, data.totalVacancies);
+            break;
+
+        case 'interviews-metrics':
+            document.getElementById('totalInterviewsScheduledValue').textContent = formatValue(data.totalInterviewsScheduled);
+            document.getElementById('totalInterviewsCompletedValue').textContent = formatValue(data.totalInterviewsCompleted);
+            updateRadialChart(totalInterviewsCompletedChart, data.totalInterviewsCompleted, data.totalInterviewsScheduled);
+            break;
+
+        case 'applicants-metrics':
+            document.getElementById('totalApplicantsAppointedValue').textContent = formatValue(data.totalApplicantsAppointed);
+            document.getElementById('totalApplicantsRegrettedValue').textContent = formatValue(data.totalApplicantsRegretted);
+            updateRadialChart(totalApplicantsAppointedChart, data.totalApplicantsAppointed, data.totalInterviewsScheduled);
+            updateRadialChart(totalApplicantsRegrettedChart, data.totalApplicantsRegretted, data.totalInterviewsScheduled);
+            break;
+
+        case 'talent-pool-metrics':
+            document.getElementById('talentPoolApplicantsValue').textContent = formatValue(data.talentPoolApplicants);
+            document.getElementById('applicantsAppointedValue').textContent = formatValue(data.applicantsAppointed);
+            updateLineCharts(talentPoolByMonthChart, data.talentPoolApplicantsByMonth, data.applicantsAppointedByMonth);
+            break;
+
+        case 'application-channels-metrics':
+            document.getElementById('totalWhatsAppApplicantsValue').textContent = formatValue(data.totalWhatsAppApplicants);
+            document.getElementById('totalWebsiteApplicantsValue').textContent = formatValue(data.totalWebsiteApplicants);
+            updateRadialChart(totalWhatsAppApplicantsChart, data.totalWhatsAppApplicants, data.talentPoolApplicants);
+            updateRadialChart(totalWebsiteApplicantsChart, data.totalWebsiteApplicants, data.talentPoolApplicants);
+            break;
+
+        case 'application-completion-metrics':
+            document.getElementById('completionRateValue').textContent = data.completionRate !== null && data.completionRate !== undefined ? `${data.completionRate}%` : 'N/A';
+            document.getElementById('dropOffStateValue').textContent = formatValue(data.dropOffState);
+
+             // Initialize and set the tooltip dynamically
+            const dropOffStateCard = document.getElementById('dropOffStateCard');
+            if (dropOffStateCard) {
+                const tooltipContent = data.dropOffChat.message || 'No additional details';
+
+                // Remove any existing tooltip instance
+                if (typeof bootstrap !== 'undefined' && bootstrap.Tooltip) {
+                    const existingTooltip = bootstrap.Tooltip.getInstance(dropOffStateCard);
+                    if (existingTooltip) {
+                        existingTooltip.dispose();
+                    }
+                }
+
+                // Initialize a new tooltip with the updated content
+                new bootstrap.Tooltip(dropOffStateCard, {
+                    title: tooltipContent,
+                    placement: 'top',
+                    html: true,
+                });
+            }
+            break;
+
+        case 'stores-metrics':
+            document.getElementById('totalsStoresUsingSolutionValue').textContent = formatValue(data.totalStoresUsingSolution);
+            document.getElementById('totalReEmployedApplicantsValue').textContent = formatValue(data.totalReEmployedApplicants);
+            updateRadialChart(totalsStoresUsingSolutionChart, data.totalStoresUsingSolution, data.totalStores);
+            updateRadialChart(totalReEmployedApplicantsChart, data.totalReEmployedApplicants, data.totalAppointedApplicants);
+            break;
+
+        case 'demographic-metrics':
+            updateRadialBarChart(talentPoolApplicantsDemographicChart, data.talentPoolApplicantsDemographic);
+            hideSpinner("talent_pool_applicants_demographic_container");
+            updateRadialBarChart(interviewedApplicantsDemographicChart, data.interviewedApplicantsDemographic);
+            hideSpinner("interviewed_applicants_demographic_container");
+            updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
+            hideSpinner("appointed_applicants_demographic_container");
+
+            // Update demographic totals
+            updateDemographicTotals(data.talentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
+            updateDemographicTotals(data.interviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
+            updateDemographicTotals(data.appointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
+            break;
+
+        case 'gender-metrics':
+            updateRadialBarChartGender(talentPoolApplicantsGenderChart, data.talentPoolApplicantsGender);
+            hideSpinner("talent_pool_applicants_gender_container");
+            updateRadialBarChartGender(interviewedApplicantsGenderChart, data.interviewedApplicantsGender);
+            hideSpinner("interviewed_applicants_gender_container");
+            updateRadialBarChartGender(appointedApplicantsGenderChart, data.appointedApplicantsGender);
+            hideSpinner("appointed_applicants_gender_container");
+
+            // Update gender totals
+            updateGenderTotals(data.talentPoolApplicantsGender, "talent_pool_applicants_gender_totals");
+            updateGenderTotals(data.interviewedApplicantsGender, "interviewed_applicants_gender_totals");
+            updateGenderTotals(data.appointedApplicantsGender, "appointed_applicants_gender_totals");
+            break;
+
+        case 'province-metrics':
+            updateTreemapChart(talentPoolApplicantsProvinceChart, data.talentPoolApplicantsProvince);
+            hideSpinner("talent_pool_applicants_province_container");
+            break;
+
+        default:
+            console.error('Unknown metrics type:', type);
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Fetch Metrics
+|--------------------------------------------------------------------------
+*/
+
+// Function to fetch metrics data from the API
+function fetchMetrics(type, routeName) {
+    const apiUrl = route(routeName); // Use Ziggy to dynamically generate the route URL
+
+    fetch(apiUrl)
+        .then((response) => response.json())
+        .then((data) => {
+            updateMetrics(type, data); // Update the metrics on the page
+        })
+        .catch((error) => {
+            console.error(`Error loading ${type} data:`, error);
+        });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Lazy Load Data
+|--------------------------------------------------------------------------
+*/
+
+// Function to lazy load metrics for a specific row
+function lazyLoadMetrics(rowId, type, routeName) {
+    const metricsRow = document.getElementById(rowId);
+
+    const observer = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting && allowLazyLoading) {
+            fetchMetrics(type, routeName); // Fetch data when the row is visible
+            observer.disconnect(); // Stop observing after data is loaded
+        }
+    });
+
+    observer.observe(metricsRow);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Initialize Lazy Loading for All Metrics
+|--------------------------------------------------------------------------
+*/
+
+document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadMetrics('timeRow', 'time-metrics', 'time.metrics');
+    lazyLoadMetrics('proximityRow', 'proximity-metrics', 'proximity.metrics');
+    lazyLoadMetrics('averageScoresRow', 'average-score-metrics', 'average-score.metrics');
+    lazyLoadMetrics('assessmentScoresRow', 'assessment-score-metrics', 'assessment-scores.metrics');
+    lazyLoadMetrics('vacanciesRow', 'vacancies-metrics', 'vacancies.metrics');
+    lazyLoadMetrics('interviewsRow', 'interviews-metrics', 'interviews.metrics');
+    lazyLoadMetrics('applicantsRow', 'applicants-metrics', 'applicants.metrics');
+    lazyLoadMetrics('talentPoolRow', 'talent-pool-metrics', 'talent-pool.metrics');
+    lazyLoadMetrics('applicationChannelsRow', 'application-channels-metrics', 'application-channels.metrics');
+    lazyLoadMetrics('applicationCompletionRow', 'application-completion-metrics', 'application-completion.metrics');
+    lazyLoadMetrics('storesRow', 'stores-metrics', 'stores.metrics');
+    lazyLoadMetrics('demographicRow', 'demographic-metrics', 'demographic.metrics');
+    lazyLoadMetrics('genderRow', 'gender-metrics', 'gender.metrics');
+    lazyLoadMetrics('provinceRow', 'province-metrics', 'province.metrics');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Show and Hide Spinners
+|--------------------------------------------------------------------------
+*/
+
+// Show the spinner in the header
+function showSpinner(containerId) {
+    const spinner = document.querySelector(`#${containerId} .spinner-border`);
+    if (spinner) {
+        spinner.classList.remove('d-none');
+    }
+}
+
+// Hide the spinner in the header
+function hideSpinner(containerId) {
+    const spinner = document.querySelector(`#${containerId} .spinner-border`);
+    if (spinner) {
+        spinner.classList.add('d-none');
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Average Literacy Score
+|--------------------------------------------------------------------------
+*/
+
+// Average Literacy Score
+var averageLiteracyScoreColors = getChartColorsArray("literacy_chart");
+
+// Generate the series and labels dynamically based on the number of questions and average score
+var literacySeries = [];
+var literacyLabels = [];
+
+// Average Literacy Score Chart
+if (averageLiteracyScoreColors) {
+    var options = {
+        series: literacySeries, // Dynamically generated series
+        chart: {
+            height: 300,
+            type: 'donut',
+        },
+        labels: literacyLabels, // Dynamically generated labels
+        theme: {
+            monochrome: {
+                enabled: true,
+                color: averageLiteracyScoreColors[0],
+                shadeTo: 'dark',
+                shadeIntensity: 0.6
+            }
+        },
+        plotOptions: {
+            pie: {
+                dataLabels: {
+                    offset: -5
+                }
+            }
+        },
+        dataLabels: {
+            formatter: function (val, opts) {
+                var name = opts.w.globals.labels[opts.seriesIndex];
+                return name; // Only return the number, not the percentage
+            },
+            dropShadow: {
+                enabled: false,
+            }
+        },
+        legend: {
+            show: false
+        },
+        title: {
+            text: '',
+            floating: true,
+            offsetY: 125,
+            align: 'center',
+            style: {
+                fontSize: '20px',
+                fontWeight: 'bold'
+            }
+        }
+    };
+
+    var averageLiteracyScoreChart = new ApexCharts(document.querySelector("#literacy_chart"), options);
+    averageLiteracyScoreChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Average Numeracy Score
+|--------------------------------------------------------------------------
+*/
+
+// Average Numeracy Score
+var averageNumeracyScoreColors = getChartColorsArray("numeracy_chart");
+
+// Generate the series and labels dynamically based on the number of questions and average score
+var numeracySeries = [];
+var numeracyLabels = [];
+
+// Average Numeracy Score Chart
+if (averageNumeracyScoreColors) {
+    var options = {
+        series: numeracySeries, // Dynamically generated series
+        chart: {
+            height: 300,
+            type: 'donut',
+        },
+        labels: numeracyLabels, // Dynamically generated labels
+        theme: {
+            monochrome: {
+                enabled: true,
+                color: averageNumeracyScoreColors[0],
+                shadeTo: 'dark',
+                shadeIntensity: 0.6
+            }
+        },
+        plotOptions: {
+            pie: {
+                dataLabels: {
+                    offset: -5
+                }
+            }
+        },
+        dataLabels: {
+            formatter: function (val, opts) {
+                var name = opts.w.globals.labels[opts.seriesIndex];
+                return name; // Only return the number, not the percentage
+            },
+            dropShadow: {
+                enabled: false,
+            }
+        },
+        legend: {
+            show: false
+        },
+        title: {
+            text: '',
+            floating: true,
+            offsetY: 125,
+            align: 'center',
+            style: {
+                fontSize: '20px',
+                fontWeight: 'bold'
+            }
+        }
+    };
+
+    var averageNumeracyScoreChart = new ApexCharts(document.querySelector("#numeracy_chart"), options);
+    averageNumeracyScoreChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
+| Average Situational Score
+|--------------------------------------------------------------------------
+*/
+
+// Average Situational Score
+var averageSituationalScoreColors = getChartColorsArray("situational_chart");
+
+// Generate the series and labels dynamically based on the number of questions and average score
+var situationalSeries = []; // Placeholder for series
+var situationalLabels = []; // Placeholder for labels
+
+// Average Situational Score Chart
+if (averageSituationalScoreColors) {
+    var options = {
+        series: situationalSeries, // Dynamically generated series
+        chart: {
+            height: 300,
+            type: 'donut',
+        },
+        labels: situationalLabels, // Dynamically generated labels
+        theme: {
+            monochrome: {
+                enabled: true,
+                color: averageSituationalScoreColors[0],
+                shadeTo: 'dark',
+                shadeIntensity: 0.6,
+            },
+        },
+        plotOptions: {
+            pie: {
+                dataLabels: {
+                    offset: -5,
+                },
+            },
+        },
+        dataLabels: {
+            formatter: function (val, opts) {
+                var name = opts.w.globals.labels[opts.seriesIndex];
+                return name; // Only return the number, not the percentage
+            },
+            dropShadow: {
+                enabled: false,
+            },
+        },
+        legend: {
+            show: false,
+        },
+        title: {
+            text: '',
+            floating: true,
+            offsetY: 125,
+            align: 'center',
+            style: {
+                fontSize: '20px',
+                fontWeight: 'bold',
+            },
+        },
+    };
+
+    var averageSituationalScoreChart = new ApexCharts(document.querySelector("#situational_chart"), options);
+    averageSituationalScoreChart.render();
+}
+
+/*
+|--------------------------------------------------------------------------
 | Total Vacancies Filled
 |--------------------------------------------------------------------------
 */
@@ -156,20 +602,10 @@ function getChartColorsArray(chartId) {
 // Total Vacancies Filled
 var totalVacanciesFilledColors = getChartColorsArray("total_vacancies_filled");
 
-// Calculate percentage of filled vacancies
-var totalVacancies = totalVacancies || 0;
-var totalVacanciesFilled = totalVacanciesFilled || 0;
-var percentageFilled = 0;
-
-// Check for divide by zero and calculate percentage
-if (totalVacancies > 0) {
-    percentageFilled = Math.round((totalVacanciesFilled / totalVacancies) * 100);
-}
-
 // Total Vacancies Filled Chart
 if (totalVacanciesFilledColors) {
     var options = {
-        series: [percentageFilled], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -223,20 +659,10 @@ if (totalVacanciesFilledColors) {
 // Total Interviews Completed
 var totalInterviewsCompletedColors = getChartColorsArray("total_interviews_completed");
 
-// Calculate percentage of completed interviews
-var totalInterviewsScheduled = totalInterviewsScheduled || 0;
-var totalInterviewsCompleted = totalInterviewsCompleted || 0;
-var percentageCompleted = 0;
-
-// Check for divide by zero and calculate percentage
-if (totalInterviewsScheduled > 0) {
-    percentageCompleted = Math.round((totalInterviewsCompleted / totalInterviewsScheduled) * 100);
-}
-
 // Total Interviews Completed Chart
 if (totalInterviewsCompletedColors) {
     var options = {
-        series: [percentageCompleted], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -290,19 +716,10 @@ if (totalInterviewsCompletedColors) {
 // Total Applicants Appointed
 var totalApplicantsAppointedColors = getChartColorsArray("total_applicants_appointed");
 
-// Calculate percentage of appointed applicants
-var totalApplicantsAppointed = totalApplicantsAppointed || 0;
-var percentageAppointed = 0;
-
-// Check for divide by zero and calculate percentage for appointed applicants
-if (totalInterviewsScheduled > 0) {
-    percentageAppointed = Math.round((totalApplicantsAppointed / totalInterviewsScheduled) * 100);
-}
-
 // Total Applicants Appointed Chart
 if (totalApplicantsAppointedColors) {
     var options = {
-        series: [percentageAppointed], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -356,19 +773,10 @@ if (totalApplicantsAppointedColors) {
 // Total Applicants Regretted
 var totalApplicantsRegrettedColors = getChartColorsArray("total_applicants_regretted");
 
-// Calculate percentage of regretted applicants
-var totalApplicantsRegretted = totalApplicantsRegretted || 0;
-var percentageRegretted = 0;
-
-// Check for divide by zero and calculate percentage for regretted applicants
-if (totalInterviewsScheduled > 0) {
-    percentageRegretted = Math.round((totalApplicantsRegretted / totalInterviewsScheduled) * 100);
-}
-
 // Total Applicants Regretted Chart
 if (totalApplicantsRegrettedColors) {
     var options = {
-        series: [percentageRegretted], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -425,19 +833,8 @@ var talentPoolByMonthColors = getChartColorsArray("talent_pool_by_month");
 // Prepare default months from January to December
 var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// Prepare the data for the chart
-var talentPoolData = talentPoolApplicantsByMonth && Object.keys(talentPoolApplicantsByMonth).length > 0
-    ? Object.values(talentPoolApplicantsByMonth) // Extract values if not empty
-    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
-
-var appointedData = applicantsAppointedByMonth && Object.keys(applicantsAppointedByMonth).length > 0
-    ? Object.values(applicantsAppointedByMonth) // Extract values if not empty
-    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
-
 // Get the months (x-axis categories)
-var months = Object.keys(talentPoolApplicantsByMonth).length > 0 
-    ? Object.keys(talentPoolApplicantsByMonth)  // Use the months from data if available
-    : defaultMonths; // Use default months if data is empty
+var months = defaultMonths; // Use default months if data is empty
 
 //  Talent Pool By Month Chart
 if (talentPoolByMonthColors) {
@@ -462,11 +859,11 @@ if (talentPoolByMonthColors) {
         },
         series: [{
                 name: "Total Talent Pool",
-                data: talentPoolData // Use dynamic data for Talent Pool
+                data: [] // Use dynamic data for Talent Pool
             },
             {
                 name: "Total Appointed",
-                data: appointedData // Use dynamic data for Appointed
+                data: [] // Use dynamic data for Appointed
             }
         ],
         title: {
@@ -498,7 +895,7 @@ if (talentPoolByMonthColors) {
                 text: 'Total Applicants'
             },
             min: 0, // Adjust min to allow smaller values
-            max: Math.max(...talentPoolData, ...appointedData) + 5 // Set the max value based on the highest number in your data
+            max: 5000 // Set the max value based on the highest number in your data
         },
         legend: {
             position: 'top',
@@ -528,228 +925,6 @@ if (talentPoolByMonthColors) {
 
 /*
 |--------------------------------------------------------------------------
-| Average Literacy Score
-|--------------------------------------------------------------------------
-*/
-
-// Average Literacy Score
-var averageLiteracyScoreColors = getChartColorsArray("literacy_chart");
-
-// Calculate the number of correct answers (rounded value)
-var averageLiteracyScore = Math.round(averageLiteracyScoreTalentPoolApplicants);
-
-// Generate the series and labels dynamically based on the number of questions and average score
-var literacySeries = [];
-var literacyLabels = [];
-
-// Populate the series and labels (e.g., from 1 to literacyQuestionsCount)
-for (var i = 1; i <= averageLiteracyScore; i++) {
-    literacySeries.push(i);
-    literacyLabels.push(i.toString()); // Convert the number to string for labels
-}
-
-// Average Literacy Score Chart
-if (averageLiteracyScoreColors) {
-    var options = {
-        series: literacySeries, // Dynamically generated series
-        chart: {
-            height: 300,
-            type: 'donut',
-        },
-        labels: literacyLabels, // Dynamically generated labels
-        theme: {
-            monochrome: {
-                enabled: true,
-                color: averageLiteracyScoreColors[0],
-                shadeTo: 'dark',
-                shadeIntensity: 0.6
-            }
-        },
-        plotOptions: {
-            pie: {
-                dataLabels: {
-                    offset: -5
-                }
-            }
-        },
-        dataLabels: {
-            formatter: function (val, opts) {
-                var name = opts.w.globals.labels[opts.seriesIndex];
-                return name; // Only return the number, not the percentage
-            },
-            dropShadow: {
-                enabled: false,
-            }
-        },
-        legend: {
-            show: false
-        },
-        title: {
-            text: averageLiteracyScore + '/' + literacyQuestionsCount, // Display the score out of total
-            floating: true,
-            offsetY: 125,
-            align: 'center',
-            style: {
-                fontSize: '20px',
-                fontWeight: 'bold'
-            }
-        }
-    };
-
-    var averageLiteracyScoreChart = new ApexCharts(document.querySelector("#literacy_chart"), options);
-    averageLiteracyScoreChart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Average Numeracy Score
-|--------------------------------------------------------------------------
-*/
-
-// Average Numeracy Score
-var averageNumeracyScoreColors = getChartColorsArray("numeracy_chart");
-
-// Calculate the number of correct answers (rounded value)
-var averageNumeracyScore = Math.round(averageNumeracyScoreTalentPoolApplicants);
-
-// Generate the series and labels dynamically based on the number of questions and average score
-var numeracySeries = [];
-var numeracyLabels = [];
-
-// Populate the series and labels (e.g., from 1 to numeracyQuestionsCount)
-for (var i = 1; i <= averageNumeracyScore; i++) {
-    numeracySeries.push(i);
-    numeracyLabels.push(i.toString()); // Convert the number to string for labels
-}
-
-// Average Numeracy Score Chart
-if (averageNumeracyScoreColors) {
-    var options = {
-        series: numeracySeries, // Dynamically generated series
-        chart: {
-            height: 300,
-            type: 'donut',
-        },
-        labels: numeracyLabels, // Dynamically generated labels
-        theme: {
-            monochrome: {
-                enabled: true,
-                color: averageNumeracyScoreColors[0],
-                shadeTo: 'dark',
-                shadeIntensity: 0.6
-            }
-        },
-        plotOptions: {
-            pie: {
-                dataLabels: {
-                    offset: -5
-                }
-            }
-        },
-        dataLabels: {
-            formatter: function (val, opts) {
-                var name = opts.w.globals.labels[opts.seriesIndex];
-                return name; // Only return the number, not the percentage
-            },
-            dropShadow: {
-                enabled: false,
-            }
-        },
-        legend: {
-            show: false
-        },
-        title: {
-            text: averageNumeracyScore + '/' + numeracyQuestionsCount, // Display the score out of total
-            floating: true,
-            offsetY: 125,
-            align: 'center',
-            style: {
-                fontSize: '20px',
-                fontWeight: 'bold'
-            }
-        }
-    };
-
-    var averageNumeracyScoreChart = new ApexCharts(document.querySelector("#numeracy_chart"), options);
-    averageNumeracyScoreChart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
-| Average Situational Score
-|--------------------------------------------------------------------------
-*/
-
-// Average Situational Score
-var averageSituationalScoreColors = getChartColorsArray("situational_chart");
-
-// Calculate the number of correct answers (rounded value)
-var averageSituationalScore = Math.round(averageSituationalScoreTalentPoolApplicants);
-
-// Generate the series and labels dynamically based on the number of questions and average score
-var situationalSeries = [];
-var situationalLabels = [];
-
-// Populate the series and labels (e.g., from 1 to situationalQuestionsCount)
-for (var i = 1; i <= averageSituationalScore; i++) {
-    situationalSeries.push(i);
-    situationalLabels.push(i.toString()); // Convert the number to string for labels
-}
-
-// Average Situational Score Chart
-if (averageSituationalScoreColors) {
-    var options = {
-        series: situationalSeries, // Dynamically generated series
-        chart: {
-            height: 300,
-            type: 'donut',
-        },
-        labels: situationalLabels, // Dynamically generated labels
-        theme: {
-            monochrome: {
-                enabled: true,
-                color: averageSituationalScoreColors[0],
-                shadeTo: 'dark',
-                shadeIntensity: 0.6
-            }
-        },
-        plotOptions: {
-            pie: {
-                dataLabels: {
-                    offset: -5
-                }
-            }
-        },
-        dataLabels: {
-            formatter: function (val, opts) {
-                var name = opts.w.globals.labels[opts.seriesIndex];
-                return name; // Only return the number, not the percentage
-            },
-            dropShadow: {
-                enabled: false,
-            }
-        },
-        legend: {
-            show: false
-        },
-        title: {
-            text: averageSituationalScore + '/' + situationalQuestionsCount, // Display the score out of total
-            floating: true,
-            offsetY: 125,
-            align: 'center',
-            style: {
-                fontSize: '20px',
-                fontWeight: 'bold'
-            }
-        }
-    };
-
-    var averageSituationalScoreChart = new ApexCharts(document.querySelector("#situational_chart"), options);
-    averageSituationalScoreChart.render();
-}
-
-/*
-|--------------------------------------------------------------------------
 | Total WhatsApp Applicants
 |--------------------------------------------------------------------------
 */
@@ -757,20 +932,10 @@ if (averageSituationalScoreColors) {
 // Total WhatsApp Applicants
 var totalWhatsAppApplicantsColors = getChartColorsArray("total_whatsapp_applicants");
 
-// Calculate percentage of WhatsApp applicants
-var totalApplicants = talentPoolApplicants || 0;
-var totalWhatsAppApplicants = totalWhatsAppApplicants || 0;
-var percentageWhatsApp = 0;
-
-// Check for divide by zero and calculate percentage
-if (totalApplicants > 0) {
-    percentageWhatsApp = Math.round((totalWhatsAppApplicants / totalApplicants) * 100);
-}
-
 // Total WhatsApp Applicants Chart
 if (totalWhatsAppApplicantsColors) {
     var options = {
-        series: [percentageWhatsApp], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -824,20 +989,10 @@ if (totalWhatsAppApplicantsColors) {
 // Total Website Applicants
 var totalWebsiteApplicantsColors = getChartColorsArray("total_website_applicants");
 
-// Calculate percentage of Website applicants
-var totalApplicants = talentPoolApplicants || 0;
-var totalWebsiteApplicants = totalWebsiteApplicants || 0;
-var percentageWebsite = 0;
-
-// Check for divide by zero and calculate percentage
-if (totalApplicants > 0) {
-    percentageWebsite = Math.round((totalWebsiteApplicants / totalApplicants) * 100);
-}
-
 // Total Website Applicants Chart
 if (totalWebsiteApplicantsColors) {
     var options = {
-        series: [percentageWebsite], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -891,20 +1046,10 @@ if (totalWebsiteApplicantsColors) {
 // Total Stores Using Solution
 var totalStoresUsingSolutionColors = getChartColorsArray("total_stores_using_solution");
 
-// Calculate percentage of stores using solution
-var totalStores = totalStores || 0;
-var totalStoresUsingSolution = totalStoresUsingSolution || 0;
-var percentageStoresUsingSolution = 0;
-
-// Check for divide by zero and calculate percentage
-if (totalStores > 0) {
-    percentageStoresUsingSolution = Math.round((totalStoresUsingSolution / totalStores) * 100);
-}
-
 // Total Website Applicants Chart
 if (totalStoresUsingSolutionColors) {
     var options = {
-        series: [percentageStoresUsingSolution], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -958,20 +1103,10 @@ if (totalStoresUsingSolutionColors) {
 // Total Re-Employed Applicants
 var totalReEmployedApplicantsColors = getChartColorsArray("total_re_employed_applicants");
 
-// Calculate percentage of re-employed applicants
-var totalAppointedApplicants = totalAppointedApplicants || 0;
-var totalReEmployedApplicants = totalReEmployedApplicants || 0;
-var percentageReEmployedApplicants = 0;
-
-// Check for divide by zero and calculate percentage
-if (totalAppointedApplicants > 0) {
-    percentageReEmployedApplicants = Math.round((totalReEmployedApplicants / totalAppointedApplicants) * 100);
-}
-
 // Total Website Applicants Chart
 if (totalReEmployedApplicantsColors) {
     var options = {
-        series: [percentageReEmployedApplicants], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -1027,12 +1162,7 @@ var talentPoolApplicantsDemographicColors = getChartColorsArray("talent_pool_app
 
 // Extract percentages and labels dynamically from talentPoolApplicantsDemographic
 var talentPoolApplicantsDemographicSeries = [];
-var talentPoolApplicantsDemographicLabels = [];
-
-talentPoolApplicantsDemographic.forEach(function (item) {
-    talentPoolApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
-    talentPoolApplicantsDemographicLabels.push(item.name);       // Extract the race name
-});
+var talentPoolApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Talent Pool Applicants Demographic Chart
 if(talentPoolApplicantsDemographicColors){
@@ -1167,12 +1297,7 @@ var interviewedApplicantsDemographicColors = getChartColorsArray("interviewed_ap
 
 // Extract percentages and labels dynamically from interviewedApplicantsDemographic
 var interviewedApplicantsDemographicSeries = [];
-var interviewedApplicantsDemographicLabels = [];
-
-interviewedApplicantsDemographic.forEach(function (item) {
-    interviewedApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
-    interviewedApplicantsDemographicLabels.push(item.name);       // Extract the race name
-});
+var interviewedApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Interviewed Applicants Demographic Chart
 if(interviewedApplicantsDemographicColors){
@@ -1303,12 +1428,7 @@ var appointedApplicantsDemographicColors = getChartColorsArray("appointed_applic
 
 // Extract percentages and labels dynamically from appointedApplicantsDemographic
 var appointedApplicantsDemographicSeries = [];
-var appointedApplicantsDemographicLabels = [];
-
-appointedApplicantsDemographic.forEach(function (item) {
-    appointedApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
-    appointedApplicantsDemographicLabels.push(item.name);       // Extract the race name
-});
+var appointedApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Appointed Applicants Demographic Chart
 if(appointedApplicantsDemographicColors){
@@ -1439,12 +1559,7 @@ var talentPoolApplicantsGenderColors = getChartColorsArray("talent_pool_applican
 
 // Extract percentages and labels dynamically from talentPoolApplicantsGender
 var talentPoolApplicantsGenderSeries = [];
-var talentPoolApplicantsGenderLabels = [];
-
-talentPoolApplicantsGender.forEach(function (item) {
-    talentPoolApplicantsGenderSeries.push(item.percentage); // Extract the percentage value
-    talentPoolApplicantsGenderLabels.push(item.name);       // Extract the race name
-});
+var talentPoolApplicantsGenderLabels = ['Male', 'Female'];
 
 // Talent Pool Applicants Gender Chart
 if(talentPoolApplicantsGenderColors){
@@ -1579,12 +1694,7 @@ var interviewedApplicantsGenderColors = getChartColorsArray("interviewed_applica
 
 // Extract percentages and labels dynamically from interviewedApplicantsGender
 var interviewedApplicantsGenderSeries = [];
-var interviewedApplicantsGenderLabels = [];
-
-interviewedApplicantsGender.forEach(function (item) {
-    interviewedApplicantsGenderSeries.push(item.percentage); // Extract the percentage value
-    interviewedApplicantsGenderLabels.push(item.name);       // Extract the race name
-});
+var interviewedApplicantsGenderLabels = ['Male', 'Female'];
 
 // Interviewed Applicants Gender Chart
 if(interviewedApplicantsGenderColors){
@@ -1715,12 +1825,8 @@ var appointedApplicantsGenderColors = getChartColorsArray("appointed_applicants_
 
 // Extract percentages and labels dynamically from appointedApplicantsGender
 var appointedApplicantsGenderSeries = [];
-var appointedApplicantsGenderLabels = [];
+var appointedApplicantsGenderLabels = ['Male', 'Female'];
 
-appointedApplicantsGender.forEach(function (item) {
-    appointedApplicantsGenderSeries.push(item.percentage); // Extract the percentage value
-    appointedApplicantsGenderLabels.push(item.name);       // Extract the race name
-});
 
 // Appointed Applicants Gender Chart
 if(appointedApplicantsGenderColors){
@@ -1852,13 +1958,6 @@ var talentPoolApplicantsProvinceColors = getChartColorsArray("talent_pool_applic
 // Convert the talentPoolApplicantsProvince object into the required format for the series
 var talentPoolApplicantsProvinceSeries = [];
 
-Object.keys(talentPoolApplicantsProvince).forEach(function (key) {
-    talentPoolApplicantsProvinceSeries.push({
-        x: key, // Province name
-        y: talentPoolApplicantsProvince[key] // Applicant count
-    });
-});
-
 // Talent Pool Applicants Province Chart
 if(talentPoolApplicantsProvinceColors) {
     var options = {
@@ -1957,6 +2056,15 @@ function updateDashboard(data) {
     // Update completion rate
     $('#completionRateValue').text(data.completionRate);
 
+    // Update drop off state
+    $('#dropOffStateValue').text(data.dropOffState);
+
+    // Update stores using the solution
+    $('#totalsStoresUsingSolutionValue').text(data.totalStoresUsingSolution);
+    
+    // Update re-employed applicants
+    $('#totalReEmployedApplicantsValue').text(data.totalReEmployedApplicants);
+
     // Update radial charts
     updateRadialChart(totalVacanciesFilledChart, data.totalVacanciesFilled, data.totalVacancies);
     updateRadialChart(totalInterviewsCompletedChart, data.totalInterviewsCompleted, data.totalInterviewsScheduled);
@@ -1964,6 +2072,8 @@ function updateDashboard(data) {
     updateRadialChart(totalApplicantsRegrettedChart, data.totalApplicantsRegretted, data.totalInterviewsScheduled);
     updateRadialChart(totalWhatsAppApplicantsChart, data.totalWhatsAppApplicants, data.talentPoolApplicants);
     updateRadialChart(totalWebsiteApplicantsChart, data.totalWebsiteApplicants, data.talentPoolApplicants);
+    updateRadialChart(totalsStoresUsingSolutionChart, data.totalStoresUsingSolution, data.totalStores);
+    updateRadialChart(totalReEmployedApplicantsChart, data.totalReEmployedApplicants, data.totalAppointedApplicants);
 
     // Update the "Talent Pool By Month" chart
     updateLineCharts(talentPoolByMonthChart, data.talentPoolApplicantsByMonth, data.applicantsAppointedByMonth);
@@ -1977,6 +2087,21 @@ function updateDashboard(data) {
     updateRadialBarChart(talentPoolApplicantsDemographicChart, data.talentPoolApplicantsDemographic);
     updateRadialBarChart(interviewedApplicantsDemographicChart, data.interviewedApplicantsDemographic);
     updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
+
+    // Update demographic totals
+    updateDemographicTotals(data.talentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
+    updateDemographicTotals(data.interviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
+    updateDemographicTotals(data.appointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
+
+    // Update gender charts
+    updateRadialBarChartGender(talentPoolApplicantsGenderChart, data.talentPoolApplicantsGender);
+    updateRadialBarChartGender(interviewedApplicantsGenderChart, data.interviewedApplicantsGender);
+    updateRadialBarChartGender(appointedApplicantsGenderChart, data.appointedApplicantsGender);
+
+    // Update gender totals
+    updateGenderTotals(data.talentPoolApplicantsGender, "talent_pool_applicants_gender_totals");
+    updateGenderTotals(data.interviewedApplicantsGender, "interviewed_applicants_gender_totals");
+    updateGenderTotals(data.appointedApplicantsGender, "appointed_applicants_gender_totals");
 
     // Update the treemap chart with the new province data
     updateTreemapChart(talentPoolApplicantsProvinceChart, data.talentPoolApplicantsProvince);
@@ -2105,6 +2230,122 @@ function updateRadialBarChart(chart, demographicData) {
     chart.updateOptions({
         series: seriesArray,  // Updated series with all races
     });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Demographic Totals
+|--------------------------------------------------------------------------
+*/
+
+// Function to update demographic totals with row ID
+function updateDemographicTotals(demographicData, rowId) {
+    const rowElement = document.getElementById(rowId);
+    if (rowElement) {
+        // Define demographic categories to handle the empty data case
+        const categories = ["African", "Coloured", "Indian", "White"];
+        
+        if (demographicData.length === 0) {
+            // If data is empty, set all totals to 0
+            categories.forEach(category => {
+                const totalElement = rowElement.querySelector(`.${category}`);
+                if (totalElement) {
+                    totalElement.textContent = `0`;
+                }
+            });
+        } else {
+            // Otherwise, update the totals with actual data
+            demographicData.forEach(demo => {
+                const totalElement = rowElement.querySelector(`.${demo.name}`);
+                if (totalElement) {
+                    totalElement.textContent = `${demo.total}`;
+                }
+            });
+
+            // Handle categories not present in the demographicData
+            categories.forEach(category => {
+                if (!demographicData.some(demo => demo.name === category)) {
+                    const totalElement = rowElement.querySelector(`.${category}`);
+                    if (totalElement) {
+                        totalElement.textContent = `0`;
+                    }
+                }
+            });
+        }
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Radial Bar Charts Gender
+|--------------------------------------------------------------------------
+*/
+
+function updateRadialBarChartGender(chart, genderData) {
+    // Initialize the series and labels with default values for all races
+    var genderSeries = {
+        'Male': 0,
+        'Female': 0
+    };
+
+    // Populate the series from genderData (ensure all races have counts)
+    genderData.forEach(function (item) {
+        // Update the corresponding race count from genderData
+        if (genderSeries.hasOwnProperty(item.name)) {
+            genderSeries[item.name] = item.percentage;
+        }
+    });
+
+    // Convert the object into arrays for chart update
+    var seriesArray = Object.values(genderSeries);
+
+    // Update the chart
+    chart.updateOptions({
+        series: seriesArray,  // Updated series with all races
+    });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Gender Totals
+|--------------------------------------------------------------------------
+*/
+
+// Function to update gender totals with row ID
+function updateGenderTotals(genderData, rowId) {
+    const rowElement = document.getElementById(rowId);
+    if (rowElement) {
+        // Define gender categories to handle the empty data case
+        const categories = ["Male", "Female", "Non-Binary", "Other"];
+
+        if (genderData.length === 0) {
+            // If data is empty, set all totals to 0
+            categories.forEach(category => {
+                const totalElement = rowElement.querySelector(`.${category}`);
+                if (totalElement) {
+                    totalElement.textContent = `0`;
+                }
+            });
+        } else {
+            // Otherwise, update the totals with actual data
+            genderData.forEach(demo => {
+                const totalElement = rowElement.querySelector(`.${demo.name}`);
+                if (totalElement) {
+                    totalElement.textContent = `${demo.total}`;
+                }
+            });
+
+            // Handle categories not present in the genderData
+            categories.forEach(category => {
+                if (!genderData.some(demo => demo.name === category)) {
+                    const totalElement = rowElement.querySelector(`.${category}`);
+                    if (totalElement) {
+                        totalElement.textContent = `0`;
+                    }
+                }
+            });
+        }
+    }
 }
 
 /*

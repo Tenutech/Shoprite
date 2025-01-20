@@ -6,6 +6,9 @@ Contact: admin@tenutech.com
 File: job-statistics init js
 */
 
+// Enable lazy loading by default
+let allowLazyLoading = true;
+
 $(document).ready(function() {
     /*
     |--------------------------------------------------------------------------
@@ -30,7 +33,7 @@ $(document).ready(function() {
 
     // Calculate the start date as the start of the same month 12 months ago
     var startDate = new Date(endDate.getFullYear() - 1, endDate.getMonth(), 1); // Start of the month 12 months ago
-    
+
     // Initialize Flatpickr with the #dateFilter selector
     flatpickr("#dateFilter", {
         mode: "range",
@@ -40,7 +43,20 @@ $(document).ready(function() {
             if (selectedDates.length === 2) {
                 var startDate = selectedDates[0];
                 var endDate = selectedDates[1];
-    
+
+                // Disable lazy loading when date range changes
+                allowLazyLoading = false;
+
+                // Get the button and replace its content with the spinner
+                const calendarBtn = document.getElementById('calendarBtn');
+                const originalContent = calendarBtn.innerHTML; // Save original content
+                calendarBtn.innerHTML = '<div class="spinner-border spinner-border-sm text-white" role="status"></div>';
+
+                // Hide Spinners
+                hideSpinner("talent_pool_applicants_demographic_container");
+                hideSpinner("interviewed_applicants_demographic_container");
+                hideSpinner("appointed_applicants_demographic_container");
+
                 // Send the date range via AJAX to update the dashboard
                 $.ajax({
                     url: route('manager.updateDashboard'),
@@ -64,11 +80,11 @@ $(document).ready(function() {
                             timer: 2000,
                             showCloseButton: true,
                             toast: true
-                        })    
+                        })
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         let message = ''; // Initialize the message variable
-                    
+
                         if (jqXHR.status === 400 || jqXHR.status === 422) {
                             message = jqXHR.responseJSON.message;
                         } else if (textStatus === 'timeout') {
@@ -76,7 +92,7 @@ $(document).ready(function() {
                         } else {
                             message = 'An error occurred while processing your request. Please try again later.';
                         }
-                    
+
                         // Trigger the Swal notification with the dynamic message
                         Swal.fire({
                             position: 'top-end',
@@ -87,6 +103,10 @@ $(document).ready(function() {
                             showCloseButton: true,
                             toast: true
                         });
+                    },
+                    complete: function () {
+                        // Revert the button content back to the original icon
+                        calendarBtn.innerHTML = originalContent;
                     }
                 });
             }
@@ -149,6 +169,159 @@ function getChartColorsArray(chartId) {
 
 /*
 |--------------------------------------------------------------------------
+| Update Metrics
+|--------------------------------------------------------------------------
+*/
+
+// Helper function to display 'N/A' for invalid values and the value itself for valid numbers (including 0)
+function formatValue(value) {
+    return value !== null && value !== undefined ? value : 'N/A';
+}
+
+// Function to update the metrics on the page for each type
+function updateMetrics(type, data) {
+    switch (type) {
+        case 'time-metrics':
+            document.getElementById('averageTimeToShortlistValue').textContent = formatValue(data.averageTimeToShortlist);
+            document.getElementById('averageTimeToHireValue').textContent = formatValue(data.averageTimeToHire);
+            document.getElementById('adoptionRateValue').textContent = data.adoptionRate !== null && data.adoptionRate !== undefined ? `${data.adoptionRate}%` : 'N/A';
+            break;
+
+        case 'proximity-metrics':
+            document.getElementById('averageDistanceTalentPoolApplicantsValue').textContent = data.averageDistanceTalentPoolApplicants !== null && data.averageDistanceTalentPoolApplicants !== undefined ? `${data.averageDistanceTalentPoolApplicants} km` : 'N/A';
+            document.getElementById('averageDistanceApplicantsAppointedValue').textContent = data.averageDistanceApplicantsAppointed !== null && data.averageDistanceApplicantsAppointed !== undefined ? `${data.averageDistanceApplicantsAppointed} km` : 'N/A';
+            break;
+
+        case 'average-score-metrics':
+            document.getElementById('averageScoreApplicantsAppointedValue').textContent = formatValue(data.averageScoreApplicantsAppointed);
+            document.getElementById('averageAssessmentScoreApplicantsAppointedValue').textContent = data.averageAssessmentScoreApplicantsAppointed !== null && data.averageAssessmentScoreApplicantsAppointed !== undefined ? `${data.averageAssessmentScoreApplicantsAppointed}%` : 'N/A';
+            break;
+
+        case 'vacancies-metrics':
+            document.getElementById('totalVacanciesValue').textContent = formatValue(data.totalVacancies);
+            document.getElementById('totalVacanciesFilledValue').textContent = formatValue(data.totalVacanciesFilled);
+            updateRadialChart(totalVacanciesFilledChart, data.totalVacanciesFilled, data.totalVacancies);
+            break;
+
+        case 'interviews-metrics':
+            document.getElementById('totalInterviewsScheduledValue').textContent = formatValue(data.totalInterviewsScheduled);
+            document.getElementById('totalInterviewsCompletedValue').textContent = formatValue(data.totalInterviewsCompleted);
+            updateRadialChart(totalInterviewsCompletedChart, data.totalInterviewsCompleted, data.totalInterviewsScheduled);
+            break;
+
+        case 'applicants-metrics':
+            document.getElementById('totalApplicantsAppointedValue').textContent = formatValue(data.totalApplicantsAppointed);
+            document.getElementById('totalApplicantsRegrettedValue').textContent = formatValue(data.totalApplicantsRegretted);
+            updateRadialChart(totalApplicantsAppointedChart, data.totalApplicantsAppointed, data.totalInterviewsScheduled);
+            updateRadialChart(totalApplicantsRegrettedChart, data.totalApplicantsRegretted, data.totalInterviewsScheduled);
+            break;
+
+        case 'demographic-metrics':
+            updateRadialBarChart(talentPoolApplicantsDemographicChart, data.talentPoolApplicantsDemographic);
+            hideSpinner("talent_pool_applicants_demographic_container");
+            updateRadialBarChart(interviewedApplicantsDemographicChart, data.interviewedApplicantsDemographic);
+            hideSpinner("interviewed_applicants_demographic_container");
+            updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
+            hideSpinner("appointed_applicants_demographic_container");
+
+            // Update demographic totals
+            updateDemographicTotals(data.talentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
+            updateDemographicTotals(data.interviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
+            updateDemographicTotals(data.appointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
+            break;
+
+        case 'talent-pool-metrics':
+            document.getElementById('talentPoolApplicantsValue').textContent = formatValue(data.talentPoolApplicants);
+            document.getElementById('applicantsAppointedValue').textContent = formatValue(data.applicantsAppointed);
+            updateLineCharts(talentPoolByMonthChart, data.talentPoolApplicantsByMonth, data.applicantsAppointedByMonth);
+            break;
+
+        default:
+            console.error('Unknown metrics type:', type);
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Fetch Metrics
+|--------------------------------------------------------------------------
+*/
+
+// Function to fetch metrics data from the API
+function fetchMetrics(type, routeName) {
+    const apiUrl = route(routeName); // Use Ziggy to dynamically generate the route URL
+
+    fetch(apiUrl)
+        .then((response) => response.json())
+        .then((data) => {
+            updateMetrics(type, data); // Update the metrics on the page
+        })
+        .catch((error) => {
+            console.error(`Error loading ${type} data:`, error);
+        });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Lazy Load Data
+|--------------------------------------------------------------------------
+*/
+
+// Function to lazy load metrics for a specific row
+function lazyLoadMetrics(rowId, type, routeName) {
+    const metricsRow = document.getElementById(rowId);
+
+    const observer = new IntersectionObserver(function (entries) {
+        if (entries[0].isIntersecting && allowLazyLoading) {
+            fetchMetrics(type, routeName); // Fetch data when the row is visible
+            observer.disconnect(); // Stop observing after data is loaded
+        }
+    });
+
+    observer.observe(metricsRow);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Initialize Lazy Loading for All Metrics
+|--------------------------------------------------------------------------
+*/
+
+document.addEventListener('DOMContentLoaded', function () {
+    lazyLoadMetrics('timeRow', 'time-metrics', 'time.metrics');
+    lazyLoadMetrics('proximityRow', 'proximity-metrics', 'proximity.metrics');
+    lazyLoadMetrics('averageScoresRow', 'average-score-metrics', 'average-score.metrics');
+    lazyLoadMetrics('vacanciesRow', 'vacancies-metrics', 'vacancies.metrics');
+    lazyLoadMetrics('interviewsRow', 'interviews-metrics', 'interviews.metrics');
+    lazyLoadMetrics('applicantsRow', 'applicants-metrics', 'applicants.metrics');
+    lazyLoadMetrics('demographicRow', 'demographic-metrics', 'demographic.metrics');
+    lazyLoadMetrics('talentPoolRow', 'talent-pool-metrics', 'talent-pool.metrics');
+});
+
+/*
+|--------------------------------------------------------------------------
+| Show and Hide Spinners
+|--------------------------------------------------------------------------
+*/
+
+// Show the spinner in the header
+function showSpinner(containerId) {
+    const spinner = document.querySelector(`#${containerId} .spinner-border`);
+    if (spinner) {
+        spinner.classList.remove('d-none');
+    }
+}
+
+// Hide the spinner in the header
+function hideSpinner(containerId) {
+    const spinner = document.querySelector(`#${containerId} .spinner-border`);
+    if (spinner) {
+        spinner.classList.add('d-none');
+    }
+}
+
+/*
+|--------------------------------------------------------------------------
 | Total Vacancies Filled
 |--------------------------------------------------------------------------
 */
@@ -156,20 +329,10 @@ function getChartColorsArray(chartId) {
 // Total Vacancies Filled
 var totalVacanciesFilled = getChartColorsArray("total_vacancies_filled");
 
-// Calculate percentage of filled vacancies
-var storeTotalVacancies = storeTotalVacancies || 0;
-var storeTotalVacanciesFilled = storeTotalVacanciesFilled || 0;
-var percentageFilled = 0;
-
-// Check for divide by zero and calculate percentage
-if (storeTotalVacancies > 0) {
-    percentageFilled = Math.round((storeTotalVacanciesFilled / storeTotalVacancies) * 100);
-}
-
 // Total Vacancies Filled Chart
 if (totalVacanciesFilled) {
     var options = {
-        series: [percentageFilled], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -223,20 +386,10 @@ if (totalVacanciesFilled) {
 // Total Interviews Completed
 var totalInterviewsCompleted = getChartColorsArray("total_interviews_completed");
 
-// Calculate percentage of completed interviews
-var storeTotalInterviewsScheduled = storeTotalInterviewsScheduled || 0;
-var storeTotalInterviewsCompleted = storeTotalInterviewsCompleted || 0;
-var percentageCompleted = 0;
-
-// Check for divide by zero and calculate percentage
-if (storeTotalInterviewsScheduled > 0) {
-    percentageCompleted = Math.round((storeTotalInterviewsCompleted / storeTotalInterviewsScheduled) * 100);
-}
-
 // Total Interviews Completed Chart
 if (totalInterviewsCompleted) {
     var options = {
-        series: [percentageCompleted], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -290,19 +443,10 @@ if (totalInterviewsCompleted) {
 // Total Applicants Appointed
 var totalApplicantsAppointed = getChartColorsArray("total_applicants_appointed");
 
-// Calculate percentage of appointed applicants
-var storeTotalApplicantsAppointed = storeTotalApplicantsAppointed || 0;
-var percentageAppointed = 0;
-
-// Check for divide by zero and calculate percentage for appointed applicants
-if (storeTotalInterviewsScheduled > 0) {
-    percentageAppointed = Math.round((storeTotalApplicantsAppointed / storeTotalInterviewsScheduled) * 100);
-}
-
 // Total Applicants Appointed Chart
 if (totalApplicantsAppointed) {
     var options = {
-        series: [percentageAppointed], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -356,19 +500,10 @@ if (totalApplicantsAppointed) {
 // Total Applicants Regretted
 var totalApplicantsRegretted = getChartColorsArray("total_applicants_regretted");
 
-// Calculate percentage of regretted applicants
-var storeTotalApplicantsRegretted = storeTotalApplicantsRegretted || 0;
-var percentageRegretted = 0;
-
-// Check for divide by zero and calculate percentage for regretted applicants
-if (storeTotalInterviewsScheduled > 0) {
-    percentageRegretted = Math.round((storeTotalApplicantsRegretted / storeTotalInterviewsScheduled) * 100);
-}
-
 // Total Applicants Regretted Chart
 if (totalApplicantsRegretted) {
     var options = {
-        series: [percentageRegretted], // Use the calculated percentage
+        series: [], // Use the calculated percentage
         chart: {
             type: 'radialBar',
             width: 105,
@@ -420,27 +555,16 @@ if (totalApplicantsRegretted) {
 */
 
 //  Talent Pool By Month Chart
-var talentPoolByMonth = getChartColorsArray("talent_pool_by_month");
+var talentPoolByMonthColors = getChartColorsArray("talent_pool_by_month");
 
 // Prepare default months from January to December
 var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-// Prepare the data for the chart
-var talentPoolData = storeTalentPoolApplicantsByMonth && Object.keys(storeTalentPoolApplicantsByMonth).length > 0
-    ? Object.values(storeTalentPoolApplicantsByMonth) // Extract values if not empty
-    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
-
-var appointedData = storeApplicantsAppointedByMonth && Object.keys(storeApplicantsAppointedByMonth).length > 0
-    ? Object.values(storeApplicantsAppointedByMonth) // Extract values if not empty
-    : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
-
 // Get the months (x-axis categories)
-var months = Object.keys(storeTalentPoolApplicantsByMonth).length > 0 
-    ? Object.keys(storeTalentPoolApplicantsByMonth)  // Use the months from data if available
-    : defaultMonths; // Use default months if data is empty
+var months = defaultMonths; // Use default months if data is empty
 
 //  Talent Pool By Month Chart
-if (talentPoolByMonth) {
+if (talentPoolByMonthColors) {
     var options = {
         chart: {
             height: 380,
@@ -452,7 +576,7 @@ if (talentPoolByMonth) {
                 show: false
             }
         },
-        colors: talentPoolByMonth,
+        colors: talentPoolByMonthColors,
         dataLabels: {
             enabled: false,
         },
@@ -462,11 +586,11 @@ if (talentPoolByMonth) {
         },
         series: [{
                 name: "Total Talent Pool",
-                data: talentPoolData // Use dynamic data for Talent Pool
+                data: [] // Use dynamic data for Talent Pool
             },
             {
                 name: "Total Appointed",
-                data: appointedData // Use dynamic data for Appointed
+                data: [] // Use dynamic data for Appointed
             }
         ],
         title: {
@@ -498,7 +622,7 @@ if (talentPoolByMonth) {
                 text: 'Total Applicants'
             },
             min: 0, // Adjust min to allow smaller values
-            max: Math.max(...talentPoolData, ...appointedData) + 5 // Set the max value based on the highest number in your data
+            max: 5000 // Set the max value based on the highest number in your data
         },
         legend: {
             position: 'top',
@@ -535,14 +659,9 @@ if (talentPoolByMonth) {
 // Talent Pool Applicants Demographic
 var talentPoolApplicantsDemographicColors = getChartColorsArray("talent_pool_applicants_demographic");
 
-// Extract percentages and labels dynamically from storeTalentPoolApplicantsDemographic
+// Extract percentages and labels dynamically from talentPoolApplicantsDemographic
 var talentPoolApplicantsDemographicSeries = [];
-var talentPoolApplicantsDemographicLabels = [];
-
-storeTalentPoolApplicantsDemographic.forEach(function (item) {
-    talentPoolApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
-    talentPoolApplicantsDemographicLabels.push(item.name);       // Extract the race name
-});
+var talentPoolApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Talent Pool Applicants Demographic Chart
 if(talentPoolApplicantsDemographicColors){
@@ -675,14 +794,9 @@ if(talentPoolApplicantsDemographicColors){
 // Interviewed Applicants Demographic
 var interviewedApplicantsDemographicColors = getChartColorsArray("interviewed_applicants_demographic");
 
-// Extract percentages and labels dynamically from storeInterviewedApplicantsDemographic
+// Extract percentages and labels dynamically from interviewedApplicantsDemographic
 var interviewedApplicantsDemographicSeries = [];
-var interviewedApplicantsDemographicLabels = [];
-
-storeInterviewedApplicantsDemographic.forEach(function (item) {
-    interviewedApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
-    interviewedApplicantsDemographicLabels.push(item.name);       // Extract the race name
-});
+var interviewedApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Interviewed Applicants Demographic Chart
 if(interviewedApplicantsDemographicColors){
@@ -811,14 +925,9 @@ if(interviewedApplicantsDemographicColors){
 // Appointed Applicants Demographic
 var appointedApplicantsDemographicColors = getChartColorsArray("appointed_applicants_demographic");
 
-// Extract percentages and labels dynamically from storeAppointedApplicantsDemographic
+// Extract percentages and labels dynamically from appointedApplicantsDemographic
 var appointedApplicantsDemographicSeries = [];
-var appointedApplicantsDemographicLabels = [];
-
-storeAppointedApplicantsDemographic.forEach(function (item) {
-    appointedApplicantsDemographicSeries.push(item.percentage); // Extract the percentage value
-    appointedApplicantsDemographicLabels.push(item.name);       // Extract the race name
-});
+var appointedApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Appointed Applicants Demographic Chart
 if(appointedApplicantsDemographicColors){
@@ -983,7 +1092,7 @@ function updateDashboard(data) {
     $('#averageScoreApplicantsAppointedValue').text(data.storeAverageScoreApplicantsAppointed);
 
     // Update average assessmet score of appointed applicants
-    $('#averageAssessmentScoreApplicantsAppointedValue').text(data.storeAverageAssessmentScoreApplicantsAppointed);
+    $('#averageAssessmentScoreApplicantsAppointedValue').text(data.storeAverageAssessmentScoreApplicantsAppointed + '%');
 
     // Update talent pool applicants
     $('#talentPoolApplicantsValue').text(data.storeTalentPoolApplicants);
@@ -1004,6 +1113,11 @@ function updateDashboard(data) {
     updateRadialBarChart(talentPoolApplicantsDemographicChart, data.storeTalentPoolApplicantsDemographic);
     updateRadialBarChart(interviewedApplicantsDemographicChart, data.storeInterviewedApplicantsDemographic);
     updateRadialBarChart(appointedApplicantsDemographicChart, data.storeAppointedApplicantsDemographic);
+
+    // Update demographic totals
+    updateDemographicTotals(data.storeTalentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
+    updateDemographicTotals(data.storeInterviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
+    updateDemographicTotals(data.storeAppointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
 }
 
 /*
@@ -1030,22 +1144,22 @@ function updateRadialChart(chartInstance, filledValue, totalValue) {
 |--------------------------------------------------------------------------
 */
 
-function updateLineCharts(chartInstance, storeTalentPoolApplicantsByMonth, storeApplicantsAppointedByMonth) {
+function updateLineCharts(chartInstance, talentPoolApplicantsByMonth, applicantsAppointedByMonth) {
     // Get default months from January to December
     var defaultMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
     // Prepare the data for the Talent Pool By Month Chart
-    var talentPoolData = storeTalentPoolApplicantsByMonth && Object.keys(storeTalentPoolApplicantsByMonth).length > 0
-        ? Object.values(storeTalentPoolApplicantsByMonth) // Extract values if not empty
+    var talentPoolData = talentPoolApplicantsByMonth && Object.keys(talentPoolApplicantsByMonth).length > 0
+        ? Object.values(talentPoolApplicantsByMonth) // Extract values if not empty
         : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
 
-    var appointedData = storeApplicantsAppointedByMonth && Object.keys(storeApplicantsAppointedByMonth).length > 0
-        ? Object.values(storeApplicantsAppointedByMonth) // Extract values if not empty
+    var appointedData = applicantsAppointedByMonth && Object.keys(applicantsAppointedByMonth).length > 0
+        ? Object.values(applicantsAppointedByMonth) // Extract values if not empty
         : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
 
     // Get the months (x-axis categories)
-    var months = Object.keys(storeTalentPoolApplicantsByMonth).length > 0 
-        ? Object.keys(storeTalentPoolApplicantsByMonth)  // Use the months from data if available
+    var months = Object.keys(talentPoolApplicantsByMonth).length > 0
+        ? Object.keys(talentPoolApplicantsByMonth)  // Use the months from data if available
         : defaultMonths; // Use default months if data is empty
 
     // Calculate max value for the y-axis dynamically
@@ -1104,4 +1218,47 @@ function updateRadialBarChart(chart, demographicData) {
     chart.updateOptions({
         series: seriesArray,  // Updated series with all races
     });
+}
+
+/*
+|--------------------------------------------------------------------------
+| Update Demographic Totals
+|--------------------------------------------------------------------------
+*/
+
+// Function to update demographic totals with row ID
+function updateDemographicTotals(demographicData, rowId) {
+    const rowElement = document.getElementById(rowId);
+    if (rowElement) {
+        // Define demographic categories to handle the empty data case
+        const categories = ["African", "Coloured", "Indian", "White"];
+        
+        if (demographicData.length === 0) {
+            // If data is empty, set all totals to 0
+            categories.forEach(category => {
+                const totalElement = rowElement.querySelector(`.${category}`);
+                if (totalElement) {
+                    totalElement.textContent = `0`;
+                }
+            });
+        } else {
+            // Otherwise, update the totals with actual data
+            demographicData.forEach(demo => {
+                const totalElement = rowElement.querySelector(`.${demo.name}`);
+                if (totalElement) {
+                    totalElement.textContent = `${demo.total}`;
+                }
+            });
+
+            // Handle categories not present in the demographicData
+            categories.forEach(category => {
+                if (!demographicData.some(demo => demo.name === category)) {
+                    const totalElement = rowElement.querySelector(`.${category}`);
+                    if (totalElement) {
+                        totalElement.textContent = `0`;
+                    }
+                }
+            });
+        }
+    }
 }

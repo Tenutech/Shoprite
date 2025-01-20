@@ -49,7 +49,7 @@
                                 Hello, {{ Auth::user()->firstname }}!
                             </h4>
                             <p class="text-muted mb-0">
-                                Here's what's happening with the 
+                                Here's what's happening with the
                                 @if (isset($region))
                                     ({{ $region->name }})
                                 @endif region today.
@@ -61,7 +61,7 @@
                                     <div class="col-sm-auto">
                                         <div class="input-group">
                                             <input type="text" id="dateFilter" class="form-control border-0 dash-filter-picker shadow">
-                                            <div class="input-group-text bg-primary border-primary text-white">
+                                            <div class="input-group-text bg-primary border-primary text-white" id="calendarBtn">
                                                 <i class="ri-calendar-2-line"></i>
                                             </div>
                                             <!-- Refresh Button with Tooltip and a gap (margin-left) -->
@@ -71,7 +71,7 @@
                                         </div>
                                     </div> <!--end col-->
                                 </div> <!--end row -->
-                            </form>                            
+                            </form>
                         </div>
                     </div><!-- end card header -->
                 </div> <!--end col -->
@@ -81,10 +81,10 @@
                 Time
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="timeRow">
                 <!-- Time to Shortlist -->
                 <div class="col-xl-4 col-md-4" id="averageTimeToShortlistColumn">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The time from when a vacancy is created until the shortlist is generated.">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -93,7 +93,9 @@
                                     </p>
                                     <h2 class="mt-4 ff-secondary fw-bold">
                                         <span id="averageTimeToShortlistValue">
-                                            {{ $regionAverageTimeToShortlist }}
+                                            <div class="spinner-border text-secondary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
@@ -116,7 +118,7 @@
 
                 <!-- Time to Hire -->
                 <div class="col-xl-4 col-md-4" id="averageTimeToHireColumn">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The time from when a vacancy is created until a candidate is successfully placed.">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -125,7 +127,9 @@
                                     </p>
                                     <h2 class="mt-4 ff-secondary fw-bold">
                                         <span id="averageTimeToHireValue">
-                                            {{ $regionAverageTimeToHire }}
+                                            <div class="spinner-border text-secondary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
@@ -148,7 +152,7 @@
 
                 <!-- Placement Rate -->
                 <div class="col-xl-4 col-md-4" id="adoptionRateColumn">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The percentage of vacancies successfully filled.">
                         <div class="card-body">
                             <div class="d-flex justify-content-between">
                                 <div>
@@ -157,7 +161,9 @@
                                     </p>
                                     <h2 class="mt-4 ff-success fw-bold">
                                         <span id="adoptionRateValue">
-                                            {{ $regionAdoptionRate }}%
+                                            <div class="spinner-border text-success" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
@@ -183,10 +189,10 @@
                 Proximity
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="proximityRow">
                 <!-- Average Proximity Talent Pool -->
                 <div class="col-xl-6 col-md-6">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average distance between the candidates in the talent pool and the store.">
                         <div class="card-header bg-secondary">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1 text-white">
@@ -198,9 +204,11 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                    <span id="averageDistanceTalentPoolApplicantsValue" class="counter-value"  data-target="{{ $regionAverageDistanceTalentPoolApplicants }}">
-                                        0
-                                    </span>km 
+                                        <span id="averageDistanceTalentPoolApplicantsValue">
+                                            <div class="spinner-border text-body" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average distance of talent pool
@@ -213,7 +221,7 @@
 
                 <!-- Average Proximity Appointed -->
                 <div class="col-xl-6 col-md-6">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average distance between successfully appointed candidates and the store.">
                         <div class="card-header bg-secondary">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1 text-white">
@@ -225,9 +233,11 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                    <span id="averageDistanceApplicantsAppointedValue" class="counter-value"  data-target="{{ $regionAverageDistanceApplicantsAppointed }}">
-                                        0
-                                    </span>km 
+                                        <span id="averageDistanceApplicantsAppointedValue">
+                                            <div class="spinner-border text-body" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average distance for successful placements
@@ -243,10 +253,10 @@
                 Scores
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="averageScoresRow">
                 <!-- Average Score -->
                 <div class="col-xl-6 col-md-6">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average overall score of candidates successfully placed.">
                         <div class="card-header bg-success">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1 text-white">
@@ -258,8 +268,10 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="averageScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $regionAverageScoreApplicantsAppointed }}">
-                                            0
+                                        <span id="averageScoreApplicantsAppointedValue">
+                                            <div class="spinner-border text-body" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
@@ -273,7 +285,7 @@
 
                 <!-- Average Assessment Score -->
                 <div class="col-xl-6 col-md-6">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="The average assessment score of candidates successfully placed.">
                         <div class="card-header bg-success">
                             <div class="d-flex">
                                 <h5 class="card-title mb-0 flex-grow-1 text-white">
@@ -285,9 +297,11 @@
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <h2 class="mt-4 ff-primary fw-bold">
-                                        <span id="averageAssessmentScoreApplicantsAppointedValue" class="counter-value"  data-target="{{ $regionAverageAssessmentScoreApplicantsAppointed }}">
-                                            0
-                                        </span>%
+                                        <span id="averageAssessmentScoreApplicantsAppointedValue">
+                                            <div class="spinner-border text-body" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
+                                        </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
                                         Average assessment score for successful placements
@@ -303,10 +317,10 @@
                 Vacancies
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="vacanciesRow">
                 <!-- Total Created Vacancies -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of vacancies created.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -319,8 +333,10 @@
                                         Total Created Vacancies
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalVacanciesValue" class="counter-value" data-target="{{ $regionTotalVacancies }}">
-                                            0
+                                        <span id="totalVacanciesValue">
+                                            <div class="spinner-border text-primary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h4>
                                 </div>
@@ -328,10 +344,10 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Vacancies Filled -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of vacancies successfully filled.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -344,8 +360,10 @@
                                         Total Vacancies Filled
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalVacanciesFilledValue" class="counter-value" data-target="{{ $regionTotalVacanciesFilled }}">
-                                            0
+                                        <span id="totalVacanciesFilledValue">
+                                            <div class="spinner-border text-primary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h4>
                                 </div>
@@ -357,15 +375,15 @@
                     </div><!-- end card -->
                 </div> <!--end col -->
             </div> <!--end row -->
-            
+
             <!-------------------------------------------------------------------------------------
                 Interviews
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="interviewsRow">
                 <!-- Total Interviews Scheduled -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of interviews scheduled.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -378,8 +396,10 @@
                                         Interviews Scheduled
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalInterviewsScheduledValue"  class="counter-value" data-target="{{ $regionTotalInterviewsScheduled }}">
-                                            0
+                                        <span id="totalInterviewsScheduledValue">
+                                            <div class="spinner-border text-secondary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h4>
                                 </div>
@@ -387,10 +407,10 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Interviews Conducted -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of interviews successfully conducted.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -403,8 +423,10 @@
                                         Interviews Conducted
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalInterviewsCompletedValue" class="counter-value" data-target="{{ $regionTotalInterviewsCompleted }}">
-                                            0
+                                        <span id="totalInterviewsCompletedValue">
+                                            <div class="spinner-border text-secondary" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h4>
                                 </div>
@@ -421,10 +443,10 @@
                 Applicants
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="applicantsRow">
                 <!-- Total Candidates Selected -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates selected for a position. This also indicates the percentage compared to the total scheduled interviews.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s2" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -437,8 +459,10 @@
                                         Candidates Selected
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalApplicantsAppointedValue" class="counter-value" data-target="{{ $regionTotalApplicantsAppointed }}">
-                                            0
+                                        <span id="totalApplicantsAppointedValue">
+                                            <div class="spinner-border text-success" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h4>
                                 </div>
@@ -449,10 +473,10 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Applicants Regretted -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates who recieved a regret notification. This also indicates the percentage compared to the total scheduled interviews.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s3" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -462,11 +486,13 @@
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">
                                     <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Applicants Regretted
+                                        Candidates Regretted
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
-                                        <span id="totalApplicantsRegrettedValue" class="counter-value" data-target="{{ $regionTotalApplicantsRegretted }}">
-                                            0
+                                        <span id="totalApplicantsRegrettedValue">
+                                            <div class="spinner-border text-danger" role="status" style="font-size: 12px;">
+                                                <span class="sr-only">Loading...</span>
+                                            </div>
                                         </span>
                                     </h4>
                                 </div>
@@ -483,48 +509,135 @@
                 Demographic Information
             -------------------------------------------------------------------------------------->
 
-            <div class="row g-3">
+            <div class="row g-3" id="demographicRow">
                 <!-- Talent Pool Demographic -->
-                <div class="col-xl-4 col-md-4">
-                    <div class="card card-animate">
-                        <div class="card-header">
+                <div class="col-xl-4 col-md-4" id="talent_pool_applicants_demographic_container">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates in the talent pool.">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="card-title mb-0">
                                 Demographic (Talent Pool)
                             </h4>
+                            <div class="spinner-border text-primary" role="status" style="width:1.5rem; height:1.5rem; font-size: 12px;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="talent_pool_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                            <div class="row text-center" id="talent_pool_applicants_demographic_totals">
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-primary me-2"></i>
+                                        <span class="African"></span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-info me-2"></i>
+                                        <span class="Coloured"></span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
+                                        <span class="Indian"></span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
+                                        <span class="White"></span>
+                                    </p>
+                                </div>
+                            </div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
 
                 <!-- Interviewed Demographic -->
-                <div class="col-xl-4 col-md-4">
-                    <div class="card card-animate">
-                        <div class="card-header">
+                <div class="col-xl-4 col-md-4" id="interviewed_applicants_demographic_container">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates who have been interviewed.">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="card-title mb-0">
                                 Demographic (Interviewed)
                             </h4>
+                            <div class="spinner-border text-primary" role="status" style="width:1.5rem; height:1.5rem; font-size: 12px;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="interviewed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                            <div class="row text-center" id="interviewed_pool_applicants_demographic_totals">
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-primary me-2"></i>
+                                        <span class="African"></span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-info me-2"></i>
+                                        <span class="Coloured"></span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
+                                        <span class="Indian"></span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
+                                        <span class="White"></span>
+                                    </p>
+                                </div>
+                            </div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
 
                 <!-- Appointed Demographic -->
-                <div class="col-xl-4 col-md-4">
-                    <div class="card card-animate">
-                        <div class="card-header">
+                <div class="col-xl-4 col-md-4" id="appointed_applicants_demographic_container">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This chart displays the demographic distribution of candidates who have been successfully placed.">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h4 class="card-title mb-0">
                                 Demographic (Appointed)
                             </h4>
+                            <div class="spinner-border text-primary" role="status" style="width:1.5rem; height:1.5rem; font-size: 12px;">
+                                <span class="sr-only">Loading...</span>
+                            </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="appointed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
+                            <div class="row text-center" id="appointed_pool_applicants_demographic_totals">
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-primary me-2"></i>
+                                        <span class="African"></span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-info me-2"></i>
+                                        <span class="Coloured"></span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
+                                        <span class="Indian"></span>
+                                    </p>
+                                </div>
+                                <div class="col-sm-3">
+                                    <p class="text-muted fs-12 mb-0">
+                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
+                                        <span class="White"></span>
+                                    </p>
+                                </div>
+                            </div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
@@ -533,10 +646,10 @@
             <!-------------------------------------------------------------------------------------
                 Applicants
             -------------------------------------------------------------------------------------->
-            
-            <div class="row g-3">
+
+            <div class="row g-3" id="talentPoolRow">
                 <div class="col-xl-12 col-md-12">
-                    <div class="card card-animate">
+                    <div class="card card-animate" data-bs-toggle="tooltip" data-bs-placement="top" title="This graph displays the total candidates that joined the talent pool compared to the total candidates appointed on a month-to-month basis.">
                         <div class="card-header border-0 align-items-center d-flex">
                             <h4 class="card-title mb-0 flex-grow-1">Talent Pool</h4>
                         </div><!-- end card header -->
@@ -546,8 +659,10 @@
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
                                         <h5 class="mb-1">
-                                            <span id="talentPoolApplicantsValue" class="counter-value" data-target="{{ $regionTalentPoolApplicants }}">
-                                                0
+                                            <span id="talentPoolApplicantsValue">
+                                                <div class="spinner-border text-body" role="status" style="width:1.5rem; height:1.5rem; font-size: 10px;">
+                                                    <span class="sr-only">Loading...</span>
+                                                </div>
                                             </span>
                                         </h5>
                                         <p class="text-muted mb-0">
@@ -558,8 +673,10 @@
                                 <div class="col-6 col-sm-6">
                                     <div class="p-3 border border-dashed border-start-0">
                                         <h5 class="mb-1">
-                                            <span id="applicantsAppointedValue" class="counter-value" data-target="{{ $regionApplicantsAppointed }}">
-                                                0
+                                            <span id="applicantsAppointedValue">
+                                                <div class="spinner-border text-body" role="status" style="width:1.5rem; height:1.5rem; font-size: 10px;">
+                                                    <span class="sr-only">Loading...</span>
+                                                </div>
                                             </span>
                                         </h5>
                                         <p class="text-muted mb-0">
@@ -569,7 +686,7 @@
                                 </div> <!--end col -->
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="talent_pool_by_month" data-colors='["--vz-primary", "--vz-success"]' class="apex-charts" dir="ltr"></div>
                         </div> <!-- end card-body -->
@@ -591,17 +708,7 @@
 @section('script')
 <script>
     var shortlist = @json($shortlist);
-    var regionTotalVacancies = @json($regionTotalVacancies);
-    var regionTotalVacanciesFilled = @json($regionTotalVacanciesFilled);
-    var regionTotalInterviewsScheduled = @json($regionTotalInterviewsScheduled);
-    var regionTotalInterviewsCompleted = @json($regionTotalInterviewsCompleted);
-    var regionTotalApplicantsAppointed = @json($regionTotalApplicantsAppointed);
-    var regionTotalApplicantsRegretted = @json($regionTotalApplicantsRegretted);
-    var regionTalentPoolApplicantsByMonth = @json($regionTalentPoolApplicantsByMonth);
-    var regionApplicantsAppointedByMonth = @json($regionApplicantsAppointedByMonth);
-    var regionTalentPoolApplicantsDemographic = @json($regionTalentPoolApplicantsDemographic);
-    var regionInterviewedApplicantsDemographic = @json($regionInterviewedApplicantsDemographic);
-    var regionAppointedApplicantsDemographic = @json($regionAppointedApplicantsDemographic);
+    var region = @json($region);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

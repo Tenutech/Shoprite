@@ -21,7 +21,11 @@ use Illuminate\Support\Facades\Log;
 
 class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle
 {
-    protected $type, $id, $startDate, $endDate, $filters;
+    protected $type;
+    protected $id;
+    protected $startDate;
+    protected $endDate;
+    protected $filters;
 
     public function __construct($type, $id, $startDate, $endDate, $filters)
     {
@@ -121,30 +125,42 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
      */
     public function map($vacancy): array
     {
-        // Prepare SAP numbers with line breaks
-        $sapNumbers = $vacancy->sapNumbers->pluck('sap_number')->implode("\n");
+        $rows = [];
 
-        // Prepare appointed applicants with their sap numbers
-        $appointedApplicants = $vacancy->appointed->map(function ($applicant) {
-            return $applicant->firstname . ' ' . $applicant->lastname . ' (' . $applicant->id_number . ') - ' . $applicant->pivot->sap_number;
-        })->implode("\n"); // Join each entry with a new line for better readability in Excel
+        // Collect all SAP numbers
+        $sapNumbers = $vacancy->sapNumbers->pluck('sap_number')->toArray();
 
-        return [
-            optional(optional($vacancy->store)->brand)->name ?? '',
-            optional(optional($vacancy->store)->division)->name ?? '',
-            optional(optional($vacancy->store)->region)->name ?? '',
-            optional($vacancy->store)->name ?? '',
-            optional($vacancy->store)->code ?? '', 
-            optional($vacancy->position)->name ?? '',
-            $sapNumbers,
-            optional($vacancy->type)->name ?? '',
-            (optional($vacancy->user)->firstname ?? '') . ' ' . (optional($vacancy->user)->lastname ?? ''),           
-            $vacancy->open_positions === 0 ? '0' : ($vacancy->open_positions ?? '0'),
-            $vacancy->filled_positions === 0 ? '0' : ($vacancy->filled_positions ?? '0'),
-            $appointedApplicants,
-            $vacancy->created_at->format('Y-m-d H:i'),
-            $vacancy->open_positions === 0 ? $vacancy->updated_at->format('Y-m-d H:i') : '',
-        ];
+        // Map the appointed applicants by their SAP numbers
+        $appointedApplicantsBySap = $vacancy->appointed->mapWithKeys(function ($applicant) {
+            return [$applicant->pivot->sap_number => $applicant->firstname . ' ' . $applicant->lastname . ' (' . $applicant->id_number . ') - ' . $applicant->pivot->sap_number];
+        });
+
+        // Loop to create rows for each SAP number
+        foreach ($sapNumbers as $currentSapNumber) {
+            // Determine open_positions and filled_positions
+            $isFilled = isset($appointedApplicantsBySap[$currentSapNumber]);
+            $openPositions = $isFilled ? '0' : 1;
+            $filledPositions = $isFilled ? 1 : '0';
+
+            $rows[] = [
+                optional(optional($vacancy->store)->brand)->name ?? '',
+                optional(optional($vacancy->store)->division)->name ?? '',
+                optional(optional($vacancy->store)->region)->name ?? '',
+                optional($vacancy->store)->name ?? '',
+                optional($vacancy->store)->code ?? '',
+                optional($vacancy->position)->name ?? '',
+                $currentSapNumber, // Assign each SAP number to its own row
+                optional($vacancy->type)->name ?? '',
+                (optional($vacancy->user)->firstname ?? '') . ' ' . (optional($vacancy->user)->lastname ?? ''),
+                $openPositions, // Open positions for this SAP number
+                $filledPositions, // Filled positions for this SAP number
+                $appointedApplicantsBySap[$currentSapNumber] ?? '', // Match appointed applicant to the current SAP number
+                $vacancy->created_at->format('Y-m-d H:i'),
+                $isFilled ? $vacancy->updated_at->format('Y-m-d H:i') : '',
+            ];
+        }
+
+        return $rows;
     }
 
     /**
@@ -159,7 +175,7 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'Division',
             'Region',
             'Branch Name',
-            'Branch Code', 
+            'Branch Code',
             'Position Description',
             'SAP Position Number(s)',
             'Position Type',
