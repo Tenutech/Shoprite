@@ -58,74 +58,47 @@ class GenerateApplicantsReportJob implements ShouldQueue
     public function handle()
     {
         try {
-            Log::info("Starting job: " . self::class);
-
-            // Generate the file name
-            $fileName = 'Applicants_Report_' . now()->format('Y_m_d_H_i_s') . '.csv';
+            // Generate file names and paths
+            $timestamp = now()->format('Y_m_d_H_i_s');
+            $fileName = "Applicants_Report_{$timestamp}.csv";
+            $zipFileName = "Applicants_Report_{$timestamp}.zip";
+        
             $filePath = "reports/{$fileName}";
-            $zipFileName = 'Applicants_Report_' . now()->format('Y_m_d_H_i_s') . '.zip';
             $zipFilePath = "reports/{$zipFileName}";
-
-            // Export the file and save it to storage
+        
+            $csvFullPath = storage_path("app/{$filePath}");
+            $zipFullPath = storage_path("app/{$zipFilePath}");
+        
+            // Export the CSV file and save it to storage
             Excel::store(
-                new ApplicantsExport($this->type, $this->id, $this->startDate, $this->endDate, $this->maxDistanceFromStore, $this->filters),
+                new ApplicantsExport(
+                    $this->type,
+                    $this->id,
+                    $this->startDate,
+                    $this->endDate,
+                    $this->maxDistanceFromStore,
+                    $this->filters
+                ),
                 $filePath
             );
-
-            // Compress the file into a ZIP archive
-            try {
-                $csvFullPath = storage_path("app/{$filePath}");
-                $zipFullPath = storage_path("app/{$zipFilePath}");
-            
-                // Ensure the CSV file exists
-                if (!file_exists($csvFullPath)) {
-                    throw new \Exception("CSV file not found at path: {$csvFullPath}");
-                }
-            
-                Log::info("Creating ZIP file at: {$zipFullPath}");
-            
-                $zip = new \ZipArchive();
-            
-                if ($zip->open($zipFullPath, \ZipArchive::CREATE) === true) {
-                    $zip->addFile($csvFullPath, $fileName);
-                    $zip->close();
-            
-                    Log::info("ZIP file created successfully: {$zipFullPath}");
-                } else {
-                    throw new \Exception("Failed to create ZIP file at: {$zipFullPath}");
-                }
-            
-                // Verify ZIP file exists
-                if (!file_exists($zipFullPath)) {
-                    throw new \Exception("ZIP file not created at path: {$zipFullPath}");
-                }
-            } catch (\Exception $e) {
-                Log::error("Error creating ZIP file: " . $e->getMessage());
-            }
-
-
-            // Clean up previous exports
+        
+            // Compress the CSV file into a ZIP archive
+            $this->createZipFile($csvFullPath, $zipFullPath, $fileName);
+        
+            // Clean up old reports
             $this->deleteOldReports();
-
-            // Send the email using the Mail facade
-            Mail::send([], [], function ($message) use ($zipFilePath) {
-                $message->to($this->authUser->email) // Recipient email
-                    ->from('noreply@otbgroup.co.za', 'Shoprite - Job Opportunities') // Set the "from" address and name
-                    ->subject('Your Applicants Report is Ready') // Email subject
-                    ->html( // Use HTML for the body
-                        "<p>Dear {$this->authUser->firstname},</p>
-                        <p>Please see attached the applicants report.</p>
-                        <p>Kind Regards,<br>Shoprite Job Opportunities</p>"
-                    )
-                    ->attach(storage_path("app/{$zipFilePath}")); // Attach the ZIP file
-            });
-
-            Log::info("Job completed successfully.");
+        
+            // Send the email with the ZIP file attached
+            $this->sendSuccessEmail($zipFullPath);
         } catch (\Exception $e) {
-            Log::error("Error in job: " . self::class . " - " . $e->getMessage());
-            // Optionally, you can retry or handle the exception in another way
-            throw $e; // Re-throw to mark the job as failed
-        }
+            Log::error("Error in GenerateApplicantsReportJob: {$e->getMessage()}");
+        
+            // Send the error notification email
+            $this->sendErrorEmail($e);
+        
+            // Re-throw the exception to mark the job as failed
+            throw $e;
+        }        
     }
 
     /**
@@ -147,5 +120,73 @@ class GenerateApplicantsReportJob implements ShouldQueue
         foreach (array_slice($files, 1) as $file) {
             File::delete($file->getPathname());
         }
+    }
+
+    /**
+     * Create a ZIP file from the given CSV file.
+     *
+     * @param string $csvFullPath Path to the CSV file.
+     * @param string $zipFullPath Path to save the ZIP file.
+     * @param string $fileName The name of the file inside the ZIP archive.
+     * @throws \Exception If ZIP creation fails.
+     */
+    protected function createZipFile(string $csvFullPath, string $zipFullPath, string $fileName)
+    {
+        if (!file_exists($csvFullPath)) {
+            throw new \Exception("CSV file not found at path: {$csvFullPath}");
+        }
+
+        $zip = new \ZipArchive();
+
+        if ($zip->open($zipFullPath, \ZipArchive::CREATE) === true) {
+            $zip->addFile($csvFullPath, $fileName);
+            $zip->close();
+        } else {
+            throw new \Exception("Failed to create ZIP file at: {$zipFullPath}");
+        }
+
+        if (!file_exists($zipFullPath)) {
+            throw new \Exception("ZIP file was not created at path: {$zipFullPath}");
+        }
+    }
+
+    /**
+     * Send an email with the ZIP file attached.
+     *
+     * @param string $zipFullPath Path to the ZIP file.
+     */
+    protected function sendSuccessEmail(string $zipFullPath)
+    {
+        Mail::send([], [], function ($message) use ($zipFullPath) {
+            $message->to($this->authUser->email)
+                ->from('noreply@otbgroup.co.za', 'Shoprite - Job Opportunities')
+                ->subject('Your Applicants Report is Ready')
+                ->html(
+                    "<p>Dear {$this->authUser->firstname},</p>
+                    <p>Please see attached the applicants report.</p>
+                    <p>Kind Regards,<br>Shoprite Job Opportunities</p>"
+                )
+                ->attach($zipFullPath);
+        });
+    }
+
+    /**
+     * Send an error notification email to the user.
+     *
+     * @param \Exception $e The exception that occurred.
+     */
+    protected function sendErrorEmail(\Exception $e)
+    {
+        Mail::send([], [], function ($message) use ($e) {
+            $message->to($this->authUser->email)
+                ->from('noreply@otbgroup.co.za', 'Shoprite - Job Opportunities')
+                ->subject('Error Generating Your Applicants Report')
+                ->html(
+                    "<p>Dear {$this->authUser->firstname},</p>
+                    <p>There was an error creating your applicants export: <strong>{$e->getMessage()}</strong></p>
+                    <p>Please contact the support team for assistance.</p>
+                    <p>Kind Regards,<br>Shoprite Job Opportunities</p>"
+                );
+        });
     }
 }

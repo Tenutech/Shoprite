@@ -26,6 +26,8 @@ use Illuminate\Validation\ValidationException;
 use App\Services\DataService\Reports\ApplicantsReportDataService;
 use App\Jobs\GenerateApplicantsReportJob;
 use Illuminate\Support\Facades\Crypt;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class ApplicantsReportController extends Controller
 {
@@ -476,6 +478,78 @@ class ApplicantsReportController extends Controller
                 'success' => false,
                 'message' => $e->getMessage(),
                 'error' => $e->getMessage()
+            ], 400);
+        }
+    }
+
+    public function exportApplicants(Request $request)
+    {
+        try {
+            $authUserId = Auth::id();
+            $authUser = User::find($authUserId);
+
+            $type = 'all';
+            $id = null;
+
+            if ($authUser->role_id == 3) {
+                $type = 'region';
+                $id = $authUser->region_id;
+            } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
+                $type = 'division';
+                $id = $authUser->devision_id;
+            } elseif ($authUser->role_id == 6) {
+                $type = 'store';
+                $id = $authUser->store_id;
+            }
+
+            $dateRange = $request->input('date');
+            [$startDateString, $endDateString] = explode(' to ', $dateRange);
+
+            $startDate = Carbon::parse($startDateString)->startOfDay();
+            $endDate = Carbon::parse($endDateString)->endOfDay();
+
+            $maxDistanceFromStore = $request->input('maxDistanceFromStore', 50);
+            $completeStateID = State::where('code', 'complete')->value('id');
+            $filters = $request->except(['_token', 'date', 'search_terms']);
+
+            $scriptPath = base_path('python/exports/applicants_export.py');
+            $process = new Process([
+                'python',
+                $scriptPath,
+                '--auth_user', json_encode($authUser),
+                '--type', $type,
+                '--id', $id,
+                '--start_date', $startDate->format('Y-m-d H:i:s'),
+                '--end_date', $endDate->format('Y-m-d H:i:s'),
+                '--max_distance', $maxDistanceFromStore,
+                '--complete_state_id', $completeStateID,
+                '--filters', json_encode($filters),
+            ]);
+
+            $process->setTimeout(300);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+
+            $output = trim($process->getOutput());
+
+            if (!file_exists($output)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Export file not found.',
+                ], 500);
+            }
+
+            return response()->download($output, basename($output))
+                ->deleteFileAfterSend(true);
+        } catch (\Exception $e) {
+            // Handle any errors
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred during export.',
+                'error' => $e->getMessage(),
             ], 400);
         }
     }
