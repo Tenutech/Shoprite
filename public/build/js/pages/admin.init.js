@@ -319,17 +319,14 @@ function updateMetrics(type, data) {
 |--------------------------------------------------------------------------
 */
 
-// Function to fetch metrics data from the API
-function fetchMetrics(type, routeName) {
+// Function to fetch metrics data from the API with abort signal
+function fetchMetrics(type, routeName, signal) {
     const apiUrl = route(routeName); // Use Ziggy to dynamically generate the route URL
 
-    fetch(apiUrl)
+    return fetch(apiUrl, { signal }) // Pass the signal to the fetch call
         .then((response) => response.json())
         .then((data) => {
             updateMetrics(type, data); // Update the metrics on the page
-        })
-        .catch((error) => {
-            console.error(`Error loading ${type} data:`, error);
         });
 }
 
@@ -339,14 +336,31 @@ function fetchMetrics(type, routeName) {
 |--------------------------------------------------------------------------
 */
 
-// Function to lazy load metrics for a specific row
+// Store controllers for each fetch call
+const abortControllers = new Map();
+
+// Function to lazy load metrics for a specific row with abort support
 function lazyLoadMetrics(rowId, type, routeName) {
     const metricsRow = document.getElementById(rowId);
 
     const observer = new IntersectionObserver(function (entries) {
         if (entries[0].isIntersecting && allowLazyLoading) {
-            fetchMetrics(type, routeName); // Fetch data when the row is visible
-            observer.disconnect(); // Stop observing after data is loaded
+            // Create an AbortController for this fetch
+            const controller = new AbortController();
+            const signal = controller.signal;
+            abortControllers.set(rowId, controller); // Store the controller
+
+            // Fetch data with the abort signal
+            fetchMetrics(type, routeName, signal).then(() => {
+                observer.disconnect(); // Stop observing after data is loaded
+                abortControllers.delete(rowId); // Remove controller after success
+            }).catch((error) => {
+                if (error.name === 'AbortError') {
+                    //console.log(`Fetch aborted for ${rowId}`);
+                } else {
+                    console.error(`Error fetching metrics for ${rowId}:`, error);
+                }
+            });
         }
     });
 
@@ -375,6 +389,23 @@ document.addEventListener('DOMContentLoaded', function () {
     lazyLoadMetrics('genderRow', 'gender-metrics', 'gender.metrics');
     lazyLoadMetrics('provinceRow', 'province-metrics', 'province.metrics');
 });
+
+/*
+|-------------------------------------------------------------------------- 
+| Cancel All Pending Requests on Navigation
+|-------------------------------------------------------------------------- 
+*/
+
+// Function to abort all ongoing requests
+function abortAllRequests() {
+    abortControllers.forEach((controller) => {
+        controller.abort(); // Abort each fetch
+    });
+    abortControllers.clear(); // Clear the map
+}
+
+// Attach event listener to cancel requests on navigation
+window.addEventListener('beforeunload', abortAllRequests);
 
 /*
 |--------------------------------------------------------------------------

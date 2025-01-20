@@ -481,6 +481,12 @@ class ApplicantsTableController extends Controller
 
             $applicants = $applicantsQuery->paginate($perPage);
 
+            // Map encrypted_id to each applicant
+            $applicants->getCollection()->transform(function ($applicant) {
+                $applicant->encrypted_id = Crypt::encryptString($applicant->id);
+                return $applicant;
+            });
+
             return response()->json([
                 'success' => true,
                 'current_page' => $applicants->currentPage(),

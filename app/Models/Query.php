@@ -27,16 +27,22 @@ class Query extends Model
         'answer'
     ];
 
-    //User
+    // User
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-    //Category
+    // Category
     public function category()
     {
         return $this->belongsTo(QueryCategory::class, 'category_id');
+    }
+
+    // Image
+    public function images()
+    {
+        return $this->hasMany(QueryImage::class, 'query_id');
     }
 
     /**
