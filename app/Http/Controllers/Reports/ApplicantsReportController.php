@@ -452,7 +452,8 @@ class ApplicantsReportController extends Controller
 
             $scriptPath = base_path('python/exports/applicants_export.py');
             $process = new Process([
-                'python',
+                //'python',
+                '/home/support/myenv/bin/python',
                 $scriptPath,
                 '--auth_user', json_encode($authUser),
                 '--type', $type,
