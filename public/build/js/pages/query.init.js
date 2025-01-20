@@ -21,38 +21,14 @@ if (snowEditor) {
         if (issnowEditorVal == true) {
             snowEditorData.theme = 'snow',
                 snowEditorData.modules = {
-                    'toolbar': [
-                        [{
-                            'font': []
-                        }, {
-                            'size': []
-                        }],
+                    toolbar: [
+                        [{ 'font': [] }, { 'size': [] }],
                         ['bold', 'italic', 'underline', 'strike'],
-                        [{
-                            'color': []
-                        }, {
-                            'background': []
-                        }],
-                        [{
-                            'script': 'super'
-                        }, {
-                            'script': 'sub'
-                        }],
-                        [{
-                            'header': [false, 1, 2, 3, 4, 5, 6]
-                        }, 'blockquote', 'code-block'],
-                        [{
-                            'list': 'ordered'
-                        }, {
-                            'list': 'bullet'
-                        }, {
-                            'indent': '-1'
-                        }, {
-                            'indent': '+1'
-                        }],
-                        ['direction', {
-                            'align': []
-                        }],
+                        [{ 'color': [] }, { 'background': [] }],
+                        [{ 'script': 'super' }, { 'script': 'sub' }],
+                        [{ 'header': [false, 1, 2, 3, 4, 5, 6] }, 'blockquote', 'code-block'],
+                        [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
+                        ['direction', { 'align': [] }],
                         ['link', 'image', 'video'],
                         ['clean']
                     ]
@@ -80,7 +56,7 @@ function clearFields() {
 $(document).ready(function() {
     /*
     |--------------------------------------------------------------------------
-    | Add Message
+    | Add Query
     |--------------------------------------------------------------------------
     */
 
@@ -161,6 +137,12 @@ $(document).ready(function() {
                     let updatedAt = new Date(query.updated_at).toLocaleString();
                     let categoryName = data.category ? data.category.name : '';
 
+                    // Process query.body to wrap <img> tags in a container
+                    let bodyWithWrappedImages = query.body.replace(
+                        /<img([^>]+)>/g,
+                        '<div class="image-container"><img$1></div>'
+                    );
+
                     // Create new accordion item HTML
                     let newQueryHtml = `
                         <div class="accordion-item">
@@ -182,7 +164,7 @@ $(document).ready(function() {
                                 <div class="accordion-body">
                                     <div>
                                         <h6>Body:</h6>
-                                        ${query.body}
+                                        ${bodyWithWrappedImages}
                                     </div>
                                     ${query.answer ? `
                                     <hr>

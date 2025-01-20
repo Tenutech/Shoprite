@@ -8,6 +8,7 @@ use App\Models\Faq;
 use App\Models\Query;
 use App\Models\QueryCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -84,21 +85,46 @@ class QueryController extends Controller
 
     public function store(Request $request)
     {
-        // Validate the incoming request data
         $request->validate([
             'category' => 'required|integer|exists:query_categories,id',
             'subject' => 'required|string|max:191',
-            'body' => 'required|string'
+            'body' => 'required|string', // Body contains HTML with embedded images
         ]);
 
         try {
-            // Get the authenticated user
             $user = Auth::user();
-
-            // Retrieve the selected category
             $category = QueryCategory::findOrFail($request->category);
 
-            // Create a new query with the provided data and authenticated user's information or null
+            // Ensure the directory exists
+            $queriesPath = public_path('images/queries');
+            if (!File::exists($queriesPath)) {
+                File::makeDirectory($queriesPath, 0755, true);
+            }
+
+            // Extract and process images embedded in the body
+            $body = $request->body;
+            $imageUrls = [];
+
+            if (preg_match_all('/<img[^>]+src="data:image\/[^;]+;base64,([^"]+)"/', $body, $matches)) {
+                foreach ($matches[1] as $index => $base64Image) {
+                    $imageData = base64_decode($base64Image);
+
+                    // Generate a unique filename
+                    $imageName = uniqid('query_image_') . '.png';
+
+                    // Save the image in the public/images/queries folder
+                    $imagePath = public_path('images/queries/' . $imageName);
+                    file_put_contents($imagePath, $imageData);
+
+                    // Replace the base64 image in the body with the URL
+                    $imageUrl = asset('images/queries/' . $imageName);
+                    $imageUrls[] = $imageUrl; // Save URLs for reference
+
+                    $body = str_replace($matches[0][$index], '<img src="' . $imageUrl . '"', $body);
+                }
+            }
+
+            // Create a new query
             $query = Query::create([
                 'user_id' => $user->id,
                 'firstname' => $user->firstname ?? null,
@@ -106,26 +132,29 @@ class QueryController extends Controller
                 'email' => $user->email ?? null,
                 'phone' => $user->phone ?? null,
                 'subject' => $request->subject,
-                'body' => $request->body,
+                'body' => $body,
                 'category_id' => $category->id,
                 'severity' => $category->severity,
-                'status' => 'Pending'
+                'status' => 'Pending',
             ]);
 
-            // Chain the SendQueryEmailNotification job to run after SendQueryToJira
+            // Save the image URLs to the query_images table
+            foreach ($imageUrls as $url) {
+                $query->images()->create(['url' => $url]);
+            }
+
+            // Dispatch jobs for notifications
             SendQueryToJira::withChain([
-                new SendQueryEmailNotification($query),
+                //new SendQueryEmailNotification($query),
             ])->dispatch($query);
 
-            // Return a successful response with the created query
             return response()->json([
                 'success' => true,
-                'query' => $query,
+                'query' => $query->load('images'),
                 'category' => $category,
                 'message' => 'Query created successfully!',
             ], 200);
         } catch (Exception $e) {
-            // Return an error response if the query creation fails
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to create query',

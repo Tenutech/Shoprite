@@ -49,16 +49,17 @@ class SendQueryToJira implements ShouldQueue
 
         $priority = $priorityMap[$this->query->severity] ?? 'Medium'; // Default to 'Medium' if severity is not mapped
 
+        $description = "Body:\n\n" . $this->formatBodyForJira($this->query->body) . "\n\n" .
+                        "User ID: {$this->query->user_id}\n" .
+                        "Firstname: {$this->query->firstname}\n" .
+                        "Lastname: {$this->query->lastname}\n" .
+                        "Email: {$this->query->email}\n";
+
         $issueData = [
             'fields' => [
                 'project' => ['key' => 'SQ'],
                 'summary' => $this->query->subject,
-                'description' =>
-                    "Body: " . strip_tags($this->query->body) . "\n\n" .
-                    "User ID: {$this->query->user_id}\n" .
-                    "Firstname: {$this->query->firstname}\n" .
-                    "Lastname: {$this->query->lastname}\n" .
-                    "Email: {$this->query->email}\n",
+                'description' => $description, // Use formatted description
                 'issuetype' => ['name' => 'Task'], // Use appropriate issue type
                 'priority' => ['name' => $priority], // Set priority based on mapped severity
                 'assignee' => null, // Set assignee as unassigned
@@ -92,4 +93,34 @@ class SendQueryToJira implements ShouldQueue
     {
         return $this->query;
     }
+
+    protected function formatBodyForJira($body)
+    {
+        // Load the body as a DOM document to process images and tags
+        $dom = new \DOMDocument();
+        libxml_use_internal_errors(true); // Suppress warnings for malformed HTML
+        $dom->loadHTML($body, LIBXML_HTML_NOIMPLIED | LIBXML_HTML_NODEFDTD);
+        libxml_clear_errors();
+
+        // Process <img> tags to use Jira's syntax
+        foreach ($dom->getElementsByTagName('img') as $img) {
+            if ($img instanceof \DOMElement) {
+                $src = $img->getAttribute('src');
+                $jiraImageSyntax = "!{$src}!";
+                
+                // Replace the image node with the Jira image syntax
+                $replacement = $dom->createTextNode($jiraImageSyntax);
+                $img->parentNode->replaceChild($replacement, $img);
+            }
+        }
+
+        // Save the DOM back to HTML while retaining allowed tags
+        $allowedTags = '<b><i><strong><em><ul><ol><li><br>';
+        $processedHtml = strip_tags($dom->saveHTML(), $allowedTags);
+
+        // Replace remaining <br> tags with Jira-compatible newlines
+        $processedHtml = str_replace('<br>', "\n", $processedHtml);
+
+        return $processedHtml;
+    }  
 }

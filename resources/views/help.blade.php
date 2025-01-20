@@ -9,6 +9,20 @@
 
 @section('css')
     <link href="{{ URL::asset('build/libs/quill/quill.snow.css') }}" rel="stylesheet" type="text/css" />
+
+    <style>
+        .image-container {
+            text-align: center;
+            margin: 10px 0;
+        }
+        
+        .image-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 @endsection
 
     <div class="row">
@@ -131,6 +145,13 @@
                                             } elseif ($query->status === 'Complete') {
                                                 $badgeClass = 'bg-success';
                                             }
+
+                                            // Process the body to wrap <img> tags in a container
+                                            $processedBody = preg_replace(
+                                                '/<img([^>]+)>/',
+                                                '<div class="image-container"><img$1></div>',
+                                                $query->body
+                                            );
                                         @endphp
                                         <div class="accordion-item">
                                             <h2 class="accordion-header" id="query-heading{{ $query->id }}">
@@ -151,7 +172,7 @@
                                                 <div class="accordion-body">
                                                     <div>
                                                         <h6>Body:</h6>
-                                                        {!! $query->body !!}
+                                                        {!! $processedBody !!}
                                                     </div>                                                    
                                                     @if ($query->answer)
                                                         <hr>
