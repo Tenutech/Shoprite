@@ -398,7 +398,6 @@ if filters.get('appointed') is not None:
 
             # Check if stores are empty
             if store_df.empty:
-                logging.info("No matching stores found for the filters. Returning empty result.")
                 final_data = pd.DataFrame(columns=columns)
                 output_file = f"{output_dir}/applicants_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
                 final_data.to_csv(output_file, index=False)
@@ -450,8 +449,8 @@ for param in params:
         query_with_params = query_with_params.replace('%s', str(param), 1)
 
 # Log the constructed query
-logging.info("Executing SQL query:")
-logging.info(query_with_params)
+# logging.info("Executing SQL query:")
+# logging.info(query_with_params)
 
 # Map columns and calculate additional fields
 mapped_data = []
