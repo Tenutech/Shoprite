@@ -58,6 +58,8 @@ class GenerateApplicantsReportJob implements ShouldQueue
     public function handle()
     {
         try {
+            Log::info("Starting job: " . self::class);
+
             // Generate the file name
             $fileName = 'Applicants_Report_' . now()->format('Y_m_d_H_i_s') . '.csv';
             $filePath = "reports/{$fileName}";
@@ -71,14 +73,36 @@ class GenerateApplicantsReportJob implements ShouldQueue
             );
 
             // Compress the file into a ZIP archive
-            $zip = new \ZipArchive();
-            $zipFullPath = storage_path("app/{$zipFilePath}");
-            if ($zip->open($zipFullPath, \ZipArchive::CREATE) === true) {
-                $zip->addFile(storage_path("app/{$filePath}"), $fileName); // Add the CSV file to the ZIP
-                $zip->close();
-            } else {
-                throw new \Exception("Failed to create ZIP file.");
+            try {
+                $csvFullPath = storage_path("app/{$filePath}");
+                $zipFullPath = storage_path("app/{$zipFilePath}");
+            
+                // Ensure the CSV file exists
+                if (!file_exists($csvFullPath)) {
+                    throw new \Exception("CSV file not found at path: {$csvFullPath}");
+                }
+            
+                Log::info("Creating ZIP file at: {$zipFullPath}");
+            
+                $zip = new \ZipArchive();
+            
+                if ($zip->open($zipFullPath, \ZipArchive::CREATE) === true) {
+                    $zip->addFile($csvFullPath, $fileName);
+                    $zip->close();
+            
+                    Log::info("ZIP file created successfully: {$zipFullPath}");
+                } else {
+                    throw new \Exception("Failed to create ZIP file at: {$zipFullPath}");
+                }
+            
+                // Verify ZIP file exists
+                if (!file_exists($zipFullPath)) {
+                    throw new \Exception("ZIP file not created at path: {$zipFullPath}");
+                }
+            } catch (\Exception $e) {
+                Log::error("Error creating ZIP file: " . $e->getMessage());
             }
+
 
             // Clean up previous exports
             $this->deleteOldReports();
@@ -95,22 +119,12 @@ class GenerateApplicantsReportJob implements ShouldQueue
                     )
                     ->attach(storage_path("app/{$zipFilePath}")); // Attach the ZIP file
             });
+
+            Log::info("Job completed successfully.");
         } catch (\Exception $e) {
-            // Send error email
-            Mail::send([], [], function ($message) use ($e) {
-                $message->to($this->authUser->email) // Recipient email
-                    ->from('noreply@otbgroup.co.za', 'Shoprite - Job Opportunities') // Set the "from" address and name
-                    ->subject('Error Generating Applicants Report') // Email subject
-                    ->html( // Use HTML for the body
-                        "<p>Dear {$this->authUser->firstname},</p>
-                        <p>An error occurred while generating your report. Reason: {$e->getMessage()}</p>
-                        <p>Please submit a query to the support team for further assistance.</p>
-                        <p>Kind Regards,<br>Shoprite Job Opportunities</p>"
-                    );
-            });
-    
-            // Optionally log the error or rethrow it to mark the job as failed
-            throw $e;
+            Log::error("Error in job: " . self::class . " - " . $e->getMessage());
+            // Optionally, you can retry or handle the exception in another way
+            throw $e; // Re-throw to mark the job as failed
         }
     }
 
