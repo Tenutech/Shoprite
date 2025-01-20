@@ -190,7 +190,6 @@ class ApplicantsExport implements FromQuery, WithHeadings, WithStyles, WithColum
         return $query;
     }
 
-
     /**
      * Map data for each row.
      *
