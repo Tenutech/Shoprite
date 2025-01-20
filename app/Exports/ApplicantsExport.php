@@ -63,24 +63,7 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
     public function collection()
     {
         // Start with the base query
-        $query = Applicant::query()
-            ->select([
-                'applicants.id',
-                'applicants.gender_id',
-                'applicants.race_id',
-                'applicants.education_id',
-                'applicants.duration_id',
-                'applicants.employment',
-                'applicants.age',
-                'applicants.literacy_score',
-                'applicants.numeracy_score',
-                'applicants.situational_score',
-                'applicants.score',
-                'applicants.state_id',
-                'applicants.shortlist_id',
-                'applicants.coordinates',
-                'applicants.created_at'
-            ]);
+        $query = Applicant::query();
     
         // Apply all additional filters in bulk
         $filters = $this->filters;
@@ -160,7 +143,6 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
             return new ApplicantDTO($applicant);
         });
     }
-
 
     /**
      * Map data for each row.
