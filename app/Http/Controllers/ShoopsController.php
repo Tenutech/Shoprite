@@ -50,7 +50,7 @@ class ShoopsController extends Controller
             // Check if the incoming webhook is for a status update
             if (isset($data['entry'][0]['changes'][0]['value']['statuses'][0])) {
                 // Handle status update
-                $this->handleStatusUpdate($data);
+                //$this->handleStatusUpdate($data);
             } else {
                 // Use the ChatService to process the incoming message
                 $this->chatService->handleIncomingMessage($data);
