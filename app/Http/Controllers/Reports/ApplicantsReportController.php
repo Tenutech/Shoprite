@@ -450,10 +450,11 @@ class ApplicantsReportController extends Controller
             $completeStateID = State::where('code', 'complete')->value('id');
             $filters = $request->except(['_token', 'date', 'search_terms']);
 
+            $pythonPath = base_path('../shared/myenv/bin/python');
             $scriptPath = base_path('python/exports/applicants_export.py');
             $process = new Process([
                 //'python',
-                '/home/support/myenv/bin/python',
+                $pythonPath,
                 $scriptPath,
                 '--auth_user', json_encode($authUser),
                 '--type', $type,
