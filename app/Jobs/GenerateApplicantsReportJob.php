@@ -12,14 +12,10 @@ use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\ReportReadyMail;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
 
 class GenerateApplicantsReportJob implements ShouldQueue
 {
-    use Dispatchable;
-    use InteractsWithQueue;
-    use Queueable;
-    use SerializesModels;
+    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     // Variables to hold the job's input data
     public $authUser; // The authenticated user
@@ -58,47 +54,36 @@ class GenerateApplicantsReportJob implements ShouldQueue
     public function handle()
     {
         try {
-            // Generate file names and paths
-            $timestamp = now()->format('Y_m_d_H_i_s');
-            $fileName = "Applicants_Report_{$timestamp}.csv";
-            $zipFileName = "Applicants_Report_{$timestamp}.zip";
-        
+            // Generate a unique filename for the report
+            $fileName = "Applicants_Report_" . now()->timestamp . ".xlsx";
             $filePath = "reports/{$fileName}";
-            $zipFilePath = "reports/{$zipFileName}";
-        
-            $csvFullPath = storage_path("app/{$filePath}");
-            $zipFullPath = storage_path("app/{$zipFilePath}");
-        
-            // Export the CSV file and save it to storage
+
+            // Store the report in the storage/app/reports directory
             Excel::store(
-                new ApplicantsExport(
-                    $this->type,
-                    $this->id,
-                    $this->startDate,
-                    $this->endDate,
-                    $this->maxDistanceFromStore,
-                    $this->filters
-                ),
+                new ApplicantsExport($this->type, $this->id, $this->startDate, $this->endDate, $this->maxDistanceFromStore, $this->filters),
                 $filePath
             );
-        
-            // Compress the CSV file into a ZIP archive
-            $this->createZipFile($csvFullPath, $zipFullPath, $fileName);
-        
-            // Clean up old reports
+
+            // Clean up previous exports
             $this->deleteOldReports();
-        
-            // Send the email with the ZIP file attached
-            $this->sendSuccessEmail($zipFullPath);
+
+            // Send the email using the Mail facade
+            Mail::send([], [], function ($message) use ($filePath) {
+                $message->to($this->authUser->email) // Recipient email
+                    ->from('noreply@otbgroup.co.za', 'Shoprite - Job Opportunities') // Set the "from" address and name
+                    ->subject('Your Applicants Report is Ready') // Email subject
+                    ->html( // Use HTML for the body
+                        "<p>Dear {$this->authUser->firstname},</p>
+                        <p>Please see attached the applicants report.</p>
+                        <p>Kind Regards,<br>Shoprite Job Opportunities</p>"
+                    )
+                    ->attach(storage_path("app/{$filePath}")); // Attach the report file
+            });            
+
         } catch (\Exception $e) {
-            Log::error("Error in GenerateApplicantsReportJob: {$e->getMessage()}");
-        
-            // Send the error notification email
-            $this->sendErrorEmail($e);
-        
-            // Re-throw the exception to mark the job as failed
-            throw $e;
-        }        
+            // Optionally, you can retry or handle the exception in another way
+            throw $e; // Re-throw to mark the job as failed
+        }
     }
 
     /**
@@ -107,7 +92,7 @@ class GenerateApplicantsReportJob implements ShouldQueue
     protected function deleteOldReports()
     {
         $reportsDirectory = storage_path('app/reports');
-
+        
         // Get all files in the reports directory
         $files = File::files($reportsDirectory);
 
@@ -120,73 +105,5 @@ class GenerateApplicantsReportJob implements ShouldQueue
         foreach (array_slice($files, 1) as $file) {
             File::delete($file->getPathname());
         }
-    }
-
-    /**
-     * Create a ZIP file from the given CSV file.
-     *
-     * @param string $csvFullPath Path to the CSV file.
-     * @param string $zipFullPath Path to save the ZIP file.
-     * @param string $fileName The name of the file inside the ZIP archive.
-     * @throws \Exception If ZIP creation fails.
-     */
-    protected function createZipFile(string $csvFullPath, string $zipFullPath, string $fileName)
-    {
-        if (!file_exists($csvFullPath)) {
-            throw new \Exception("CSV file not found at path: {$csvFullPath}");
-        }
-
-        $zip = new \ZipArchive();
-
-        if ($zip->open($zipFullPath, \ZipArchive::CREATE) === true) {
-            $zip->addFile($csvFullPath, $fileName);
-            $zip->close();
-        } else {
-            throw new \Exception("Failed to create ZIP file at: {$zipFullPath}");
-        }
-
-        if (!file_exists($zipFullPath)) {
-            throw new \Exception("ZIP file was not created at path: {$zipFullPath}");
-        }
-    }
-
-    /**
-     * Send an email with the ZIP file attached.
-     *
-     * @param string $zipFullPath Path to the ZIP file.
-     */
-    protected function sendSuccessEmail(string $zipFullPath)
-    {
-        Mail::send([], [], function ($message) use ($zipFullPath) {
-            $message->to($this->authUser->email)
-                ->from('noreply@otbgroup.co.za', 'Shoprite - Job Opportunities')
-                ->subject('Your Applicants Report is Ready')
-                ->html(
-                    "<p>Dear {$this->authUser->firstname},</p>
-                    <p>Please see attached the applicants report.</p>
-                    <p>Kind Regards,<br>Shoprite Job Opportunities</p>"
-                )
-                ->attach($zipFullPath);
-        });
-    }
-
-    /**
-     * Send an error notification email to the user.
-     *
-     * @param \Exception $e The exception that occurred.
-     */
-    protected function sendErrorEmail(\Exception $e)
-    {
-        Mail::send([], [], function ($message) use ($e) {
-            $message->to($this->authUser->email)
-                ->from('noreply@otbgroup.co.za', 'Shoprite - Job Opportunities')
-                ->subject('Error Generating Your Applicants Report')
-                ->html(
-                    "<p>Dear {$this->authUser->firstname},</p>
-                    <p>There was an error creating your applicants export: <strong>{$e->getMessage()}</strong></p>
-                    <p>Please contact the support team for assistance.</p>
-                    <p>Kind Regards,<br>Shoprite Job Opportunities</p>"
-                );
-        });
     }
 }

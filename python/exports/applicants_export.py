@@ -5,9 +5,19 @@ import json
 from datetime import datetime
 import os
 import logging
+from dotenv import load_dotenv
 
 # Set up logging
-log_file = "C:/xampp/htdocs/Shoprite/storage/app/reports/applicants_export.log"
+# Get the base directory (root of the project)
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Set the log file path relative to the project root
+log_file = os.path.join(base_dir, "../../storage/app/reports/applicants_export.log")
+
+# Ensure the directory for the log file exists
+os.makedirs(os.path.dirname(log_file), exist_ok=True)
+
+# Set up logging
 logging.basicConfig(
     filename=log_file,
     level=logging.INFO,
@@ -29,22 +39,31 @@ args = parser.parse_args()
 # Parse filters JSON
 filters = json.loads(args.filters)
 
-# Log input arguments
-logging.info(f"Script started with arguments: start_date={args.start_date}, end_date={args.end_date}, filters={filters}")
+# Get the base directory (root of the project)
+base_dir = os.path.dirname(os.path.abspath(__file__))
 
-# Database connection details
-DB_HOST = '127.0.0.1'
-DB_USER = 'root'
-DB_PASSWORD = ''
-DB_NAME = 'shoprite_prod'
+# Load the .env file
+env_path = os.path.join(base_dir, '../../.env')
+load_dotenv(env_path)
 
-# Output directory
-output_dir = "C:/xampp/htdocs/Shoprite/storage/app/reports"
+# Database connection details from the .env file
+DB_HOST = os.getenv('DB_HOST', '127.0.0.1')
+DB_PORT = os.getenv('DB_PORT', '3306')
+DB_USER = os.getenv('DB_USERNAME', 'support')
+DB_PASSWORD = os.getenv('DB_PASSWORD', 'Supp0rt01!')
+DB_NAME = os.getenv('DB_DATABASE', 'shoprite')
+
+# Get the base directory (root of the project)
+base_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Set the output directory relative to the project root
+output_dir = os.path.join(base_dir, "../../storage/app/reports")
 os.makedirs(output_dir, exist_ok=True)
 
 # Connect to the database
 connection = mysql.connector.connect(
     host=DB_HOST,
+    port=DB_PORT,
     user=DB_USER,
     password=DB_PASSWORD,
     database=DB_NAME
@@ -156,14 +175,268 @@ if filters.get('completed') is not None:
         base_query += " AND applicants.state_id < %s"
         params.append(args.complete_state_id)
 
-if filters.get('shortlisted') is not None and filters['shortlisted']:
-    base_query += " AND applicants.shortlist_id IS NOT NULL"
+if filters.get('shortlisted') is not None:
+    if filters['shortlisted'] == 'Yes':
+        base_query += " AND applicants.shortlist_id IS NOT NULL"
+        
+        # Apply geographic filters for shortlisted applicants
+        if filters.get('division_id') is not None:
+            base_query += """
+                AND EXISTS (
+                    SELECT 1 
+                    FROM shortlists 
+                    JOIN vacancies ON shortlists.vacancy_id = vacancies.id
+                    JOIN stores ON vacancies.store_id = stores.id
+                    WHERE shortlists.id = applicants.shortlist_id 
+                    AND stores.division_id = %s
+                )
+            """
+            params.append(filters['division_id'])
+        elif filters.get('region_id') is not None:
+            base_query += """
+                AND EXISTS (
+                    SELECT 1 
+                    FROM shortlists 
+                    JOIN vacancies ON shortlists.vacancy_id = vacancies.id
+                    JOIN stores ON vacancies.store_id = stores.id
+                    WHERE shortlists.id = applicants.shortlist_id 
+                    AND stores.region_id = %s
+                )
+            """
+            params.append(filters['region_id'])
+        elif filters.get('store_id') is not None:
+            if isinstance(filters['store_id'], list):
+                placeholders = ', '.join(['%s'] * len(filters['store_id']))
+                base_query += f"""
+                    AND EXISTS (
+                        SELECT 1 
+                        FROM shortlists 
+                        JOIN vacancies ON shortlists.vacancy_id = vacancies.id
+                        WHERE shortlists.id = applicants.shortlist_id 
+                        AND vacancies.store_id IN ({placeholders})
+                    )
+                """
+                params.extend(filters['store_id'])
+            else:
+                base_query += """
+                    AND EXISTS (
+                        SELECT 1 
+                        FROM shortlists 
+                        JOIN vacancies ON shortlists.vacancy_id = vacancies.id
+                        WHERE shortlists.id = applicants.shortlist_id 
+                        AND vacancies.store_id = %s
+                    )
+                """
+                params.append(filters['store_id'])
+    elif filters['shortlisted'] == 'No':
+        base_query += " AND applicants.shortlist_id IS NULL"
 
-if filters.get('interviewed') is not None and filters['interviewed']:
-    base_query += " AND EXISTS (SELECT 1 FROM interviews WHERE interviews.applicant_id = applicants.id AND interviews.score IS NOT NULL)"
+if filters.get('interviewed') is not None:
+    if filters['interviewed'] == 'Yes':
+        # Case: Interviewed is 'Yes'
+        base_query += """
+            AND EXISTS (
+                SELECT 1 
+                FROM interviews 
+                WHERE interviews.applicant_id = applicants.id 
+                AND interviews.score IS NOT NULL
+            )
+        """
+        
+        # Apply geographic filters for interviewed applicants
+        if filters.get('division_id') is not None:
+            base_query += """
+                AND EXISTS (
+                    SELECT 1 
+                    FROM interviews 
+                    JOIN vacancies ON interviews.vacancy_id = vacancies.id
+                    JOIN stores ON vacancies.store_id = stores.id
+                    WHERE interviews.applicant_id = applicants.id 
+                    AND stores.division_id = %s
+                )
+            """
+            params.append(filters['division_id'])
+        elif filters.get('region_id') is not None:
+            base_query += """
+                AND EXISTS (
+                    SELECT 1 
+                    FROM interviews 
+                    JOIN vacancies ON interviews.vacancy_id = vacancies.id
+                    JOIN stores ON vacancies.store_id = stores.id
+                    WHERE interviews.applicant_id = applicants.id 
+                    AND stores.region_id = %s
+                )
+            """
+            params.append(filters['region_id'])
+        elif filters.get('store_id') is not None:
+            if isinstance(filters['store_id'], list):
+                placeholders = ', '.join(['%s'] * len(filters['store_id']))
+                base_query += f"""
+                    AND EXISTS (
+                        SELECT 1 
+                        FROM interviews 
+                        JOIN vacancies ON interviews.vacancy_id = vacancies.id
+                        WHERE interviews.applicant_id = applicants.id 
+                        AND vacancies.store_id IN ({placeholders})
+                    )
+                """
+                params.extend(filters['store_id'])
+            else:
+                base_query += """
+                    AND EXISTS (
+                        SELECT 1 
+                        FROM interviews 
+                        JOIN vacancies ON interviews.vacancy_id = vacancies.id
+                        WHERE interviews.applicant_id = applicants.id 
+                        AND vacancies.store_id = %s
+                    )
+                """
+                params.append(filters['store_id'])
 
-if filters.get('appointed') is not None and filters['appointed']:
-    base_query += " AND applicants.appointed_id IS NOT NULL"
+    elif filters['interviewed'] == 'No':
+        # Case: Interviewed is 'No'
+        base_query += """
+            AND (
+                NOT EXISTS (
+                    SELECT 1 
+                    FROM interviews 
+                    WHERE interviews.applicant_id = applicants.id
+                ) 
+                OR EXISTS (
+                    SELECT 1 
+                    FROM interviews 
+                    WHERE interviews.applicant_id = applicants.id 
+                    AND interviews.score IS NULL
+                )
+            )
+        """
+
+if filters.get('appointed') is not None:
+    if filters['appointed'] == 'Yes':
+        # Include only appointed applicants
+        base_query += " AND applicants.appointed_id IS NOT NULL"
+        
+        # Apply the date range to vacancy_fills.created_at
+        base_query += """
+            AND EXISTS (
+                SELECT 1 
+                FROM vacancy_fills 
+                WHERE vacancy_fills.applicant_id = applicants.id 
+                AND vacancy_fills.created_at BETWEEN %s AND %s
+            )
+        """
+        params.extend([args.start_date, args.end_date])
+        
+        # Apply geographic filters for appointed applicants
+        if filters.get('division_id') is not None:
+            base_query += """
+                AND EXISTS (
+                    SELECT 1 
+                    FROM vacancy_fills 
+                    JOIN stores ON vacancy_fills.store_id = stores.id 
+                    WHERE vacancy_fills.applicant_id = applicants.id 
+                    AND stores.division_id = %s
+                )
+            """
+            params.append(filters['division_id'])
+        elif filters.get('region_id') is not None:
+            base_query += """
+                AND EXISTS (
+                    SELECT 1 
+                    FROM vacancy_fills 
+                    JOIN stores ON vacancy_fills.store_id = stores.id 
+                    WHERE vacancy_fills.applicant_id = applicants.id 
+                    AND stores.region_id = %s
+                )
+            """
+            params.append(filters['region_id'])
+        elif filters.get('store_id') is not None:
+            if isinstance(filters['store_id'], list):
+                placeholders = ', '.join(['%s'] * len(filters['store_id']))
+                base_query += f"""
+                    AND EXISTS (
+                        SELECT 1 
+                        FROM vacancy_fills 
+                        WHERE vacancy_fills.applicant_id = applicants.id 
+                        AND vacancy_fills.store_id IN ({placeholders})
+                    )
+                """
+                params.extend(filters['store_id'])
+            else:
+                base_query += """
+                    AND EXISTS (
+                        SELECT 1 
+                        FROM vacancy_fills 
+                        WHERE vacancy_fills.applicant_id = applicants.id 
+                        AND vacancy_fills.store_id = %s
+                    )
+                """
+                params.append(filters['store_id'])
+
+        if ((filters.get('shortlisted') is None or filters['shortlisted'] == 'No') and (filters.get('interviewed') is None or filters['interviewed'] == 'No') and (filters.get('appointed') is None or filters['appointed'] == 'No') and (filters.get('store_id') is not None or filters.get('region_id') is not None or filters.get('division_id') is not None)):
+            # Build the store query
+            store_query = "SELECT id, coordinates FROM stores WHERE 1=1"
+            store_params = []
+
+            if filters.get('division_id') is not None:
+                store_query += " AND division_id = %s"
+                store_params.append(filters['division_id'])
+            elif filters.get('region_id') is not None:
+                store_query += " AND region_id = %s"
+                store_params.append(filters['region_id'])
+            elif filters.get('store_id') is not None:
+                if isinstance(filters['store_id'], list):
+                    placeholders = ', '.join(['%s'] * len(filters['store_id']))
+                    store_query += f" AND id IN ({placeholders})"
+                    store_params.extend(filters['store_id'])
+                else:
+                    store_query += " AND id = %s"
+                    store_params.append(filters['store_id'])
+
+            # Execute store query
+            store_df = pd.read_sql_query(store_query, connection, params=store_params)
+
+            # Check if stores are empty
+            if store_df.empty:
+                logging.info("No matching stores found for the filters. Returning empty result.")
+                final_data = pd.DataFrame(columns=columns)
+                output_file = f"{output_dir}/applicants_export_{datetime.now().strftime('%Y%m%d_%H%M%S')}.csv"
+                final_data.to_csv(output_file, index=False)
+                print(output_file)
+                connection.close()
+                exit()
+
+            # Proximity filtering
+            proximity_queries = []
+            for _, store in store_df.iterrows():
+                if store['coordinates']:
+                    lat, lng = map(float, store['coordinates'].split(','))
+                    proximity_query = f"""
+                        SELECT applicants.* 
+                        FROM applicants 
+                        WHERE ST_Distance_Sphere(
+                            POINT(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)),
+                            POINT(%s, %s)
+                        ) <= %s
+                    """
+                    proximity_params = [lng, lat, args.max_distance * 1000]
+                    proximity_queries.append((proximity_query, proximity_params))
+
+            # Combine proximity queries
+            if proximity_queries:
+                union_query = " UNION ".join([q[0] for q in proximity_queries])
+                union_params = [param for q in proximity_queries for param in q[1]]
+
+                # Execute the combined query
+                proximity_df = pd.read_sql_query(union_query, connection, params=union_params)
+
+                # Merge the proximity result with the main query
+                data = pd.merge(data, proximity_df, how='inner', on='id')
+
+    else:
+        # Default date range filter for non-appointed applicants
+        base_query += " AND applicants.created_at BETWEEN %s AND %s"
+        params.extend([args.start_date, args.end_date])
 
 # Execute the query
 data = pd.read_sql_query(base_query, connection, params=params)
@@ -179,20 +452,6 @@ for param in params:
 # Log the constructed query
 logging.info("Executing SQL query:")
 logging.info(query_with_params)
-
-# Execute the query and log the results
-logging.info("Executing SQL query...")
-try:
-    data = pd.read_sql_query(base_query, connection, params=params)
-    logging.info(f"Query executed successfully. Retrieved {len(data)} rows.")
-
-    # Log a preview of the query result (first few rows)
-    logging.info("Query result preview:")
-    logging.info(data.head(5).to_string(index=False))  # Logs the first 5 rows
-
-except Exception as e:
-    logging.error(f"Error executing query: {e}")
-    raise
 
 # Map columns and calculate additional fields
 mapped_data = []

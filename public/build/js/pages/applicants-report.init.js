@@ -304,7 +304,7 @@ $(document).ready(function() {
         var formData = new FormData($('#formFilters')[0]);
 
         $.ajax({
-            url: route("applicants.export.python"),
+            url: route("applicants.reports.export"),
             method: 'POST',
             data: formData,
             processData: false,  // Required for FormData
@@ -336,12 +336,12 @@ $(document).ready(function() {
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
 
-                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
                     message = 'The request timed out. Please try again later.';
                 } else {
-                    message = 'An error occurred while processing your request. Please try again later.';
+                    message = 'An error occurred during export. Please try again later.';
                 }
 
                 // Display error notification
