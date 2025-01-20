@@ -54,4 +54,8 @@ return [
         'password' => env('SAP_PASSWORD'),
         'contract_id' => env('SAP_CONTRACT_ID'),
     ],
+
+    'python' => [
+        'path' => env('PYTHON_PATH', 'python'),
+    ],
 ];
