@@ -86,7 +86,6 @@ class ShoopsController extends Controller
         $statusData = $data['entry'][0]['changes'][0]['value']['statuses'][0];
         $messageId = $statusData['id'] ?? null;
         $status = $statusData['status'] ?? null;
-        Log::info($status);
 
         if ($messageId && $status) {
             // Dispatch the job to the queue
