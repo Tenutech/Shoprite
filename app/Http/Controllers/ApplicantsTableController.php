@@ -448,36 +448,41 @@ class ApplicantsTableController extends Controller
             // Apply filters to the query
             $applicantsQuery->where(function ($query) use ($search, $employmentCode) {
                 $lowerSearch = strtolower($search); // Normalize search term for all filters
-
+                $searchTerms = array_filter(explode(' ', $lowerSearch)); // Split search into words and remove empty terms
+            
                 // Filter by employment code if applicable
                 $query->when($employmentCode, function ($q) use ($employmentCode) {
                     $q->orWhere('employment', $employmentCode);
                 });
-
+            
                 // Apply case-insensitive search for other fields
-                $query->when(!$employmentCode, function ($q) use ($lowerSearch) {
-                    $q->whereRaw('LOWER(firstname) LIKE ?', ["$lowerSearch%"])
-                        ->orWhereRaw('LOWER(lastname) LIKE ?', ["$lowerSearch%"])
-                        ->orWhereRaw('LOWER(id_number) LIKE ?', ["$lowerSearch%"])
-                        ->orWhereRaw('LOWER(phone) LIKE ?', ["$lowerSearch%"])
-                        ->orWhereRaw('LOWER(employment) LIKE ?', ["$lowerSearch%"])
-                        ->orWhereHas('state', function ($q) use ($lowerSearch) {
-                            $q->whereRaw('LOWER(name) LIKE ?', ["$lowerSearch%"]);
-                        })
-                        ->orWhereRaw('LOWER(email) LIKE ?', ["$lowerSearch%"])
-                        ->orWhereHas('town', function ($q) use ($lowerSearch) {
-                            $q->whereRaw('LOWER(name) LIKE ?', ["$lowerSearch%"]);
-                        })
-                        ->orWhereRaw('LOWER(age) LIKE ?', ["$lowerSearch%"])
-                        ->orWhereHas('gender', function ($q) use ($lowerSearch) {
-                            $q->whereRaw('LOWER(name) LIKE ?', ["$lowerSearch%"]);
-                        })
-                        ->orWhereHas('race', function ($q) use ($lowerSearch) {
-                            $q->whereRaw('LOWER(name) LIKE ?', ["$lowerSearch%"]);
-                        })
-                        ->orWhereRaw('LOWER(score) LIKE ?', ["$lowerSearch%"]);
+                $query->when(!$employmentCode, function ($q) use ($searchTerms) {
+                    foreach ($searchTerms as $term) {
+                        $q->where(function ($q) use ($term) {
+                            $q->whereRaw('LOWER(firstname) LIKE ?', ["%$term%"])
+                                ->orWhereRaw('LOWER(lastname) LIKE ?', ["%$term%"])
+                                ->orWhereRaw('LOWER(id_number) LIKE ?', ["%$term%"])
+                                ->orWhereRaw('LOWER(phone) LIKE ?', ["%$term%"])
+                                ->orWhereRaw('LOWER(employment) LIKE ?', ["%$term%"])
+                                ->orWhereHas('state', function ($q) use ($term) {
+                                    $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]);
+                                })
+                                ->orWhereRaw('LOWER(email) LIKE ?', ["%$term%"])
+                                ->orWhereHas('town', function ($q) use ($term) {
+                                    $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]);
+                                })
+                                ->orWhereRaw('LOWER(age) LIKE ?', ["%$term%"])
+                                ->orWhereHas('gender', function ($q) use ($term) {
+                                    $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]);
+                                })
+                                ->orWhereHas('race', function ($q) use ($term) {
+                                    $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]);
+                                })
+                                ->orWhereRaw('LOWER(score) LIKE ?', ["%$term%"]);
+                        });
+                    }
                 });
-            });
+            });            
 
             $applicants = $applicantsQuery->paginate($perPage);
 

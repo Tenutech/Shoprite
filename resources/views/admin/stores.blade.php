@@ -70,8 +70,8 @@
                                         </th>
                                         <th class="sort d-none" data-sort="id" scope="col">ID</th>
                                         <th class="sort" data-sort="code" scope="col">Alpha Code</th>
-                                        <th class="sort" data-sort="code5" scope="col">Code (5)</th>
-                                        <th class="sort" data-sort="code6" scope="col">Code (6)</th>
+                                        <th class="sort d-none" data-sort="code5" scope="col">Code (5)</th>
+                                        <th class="sort d-none" data-sort="code6" scope="col">Code (6)</th>
                                         <th class="sort" data-sort="brand" scope="col">Brand</th>                                        
                                         <th class="sort" data-sort="town" scope="col">Town</th>
                                         <th class="sort" data-sort="region" scope="col">Region</th>
@@ -92,8 +92,8 @@
                                                 </th>
                                                 <td class="id d-none">{{ Crypt::encryptstring($store->id) }}</td>
                                                 <td class="code">{{ $store->code }}</td>
-                                                <td class="code5">{{ $store->code_5 }}</td>
-                                                <td class="code6">{{ $store->code_6 }}</td>
+                                                <td class="code5 d-none">{{ $store->code_5 }}</td>
+                                                <td class="code6 d-none">{{ $store->code_6 }}</td>
                                                 <td class="brand">{{ optional($store->brand)->name }}</td>
                                                 <td class="town">{{ optional($store->town)->name }}</td>
                                                 <td class="region">{{ optional($store->region)->name }}</td>
@@ -136,8 +136,8 @@
                                             </th>
                                             <td class="id d-none"></td>
                                             <td class="code"></td>
-                                            <td class="code5"></td>
-                                            <td class="code6"></td>
+                                            <td class="code5 d-none"></td>
+                                            <td class="code6 d-none"></td>
                                             <td class="brand"></td>
                                             <td class="town"></td>
                                             <td class="region"></td>
