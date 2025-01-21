@@ -6,6 +6,7 @@ use Exception;
 use App\Models\Chat;
 use Illuminate\Http\Request;
 use App\Services\ChatService;
+use App\Jobs\UpdateChatStatusJob;
 use Illuminate\Support\Facades\Log;
 
 class ShoopsController extends Controller
@@ -82,46 +83,15 @@ class ShoopsController extends Controller
      */
     protected function handleStatusUpdate($data)
     {
-        try {
-            // Extract message ID and status from the webhook data
-            $statusData = $data['entry'][0]['changes'][0]['value']['statuses'][0];
-            $messageId = $statusData['id'] ?? null;
-            $status = $statusData['status'] ?? null;
+        $statusData = $data['entry'][0]['changes'][0]['value']['statuses'][0];
+        $messageId = $statusData['id'] ?? null;
+        $status = $statusData['status'] ?? null;
 
-            // Ensure we have a valid message ID and status
-            if (!$messageId || !$status) {
-                return response()->json(['error' => 'Missing message ID or status'], 400);
-            }
-
-            // Find the chat record by message ID
-            $chat = Chat::where('message_id', $messageId)->first();
-
-            if ($chat) {
-                // Handle a failed message status
-                if ($status === 'failed') {
-                    // Extract error details
-                    $errorCode = $statusData['errors'][0]['code'] ?? null;
-                    $errorReason = $statusData['errors'][0]['title'] ?? 'Unknown reason';
-
-                    // Update the chat record with the failed status, code, and reason
-                    $chat->update([
-                        'status' => 'Failed',
-                        'code' => $errorCode,
-                        'reason' => $errorReason,
-                    ]);
-                } else {
-                    // Update the chat record with the new status (e.g., 'delivered', 'sent')
-                    $chat->update([
-                        'status' => ucfirst($status),
-                    ]);
-                }
-
-                return response()->json(['message' => 'Status updated successfully'], 200);
-            } else {
-                return response()->json(['error' => 'Chat record not found'], 404);
-            }
-        } catch (Exception $e) {
-            return response()->json(['error' => 'Internal server error'], 500);
+        if ($messageId && $status) {
+            // Dispatch the job to the queue
+            UpdateChatStatusJob::dispatch($messageId, $status, $statusData);
         }
+
+        return response()->json(['message' => 'Status queued for update'], 200);
     }
 }
