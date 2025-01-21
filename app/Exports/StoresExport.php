@@ -140,6 +140,8 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             optional($store->region)->name ?? '',
             $store->name ?? '',
             $store->code ?? '',
+            $store->code_5 ?? '',
+            $store->code_6 ?? '',
             optional(optional($store->town)->province)->name ?? '',
             optional($store->town)->name ?? '',
             $store->address ?? '',
@@ -164,7 +166,9 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             'Division',
             'Region',
             'Branch Name',
-            'Branch Code',
+            'Branch code without check digit (Alpha Code)',
+            'Branch code with check digit (5)',
+            'Branch code with check digit (6)',
             'Province',
             'Town',
             'Branch Address',
@@ -193,15 +197,18 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         ];
 
         // Set left alignment and wrap text for all cells
-        $sheet->getStyle('A:P')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
+        $sheet->getStyle('A:R')->getAlignment()->setHorizontal(Alignment::HORIZONTAL_LEFT);
 
         // Format specific columns for numbers (e.g., Code)
-        $sheet->getStyle('E')->getNumberFormat()->setFormatCode('0'); // Code as an integer
+        //$sheet->getStyle('E')->getNumberFormat()->setFormatCode('0'); // Code as an integer
         $sheet->getStyle('I')->getNumberFormat()->setFormatCode('0'); // Total vaacncies as an integer
         $sheet->getStyle('J')->getNumberFormat()->setFormatCode('0'); // Total applicants as an integer
         $sheet->getStyle('K')->getNumberFormat()->setFormatCode('0'); // Total interviews as an integer
 
         // Set left alignment and wrap text for all relevant cells
+        $sheet->getStyle('E')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('F')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('G')->getAlignment()->setWrapText(true);
         $sheet->getStyle('I')->getAlignment()->setWrapText(true);
         $sheet->getStyle('J')->getAlignment()->setWrapText(true);
         $sheet->getStyle('K')->getAlignment()->setWrapText(true);
@@ -226,18 +233,20 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             'B' => 20, // Region
             'C' => 20, // Division
             'D' => 30, // Branch Name
-            'E' => 15, // Branch Code
-            'F' => 20, // Province
-            'G' => 20, // Town
-            'H' => 35, // Address
-            'I' => 20, // Total Vacancies
-            'J' => 20, // Total Interviews Conducted
-            'K' => 20, // Total Placed Candidates
-            'L' => 20, // Percentage of Interviews Successfull
-            'M' => 20, // Average Time to Shortlist
-            'N' => 20, // Average Time to Placement
-            'O' => 20, // Average Distance of Placed Candidates
-            'P' => 20, // Average Assessment Score of Placed Candidates
+            'E' => 15, // Alpha Branch Code (4)
+            'F' => 15, // Branch Code (5)
+            'G' => 15, // Branch Code (6)
+            'H' => 20, // Province
+            'I' => 20, // Town
+            'J' => 35, // Address
+            'K' => 20, // Total Vacancies
+            'L' => 20, // Total Interviews Conducted
+            'M' => 20, // Total Placed Candidates
+            'N' => 20, // Percentage of Interviews Successfull
+            'O' => 20, // Average Time to Shortlist
+            'P' => 20, // Average Time to Placement
+            'Q' => 20, // Average Distance of Placed Candidates
+            'R' => 20, // Average Assessment Score of Placed Candidates
         ];
     }
 

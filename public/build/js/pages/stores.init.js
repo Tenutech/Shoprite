@@ -94,6 +94,8 @@ isCount = new DOMParser().parseFromString(
 
 var idField = document.getElementById("field-id"),
     code = document.getElementById("code"),
+    code5 = document.getElementById("code-5"),
+    code6 = document.getElementById("code-6"),
     brand = document.getElementById("brand"),
     town = document.getElementById("town"),
     region = document.getElementById("region"),
@@ -211,6 +213,8 @@ addBtn.addEventListener("click", function (e) {
                     storeList.add({
                         id: data.encID,
                         code: code.value,
+                        code_5: code5.value,
+                        code_6: code6.value,
                         brand: brandValue,
                         town: townValue,
                         region: regionValue,
@@ -324,6 +328,8 @@ editBtn.addEventListener("click", function (e) {
                             x.values({
                                 id: idField.value,
                                 code: code.value,
+                                code5: code5.value,
+                                code6: code6.value,
                                 brand: brandValue,
                                 town: townValue,
                                 region: regionValue,
@@ -484,6 +490,10 @@ function refreshCallbacks() {
                 idField.value = data.encID;
 
                 code.value = data.store.code;
+
+                code5.value = data.store.code_5;
+
+                code6.value = data.store.code_6;
 
                 if (data.store.brand_id) {
                     brandVal.setChoiceByValue(data.store.brand_id.toString());

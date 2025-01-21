@@ -455,12 +455,12 @@
                                                     <!-- Brand -->
                                                     <div class="col-md-6">
                                                         <div class="mb-3">
-                                                            <label for="brand" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Which type of store would you like to work at and be considered for?">
+                                                            <label for="brand" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="Which type of store would you like to work at and be considered for? You can select multiple options.">
                                                                 Type of Store/Brand
                                                                 <span class="text-danger">*</span>
                                                             </label>
                                                             <select class="form-control" id="brands" name="brands[]" data-choices multiple data-choices-search-true data-choices-removeItem required>
-                                                                <option value="">Select brand</option>
+                                                                <option value="">Select brand(s)</option>
                                                                 @foreach ($brands as $brand)
                                                                     <option value="{{ $brand->id }}" {{ $user->applicant && in_array($brand->id, array_column($user->applicant->brands->toArray(), 'id')) ? 'selected' : '' }}>{{ $brand->name }}</option>
                                                                 @endforeach

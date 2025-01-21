@@ -20,7 +20,9 @@ class Store extends Model
         'coordinates',
         'region_id',
         'division_id',
-        'code'
+        'code',
+        'code_5',
+        'code_6'
     ];
 
     //Brand
