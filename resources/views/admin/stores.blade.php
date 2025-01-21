@@ -69,7 +69,9 @@
                                             </div>
                                         </th>
                                         <th class="sort d-none" data-sort="id" scope="col">ID</th>
-                                        <th class="sort" data-sort="code" scope="col">Code</th>
+                                        <th class="sort" data-sort="code" scope="col">Alpha Code</th>
+                                        <th class="sort" data-sort="code5" scope="col">Code (5)</th>
+                                        <th class="sort" data-sort="code6" scope="col">Code (6)</th>
                                         <th class="sort" data-sort="brand" scope="col">Brand</th>                                        
                                         <th class="sort" data-sort="town" scope="col">Town</th>
                                         <th class="sort" data-sort="region" scope="col">Region</th>
@@ -90,11 +92,13 @@
                                                 </th>
                                                 <td class="id d-none">{{ Crypt::encryptstring($store->id) }}</td>
                                                 <td class="code">{{ $store->code }}</td>
+                                                <td class="code5">{{ $store->code_5 }}</td>
+                                                <td class="code6">{{ $store->code_6 }}</td>
                                                 <td class="brand">{{ optional($store->brand)->name }}</td>
                                                 <td class="town">{{ optional($store->town)->name }}</td>
                                                 <td class="region">{{ optional($store->region)->name }}</td>
                                                 <td class="division">{{ optional($store->division)->name }}</td>
-                                                <td class="address">{{ $store->address }}</td>
+                                                <td class="address" style="white-space: pre-wrap;">{{ $store->address }}</td>
                                                 <td class="coordinates">{{ $store->coordinates }}</td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
@@ -132,6 +136,8 @@
                                             </th>
                                             <td class="id d-none"></td>
                                             <td class="code"></td>
+                                            <td class="code5"></td>
+                                            <td class="code6"></td>
                                             <td class="brand"></td>
                                             <td class="town"></td>
                                             <td class="region"></td>
@@ -210,9 +216,35 @@
                                         <div class="col-lg-12 mb-3">  
                                             <div class="mb-3">
                                                 <label for="code" class="form-label">
-                                                    Branch Code
+                                                    Alpha Branch Code
                                                 </label>
-                                                <input type="number" id="code" name="code" class="form-control" placeholder="Enter branch code" required/>
+                                                <input type="text" id="code" name="code" class="form-control" 
+                                                       placeholder="Enter 4 digit branch code" 
+                                                       required 
+                                                       pattern="\d{4}" 
+                                                       title="Please enter a 4-digit branch code. It can start with 0."/>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="code-5" class="form-label">
+                                                    Branch Code With Check Digit (5)
+                                                </label>
+                                                <input type="text" id="code-5" name="code_5" class="form-control" 
+                                                       placeholder="Enter 5 digit branch code" 
+                                                       required 
+                                                       pattern="\d{5}" 
+                                                       title="Please enter a 5-digit branch code. It can start with 0."/>
+                                            </div>
+                                            
+                                            <div class="mb-3">
+                                                <label for="code-6" class="form-label">
+                                                    Branch Code With Check Digit (6)
+                                                </label>
+                                                <input type="text" id="code-6" name="code_6" class="form-control" 
+                                                       placeholder="Enter 6 digit branch code" 
+                                                       required 
+                                                       pattern="\d{6}" 
+                                                       title="Please enter a 6-digit branch code. It can start with 0."/>
                                             </div>
 
                                             <div class="mb-3">
