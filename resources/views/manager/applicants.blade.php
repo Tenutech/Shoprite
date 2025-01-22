@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title') Applicant List @endsection
+@section('title') Candidate List @endsection
 @section('css')
 <link href="{{ URL::asset('build/libs/nouislider/nouislider.min.css') }}" rel="stylesheet">
 <style>
@@ -11,14 +11,14 @@
 @section('content')
 @component('components.breadcrumb')
 @slot('li_1') Pages @endslot
-@slot('title') Saved Applicants @endslot
+@slot('title') Saved Candidates @endslot
 @endcomponent
 
 <div class="row g-4 mb-4">
     <div class="col-md-6">
         <div class="d-md-flex justify-content-sm-start gap-2">
             <div class="search-box ms-md-2 flex-shrink-0 flex-grow-1 mb-3 mb-md-0">
-                <input type="text" class="form-control" id="searchApplicant" autocomplete="off" placeholder="Search for applicant...">
+                <input type="text" class="form-control" id="searchApplicant" autocomplete="off" placeholder="Search for candidate...">
                 <i class="ri-search-line search-icon"></i>
             </div>
         </div>
@@ -166,7 +166,7 @@
             Sorry! No Result Found
         </h5>
         <p class="text-muted mb-0">
-            We've searched all the applicants. We did not find any applicants for you search.
+            We've searched all the candidates. We did not find any candidates for you search.
         </p>
     </div>
 </div>
