@@ -14,14 +14,6 @@ class UpdateChatStatusJob implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     /**
-     * The queue on which the job should run.
-     *
-     * @var string
-     */
-    public $queue = 'chat-status-updates';
-
-
-    /**
      * The unique identifier of the message whose status is being updated.
      *
      * @var string
