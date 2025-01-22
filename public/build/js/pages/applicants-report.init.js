@@ -317,7 +317,7 @@ $(document).ready(function() {
                 var downloadUrl = window.URL.createObjectURL(response);
                 var link = document.createElement('a');
                 link.href = downloadUrl;
-                link.download = "Applicants Report.csv"; // File name
+                link.download = "Candidates Report.csv"; // File name
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
