@@ -69,10 +69,26 @@ class UpdateChatStatusJob implements ShouldQueue
                 'reason' => $this->statusData['errors'][0]['title'] ?? 'Unknown reason',
             ]);
         } else {
-            // Directly update the record for other statuses
-            Chat::where('message_id', $this->messageId)->update([
-                'status' => ucfirst($this->status),
-            ]);
+            // Conditional updates for other statuses
+            switch ($this->status) {
+                case 'sent':
+                    Chat::where('message_id', $this->messageId)
+                        ->whereNotIn('status', ['Delivered', 'Read'])
+                        ->update(['status' => 'Sent']);
+                    break;
+
+                case 'delivered':
+                    Chat::where('message_id', $this->messageId)
+                        ->whereNotIn('status', ['Delivered', 'Read'])
+                        ->update(['status' => 'Delivered']);
+                    break;
+
+                case 'read':
+                    Chat::where('message_id', $this->messageId)
+                        ->where('status', '!=', 'Read')
+                        ->update(['status' => 'Read']);
+                    break;
+            }
         }
     }
 }

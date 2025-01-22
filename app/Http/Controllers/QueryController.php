@@ -108,18 +108,20 @@ class QueryController extends Controller
             if (preg_match_all('/<img[^>]+src="data:image\/[^;]+;base64,([^"]+)"/', $body, $matches)) {
                 foreach ($matches[1] as $index => $base64Image) {
                     $imageData = base64_decode($base64Image);
-
+            
                     // Generate a unique filename
                     $imageName = uniqid('query_image_') . '.png';
-
-                    // Save the image in the public/images/queries folder
-                    $imagePath = public_path('images/queries/' . $imageName);
-                    file_put_contents($imagePath, $imageData);
-
-                    // Replace the base64 image in the body with the URL
-                    $imageUrl = asset('images/queries/' . $imageName);
+            
+                    // Save the image in the storage/app/public/images folder
+                    $relativePath = 'images/' . $imageName; // Relative path for storage
+                    $storagePath = storage_path('app/public/' . $relativePath);
+                    file_put_contents($storagePath, $imageData);
+            
+                    // Generate the URL to access the stored file
+                    $imageUrl = asset('storage/' . $relativePath);
                     $imageUrls[] = $imageUrl; // Save URLs for reference
-
+            
+                    // Replace the base64 image in the body with the public URL
                     $body = str_replace($matches[0][$index], '<img src="' . $imageUrl . '"', $body);
                 }
             }
@@ -145,7 +147,7 @@ class QueryController extends Controller
 
             // Dispatch jobs for notifications
             SendQueryToJira::withChain([
-                //new SendQueryEmailNotification($query),
+                new SendQueryEmailNotification($query),
             ])->dispatch($query);
 
             return response()->json([

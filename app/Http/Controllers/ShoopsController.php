@@ -89,7 +89,7 @@ class ShoopsController extends Controller
 
         if ($messageId && $status) {
             // Dispatch the job to the queue
-            UpdateChatStatusJob::dispatch($messageId, $status, $statusData);
+            UpdateChatStatusJob::dispatch($messageId, $status, $statusData)->onQueue('chat-status-updates');
         }
 
         return response()->json(['message' => 'Status queued for update'], 200);
