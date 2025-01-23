@@ -53,7 +53,7 @@
                                 </div>
                                 <div class="flex-grow-1 ms-3">
                                     <h6 class="fs-17">Welcome to your Calendar!</h6>
-                                    <p class="text-muted mb-0">Event that applications book will appear here. Click on an event to see the details and manage applicants event.</p>
+                                    <p class="text-muted mb-0">Event that applications book will appear here. Click on an event to see the details and manage candidates event.</p>
                                 </div>
                             </div>
                         </div>

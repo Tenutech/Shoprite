@@ -15,7 +15,7 @@
             Pages
         @endslot
         @slot('title')
-            Applicants
+            Candidates
         @endslot
     @endcomponent
     <div class="row">
@@ -26,7 +26,7 @@
                         <div class="flex-grow-1">
                             <button class="btn btn-info add-btn d-none" data-bs-toggle="modal" data-bs-target="#applicantsTableModal">
                                 <i class="ri-add-fill me-1 align-bottom"></i>
-                                Add Applicant
+                                Add Candidate
                             </button>
                         </div>
                         <div class="flex-shrink-0">
@@ -47,7 +47,7 @@
                     <div class="row g-3">
                         <div class="col-md-8">
                             <div class="search-box">
-                                <input type="text" class="form-control" id="search" placeholder="Search for applicant...">
+                                <input type="text" class="form-control" id="search" placeholder="Search for candidate...">
                                 <i class="ri-search-line search-icon"></i>
                             </div>
                         </div>
@@ -289,7 +289,7 @@
                             <div class="modal-content border-0">
                                 <div class="modal-header p-3 bg-soft-primary-rainbow">
                                     <h5 class="modal-title" id="exampleModalLabel">
-                                        Update Applicant
+                                        Update Candidate
                                     </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="close-modal"></button>
                                 </div>
@@ -534,7 +534,7 @@
                                     <div class="modal-footer">
                                         <div class="hstack gap-2 justify-content-end">
                                             <button type="button" class="btn btn-light" id="close-modal" data-bs-dismiss="modal">Close</button>
-                                            <button type="button" class="btn btn-success" id="edit-btn">Update Applicant</button>
+                                            <button type="button" class="btn btn-success" id="edit-btn">Update Candidate</button>
                                         </div>
                                     </div>
                                 </form>

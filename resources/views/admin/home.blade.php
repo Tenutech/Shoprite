@@ -729,7 +729,7 @@
                                         </span>
                                     </h2>
                                     <p class="mb-0 text-muted">
-                                        Average chatbot state where applicants drop off
+                                        Average chatbot state where candidates drop off
                                     </p>
                                 </div>
                                 <div>

@@ -110,7 +110,7 @@
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('applicants.index') }}">
                             <i class="ri-profile-line"></i>
-                            <span>Saved Applicants</span>
+                            <span>Saved Candidates</span>
                         </a>
                     </li>
                 @endif
@@ -125,7 +125,7 @@
                                 @if ($user->role_id <= 2)
                                     <li class="nav-item">
                                         <a class="nav-link" href="{{ route('applicants.reports.index') }}">
-                                            Applicants
+                                            Candidates
                                         </a>
                                     </li>
                                 @endif
@@ -158,7 +158,7 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('applicant-approvals.index') }}">
-                                        Applicants
+                                        Candidates
                                     </a>
                                 </li>
                             </ul>
@@ -231,7 +231,7 @@
                         <ul class="nav nav-sm flex-column">
                             <li class="nav-item">
                                 <a class="nav-link" href="{{ route('applicants-table.index') }}">
-                                    Applicants
+                                    Candidates
                                 </a>
                             </li>
                             <li class="nav-item">

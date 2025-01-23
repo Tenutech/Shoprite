@@ -1,5 +1,5 @@
 @extends('layouts.master')
-@section('title') Applicant List @endsection
+@section('title') Candidate List @endsection
 @section('css')
 <link rel="stylesheet" href="{{ URL::asset('build/libs/@simonwep/pickr/themes/classic.min.css') }}" />
 <link href="{{ URL::asset('build/libs/nouislider/nouislider.min.css') }}" rel="stylesheet">
@@ -94,12 +94,12 @@
             <label for="number" class="form-label">
                 Shortlist Number
             </label>
-            <input type="number" class="form-control" id="number" name="number" placeholder="Enter number of applicants" value="{{ ($vacancyID && $shortlistedApplicants) ? count($shortlistedApplicants) : $minShortlistNumber }}" min="{{ $minShortlistNumber }}" max="{{ $maxShortlistNumber }}" required />
+            <input type="number" class="form-control" id="number" name="number" placeholder="Enter number of candidates" value="{{ ($vacancyID && $shortlistedApplicants) ? count($shortlistedApplicants) : $minShortlistNumber }}" min="{{ $minShortlistNumber }}" max="{{ $maxShortlistNumber }}" required />
             <div class="invalid-feedback">
                 Please enter a number above {{ $minShortlistNumber - 1 }} and below {{ $maxShortlistNumber + 1}}
             </div>
             <div class="text-muted">
-                Please select a minimum of {{ $minShortlistNumber }} and a maximum of {{ $maxShortlistNumber}} appliacnts.
+                Please select a minimum of {{ $minShortlistNumber }} and a maximum of {{ $maxShortlistNumber}} candidates.
             </div>
         </div>
     </div>
@@ -114,7 +114,7 @@
                     <!-- <option value="1">Talent Pool/Candidates</option> -->
                     <!-- <option value="2">Applicants</option> -->
                     <option value="3" selected>Any</option>
-                    <option value="4">Saved Applicants</option>
+                    <option value="4">Saved Candidates</option>
             </select>
             <div class="invalid-feedback">Please select shortlist type</div>
         </div>
@@ -123,7 +123,7 @@
     <div class="col-md-6 d-none">
         <div class="mb-3" id="applicantTypeChoice">
             <label for="applicantType" class="form-label">
-                Applicant Type
+                Candidate Type
             </label>
             <select class="form-control" id="applicantType" name="applicant_type_id" data-choices data-choices-search-true>
                 <option value="">Select Type</option>
@@ -133,7 +133,7 @@
                     </option>
                 @endforeach
             </select>
-            <div class="invalid-feedback">Please select a applicant type</div>
+            <div class="invalid-feedback">Please select a candidate type</div>
         </div>
     </div>
 
@@ -349,7 +349,7 @@
     <div class="col-md-6">
         <div class="d-md-flex justify-content-sm-start gap-2">
             <div class="search-box ms-md-2 flex-shrink-0 flex-grow-1 mb-3 mb-md-0">
-                <input type="text" class="form-control" id="searchApplicant" autocomplete="off" placeholder="Search for applicant...">
+                <input type="text" class="form-control" id="searchApplicant" autocomplete="off" placeholder="Search for candidate...">
                 <i class="ri-search-line search-icon"></i>
             </div>
         </div>
@@ -368,7 +368,7 @@
             </div>
             <div class="col-md-3">
                 <h5 class="mb-0">
-                    Shortlisted Applicants
+                    Shortlisted Candidates
                 </h5>
             </div>
             <!--end col-->
@@ -376,13 +376,13 @@
                 <div class="col-md-auto ms-auto" id="colButtons">
                     <div class="d-flex hstack gap-2 flex-wrap">
                         <!-- Interview Button with Tooltip -->
-                        <button class="btn btn-secondary" id="interviewBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Schedule interview with selected applicants">
+                        <button class="btn btn-secondary" id="interviewBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Schedule interview with selected candidates">
                             <i class="ri-calendar-todo-fill align-bottom me-1"></i>
                             Interview
                         </button>
 
                         <!-- Fill Vacancy Button with Tooltip -->
-                        <button class="btn btn-success" id="vacancyBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Appoint selected applicants">
+                        <button class="btn btn-success" id="vacancyBtn" data-bs-toggle="tooltip" data-bs-placement="top" title="Appoint selected candidates">
                             <i class="ri-open-arm-fill align-bottom me-1"></i>
                             Fill Vacancy
                         </button>
@@ -413,7 +413,7 @@
             Sorry! No Result Found
         </h5>
         <p class="text-muted mb-0">
-            We've searched all the applicants. We did not find any applicants for you search.
+            We've searched all the candidates. We did not find any candidates for you search.
         </p>
     </div>
 </div>
@@ -484,10 +484,10 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="mb-3" id="applicantsIntreview">
-                                <label class="form-label" for="applicants">Applicants</label>
+                                <label class="form-label" for="applicants">Candidates</label>
                                 <select class="form-control" id="applicants" name="applicants[]" multiple required></select>
                                 <div class="invalid-feedback">
-                                    Please select a applicants
+                                    Please select a candidate
                                 </div>
                             </div>
                         </div>
@@ -570,12 +570,12 @@
             <div class="modal-body p-5 text-center">
                 <lord-icon src="https://cdn.lordicon.com/xzalkbkz.json" trigger="loop" style="width:120px;height:120px"></lord-icon>
                 <div class="mt-4 text-center">
-                    <h4 class="fs-semibold">You are about to appoint these applicants!</h4>
+                    <h4 class="fs-semibold">You are about to appoint these candidates!</h4>
                     <p class="text-muted fs-14 mb-4 pt-1">Send appointment confirmation?</p>
                     <form id="formVacancy" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="mb-3" id="applicantsVacancyDiv">
-                            <label class="form-label" for="applicantsVacancy">Applicants</label>
+                            <label class="form-label" for="applicantsVacancy">Candidates</label>
                             <select class="form-control" id="applicantsVacancy" name="applicants_vacancy[]" multiple required></select>
                         </div>
 

@@ -9,7 +9,7 @@
 @section('content')
 @component('components.breadcrumb')
     @slot('li_1')
-        Applicant
+        Candidate
     @endslot
     @slot('title')
         Approvals
@@ -23,7 +23,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <p class="fw-semibold text-muted mb-0">
-                            Total Applicants
+                            Total Candidates
                         </p>
                         <h2 class="mt-4 ff-secondary fw-semibold">
                             <span class="counter-value" data-target="3.24">
@@ -55,7 +55,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <p class="fw-semibold text-muted mb-0">
-                            Pending Applicants
+                            Pending Candidates
                         </p>
                         <h2 class="mt-4 ff-secondary fw-semibold">
                             <span class="counter-value" data-target="280">
@@ -87,7 +87,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <p class="fw-semibold text-muted mb-0">
-                            Approved Applicants
+                            Approved Candidates
                         </p>
                         <h2 class="mt-4 ff-secondary fw-semibold">
                             <span class="counter-value" data-target="2.96">
@@ -119,7 +119,7 @@
                 <div class="d-flex justify-content-between">
                     <div>
                         <p class="fw-semibold text-muted mb-0">
-                            Amend Applicants
+                            Amend Candidates
                         </p>
                         <h2 class="mt-4 ff-secondary fw-semibold">
                             <span class="counter-value" data-target="0">
@@ -153,7 +153,7 @@
         <div class="card" id="applicantsList">
             <div class="card-header border-0">
                 <div class="d-flex align-items-center">
-                    <h5 class="card-title mb-0 flex-grow-1">All Applicants</h5>
+                    <h5 class="card-title mb-0 flex-grow-1">All Candidates</h5>
                     <div class="flex-shrink-0">
                         <div class="d-flex flex-wrap gap-2">
                             <button class="btn btn-secondary" id="remove-actions" onClick="deleteMultiple()">
@@ -352,7 +352,7 @@
                             <lord-icon src="https://cdn.lordicon.com/msoeawqm.json" trigger="loop" colors="primary:#121331,secondary:#08a88a" style="width:75px;height:75px"></lord-icon>
                             <h5 class="mt-2">Sorry! No Result Found</h5>
                             <p class="text-muted mb-0">
-                                We've searched all your applicants. We did not find any applicants for you search.
+                                We've searched all your candidates. We did not find any candidates for you search.
                             </p>
                         </div>
                     </div>

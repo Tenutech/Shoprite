@@ -133,7 +133,7 @@
                             <div class="col-xxl-12">
                                 <div class="card">
                                     <div class="card-body">
-                                        <h5 class="card-title mb-4">Applicant Tracker</h5>
+                                        <h5 class="card-title mb-4">Candidate Tracker</h5>
                                         <div id="custom-progress-bar" class="progress-nav">
                                             <div class="progress" style="height: 1px;">
                                                 <div class="progress-bar" role="progressbar" style="width: {{ $progressBarWidth }}%;" aria-valuenow="{{ $progressBarWidth }}" aria-valuemin="0" aria-valuemax="100"></div>
