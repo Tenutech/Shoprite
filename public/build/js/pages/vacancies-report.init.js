@@ -117,7 +117,7 @@ $(document).ready(function() {
         const selectedBrandId = document.getElementById('brand').value;
         const selectedDivisionId = document.getElementById('division').value;
         const selectedRegionId = document.getElementById('region').value;
-
+    
         // Filter the store options based on the selected values
         filteredStoreOptions = storeOptionsCache.filter(option => {
             return (
@@ -126,24 +126,18 @@ $(document).ready(function() {
                 (!selectedRegionId || option.regionId == selectedRegionId)
             );
         });
-
+    
         // Update the store options in the Choices instance
         storeChoice.clearStore(); // Clears the current Choices options
+    
+        // Set filtered options or display a "No stores available" message
         if (filteredStoreOptions.length > 0) {
             storeChoice.setChoices(
-                [
-                    {
-                        value: '',
-                        label: 'Select store',
-                        selected: true, // Make this the selected option
-                        disabled: false,
-                    },
-                    ...filteredStoreOptions.map(option => ({
-                        value: option.value,
-                        label: option.label,
-                        selected: false,
-                    })),
-                ],
+                filteredStoreOptions.map(option => ({
+                    value: option.value,
+                    label: option.label,
+                    selected: false,
+                })),
                 'value',
                 'label',
                 true
@@ -164,12 +158,17 @@ $(document).ready(function() {
                 true
             );
         }
+    
+        // Set the placeholder text dynamically
+        storeChoice.setChoiceByValue('');
+        storeChoice.passedElement.element.setAttribute('data-placeholder', 'Select store');
+        storeChoice.containerOuter.element.querySelector('.choices__input').placeholder = 'Select store';
     }
-
+    
     // Attach change events for each filter
     ['brand', 'division', 'region'].forEach(filterId => {
         document.getElementById(filterId).addEventListener('change', updateStoreOptions);
-    });
+    });    
 });
 
 /*
