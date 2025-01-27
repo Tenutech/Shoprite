@@ -96,7 +96,7 @@ class QueryController extends Controller
             $category = QueryCategory::findOrFail($request->category);
 
             // Ensure the directory exists
-            $queriesPath = public_path('images/queries');
+            $queriesPath = public_path('images');
             if (!File::exists($queriesPath)) {
                 File::makeDirectory($queriesPath, 0755, true);
             }
