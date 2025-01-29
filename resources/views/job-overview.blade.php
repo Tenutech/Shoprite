@@ -135,7 +135,7 @@
                             </h5>                            
                         </div>
                         <div class="row gy-2 mb-2">
-                            <div data-simplebar style="max-height: 250px;" class="px-3">
+                            <div data-simplebar style="max-height: 350px;" class="px-3">
                                 @foreach ($vacancy->appointed as $applicant)
                                     <div class="col-md-6 col-lg-12">
                                         <div class="card mb-0">

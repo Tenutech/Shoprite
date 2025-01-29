@@ -102,6 +102,14 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         // Get total vacancies for the store
         $totalVacancies = $store->vacancies->count() ?? 0;
 
+        // Count total interviews scheduled (status is not 'Appointed' or 'Completed' and score is null)
+        $totalInterviewsScheduled = $store->vacancies->reduce(function ($carry, $vacancy) {
+            return $carry + $vacancy->interviews()
+                ->whereNotIn('status', ['Appointed', 'Completed'])
+                ->whereNull('score')
+                ->count();
+        }, 0);
+
         // Count total interviews conducted (score is not null)
         $totalInterviewsConducted = $store->vacancies->reduce(function ($carry, $vacancy) {
             return $carry + $vacancy->interviews()->whereNotNull('score')->count();
@@ -110,6 +118,20 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         // Count total applicants placed at this store
         $totalApplicantsPlaced = $store->vacancies->reduce(function ($carry, $vacancy) {
             return $carry + $vacancy->appointed()->count();
+        }, 0);
+
+        // Count total applicants regretted (where interview status is 'Regretted')
+        $totalApplicantsRegretted = $store->vacancies->reduce(function ($carry, $vacancy) {
+            return $carry + $vacancy->interviews()
+                ->where('status', 'Regretted')
+                ->count();
+        }, 0);
+
+        // Count total applicants no show (where interview status is 'No Show')
+        $totalApplicantsNoShow = $store->vacancies->reduce(function ($carry, $vacancy) {
+            return $carry + $vacancy->interviews()
+                ->where('status', 'No Show')
+                ->count();
         }, 0);
 
         // Calculate Hire to Interview Ratio
@@ -146,8 +168,11 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             optional($store->town)->name ?? '',
             $store->address ?? '',
             $totalVacancies === 0 ? '0' : ($totalVacancies ?? '0'),
+            $totalInterviewsScheduled === 0 ? '0' : ($totalInterviewsScheduled ?? '0'),
             $totalInterviewsConducted === 0 ? '0' : ($totalInterviewsConducted ?? '0'),
             $totalApplicantsPlaced === 0 ? '0' : ($totalApplicantsPlaced ?? '0'),
+            $totalApplicantsRegretted === 0 ? '0' : ($totalApplicantsRegretted ?? '0'),
+            $totalApplicantsNoShow === 0 ? '0' : ($totalApplicantsNoShow ?? '0'),
             $successfulInterviewsPercentage . '%',
             $averageTimeToShortlist,
             $averageTimeToHire,
@@ -173,8 +198,11 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             'Town',
             'Branch Address',
             'Total Vacancies',
+            'Total Interviews Scheduled',
             'Total Interviews Conducted',
             'Total Candidates Placed',
+            'Total Candidates Regretted',
+            'Total Candidates No Show',
             'Percentage of Interviews Successful',
             'Average Time to Shortlist',
             'Average Time to Placement',
@@ -217,6 +245,11 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         $sheet->getStyle('N')->getAlignment()->setWrapText(true);
         $sheet->getStyle('O')->getAlignment()->setWrapText(true);
         $sheet->getStyle('P')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('Q')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('R')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('S')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('T')->getAlignment()->setWrapText(true);
+        $sheet->getStyle('U')->getAlignment()->setWrapText(true);
 
         return $styles;
     }
@@ -240,13 +273,16 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
             'I' => 20, // Town
             'J' => 35, // Address
             'K' => 20, // Total Vacancies
-            'L' => 20, // Total Interviews Conducted
-            'M' => 20, // Total Placed Candidates
-            'N' => 20, // Percentage of Interviews Successfull
-            'O' => 20, // Average Time to Shortlist
-            'P' => 20, // Average Time to Placement
-            'Q' => 20, // Average Distance of Placed Candidates
-            'R' => 20, // Average Assessment Score of Placed Candidates
+            'L' => 20, // Total Interviews Scheduled
+            'M' => 20, // Total Interviews Conducted
+            'N' => 20, // Total Placed Candidates
+            'O' => 20, // Total Regretted Candidates
+            'P' => 20, // Total No Show Candidates
+            'Q' => 20, // Percentage of Interviews Successfull
+            'R' => 20, // Average Time to Shortlist
+            'S' => 20, // Average Time to Placement
+            'T' => 20, // Average Distance of Placed Candidates
+            'U' => 20, // Average Assessment Score of Placed Candidates
         ];
     }
 
