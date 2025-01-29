@@ -973,6 +973,22 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::post('/interview-noShow', [App\Http\Controllers\InterviewController::class, 'noShow'])->name('interview.noShow');
 
+    // Signature Files
+    Route::get('/signature-files', [App\Http\Controllers\Sign\SignatureFileController::class, 'index'])->name('signature-files.index');
+    Route::get('/signature-files/create', [App\Http\Controllers\Sign\SignatureFileController::class, 'create'])->name('signature-files.create');
+    Route::post('/signature-files', [App\Http\Controllers\Sign\SignatureFileController::class, 'store'])->name('signature-files.store');
+    Route::get('/signature-files/{signatureFile}', [App\Http\Controllers\Sign\SignatureFileController::class, 'show'])->name('signature-files.show');
+
+    // Signers
+    Route::post('/signature-files/{signatureFile}/signers', [App\Http\Controllers\Sign\SignerController::class, 'addSigner'])->name('signers.add');
+    Route::get('/signature-files/{signatureFile}/track', [App\Http\Controllers\Sign\SignerController::class, 'track'])->name('signers.track');
+
+    // Signing
+    Route::get('/sign/{signatureFile}/{signer}', [App\Http\Controllers\Sign\SigningController::class, 'signForm'])->name('signing.form');
+    Route::post('/sign/{signatureFile}/{signer}', [App\Http\Controllers\Sign\SigningController::class, 'sign'])->name('signing.process');
+
+    // Signature Logs
+    Route::post('/signature-logs/{signatureFileId}/{event}/{email}', [App\Http\Controllers\Sign\SignatureLogController::class, 'store'])->name('signature-logs.store');
 
     //Notifications
 

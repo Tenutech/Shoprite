@@ -1,0 +1,30 @@
+@extends('layouts.master')
+@section('title', 'Sign Document')
+
+@section('content')
+<h1>Sign Document</h1>
+
+<canvas id="signature-pad" width="400" height="200" style="border: 1px solid black;"></canvas>
+<button id="clear-signature" class="btn btn-warning">Clear</button>
+
+<form action="{{ route('signing.process', ['signatureFile' => $signatureFile->id, 'signer' => $signer->id]) }}" method="POST">
+    @csrf
+    <input type="hidden" name="signature" id="signature-data">
+    <button type="submit" class="btn btn-success">Submit Signature</button>
+</form>
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/signature_pad"></script>
+<script>
+    let signaturePad = new SignaturePad(document.getElementById('signature-pad'));
+    
+    document.querySelector('#clear-signature').addEventListener('click', () => {
+        signaturePad.clear();
+    });
+
+    document.querySelector('form').addEventListener('submit', function(e) {
+        document.getElementById('signature-data').value = signaturePad.toDataURL();
+    });
+</script>
+@endpush
+@endsection
