@@ -33,4 +33,14 @@ class SigningController extends Controller
 
         return redirect()->route('signature-files.index')->with('success', 'Document signed successfully.');
     }
+
+    public function signForm(Request $request, SignatureFile $signatureFile, Signer $signer)
+    {
+  
+        if ($signer->signature_file_id !== $signatureFile->id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        return view('signature-files.sign', compact('signatureFile', 'signer'));
+    }
 }

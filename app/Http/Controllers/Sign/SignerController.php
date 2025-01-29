@@ -13,7 +13,6 @@ use App\Notifications\Sign\DocumentSignedNotification;
 
 class SignerController extends Controller
 {
-    // Show the signing page
     public function sign(Request $request, Signer $signer)
     {
         if ($signer->status !== 'pending') {
@@ -23,14 +22,19 @@ class SignerController extends Controller
         return view('signers.sign', compact('signer'));
     }
 
-    // Handle the signing process
+    public function track(SignatureFile $signatureFile)
+    {
+        $signers = $signatureFile->signers;
+
+        return view('signature-files.track', compact('signatureFile', 'signers'));
+    }
+
     public function completeSign(Request $request, Signer $signer)
     {
         $validated = $request->validate([
             'signature' => 'required|string',
         ]);
 
-        // Save the signature (as an example, saving as a base64 string)
         $signaturePath = 'signatures/' . Str::uuid() . '.png';
         Storage::put($signaturePath, base64_decode($validated['signature']));
 

@@ -14,16 +14,54 @@
 </form>
 
 @push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/signature_pad"></script>
+<script src="{{ asset('js/toastify.js') }}"></script>
 <script>
-    let signaturePad = new SignaturePad(document.getElementById('signature-pad'));
-    
-    document.querySelector('#clear-signature').addEventListener('click', () => {
-        signaturePad.clear();
-    });
+    document.addEventListener("DOMContentLoaded", function () {
+        let canvas = document.getElementById('signature-pad');
+        
+        if (!canvas) {
+            console.error("Canvas element not found!");
+            return;
+        }
 
-    document.querySelector('form').addEventListener('submit', function(e) {
-        document.getElementById('signature-data').value = signaturePad.toDataURL();
+        // Ensure proper sizing
+        function resizeCanvas() {
+            let ratio = Math.max(window.devicePixelRatio || 1, 1);
+            canvas.width = canvas.offsetWidth * ratio;
+            canvas.height = canvas.offsetHeight * ratio;
+            canvas.getContext("2d").scale(ratio, ratio);
+        }
+
+        resizeCanvas();
+
+        // Initialize Signature Pad
+        let signaturePad = new SignaturePad(canvas, {
+            backgroundColor: 'rgb(255, 255, 255)',
+            penColor: 'black'
+        });
+
+        // Debugging log
+        console.log("SignaturePad initialized:", signaturePad);
+
+        // Check if signature pad is correctly initialized
+        if (signaturePad._isEmpty) {
+            console.log("Signature pad is empty and ready for drawing.");
+        }
+
+        // Clear signature
+        document.getElementById('clear-signature').addEventListener('click', function () {
+            signaturePad.clear();
+        });
+
+        // Save signature before submitting
+        document.querySelector('form').addEventListener('submit', function (e) {
+            if (signaturePad.isEmpty()) {
+                e.preventDefault();
+                alert("Please provide a signature before submitting.");
+            } else {
+                document.getElementById('signature-data').value = signaturePad.toDataURL();
+            }
+        });
     });
 </script>
 @endpush
