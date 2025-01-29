@@ -14,46 +14,27 @@
 </form>
 
 @push('scripts')
-<script src="{{ asset('js/toastify.js') }}"></script>
+<script src="{{ asset('js/signature_pad.js') }}"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         let canvas = document.getElementById('signature-pad');
-        
+
         if (!canvas) {
             console.error("Canvas element not found!");
             return;
         }
 
-        // Ensure proper sizing
-        function resizeCanvas() {
-            let ratio = Math.max(window.devicePixelRatio || 1, 1);
-            canvas.width = canvas.offsetWidth * ratio;
-            canvas.height = canvas.offsetHeight * ratio;
-            canvas.getContext("2d").scale(ratio, ratio);
-        }
-
-        resizeCanvas();
-
-        // Initialize Signature Pad
         let signaturePad = new SignaturePad(canvas, {
-            backgroundColor: 'rgb(255, 255, 255)',
-            penColor: 'black'
+            backgroundColor: 'rgb(255, 255, 255)', // White background
+            penColor: 'black' // Black ink color
         });
 
-        // Debugging log
         console.log("SignaturePad initialized:", signaturePad);
 
-        // Check if signature pad is correctly initialized
-        if (signaturePad._isEmpty) {
-            console.log("Signature pad is empty and ready for drawing.");
-        }
-
-        // Clear signature
         document.getElementById('clear-signature').addEventListener('click', function () {
             signaturePad.clear();
         });
 
-        // Save signature before submitting
         document.querySelector('form').addEventListener('submit', function (e) {
             if (signaturePad.isEmpty()) {
                 e.preventDefault();
