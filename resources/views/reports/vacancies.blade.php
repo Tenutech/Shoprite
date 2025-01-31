@@ -249,7 +249,7 @@
                             </div>
                             <!-- end col -->
 
-                            <div class="row g-2 mt-0">
+                            <div class="row g-2 mt-0 d-none">
                                 <!-- Open Positions -->
                                 <div class="col-6">
                                     <div class="mb-3">
