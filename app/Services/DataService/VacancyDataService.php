@@ -160,27 +160,35 @@ class VacancyDataService
      */
     public function getTotalApplicantsAppointed(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
     {
-        // Start building the query using the Interview model, filter for appointed applicants and date range
-        $interviews = Interview::where('status', 'Appointed')
-            ->whereBetween('created_at', [$startDate, $endDate]);
+        // Start building the query to retrieve vacancies based on type (store, division, region)
+        $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
+            return $query->where('store_id', $id);
+        })
+        ->when($type === 'division', function ($query) use ($id) {
+            return $query->whereHas('store', function ($q) use ($id) {
+                $q->where('division_id', $id);
+            });
+        })
+        ->when($type === 'region', function ($query) use ($id) {
+            return $query->whereHas('store', function ($q) use ($id) {
+                $q->where('region_id', $id);
+            });
+        })
+        ->with(['appointed' => function ($query) use ($startDate, $endDate) {
+            // Only fetch appointed applicants within the date range
+            $query->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
+        }])
+        ->get();
 
-        // Prioritize filtering by store, followed by division, then region using Eloquent relationships
-        if ($type === 'store') {
-            $interviews->whereHas('vacancy', function ($query) use ($id) {
-                $query->where('store_id', $id);  // Directly filter by store_id in vacancies table
-            });
-        } elseif ($type === 'division') {
-            $interviews->whereHas('vacancy.store', function ($query) use ($id) {
-                $query->where('division_id', $id);  // Filter by division_id in stores table
-            });
-        } elseif ($type === 'region') {
-            $interviews->whereHas('vacancy.store', function ($query) use ($id) {
-                $query->where('region_id', $id);  // Filter by region_id in stores table
-            });
+        // Initialize the total count
+        $totalAppointed = 0;
+
+        // Loop through the vacancies and count the appointed applicants
+        foreach ($vacancies as $vacancy) {
+            $totalAppointed += $vacancy->appointed->count();
         }
 
-        // Return the total count of appointed applicants
-        return $interviews->count();
+        return $totalAppointed;
     }
 
     /**

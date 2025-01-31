@@ -42,7 +42,7 @@
         Reports
     @endslot
     @slot('title')
-        Applicants
+        Candidates
     @endslot
 @endcomponent
 
@@ -97,7 +97,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">
                                     <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Total Applicants
+                                        Total Candidates
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
                                         <span id="totalApplicantsValue">
@@ -127,7 +127,7 @@
                             <div class="d-flex align-items-center">
                                 <div class="flex-grow-1 overflow-hidden">
                                     <p class="fw-semibold text-muted text-truncate mb-3">
-                                        Total Appointed Applicants
+                                        Total Appointed Candidates
                                     </p>
                                     <h4 class="fs-22 fw-bold ff-secondary mb-0">
                                         <span id="totalAppointedApplicantsValue">
@@ -154,7 +154,7 @@
                 <div class="col-xl-12 col-md-12" id="graph_container">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h4 class="card-title mb-0">Applicant Statistics</h4>
+                            <h4 class="card-title mb-0">Candidate Statistics</h4>
                             <div class="spinner-border text-primary" role="status" style="width:1.5rem; height:1.5rem; font-size: 12px;">
                                 <span class="sr-only">Loading...</span>
                             </div>
@@ -188,7 +188,7 @@
                         <div class="p-3 mt-4 text-center">
                             <div class="mt-3">
                                 <h5 class="fs-15 profile-name">
-                                    Applicant Filters
+                                    Candidate Filters
                                 </h5>
                             </div>
                         </div>

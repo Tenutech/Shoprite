@@ -12,7 +12,7 @@
                         You are about to mark this interview as a no show ?
                     </h4>
                     <p class="text-muted fs-14 mb-4 pt-1">
-                        Marking the interview as a no show will record the candidate's absence and notify relevant parties. Please confirm if you wish to proceed with marking the applicant as a no show.
+                        Marking the interview as a no show will record the candidate's absence and notify relevant parties. Please confirm if you wish to proceed with marking the candidate as a no show.
                     </p>                                   
                     <div class="hstack gap-2 justify-content-center remove">
                         <button class="btn btn-light" data-bs-dismiss="modal" id="noShowInterview-close">

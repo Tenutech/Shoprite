@@ -360,7 +360,7 @@
                                                                         </div>
                                                                         <a>
                                                                             <h6 class="fs-15 fw-bold">
-                                                                                Any Applicants
+                                                                                Any Candidates
                                                                             </h6>
                                                                         </a>
                                                                     </div>
@@ -385,7 +385,7 @@
                                                                         </div>
                                                                         <a>
                                                                             <h6 class="fs-15 fw-bold">
-                                                                                External Applicants
+                                                                                External Candidates
                                                                             </h6>
                                                                         </a>
                                                                     </div>
@@ -410,7 +410,7 @@
                                                                         </div>
                                                                         <a>
                                                                             <h6 class="fs-15 fw-bold">
-                                                                                Internal Applicants
+                                                                                Internal Candidates
                                                                             </h6>
                                                                         </a>
                                                                     </div>

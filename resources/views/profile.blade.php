@@ -335,7 +335,7 @@
                                                                                                     <div class="flex-grow-1 ms-3">
                                                                                                         <h6 class="fs-14 mb-1">
                                                                                                             <span class="text-success">
-                                                                                                                Applicant
+                                                                                                                Candidate
                                                                                                             </span>
                                                                                                         </h6>
                                                                                                         <small class="text-muted">
@@ -913,7 +913,7 @@
                                                                     <div class="flex-grow-1">
                                                                         <div class="d-flex align-items-center gap-2">
                                                                             <div>
-                                                                                <h5 class="fs-13 text-muted mb-0">Applicants :</h5>
+                                                                                <h5 class="fs-13 text-muted mb-0">Candidates :</h5>
                                                                             </div>
                                                                             <div class="avatar-group">
                                                                                 @foreach($vacancy->applicants as $applicant)

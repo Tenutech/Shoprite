@@ -1250,7 +1250,7 @@
                                                         <div class="flex-grow-1">
                                                             <div class="d-flex align-items-center gap-2">
                                                                 <div>
-                                                                    <h5 class="fs-13 text-muted mb-0">Applicants :</h5>
+                                                                    <h5 class="fs-13 text-muted mb-0">Candidates :</h5>
                                                                 </div>
                                                                 <div class="avatar-group">
                                                                     @foreach($vacancy->applicants as $applicant)
