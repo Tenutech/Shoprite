@@ -200,6 +200,7 @@ function computeCompletionPercentage() {
 
 $("#formUser").submit(function(e) {
     e.preventDefault();
+
     var formData = new FormData($(this)[0]);
 
     if ($(".profile-img-file-input").prop('files')[0]) {
@@ -270,65 +271,85 @@ $("#formUser").submit(function(e) {
         return;
     }
 
-    // If validation passes, continue with AJAX submission
-    $.ajax({
-        url: route('profile-settings.update'),
-        type: "post",
-        data: formData,
-        async: false,
-        processData: false,
-        contentType: false,
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function(data) {
-            if (data.success == true) {
-                // Use the returned avatar URL to update the image source
-                if (data.avatar_url) {
-                    $("#topbar-avatar").attr("src", data.avatar_url);
+    var submitBtn = document.getElementById('profileUpdateBtn');
+    submitBtn.innerHTML = '<div class="spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div>';
+    submitBtn.disabled = true;
+    
+    // Force the UI update before running the AJAX request
+    setTimeout(() => {
+        $.ajax({
+            url: route('profile-settings.update'),
+            type: "post",
+            data: formData,
+            async: false,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(data) {
+                if (data.success == true) {
+                    if (data.avatar_url) {
+                        $("#topbar-avatar").attr("src", data.avatar_url);
+                    }
+    
+                    var firstName = capitalizeFirstLetterOfEachWord($("#firstname").val());
+                    var lastName = capitalizeFirstLetterOfEachWord($("#lastname").val());
+                    $("#user-name").text(firstName + " " + lastName);
+    
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 2000,
+                        showCloseButton: true,
+                        toast: true
+                    });
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                var message = jqXHR.responseJSON?.message || 'An error occurred while processing your request. Please try again later.';
+                var iconType = 'error'; // Default to error icon
+
+                // Handle specific error statuses
+                switch (jqXHR.status) {
+                    case 403:
+                        iconType = 'warning'; // Change icon for forbidden access
+                        break;
+                    case 400:
+                    case 422:
+                        message = jqXHR.responseJSON.message;
+                        break;
+                    default:
+                        if (textStatus === 'timeout') {
+                            message = 'The request timed out. Please try again later.';
+                        }
+                        break;
                 }
 
-                var firstName = capitalizeFirstLetterOfEachWord($("#firstname").val());
-                var lastName = capitalizeFirstLetterOfEachWord($("#lastname").val());
-                $("#user-name").text(firstName + " " + lastName);
+                // Restore phone number format
+                var phoneNumberWithoutCode = phoneNumber.replace(countryCode, '').replace(/^0+/, '');
+                $('#phone').val(phoneNumberWithoutCode);
 
+                // Display Swal notification
                 Swal.fire({
                     position: 'top-end',
-                    icon: 'success',
-                    title: data.message,
+                    icon: iconType,
+                    title: message,
                     showConfirmButton: false,
-                    timer: 2000,
+                    timer: iconType === 'error' ? 5000 : undefined, // Timer only for error
                     showCloseButton: true,
                     toast: true
                 });
+            },
+            complete: function() {
+                // Re-enable the button and restore its original text after the operation is complete
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Update Profile'; // Restore original button text
             }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            let message = '';
-
-            if (jqXHR.status === 400 || jqXHR.status === 422) {
-                message = jqXHR.responseJSON.message;
-            } else if (textStatus === 'timeout') {
-                message = 'The request timed out. Please try again later.';
-            } else {
-                message = 'An error occurred while processing your request. Please try again later.';
-            }
-
-            // Strip the country code and revert the phone input to its original format
-            var phoneNumberWithoutCode = phoneNumber.replace(countryCode, '').replace(/^0+/, '');
-            $('#phone').val(phoneNumberWithoutCode);
-
-            Swal.fire({
-                position: 'top-end',
-                icon: 'error',
-                title: message,
-                showConfirmButton: false,
-                timer: 5000,
-                showCloseButton: true,
-                toast: true
-            });
-        }
-    });
+        });
+    }, 50); // Delay execution slightly to allow UI rendering
 });
 
 /*
@@ -365,84 +386,95 @@ $("#formPassword").submit(function(e) {
 
 	var formData = new FormData($(this)[0]);
 
-    if (this.checkValidity()) {
-        $.ajax({
-            url: route('profile-settings.updatePassword'),
-            type: "post",
-            data: formData,
-            async: false,
-            processData: false,
-            contentType: false,
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success:function(data){
-                if (data.success == true) {
-                    // Remove is-invalid class from all password fields
-                    $('#oldPassword, #newPassword, #confirmPassword').removeClass('is-invalid').val('');
-            
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'success',
-                        title: data.message,
-                        showConfirmButton: false,
-                        timer: 2000,
-                        showCloseButton: true,
-                        toast: true
-                    });
-                } else {        
-                    if (data.message == 'The password confirmation does not match.') {
-                        if (data.errors.new_password) {
-                            displayError("newPassword", data.errors.new_password[0]);
+    var pswdBtn = document.getElementById('passwordUpdateBtn');
+    pswdBtn.innerHTML = '<div class="spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div>';
+    pswdBtn.disabled = true;
+
+    setTimeout(() => {
+        if (this.checkValidity()) {
+            $.ajax({
+                url: route('profile-settings.updatePassword'),
+                type: "post",
+                data: formData,
+                async: false,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success:function(data){
+                    if (data.success == true) {
+                        // Remove is-invalid class from all password fields
+                        $('#oldPassword, #newPassword, #confirmPassword').removeClass('is-invalid').val('');
+                
+                        Swal.fire({
+                            position: 'top-end',
+                            icon: 'success',
+                            title: data.message,
+                            showConfirmButton: false,
+                            timer: 2000,
+                            showCloseButton: true,
+                            toast: true
+                        });
+                    } else {        
+                        if (data.message == 'The password confirmation does not match.') {
+                            if (data.errors.new_password) {
+                                displayError("newPassword", data.errors.new_password[0]);
+                            }
+                
+                            if (data.errors.confirm_password) {
+                                displayError("confirmPassword", data.errors.confirm_password[0]);
+                            }
                         }
-            
-                        if (data.errors.confirm_password) {
-                            displayError("confirmPassword", data.errors.confirm_password[0]);
+                
+                        if (data.status === "error" && data.message === "The old password is incorrect.") {
+                            displayError("oldPassword", "The old password is incorrect.");
                         }
                     }
-            
-                    if (data.status === "error" && data.message === "The old password is incorrect.") {
-                        displayError("oldPassword", "The old password is incorrect.");
+                },
+                error: function(jqXHR, textStatus) {
+                    let responseData = jqXHR.responseJSON || {};
+                    let message = responseData.message || 'An error occurred while processing your request. Please try again later.';
+                    let iconType = 'error'; // Default error icon
+                
+                    switch (jqXHR.status) {
+                        case 400: // Bad Request, old password incorrect
+                            displayError("oldPassword", message);
+                            return;
+                        case 422: // Validation error, new password issue
+                            displayError("newPassword", message);
+                            return;
+                        case 403: // Forbidden access
+                            iconType = 'warning';
+                            break;
+                        default:
+                            if (textStatus === 'timeout') {
+                                message = 'The request timed out. Please try again later.';
+                            }
+                            break;
                     }
-                }
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                if (jqXHR.status === 400) { // Bad Request, old password is incorrect
-                    var responseData = jqXHR.responseJSON;
-                    if (responseData.message) {
-                        displayError("oldPassword", responseData.message);
-                    }
-                } else if (jqXHR.status === 422) {
-                    var responseData = jqXHR.responseJSON;
-                    if (responseData.message) {
-                        displayError("newPassword", responseData.message);
-                    }
-                } else if (textStatus === 'timeout') {
+                
+                    // Show Swal alert only if it's not a validation error
                     Swal.fire({
                         position: 'top-end',
-                        icon: 'error',
-                        title: 'The request timed out. Please try again later.',
+                        icon: iconType,
+                        title: message,
                         showConfirmButton: false,
-                        timer: 5000,
+                        timer: iconType === 'error' ? 5000 : undefined,
                         showCloseButton: true,
                         toast: true
                     });
-                } else {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'An error occurred while processing your request. Please try again later.',
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                },                
+                complete: function() {
+                    // Re-enable the button and restore its original text after the operation is complete
+                    pswdBtn.disabled = false;
+                    pswdBtn.innerHTML = 'Change Password'; // Restore original button text
                 }
-            }
-        });
-    } else {
-        this.reportValidity();
-    }
+            });
+        } else {
+            this.reportValidity();
+        }
+    }, 50); // Delay execution slightly to allow UI rendering
 });
 
 /*

@@ -943,6 +943,8 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::post('/update-notifications', [App\Http\Controllers\ProfileSettingsController::class, 'notificationSettings'])->name('profile-settings.notifications');
 
+    Route::get('/verify-email-update', [App\Http\Controllers\ProfileSettingsController::class, 'verifyEmailUpdate'])->name('verify.email.update');
+
     //Save
 
     Route::put('/applicant-save/{id}', [App\Http\Controllers\SaveController::class, 'applicantSave'])->name('applicant.save');

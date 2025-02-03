@@ -28,6 +28,8 @@ use Illuminate\Validation\ValidationException;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Str;
 use Intervention\Image\Facades\Image;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\VerifyEmailUpdate;
 
 class ProfileSettingsController extends Controller
 {
@@ -133,7 +135,19 @@ class ProfileSettingsController extends Controller
         // User
         $user = User::findorfail($userID);
 
-        // Base validation rules
+        // **Step 1: Check if email was verified in the last 15 minutes**
+        if (!$user->isEmailVerificationValid()) {
+            // If verification is outdated, generate a new token and send email
+            $user->generateEmailVerificationToken();
+            Mail::to($user->email)->queue(new VerifyEmailUpdate($user));
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Please verify your email before updating your profile. A verification email has been sent.'
+            ], 403);
+        }
+
+        // **Step 2: Continue with profile update if email is verified**
         $validationRules = [
             'avatar' => [
                 'sometimes',
@@ -310,10 +324,25 @@ class ProfileSettingsController extends Controller
 
     public function updatePassword(Request $request)
     {
-        //User
-        $user = auth()->user();
+        // Retrieve the ID of the currently authenticated user
+        $authUserId = Auth::id();
 
-         // Custom messages for password validation
+        // Fetch the authenticated user
+        $user = User::find($authUserId);
+
+        // **Step 1: Check if email was verified in the last 15 minutes**
+        if (!$user->isEmailVerificationValid()) {
+            // If verification is outdated, generate a new token and send email
+            $user->generateEmailVerificationToken();
+            Mail::to($user->email)->queue(new VerifyEmailUpdate($user));
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Please verify your email before updating your password. A verification email has been sent.'
+            ], 403);
+        }
+
+        // **Step 2: Custom messages for password validation
         $messages = [
             'newPassword.min' => 'The new password must be at least :min characters.',
             'newPassword.regex' => 'The new password must contain at least one lowercase letter, one uppercase letter, one digit, and one special character.',
@@ -432,5 +461,41 @@ class ProfileSettingsController extends Controller
         }
 
         return false;
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Verify Email Before Update
+    |--------------------------------------------------------------------------
+    */
+
+    /**
+     * Handle email verification for profile updates.
+     *
+     * This method verifies the email verification token provided in the request.
+     * If the token is valid and has not expired, the user is allowed to proceed
+     * with profile updates. Otherwise, an error response is returned.
+     *
+     * @param Request $request The incoming request containing the verification token.
+     * @return \Illuminate\Http\JsonResponse|\Illuminate\Http\RedirectResponse
+     */
+    public function verifyEmailUpdate(Request $request)
+    {
+        $user = User::where('email_verification_token', $request->token)->first();
+
+        if (!$user || $user->email_verification_expires_at < now()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Invalid or expired verification link.'
+            ], 400);
+        }
+
+        // **Update email_verified_at to now() instead of clearing token**
+        $user->email_verified_at = now();
+        $user->email_verification_token = null;
+        $user->email_verification_expires_at = null;
+        $user->save();
+
+        return redirect()->route('profile-settings.index')->with('success', 'Email verified. You may now update your profile.');
     }
 }

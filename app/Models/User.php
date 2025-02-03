@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use App\Notifications\VerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -12,6 +13,8 @@ use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Illuminate\Support\Facades\Log;
 use Lab404\Impersonate\Models\Impersonate;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -321,6 +324,42 @@ class User extends Authenticatable implements MustVerifyEmail
         } catch (\Exception $e) {
             Log::error('Error: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Generate an email verification token for profile updates.
+     * 
+     * This method creates a new random 32-character token, hashes it for security,
+     * and stores it in the `email_verification_token` column. It also sets an expiration
+     * time (e.g., 15 minutes from the current time) in the `email_verification_expires_at` column.
+     * 
+     * Once generated, the token is saved to the database.
+     */
+    public function generateEmailVerificationToken()
+    {
+        // Generate a secure random string (32 characters) and hash it for security
+        $this->email_verification_token = Hash::make(Str::random(32));
+
+        // Set the expiration time to 15 minutes from now
+        $this->email_verification_expires_at = Carbon::now()->addMinutes(15);
+
+        // Save the token and expiration time to the database
+        $this->save();
+    }
+
+    /**
+     * Check if the email verification token is valid.
+     * 
+     * This method verifies if a token exists and if it has not expired.
+     * It returns `true` if the user has a valid email verification token
+     * that has not yet expired, and `false` otherwise.
+     * 
+     * @return bool True if the email verification token is still valid, false otherwise.
+     */
+    public function isEmailVerificationValid()
+    {
+        // Check if email was verified in the last 15 minutes
+        return $this->email_verified_at && $this->email_verified_at->gt(now()->subMinutes(15));
     }
 
     /**
