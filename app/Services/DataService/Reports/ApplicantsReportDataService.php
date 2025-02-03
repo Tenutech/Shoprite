@@ -238,7 +238,8 @@ class ApplicantsReportDataService
         }
 
         // Retrieve vacancies based on the type (store, division, or region) and within the date range
-        $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
+        $vacancies = Vacancy::where('deleted', 'No')
+        ->when($type === 'store', function ($query) use ($id) {
             return $query->where('store_id', $id);
         })
         ->when($type === 'division', function ($query) use ($id) {

@@ -115,6 +115,7 @@ class JobOverviewController extends Controller
                 }
             ])
             ->where('id', '!=', $vacancyID)
+            ->where('deleted', 'No')
             ->where('status_id', 2)
             ->orderBy('created_at', 'desc')
             ->get();

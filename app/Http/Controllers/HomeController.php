@@ -180,6 +180,7 @@ class HomeController extends Controller
         }])
         ->whereIn('advertisement', $advertisement)
         ->where('status_id', 2)
+        ->where('deleted', 'No')
         ->orderBy('created_at', 'desc')
         ->get()
         ->map(function ($vacancy) {

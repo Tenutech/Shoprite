@@ -59,6 +59,9 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
         // Apply date range filter
         $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
 
+        // Apply deleted filter
+        $query->where('deleted', 'No');
+
         // Apply all additional filters
         if (isset($this->filters['position_id'])) {
             $query->where('position_id', $this->filters['position_id']);
