@@ -77,7 +77,7 @@ return [
 
     'queue' => [
         'connection' => env('TELESCOPE_QUEUE_CONNECTION', null),
-        'queue' => env('TELESCOPE_QUEUE', 'telescope'),
+        'queue' => env('TELESCOPE_QUEUE', null),
     ],
 
     /*
