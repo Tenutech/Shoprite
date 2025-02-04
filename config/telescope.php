@@ -58,8 +58,9 @@ return [
     'driver' => env('TELESCOPE_DRIVER', 'redis'),
 
     'storage' => [
-        'redis' => [
-            'connection' => 'telescope',
+        'database' => [
+            'connection' => env('DB_CONNECTION', 'mysql'),
+            'chunk' => 1000,
         ],
     ],
 
