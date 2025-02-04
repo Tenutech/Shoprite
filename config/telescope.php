@@ -55,7 +55,7 @@ return [
     |
     */
 
-    'driver' => env('TELESCOPE_DRIVER', 'redis'),
+    'driver' => env('TELESCOPE_DRIVER', 'database'),
 
     'storage' => [
         'database' => [
@@ -76,7 +76,7 @@ return [
     */
 
     'queue' => [
-        'connection' => env('TELESCOPE_QUEUE_CONNECTION', 'redis'),
+        'connection' => env('TELESCOPE_QUEUE_CONNECTION', 'database'),
         'queue' => env('TELESCOPE_QUEUE', 'telescope'),
     ],
 

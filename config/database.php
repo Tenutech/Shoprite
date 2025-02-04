@@ -142,13 +142,6 @@ return [
             'database' => env('REDIS_CACHE_DB', '1'),
         ],
 
-        'telescope' => [
-            'host' => env('REDIS_TELESCOPE_HOST', '172.22.0.41'), // External Redis only for Telescope
-            'password' => env('REDIS_PASSWORD', null),
-            'port' => env('REDIS_TELESCOPE_PORT', '6379'),
-            'database' => env('REDIS_TELESCOPE_DB', '2'),
-        ],
-
     ],
 
 ];
