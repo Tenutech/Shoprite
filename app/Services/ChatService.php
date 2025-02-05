@@ -17,6 +17,7 @@ use App\Models\ChatTotalData;
 use App\Models\ChatMonthlyData;
 use App\Jobs\SendIdNumberToSap;
 use App\Jobs\ProcessUserIdNumber;
+use App\Jobs\LogChatMessageJob;
 use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Client;
 use App\Services\GoogleMapsService;
@@ -168,52 +169,7 @@ class ChatService
     */
     protected function logMessage($applicantID, $message = null, $type = null, $messageId = null, $status = null, $template = null)
     {
-        try {
-            // Create a new chat entry with the provided message data
-            $chat = new Chat([
-                'applicant_id' => $applicantID,
-                'message' => $message,
-                'type_id' => $type,
-                'message_id' => $messageId,
-                'status' => $status,
-                'template' => $template
-            ]);
-            $chat->save();
-
-            $currentYear = Carbon::now()->year;
-            $currentMonth = strtolower(Carbon::now()->format('M'));
-
-            // Determine the fields to update based on the message type
-            $totalField = $type == 1 ? 'total_incoming' : 'total_outgoing';
-            $monthField = $type == 1 ? $currentMonth . '_incoming' : $currentMonth . '_outgoing';
-
-            $yearlyData = ChatTotalData::firstOrCreate(
-                ['year' => $currentYear]
-            );
-
-            // Increment the total and monthly counters
-            $yearlyData->increment($totalField);
-            $yearlyData->increment($monthField);
-
-            // Find or create ChatMonthlyData entry
-            $monthlyData = ChatMonthlyData::firstOrCreate(
-                [
-                    'chat_total_data_id' => $yearlyData->id,
-                    'chat_type' => $type == 1 ? 'Incoming' : 'Outgoing',
-                    'month' => ucwords($currentMonth)
-                ],
-                ['count' => 1] // Initial count value
-            );
-
-            // Increment the count
-            $monthlyData->increment('count');
-
-            // Save the ChatMonthlyData entry
-            $monthlyData->save();
-        } catch (Exception $e) {
-            Log::error("Error in logMessage: {$e->getMessage()}");
-            throw new Exception('There was an error logging the message. Please try again later.');
-        }
+        LogChatMessageJob::dispatch($applicantID, $message, $type, $messageId, $status, $template)->onQueue('chats');
     }
 
     /*

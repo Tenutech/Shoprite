@@ -342,8 +342,8 @@
                                         
                                         <div class="col-lg-12">
                                             <div class="hstack gap-2 justify-content-end">
-                                                <button type="submit" class="btn btn-primary">
-                                                    Update
+                                                <button type="submit" class="btn btn-primary" id="profileUpdateBtn">
+                                                    Update Profile
                                                 </button>
                                             </div>
                                         </div>
@@ -439,7 +439,7 @@
                                     <!--end col-->
                                     <div class="col-lg-12">
                                         <div class="text-end">
-                                            <button type="submit" class="btn btn-primary">
+                                            <button type="submit" class="btn btn-primary" id="passwordUpdateBtn">
                                                 Change Password
                                             </button>
                                         </div>
