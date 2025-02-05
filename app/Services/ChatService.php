@@ -169,7 +169,7 @@ class ChatService
     */
     protected function logMessage($applicantID, $message = null, $type = null, $messageId = null, $status = null, $template = null)
     {
-        LogChatMessageJob::dispatch($applicantID, $message, $type, $messageId, $status, $template);
+        LogChatMessageJob::dispatch($applicantID, $message, $type, $messageId, $status, $template)->onQueue('chats');
     }
 
     /*
