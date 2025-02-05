@@ -206,6 +206,12 @@ class ShortlistController extends Controller
                 ], 400);
             }
 
+            // Auth User ID
+            $userID = Auth::id();
+
+            //Auth User
+            $authUser = User::find($userID);
+
             // Merge the decrypted vacancy ID into the request
             $request->merge(['vacancy_id_decrypted' => $vacancyID]);
 
@@ -215,6 +221,9 @@ class ShortlistController extends Controller
             // Get the min and max shortlist numbers from the settings, with default values
             $minShortlistNumber = Setting::where('key', 'min_shorlist_number')->first()->value ?? 5;
             $maxShortlistNumber = Setting::where('key', 'max_shorlist_number')->first()->value ?? 20;
+            if ($authUser->role_id <= 4 && $maxShortlistNumber <= 50) {
+                $maxShortlistNumber = 50; // Set to 50 if user's role_id is less than or equal to 4 and current setting is less than or equal to 50
+            }
 
             // Validation rules
             $validatedData = $request->validate([
@@ -228,9 +237,6 @@ class ShortlistController extends Controller
                 'filters.coordinates.required' => 'A location filter is required. Please refresh the page.',
                 'filters.coordinates.regex' => 'The location filter must be in the correct format: {radius}km from: (latitude, longitude).'
             ]);
-
-            // Auth User ID
-            $userID = Auth::id();
 
             // Check for existing shortlist and update applicants if needed
             $existingShortlist = Shortlist::where('user_id', $userID)->where('vacancy_id', $vacancyID)->first();

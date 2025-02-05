@@ -46,12 +46,12 @@
                     <div class="d-flex align-items-lg-center flex-lg-row flex-column">
                         <div class="flex-grow-1">
                             <h4 class="fs-16 mb-1">
-                                Hello, {{ Auth::user()->firstname }}!
+                                Hello, {{ Auth::user()->firstname }} {{ Auth::user()->lastname }}!
                             </h4>
                             <p class="text-muted mb-0">
-                                Here's what's happening with your store
+                                Here's what's happening with 
                                 @if (isset($store) && isset($store->brand))
-                                    ({{ $store->brand->name }} {{ $store->name }})
+                                    {{ $store->brand->name }} {{ $store->name }}
                                 @endif
                                 today.
                             </p>
