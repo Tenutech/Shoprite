@@ -15,7 +15,7 @@ File: Profile-setting init js
 function initAutocomplete() {
     // Get the input element with data-google-autocomplete attribute
     const addressInput = document.querySelector('[data-google-autocomplete]');
-    
+
     if (addressInput) {
         // Initialize Google Places Autocomplete
         const autocomplete = new google.maps.places.Autocomplete(addressInput, {
@@ -35,7 +35,7 @@ function initAutocomplete() {
                 // If no geometry is available, reset the input field
                 addressInput.value = '';
                 addressInput.classList.add('is-invalid');
-                
+
                 // Show the correct error message right after the address input
                 const feedback = addressInput.nextElementSibling;  // This gets the closest sibling
                 feedback.textContent = 'Please select a verified address!';
@@ -43,7 +43,7 @@ function initAutocomplete() {
             } else {
                 // Valid address selected, remove error state
                 addressInput.classList.remove('is-invalid');
-                
+
                 // Hide the feedback element
                 const feedback = addressInput.nextElementSibling;
                 feedback.textContent = '';
@@ -67,7 +67,7 @@ function initAutocomplete() {
                 addressInput.classList.add('is-invalid');
                 document.getElementById('latitude').value = '';
                 document.getElementById('longitude').value = '';
-                
+
                 // Show error message and ensure display is set to block
                 const feedback = addressInput.nextElementSibling;  // Get the closest invalid-feedback
                 feedback.textContent = 'Please select a verified address!';
@@ -79,7 +79,7 @@ function initAutocomplete() {
         addressInput.addEventListener('input', function () {
             placeSelected = false;
             addressInput.classList.remove('is-invalid');
-            
+
             // Hide error message
             const feedback = addressInput.nextElementSibling;
             feedback.textContent = '';
@@ -87,6 +87,8 @@ function initAutocomplete() {
         });
     }
 }
+
+let passwordResetBtn = document.getElementById("passwordResetBtn");
 
 // Load the Google Autocomplete on page load
 window.addEventListener('load', initAutocomplete);
@@ -97,7 +99,7 @@ window.addEventListener('load', initAutocomplete);
 |--------------------------------------------------------------------------
 */
 
-$(document).ready(function () {    
+$(document).ready(function () {
     $("#profileSettingsTab.nav-tabs > li > a").on("shown.bs.tab", function(e) {
         localStorage.setItem('profileSettingsTab', $(e.target).attr('href'));
     });
@@ -224,7 +226,7 @@ $("#formUser").submit(function(e) {
     const latInput = document.getElementById('latitude');
     const lngInput = document.getElementById('longitude');
     var addressIsValid = true;
-    
+
     if (addressInput) {
         // Check if latitude and longitude are filled in (indicating a valid place was selected)
         if (!latInput.value || !lngInput.value) {
@@ -239,7 +241,7 @@ $("#formUser").submit(function(e) {
             addressInput.style.borderColor = 'var(--vz-form-invalid-border-color)';
         } else {
             addressInput.classList.remove('is-invalid');
-            addressInput.classList.add('was-validated'); 
+            addressInput.classList.add('was-validated');
             const feedback = addressInput.nextElementSibling;
             feedback.style.display = 'none';
 
@@ -353,24 +355,30 @@ var displayError = function (inputId, message) {
 
 /*
 |--------------------------------------------------------------------------
-| Password Form
+| Reset Password Email Link Form
 |--------------------------------------------------------------------------
 */
 
-$("#formPassword").submit(function(e) {
-	e.preventDefault();
-    
-    $('#oldPassword, #newPassword, #confirmPassword').removeClass('is-invalid');
-    $('.invalid-feedback').remove();
+passwordResetBtn.addEventListener("click", function (e) {
+    e.preventDefault();
 
-	var formData = new FormData($(this)[0]);
+    // Reference the password button and save its initial width
+    let passwordBtn = $('#passwordResetBtn');
+    let initialWidth = passwordBtn.outerWidth();
+
+    // Set the button to fixed width and show the spinner
+    passwordBtn.css('width', initialWidth + 'px');
+    passwordBtn.removeClass('btn-label').addClass('d-flex justify-content-center');
+    passwordBtn.html('<div class="spinner-border text-light" style="width: 1.2rem; height: 1.2rem;" role="status"><span class="sr-only">Loading...</span></div>');
+    passwordBtn.prop('disabled', true);
+
+    let formData = new FormData($('#resetPasswordEmailForm')[0]);
 
     if (this.checkValidity()) {
         $.ajax({
-            url: route('profile-settings.updatePassword'),
+            url: route('password.email'),
             type: "post",
             data: formData,
-            async: false,
             processData: false,
             contentType: false,
             headers: {
@@ -378,66 +386,47 @@ $("#formPassword").submit(function(e) {
             },
             success:function(data){
                 if (data.success == true) {
-                    // Remove is-invalid class from all password fields
-                    $('#oldPassword, #newPassword, #confirmPassword').removeClass('is-invalid').val('');
-            
+
                     Swal.fire({
                         position: 'top-end',
                         icon: 'success',
                         title: data.message,
                         showConfirmButton: false,
-                        timer: 2000,
+                        timer: 10000,
                         showCloseButton: true,
                         toast: true
                     });
-                } else {        
-                    if (data.message == 'The password confirmation does not match.') {
-                        if (data.errors.new_password) {
-                            displayError("newPassword", data.errors.new_password[0]);
-                        }
-            
-                        if (data.errors.confirm_password) {
-                            displayError("confirmPassword", data.errors.confirm_password[0]);
-                        }
-                    }
-            
-                    if (data.status === "error" && data.message === "The old password is incorrect.") {
-                        displayError("oldPassword", "The old password is incorrect.");
-                    }
+
+                    document.getElementById("passwordResetCloseBtn").click();
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
-                if (jqXHR.status === 400) { // Bad Request, old password is incorrect
-                    var responseData = jqXHR.responseJSON;
-                    if (responseData.message) {
-                        displayError("oldPassword", responseData.message);
-                    }
-                } else if (jqXHR.status === 422) {
-                    var responseData = jqXHR.responseJSON;
-                    if (responseData.message) {
-                        displayError("newPassword", responseData.message);
-                    }
+                let message = '';
+
+                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                    message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'The request timed out. Please try again later.',
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                    message = 'The request timed out. Please try again later.';
                 } else {
-                    Swal.fire({
-                        position: 'top-end',
-                        icon: 'error',
-                        title: 'An error occurred while processing your request. Please try again later.',
-                        showConfirmButton: false,
-                        timer: 5000,
-                        showCloseButton: true,
-                        toast: true
-                    });
+                    message = 'An error occurred while processing your request. Please try again later.';
                 }
+
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
+            },
+            complete: function() {
+                // Re-enable the button, restore original text, and re-add btn-label class
+                passwordBtn.prop('disabled', false);
+                passwordBtn.html('<i class="ri-mail-send-line label-icon align-middle fs-16 me-2"></i> Send Password Reset Link');
+                passwordBtn.removeClass('d-flex justify-content-center').addClass('btn-label');
+                passwordBtn.css('width', '');
             }
         });
     } else {
@@ -475,12 +464,12 @@ $("#formNotifications").submit(function(e) {
                     timer: 2000,
                     showCloseButton: true,
                     toast: true
-                })                  
+                })
             }
         },
         error: function(jqXHR, textStatus, errorThrown) {
             let message = ''; // Initialize the message variable
-        
+
             if (jqXHR.status === 400 || jqXHR.status === 422) {
                 message = jqXHR.responseJSON.message;
             } else if (textStatus === 'timeout') {
@@ -488,7 +477,7 @@ $("#formNotifications").submit(function(e) {
             } else {
                 message = 'An error occurred while processing your request. Please try again later.';
             }
-        
+
             // Trigger the Swal notification with the dynamic message
             Swal.fire({
                 position: 'top-end',

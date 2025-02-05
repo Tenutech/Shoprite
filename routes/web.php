@@ -941,6 +941,18 @@ Route::middleware(['auth', 'verified', 'user.activity'])->group(function () {
 
     Route::post('/update-password', [App\Http\Controllers\ProfileSettingsController::class, 'updatePassword'])->name('profile-settings.updatePassword');
 
+    // Password Reset Email
+
+    Route::get('/password/reset', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
+
+    Route::post('/password/email', [App\Http\Controllers\Auth\ForgotPasswordController::class, 'sendResetLinkEmail'])->name('password.email');
+
+    Route::get('/password/reset/{token}', [App\Http\Controllers\Auth\ResetPasswordController::class, 'showResetForm'])->name('password.reset');
+
+    Route::post('/password/reset', [App\Http\Controllers\Auth\ResetPasswordController::class, 'reset'])->name('password.update');
+
+    // Noifications
+
     Route::post('/update-notifications', [App\Http\Controllers\ProfileSettingsController::class, 'notificationSettings'])->name('profile-settings.notifications');
 
     //Save
