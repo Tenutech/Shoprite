@@ -347,7 +347,7 @@
 
                 <!-- Total Vacancies Filled -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of vacancies successfully filled.">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of vacancies successfully filled. This also indicates the percentage compared to the total vacancies created.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s0" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -410,7 +410,7 @@
 
                 <!-- Total Interviews Conducted -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of interviews successfully conducted.">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of interviews successfully conducted. This also indicates the percentage compared to the total interviews scheduled.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s1" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -446,7 +446,7 @@
             <div class="row g-3" id="applicantsRow">
                 <!-- Total Candidates Selected -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates selected for a position. This also indicates the percentage compared to the total scheduled interviews.">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates selected for a position. This also indicates the percentage compared to the total interviews scheduled.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s2" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />
@@ -476,7 +476,7 @@
 
                 <!-- Total Applicants Regretted -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates who recieved a regret notification. This also indicates the percentage compared to the total scheduled interviews.">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of candidates who recieved a regret notification. This also indicates the percentage compared to the total interviews scheduled.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s3" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />

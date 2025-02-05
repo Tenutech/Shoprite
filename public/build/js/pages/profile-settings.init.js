@@ -202,6 +202,7 @@ function computeCompletionPercentage() {
 
 $("#formUser").submit(function(e) {
     e.preventDefault();
+
     var formData = new FormData($(this)[0]);
 
     if ($(".profile-img-file-input").prop('files')[0]) {
@@ -272,65 +273,85 @@ $("#formUser").submit(function(e) {
         return;
     }
 
-    // If validation passes, continue with AJAX submission
-    $.ajax({
-        url: route('profile-settings.update'),
-        type: "post",
-        data: formData,
-        async: false,
-        processData: false,
-        contentType: false,
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        },
-        success: function(data) {
-            if (data.success == true) {
-                // Use the returned avatar URL to update the image source
-                if (data.avatar_url) {
-                    $("#topbar-avatar").attr("src", data.avatar_url);
+    var submitBtn = document.getElementById('profileUpdateBtn');
+    submitBtn.innerHTML = '<div class="spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div>';
+    submitBtn.disabled = true;
+
+    // Force the UI update before running the AJAX request
+    setTimeout(() => {
+        $.ajax({
+            url: route('profile-settings.update'),
+            type: "post",
+            data: formData,
+            async: false,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(data) {
+                if (data.success == true) {
+                    if (data.avatar_url) {
+                        $("#topbar-avatar").attr("src", data.avatar_url);
+                    }
+
+                    var firstName = capitalizeFirstLetterOfEachWord($("#firstname").val());
+                    var lastName = capitalizeFirstLetterOfEachWord($("#lastname").val());
+                    $("#user-name").text(firstName + " " + lastName);
+
+                    Swal.fire({
+                        position: 'top-end',
+                        icon: 'success',
+                        title: data.message,
+                        showConfirmButton: false,
+                        timer: 2000,
+                        showCloseButton: true,
+                        toast: true
+                    });
+                }
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                var message = jqXHR.responseJSON?.message || 'An error occurred while processing your request. Please try again later.';
+                var iconType = 'error'; // Default to error icon
+
+                // Handle specific error statuses
+                switch (jqXHR.status) {
+                    case 403:
+                        iconType = 'warning'; // Change icon for forbidden access
+                        break;
+                    case 400:
+                    case 422:
+                        message = jqXHR.responseJSON.message;
+                        break;
+                    default:
+                        if (textStatus === 'timeout') {
+                            message = 'The request timed out. Please try again later.';
+                        }
+                        break;
                 }
 
-                var firstName = capitalizeFirstLetterOfEachWord($("#firstname").val());
-                var lastName = capitalizeFirstLetterOfEachWord($("#lastname").val());
-                $("#user-name").text(firstName + " " + lastName);
+                // Restore phone number format
+                var phoneNumberWithoutCode = phoneNumber.replace(countryCode, '').replace(/^0+/, '');
+                $('#phone').val(phoneNumberWithoutCode);
 
+                // Display Swal notification
                 Swal.fire({
                     position: 'top-end',
-                    icon: 'success',
-                    title: data.message,
+                    icon: iconType,
+                    title: message,
                     showConfirmButton: false,
-                    timer: 2000,
+                    timer: iconType === 'error' ? 5000 : undefined, // Timer only for error
                     showCloseButton: true,
                     toast: true
                 });
+            },
+            complete: function() {
+                // Re-enable the button and restore its original text after the operation is complete
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Update Profile'; // Restore original button text
             }
-        },
-        error: function(jqXHR, textStatus, errorThrown) {
-            let message = '';
-
-            if (jqXHR.status === 400 || jqXHR.status === 422) {
-                message = jqXHR.responseJSON.message;
-            } else if (textStatus === 'timeout') {
-                message = 'The request timed out. Please try again later.';
-            } else {
-                message = 'An error occurred while processing your request. Please try again later.';
-            }
-
-            // Strip the country code and revert the phone input to its original format
-            var phoneNumberWithoutCode = phoneNumber.replace(countryCode, '').replace(/^0+/, '');
-            $('#phone').val(phoneNumberWithoutCode);
-
-            Swal.fire({
-                position: 'top-end',
-                icon: 'error',
-                title: message,
-                showConfirmButton: false,
-                timer: 5000,
-                showCloseButton: true,
-                toast: true
-            });
-        }
-    });
+        });
+    }, 50); // Delay execution slightly to allow UI rendering
 });
 
 /*
