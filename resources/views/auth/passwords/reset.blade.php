@@ -41,7 +41,7 @@
                                     <h5 class="text-primary">Forgot Password?</h5>
                                     <p class="text-muted">Reset password with Shoprite Job Opportunities</p>
 
-                                    <lord-icon 
+                                    <lord-icon
                                         src="{{ isset($token) ? 'https://cdn.lordicon.com/jectmwqf.json' : 'https://cdn.lordicon.com/rhvddzym.json' }}"
                                         trigger="loop"
                                         colors="primary:#0ab39c"
@@ -69,19 +69,33 @@
                                             @enderror
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label for="userpassword">Password</label>
-                                            <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" id="userpassword" placeholder="Enter password">
-                                            @error('password')
-                                            <span class="invalid-feedback" role="alert">
-                                                <strong>{{ $message }}</strong>
-                                            </span>
-                                            @enderror
+                                        <div class="col-lg-12">
+                                            <div class="mb-2">
+                                                <label for="userpassword">Password</label>
+                                                <div class="position-relative auth-pass-inputgroup mb-3">
+                                                    <input type="password" class="form-control pe-5 password-input @error('password') is-invalid @enderror" name="password" id="userpassword" placeholder="Enter password">
+                                                    <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon">
+                                                        <i class="ri-eye-fill align-middle"></i>
+                                                    </button>
+                                                    @error('password')
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $message }}</strong>
+                                                    </span>
+                                                    @enderror
+                                                </div>
+                                            </div>
                                         </div>
 
-                                        <div class="mb-3">
-                                            <label for="userpassword">Confirm Password</label>
-                                            <input id="password-confirm" type="password" name="password_confirmation" class="form-control pe-5 password-input" placeholder="Enter confirm password">
+                                        <div class="col-lg-12">
+                                            <div class="mb-2">
+                                                <label for="userpassword">Confirm Password</label>
+                                                <div class="position-relative auth-pass-inputgroup mb-3">
+                                                    <input id="password-confirm" type="password" name="password_confirmation" class="form-control pe-5 password-input" placeholder="Enter confirm password">
+                                                    <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon-confirmation">
+                                                        <i class="ri-eye-fill align-middle"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
 
                                         <div class="text-end">
@@ -98,10 +112,10 @@
                         <!-- end card -->
 
                         <div class="mt-4 text-center">
-                            <p class="mb-0">Wait, I remember my password... 
-                                <a href="{{ route('login') }}" class="fw-semibold text-primary text-decoration-underline"> 
-                                    Click here 
-                                </a> 
+                            <p class="mb-0">Wait, I remember my password...
+                                <a href="{{ route('login') }}" class="fw-semibold text-primary text-decoration-underline">
+                                    Click here
+                                </a>
                             </p>
                         </div>
 
