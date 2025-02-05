@@ -7,7 +7,9 @@ use App\Models\Chat;
 use Illuminate\Http\Request;
 use App\Services\ChatService;
 use App\Jobs\UpdateChatStatusJob;
+use App\Jobs\BatchUpdateChatStatusJob;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
 
 class ShoopsController extends Controller
 {
@@ -51,7 +53,7 @@ class ShoopsController extends Controller
             // Check if the incoming webhook is for a status update
             if (isset($data['entry'][0]['changes'][0]['value']['statuses'][0])) {
                 // Handle status update
-                $this->handleStatusUpdate($data);
+                //$this->handleStatusUpdate($data);
             } else {
                 // Use the ChatService to process the incoming message
                 $this->chatService->handleIncomingMessage($data);
@@ -88,8 +90,30 @@ class ShoopsController extends Controller
         $status = $statusData['status'] ?? null;
 
         if ($messageId && $status) {
+            $batchKey = 'chat_status_batch';
+            $batchSize = 5000; // Set your batch size (1000, 5000, or 10000)
+
+            // Retrieve the current batch from cache
+            $batch = Cache::get($batchKey, []);
+
+            // Add new entry to batch
+            $batch[] = [
+                'message_id' => $messageId,
+                'status' => $status,
+                'status_data' => $statusData
+            ];
+
+            // If batch reaches the limit, dispatch a single batch job
+            if (count($batch) >= $batchSize) {
+                BatchUpdateChatStatusJob::dispatch($batch)->onQueue('chat-status-updates');
+                Cache::forget($batchKey); // Clear cache after dispatch
+            } else {
+                // Store batch for future requests
+                Cache::put($batchKey, $batch, now()->addMinutes(2));
+            }
+
             // Dispatch the job to the queue
-            UpdateChatStatusJob::dispatch($messageId, $status, $statusData)->onQueue('chat-status-updates');
+            //UpdateChatStatusJob::dispatch($messageId, $status, $statusData)->onQueue('chat-status-updates');
         }
 
         return response()->json(['message' => 'Status queued for update'], 200);
