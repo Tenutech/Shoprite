@@ -10,7 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class ApplicantMonthlyStoreData extends Model
 {
     use HasFactory;
-    use LogsActivity;
+    //use LogsActivity;
 
     protected $table = 'applicant_monthly_store_data';
 
@@ -38,10 +38,16 @@ class ApplicantMonthlyStoreData extends Model
      */
     protected static $logAttributes = ['*'];
 
+    /**
+     * The attributes that should be logged.
+     * @var bool
+     */
+    // protected static $logAttributes = ['*']; // Commented out to disable logging
+
     //Activity Log
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logFillable();
-    }
+    // public function getActivitylogOptions(): LogOptions
+    // {
+    //     return LogOptions::defaults()
+    //         ->logFillable();
+    // }
 }

@@ -10,7 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class ApplicantTotalData extends Model
 {
     use HasFactory;
-    use LogsActivity;
+    //use LogsActivity;
 
     protected $table = 'applicant_total_data';
 
@@ -44,12 +44,12 @@ class ApplicantTotalData extends Model
      * The attributes that should be logged.
      * @var bool
      */
-    protected static $logAttributes = ['*'];
+    // protected static $logAttributes = ['*']; // Commented out to disable logging
 
     //Activity Log
-    public function getActivitylogOptions(): LogOptions
-    {
-        return LogOptions::defaults()
-            ->logFillable();
-    }
+    // public function getActivitylogOptions(): LogOptions
+    // {
+    //     return LogOptions::defaults()
+    //         ->logFillable();
+    // }
 }
