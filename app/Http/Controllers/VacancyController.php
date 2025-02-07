@@ -259,7 +259,7 @@ class VacancyController extends Controller
             'store_id' => ['required','integer','exists:stores,id',
                 function ($attribute, $value, $fail) use ($user, $regionID, $divisionID, $store) {
                     // For RPP (role_id = 3), ensure the user belongs to the same region as the store
-                    if ($user->role_id == 3 && $user->region_id !== $regionID) {
+                    if ($user->role_id == 3 && $user->division_id !== $divisionID) {
                         $fail('You are not authorized to create a vacancy at the selected store.');
                     }
 
@@ -410,7 +410,7 @@ class VacancyController extends Controller
             'store_id' => ['required','integer','exists:stores,id',
                 function ($attribute, $value, $fail) use ($user, $regionID, $divisionID, $store) {
                     // For RPP (role_id = 3), ensure the user belongs to the same region as the store
-                    if ($user->role_id == 3 && $user->region_id !== $regionID) {
+                    if ($user->role_id == 3 && $user->division_id !== $divisionID) {
                         $fail('You are not authorized to create a vacancy at the selected store.');
                     }
 
