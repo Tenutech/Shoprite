@@ -752,7 +752,7 @@
             <div class="row g-3" id="storesRow">
                 <!-- Total Stores Using Solution -->
                 <div class="col-xl-6 col-md-6 d-flex">
-                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of stores using the solution, defined as stores that have created at least one vacancy in the selected date range.  This also indicates the percentage compared to the total number of stores.">
+                    <div class="card card-animate overflow-hidden w-100" data-bs-toggle="tooltip" data-bs-placement="top" title="The total number of stores using the solution, defined as stores that have appointed at least one candidate in the selected date range. This also indicates the percentage compared to the total number of stores.">
                         <div class="position-absolute start-0" style="z-index: 0;">
                             <svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 120" width="200" height="120">
                                 <path id="Shape 8" class="s3" d="m189.5-25.8c0 0 20.1 46.2-26.7 71.4 0 0-60 15.4-62.3 65.3-2.2 49.8-50.6 59.3-57.8 61.5-7.2 2.3-60.8 0-60.8 0l-11.9-199.4z" />

@@ -498,7 +498,8 @@ class VacancyDataService
         // and the vacancy was created within the specified date range
         $totalStores = Store::whereHas('vacancies', function ($vacancyQuery) use ($startDate, $endDate) {
             // Filter vacancies based on the created_at date range and the presence of appointed applicants
-            $vacancyQuery->whereBetween('created_at', [$startDate, $endDate]);
+            $vacancyQuery->whereBetween('created_at', [$startDate, $endDate])
+                         ->whereHas('appointed');
         })->count();
 
         // Return the count of stores using the solution
