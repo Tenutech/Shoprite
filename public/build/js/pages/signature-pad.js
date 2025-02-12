@@ -1,11 +1,3 @@
-/*
-Template Name: Orient - Admin & Dashboard Template
-Author: OTB Group
-Website: https://orient.tenutech.com/
-Contact: admin@tenutech.com
-File: Sellers init js
-*/
-
 window.addEventListener('DOMContentLoaded', (event) => {
     let canvas = document.getElementById('signature-pad');
     let signaturePad = new SignaturePad(canvas);

@@ -13,8 +13,12 @@
     <button type="submit" class="btn btn-success">Submit Signature</button>
 </form>
 
+@section('script')
+     <script src="{{ URL::asset('build/js/pgaes/signature-pad.js') }}"></script>
+@endsection
+
 @push('scripts')
-<script src="{{ asset('js/signature_pad.js') }}"></script>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         let canvas = document.getElementById('signature-pad');
@@ -25,8 +29,8 @@
         }
 
         let signaturePad = new SignaturePad(canvas, {
-            backgroundColor: 'rgb(255, 255, 255)', // White background
-            penColor: 'black' // Black ink color
+            backgroundColor: 'rgb(255, 255, 255)',
+            penColor: 'black'
         });
 
         console.log("SignaturePad initialized:", signaturePad);
