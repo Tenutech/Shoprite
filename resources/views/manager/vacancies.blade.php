@@ -72,7 +72,7 @@
                                     @if($vacancies && count($vacancies) > 0)
                                         @foreach ($vacancies as $key => $vacancy)
                                             <tr>
-                                                <td class="id d-none">{{ Crypt::encryptstring($vacancy->id) }}</td>
+                                                <td class="id d-none" data-sort="{{ Crypt::encryptstring($vacancy->id) }}">{{ Crypt::encryptstring($vacancy->id) }}</td>
                                                 <td class="number" data-sort="{{ $vacancy->id }}">{{ $vacancy->id }}</td>
                                                 <td class="position" data-sort="{{ $vacancy->position->name }}">
                                                     <div class="d-flex align-items-center">
@@ -131,6 +131,20 @@
                                                                 <i class="ri-list-check align-bottom text-muted"></i>
                                                             </a>
                                                         </li>
+                                                        @if ($user->role_id <= 6 
+                                                            && $vacancy->filled_positions <= 0 
+                                                            && ($vacancy->shortlists->isEmpty() 
+                                                                || is_null($vacancy->shortlists->first()?->applicant_ids) 
+                                                                || empty(json_decode($vacancy->shortlists->first()?->applicant_ids, true)))
+                                                            && $vacancy->interviews->isEmpty()
+                                                            && $vacancy->appointed->isEmpty())
+
+                                                            <li class="list-inline-item remove-item-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Delete">
+                                                                <a href="#vacancyDeleteModal" data-bs-toggle="modal" data-bs-id="{{ Crypt::encryptString($vacancy->id) }}">
+                                                                    <i class="ri-delete-bin-6-fill align-bottom text-muted"></i>
+                                                                </a>
+                                                            </li>
+                                                        @endif
                                                     </ul>
                                                 </td>
                                             </tr>                                            
@@ -165,13 +179,13 @@
                                                         </a>
                                                     </li>
                                                     <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Edit">
-                                                        <a class="edit-item-btn">
+                                                        <a>
                                                             <i class="ri-pencil-fill align-bottom text-muted"></i>
                                                         </a>
                                                     </li>
-                                                    <li class="list-inline-item" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Delete">
-                                                        <a class="remove-item-btn" data-bs-toggle="modal" href="#vacancyDeleteModal">
-                                                            <i class="ri-delete-bin-fill align-bottom text-muted"></i>
+                                                    <li class="list-inline-item remove-item-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Delete">
+                                                        <a>
+                                                            <i class="ri-delete-bin-6-fill align-bottom text-muted"></i>
                                                         </a>
                                                     </li>
                                                 </ul>
@@ -207,6 +221,39 @@
                             </div>
                         </div>
                     </div>
+
+                    <!-------------------------------------------------------------------------------------
+                        Modals
+                    -------------------------------------------------------------------------------------->
+
+                    <!-- Vacancy delete modal -->
+                    <div class="modal fade flip" id="vacancyDeleteModal" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-body p-5 text-center">
+                                    <lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#405189,secondary:#f06548" style="width:90px;height:90px"></lord-icon>
+                                    <div class="mt-4 text-center">
+                                        <h4>
+                                            You are about to delete this vacancy?
+                                        </h4>
+                                        <p class="text-muted fs-14 mb-4">
+                                            Deleting this vacancy will remove all of the information from the database.
+                                        </p>
+                                        <div class="hstack gap-2 justify-content-center remove">
+                                            <button class="btn btn-link btn-ghost-dark fw-medium text-decoration-none" data-bs-dismiss="modal" id="deleteVacancy-close">
+                                                <i class="ri-close-line me-1 align-middle"></i> 
+                                                Close
+                                            </button>                       
+                                            <button class="btn btn-danger" id="delete-vacancy">
+                                                Yes, Delete It
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- end vacancy delete modal -->
                 </div>
             </div>
             <!--end card-->

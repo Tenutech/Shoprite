@@ -469,7 +469,7 @@
                             Deleting this vacancy will remove all of the information from the database.
                         </p>
                         <div class="hstack gap-2 justify-content-center remove">
-                            <button class="btn btn-link btn-ghost-dark fw-medium text-decoration-none" data-bs-dismiss="modal" id="deleteOpportunity-close">
+                            <button class="btn btn-link btn-ghost-dark fw-medium text-decoration-none" data-bs-dismiss="modal" id="deleteVacancy-close">
                                 <i class="ri-close-line me-1 align-middle"></i> 
                                 Close
                             </button>                       
