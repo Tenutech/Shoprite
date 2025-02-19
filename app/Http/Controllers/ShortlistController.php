@@ -107,6 +107,7 @@ class ShortlistController extends Controller
                 'store.town'
             ])
             ->where('user_id', $userID)
+            ->where('deleted', 'No')
             ->get();
 
             //Shortlist

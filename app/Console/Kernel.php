@@ -17,6 +17,8 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('shortlist:expiry')->dailyAt('02:00');
         $schedule->command('reminders:send')->dailyAt('05:00');
+        $schedule->command('vacancy:delete_no_interview')->dailyAt('02:00');
+        $schedule->command('vacancy:delete_no_appointment')->dailyAt('02:00');
     }
 
     /**

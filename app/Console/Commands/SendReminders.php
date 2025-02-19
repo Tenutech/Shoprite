@@ -54,6 +54,7 @@ class SendReminders extends Command
         // Check if the reminder setting is active
         if ($reminderType && $reminderType->is_active === 1) {
             $vacancies = Vacancy::where('created_at', '<=', Carbon::now()->subDays($reminderType->delay))
+                                ->where('deleted', 'No')
                                 ->whereDoesntHave('shortlists')
                                 ->get();
 

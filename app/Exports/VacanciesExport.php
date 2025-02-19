@@ -59,6 +59,9 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
         // Apply date range filter
         $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
 
+        // Apply deleted filter
+        $query->where('deleted', 'No');
+
         // Apply all additional filters
         if (isset($this->filters['position_id'])) {
             $query->where('position_id', $this->filters['position_id']);
@@ -113,6 +116,15 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             }
         }
 
+        // Apply the `deleted` filter
+        if (isset($filters['deleted'])) {
+            if ($filters['deleted'] === 'Auto') {
+                $query->where('auto_deleted', 'Yes');
+            } elseif ($filters['deleted'] === 'Manually') {
+                $query->where('deleted', 'Yes');
+            }
+        }
+
         // Return the collection of filtered vacancies
         return $query->get();
     }
@@ -142,6 +154,9 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             $openPositions = $isFilled ? '0' : 1;
             $filledPositions = $isFilled ? 1 : '0';
 
+            // Calculate the difference in days between created_at and updated_at
+            $daysDifference = $vacancy->created_at->diffInDays($vacancy->updated_at);
+
             $rows[] = [
                 optional(optional($vacancy->store)->brand)->name ?? '',
                 optional(optional($vacancy->store)->division)->name ?? '',
@@ -157,6 +172,9 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
                 $appointedApplicantsBySap[$currentSapNumber] ?? '', // Match appointed applicant to the current SAP number
                 $vacancy->created_at->format('Y-m-d H:i'),
                 $isFilled ? $vacancy->updated_at->format('Y-m-d H:i') : '',
+                $vacancy->deleted,
+                $vacancy->auto_deleted,
+                $daysDifference // Difference in days between created_at and updated_at
             ];
         }
 
@@ -185,6 +203,9 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'Successful Candidate(s)',
             'Created On',
             'Filled On',
+            'Deleted',
+            'Auto Deleted',
+            'Days',
         ];
     }
 
@@ -239,6 +260,9 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'L' => 50, // Successful Candidate(s)
             'M' => 20, // Created On
             'N' => 20, // Updated On
+            'O' => 20, // Deleted
+            'P' => 20, // Auto Deleted
+            'Q' => 20, // Days
         ];
     }
 }
