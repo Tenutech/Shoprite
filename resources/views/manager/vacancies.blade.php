@@ -131,9 +131,16 @@
                                                                 <i class="ri-list-check align-bottom text-muted"></i>
                                                             </a>
                                                         </li>
-                                                        @if ($user->role_id <= 6 && $vacancy->filled_positions <= 0)
+                                                        @if ($user->role_id <= 6 
+                                                            && $vacancy->filled_positions <= 0 
+                                                            && ($vacancy->shortlists->isEmpty() 
+                                                                || is_null($vacancy->shortlists->first()?->applicant_ids) 
+                                                                || empty(json_decode($vacancy->shortlists->first()?->applicant_ids, true)))
+                                                            && $vacancy->interviews->isEmpty()
+                                                            && $vacancy->appointed->isEmpty())
+
                                                             <li class="list-inline-item remove-item-btn" data-bs-toggle="tooltip" data-bs-trigger="hover" data-bs-placement="top" title="Delete">
-                                                                <a  href="#vacancyDeleteModal" data-bs-toggle="modal" data-bs-id="{{ Crypt::encryptString($vacancy->id) }}">
+                                                                <a href="#vacancyDeleteModal" data-bs-toggle="modal" data-bs-id="{{ Crypt::encryptString($vacancy->id) }}">
                                                                     <i class="ri-delete-bin-6-fill align-bottom text-muted"></i>
                                                                 </a>
                                                             </li>
