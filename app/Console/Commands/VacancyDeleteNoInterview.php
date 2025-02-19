@@ -9,21 +9,21 @@ use App\Models\Setting;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 
-class VacancyDelete extends Command
+class VacancyDeleteNoInterview extends Command
 {
     /**
      * The name and signature of the console command.
      *
      * @var string
      */
-    protected $signature = 'vacancy:delete';
+    protected $signature = 'vacancy:delete_no_interview';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Marks vacancies as deleted if they exceed the posting duration and have no valid shortlists.';
+    protected $description = 'Marks vacancies as deleted if they exceed the posting duration and have no valid shortlists or interviews scheduled.';
 
     /**
      * Execute the console command.
@@ -32,13 +32,14 @@ class VacancyDelete extends Command
     {
         // Fetch the vacancy posting duration setting from the database
         $vacancyPostingDurationSetting = Setting::where('key', 'vacancy_posting_duration')->first();
-        $vacancyPostingDays = $vacancyPostingDurationSetting ? (int)$vacancyPostingDurationSetting->value : 30; // Default to 30 days if not set
+        $vacancyPostingDays = $vacancyPostingDurationSetting ? (int)$vacancyPostingDurationSetting->value : 14; // Default to 14 days if not set
 
         // Fetch all vacancies older than the specified duration
         $expiryDate = Carbon::now()->subDays($vacancyPostingDays);
 
         $vacancies = Vacancy::where('created_at', '<=', $expiryDate)
                     ->where('deleted', 'No')
+                    ->where('auto_deleted', 'No')
                     ->where(function ($query) {
                         $query->doesntHave('shortlists') // Vacancies with no shortlists
                             ->orWhereHas('shortlists', function ($subQuery) {
@@ -52,6 +53,7 @@ class VacancyDelete extends Command
 
         foreach ($vacancies as $vacancy) {
             $vacancy->deleted = 'Yes';
+            $vacancy->auto_deleted = 'Yes';
             $vacancy->save();
         }
 

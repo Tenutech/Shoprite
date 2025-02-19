@@ -408,6 +408,24 @@
                                 </div>
                             </div>
                             <!-- end col-->
+
+                            <!-- Deleted -->
+                            <div class="col-12">
+                                <div class="mb-3">
+                                    <label for="deleted" class="form-label">
+                                        Vacancy Deleted
+                                    </label>
+                                    <select class="form-control" id="deleted" name="deleted">
+                                        <option value=""selected>Select deleted status</option>
+                                        <option value="Auto">Auto</option>
+                                        <option value="Manually">Manually</option>
+                                    </select>
+                                    <div class="invalid-feedback">
+                                        Please select a deleted status!
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- end col-->
                         </div>
                         <div style="height: 100px;"></div>
                     </div>

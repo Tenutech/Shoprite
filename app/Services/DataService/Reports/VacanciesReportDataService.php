@@ -377,6 +377,15 @@ class VacanciesReportDataService
             }
         }
 
+        // Apply the `deleted` filter
+        if (isset($filters['deleted'])) {
+            if ($filters['deleted'] === 'Auto') {
+                $vacancies->where('auto_deleted', 'Yes');
+            } elseif ($filters['deleted'] === 'Manually') {
+                $vacancies->where('deleted', 'Yes');
+            }
+        }
+
         // Calculate the sum of open_positions and filled_positions, treating null as 0
         $totalOpenPositions = $vacancies->sum(DB::raw('COALESCE(open_positions, 0)'));
         $totalFilledPositions = $vacancies->sum(DB::raw('COALESCE(filled_positions, 0)'));
@@ -461,6 +470,15 @@ class VacanciesReportDataService
                         $query->whereNull('applicant_ids')
                             ->orWhere('applicant_ids', '[]');
                     });
+            }
+        }
+
+        // Apply the `deleted` filter
+        if (isset($filters['deleted'])) {
+            if ($filters['deleted'] === 'Auto') {
+                $vacancies->where('auto_deleted', 'Yes');
+            } elseif ($filters['deleted'] === 'Manually') {
+                $vacancies->where('deleted', 'Yes');
             }
         }
 
@@ -560,6 +578,15 @@ class VacanciesReportDataService
                         $query->whereNull('applicant_ids')
                             ->orWhere('applicant_ids', '[]');
                     });
+            }
+        }
+
+        // Apply the `deleted` filter
+        if (isset($filters['deleted'])) {
+            if ($filters['deleted'] === 'Auto') {
+                $vacancies->where('auto_deleted', 'Yes');
+            } elseif ($filters['deleted'] === 'Manually') {
+                $vacancies->where('deleted', 'Yes');
             }
         }
 
@@ -665,6 +692,15 @@ class VacanciesReportDataService
                         $query->whereNull('applicant_ids')
                             ->orWhere('applicant_ids', '[]');
                     });
+            }
+        }
+
+        // Apply the `deleted` filter
+        if (isset($filters['deleted'])) {
+            if ($filters['deleted'] === 'Auto') {
+                $vacancies->where('auto_deleted', 'Yes');
+            } elseif ($filters['deleted'] === 'Manually') {
+                $vacancies->where('deleted', 'Yes');
             }
         }
 

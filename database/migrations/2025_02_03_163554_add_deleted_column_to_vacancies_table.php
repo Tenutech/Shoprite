@@ -13,7 +13,7 @@ return new class extends Migration
     {
         if (!Schema::hasColumn('vacancies', 'deleted')) {
             Schema::table('vacancies', function (Blueprint $table) {
-                $table->enum('deleted', ['Yes', 'No'])->default('No')->after('advertisement');
+                $table->enum('deleted', ['Yes', 'No'])->default('No')->nullable()->after('advertisement');
             });
         }
     }
