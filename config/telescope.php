@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'enabled' => env('TELESCOPE_ENABLED', false),
+    'enabled' => false,
 
     /*
     |--------------------------------------------------------------------------
@@ -76,7 +76,7 @@ return [
     */
 
     'queue' => [
-        'connection' => env('TELESCOPE_QUEUE_CONNECTION', null),
+        'connection' => env('TELESCOPE_QUEUE_CONNECTION', 'database'),
         'queue' => env('TELESCOPE_QUEUE', 'telescope'),
     ],
 

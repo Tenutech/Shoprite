@@ -108,7 +108,7 @@
                                     If you have already registered on WhatsApp, you can use this platform to update your personal details.
                                 </p>
                                 <div class="d-flex">
-                                    <a href="{{ route('login') }}" class="btn btn-shoprite-primary me-2">
+                                    <a href="{{ route('register') }}" class="btn btn-shoprite-primary me-2">
                                         JOBS AT STORES
                                         <i class="ri-arrow-right-line align-bottom me-1"></i> 
                                     </a>
