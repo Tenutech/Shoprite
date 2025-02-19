@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'enabled' => false,
+    'enabled' => env('TELESCOPE_ENABLED', false),
 
     /*
     |--------------------------------------------------------------------------
