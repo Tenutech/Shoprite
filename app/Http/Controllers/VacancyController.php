@@ -762,6 +762,18 @@ class VacancyController extends Controller
 
                     // Remove duplicates and update the field
                     $applicant->appointments = json_encode(array_unique($appointments));
+
+                    // Update employment field based on vacancy type
+                    if ($vacancy->type->id == 3) {
+                        $applicant->employment = 'F';
+                    } elseif ($vacancy->type->id == 4) {
+                        $applicant->employment = 'S';
+                    } elseif ($vacancy->type->id == 5) {
+                        $applicant->employment = 'Y';
+                    } elseif ($vacancy->type->id == 6) {
+                        $applicant->employment = 'R';
+                    }
+
                     $applicant->save();
 
                     // Update the interview status to 'Appointed'

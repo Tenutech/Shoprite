@@ -98,14 +98,25 @@
                                                 <td class="open" data-sort="{{ $vacancy->open_positions }}">{{ $vacancy->open_positions }}</td>
                                                 <td class="filled" data-sort="{{ $vacancy->filled }}">{{ $vacancy->filled_positions }}</td>
                                                 <td class="sap">
-                                                    @if($vacancy->sapNumbers && $vacancy->sapNumbers->count() > 0)
-                                                        @foreach ($vacancy->sapNumbers as $index => $sapNumber)
-                                                            {{ $sapNumber->sap_number }} @if($index != $vacancy->sapNumbers->count() - 1),<br>@endif
+                                                    @php
+                                                        // Get existing SAP numbers from the vacancy->sapNumbers relationship
+                                                        $sapNumbers = $vacancy->sapNumbers ? $vacancy->sapNumbers->pluck('sap_number')->toArray() : [];
+                                                
+                                                        // Get appointed applicants' SAP numbers from vacancy_fills
+                                                        $appointedSapNumbers = $vacancy->appointed->pluck('pivot.sap_number')->toArray();
+                                                
+                                                        // Merge and remove duplicates
+                                                        $allSapNumbers = array_unique(array_merge($sapNumbers, $appointedSapNumbers));
+                                                    @endphp
+                                                
+                                                    @if(count($allSapNumbers) > 0)
+                                                        @foreach ($allSapNumbers as $index => $sapNumber)
+                                                            {{ $sapNumber }} @if($index != count($allSapNumbers) - 1),<br>@endif
                                                         @endforeach
                                                     @else
                                                         N/A
                                                     @endif
-                                                </td>                                                
+                                                </td>                                                                                                
                                                 <td class="date" data-sort="{{ date('Y-m-d', strtotime($vacancy->created_at)) }}">{{ date('d M Y', strtotime($vacancy->created_at)) }}</td>
                                                 <td class="status" data-sort="{{ $vacancy->status->name }}">
                                                     <span class="badge bg-{{ $vacancy->status->color }}-subtle text-{{ $vacancy->status->color }}">

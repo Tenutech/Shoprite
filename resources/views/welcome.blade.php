@@ -320,15 +320,15 @@
         <!-- Start footer -->
         <footer class="custom-footer bg-shoprite-primary py-5 position-relative">
             <div class="container">
-                <div class="row">
-                    <div class="col-lg-4 mt-4">
-                        <div>
-                            <div>
-                                <img src="{{URL::asset('build/images/logo-light.png')}}" alt="Shoprite Logo" height="30" />
-                            </div>
-                        </div>
+                <div class="row align-items-center">
+                    <div class="col-lg-4 mt-4 d-flex align-items-center">
+                        <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="Shoprite Logo" height="30" />
                     </div>
-                </div>
+                    <div class="col-lg-4 mt-4"></div> <!-- Empty column for spacing -->
+                    <div class="col-lg-4 mt-4 d-flex justify-content-lg-end align-items-center">
+                        <img src="{{ URL::asset('build/images/top-employer.png') }}" alt="2025 Top Employer South Africa" height="80" />
+                    </div>
+                </div>                
 
                 <div class="row text-center text-sm-start align-items-center mt-5">
                     <div class="col-sm-6">
@@ -345,14 +345,16 @@
                         <div class="text-sm-end mt-3 mt-sm-0">
                             <ul class="list-inline mb-0 footer-list gap-4 fs-15">
                                 <li class="list-inline-item">
-                                    <a href="https://bit.ly/srtscsnew" target="_blank">Privacy Policy</a>
+                                    <a href="https://www.shopriteholdings.co.za/docs/shp-data-privacy.pdf" target="_blank">Privacy Policy</a>
                                 </li>
                                 <li class="list-inline-item">
                                     <a href="https://bit.ly/srtscsnew" target="_blank">Terms & Conditions</a>
                                 </li>
+                                <!--
                                 <li class="list-inline-item">
                                     <a href="https://bit.ly/srtscsnew" target="_blank">Security</a>
                                 </li>
+                                -->
                             </ul>
                         </div>
                     </div>
