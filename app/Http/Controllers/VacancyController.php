@@ -242,16 +242,29 @@ class VacancyController extends Controller
                         if ($sapNumber->vacancy->user_id !== $userID) {
                             $fail('The SAP number ' . $value . ' has already been taken.');
                         } elseif ($sapNumber->vacancy->user_id === $userID) {
-                            // Handle SAP number reassignment
+                            // Handle SAP number reassignment without deleting vacancy fills
                             DB::transaction(function () use ($sapNumber) {
-                                // Delete associated vacancy fills
-                                $sapNumber->vacancyFills()->delete();
-
-                                // Update the associated vacancy
-                                $vacancy = $sapNumber->vacancy;
-                                $vacancy->open_positions = max(0, $vacancy->open_positions + 1);
-                                $vacancy->filled_positions = max(0, $vacancy->filled_positions - 1);
-                                $vacancy->save();
+                                // Get all vacancy fills related to the SAP number
+                                $vacancyFills = $sapNumber->vacancyFills()->get();
+                    
+                                // Loop through vacancy fills to update associated applicants
+                                foreach ($vacancyFills as $vacancyFill) {
+                                    // Find the applicant where appointed_id = vacancyFill->id
+                                    $applicant = Applicant::where('appointed_id', $vacancyFill->id)->first();
+                    
+                                    if ($applicant) {
+                                        // Set appointed_id and shortlist_id to null
+                                        $applicant->update([
+                                            'appointed_id' => null,
+                                            'shortlist_id' => null
+                                        ]);
+                                    }
+                                }
+                    
+                                // Update the associated vacancy fills to set sap_number_id to null
+                                $sapNumber->vacancyFills()->update([
+                                    'sap_number_id' => null
+                                ]);
                             });
                         }
                     }
@@ -742,6 +755,13 @@ class VacancyController extends Controller
 
                     // Update the applicant's appointed_id to reference the new VacancyFill record
                     $applicant->appointed_id = $vacancyFill->id;
+
+                    // Ensure appointments field is an array, then append the new vacancy_id
+                    $appointments = $applicant->appointments ? json_decode($applicant->appointments, true) : [];
+                    $appointments[] = $vacancy->id;
+
+                    // Remove duplicates and update the field
+                    $applicant->appointments = json_encode(array_unique($appointments));
                     $applicant->save();
 
                     // Update the interview status to 'Appointed'
