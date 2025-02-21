@@ -320,23 +320,22 @@
         <!-- Start footer -->
         <footer class="custom-footer bg-shoprite-primary py-5 position-relative">
             <div class="container">
-                <div class="row align-items-center">
-                    <div class="col-lg-4 mt-4 d-flex align-items-center">
+                <div class="row align-items-center text-center text-lg-start">
+                    <div class="col-lg-4 col-12 mt-4 d-flex justify-content-center justify-content-lg-start">
                         <img src="{{ URL::asset('build/images/logo-light.png') }}" alt="Shoprite Logo" height="30" />
                     </div>
-                    <div class="col-lg-4 mt-4"></div> <!-- Empty column for spacing -->
-                    <div class="col-lg-4 mt-4 d-flex justify-content-lg-end align-items-center">
+                    <div class="col-lg-4 col-12 mt-4"></div> <!-- Empty column for spacing -->
+                    <div class="col-lg-4 col-12 mt-4 d-flex justify-content-center justify-content-lg-end">
                         <img src="{{ URL::asset('build/images/top-employer.png') }}" alt="2025 Top Employer South Africa" height="80" />
                     </div>
                 </div>                
-
+        
                 <div class="row text-center text-sm-start align-items-center mt-5">
                     <div class="col-sm-6">
                         <div>
                             <p class="copy-rights mb-0">
                                 <script>
                                     document.write(new Date().getFullYear())
-
                                 </script> © Shoprite - Job Opportunities - OTB Group
                             </p>
                         </div>
@@ -350,17 +349,12 @@
                                 <li class="list-inline-item">
                                     <a href="https://bit.ly/srtscsnew" target="_blank">Terms & Conditions</a>
                                 </li>
-                                <!--
-                                <li class="list-inline-item">
-                                    <a href="https://bit.ly/srtscsnew" target="_blank">Security</a>
-                                </li>
-                                -->
                             </ul>
                         </div>
                     </div>
                 </div>
             </div>
-        </footer>
+        </footer>        
         <!-- end footer -->
 
 
