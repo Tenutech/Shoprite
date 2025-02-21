@@ -324,24 +324,24 @@ class ShortlistController extends Controller
                 });
             }
 
-            // Check if shortlist_type_id is 5 then only get fixed term applicants
+            // Check if shortlist_type_id is 5 then only get from saved applicants - Peak Season
             if ($request->input('shortlist_type_id') == '5') {
-                $query->where('employment', 'F');
+                    $query->where('employment', 'S');
             }
 
-            // Check if shortlist_type_id is 6 then only get fixed term applicants
+            // Check if shortlist_type_id is 6 then only get from saved applicants - Fixed Term
             if ($request->input('shortlist_type_id') == '6') {
-                $query->where('employment', 'S');
+                    $query->where('employment', 'F');
             }
 
-            // Check if shortlist_type_id is 7 then only get fixed term applicants
+            // Check if shortlist_type_id is 7 then only get from saved applicants - Yes
             if ($request->input('shortlist_type_id') == '7') {
-                $query->where('employment', 'Y');
+                    $query->where('employment', 'Y');
             }
 
-            // Check if shortlist_type_id is 8 then only get fixed term applicants
+            // Check if shortlist_type_id is 8 then only get from saved applicants - RRP
             if ($request->input('shortlist_type_id') == '8') {
-                $query->where('employment', 'R');
+                    $query->where('employment', 'R');
             }
 
             // Apply filters if they are present in the request

@@ -107,7 +107,7 @@ class SendQueryToJira implements ShouldQueue
             if ($img instanceof \DOMElement) {
                 $src = $img->getAttribute('src');
                 $jiraImageSyntax = "!{$src}!";
-                
+
                 // Replace the image node with the Jira image syntax
                 $replacement = $dom->createTextNode($jiraImageSyntax);
                 $img->parentNode->replaceChild($replacement, $img);
@@ -122,5 +122,5 @@ class SendQueryToJira implements ShouldQueue
         $processedHtml = str_replace('<br>', "\n", $processedHtml);
 
         return $processedHtml;
-    }  
+    }
 }

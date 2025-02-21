@@ -101,7 +101,7 @@ function loadCandidateListData(datas, page) {
 
             var employment = datas[i].employment || 'I';
             var status, tooltip;
-    
+
             // Set status and tooltip based on employment
             switch (employment) {
                 case 'A':
@@ -120,6 +120,22 @@ function loadCandidateListData(datas, page) {
                     status = 'success';
                     tooltip = 'Not an Employee';
                     break;
+                case 'Y':
+                    status = 'primary';
+                    tooltip = 'Yes';
+                    break;
+                case 'R':
+                    status = 'danger';
+                    tooltip = 'RRP';
+                    break;
+                case 'S':
+                    status = 'warning';
+                    tooltip = 'Peak Season';
+                    break;
+                case 'F':
+                    status = 'secondary';
+                    tooltip = 'Fixed Term';
+                    break;
                 case 'I':
                 default:
                     status = 'dark';
@@ -127,7 +143,7 @@ function loadCandidateListData(datas, page) {
                     break;
             }
 
-            document.querySelector("#candidate-list").innerHTML += 
+            document.querySelector("#candidate-list").innerHTML +=
                 '<div class="col-md-6 col-lg-12">\
                     <div class="card mb-0 '+ appointedClass +'">\
                         <div class="card-body">\
@@ -148,7 +164,7 @@ function loadCandidateListData(datas, page) {
                                     </p>\
                                 </div>\
                                 <div class="col-2">\
-                                    <i class="ri-shield-user-line text-'+ status + ' me-1 align-bottom"></i>' + 
+                                    <i class="ri-shield-user-line text-'+ status + ' me-1 align-bottom"></i>' +
                                     '<span class="badge bg-'+ status + '-subtle text-'+ status + '">' + tooltip +
                                 '</div>\
                                 <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">\
@@ -288,10 +304,10 @@ function initMap() {
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
     var R = 6371; // Radius of the earth in km
-    var dLat = (lat2 - lat1) * Math.PI / 180;  
+    var dLat = (lat2 - lat1) * Math.PI / 180;
     var dLon = (lon2 - lon1) * Math.PI / 180;
     var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
             Math.sin(dLon / 2) * Math.sin(dLon / 2);
     var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     var d = R * c; // Distance in km
@@ -308,13 +324,13 @@ selectTown.addEventListener('change', function() {
     const selectedValue = this.value.split(';');
     const key = selectedValue[0];
     const value = selectedValue[1];
-    
+
     // Get the label as the option text
     const label = this.options[this.selectedIndex].textContent;
 
     if (!badgeExists(value)) {
         addBadge(key, value, label);
-        applyFilter(key, value); 
+        applyFilter(key, value);
     }
 });
 
@@ -344,7 +360,7 @@ function filterItems(arr, query, filters) {
 
         const locationMatch = !filters["coordinates"] ? true : (function(){
             if (!el.coordinates) return false;
-            
+
             const selectedLoc = filters["coordinates"][0];
             const coords = el.coordinates.split(',');
             const candidateLat = parseFloat(coords[0].trim());
@@ -418,7 +434,7 @@ document.querySelectorAll('.filter-button').forEach(button => {
             } else {
                 applyFilter(filter[0], value);
             }
-            
+
             filterAndSearch();
         }
     });
@@ -480,7 +496,7 @@ function applyFilter(key, value) {
     if (!activeFilters[key]) {
         activeFilters[key] = [];
     }
-    
+
     // Check if the value already exists for this key
     if (activeFilters[key].indexOf(value) === -1) {
         activeFilters[key].push(value);

@@ -311,7 +311,7 @@ class ApplicantsReportController extends Controller
                 'max_situational' => 'nullable|integer|min:0|max:10|gte:min_situational',
                 'min_overall' => 'nullable|numeric|min:0|max:5',
                 'max_overall' => 'nullable|numeric|min:0|max:5|gte:min_overall',
-                'employment' => 'nullable|string|in:A,B,I,P,N',
+                'employment' => 'nullable|string|in:A,B,I,P,N,Y,R,S,F',
                 'completed' => 'nullable|string|in:Yes,No',
                 'shortlisted' => 'nullable|string|in:Yes,No',
                 'interviewed' => 'nullable|string|in:Yes,No',

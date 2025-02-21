@@ -171,7 +171,7 @@ class ApplicantsTableController extends Controller
             'email' => ['nullable', 'string', 'email', 'max:191', Rule::unique('applicants')->ignore($applicantId)],
             'phone' => ['required', 'string', 'max:191', Rule::unique('applicants')->ignore($applicantId)],
             'id_number' => ['required', 'string', 'max:13', Rule::unique('applicants')->ignore($applicantId)],
-            'employment' => ['required', 'in:A,B,I,N,P'],
+            'employment' => ['required', 'in:A,B,I,N,P,Y,R,S,F'],
             'gender_id' => ['required', 'integer', 'exists:genders,id'],
             'race_id' => ['required', 'integer', 'exists:races,id'],
             'location' => ['required', 'string'],
@@ -433,6 +433,10 @@ class ApplicantsTableController extends Controller
                 'previously' => 'P',
                 'not an employee' => 'N',
                 'not employee' => 'N',
+                'yes' => 'Y',
+                'rrp' => 'R',
+                'peak season' => 'S',
+                'fixed term' => 'F'
             ];
 
             $employmentCode = null;
@@ -449,12 +453,12 @@ class ApplicantsTableController extends Controller
             $applicantsQuery->where(function ($query) use ($search, $employmentCode) {
                 $lowerSearch = strtolower($search); // Normalize search term for all filters
                 $searchTerms = array_filter(explode(' ', $lowerSearch)); // Split search into words and remove empty terms
-            
+
                 // Filter by employment code if applicable
                 $query->when($employmentCode, function ($q) use ($employmentCode) {
                     $q->orWhere('employment', $employmentCode);
                 });
-            
+
                 // Apply case-insensitive search for other fields
                 $query->when(!$employmentCode, function ($q) use ($searchTerms) {
                     foreach ($searchTerms as $term) {
@@ -482,7 +486,7 @@ class ApplicantsTableController extends Controller
                         });
                     }
                 });
-            });            
+            });
 
             $applicants = $applicantsQuery->paginate($perPage);
 

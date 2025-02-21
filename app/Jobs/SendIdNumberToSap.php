@@ -88,7 +88,7 @@ class SendIdNumberToSap implements ShouldQueue
                 $status = $responseBody['d']['Status'];
 
                 // Update the applicant's employment based on the status
-                if ($status === 'A' || $status === 'B' || $status === 'P') {
+                if ($status === 'A' || $status === 'B' || $status === 'P' || $status === 'Y' || $status === 'R' || $status === 'S' || $status === 'F') {
                     $this->applicant->employment = $status;
                 }
             } elseif (empty($responseBody['d'])) {

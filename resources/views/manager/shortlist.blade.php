@@ -115,8 +115,13 @@
                     <!-- <option value="2">Applicants</option> -->
                     <option value="3" selected>Any</option>
                     <option value="4">Saved Candidates</option>
+<<<<<<< HEAD
+                    <option value="5">Peak Season</option>
+                    <option value="6">Fixed Term</option>
+=======
                     <option value="5">Fixed Term</option>
                     <option value="6">Peak Season</option>
+>>>>>>> development
                     <option value="7">Yes</option>
                     <option value="8">RRP</option>
             </select>

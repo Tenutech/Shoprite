@@ -46,14 +46,14 @@ class VacancyDeleteNoAppointment extends Command
 
         foreach ($vacancies as $vacancy) {
             $filledPositions = $vacancy->filled_positions;
-            
+
             if ($filledPositions == 0) {
                 $vacancy->deleted = 'Yes';
                 $vacancy->auto_deleted = 'Yes';
             } else {
                 $vacancy->open_positions = 0;
             }
-            
+
             $vacancy->save();
 
             // Fetch applicants in shortlist with scheduled interviews

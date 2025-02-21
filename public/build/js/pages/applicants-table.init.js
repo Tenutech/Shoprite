@@ -323,6 +323,22 @@ editBtn.addEventListener("click", function (e) {
                                     employmentValue = 'Not an Employee';
                                     employmentBadgeClass = 'success';
                                     break;
+                                case 'Y':
+                                    employmentValue = 'Yes';
+                                    employmentBadgeClass = 'primary';
+                                    break;
+                                case 'R':
+                                    employmentValue = 'RRP';
+                                    employmentBadgeClass = 'danger';
+                                    break;
+                                case 'S':
+                                    employmentValue = 'Peak Season';
+                                    employmentBadgeClass = 'warning';
+                                    break;
+                                case 'F':
+                                    employmentValue = 'Fixed Term';
+                                    employmentBadgeClass = 'secondary';
+                                    break;
                                 case 'I':
                                 default:
                                     employmentValue = 'Inconclusive';
@@ -666,7 +682,7 @@ function refreshCallbacks() {
                                         <tr>
                                             <td class="fw-medium" scope="row">State</td>
                                             <td>${x._values.state}</td>
-                                        </tr>                                        
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -877,6 +893,22 @@ $(document).on('click', '.pagination a, .pagination-prev, .pagination-next', fun
                                 employmentStatus = 'Not an Employee';
                                 statusClass = 'success';
                                 break;
+                            case 'Y':
+                                employmentStatus = 'Yes';
+                                statusClass = 'primary';
+                                break;
+                            case 'R':
+                                employmentStatus = 'RRP';
+                                statusClass = 'danger';
+                                break;
+                            case 'S':
+                                employmentStatus = 'Peak Season';
+                                statusClass = 'warning';
+                                break;
+                            case 'F':
+                                employmentStatus = 'Fixed Term';
+                                statusClass = 'secondary';
+                                break;
                             case 'I':
                             default:
                                 employmentStatus = 'Inconclusive';
@@ -1021,6 +1053,22 @@ $(document).on('change', '#per-page-select', function () {
                                 employmentStatus = 'Not an Employee';
                                 statusClass = 'success';
                                 break;
+                            case 'Y':
+                                employmentStatus = 'Yes';
+                                statusClass = 'primary';
+                                break;
+                            case 'R':
+                                employmentStatus = 'RRP';
+                                statusClass = 'danger';
+                                break;
+                            case 'S':
+                                employmentStatus = 'Peak Season';
+                                statusClass = 'warning';
+                                break;
+                            case 'F':
+                                employmentStatus = 'Fixed Term';
+                                statusClass = 'secondary';
+                                break;
                             case 'I':
                             default:
                                 employmentStatus = 'Inconclusive';
@@ -1093,7 +1141,7 @@ $(document).on('input', '#search', function () {
                     $('.noresult').show(); // Make the message visible
                 } else {
                     // Hide the "No Results Found" message
-                    $('.noresult').hide();        
+                    $('.noresult').hide();
 
                     // Add new data to the list
                     response.data.forEach(applicant => {
@@ -1128,6 +1176,22 @@ $(document).on('input', '#search', function () {
                                     case 'N':
                                         employmentStatus = 'Not an Employee';
                                         statusClass = 'success';
+                                        break;
+                                    case 'Y':
+                                        employmentStatus = 'Yes';
+                                        statusClass = 'primary';
+                                        break;
+                                    case 'R':
+                                        employmentStatus = 'RRP';
+                                        statusClass = 'danger';
+                                        break;
+                                    case 'S':
+                                        employmentStatus = 'Peak Season';
+                                        statusClass = 'warning';
+                                        break;
+                                    case 'F':
+                                        employmentStatus = 'Fixed Term';
+                                        statusClass = 'secondary';
                                         break;
                                     case 'I':
                                     default:

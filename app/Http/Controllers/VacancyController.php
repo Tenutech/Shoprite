@@ -246,12 +246,12 @@ class VacancyController extends Controller
                             DB::transaction(function () use ($sapNumber) {
                                 // Get all vacancy fills related to the SAP number
                                 $vacancyFills = $sapNumber->vacancyFills()->get();
-                    
+
                                 // Loop through vacancy fills to update associated applicants
                                 foreach ($vacancyFills as $vacancyFill) {
                                     // Find the applicant where appointed_id = vacancyFill->id
                                     $applicant = Applicant::where('appointed_id', $vacancyFill->id)->first();
-                    
+
                                     if ($applicant) {
                                         // Set appointed_id and shortlist_id to null
                                         $applicant->update([
@@ -260,7 +260,7 @@ class VacancyController extends Controller
                                         ]);
                                     }
                                 }
-                    
+
                                 // Update the associated vacancy fills to set sap_number_id to null
                                 $sapNumber->vacancyFills()->update([
                                     'sap_number_id' => null
@@ -544,7 +544,7 @@ class VacancyController extends Controller
                     'message' => 'Unauthorized: You do not have permission to delete this vacancy.'
                 ], 403);
             }
-            
+
             // Decrypt the provided ID
             $vacancyId = Crypt::decryptString($id);
 
@@ -557,14 +557,14 @@ class VacancyController extends Controller
                     'message' => 'Vacancy cannot be deleted as it has an active shortlist.'
                 ], 400);
             }
-    
+
             if (!$vacancy->interviews->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Vacancy cannot be deleted as it has scheduled interviews.'
                 ], 400);
             }
-    
+
             if (!$vacancy->appointments->isEmpty()) {
                 return response()->json([
                     'success' => false,
@@ -756,23 +756,38 @@ class VacancyController extends Controller
                     // Update the applicant's appointed_id to reference the new VacancyFill record
                     $applicant->appointed_id = $vacancyFill->id;
 
-                    // Ensure appointments field is an array, then append the new vacancy_id
-                    $appointments = $applicant->appointments ? json_decode($applicant->appointments, true) : [];
+                    // Update employment status if vacancy type is NOT Full Time (1) or Part Time (2)
+                    if ($vacancy->type_id > 2) {
+                        if ($vacancy->type_id === 3) {
+                            $applicant->employment = 'F';
+                        } elseif ($vacancy->type_id === 4) {
+                            $applicant->employment = 'S';
+                        } elseif ($vacancy->type_id === 5) {
+                            $applicant->employment = 'Y';
+                        } else {
+                            $applicant->employment = 'R';
+                        }
+                    }
+
+                    // Decode appointments (vacancy_ids) to array, remove the appointments ids, and re-encode it
+                    $decodedAppointments = json_decode($applicant->appointments, true);
+
+                    // If the decoded value is null
+                    if ($decodedAppointments === null) {
+                        // Field is null or empty
+                        $appointments = [];
+                    } elseif (!is_array($decodedAppointments)) {
+                        // Field contains a single value
+                        $appointments = [$decodedAppointments];
+                    } else {
+                        $appointments = $decodedAppointments;
+                    }
+
+                    // Append the new vacancy ID.
                     $appointments[] = $vacancy->id;
 
-                    // Remove duplicates and update the field
-                    $applicant->appointments = json_encode(array_unique($appointments));
-
-                    // Update employment field based on vacancy type
-                    if ($vacancy->type->id == 3) {
-                        $applicant->employment = 'F';
-                    } elseif ($vacancy->type->id == 4) {
-                        $applicant->employment = 'S';
-                    } elseif ($vacancy->type->id == 5) {
-                        $applicant->employment = 'Y';
-                    } elseif ($vacancy->type->id == 6) {
-                        $applicant->employment = 'R';
-                    }
+                    // Encode the updated array back to JSON and update the record.
+                    $applicant->appointments = json_encode($appointments);
 
                     $applicant->save();
 

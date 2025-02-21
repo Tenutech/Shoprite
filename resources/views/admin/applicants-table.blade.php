@@ -131,6 +131,22 @@
                                                                 $employment = 'Not an Employee';
                                                                 $status = 'success';
                                                                 break;
+                                                            case 'Y':
+                                                                $employment = 'Yes';
+                                                                $status = 'primary';
+                                                                break;
+                                                            case 'R':
+                                                                $employment = 'RRP';
+                                                                $status = 'danger';
+                                                                break;
+                                                            case 'S':
+                                                                $employment = 'Peak Season';
+                                                                $status = 'warning';
+                                                                break;
+                                                            case 'F':
+                                                                $employment = 'Fixed Term';
+                                                                $status = 'secondary';
+                                                                break;
                                                             case 'I':
                                                             default:
                                                                 $employment = 'Inconclusive';
@@ -140,7 +156,7 @@
                                                     @endphp
                                                     <span class="badge bg-{{ $status }}-subtle text-{{ $status }} text-uppercase">
                                                         {{ $employment }}
-                                                    </span>                                                    
+                                                    </span>
                                                 </td>
                                                 <td class="state">{{ $applicant->state_id ? $applicant->state->name : '' }}</td>
                                                 <td class="email d-none">{{ $applicant->email }}</td>
@@ -195,7 +211,7 @@
                                             <td class="phone"></td>
                                             <td class="employment"></td>
                                             <td class="state"></td>
-                                            <td class="email d-none"></td>                                           
+                                            <td class="email d-none"></td>
                                             <td class="town d-none"></td>
                                             <td class="age d-none"></td>
                                             <td class="gender d-none"></td>
@@ -279,8 +295,8 @@
                                 <a class="page-item pagination-next" href="#" data-i="2" data-page="10">
                                     Next
                                 </a>
-                            </div>                           
-                        </div>                        
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Modal Applicant -->
@@ -357,7 +373,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->                                              
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="location" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="What is your current home address where you stay/live 🏡? Please type every detail. (e.g. street number, street name, suburb, town, postal code).">
                                                         Address
@@ -452,6 +468,10 @@
                                                         <option value="B">Blacklisted</option>
                                                         <option value="P">Previously Employed</option>
                                                         <option value="N">Not an Employee</option>
+                                                        <option value="Y">Yes</option>
+                                                        <option value="R">RRP</option>
+                                                        <option value="S">Peak Season</option>
+                                                        <option value="F">Fixed Term</option>
                                                         <option value="I">Inconclusive</option>
                                                     </select>
                                                 </div>
@@ -468,7 +488,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->                                      
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="education" class="form-label">
                                                         Education

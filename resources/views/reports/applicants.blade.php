@@ -62,7 +62,7 @@
                         <div class="mt-3 mt-lg-0">
                             <div class="row g-3 mb-0 align-items-center">
                                 <div class="col-sm-auto">
-                                    <div class="hstack gap-1">                                            
+                                    <div class="hstack gap-1">
                                         <!-- Filter Button -->
                                         <button class="btn btn-secondary btn-label" id="filterBtn" data-bs-toggle="offcanvas" href="#filters-canvas" aria-controls="member-overview">
                                             <i class="ri-equalizer-line label-icon align-middle fs-16 me-2"></i>
@@ -74,7 +74,7 @@
                                         </button>
                                     </div>
                                 </div> <!--end col-->
-                            </div> <!--end row -->                 
+                            </div> <!--end row -->
                         </div>
                     </div><!-- end card header -->
                 </div> <!--end col -->
@@ -114,7 +114,7 @@
                         </div><!-- end card body -->
                     </div><!-- end card -->
                 </div> <!--end col -->
-            
+
                 <!-- Total Appointed Applicants -->
                 <div class="col-xl-6 col-md-6 d-flex">
                     <div class="card card-animate overflow-hidden w-100">
@@ -159,7 +159,7 @@
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div><!-- end card header -->
-            
+
                         <div class="card-body">
                             <div id="applicants_by_month" data-colors='["--vz-primary", "--vz-success", "--vz-danger", "--vz-warning", "--vz-info", "--vz-indigo", "--vz-purple", "--vz-pink"]' class="apex-charts" dir="ltr"></div>
                         </div><!-- end card-body -->
@@ -279,7 +279,7 @@
                                 </div>
                                 <!-- end col -->
                             </div>
-                            
+
                             <!-- Highest Qualification -->
                             <div class="col-12">
                                 <div class="mb-3">
@@ -344,7 +344,7 @@
                                     </div>
                                 </div>
                                 <!-- end col-->
-                            
+
                                 <!-- Numeracy Score -->
                                 <div class="col-6">
                                     <div class="mb-3">
@@ -370,7 +370,7 @@
                                     </div>
                                 </div>
                                 <!-- end col-->
-                            
+
                                 <!-- Situational Score -->
                                 <div class="col-6">
                                     <div class="mb-3">
@@ -396,7 +396,7 @@
                                     </div>
                                 </div>
                                 <!-- end col-->
-                            
+
                                 <!-- Overall Score -->
                                 <div class="col-6">
                                     <div class="mb-3">
@@ -437,6 +437,10 @@
                                         <option value="I">Inconclusive</option>
                                         <option value="P">Previously Employed</option>
                                         <option value="N">Not an Employee</option>
+                                        <option value="Y">Yes</option>
+                                        <option value="R">RRP</option>
+                                        <option value="S">Peak Season</option>
+                                        <option value="F">Fixed Term</option>
                                     </select>
                                     <div class="invalid-feedback">
                                         Please select an employment status!
@@ -577,23 +581,23 @@
                         <div style="height: 100px;"></div>
                     </div>
                     <!-- end main content -->
-                    
+
                     <!-- Sticky footer at the bottom -->
                     <div class="offcanvas-footer p-3 hstack gap-3 text-center position-absolute w-100 bg-white" style="bottom: 0;">
                         <button class="btn btn-light btn-label w-100" id="clearFilters" onclick="location.reload();">
-                            <i class="ri-delete-bin-fill label-icon align-middle fs-16 me-2"></i> 
+                            <i class="ri-delete-bin-fill label-icon align-middle fs-16 me-2"></i>
                             Clear Filters
                         </button>
 
                         <button type="submit" class="btn btn-secondary btn-label w-100" id="filter">
-                            <i class="ri-equalizer-fill label-icon align-middle fs-16 me-2"></i> 
+                            <i class="ri-equalizer-fill label-icon align-middle fs-16 me-2"></i>
                             Filter
-                        </button>                        
+                        </button>
                     </div>
                 </div>
             </form>
         </div>
-        <!-- end offcanvas-->                
+        <!-- end offcanvas-->
 
     </div> <!-- end col -->
 </div> <!-- end row -->
