@@ -707,6 +707,40 @@ class VacancyController extends Controller
 
                     // Update the applicant's appointed_id to reference the new VacancyFill record
                     $applicant->appointed_id = $vacancyFill->id;
+
+                    // Update employment status if vacancy type is NOT Full Time (1) or Part Time (2)
+                    if ($vacancy->type_id > 2) {
+                        if ($vacancy->type_id === 3) {
+                            $applicant->employment = 'F';
+                        } elseif ($vacancy->type_id === 4) {
+                            $applicant->employment = 'S';
+                        } elseif ($vacancy->type_id === 5) {
+                            $applicant->employment = 'Y';
+                        } else {
+                            $applicant->employment = 'R';
+                        }
+                    }
+
+                    // Decode appointments (vacancy_ids) to array, remove the appointments ids, and re-encode it
+                    $decodedAppointments = json_decode($applicant->appointments, true);
+
+                    // If the decoded value is null
+                    if ($decodedAppointments === null) {
+                        // Field is null or empty
+                        $appointments = [];
+                    } elseif (!is_array($decodedAppointments)) {
+                        // Field contains a single value
+                        $appointments = [$decodedAppointments];
+                    } else {
+                        $appointments = $decodedAppointments;
+                    }
+
+                    // Append the new vacancy ID.
+                    $appointments[] = $vacancy->id;
+
+                    // Encode the updated array back to JSON and update the record.
+                    $applicant->appointments = json_encode($appointments);
+
                     $applicant->save();
 
                     // Update the interview status to 'Appointed'

@@ -161,7 +161,7 @@ function fetchShortlistedApplicants() {
             success: function(data) {
                 if (data.success == true) {
                     allcandidateList = data.applicants;
-    
+
                     if (allcandidateList.length === 0) {
                         // Hide the candidate list container and show the no result message
                         document.querySelector("#candidate-list").style.display = 'none';
@@ -173,7 +173,7 @@ function fetchShortlistedApplicants() {
                         loadCandidateListData(allcandidateList, currentPage);
                         paginationEvents();
                     }
-    
+
                     Swal.fire({
                         position: 'top-end',
                         icon: 'success',
@@ -187,7 +187,7 @@ function fetchShortlistedApplicants() {
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -195,7 +195,7 @@ function fetchShortlistedApplicants() {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -259,14 +259,14 @@ function fetchData() {
     // Validate the number input
     if (number === '' || isNaN(number) || parseInt(number) < parseInt(minShortlistNumber)) {
         numberInput.classList.add('is-invalid');
-        return; 
+        return;
     } else if (number === '' || isNaN(number) || parseInt(number) > parseInt(maxShortlistNumber)) {
         numberInput.classList.add('is-invalid');
-        return; 
+        return;
     } else {
         numberInput.classList.remove('is-invalid');
     }
-    
+
     // Validate the applicant type select
     /*
     if (applicantType === '') {
@@ -300,10 +300,10 @@ function fetchData() {
     // Get the generate button and disable it to prevent multiple clicks
     var generateBtn = document.getElementById('generate-btn');
     generateBtn.innerHTML = '<div class="spinner-border text-light" role="status"><span class="sr-only">Loading...</span></div>';
-    generateBtn.disabled = true;    
+    generateBtn.disabled = true;
 
     // Collect filter parameters
-    var filters = {        
+    var filters = {
         applicant_type_id: document.getElementById('applicantType').value,
         ...activeFilters
     };
@@ -365,7 +365,7 @@ function fetchData() {
         },
         error: function(jqXHR, textStatus, errorThrown) {
             let message = ''; // Initialize the message variable
-        
+
             if (jqXHR.status === 400 || jqXHR.status === 422) {
                 message = jqXHR.responseJSON.message;
             } else if (textStatus === 'timeout') {
@@ -373,7 +373,7 @@ function fetchData() {
             } else {
                 message = 'An error occurred while processing your request. Please try again later.';
             }
-        
+
             // Trigger the Swal notification with the dynamic message
             Swal.fire({
                 position: 'top-end',
@@ -417,7 +417,7 @@ function loadCandidateListData(datas, page) {
             var employment = datas[i].employment || 'I'; // Use 'I' if employment is null
             var checkID = datas[i].encrypted_id; // Assuming you still need the ID
             var status, tooltip;
-        
+
             // Set status and tooltip based on employment
             switch (employment) {
                 case 'A':
@@ -435,6 +435,22 @@ function loadCandidateListData(datas, page) {
                 case 'N':
                     status = 'success';
                     tooltip = 'Not an Employee';
+                    break;
+                case 'Y':
+                    status = 'primary';
+                    tooltip = 'Yes';
+                    break;
+                case 'R':
+                    status = 'danger';
+                    tooltip = 'RRP';
+                    break;
+                case 'S':
+                    status = 'warning';
+                    tooltip = 'Peak Season';
+                    break;
+                case 'F':
+                    status = 'secondary';
+                    tooltip = 'Fixed Term';
                     break;
                 case 'I':
                 default:
@@ -530,7 +546,7 @@ function loadCandidateListData(datas, page) {
                                 </button>';
             }
 
-            document.querySelector("#candidate-list").innerHTML += 
+            document.querySelector("#candidate-list").innerHTML +=
                 '<div class="col-md-12 col-lg-12 candidate-card" data-candidate-id="' + datas[i].id + '">\
                     <div class="card ' + cardBorder + ' mb-0">\
                         <div class="card-body">\
@@ -554,7 +570,7 @@ function loadCandidateListData(datas, page) {
                                     </p>\
                                 </div>\
                                 <div class="col-2">\
-                                    <i class="ri-shield-user-line text-'+ status + ' me-1 align-bottom"></i>' + 
+                                    <i class="ri-shield-user-line text-'+ status + ' me-1 align-bottom"></i>' +
                                     '<span class="badge bg-'+ status + '-subtle text-'+ status + '">' + tooltip +
                                 '</div>\
                                 <div class="d-flex gap-4 mt-0 text-muted mx-auto col-2">\
@@ -688,7 +704,7 @@ if (interviewButton) {
     interviewButton.addEventListener('click', function(event) {
         // Find all checked checkboxes for the candidates
         var checkedCheckboxes = document.querySelectorAll('input[type="checkbox"][name="chk_child"]:checked');
-        
+
         // Reset the selectedApplicants array
         selectedApplicants = [];
 
@@ -726,7 +742,7 @@ if (interviewButton) {
 $('#interviewModal').on('shown.bs.modal', function () {
     // Clear current choices
     applicantChoices.clearChoices();
-  
+
     // Add the selected applicants as choices
     selectedApplicants.forEach(function(applicant) {
         applicantChoices.setChoices([
@@ -755,7 +771,7 @@ if (vacancyBtn) {
     vacancyBtn.addEventListener('click', function(event) {
         // Find all checked checkboxes for the candidates
         var checkedCheckboxes = document.querySelectorAll('input[type="checkbox"][name="chk_child"]:checked');
-        
+
         // Reset the selectedApplicants array
         selectedApplicants = [];
 
@@ -768,7 +784,7 @@ if (vacancyBtn) {
                 buttonsStyling: false,
                 showCloseButton: true
             });
-        } 
+        }
         // Check if no checkboxes are checked
         else if (checkedCheckboxes.length === 0) {
             // Show SweetAlert notification
@@ -796,7 +812,7 @@ if (vacancyBtn) {
 $('#vacancyModal').on('shown.bs.modal', function () {
     // Clear current choices
     vacancyChoices.clearChoices();
-  
+
     // Add the selected applicants as choices
     selectedApplicants.forEach(function(applicant) {
         vacancyChoices.setChoices([
@@ -862,7 +878,7 @@ function removeCandidate(candidateId) {
         },
         error: function(jqXHR, textStatus, errorThrown) {
             let message = ''; // Initialize the message variable
-        
+
             if (jqXHR.status === 400 || jqXHR.status === 422) {
                 message = jqXHR.responseJSON.message;
             } else if (textStatus === 'timeout') {
@@ -870,7 +886,7 @@ function removeCandidate(candidateId) {
             } else {
                 message = 'An error occurred while processing your request. Please try again later.';
             }
-        
+
             // Trigger the Swal notification with the dynamic message
             Swal.fire({
                 position: 'top-end',
@@ -991,14 +1007,14 @@ selectTown.addEventListener('change', function() {
     const selectedValue = this.value.split(';');  // Split the selected value into key and value
     const key = selectedValue[0];
     const value = selectedValue[1];
-    
+
     // Get the label as the option text
     const label = this.options[this.selectedIndex].textContent;
 
     // If the badge does not exist, add it
     if (!badgeExists(label, 'filterBadges')) {
         addBadge(key, value, label);
-        applyFilter(key, value); 
+        applyFilter(key, value);
     }
 });
 
@@ -1065,7 +1081,7 @@ function badgeExists(value, containerId) {
 
 function addLocationBadge(location, removable = true, radius = null) {
     const badgeContainer = document.getElementById('filterBadges');
-    
+
     // Use the provided radius if passed, otherwise fall back to the slider's value
     const selectedRadius = radius ? radius : parseFloat(slider.noUiSlider.get());
 
@@ -1125,7 +1141,7 @@ function addBadge(key, value, label, isCheck = false) {
         } else {
             removeFilter(key, value);
         }
-        
+
         badgeContainer.removeChild(badge);
     });
 
@@ -1150,7 +1166,7 @@ function applyFilter(key, value) {
     if (!activeFilters[key]) {
         activeFilters[key] = [];
     }
-    
+
     // Check if the value already exists for this key
     if (activeFilters[key].indexOf(value) === -1) {
         activeFilters[key].push(value);
@@ -1172,7 +1188,7 @@ function applyCheck(key, value) {
     if (!activeChecks[key]) {
         activeChecks[key] = [];
     }
-    
+
     // Add the value to the array for the key if it doesn't already exist
     if (activeChecks[key].indexOf(value) === -1) {
         activeChecks[key].push(value);
@@ -1340,7 +1356,7 @@ $('#formInterview').on('submit', function(e) {
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            success:function(data){                
+            success:function(data){
                 if (data.success == true) {
                     // For each selected applicant, add the alert if it doesn't exist
                     selectedChoices.forEach(function(applicantID) {
@@ -1382,16 +1398,16 @@ $('#formInterview').on('submit', function(e) {
 
                                 var rescheduledDateTime = formatFullDateTime(interview.interview.reschedule_date);
                                 var additionalText = `<br><strong>Suggested:</strong> ${rescheduledDateTime}`;
-                                
+
                                 // Construct the content to be updated
                                 var updatedContent = `<i class="ri-calendar-event-fill label-icon"></i><strong>Reschedule: </strong>${formattedScheduledDate}${additionalText}`;
-                            
+
                                 if (existingAlert) {
                                     // Remove existing status classes
                                     existingAlert.classList.remove('alert-danger', 'alert-success', 'alert-warning');
                                     // Add new status class
                                     existingAlert.classList.add('alert-info');
-                            
+
                                     // Update only the inner content of the existing alert (not the entire alert div)
                                     existingAlert.innerHTML = updatedContent;
 
@@ -1405,7 +1421,7 @@ $('#formInterview').on('submit', function(e) {
                                     var rescheduleHtml = `<div class="alert alert-info alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">
                                                             ${updatedContent}
                                                           </div>`;
-                                    
+
                                     var cardFooter = candidateCard.querySelector('.card-footer .d-flex');
                                     if (cardFooter) {
                                         cardFooter.insertAdjacentHTML('beforeend', rescheduleHtml);
@@ -1424,7 +1440,7 @@ $('#formInterview').on('submit', function(e) {
                                 } else {
                                     // Create and append a new alert div
                                     var alertHtml = '<div class="alert alert-warning alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">' +
-                                                    '<i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>' + data.date + ' at ' + data.time + 
+                                                    '<i class="ri-calendar-todo-fill label-icon"></i><strong>Scheduled: </strong>' + data.date + ' at ' + data.time +
                                                     '</div>';
                                     // Append the alertHtml to the card footer
                                     var cardFooter = candidateCard.querySelector('.card-footer .d-flex');
@@ -1435,7 +1451,7 @@ $('#formInterview').on('submit', function(e) {
                             }
                         }
                     });
-            
+
                     Swal.fire({
                         position: 'top-end',
                         icon: 'success',
@@ -1450,13 +1466,13 @@ $('#formInterview').on('submit', function(e) {
                     document.querySelectorAll('input[type="checkbox"][name="chk_child"]').forEach(function(checkbox) {
                         checkbox.checked = false;
                     });
-            
+
                     $('#interviewModal').modal('hide');
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -1464,7 +1480,7 @@ $('#formInterview').on('submit', function(e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -1546,7 +1562,7 @@ function interviewConfirm() {
                 },
                 error: function(jqXHR, textStatus, errorThrown) {
                     let message = ''; // Initialize the message variable
-            
+
                     if (jqXHR.status === 400 || jqXHR.status === 422) {
                         message = jqXHR.responseJSON.message;
                     } else if (textStatus === 'timeout') {
@@ -1554,7 +1570,7 @@ function interviewConfirm() {
                     } else {
                         message = 'An error occurred while processing your request. Please try again later.';
                     }
-                    
+
                     // Trigger the Swal notification with the dynamic message
                     Swal.fire({
                         position: 'top-end',
@@ -1634,7 +1650,7 @@ $('#formVacancy').on('submit', function(e) {
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            success:function(data){                
+            success:function(data){
                 if (data.success == true) {
 
                     // For each selected applicant, add the alert if it doesn't exist
@@ -1676,7 +1692,7 @@ $('#formVacancy').on('submit', function(e) {
                                 var formattedDateTime = formatDateTime(updatedTime);
 
                                 var alertHtml = '<div class="alert alert-success alert-dismissible alert-label-icon rounded-label fade show mb-0" role="alert">' +
-                                                '<i class="ri-open-arm-fill label-icon"></i><strong>Appointed: </strong>' + formattedDateTime + 
+                                                '<i class="ri-open-arm-fill label-icon"></i><strong>Appointed: </strong>' + formattedDateTime +
                                                 '</div>';
                                 // Append the alertHtml to the card footer
                                 var cardFooter = candidateCard.querySelector('.card-footer .d-flex');
@@ -1728,7 +1744,7 @@ $('#formVacancy').on('submit', function(e) {
                             label: 'Select SAP Number',
                             selected: true, // Set as the default selected option
                         }];
-                    
+
                         // Add the dynamic SAP number options
                         let sapNumberChoicesArray = data.vacancy.available_sap_numbers.map(function(sap) {
                             return {
@@ -1737,10 +1753,10 @@ $('#formVacancy').on('submit', function(e) {
                                 selected: sapNumberChoices.getValue(true) == sap.id // Optional: set selected if needed
                             };
                         });
-                    
+
                         // Combine both arrays (default option + dynamic options)
                         choicesArray = choicesArray.concat(sapNumberChoicesArray);
-                    
+
                         // Set choices in the Choices.js instance
                         sapNumberChoices.setChoices(choicesArray, 'value', 'label', true);
                     }
@@ -1752,7 +1768,7 @@ $('#formVacancy').on('submit', function(e) {
                     var openPositionsElement = document.querySelector('#openPositions');
                     var openPositionsText = data.vacancy.vacancy.open_positions + ' open ' + (data.vacancy.vacancy.open_positions === 1 ? 'position' : 'positions') + ' available.';
                     openPositionsElement.textContent = openPositionsText;
-            
+
                     Swal.fire({
                         position: 'top-end',
                         icon: 'success',
@@ -1770,13 +1786,13 @@ $('#formVacancy').on('submit', function(e) {
 
                     $('#loading-vacancy').addClass('d-none');
                     $('#vacancy-fill').show();
-            
+
                     $('#vacancyModal').modal('hide');
                 }
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -1784,7 +1800,7 @@ $('#formVacancy').on('submit', function(e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-                
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -1813,7 +1829,7 @@ $('#formVacancy').on('submit', function(e) {
 
 function formatDateTime(dateTime) {
     const date = new Date(dateTime);
-    
+
     const day = ("0" + date.getDate()).slice(-2); // Ensure two digits for day
     const month = date.toLocaleString('en-GB', { month: 'short' }); // Get abbreviated month name
     const hours = ("0" + date.getHours()).slice(-2); // Ensure two digits for hours
@@ -1825,12 +1841,12 @@ function formatDateTime(dateTime) {
 // A function to format the time part of the interview start_time string and adjust for South Africa time (UTC+2)
 function formatTimeTo24Hour(dateTimeString) {
     const date = new Date(dateTimeString);
-    
+
     const localDate = new Date(date.getTime());
-    
+
     const hours = ("0" + localDate.getHours()).slice(-2); // Ensure two digits
     const minutes = ("0" + localDate.getMinutes()).slice(-2); // Ensure two digits
-    
+
     return `${hours}:${minutes}`;
 }
 

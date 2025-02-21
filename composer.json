@@ -8,6 +8,7 @@
         "php": "^8.2.4",
         "aacotroneo/laravel-saml2": "^2.1",
         "box/spout": "^3.3",
+        "doctrine/dbal": "^3.9",
         "fruitcake/php-cors": "^1.2",
         "guzzlehttp/guzzle": "^7.8",
         "intervention/image": "^2",
