@@ -79,7 +79,7 @@
             <select class="form-control" id="vacancy" name="vacancy_id" required>
                 <option value="">Select Vacancy</option>
                 @foreach ($vacancies as $vacancyOption)
-                    <option value="{{ Crypt::encryptString($vacancyOption->id) }}" {{ ($vacancyID && $vacancyID == $vacancyOption->id) ? 'selected' : '' }}>{{ $vacancyOption->id }}. {{ $vacancyOption->position->name }}: ({{ $vacancyOption->store->brand->name }} - {{ $vacancyOption->store->name }})</option>
+                    <option value="{{ Crypt::encryptString($vacancyOption->id) }}" {{ ($vacancyID && $vacancyID == $vacancyOption->id) ? 'selected' : '' }}>{{ $vacancyOption->id }}. {{ optional($vacancyOption->type)->name ?? 'N/A' }} - {{ $vacancyOption->position->name }}: ({{ $vacancyOption->store->brand->name }} - {{ $vacancyOption->store->name }})</option>
                 @endforeach
             </select>
             <div class="invalid-feedback">Please select a vacancy</div>
@@ -115,8 +115,13 @@
                     <!-- <option value="2">Applicants</option> -->
                     <option value="3" selected>Any</option>
                     <option value="4">Saved Candidates</option>
+<<<<<<< HEAD
                     <option value="5">Peak Season</option>
                     <option value="6">Fixed Term</option>
+=======
+                    <option value="5">Fixed Term</option>
+                    <option value="6">Peak Season</option>
+>>>>>>> development
                     <option value="7">Yes</option>
                     <option value="8">RRP</option>
             </select>

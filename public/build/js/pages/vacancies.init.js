@@ -63,6 +63,9 @@ var vacancyList = new List("vacancyList", options).on("updated", function (list)
     }
 });
 
+var removeBtns = document.getElementsByClassName("remove-item-btn");
+refreshCallbacks();
+
 // Handle changes to the per-page selection
 var perPageSelect = document.getElementById("per-page-select");
 perPageSelect.addEventListener("change", function() {
@@ -123,3 +126,77 @@ document.querySelector(".pagination-wrap").addEventListener("click", function(ev
         }
     }
 });
+
+/*
+|--------------------------------------------------------------------------
+| Callbacks
+|--------------------------------------------------------------------------
+*/
+
+function refreshCallbacks() {
+    Array.from(removeBtns).forEach(function (btn) {
+        btn.onclick = function (e) {
+            e.target.closest("tr").children[0].innerText;
+            itemId = e.target.closest("tr").children[0].innerText;
+            var itemValues = vacancyList.get({
+                id: itemId,
+            });
+
+            Array.from(itemValues).forEach(function (x) {
+                deleteid = new DOMParser().parseFromString(x._values.id, "text/html");
+
+                var isdeleteid = deleteid.body.innerHTML;
+
+                if (isdeleteid == itemId) {
+                    document.getElementById("delete-vacancy").onclick = function () {                        
+                        $.ajax({
+                            url: route('vacancy.destroy', {id: isdeleteid}),
+                            type: 'DELETE',
+                            headers: {
+                                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                            },
+                            success:function(data) {            
+                                if(data.success === true) {
+                                    vacancyList.remove("id", isdeleteid);
+                                    document.getElementById("deleteVacancy-close").click();
+                                    document.querySelector(".pagination-wrap").style.display = "flex";
+                                    Swal.fire({
+                                        position: 'top-end',
+                                        icon: 'success',
+                                        title: data.message,
+                                        showConfirmButton: false,
+                                        timer: 3000,
+                                        showCloseButton: true,
+                                        toast: true
+                                    });                    
+                                }
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                let message = ''; // Initialize the message variable
+        
+                                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                                    message = jqXHR.responseJSON.message;
+                                } else if (textStatus === 'timeout') {
+                                    message = 'The request timed out. Please try again later.';
+                                } else {
+                                    message = 'An error occurred while processing your request. Please try again later.';
+                                }
+                            
+                                // Trigger the Swal notification with the dynamic message
+                                Swal.fire({
+                                    position: 'top-end',
+                                    icon: 'error',
+                                    title: message,
+                                    showConfirmButton: false,
+                                    timer: 5000,
+                                    showCloseButton: true,
+                                    toast: true
+                                });
+                            }
+                        });
+                    }
+                }
+            });
+        };
+    });
+}

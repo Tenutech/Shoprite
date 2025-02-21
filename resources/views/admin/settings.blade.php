@@ -40,10 +40,15 @@
                                     @php
                                         $vacancyPostingDuration = $settings->firstWhere('key', 'vacancy_posting_duration');
                                         $shortlistExpiry = $settings->firstWhere('key', 'shortlist_expiry');                                        
-                                        $minShortlistNumber = $settings->firstWhere('key', 'min_shortlist_number');
-                                        $maxShortlistNumber = $settings->firstWhere('key', 'max_shortlist_number');
+                                        $minShortlistNumber = $settings->firstWhere('key', 'min_shorlist_number');
+                                        $maxShortlistNumber = $settings->firstWhere('key', 'max_shorlist_number');
                                         $maxDistanceFromStore = $settings->firstWhere('key', 'max_distance_from_store');
                                         $sessionTimeout = $settings->firstWhere('key', 'session_timeout');
+                                        $vacancyPostingDurationNoAppointment = $settings->firstWhere('key', 'vacancy_posting_duration_no_appointment');
+                                        $autoPlacedBackInTalentPoolFixedTerm = $settings->firstWhere('key', 'auto_placed_back_in_talent_pool_fixed_term');
+                                        $autoPlacedBackInTalentPoolPeakSeason = $settings->firstWhere('key', 'auto_placed_back_in_talent_pool_peak_season');
+                                        $autoPlacedBackInTalentPoolYes = $settings->firstWhere('key', 'auto_placed_back_in_talent_pool_yes');
+                                        $autoPlacedBackInTalentPoolRRP = $settings->firstWhere('key', 'auto_placed_back_in_talent_pool_rrp');
                                     @endphp
                                     <div class="col-lg-6">
                                         <div class="mb-3">
@@ -89,7 +94,7 @@
                                             </div>
                                         </div>
                                     </div>
-                                    <!--end col-->                                    
+                                    <!--end col-->
 
                                     <div class="col-lg-6">
                                         <div class="mb-3">
@@ -172,6 +177,121 @@
                                             @endif
                                             <input type="number" class="form-control @error('session_timeout') is-invalid @enderror" name="session_timeout" id="sessionTimeout" placeholder="Enter the amount of minutes" value="{{ $sessionTimeout ? ($sessionTimeout->value ? $sessionTimeout->value : 1) : 1 }}" min="1" required/>
                                             @error('session_timeout')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            <div class="invalid-feedback">
+                                                Please enter the amount of days
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end col-->
+
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="vacancyPostingDurationNoAppointment" class="form-label">
+                                                Vacancy Posting Duration (No Appointment) <span class="text-danger">*</span>
+                                            </label>
+                                            @if ($vacancyPostingDurationNoAppointment && $vacancyPostingDurationNoAppointment->description)
+                                                <p class="text-muted">
+                                                    {{ $vacancyPostingDurationNoAppointment->description }}
+                                                </p>
+                                            @endif
+                                            <input type="number" class="form-control @error('vacancy_posting_duration_no_appointment') is-invalid @enderror" name="vacancy_posting_duration_no_appointment" id="vacancyPostingDurationNoAppointment" placeholder="Enter the amount of days" value="{{ $vacancyPostingDurationNoAppointment ? ($vacancyPostingDurationNoAppointment->value ? $vacancyPostingDurationNoAppointment->value : 1) : 1 }}" min="1" required/>
+                                            @error('vacancy_posting_duration_no_appointment')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            <div class="invalid-feedback">
+                                                Please enter the amount of days
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end col-->
+
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="vacancyPostingDuration" class="form-label">
+                                                Auto Placed Back In Talent Pool: Fixed Term <span class="text-danger">*</span>
+                                            </label>
+                                            @if ($autoPlacedBackInTalentPoolFixedTerm && $autoPlacedBackInTalentPoolFixedTerm->description)
+                                                <p class="text-muted">
+                                                    {{ $autoPlacedBackInTalentPoolFixedTerm->description }}
+                                                </p>
+                                            @endif
+                                            <input type="number" class="form-control @error('auto_placed_back_in_talent_pool_fixed_term') is-invalid @enderror" name="auto_placed_back_in_talent_pool_fixed_term" id="autoPlacedBackInTalentPoolFixedTerm" placeholder="Enter the amount of days" value="{{ $autoPlacedBackInTalentPoolFixedTerm ? ($autoPlacedBackInTalentPoolFixedTerm->value ? $autoPlacedBackInTalentPoolFixedTerm->value : 1) : 1 }}" min="1" required/>
+                                            @error('auto_placed_back_in_talent_pool_fixed_term')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            <div class="invalid-feedback">
+                                                Please enter the amount of days
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end col-->
+
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="autoPlacedBackInTalentPoolPeakSeason" class="form-label">
+                                                Auto Placed Back In Talent Pool: Peak Season <span class="text-danger">*</span>
+                                            </label>
+                                            @if ($autoPlacedBackInTalentPoolPeakSeason && $autoPlacedBackInTalentPoolPeakSeason->description)
+                                                <p class="text-muted">
+                                                    {{ $autoPlacedBackInTalentPoolPeakSeason->description }}
+                                                </p>
+                                            @endif
+                                            <input type="number" class="form-control @error('auto_placed_back_in_talent_pool_peak_season') is-invalid @enderror" name="auto_placed_back_in_talent_pool_peak_season" id="autoPlacedBackInTalentPoolPeakSeason" placeholder="Enter the amount of days" value="{{ $autoPlacedBackInTalentPoolPeakSeason ? ($autoPlacedBackInTalentPoolPeakSeason->value ? $autoPlacedBackInTalentPoolPeakSeason->value : 1) : 1 }}" min="1" required/>
+                                            @error('auto_placed_back_in_talent_pool_peak_season')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            <div class="invalid-feedback">
+                                                Please enter the amount of days
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end col-->
+
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="autoPlacedBackInTalentPoolYes" class="form-label">
+                                                Auto Placed Back In Talent Pool: Yes <span class="text-danger">*</span>
+                                            </label>
+                                            @if ($autoPlacedBackInTalentPoolYes && $autoPlacedBackInTalentPoolYes->description)
+                                                <p class="text-muted">
+                                                    {{ $autoPlacedBackInTalentPoolYes->description }}
+                                                </p>
+                                            @endif
+                                            <input type="number" class="form-control @error('auto_placed_back_in_talent_pool_yes') is-invalid @enderror" name="auto_placed_back_in_talent_pool_yes" id="autoPlacedBackInTalentPoolYes" placeholder="Enter the amount of days" value="{{ $autoPlacedBackInTalentPoolYes ? ($autoPlacedBackInTalentPoolYes->value ? $autoPlacedBackInTalentPoolYes->value : 1) : 1 }}" min="1" required/>
+                                            @error('auto_placed_back_in_talent_pool_yes')
+                                                <span class="invalid-feedback" role="alert">
+                                                    <strong>{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+                                            <div class="invalid-feedback">
+                                                Please enter the amount of days
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!--end col-->
+
+                                    <div class="col-lg-6">
+                                        <div class="mb-3">
+                                            <label for="autoPlacedBackInTalentPoolRRP" class="form-label">
+                                                Auto Placed Back In Talent Pool: RRP <span class="text-danger">*</span>
+                                            </label>
+                                            @if ($autoPlacedBackInTalentPoolRRP && $autoPlacedBackInTalentPoolRRP->description)
+                                                <p class="text-muted">
+                                                    {{ $autoPlacedBackInTalentPoolRRP->description }}
+                                                </p>
+                                            @endif
+                                            <input type="number" class="form-control @error('auto_placed_back_in_talent_pool_rrp') is-invalid @enderror" name="auto_placed_back_in_talent_pool_rrp" id="vacancyPostingDurationNoAppointment" placeholder="Enter the amount of days" value="{{ $autoPlacedBackInTalentPoolRRP ? ($autoPlacedBackInTalentPoolRRP->value ? $autoPlacedBackInTalentPoolRRP->value : 1) : 1 }}" min="1" required/>
+                                            @error('auto_placed_back_in_talent_pool_rrp')
                                                 <span class="invalid-feedback" role="alert">
                                                     <strong>{{ $message }}</strong>
                                                 </span>

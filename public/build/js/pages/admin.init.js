@@ -24,6 +24,27 @@ $(document).ready(function() {
 
     /*
     |--------------------------------------------------------------------------
+    | Show Vacancy Delete Modal
+    |--------------------------------------------------------------------------
+    */
+
+    // Check if vacancies exist
+    if (typeof vacanciesNoInterview !== 'undefined' && Array.isArray(vacanciesNoInterview) && vacanciesNoInterview.length > 0) {
+        // Loop through all vacancies and show their respective modals
+        vacanciesNoInterview.forEach(vacancy => {
+            $('#vacancyDeleteWarningModal-' + vacancy.id).modal('show');
+        });
+    }
+
+    if (typeof vacanciesNoAppointment !== 'undefined' && Array.isArray(vacanciesNoAppointment) && vacanciesNoAppointment.length > 0) {
+        // Loop through all vacancies and show their respective modals
+        vacanciesNoAppointment.forEach(vacancy => {
+            $('#vacancyDeleteWarningModal-' + vacancy.id).modal('show');
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Date Range
     |--------------------------------------------------------------------------
     */
@@ -324,9 +345,21 @@ function fetchMetrics(type, routeName, signal) {
     const apiUrl = route(routeName); // Use Ziggy to dynamically generate the route URL
 
     return fetch(apiUrl, { signal }) // Pass the signal to the fetch call
-        .then((response) => response.json())
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+        })
         .then((data) => {
             updateMetrics(type, data); // Update the metrics on the page
+        })
+        .catch((error) => {
+            if (error.name === 'AbortError') {
+                console.log(`Fetch aborted for ${routeName}`);
+            } else {
+                console.error(`Error fetching metrics for ${routeName}:`, error);
+            }
         });
 }
 
@@ -343,24 +376,29 @@ const abortControllers = new Map();
 function lazyLoadMetrics(rowId, type, routeName) {
     const metricsRow = document.getElementById(rowId);
 
-    const observer = new IntersectionObserver(function (entries) {
-        if (entries[0].isIntersecting && allowLazyLoading) {
-            // Create an AbortController for this fetch
+    if (!metricsRow) {
+        console.warn(`Metrics row with ID ${rowId} not found`);
+        return;
+    }
+
+    const observer = new IntersectionObserver((entries, observer) => {
+        if (entries[0].isIntersecting) {
             const controller = new AbortController();
             const signal = controller.signal;
-            abortControllers.set(rowId, controller); // Store the controller
+            abortControllers.set(rowId, controller);
 
-            // Fetch data with the abort signal
-            fetchMetrics(type, routeName, signal).then(() => {
-                observer.disconnect(); // Stop observing after data is loaded
-                abortControllers.delete(rowId); // Remove controller after success
-            }).catch((error) => {
-                if (error.name === 'AbortError') {
-                    //console.log(`Fetch aborted for ${rowId}`);
-                } else {
-                    console.error(`Error fetching metrics for ${rowId}:`, error);
-                }
-            });
+            fetchMetrics(type, routeName, signal)
+                .then(() => {
+                    observer.disconnect(); // Stop observing only after data is loaded
+                    abortControllers.delete(rowId);
+                })
+                .catch((error) => {
+                    if (error.name === 'AbortError') {
+                        console.log(`Fetch aborted for ${rowId}`);
+                    } else {
+                        console.error(`Error fetching metrics for ${rowId}:`, error);
+                    }
+                });
         }
     });
 

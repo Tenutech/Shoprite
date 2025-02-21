@@ -123,6 +123,7 @@ class ApplicantProximityService
                 });
             })
             ->whereBetween('created_at', [$startDate, $endDate])
+            ->where('deleted', 'No')
             ->with(['store', 'appointed']) // Load store and appointed applicants relationships
             ->get();
 

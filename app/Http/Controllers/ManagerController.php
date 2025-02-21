@@ -7,6 +7,7 @@ use App\Models\Store;
 use App\Models\Shortlist;
 use App\Models\Setting;
 use App\Models\User;
+use App\Models\Vacancy;
 use App\Services\DataService\ApplicantDataService;
 use App\Services\DataService\ApplicantProximityService;
 use App\Services\DataService\VacancyDataService;
@@ -86,10 +87,61 @@ class ManagerController extends Controller
             ->where('created_at', '<=', $cutoffDate)
             ->first(); // Get the first matching shortlist
 
+            // Define the warning period in days
+            $warningDays = 4;
+
+            // Fetch the vacancy posting duration setting from the database
+            $vacancyNoInterviewPostingDurationSetting = Setting::where('key', 'vacancy_posting_duration')->first();
+            $vacancyNoInterviewPostingDays = $vacancyNoInterviewPostingDurationSetting ? (int)$vacancyNoInterviewPostingDurationSetting->value : 14; // Default to 14 days if not set
+
+            // Fetch all vacancies older than the specified duration
+            $expiryDateNoInterview = Carbon::now()->subDays($vacancyNoInterviewPostingDays);
+            $expiryDateNoInterviewCuttOff = Carbon::now()->subDays($vacancyNoInterviewPostingDays + $warningDays);
+
+            $vacanciesNoInterview = Vacancy::where('user_id', $authUserId)
+            ->whereBetween('created_at', [$expiryDateNoInterviewCuttOff, $expiryDateNoInterview])
+                ->where('deleted', 'No')
+                ->where('auto_deleted', 'No')
+                ->where(function ($query) {
+                    $query->doesntHave('shortlists') // Vacancies with no shortlists
+                        ->orWhereHas('shortlists', function ($subQuery) {
+                            $subQuery->whereNull('applicant_ids')
+                                    ->orWhereRaw("json_length(applicant_ids) = 0");
+                        });
+                })
+                ->doesntHave('appointed') // Ensure no applicants have been appointed
+                ->doesntHave('interviews') // Ensure no interviews exist
+                ->get()
+                ->map(function ($vacancy) use ($expiryDateNoInterview) {
+                    $vacancy->days_until_deletion = max(0, $expiryDateNoInterview->diffInDays($vacancy->created_at));
+                    return $vacancy;
+                });
+
+            // Fetch the vacancy posting duration setting for no appointment
+            $vacancyNoAppointmentPostingDurationSetting = Setting::where('key', 'vacancy_posting_duration_no_appointment')->first();
+            $vacancyNoAppointmentPostingDays = $vacancyNoAppointmentPostingDurationSetting ? (int)$vacancyNoAppointmentPostingDurationSetting->value : 30;  // Default to 30 days if not set
+
+            // Fetch all vacancies older than the specified duration
+            $expiryDateNoAppointment = Carbon::now()->subDays($vacancyNoAppointmentPostingDays);
+            $expiryDateNoAppointmentCuttOff = Carbon::now()->subDays($vacancyNoAppointmentPostingDays + $warningDays);
+
+            $vacanciesNoAppointment = Vacancy::where('user_id', $authUserId)
+                ->whereBetween('created_at', [$expiryDateNoAppointmentCuttOff, $expiryDateNoAppointment])
+                ->where('deleted', 'No')
+                ->where('auto_deleted', 'No')
+                ->where('open_positions', '>', 0)
+                ->get()
+                ->map(function ($vacancy) use ($expiryDateNoAppointment) {
+                    $vacancy->days_until_deletion = max(0, $expiryDateNoAppointment->diffInDays($vacancy->created_at));
+                    return $vacancy;
+                });
+
             // Return the 'manager/home' view with the calculated data
             return view('manager/home', [
                 'store' => $store,
-                'shortlist' => $shortlist
+                'shortlist' => $shortlist,
+                'vacanciesNoInterview' => $vacanciesNoInterview,
+                'vacanciesNoAppointment' => $vacanciesNoAppointment,
             ]);
         }
 

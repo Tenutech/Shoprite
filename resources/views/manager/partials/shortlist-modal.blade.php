@@ -6,7 +6,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div class="modal-body p-5 text-center">
-                <lord-icon src="https://cdn.lordicon.com/usownftb.json" trigger="loop" style="width:90px;height:90px"></lord-icon>
+                <lord-icon src="https://cdn.lordicon.com/usownftb.json" trigger="loop" style="width:90px; height:90px"></lord-icon>
                 <div class="mt-4 text-center">
                     <h4 class="fs-semibold">
                         Un-Actioned Shortlist

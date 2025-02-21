@@ -23,7 +23,7 @@ class VacanciesReportDataService
     public function getTotalVacancies(string $type, ?int $id, string $startDate, string $endDate)
     {
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -62,7 +62,8 @@ class VacanciesReportDataService
     {
         // Start building the query using the Vacancy model, filter for filled vacancies (open_positions = 0), and date range
         $vacancies = Vacancy::where('open_positions', 0)
-            ->whereBetween('created_at', [$startDate, $endDate]);
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->where('deleted', 'No');
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -107,7 +108,7 @@ class VacanciesReportDataService
         }
 
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
 
         // Filter by store, division, or region based on the type parameter
         if ($type === 'store') {
@@ -158,7 +159,8 @@ class VacanciesReportDataService
 
         // Start building the query using the Vacancy model, filter for filled vacancies (open_positions = 0) and date range using updated_at
         $vacancies = Vacancy::where('open_positions', 0)
-            ->whereBetween('updated_at', [$startDate, $endDate]);
+            ->whereBetween('updated_at', [$startDate, $endDate])
+            ->where('deleted', 'No');
 
         // Apply filters based on type (store, division, or region)
         if ($type === 'store') {
@@ -212,7 +214,7 @@ class VacanciesReportDataService
         }
 
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
 
         // Apply filters based on the type (store, division, or region)
         if ($type === 'store') {
@@ -267,7 +269,7 @@ class VacanciesReportDataService
         }
 
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
 
         // Apply filters based on the type (store, division, or region)
         if ($type === 'store') {
@@ -306,7 +308,7 @@ class VacanciesReportDataService
     public function getTotalVacanciesFiltered(string $type, ?int $id, string $startDate, string $endDate, array $filters)
     {
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -375,6 +377,15 @@ class VacanciesReportDataService
             }
         }
 
+        // Apply the `deleted` filter
+        if (isset($filters['deleted'])) {
+            if ($filters['deleted'] === 'Auto') {
+                $vacancies->where('auto_deleted', 'Yes');
+            } elseif ($filters['deleted'] === 'Manually') {
+                $vacancies->where('deleted', 'Yes');
+            }
+        }
+
         // Calculate the sum of open_positions and filled_positions, treating null as 0
         $totalOpenPositions = $vacancies->sum(DB::raw('COALESCE(open_positions, 0)'));
         $totalFilledPositions = $vacancies->sum(DB::raw('COALESCE(filled_positions, 0)'));
@@ -399,7 +410,7 @@ class VacanciesReportDataService
     public function getTotalVacanciesFilledFiltered(string $type, ?int $id, string $startDate, string $endDate, array $filters)
     {
         // Start building the query using the Vacancy model, filter for filled vacancies (open_positions = 0), and date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -462,6 +473,15 @@ class VacanciesReportDataService
             }
         }
 
+        // Apply the `deleted` filter
+        if (isset($filters['deleted'])) {
+            if ($filters['deleted'] === 'Auto') {
+                $vacancies->where('auto_deleted', 'Yes');
+            } elseif ($filters['deleted'] === 'Manually') {
+                $vacancies->where('deleted', 'Yes');
+            }
+        }
+
         // Calculate the total sum of filled_positions, treating null as 0
         $totalFilledPositions = $vacancies->sum(DB::raw('COALESCE(filled_positions, 0)'));
 
@@ -494,7 +514,7 @@ class VacanciesReportDataService
         }
 
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
 
         // Filter by store, division, or region based on the type parameter
         if ($type === 'store') {
@@ -561,6 +581,15 @@ class VacanciesReportDataService
             }
         }
 
+        // Apply the `deleted` filter
+        if (isset($filters['deleted'])) {
+            if ($filters['deleted'] === 'Auto') {
+                $vacancies->where('auto_deleted', 'Yes');
+            } elseif ($filters['deleted'] === 'Manually') {
+                $vacancies->where('deleted', 'Yes');
+            }
+        }
+
         // Group vacancies by month and calculate the total vacancies for each month
         $vacancies->get()->groupBy(function ($vacancy) {
             return $vacancy->created_at->format('M');
@@ -597,7 +626,7 @@ class VacanciesReportDataService
         }
 
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
 
         // Apply type filtering based on store, division, or region
         if ($type === 'store') {
@@ -663,6 +692,15 @@ class VacanciesReportDataService
                         $query->whereNull('applicant_ids')
                             ->orWhere('applicant_ids', '[]');
                     });
+            }
+        }
+
+        // Apply the `deleted` filter
+        if (isset($filters['deleted'])) {
+            if ($filters['deleted'] === 'Auto') {
+                $vacancies->where('auto_deleted', 'Yes');
+            } elseif ($filters['deleted'] === 'Manually') {
+                $vacancies->where('deleted', 'Yes');
             }
         }
 

@@ -68,7 +68,7 @@
                     @if ($user->applicant && $user->applicant->public_holidays != 'No' && $user->applicant->environment != 'No')
                         <li class="nav-item">
                             <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
-                                <i class="ri-briefcase-line"></i>
+                                <i class="ri-group-2-line"></i>
                                 <span>My Interviews</span>
                             </a>
                         </li>
@@ -103,7 +103,7 @@
                     </li>
                     <li class="nav-item">
                         <a class="nav-link menu-link" href="{{ route('interviews.index') }}">
-                            <i class="ri-briefcase-line"></i>
+                            <i class="ri-group-2-line"></i>
                             <span>My Interviews</span>
                         </a>
                     </li>

@@ -94,9 +94,11 @@ class VacancyController extends Controller
                     'store',
                     'type',
                     'status',
+                    'interviews',
                     'appointed',
                     'sapNumbers',
-                    'availableSapNumbers'
+                    'availableSapNumbers',
+                    'shortlists'
                 ])
                 ->findOrFail($vacancyId);
             }
@@ -240,16 +242,29 @@ class VacancyController extends Controller
                         if ($sapNumber->vacancy->user_id !== $userID) {
                             $fail('The SAP number ' . $value . ' has already been taken.');
                         } elseif ($sapNumber->vacancy->user_id === $userID) {
-                            // Handle SAP number reassignment
+                            // Handle SAP number reassignment without deleting vacancy fills
                             DB::transaction(function () use ($sapNumber) {
-                                // Delete associated vacancy fills
-                                $sapNumber->vacancyFills()->delete();
+                                // Get all vacancy fills related to the SAP number
+                                $vacancyFills = $sapNumber->vacancyFills()->get();
 
-                                // Update the associated vacancy
-                                $vacancy = $sapNumber->vacancy;
-                                $vacancy->open_positions = max(0, $vacancy->open_positions + 1);
-                                $vacancy->filled_positions = max(0, $vacancy->filled_positions - 1);
-                                $vacancy->save();
+                                // Loop through vacancy fills to update associated applicants
+                                foreach ($vacancyFills as $vacancyFill) {
+                                    // Find the applicant where appointed_id = vacancyFill->id
+                                    $applicant = Applicant::where('appointed_id', $vacancyFill->id)->first();
+
+                                    if ($applicant) {
+                                        // Set appointed_id and shortlist_id to null
+                                        $applicant->update([
+                                            'appointed_id' => null,
+                                            'shortlist_id' => null
+                                        ]);
+                                    }
+                                }
+
+                                // Update the associated vacancy fills to set sap_number_id to null
+                                $sapNumber->vacancyFills()->update([
+                                    'sap_number_id' => null
+                                ]);
                             });
                         }
                     }
@@ -516,20 +531,53 @@ class VacancyController extends Controller
     public function destroy($id)
     {
         try {
+            // Authenticated user's ID
+            $userID = Auth::id();
+
+            // Find the authenticated user by their ID
+            $user = User::findOrFail($userID);
+
+            // Ensure the user has the necessary role permission
+            if ($user->role_id > 6) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized: You do not have permission to delete this vacancy.'
+                ], 403);
+            }
+
             // Decrypt the provided ID
             $vacancyId = Crypt::decryptString($id);
 
             // Find the vacancy model
             $vacancy = Vacancy::findOrFail($vacancyId);
 
+            if (!$vacancy->shortlists->isEmpty() && !is_null($vacancy->shortlists->first()?->applicant_ids) && !empty(json_decode($vacancy->shortlists->first()?->applicant_ids, true))) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vacancy cannot be deleted as it has an active shortlist.'
+                ], 400);
+            }
+
+            if (!$vacancy->interviews->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vacancy cannot be deleted as it has scheduled interviews.'
+                ], 400);
+            }
+
+            if (!$vacancy->appointments->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vacancy cannot be deleted as it has active appointments.'
+                ], 400);
+            }
+
             // Start a transaction to ensure all related data is removed properly
             DB::beginTransaction();
 
-            // Delete associated SAP numbers
-            $vacancy->sapNumbers()->delete();
-
             // Delete the vacancy
-            $vacancy->delete();
+            $vacancy->deleted = 'Yes';
+            $vacancy->save();
 
             // Commit the transaction
             DB::commit();

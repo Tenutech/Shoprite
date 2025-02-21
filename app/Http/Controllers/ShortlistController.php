@@ -107,6 +107,7 @@ class ShortlistController extends Controller
                 'store.town'
             ])
             ->where('user_id', $userID)
+            ->where('deleted', 'No')
             ->get();
 
             //Shortlist
@@ -431,7 +432,7 @@ class ShortlistController extends Controller
                 }
             ])->whereHas('interviews', function ($interviewQuery) use ($vacancyID) {
                 $interviewQuery->where('vacancy_id', $vacancyID)
-                               ->whereIn('status', ['Scheduled', 'Rescheduled', 'Completed', 'Appointed']);
+                               ->whereIn('status', ['Scheduled', 'Rescheduled', 'Confirmed', 'Completed', 'Appointed']);
             })->get();
 
             // Merge the interviewed applicants with the filtered applicants**
