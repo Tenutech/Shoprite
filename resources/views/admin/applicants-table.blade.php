@@ -131,6 +131,22 @@
                                                                 $employment = 'Not an Employee';
                                                                 $status = 'success';
                                                                 break;
+                                                            case 'F':
+                                                                $employment = 'Fixed Term';
+                                                                $status = 'info';
+                                                                break;
+                                                            case 'S':
+                                                                $employment = 'Peak Season';
+                                                                $status = 'info';
+                                                                break;
+                                                            case 'Y':
+                                                                $employment = 'YES';
+                                                                $status = 'info';
+                                                                break;
+                                                            case 'R':
+                                                                $employment = 'RRP';
+                                                                $status = 'info';
+                                                                break;
                                                             case 'I':
                                                             default:
                                                                 $employment = 'Inconclusive';

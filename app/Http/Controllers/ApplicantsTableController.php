@@ -433,6 +433,12 @@ class ApplicantsTableController extends Controller
                 'previously' => 'P',
                 'not an employee' => 'N',
                 'not employee' => 'N',
+                'fixed' => 'F',
+                'fixed term' => 'F',
+                'peak' => 'S',
+                'peak season' => 'S',
+                'yes' => 'Y',
+                'rrp' => 'R',
             ];
 
             $employmentCode = null;
