@@ -213,6 +213,14 @@ function updateMetrics(type, data) {
             document.getElementById('averageDistanceApplicantsAppointedValue').textContent = data.averageDistanceApplicantsAppointed !== null && data.averageDistanceApplicantsAppointed !== undefined ? `${data.averageDistanceApplicantsAppointed} km` : 'N/A';
             break;
 
+        case 'proximity-talent-pool':
+            document.getElementById('averageDistanceTalentPoolApplicantsValue').textContent = data.averageDistanceTalentPoolApplicants !== null && data.averageDistanceTalentPoolApplicants !== undefined ? `${data.averageDistanceTalentPoolApplicants} km` : 'N/A';
+            break;
+    
+        case 'proximity-applicants-appointed':
+            document.getElementById('averageDistanceApplicantsAppointedValue').textContent = data.averageDistanceApplicantsAppointed !== null && data.averageDistanceApplicantsAppointed !== undefined ? `${data.averageDistanceApplicantsAppointed} km` : 'N/A';
+            break;
+
         case 'average-score-metrics':
             document.getElementById('averageScoreApplicantsAppointedValue').textContent = formatValue(data.averageScoreApplicantsAppointed);
             document.getElementById('averageAssessmentScoreApplicantsAppointedValue').textContent = data.averageAssessmentScoreApplicantsAppointed !== null && data.averageAssessmentScoreApplicantsAppointed !== undefined ? `${data.averageAssessmentScoreApplicantsAppointed}%` : 'N/A';
@@ -324,7 +332,9 @@ function lazyLoadMetrics(rowId, type, routeName) {
 
 document.addEventListener('DOMContentLoaded', function () {
     lazyLoadMetrics('timeRow', 'time-metrics', 'time.metrics');
-    lazyLoadMetrics('proximityRow', 'proximity-metrics', 'proximity.metrics');
+    // lazyLoadMetrics('proximityRow', 'proximity-metrics', 'proximity.metrics');
+    lazyLoadMetrics('proximityRow', 'proximity-talent-pool', 'proximity.metrics.talentpool');
+    lazyLoadMetrics('proximityRow', 'proximity-applicants-appointed', 'proximity.metrics.appointed');
     lazyLoadMetrics('averageScoresRow', 'average-score-metrics', 'average-score.metrics');
     lazyLoadMetrics('vacanciesRow', 'vacancies-metrics', 'vacancies.metrics');
     lazyLoadMetrics('interviewsRow', 'interviews-metrics', 'interviews.metrics');

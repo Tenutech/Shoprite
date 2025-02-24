@@ -85,6 +85,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/users/password-reset', [App\Http\Controllers\UsersController::class, 'passwordReset'])->name('users.password');
 
+    Route::get('/api/users/fetch', [App\Http\Controllers\UsersController::class, 'fetchUsers'])->name('users.fetchUsers');
+
     //Managers
 
     Route::get('/managers', [App\Http\Controllers\ManagersController::class, 'index'])->name('managers.index');
@@ -728,6 +730,10 @@ Route::prefix('dpp')->middleware(['auth', 'verified', 'role:1,2,5', 'user.activi
 
     Route::get('/api/proximity-metrics', [App\Http\Controllers\DataController::class, 'getProximityMetrics'])->name('dpp.proximity.metrics');
 
+    Route::get('/api/proximity-metrics/talentpool', [App\Http\Controllers\DataController::class, 'getTalentPoolProximityMetrics'])->name('dpp.proximity.metrics.talentpool');
+
+    Route::get('/api/proximity-metrics/appointed', [App\Http\Controllers\DataController::class, 'getApplicantsAppointedProximityMetrics'])->name('dpp.proximity.metrics.appointed');
+
     Route::get('/api/average-score-metrics', [App\Http\Controllers\DataController::class, 'getAverageScoreMetrics'])->name('dpp.average-score.metrics');
 
     Route::get('/api/assessment-scores-metrics', [App\Http\Controllers\DataController::class, 'getAssessmentScores'])->name('dpp.assessment-scores.metrics');
@@ -764,6 +770,10 @@ Route::prefix('manager')->middleware(['auth', 'verified', 'role:1,2,3,4,6', 'use
     Route::get('/api/time-metrics', [App\Http\Controllers\DataController::class, 'getTimeMetrics'])->name('time.metrics');
 
     Route::get('/api/proximity-metrics', [App\Http\Controllers\DataController::class, 'getProximityMetrics'])->name('proximity.metrics');
+
+    Route::get('/api/proximity-metrics/talentpool', [App\Http\Controllers\DataController::class, 'getTalentPoolProximityMetrics'])->name('proximity.metrics.talentpool');
+
+    Route::get('/api/proximity-metrics/appointed', [App\Http\Controllers\DataController::class, 'getApplicantsAppointedProximityMetrics'])->name('proximity.metrics.appointed');
 
     Route::get('/api/average-score-metrics', [App\Http\Controllers\DataController::class, 'getAverageScoreMetrics'])->name('average-score.metrics');
 
