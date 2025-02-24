@@ -85,6 +85,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/users/password-reset', [App\Http\Controllers\UsersController::class, 'passwordReset'])->name('users.password');
 
+    Route::get('/api/users/fetch', [App\Http\Controllers\UsersController::class, 'fetchUsers'])->name('users.fetchUsers');
+
     //Managers
 
     Route::get('/managers', [App\Http\Controllers\ManagersController::class, 'index'])->name('managers.index');

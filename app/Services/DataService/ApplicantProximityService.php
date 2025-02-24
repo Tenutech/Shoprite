@@ -95,6 +95,98 @@ class ApplicantProximityService
     }
 
     /**
+     * Calculate the average distance of talent pool applicants within a given distance from the store, division, or region.
+     *
+     * This method retrieves the relevant stores based on the filter type (store, division, or region)
+     * and, for each store that has coordinates, uses a database aggregate query to calculate the
+     * total distance (using MySQL's ST_Distance_Sphere) and the number of applicants within the
+     * specified maximum distance (converted from kilometers to meters). The sum of these distances
+     * (converted to kilometers) and the total count of applicants are then used to compute the overall
+     * average distance. If no applicants are found or if no matching stores exist, the method returns 0.
+     *
+     * @param string $type The type of filter (e.g., 'store', 'division', or 'region').
+     * @param int|null $id The ID of the store, division, or region to filter.
+     * @param \Carbon\Carbon $startDate The start date for filtering.
+     * @param \Carbon\Carbon $endDate The end date for filtering.
+     * @param float $maxDistanceFromStore The maximum distance from the store in kilometers.
+     * @return float The average distance of applicants in kilometers.
+     */
+    public function getAverageDistanceTalentPoolApplicantsDB(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore): float
+    {
+        // Retrieve stores based on the filter type (store, division, or region)
+        $stores = Store::when($type === 'store', function ($query) use ($id) {
+                    return $query->where('id', $id);
+                })
+                ->when($type === 'division', function ($query) use ($id) {
+                    return $query->where('division_id', $id);
+                })
+                ->when($type === 'region', function ($query) use ($id) {
+                    return $query->where('region_id', $id);
+                })
+                ->get();
+
+        // If no stores are found, return 0.
+        if ($stores->isEmpty()) {
+            return 0;
+        }
+
+        // Retrieve the state ID corresponding to the 'complete' state.
+        $completeStateID = State::where('code', 'complete')->value('id');
+        if (!$completeStateID) {
+            return 0; // Handle case where the 'complete' state does not exist.
+        }
+
+        $totalDistanceKm = 0;
+        $totalApplicantCount = 0;
+
+        // Loop over each store to calculate aggregate distance metrics via the database.
+        foreach ($stores as $store) {
+            if ($store->coordinates) {
+                // Parse the store's coordinates (expected format: "lat,lng")
+                $storeCoordinates = explode(',', $store->coordinates);
+                $storeLat = floatval($storeCoordinates[0]);
+                $storeLng = floatval($storeCoordinates[1]);
+
+                // Run an aggregate query to compute the total distance (in meters) and count of applicants
+                // within the specified maximum distance from the store.
+                $applicantStats = Applicant::selectRaw("
+                        SUM(ST_Distance_Sphere(
+                            POINT(
+                                SUBSTRING_INDEX(coordinates, ',', -1),
+                                SUBSTRING_INDEX(coordinates, ',', 1)
+                            ), 
+                            POINT(?, ?)
+                        )) as total_distance,
+                        COUNT(*) as applicant_count
+                    ", [$storeLng, $storeLat])
+                    ->whereBetween('created_at', [$startDate, $endDate])
+                    ->where('state_id', '>=', $completeStateID)
+                    ->whereRaw("
+                        ST_Distance_Sphere(
+                            POINT(
+                                SUBSTRING_INDEX(coordinates, ',', -1),
+                                SUBSTRING_INDEX(coordinates, ',', 1)
+                            ), 
+                            POINT(?, ?)
+                        ) <= ?
+                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Convert km to meters.
+                    ->first();
+
+                // If applicants were found for this store, update the totals.
+                if ($applicantStats && $applicantStats->applicant_count > 0) {
+                    // Convert the summed distance from meters to kilometers.
+                    $storeTotalDistanceKm = $applicantStats->total_distance / 1000;
+                    $totalDistanceKm += $storeTotalDistanceKm;
+                    $totalApplicantCount += $applicantStats->applicant_count;
+                }
+            }
+        }
+
+        // Calculate and return the overall average distance, rounded to one decimal place.
+        return $totalApplicantCount > 0 ? round($totalDistanceKm / $totalApplicantCount, 1) : 0;
+    }
+
+    /**
      * Calculate the average distance between stores' coordinates and appointed applicants' coordinates for store, division, or region.
      *
      * @param string $type The type of filter (e.g., store, division, region).

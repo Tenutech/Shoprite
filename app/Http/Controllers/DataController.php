@@ -232,7 +232,7 @@ class DataController extends Controller
         if ($type !== null) {
             // Use the ApplicantProximityService to calculate the average distance
             // for talent pool applicants given the parameters.
-            $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $id, $startDate, $endDate, $maxDistanceFromStore);
+            $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicantsDB($type, $id, $startDate, $endDate, $maxDistanceFromStore);
         }
 
         // Return the calculated metric as a JSON response.

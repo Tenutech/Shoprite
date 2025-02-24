@@ -68,6 +68,7 @@ class UsersController extends Controller
             ->where('role_id', 7)
             ->orderby('firstname')
             ->orderby('lastname')
+            ->take(10)
             ->get();
 
             // Genders
@@ -432,6 +433,72 @@ class UsersController extends Controller
                 'message' => 'Failed to reset password!',
                 'error' => $e->getMessage()
             ], 400);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | User Pagination
+    |--------------------------------------------------------------------------
+    */
+
+    public function fetchUsers(Request $request)
+    {
+        try {
+            $perPage = $request->get('per_page', 10); // Default to 10 items per page
+            $search = $request->get('search', ''); // Search keyword
+
+            // Start building the query; add any relationships if needed (e.g., 'profile')
+            $usersQuery = User::with(['gender', 'status'])
+                ->where('role_id', 7)
+                ->orderBy('firstname')
+                ->orderBy('lastname');
+
+            // Apply search filters if a search term is provided
+            if (!empty($search)) {
+                $lowerSearch = strtolower($search);
+                $searchTerms = array_filter(explode(' ', $lowerSearch)); // Split search into words and remove empties
+
+                $usersQuery->where(function ($query) use ($searchTerms) {
+                    foreach ($searchTerms as $term) {
+                        $query->where(function ($q) use ($term) {
+                            $q->whereRaw('LOWER(firstname) LIKE ?', ["%$term%"])
+                            ->orWhereRaw('LOWER(lastname) LIKE ?', ["%$term%"])
+                            ->orWhereRaw('LOWER(email) LIKE ?', ["%$term%"])
+                            ->orWhereRaw('LOWER(phone) LIKE ?', ["%$term%"])
+                            ->orWhereRaw('LOWER(id_number) LIKE ?', ["%$term%"])
+                            ->orWhereHas('gender', function ($q) use ($term) {
+                                $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]);
+                            });
+                        });
+                    }
+                });
+            }
+
+            // Paginate results
+            $users = $usersQuery->paginate($perPage);
+
+            // Attach an encrypted ID to each user
+            $users->getCollection()->transform(function ($user) {
+                $user->encrypted_id = Crypt::encryptString($user->id);
+                return $user;
+            });
+
+            return response()->json([
+                'success'       => true,
+                'current_page'  => $users->currentPage(),
+                'last_page'     => $users->lastPage(),
+                'prev_page_url' => $users->previousPageUrl(),
+                'next_page_url' => $users->nextPageUrl(),
+                'data'          => $users->items(),
+                'path'          => $users->path(),
+            ], 200);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to fetch users!',
+                'error'   => $e->getMessage()
+            ], 500);
         }
     }
 }

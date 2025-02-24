@@ -38,30 +38,20 @@
             <div class="card" id="userList">
                 <div class="card-header">
                     <div class="row g-3">
-                        <div class="col-md-4">
+                        <div class="col-md-8">
                             <div class="search-box">
-                                <input type="text" class="form-control search" placeholder="Search for user...">
+                                <input type="text" class="form-control" id="search" placeholder="Search for user...">
                                 <i class="ri-search-line search-icon"></i>
                             </div>
                         </div>
                         <div class="col-md-auto ms-auto">
-                            <div class="d-flex align-items-center gap-2">
-                                <span class="text-muted">Sort by: </span>
-                                <select class="form-control mb-0" data-choices data-choices-search-false id="choices-single-default">
-                                    <option value="Name">Name</option>
-                                    <option value="Department">Department</option>
-                                    <option value="Job">Job</option>
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-auto">
                             <div class="d-flex align-items-center gap-2">
                                 <span class="text-muted">Display: </span>
                                 <select class="form-control mb-0" id="per-page-select" data-choices data-choices-search-false>
                                     <option value="10" selected>10</option>
                                     <option value="25">25</option>
                                     <option value="50">50</option>
-                                    <option value="{{count($users)}}">All</option>
+                                    <option value="100">100</option>
                                 </select>
                             </div>
                         </div>
@@ -245,15 +235,34 @@
                             </div>
                         </div>
                         <div class="d-flex justify-content-end mt-3">
-                            <div class="pagination-wrap hstack gap-2">
-                                <a class="page-item pagination-prev disabled">
+                            <div class="pagination-wrap-2 hstack gap-2" style="display: flex;">
+                                <a class="page-item pagination-prev disabled" href="#" data-i="1" data-page="10">
                                     Previous
                                 </a>
-                                <ul class="pagination listjs-pagination mb-0"></ul>
-                                <a class="page-item pagination-next">
+                                <ul class="pagination listjs-pagination mb-0">
+                                    <li class="active">
+                                        <a class="page" href="#" data-i="1" data-page="10">
+                                            1
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="page" href="#" data-i="2" data-page="10">
+                                            2
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="page" href="#" data-i="3" data-page="10">
+                                            3
+                                        </a>
+                                    </li>
+                                    <li class="disabled">
+                                        <a class="page" href="#">...</a>
+                                    </li>
+                                </ul>
+                                <a class="page-item pagination-next" href="#" data-i="2" data-page="10">
                                     Next
                                 </a>
-                            </div>
+                            </div>                           
                         </div>
                     </div>
 
