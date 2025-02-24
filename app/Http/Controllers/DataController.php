@@ -185,7 +185,7 @@ class DataController extends Controller
         // Fetch scores only if $type is not null
         if ($type !== null) {
             // Fetch proximity data from ApplicantProximityService
-            $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $id, $startDate, $endDate, $maxDistanceFromStore);
+            $averageDistanceTalentPoolApplicants = 'N/A';// $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $id, $startDate, $endDate, $maxDistanceFromStore);
             $averageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $id, $startDate, $endDate);
         }
 
