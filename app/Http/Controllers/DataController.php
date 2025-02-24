@@ -197,6 +197,91 @@ class DataController extends Controller
     }
 
     /**
+     * Retrieve the average proximity metrics for talent pool applicants.
+     *
+     * This method calculates and returns the average distance of the talent pool
+     * applicants from the store within a specified date range. It leverages the
+     * ApplicantProximityService to compute the metric based on the user's role and
+     * additional parameters. The result is returned as a JSON response.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request instance.
+     * @return \Illuminate\Http\JsonResponse A JSON response containing the metric.
+     */
+    public function getTalentPoolProximityMetrics(Request $request)
+    {
+        // Retrieve common metrics data (date range, user type, user ID, etc.)
+        $data = $this->getCommonMetricsData();
+
+        // Define the date range for the metrics calculation:
+        // from the start of the year to the end of today.
+        $startDate = $data['startDate'];
+        $endDate = $data['endDate'];
+
+        // Determine the user's type and ID based on role or context.
+        $type = $data['type'];
+        $id = $data['id'];
+
+        // Retrieve the maximum allowed distance from the store,
+        // which may be used to filter or adjust the calculation.
+        $maxDistanceFromStore = $data['maxDistanceFromStore'];
+
+        // Initialize the metric variable.
+        $averageDistanceTalentPoolApplicants = 0;
+
+        // Only perform the calculation if the user type is defined.
+        if ($type !== null) {
+            // Use the ApplicantProximityService to calculate the average distance
+            // for talent pool applicants given the parameters.
+            $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, $id, $startDate, $endDate, $maxDistanceFromStore);
+        }
+
+        // Return the calculated metric as a JSON response.
+        return response()->json([
+            'averageDistanceTalentPoolApplicants' => $averageDistanceTalentPoolApplicants,
+        ]);
+    }
+
+    /**
+     * Retrieve the average proximity metrics for appointed applicants.
+     *
+     * This method calculates and returns the average distance of appointed applicants
+     * from the store, using the defined date range and user-related parameters. The
+     * ApplicantProximityService is used to perform the calculation based on the user's role.
+     * The result is provided as a JSON response.
+     *
+     * @param \Illuminate\Http\Request $request The HTTP request instance.
+     * @return \Illuminate\Http\JsonResponse A JSON response containing the metric.
+     */
+    public function getApplicantsAppointedProximityMetrics(Request $request)
+    {
+        // Retrieve common metrics data including the date range and user parameters.
+        $data = $this->getCommonMetricsData();
+
+        // Define the date range for the calculation.
+        $startDate = $data['startDate'];
+        $endDate = $data['endDate'];
+
+        // Determine the user's type and ID for personalized metric calculation.
+        $type = $data['type'];
+        $id = $data['id'];
+
+        // Initialize the variable to hold the average distance for appointed applicants.
+        $averageDistanceApplicantsAppointed = 0;
+
+        // Only perform the calculation if the user type is provided.
+        if ($type !== null) {
+            // Use the ApplicantProximityService to compute the average distance
+            // for appointed applicants based on the provided parameters.
+            $averageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, $id, $startDate, $endDate);
+        }
+
+        // Return the computed metric as a JSON response.
+        return response()->json([
+            'averageDistanceApplicantsAppointed' => $averageDistanceApplicantsAppointed,
+        ]);
+    }
+
+    /**
      * Retrieve average score metrics for vacancies.
      *
      * This method calculates and returns key metrics related to candidate scores,
