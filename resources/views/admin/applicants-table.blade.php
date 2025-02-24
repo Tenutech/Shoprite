@@ -141,7 +141,7 @@
                                                     <span class="badge bg-{{ $status }}-subtle text-{{ $status }} text-uppercase">
                                                         {{ $employment }}
                                                     </span>                                                    
-                                                </td>
+                                                </td> 
                                                 <td class="state">{{ $applicant->state_id ? $applicant->state->name : '' }}</td>
                                                 <td class="email d-none">{{ $applicant->email }}</td>
                                                 <td class="town d-none">{{ $applicant->town_id ? $applicant->town->name : '' }}</td>
