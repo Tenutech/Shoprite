@@ -15,6 +15,7 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('update:average-distance-talent-pool')->dailyAt('00:00');
         $schedule->command('shortlist:expiry')->dailyAt('02:00');
         $schedule->command('reminders:send')->dailyAt('05:00');
         $schedule->command('vacancy:delete_no_interview')->dailyAt('02:30');
