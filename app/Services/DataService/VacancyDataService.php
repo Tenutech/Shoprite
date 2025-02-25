@@ -94,7 +94,10 @@ class VacancyDataService
     public function getTotalInterviewsScheduled(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
     {
         // Start building the query using the Interview model and filter by date range
-        $interviews = Interview::whereBetween('created_at', [$startDate, $endDate]);
+        $interviews = Interview::whereBetween('created_at', [$startDate, $endDate])
+            ->whereHas('vacancy', function ($query) {
+                $query->where('deleted', 'No');  // Ensure only vacancies where deleted is 'No' are considered
+            });
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -128,7 +131,10 @@ class VacancyDataService
     {
         // Start building the query using the Interview model, filter for completed interviews (score is not null) and date range
         $interviews = Interview::whereNotNull('score')
-            ->whereBetween('created_at', [$startDate, $endDate]);
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->whereHas('vacancy', function ($query) {
+                $query->where('deleted', 'No');  // Ensure only vacancies where deleted is 'No' are considered
+            });
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -205,7 +211,10 @@ class VacancyDataService
     {
         // Start building the query using the Interview model, filter for regretted applicants and date range
         $interviews = Interview::where('status', 'Regretted')
-            ->whereBetween('created_at', [$startDate, $endDate]);
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->whereHas('vacancy', function ($query) {
+                $query->where('deleted', 'No');  // Ensure only vacancies where deleted is 'No' are considered
+            });
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
