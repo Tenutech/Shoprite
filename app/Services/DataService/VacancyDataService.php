@@ -211,10 +211,7 @@ class VacancyDataService
     {
         // Start building the query using the Interview model, filter for regretted applicants and date range
         $interviews = Interview::where('status', 'Regretted')
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->whereHas('vacancy', function ($query) {
-                $query->where('deleted', 'No');  // Ensure only vacancies where deleted is 'No' are considered
-            });
+            ->whereBetween('created_at', [$startDate, $endDate]);
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
