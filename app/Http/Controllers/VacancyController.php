@@ -580,7 +580,7 @@ class VacancyController extends Controller
                 ], 400);
             }
     
-            if (!$vacancy->appointments->isEmpty()) {
+            if (!$vacancy->appointed->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Vacancy cannot be deleted as it has active appointments.'

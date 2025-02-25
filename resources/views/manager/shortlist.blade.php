@@ -117,7 +117,7 @@
                     <option value="4">Saved Candidates</option>
                     <option value="5">Fixed Term</option>
                     <option value="6">Peak Season</option>
-                    <option value="7">Yes</option>
+                    <option value="7">YES</option>
                     <option value="8">RRP</option>
             </select>
             <div class="invalid-feedback">Please select shortlist type</div>
