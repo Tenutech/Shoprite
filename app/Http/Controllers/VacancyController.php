@@ -270,7 +270,22 @@ class VacancyController extends Controller
                     }
                 }
             ],
-            'type_id' => 'required|integer|exists:types,id', // Ensure the type_id exists in the types table
+            'type_id' => ['required', 'integer', 'exists:types,id',
+                function ($attribute, $value, $fail) use ($request) {
+                    // Positions that require type_id = 5 (YES programme)
+                    $yesPositions = [52, 54, 56];
+                    // Positions that require type_id = 6 (RRP programme)
+                    $rrpPositions = [53, 55, 57];
+
+                    if ((in_array($request->position_id, $yesPositions) && $value != 5) || (!in_array($request->position_id, $yesPositions) && $value == 5)) {
+                        $fail('You cannot select this job position for YES programme. Please select a YES job position.');
+                    }
+
+                    if ((in_array($request->position_id, $rrpPositions) && $value != 6) || (!in_array($request->position_id, $rrpPositions) && $value == 6)) {
+                        $fail('You cannot select this job position for RRP programme. Please select a RRP job position.');
+                    }
+                }
+            ],
             'store_id' => ['required','integer','exists:stores,id',
                 function ($attribute, $value, $fail) use ($user, $regionID, $divisionID, $store) {
                     // For RPP (role_id = 3), ensure the user belongs to the same region as the store
