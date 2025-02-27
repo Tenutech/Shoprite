@@ -108,7 +108,7 @@ class VacancyController extends Controller
 
             if (in_array($user->role_id, [1, 2])) {
                 // If role_id is 1 or 2, get all positions where id > 1
-                $positions = Position::where('id', '>', 1)->get();
+                $positions = Position::where('id', '>', 1)->orderBy('name')->get();
             } elseif ($user->role_id == 3) {
                 // If role_id is 3, get all positions where brand_id is in the stores matching division_id
                 $storeBrandIds = Store::where('division_id', $user->division_id)
@@ -120,7 +120,7 @@ class VacancyController extends Controller
                 }
 
                 // Now get all positions where brand_id is in the store's brand_ids
-                $positions = Position::whereIn('brand_id', $storeBrandIds)
+                $positions = Position::whereIn('brand_id', $storeBrandIds)->orderBy('name')
                     ->get();
             } elseif ($user->role_id == 4) {
                 // If role_id is 4, get all positions where brand_id is in the stores matching division_id
@@ -133,17 +133,17 @@ class VacancyController extends Controller
                 }
 
                 // Now get all positions where brand_id is in the store's brand_ids
-                $positions = Position::whereIn('brand_id', $storeBrandIds)
+                $positions = Position::whereIn('brand_id', $storeBrandIds)->orderBy('name')
                     ->get();
             } elseif ($user->role_id == 6) {
                 // If role_id is 6, check if the user has a brand_id
                 if ($user->brand_id) {
                     // If $user->brand_id is 2, 3, or 4, get positions where brand_id is 2
                     if (in_array($user->brand_id, [2, 3, 4])) {
-                        $positions = Position::where('brand_id', 2)->get();
+                        $positions = Position::where('brand_id', 2)->orderBy('name')->get();
                     } else {
                         // Otherwise, get positions where brand_id matches the user's brand_id
-                        $positions = Position::where('brand_id', $user->brand_id)->get();
+                        $positions = Position::where('brand_id', $user->brand_id)->orderBy('name')->get();
                     }
                 }
             }
