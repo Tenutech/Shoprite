@@ -108,8 +108,8 @@ class VacancyController extends Controller
                 // If role_id is 1 or 2, get all positions where id > 1
                 $positions = Position::where('id', '>', 1)->get();
             } elseif ($user->role_id == 3) {
-                // If role_id is 3, get all positions where brand_id is in the stores matching region_id
-                $storeBrandIds = Store::where('region_id', $user->region_id)
+                // If role_id is 3, get all positions where brand_id is in the stores matching division_id
+                $storeBrandIds = Store::where('division_id', $user->division_id)
                     ->pluck('brand_id'); // Get the brand_ids of all stores in the user's region
 
                 // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
