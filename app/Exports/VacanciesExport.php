@@ -114,13 +114,13 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
         }
 
         // Apply the `deleted` filter
-        if (isset($filters['deleted'])) {
-            if ($filters['deleted'] === 'Auto') {
+        if (isset($this->filters['deleted'])) {
+            if ($this->filters['deleted'] === 'Auto') {
                 $query->where('auto_deleted', 'Yes');
-            } elseif ($filters['deleted'] === 'Manually') {
+            } elseif ($this->filters['deleted'] === 'Manually') {
                 $query->where('deleted', 'Yes')
-                          ->where('auto_deleted', 'No');
-            } elseif ($filters['deleted'] === 'No') {
+                      ->where('auto_deleted', 'No');
+            } elseif ($this->filters['deleted'] === 'No') {
                 $query->where('deleted', 'No');
             }
         }
@@ -139,16 +139,26 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
     {
         $rows = [];
 
-        // Collect all SAP numbers
-        $sapNumbers = $vacancy->sapNumbers->pluck('sap_number')->toArray();
+        // Collect all SAP numbers from both sources
+        $sapNumbers = $vacancy->sapNumbers ? $vacancy->sapNumbers->pluck('sap_number')->toArray() : [];
+        $appointedSapNumbers = $vacancy->appointed->pluck('pivot.sap_number')->toArray();
+
+        // Merge and remove duplicates
+        $allSapNumbers = array_unique(array_merge($sapNumbers, $appointedSapNumbers));
+
+        // Determine the total rows needed (whichever is greater: open_positions or available SAP numbers)
+        $totalRows = max($vacancy->open_positions ?? 1, count($allSapNumbers));
+
+        // Ensure at least `totalRows` SAP numbers (fill missing with null)
+        $allSapNumbers = array_pad($allSapNumbers, $totalRows, null);
 
         // Map the appointed applicants by their SAP numbers
         $appointedApplicantsBySap = $vacancy->appointed->mapWithKeys(function ($applicant) {
             return [$applicant->pivot->sap_number => $applicant->firstname . ' ' . $applicant->lastname . ' (' . $applicant->id_number . ') - ' . $applicant->pivot->sap_number];
         });
 
-        // Loop to create rows for each SAP number
-        foreach ($sapNumbers as $currentSapNumber) {
+        // Loop to create rows for each SAP number (or empty rows if required)
+        foreach ($allSapNumbers as $index => $currentSapNumber) {
             // Determine open_positions and filled_positions
             $isFilled = isset($appointedApplicantsBySap[$currentSapNumber]);
             $openPositions = $isFilled ? '0' : 1;
@@ -164,7 +174,7 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
                 optional($vacancy->store)->name ?? '',
                 optional($vacancy->store)->code ?? '',
                 optional($vacancy->position)->name ?? '',
-                $currentSapNumber, // Assign each SAP number to its own row
+                $currentSapNumber ?? '', // Ensure SAP number is empty if null
                 optional($vacancy->type)->name ?? '',
                 (optional($vacancy->user)->firstname ?? '') . ' ' . (optional($vacancy->user)->lastname ?? ''),
                 $openPositions, // Open positions for this SAP number
