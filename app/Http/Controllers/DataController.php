@@ -228,10 +228,12 @@ class DataController extends Controller
         // Initialize the metric variable.
         $averageDistanceTalentPoolApplicants = 0;
 
-        // Only perform the calculation if the user type is defined.
-        if ($type !== null) {
-            // Use the ApplicantProximityService to calculate the average distance
-            // for talent pool applicants given the parameters.
+        // Check if the type is 'all' and the date range is from the start of the year to today
+        if ($type === 'all' && $startDate->isSameDay(now()->subYear()->startOfMonth()) && $endDate->isToday()) {
+            // Use the Statistic model to fetch the stored metric
+            $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicantsStatistic($type, $id, $startDate, $endDate, $maxDistanceFromStore);
+        } elseif ($type !== null) {
+            // Otherwise, perform the calculation dynamically
             $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicantsDB($type, $id, $startDate, $endDate, $maxDistanceFromStore);
         }
 

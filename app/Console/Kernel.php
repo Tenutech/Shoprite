@@ -15,8 +15,15 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command('update:average-distance-talent-pool')->dailyAt('00:00');
         $schedule->command('shortlist:expiry')->dailyAt('02:00');
         $schedule->command('reminders:send')->dailyAt('05:00');
+        $schedule->command('vacancy:delete_no_interview')->dailyAt('02:30');
+        $schedule->command('vacancy:delete_no_appointment')->dailyAt('03:00');
+        $schedule->command('talentpool:fixed_term')->dailyAt('03:15');
+        $schedule->command('talentpool:peak_season')->dailyAt('03:30');
+        $schedule->command('talentpool:YES')->dailyAt('03:45');
+        $schedule->command('talentpool:RRP')->dailyAt('04:00');
     }
 
     /**

@@ -695,8 +695,24 @@
                 </div> <!-- end col -->
             </div> <!-- end row -->
 
+            <!-------------------------------------------------------------------------------------
+                Modals
+            -------------------------------------------------------------------------------------->
+
             @if ($shortlist)
                 @include('manager.partials.shortlist-modal', ['shortlist' => $shortlist])
+            @endif
+
+            @if ($vacanciesNoInterview)
+                @foreach ($vacanciesNoInterview as $vacancyNoInterview)
+                    @include('manager.partials.vacancy-no-interview-modal', ['vacancy' => $vacancyNoInterview])
+                @endforeach
+            @endif
+
+            @if ($vacanciesNoAppointment)
+                @foreach ($vacanciesNoAppointment as $vacancyNoAppointment)
+                    @include('manager.partials.vacancy-no-appointment-modal', ['vacancy' => $vacancyNoAppointment])
+                @endforeach 
             @endif
 
         </div> <!-- end .h-100 -->
@@ -709,6 +725,9 @@
 @section('script')
 <script>
     var shortlist = @json($shortlist);
+    var vacanciesNoInterview = @json($vacanciesNoInterview);
+    var vacanciesNoAppointment = @json($vacanciesNoAppointment);
+    console.log(vacanciesNoInterview);
 </script>
 <!-- sweet alert -->
 <script src="{{ URL::asset('build/libs/sweetalert2/sweetalert2.min.js') }}"></script>

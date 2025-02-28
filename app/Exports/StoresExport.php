@@ -99,8 +99,11 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
      */
     public function map($store): array
     {
+        // Filter vacancies where deleted = 'No'
+        $validVacancies = $store->vacancies()->where('deleted', 'No')->get();
+
         // Get total vacancies for the store
-        $totalVacancies = $store->vacancies->count() ?? 0;
+        $totalVacancies = $validVacancies->count() ?? 0;
 
         // Count total interviews scheduled (status is not 'Appointed' or 'Completed' and score is null)
         $totalInterviewsScheduled = $store->vacancies->reduce(function ($carry, $vacancy) {
@@ -108,24 +111,28 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         }, 0);
 
         // Count total interviews conducted (score is not null)
-        $totalInterviewsConducted = $store->vacancies->reduce(function ($carry, $vacancy) {
+        $totalInterviewsConducted = $store->vacancies->where('deleted', 'No')
+        ->reduce(function ($carry, $vacancy) {
             return $carry + $vacancy->interviews()->whereNotNull('score')->count();
         }, 0);
 
         // Count total applicants placed at this store
-        $totalApplicantsPlaced = $store->vacancies->reduce(function ($carry, $vacancy) {
+        $totalApplicantsPlaced = $store->vacancies->where('deleted', 'No')
+        ->reduce(function ($carry, $vacancy) {
             return $carry + $vacancy->appointed()->count();
         }, 0);
 
         // Count total applicants regretted (where interview status is 'Regretted')
-        $totalApplicantsRegretted = $store->vacancies->reduce(function ($carry, $vacancy) {
+        $totalApplicantsRegretted = $store->vacancies->where('deleted', 'No')
+        ->reduce(function ($carry, $vacancy) {
             return $carry + $vacancy->interviews()
                 ->where('status', 'Regretted')
                 ->count();
         }, 0);
 
         // Count total applicants no show (where interview status is 'No Show')
-        $totalApplicantsNoShow = $store->vacancies->reduce(function ($carry, $vacancy) {
+        $totalApplicantsNoShow = $store->vacancies->where('deleted', 'No')
+        ->reduce(function ($carry, $vacancy) {
             return $carry + $vacancy->interviews()
                 ->where('status', 'No Show')
                 ->count();

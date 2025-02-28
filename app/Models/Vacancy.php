@@ -20,7 +20,9 @@ class Vacancy extends Model
         'status_id',
         'open_positions',
         'filled_positions',
-        'advertisement'
+        'advertisement',
+        'deleted',
+        'auto_deleted'
     ];
 
     //User

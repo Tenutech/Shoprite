@@ -18,7 +18,7 @@ $(document).ready(function() {
     if (positionSelect) {
         const positionChoices = new Choices(positionSelect, {
             searchEnabled: true,               // Enable the search feature
-            shouldSort: false,                 // Keep original order if desired
+            shouldSort: true,                 // Keep original order if desired
             searchFields: ['label'],           // Search within the option label
             searchFloor: 1,                    // Start search after typing 1 character
             allowHTML: true,                   // Enable HTML content within options

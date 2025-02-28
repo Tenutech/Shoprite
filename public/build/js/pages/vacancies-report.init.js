@@ -47,6 +47,7 @@ $(document).ready(function() {
     var userChoice = new Choices('#user', { searchEnabled: true, shouldSort: true });
     var typeChoice = new Choices('#type', { searchEnabled: false, shouldSort: true });
     var unactionedChoice = new Choices('#unactioned', { searchEnabled: false, shouldSort: true });
+    var deletedChoice = new Choices('#deleted', { searchEnabled: false, shouldSort: true });
 
     /*
     |--------------------------------------------------------------------------
@@ -95,6 +96,9 @@ $(document).ready(function() {
 
         unactionedChoice.removeActiveItems();
         unactionedChoice.setChoiceByValue("");
+
+        deletedChoice.removeActiveItems();
+        deletedChoice.setChoiceByValue("");
 
         // Clear all number input fields
         $('#openPositions').val('');

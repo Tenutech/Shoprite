@@ -283,7 +283,8 @@ class VacanciesReportController extends Controller
                 'store_id.*' => 'integer|exists:stores,id',
                 'user_id' => 'nullable|integer|exists:users,id',
                 'type_id' => 'nullable|integer|exists:types,id',
-                'unactioned' => 'nullable|string|in:Yes,No'
+                'unactioned' => 'nullable|string|in:Yes,No',
+                'deleted' => 'nullable|string|in:Manually,Auto,No'
             ]);
 
             // Retrieve the ID of the currently authenticated user

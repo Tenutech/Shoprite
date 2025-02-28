@@ -436,6 +436,22 @@ function loadCandidateListData(datas, page) {
                     status = 'success';
                     tooltip = 'Not an Employee';
                     break;
+                case 'F':
+                    status = 'info';
+                    tooltip = 'Fixed Term';
+                    break;
+                case 'S':
+                    status = 'info';
+                    tooltip = 'Peak Season';
+                    break;
+                case 'Y':
+                    status = 'info';
+                    tooltip = 'YES Programme';
+                    break;
+                case 'R':
+                    status = 'info';
+                    tooltip = 'RRP Programme';
+                    break;
                 case 'I':
                 default:
                     status = 'dark';

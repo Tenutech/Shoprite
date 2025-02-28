@@ -323,6 +323,22 @@ editBtn.addEventListener("click", function (e) {
                                     employmentValue = 'Not an Employee';
                                     employmentBadgeClass = 'success';
                                     break;
+                                case 'F':
+                                    employmentValue = 'Fixed Term';
+                                    employmentBadgeClass = 'info';
+                                    break;
+                                case 'S':
+                                    employmentValue = 'Peak Season';
+                                    employmentBadgeClass = 'info';
+                                    break;
+                                case 'Y':
+                                    employmentValue = 'YES';
+                                    employmentBadgeClass = 'info';
+                                    break;
+                                case 'R':
+                                    employmentValue = 'RRP';
+                                    employmentBadgeClass = 'info';
+                                    break;
                                 case 'I':
                                 default:
                                     employmentValue = 'Inconclusive';
@@ -877,6 +893,22 @@ $(document).on('click', '.pagination a, .pagination-prev, .pagination-next', fun
                                 employmentStatus = 'Not an Employee';
                                 statusClass = 'success';
                                 break;
+                            case 'F':
+                                employmentStatus = 'Fixed Term';
+                                statusClass = 'info';
+                                break;
+                            case 'S':
+                                employmentStatus = 'Peak Season';
+                                statusClass = 'info';
+                                break;
+                            case 'Y':
+                                employmentStatus = 'YES';
+                                statusClass = 'info';
+                                break;
+                            case 'R':
+                                employmentStatus = 'RRP';
+                                statusClass = 'info';
+                                break;
                             case 'I':
                             default:
                                 employmentStatus = 'Inconclusive';
@@ -1021,6 +1053,22 @@ $(document).on('change', '#per-page-select', function () {
                                 employmentStatus = 'Not an Employee';
                                 statusClass = 'success';
                                 break;
+                            case 'F':
+                                employmentStatus = 'Fixed Term';
+                                statusClass = 'info';
+                                break;
+                            case 'S':
+                                employmentStatus = 'Peak Season';
+                                statusClass = 'info';
+                                break;
+                            case 'Y':
+                                employmentStatus = 'YES';
+                                statusClass = 'info';
+                                break;
+                            case 'R':
+                                employmentStatus = 'RRP';
+                                statusClass = 'info';
+                                break;
                             case 'I':
                             default:
                                 employmentStatus = 'Inconclusive';
@@ -1128,6 +1176,22 @@ $(document).on('input', '#search', function () {
                                     case 'N':
                                         employmentStatus = 'Not an Employee';
                                         statusClass = 'success';
+                                        break;
+                                    case 'F':
+                                        employmentStatus = 'Fixed Term';
+                                        statusClass = 'info';
+                                        break;
+                                    case 'S':
+                                        employmentStatus = 'Peak Season';
+                                        statusClass = 'info';
+                                        break;
+                                    case 'Y':
+                                        employmentStatus = 'YES';
+                                        statusClass = 'info';
+                                        break;
+                                    case 'R':
+                                        employmentStatus = 'RRP';
+                                        statusClass = 'info';
                                         break;
                                     case 'I':
                                     default:

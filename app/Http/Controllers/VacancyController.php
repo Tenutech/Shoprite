@@ -94,9 +94,11 @@ class VacancyController extends Controller
                     'store',
                     'type',
                     'status',
+                    'interviews',
                     'appointed',
                     'sapNumbers',
-                    'availableSapNumbers'
+                    'availableSapNumbers',
+                    'shortlists'
                 ])
                 ->findOrFail($vacancyId);
             }
@@ -106,7 +108,7 @@ class VacancyController extends Controller
 
             if (in_array($user->role_id, [1, 2])) {
                 // If role_id is 1 or 2, get all positions where id > 1
-                $positions = Position::where('id', '>', 1)->get();
+                $positions = Position::where('id', '>', 1)->orderBy('name')->get();
             } elseif ($user->role_id == 3) {
                 // If role_id is 3, get all positions where brand_id is in the stores matching division_id
                 $storeBrandIds = Store::where('division_id', $user->division_id)
@@ -118,7 +120,7 @@ class VacancyController extends Controller
                 }
 
                 // Now get all positions where brand_id is in the store's brand_ids
-                $positions = Position::whereIn('brand_id', $storeBrandIds)
+                $positions = Position::whereIn('brand_id', $storeBrandIds)->orderBy('name')
                     ->get();
             } elseif ($user->role_id == 4) {
                 // If role_id is 4, get all positions where brand_id is in the stores matching division_id
@@ -131,17 +133,17 @@ class VacancyController extends Controller
                 }
 
                 // Now get all positions where brand_id is in the store's brand_ids
-                $positions = Position::whereIn('brand_id', $storeBrandIds)
+                $positions = Position::whereIn('brand_id', $storeBrandIds)->orderBy('name')
                     ->get();
             } elseif ($user->role_id == 6) {
                 // If role_id is 6, check if the user has a brand_id
                 if ($user->brand_id) {
                     // If $user->brand_id is 2, 3, or 4, get positions where brand_id is 2
                     if (in_array($user->brand_id, [2, 3, 4])) {
-                        $positions = Position::where('brand_id', 2)->get();
+                        $positions = Position::where('brand_id', 2)->orderBy('name')->get();
                     } else {
                         // Otherwise, get positions where brand_id matches the user's brand_id
-                        $positions = Position::where('brand_id', $user->brand_id)->get();
+                        $positions = Position::where('brand_id', $user->brand_id)->orderBy('name')->get();
                     }
                 }
             }
@@ -240,22 +242,50 @@ class VacancyController extends Controller
                         if ($sapNumber->vacancy->user_id !== $userID) {
                             $fail('The SAP number ' . $value . ' has already been taken.');
                         } elseif ($sapNumber->vacancy->user_id === $userID) {
-                            // Handle SAP number reassignment
+                            // Handle SAP number reassignment without deleting vacancy fills
                             DB::transaction(function () use ($sapNumber) {
-                                // Delete associated vacancy fills
-                                $sapNumber->vacancyFills()->delete();
-
-                                // Update the associated vacancy
-                                $vacancy = $sapNumber->vacancy;
-                                $vacancy->open_positions = max(0, $vacancy->open_positions + 1);
-                                $vacancy->filled_positions = max(0, $vacancy->filled_positions - 1);
-                                $vacancy->save();
+                                // Get all vacancy fills related to the SAP number
+                                $vacancyFills = $sapNumber->vacancyFills()->get();
+                    
+                                // Loop through vacancy fills to update associated applicants
+                                foreach ($vacancyFills as $vacancyFill) {
+                                    // Find the applicant where appointed_id = vacancyFill->id
+                                    $applicant = Applicant::where('appointed_id', $vacancyFill->id)->first();
+                    
+                                    if ($applicant) {
+                                        // Set appointed_id and shortlist_id to null
+                                        $applicant->update([
+                                            'appointed_id' => null,
+                                            'shortlist_id' => null
+                                        ]);
+                                    }
+                                }
+                    
+                                // Update the associated vacancy fills to set sap_number_id to null
+                                $sapNumber->vacancyFills()->update([
+                                    'sap_number_id' => null
+                                ]);
                             });
                         }
                     }
                 }
             ],
-            'type_id' => 'required|integer|exists:types,id', // Ensure the type_id exists in the types table
+            'type_id' => ['required', 'integer', 'exists:types,id',
+                function ($attribute, $value, $fail) use ($request) {
+                    // Positions that require type_id = 5 (YES programme)
+                    $yesPositions = [52, 54, 56];
+                    // Positions that require type_id = 6 (RRP programme)
+                    $rrpPositions = [53, 55, 57];
+
+                    if ((in_array($request->position_id, $yesPositions) && $value != 5) || (!in_array($request->position_id, $yesPositions) && $value == 5)) {
+                        $fail('You cannot select this job position for YES programme. Please select a YES job position.');
+                    }
+
+                    if ((in_array($request->position_id, $rrpPositions) && $value != 6) || (!in_array($request->position_id, $rrpPositions) && $value == 6)) {
+                        $fail('You cannot select this job position for RRP programme. Please select a RRP job position.');
+                    }
+                }
+            ],
             'store_id' => ['required','integer','exists:stores,id',
                 function ($attribute, $value, $fail) use ($user, $regionID, $divisionID, $store) {
                     // For RPP (role_id = 3), ensure the user belongs to the same region as the store
@@ -516,20 +546,53 @@ class VacancyController extends Controller
     public function destroy($id)
     {
         try {
+            // Authenticated user's ID
+            $userID = Auth::id();
+
+            // Find the authenticated user by their ID
+            $user = User::findOrFail($userID);
+
+            // Ensure the user has the necessary role permission
+            if ($user->role_id > 6) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized: You do not have permission to delete this vacancy.'
+                ], 403);
+            }
+            
             // Decrypt the provided ID
             $vacancyId = Crypt::decryptString($id);
 
             // Find the vacancy model
             $vacancy = Vacancy::findOrFail($vacancyId);
 
+            if (!$vacancy->shortlists->isEmpty() && !is_null($vacancy->shortlists->first()?->applicant_ids) && !empty(json_decode($vacancy->shortlists->first()?->applicant_ids, true))) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vacancy cannot be deleted as it has an active shortlist.'
+                ], 400);
+            }
+    
+            if (!$vacancy->interviews->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vacancy cannot be deleted as it has scheduled interviews.'
+                ], 400);
+            }
+    
+            if (!$vacancy->appointed->isEmpty()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Vacancy cannot be deleted as it has active appointments.'
+                ], 400);
+            }
+
             // Start a transaction to ensure all related data is removed properly
             DB::beginTransaction();
 
-            // Delete associated SAP numbers
-            $vacancy->sapNumbers()->delete();
-
             // Delete the vacancy
-            $vacancy->delete();
+            $vacancy->deleted = 'Yes';
+            $vacancy->save();
 
             // Commit the transaction
             DB::commit();
@@ -707,6 +770,25 @@ class VacancyController extends Controller
 
                     // Update the applicant's appointed_id to reference the new VacancyFill record
                     $applicant->appointed_id = $vacancyFill->id;
+
+                    // Ensure appointments field is an array, then append the new vacancy_id
+                    $appointments = $applicant->appointments ? json_decode($applicant->appointments, true) : [];
+                    $appointments[] = $vacancy->id;
+
+                    // Remove duplicates and update the field
+                    $applicant->appointments = json_encode(array_unique($appointments));
+
+                    // Update employment field based on vacancy type
+                    if ($vacancy->type->id == 3) {
+                        $applicant->employment = 'F';
+                    } elseif ($vacancy->type->id == 4) {
+                        $applicant->employment = 'S';
+                    } elseif ($vacancy->type->id == 5) {
+                        $applicant->employment = 'Y';
+                    } elseif ($vacancy->type->id == 6) {
+                        $applicant->employment = 'R';
+                    }
+
                     $applicant->save();
 
                     // Update the interview status to 'Appointed'

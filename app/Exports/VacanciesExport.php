@@ -113,6 +113,18 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             }
         }
 
+        // Apply the `deleted` filter
+        if (isset($this->filters['deleted'])) {
+            if ($this->filters['deleted'] === 'Auto') {
+                $query->where('auto_deleted', 'Yes');
+            } elseif ($this->filters['deleted'] === 'Manually') {
+                $query->where('deleted', 'Yes')
+                      ->where('auto_deleted', 'No');
+            } elseif ($this->filters['deleted'] === 'No') {
+                $query->where('deleted', 'No');
+            }
+        }
+
         // Return the collection of filtered vacancies
         return $query->get();
     }
@@ -127,20 +139,42 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
     {
         $rows = [];
 
-        // Collect all SAP numbers
-        $sapNumbers = $vacancy->sapNumbers->pluck('sap_number')->toArray();
+        // Collect all SAP numbers from both sources
+        $sapNumbers = $vacancy->sapNumbers ? $vacancy->sapNumbers->pluck('sap_number')->toArray() : [];
+        $appointedSapNumbers = $vacancy->appointed->pluck('pivot.sap_number')->toArray();
+
+        // Merge and remove duplicates
+        $allSapNumbers = array_unique(array_merge($sapNumbers, $appointedSapNumbers));
+
+        // Determine the total rows needed (whichever is greater: open_positions or available SAP numbers)
+        $totalRows = max($vacancy->open_positions ?? 1, count($allSapNumbers));
+
+        // Ensure at least `totalRows` SAP numbers (fill missing with null)
+        $allSapNumbers = array_pad($allSapNumbers, $totalRows, null);
 
         // Map the appointed applicants by their SAP numbers
         $appointedApplicantsBySap = $vacancy->appointed->mapWithKeys(function ($applicant) {
             return [$applicant->pivot->sap_number => $applicant->firstname . ' ' . $applicant->lastname . ' (' . $applicant->id_number . ') - ' . $applicant->pivot->sap_number];
         });
 
-        // Loop to create rows for each SAP number
-        foreach ($sapNumbers as $currentSapNumber) {
+        // Loop to create rows for each SAP number (or empty rows if required)
+        foreach ($allSapNumbers as $index => $currentSapNumber) {
             // Determine open_positions and filled_positions
             $isFilled = isset($appointedApplicantsBySap[$currentSapNumber]);
             $openPositions = $isFilled ? '0' : 1;
             $filledPositions = $isFilled ? 1 : '0';
+
+            // Determine Vacancy Status
+            if ($vacancy->deleted === 'Yes' && $vacancy->auto_deleted === 'Yes') {
+                $vacancyStatus = 'Auto Deleted';
+            } elseif ($vacancy->deleted === 'Yes' && $vacancy->auto_deleted === 'No') {
+                $vacancyStatus = 'Manually Deleted';
+            } else {
+                $vacancyStatus = 'Not Deleted';
+            }
+
+            // Calculate the difference in days between created_at and updated_at
+            $daysDifference = $vacancy->created_at->diffInDays($vacancy->updated_at);
 
             $rows[] = [
                 optional(optional($vacancy->store)->brand)->name ?? '',
@@ -149,7 +183,7 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
                 optional($vacancy->store)->name ?? '',
                 optional($vacancy->store)->code ?? '',
                 optional($vacancy->position)->name ?? '',
-                $currentSapNumber, // Assign each SAP number to its own row
+                $currentSapNumber ?? '', // Ensure SAP number is empty if null
                 optional($vacancy->type)->name ?? '',
                 (optional($vacancy->user)->firstname ?? '') . ' ' . (optional($vacancy->user)->lastname ?? ''),
                 $openPositions, // Open positions for this SAP number
@@ -157,6 +191,8 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
                 $appointedApplicantsBySap[$currentSapNumber] ?? '', // Match appointed applicant to the current SAP number
                 $vacancy->created_at->format('Y-m-d H:i'),
                 $isFilled ? $vacancy->updated_at->format('Y-m-d H:i') : '',
+                $vacancyStatus, // Vacancy Status column
+                $daysDifference // Difference in days between created_at and updated_at
             ];
         }
 
@@ -185,6 +221,8 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'Successful Candidate(s)',
             'Created On',
             'Filled On',
+            'Vacancy Status',
+            'Days',
         ];
     }
 
@@ -239,6 +277,8 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'L' => 50, // Successful Candidate(s)
             'M' => 20, // Created On
             'N' => 20, // Updated On
+            'O' => 25, // Vacancy Status
+            'P' => 20, // Days
         ];
     }
 }

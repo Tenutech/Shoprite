@@ -24,6 +24,27 @@ $(document).ready(function() {
 
     /*
     |--------------------------------------------------------------------------
+    | Show Vacancy Delete Modal
+    |--------------------------------------------------------------------------
+    */
+
+    // Check if vacancies exist
+    if (typeof vacanciesNoInterview !== 'undefined' && Array.isArray(vacanciesNoInterview) && vacanciesNoInterview.length > 0) {
+        // Loop through all vacancies and show their respective modals
+        vacanciesNoInterview.forEach(vacancy => {
+            $('#vacancyDeleteWarningModal-' + vacancy.id).modal('show');
+        });
+    }
+
+    if (typeof vacanciesNoAppointment !== 'undefined' && Array.isArray(vacanciesNoAppointment) && vacanciesNoAppointment.length > 0) {
+        // Loop through all vacancies and show their respective modals
+        vacanciesNoAppointment.forEach(vacancy => {
+            $('#vacancyDeleteWarningModal-' + vacancy.id).modal('show');
+        });
+    }
+
+    /*
+    |--------------------------------------------------------------------------
     | Date Range
     |--------------------------------------------------------------------------
     */

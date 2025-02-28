@@ -60,6 +60,7 @@ class VacanciesController extends Controller
                 'appointed.latestInterview'
             ])
             ->where('user_id', $userID)
+            ->where('deleted', 'No')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -113,6 +114,7 @@ class VacanciesController extends Controller
             }
         ])
         ->whereIn('advertisement', $advertisement)
+        ->where('deleted', 'No')
         ->where('status_id', 2)
         ->orderBy('created_at', 'desc')
         ->get()

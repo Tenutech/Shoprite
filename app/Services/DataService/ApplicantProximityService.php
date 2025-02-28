@@ -6,6 +6,7 @@ use App\Models\State;
 use App\Models\Store;
 use App\Models\Vacancy;
 use App\Models\Applicant;
+use App\Models\Statistic;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -187,6 +188,46 @@ class ApplicantProximityService
     }
 
     /**
+     * Retrieve the stored average distance of talent pool applicants from the statistics table.
+     *
+     * This method queries the statistics table for the latest entry where the name is 'average_distance_talent_pool'.
+     * If no record is found, it returns 0.
+     *
+     * @return float The stored average distance of talent pool applicants.
+     */
+    public function getAverageDistanceTalentPoolApplicantsStatistic(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore): float
+    {
+        // Start with the base query for statistics
+        $query = Statistic::where('name', 'average_distance_talent_pool');
+
+        // Apply filters based on the type
+        switch ($type) {
+            case 'all':
+                $query->whereIn('role_id', [1, 2]);
+                break;
+
+            case 'region':
+                $query->where('role_id', 3)
+                    ->where('region_id', $id);
+                break;
+
+            case 'division':
+                $query->whereIn('role_id', [4, 5])
+                    ->where('division_id', $id);
+                break;            
+
+            case 'store':
+                $query->where('role_id', 6)
+                    ->where('store_id', $id);
+                break;
+        }
+
+        // Retrieve the most recent value
+        return $query->latest('created_at')->value('value') ?? 0;
+    }
+
+
+    /**
      * Calculate the average distance between stores' coordinates and appointed applicants' coordinates for store, division, or region.
      *
      * @param string $type The type of filter (e.g., store, division, region).
@@ -203,7 +244,7 @@ class ApplicantProximityService
         // Retrieve vacancies and stores based on the type (store, division, region) and date range
         $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
                 return $query->where('store_id', $id);
-        })
+            })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->whereHas('store', function ($q) use ($id) {
                     $q->where('division_id', $id);
@@ -215,6 +256,7 @@ class ApplicantProximityService
                 });
             })
             ->whereBetween('created_at', [$startDate, $endDate])
+            ->where('deleted', 'No')
             ->with(['store', 'appointed']) // Load store and appointed applicants relationships
             ->get();
 

@@ -107,6 +107,7 @@ class ShortlistController extends Controller
                 'store.town'
             ])
             ->where('user_id', $userID)
+            ->where('deleted', 'No')
             ->get();
 
             //Shortlist
@@ -321,6 +322,26 @@ class ShortlistController extends Controller
                 $query->whereHas('savedBy', function ($query) use ($userID) {
                     $query->where('user_id', $userID);
                 });
+            }
+
+            // Check if shortlist_type_id is 5 then only get fixed term applicants
+            if ($request->input('shortlist_type_id') == '5') {
+                $query->where('employment', 'F');
+            }
+
+            // Check if shortlist_type_id is 6 then only get fixed term applicants
+            if ($request->input('shortlist_type_id') == '6') {
+                $query->where('employment', 'S');
+            }
+
+            // Check if shortlist_type_id is 7 then only get fixed term applicants
+            if ($request->input('shortlist_type_id') == '7') {
+                $query->where('employment', 'Y');
+            }
+
+            // Check if shortlist_type_id is 8 then only get fixed term applicants
+            if ($request->input('shortlist_type_id') == '8') {
+                $query->where('employment', 'R');
             }
 
             // Apply filters if they are present in the request
