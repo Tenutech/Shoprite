@@ -308,7 +308,7 @@ class VacanciesReportDataService
     public function getTotalVacanciesFiltered(string $type, ?int $id, string $startDate, string $endDate, array $filters)
     {
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -382,7 +382,8 @@ class VacanciesReportDataService
             if ($filters['deleted'] === 'Auto') {
                 $vacancies->where('auto_deleted', 'Yes');
             } elseif ($filters['deleted'] === 'Manually') {
-                $vacancies->where('deleted', 'Yes');
+                $vacancies->where('deleted', 'Yes')
+                          ->where('auto_deleted', 'No');
             }
         }
 
@@ -410,7 +411,7 @@ class VacanciesReportDataService
     public function getTotalVacanciesFilledFiltered(string $type, ?int $id, string $startDate, string $endDate, array $filters)
     {
         // Start building the query using the Vacancy model, filter for filled vacancies (open_positions = 0), and date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -478,7 +479,8 @@ class VacanciesReportDataService
             if ($filters['deleted'] === 'Auto') {
                 $vacancies->where('auto_deleted', 'Yes');
             } elseif ($filters['deleted'] === 'Manually') {
-                $vacancies->where('deleted', 'Yes');
+                $vacancies->where('deleted', 'Yes')
+                          ->where('auto_deleted', 'No');
             }
         }
 
@@ -514,7 +516,7 @@ class VacanciesReportDataService
         }
 
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
 
         // Filter by store, division, or region based on the type parameter
         if ($type === 'store') {
@@ -586,7 +588,8 @@ class VacanciesReportDataService
             if ($filters['deleted'] === 'Auto') {
                 $vacancies->where('auto_deleted', 'Yes');
             } elseif ($filters['deleted'] === 'Manually') {
-                $vacancies->where('deleted', 'Yes');
+                $vacancies->where('deleted', 'Yes')
+                          ->where('auto_deleted', 'No');
             }
         }
 
@@ -700,7 +703,8 @@ class VacanciesReportDataService
             if ($filters['deleted'] === 'Auto') {
                 $vacancies->where('auto_deleted', 'Yes');
             } elseif ($filters['deleted'] === 'Manually') {
-                $vacancies->where('deleted', 'Yes');
+                $vacancies->where('deleted', 'Yes')
+                          ->where('auto_deleted', 'No');
             }
         }
 
