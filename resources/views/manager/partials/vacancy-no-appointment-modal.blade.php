@@ -13,19 +13,19 @@
                     </h4>
                     <p class="text-muted fs-14 mb-4 pt-1">
                         <b>{{ $vacancy->id }}. {{ $vacancy->position->name }}: ({{ $vacancy->store->brand->name }} - {{ $vacancy->store->name }})</b> has not been filled. 
-                        This vacancy will be deleted in 
+                        This vacancy will be deleted
                         @if(isset($vacancy->days_until_deletion))
                             @if($vacancy->days_until_deletion == 0)
                                 today.
                             @else
-                                {{ $vacancy->days_until_deletion }} 
+                                in {{ $vacancy->days_until_deletion }} 
                                 {{ $vacancy->days_until_deletion == 1 ? 'day' : 'days' }}.
                             @endif
                         @else
                             soon.
                         @endif
                         Please review your shortlist and proceed with scheduling interviews to take the next step in your hiring process.
-                    </p>                                 
+                    </p>                                                     
                     <div class="hstack gap-2 justify-content-center remove">
                         <button class="btn btn-light" data-bs-dismiss="modal">
                             <i class="ri-close-line me-1 align-middle"></i>

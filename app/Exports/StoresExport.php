@@ -108,10 +108,7 @@ class StoresExport implements FromCollection, WithHeadings, WithStyles, WithColu
         // Count total interviews scheduled (status is not 'Appointed' or 'Completed' and score is null)
         $totalInterviewsScheduled = $store->vacancies->where('deleted', 'No')
         ->reduce(function ($carry, $vacancy) {
-            return $carry + $vacancy->interviews()
-                ->whereNotIn('status', ['Appointed', 'Completed'])
-                ->whereNull('score')
-                ->count();
+            return $carry + $vacancy->interviews()->count();
         }, 0);
 
         // Count total interviews conducted (score is not null)
