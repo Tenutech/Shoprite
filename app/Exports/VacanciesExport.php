@@ -59,9 +59,6 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
         // Apply date range filter
         $query->whereBetween('created_at', [$this->startDate, $this->endDate]);
 
-        // Apply deleted filter
-        $query->where('deleted', 'No');
-
         // Apply all additional filters
         if (isset($this->filters['position_id'])) {
             $query->where('position_id', $this->filters['position_id']);
@@ -121,7 +118,8 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             if ($filters['deleted'] === 'Auto') {
                 $query->where('auto_deleted', 'Yes');
             } elseif ($filters['deleted'] === 'Manually') {
-                $query->where('deleted', 'Yes');
+                $query->where('deleted', 'Yes')
+                          ->where('auto_deleted', 'No');
             }
         }
 
