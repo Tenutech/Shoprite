@@ -120,6 +120,8 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             } elseif ($filters['deleted'] === 'Manually') {
                 $query->where('deleted', 'Yes')
                           ->where('auto_deleted', 'No');
+            } elseif ($filters['deleted'] === 'No') {
+                $query->where('deleted', 'No');
             }
         }
 

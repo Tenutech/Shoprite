@@ -384,6 +384,8 @@ class VacanciesReportDataService
             } elseif ($filters['deleted'] === 'Manually') {
                 $vacancies->where('deleted', 'Yes')
                           ->where('auto_deleted', 'No');
+            } elseif ($filters['deleted'] === 'No') {
+                $vacancies->where('deleted', 'No');
             }
         }
 
@@ -481,6 +483,8 @@ class VacanciesReportDataService
             } elseif ($filters['deleted'] === 'Manually') {
                 $vacancies->where('deleted', 'Yes')
                           ->where('auto_deleted', 'No');
+            } elseif ($filters['deleted'] === 'No') {
+                $vacancies->where('deleted', 'No');
             }
         }
 
@@ -590,6 +594,8 @@ class VacanciesReportDataService
             } elseif ($filters['deleted'] === 'Manually') {
                 $vacancies->where('deleted', 'Yes')
                           ->where('auto_deleted', 'No');
+            } elseif ($filters['deleted'] === 'No') {
+                $vacancies->where('deleted', 'No');
             }
         }
 
@@ -705,6 +711,8 @@ class VacanciesReportDataService
             } elseif ($filters['deleted'] === 'Manually') {
                 $vacancies->where('deleted', 'Yes')
                           ->where('auto_deleted', 'No');
+            } elseif ($filters['deleted'] === 'No') {
+                $vacancies->where('deleted', 'No');
             }
         }
 
