@@ -96,7 +96,7 @@ class AdminController extends Controller
             $expiryDateNoInterviewCuttOff = Carbon::now()->subDays($vacancyNoInterviewPostingDays + $warningDays);
 
             $vacanciesNoInterview = Vacancy::where('user_id', $authUserId)
-            ->whereBetween('created_at', [$expiryDateNoInterviewCuttOff, $expiryDateNoInterview])
+                ->where('created_at', '<=', Carbon::now()->subDays($vacancyNoInterviewPostingDays - $warningDays)) // Ensure we are within the warning period
                 ->where('deleted', 'No')
                 ->where('auto_deleted', 'No')
                 ->where(function ($query) {
@@ -109,8 +109,13 @@ class AdminController extends Controller
                 ->doesntHave('appointed') // Ensure no applicants have been appointed
                 ->doesntHave('interviews') // Ensure no interviews exist
                 ->get()
-                ->map(function ($vacancy) use ($expiryDateNoInterview) {
-                    $vacancy->days_until_deletion = max(0, $expiryDateNoInterview->diffInDays($vacancy->created_at));
+                ->map(function ($vacancy) use ($vacancyNoInterviewPostingDays) {
+                    // Calculate the deletion date
+                    $deletionDate = Carbon::parse($vacancy->created_at)->addDays($vacancyNoInterviewPostingDays);
+            
+                    // Calculate remaining days using hours to avoid rounding issues
+                    $vacancy->days_until_deletion = max(0, ceil(Carbon::now()->diffInHours($deletionDate, false) / 24));
+            
                     return $vacancy;
                 });
 
@@ -123,13 +128,18 @@ class AdminController extends Controller
             $expiryDateNoAppointmentCuttOff = Carbon::now()->subDays($vacancyNoAppointmentPostingDays + $warningDays);
 
             $vacanciesNoAppointment = Vacancy::where('user_id', $authUserId)
-                ->whereBetween('created_at', [$expiryDateNoAppointmentCuttOff, $expiryDateNoAppointment])
+                ->where('created_at', '<=', Carbon::now()->subDays($vacancyNoAppointmentPostingDays - $warningDays)) // Ensure we are within the warning period
                 ->where('deleted', 'No')
                 ->where('auto_deleted', 'No')
                 ->where('open_positions', '>', 0)
                 ->get()
-                ->map(function ($vacancy) use ($expiryDateNoAppointment) {
-                    $vacancy->days_until_deletion = max(0, $expiryDateNoAppointment->diffInDays($vacancy->created_at));
+                ->map(function ($vacancy) use ($vacancyNoAppointmentPostingDays) {
+                    // Calculate the deletion date
+                    $deletionDate = Carbon::parse($vacancy->created_at)->addDays($vacancyNoAppointmentPostingDays);
+            
+                    // Calculate remaining days using hours to avoid rounding issues
+                    $vacancy->days_until_deletion = max(0, ceil(Carbon::now()->diffInHours($deletionDate, false) / 24));
+            
                     return $vacancy;
                 });
 
