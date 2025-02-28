@@ -335,47 +335,59 @@ class DataController extends Controller
      */
     public function getAssessmentScores(Request $request)
     {
-        // Retrieve common metrics data
-        $data = $this->getCommonMetricsData();
+        try {
+            // Retrieve common metrics data
+            $data = $this->getCommonMetricsData();
 
-        // Define the date range
-        $startDate = $data['startDate'];
-        $endDate = $data['endDate'];
+            // Define the date range
+            $startDate = $data['startDate'];
+            $endDate = $data['endDate'];
 
-        // Determine the $type and $id based on the user's role
-        $type = $data['type'];
-        $id = $data['id'];
+            // Determine the $type and $id based on the user's role
+            $type = $data['type'];
+            $id = $data['id'];
 
-        // Initialize applicants assessment scores
-        $literacyStateID = State::where('code', 'literacy')->first()->id;
-        $literacyQuestionsCount = ChatTemplate::where('state_id', $literacyStateID)->count();
-        $averageLiteracyScoreTalentPoolApplicants = 0;
+            // Initialize applicants assessment scores
+            $literacyStateID = State::where('code', 'literacy')->first()->id;
+            $literacyQuestionsCount = ChatTemplate::where('state_id', $literacyStateID)->count();
+            $averageLiteracyScoreTalentPoolApplicants = 0;
 
-        $numeracyStateID = State::where('code', 'numeracy')->first()->id;
-        $numeracyQuestionsCount = ChatTemplate::where('state_id', $numeracyStateID)->count();
-        $averageNumeracyScoreTalentPoolApplicants = 0;
+            $numeracyStateID = State::where('code', 'numeracy')->first()->id;
+            $numeracyQuestionsCount = ChatTemplate::where('state_id', $numeracyStateID)->count();
+            $averageNumeracyScoreTalentPoolApplicants = 0;
 
-        $situationalStateID = State::where('code', 'situational')->first()->id;
-        $situationalQuestionsCount = ChatTemplate::where('state_id', $situationalStateID)->count();
-        $averageSituationalScoreTalentPoolApplicants = 0;
+            $situationalStateID = State::where('code', 'situational')->first()->id;
+            $situationalQuestionsCount = ChatTemplate::where('state_id', $situationalStateID)->count();
+            $averageSituationalScoreTalentPoolApplicants = 0;
 
-        // Fetch scores only if $type is not null
-        if ($type !== null) {
-            // Fetch applicants assessment scores from applicantDataService
-            $averageLiteracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageLiteracyScoreTalentPoolApplicants($type, $id, $startDate, $endDate);
-            $averageNumeracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageNumeracyScoreTalentPoolApplicants($type, $id, $startDate, $endDate);
-            $averageSituationalScoreTalentPoolApplicants = $this->applicantDataService->getAverageSituationalScoreTalentPoolApplicants($type, $id, $startDate, $endDate);
+            // Fetch scores only if $type is not null
+            if ($type !== null) {
+                // Fetch applicants assessment scores from applicantDataService
+                $averageLiteracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageLiteracyScoreTalentPoolApplicants($type, $id, $startDate, $endDate);
+                $averageNumeracyScoreTalentPoolApplicants = $this->applicantDataService->getAverageNumeracyScoreTalentPoolApplicants($type, $id, $startDate, $endDate);
+                $averageSituationalScoreTalentPoolApplicants = $this->applicantDataService->getAverageSituationalScoreTalentPoolApplicants($type, $id, $startDate, $endDate);
+            }
+
+            // Return the calculated metrics as a JSON response
+            return response()->json([
+                'literacyQuestionsCount' => $literacyQuestionsCount,
+                'averageLiteracyScoreTalentPoolApplicants' => $averageLiteracyScoreTalentPoolApplicants,
+                'numeracyQuestionsCount' => $numeracyQuestionsCount,
+                'averageNumeracyScoreTalentPoolApplicants' => $averageNumeracyScoreTalentPoolApplicants,
+                'situationalQuestionsCount' => $situationalQuestionsCount,
+                'averageSituationalScoreTalentPoolApplicants' => $averageSituationalScoreTalentPoolApplicants
+            ]);
+        } catch (\Exception $e) {
+            // Log the error
+            Log::error('Error in getAssessmentScores', [
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json(['error' => $e->getMessage()],500);
         }
-
-        // Return the calculated metrics as a JSON response
-        return response()->json([
-            'literacyQuestionsCount' => $literacyQuestionsCount,
-            'averageLiteracyScoreTalentPoolApplicants' => $averageLiteracyScoreTalentPoolApplicants,
-            'numeracyQuestionsCount' => $numeracyQuestionsCount,
-            'averageNumeracyScoreTalentPoolApplicants' => $averageNumeracyScoreTalentPoolApplicants,
-            'situationalQuestionsCount' => $situationalQuestionsCount,
-            'averageSituationalScoreTalentPoolApplicants' => $averageSituationalScoreTalentPoolApplicants
-        ]);
     }
 
     /**
