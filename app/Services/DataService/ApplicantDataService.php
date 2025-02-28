@@ -27,28 +27,11 @@ class ApplicantDataService
      */
     public function getAverageScoreTalentPoolApplicants(string $type, ?int $id, Carbon $startDate, Carbon $endDate): float
     {
-        $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
-            ->whereNotNull('score')
-            ->get();
+        $average = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                            ->whereNotNull('score')
+                            ->avg('score');
 
-        $totalScore = 0;
-        $applicantCount = 0;
-
-        // Sum up the scores of applicants and count them
-        foreach ($applicants as $applicant) {
-            if ($applicant->score !== null) {
-                $totalScore += $applicant->score;
-                $applicantCount++;
-            }
-        }
-
-        // Calculate and return the average score
-        if ($applicantCount > 0) {
-            return round($totalScore / $applicantCount, 2); // Return the average score rounded to 2 decimal places
-        }
-
-        // Return 0 if no applicants with a score are found
-        return 0;
+        return is_null($average) ? 0 : round($average, 2);
     }
 
     /**
@@ -193,28 +176,11 @@ class ApplicantDataService
      */
     public function getAverageLiteracyScoreTalentPoolApplicants(string $type, ?int $id, Carbon $startDate, Carbon $endDate): float
     {
-        $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+        $average = Applicant::whereBetween('created_at', [$startDate, $endDate])
             ->whereNotNull('literacy_score')
-            ->get();
+            ->avg('literacy_score');
 
-        $totalScore = 0;
-        $applicantCount = 0;
-
-        // Sum up the literacy scores of applicants and count them
-        foreach ($applicants as $applicant) {
-            if ($applicant->literacy_score !== null) {
-                $totalScore += $applicant->literacy_score;
-                $applicantCount++;
-            }
-        }
-
-        // Calculate and return the average literacy score
-        if ($applicantCount > 0) {
-            return round($totalScore / $applicantCount); // Return the average literacy score rounded to 2 decimal places
-        }
-
-        // Return 0 if no applicants with a literacy score are found
-        return 0;
+        return is_null($average) ? 0 : round($average);
     }
 
     /**
@@ -228,28 +194,11 @@ class ApplicantDataService
      */
     public function getAverageNumeracyScoreTalentPoolApplicants(string $type, ?int $id, Carbon $startDate, Carbon $endDate): float
     {
-        $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+        $average = Applicant::whereBetween('created_at', [$startDate, $endDate])
             ->whereNotNull('numeracy_score')
-            ->get();
+            ->avg('numeracy_score');
 
-        $totalScore = 0;
-        $applicantCount = 0;
-
-        // Sum up the numeracy scores of applicants and count them
-        foreach ($applicants as $applicant) {
-            if ($applicant->numeracy_score !== null) {
-                $totalScore += $applicant->numeracy_score;
-                $applicantCount++;
-            }
-        }
-
-        // Calculate and return the average numeracy score
-        if ($applicantCount > 0) {
-            return round($totalScore / $applicantCount); // Return the average numeracy score rounded to 2 decimal places
-        }
-
-        // Return 0 if no applicants with a numeracy score are found
-        return 0;
+        return is_null($average) ? 0 : round($average);
     }
 
     /**
@@ -263,28 +212,11 @@ class ApplicantDataService
      */
     public function getAverageSituationalScoreTalentPoolApplicants(string $type, ?int $id, Carbon $startDate, Carbon $endDate): float
     {
-        $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+        $average = Applicant::whereBetween('created_at', [$startDate, $endDate])
             ->whereNotNull('situational_score')
-            ->get();
+            ->avg('situational_score');
 
-        $totalScore = 0;
-        $applicantCount = 0;
-
-        // Sum up the situational scores of applicants and count them
-        foreach ($applicants as $applicant) {
-            if ($applicant->situational_score !== null) {
-                $totalScore += $applicant->situational_score;
-                $applicantCount++;
-            }
-        }
-
-        // Calculate and return the average situational score
-        if ($applicantCount > 0) {
-            return round($totalScore / $applicantCount); // Return the average situational score rounded to 2 decimal places
-        }
-
-        // Return 0 if no applicants with a situational score are found
-        return 0;
+        return is_null($average) ? 0 : round($average);
     }
 
     /**
