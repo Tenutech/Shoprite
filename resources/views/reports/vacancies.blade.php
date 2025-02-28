@@ -403,7 +403,7 @@
                                         <option value="Yes">Yes</option>
                                     </select>
                                     <div class="invalid-feedback">
-                                        Please select a unactioned status!
+                                        Please select a unactioned status! 
                                     </div>
                                 </div>
                             </div>
