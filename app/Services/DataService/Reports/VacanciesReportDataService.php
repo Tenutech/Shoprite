@@ -23,7 +23,7 @@ class VacanciesReportDataService
     public function getTotalVacancies(string $type, ?int $id, string $startDate, string $endDate)
     {
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -62,8 +62,7 @@ class VacanciesReportDataService
     {
         // Start building the query using the Vacancy model, filter for filled vacancies (open_positions = 0), and date range
         $vacancies = Vacancy::where('open_positions', 0)
-            ->whereBetween('created_at', [$startDate, $endDate])
-            ->where('deleted', 'No');
+            ->whereBetween('created_at', [$startDate, $endDate]);
 
         // Prioritize filtering by store, followed by division, then region using Eloquent relationships
         if ($type === 'store') {
@@ -108,7 +107,7 @@ class VacanciesReportDataService
         }
 
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
 
         // Filter by store, division, or region based on the type parameter
         if ($type === 'store') {
@@ -159,8 +158,7 @@ class VacanciesReportDataService
 
         // Start building the query using the Vacancy model, filter for filled vacancies (open_positions = 0) and date range using updated_at
         $vacancies = Vacancy::where('open_positions', 0)
-            ->whereBetween('updated_at', [$startDate, $endDate])
-            ->where('deleted', 'No');
+            ->whereBetween('updated_at', [$startDate, $endDate]);
 
         // Apply filters based on type (store, division, or region)
         if ($type === 'store') {
@@ -214,7 +212,7 @@ class VacanciesReportDataService
         }
 
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
 
         // Apply filters based on the type (store, division, or region)
         if ($type === 'store') {
@@ -269,7 +267,7 @@ class VacanciesReportDataService
         }
 
         // Start building the query using the Vacancy model and filter by date range
-        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate])->where('deleted', 'No');
+        $vacancies = Vacancy::whereBetween('created_at', [$startDate, $endDate]);
 
         // Apply filters based on the type (store, division, or region)
         if ($type === 'store') {

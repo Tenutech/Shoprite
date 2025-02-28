@@ -31,7 +31,7 @@ class TalentpoolPeakSeason extends Command
     {
         // Fetch the auto-placement setting for peak season employment
         $setting = Setting::where('key', 'auto_placed_back_in_talent_pool_peak_season')->first();
-        $daysLimit = $setting ? (int) $setting->value : 14; // Default to 14 days if not set
+        $daysLimit = $setting ? (int) $setting->value : 7; // Default to 7 days if not set
 
         // Calculate the cutoff date
         $expiryDate = Carbon::now()->subDays($daysLimit);

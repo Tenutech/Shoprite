@@ -164,6 +164,15 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             $openPositions = $isFilled ? '0' : 1;
             $filledPositions = $isFilled ? 1 : '0';
 
+            // Determine Vacancy Status
+            if ($vacancy->deleted === 'Yes' && $vacancy->auto_deleted === 'Yes') {
+                $vacancyStatus = 'Auto Deleted';
+            } elseif ($vacancy->deleted === 'Yes' && $vacancy->auto_deleted === 'No') {
+                $vacancyStatus = 'Manually Deleted';
+            } else {
+                $vacancyStatus = 'Not Deleted';
+            }
+
             // Calculate the difference in days between created_at and updated_at
             $daysDifference = $vacancy->created_at->diffInDays($vacancy->updated_at);
 
@@ -182,8 +191,7 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
                 $appointedApplicantsBySap[$currentSapNumber] ?? '', // Match appointed applicant to the current SAP number
                 $vacancy->created_at->format('Y-m-d H:i'),
                 $isFilled ? $vacancy->updated_at->format('Y-m-d H:i') : '',
-                $vacancy->deleted,
-                $vacancy->auto_deleted,
+                $vacancyStatus, // Vacancy Status column
                 $daysDifference // Difference in days between created_at and updated_at
             ];
         }
@@ -213,8 +221,7 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'Successful Candidate(s)',
             'Created On',
             'Filled On',
-            'Deleted',
-            'Auto Deleted',
+            'Vacancy Status',
             'Days',
         ];
     }
@@ -270,9 +277,8 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             'L' => 50, // Successful Candidate(s)
             'M' => 20, // Created On
             'N' => 20, // Updated On
-            'O' => 20, // Deleted
-            'P' => 20, // Auto Deleted
-            'Q' => 20, // Days
+            'O' => 25, // Vacancy Status
+            'P' => 20, // Days
         ];
     }
 }
