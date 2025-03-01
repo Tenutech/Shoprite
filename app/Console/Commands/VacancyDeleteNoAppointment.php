@@ -60,36 +60,41 @@ class VacancyDeleteNoAppointment extends Command
             $shortlists = Shortlist::where('vacancy_id', $vacancy->id)->get();
 
             foreach ($shortlists as $shortlist) {
-                $applicants = Applicant::where('shortlist_id', $shortlist->id)
-                    ->whereHas('interviews', function ($query) use ($vacancy) {
-                        $query->where('vacancy_id', $vacancy->id)
-                              ->whereIn('status', ['Scheduled', 'Confirmed', 'Reschedule', 'Completed']);
-                    })->get();
+                // Get all applicants where shortlist_id is $shortlist->id
+                $applicants = Applicant::where('shortlist_id', $shortlist->id)->get();
 
                 foreach ($applicants as $applicant) {
-                    // Prepare regret message
-                    $whatsappMessage = "Dear " . ($applicant->firstname ?: 'N/A') . ", thank you for your interest in the " .
-                        (optional($vacancy->position)->name ?: 'N/A') . " position at " .
-                        (optional($vacancy->store->brand)->name ?: 'N/A') . " (" .
-                        (optional($vacancy->store->town)->name ?: 'N/A') . "). We truly appreciate the time and effort you invested in your application.
-                        After careful consideration, we regret to inform you that we have selected another candidate for this role. Please know that this
-                        decision does not diminish the value of your skills and experience.
-                        We encourage you to apply for future opportunities with us, and we wish you all the best in your job search and career journey.";
+                    // Check if the applicant has any interviews for the related vacancy
+                    $hasInterviews = $applicant->interviews()->where('vacancy_id', $applicant->shortlist->vacancy_id)
+                        ->whereIn('status', ['Scheduled', 'Confirmed', 'Reschedule', 'Completed'])
+                        ->exists();
 
-                    // Define the message type and template
-                    $type = 'template';
-                    $template = 'regretted_2';
-                    $variables = [
-                        $applicant->firstname ?: 'N/A',
-                        optional($vacancy->position)->name ?: 'N/A',
-                        optional($vacancy->store->brand)->name ?: 'N/A',
-                        optional($vacancy->store->town)->name ?: 'N/A'
-                    ];
+                    // If they have interviews, send a regret message
+                    if ($hasInterviews) {
+                        // Prepare regret message
+                        $whatsappMessage = "Dear " . ($applicant->firstname ?: 'N/A') . ", thank you for your interest in the " .
+                            (optional($vacancy->position)->name ?: 'N/A') . " position at " .
+                            (optional($vacancy->store->brand)->name ?: 'N/A') . " (" .
+                            (optional($vacancy->store->town)->name ?: 'N/A') . "). We truly appreciate the time and effort you invested in your application.
+                            After careful consideration, we regret to inform you that we have selected another candidate for this role. Please know that this
+                            decision does not diminish the value of your skills and experience.
+                            We encourage you to apply for future opportunities with us, and we wish you all the best in your job search and career journey.";
 
-                    // Dispatch job to send WhatsApp message
-                    SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
+                        // Define the message type and template
+                        $type = 'template';
+                        $template = 'regretted_2';
+                        $variables = [
+                            $applicant->firstname ?: 'N/A',
+                            optional($vacancy->position)->name ?: 'N/A',
+                            optional($vacancy->store->brand)->name ?: 'N/A',
+                            optional($vacancy->store->town)->name ?: 'N/A'
+                        ];
 
-                    // Set shortlist_id to null
+                        // Dispatch job to send WhatsApp message
+                        SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
+                    }
+
+                    // Set shortlist_id to null for all applicants
                     $applicant->shortlist_id = null;
                     $applicant->save();
                 }
