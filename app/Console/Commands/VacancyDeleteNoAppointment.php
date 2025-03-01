@@ -60,6 +60,9 @@ class VacancyDeleteNoAppointment extends Command
             $shortlists = Shortlist::where('vacancy_id', $vacancy->id)->get();
 
             foreach ($shortlists as $shortlist) {
+                // Decode the current applicant_ids JSON into an array; default to empty array if null or invalid
+                $applicantIds = json_decode($shortlist->applicant_ids, true) ?: [];
+    
                 // Get all applicants where shortlist_id is $shortlist->id
                 $applicants = Applicant::where('shortlist_id', $shortlist->id)->get();
 
@@ -97,7 +100,16 @@ class VacancyDeleteNoAppointment extends Command
                     // Set shortlist_id to null for all applicants
                     $applicant->shortlist_id = null;
                     $applicant->save();
+
+                    // Remove this applicant's ID from the applicantIds array if it exists
+                    if (($key = array_search($applicant->id, $applicantIds)) !== false) {
+                        unset($applicantIds[$key]);
+                    }
                 }
+                
+                // Re-index the array and encode it back to JSON, then save the shortlist
+                $shortlist->applicant_ids = json_encode(array_values($applicantIds));
+                $shortlist->save();
             }
         }
 
