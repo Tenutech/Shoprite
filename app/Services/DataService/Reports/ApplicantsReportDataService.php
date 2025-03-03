@@ -138,81 +138,62 @@ class ApplicantsReportDataService
      */
     public function getTotalApplicantsByMonth(string $type = 'all', ?int $id = null, $startDate, $endDate, float $maxDistanceFromStore = 50): array
     {
-        // Initialize an array to hold the results, with months set to 0 from startDate to endDate
+        // Initialize result array with zeros for all months between startDate and endDate
         $applicantsByMonth = [];
         $currentDate = $startDate->copy();
-
-        // Loop to populate only the months between startDate and endDate
         while ($currentDate->lte($endDate)) {
             $monthName = $currentDate->format('M');
             $applicantsByMonth[$monthName] = 0;
             $currentDate->addMonth();
         }
 
-        // Retrieve the complete state id
+        // Get the complete state ID
         $completeStateID = State::where('code', 'complete')->value('id');
         if (!$completeStateID) {
-            return $applicantsByMonth; // Return if 'complete' state does not exist
-        }
-
-        // If the type is 'all', retrieve all applicants within the date range and group them by month
-        if ($type === 'all') {
-            $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
-                ->where('state_id', '>=', $completeStateID)
-                ->get();
-
-            // Group applicants by the month of their creation date and count them
-            foreach ($applicants as $applicant) {
-                $month = $applicant->created_at->format('M');
-                $applicantsByMonth[$month]++;
-            }
-
             return $applicantsByMonth;
         }
 
-        // Get stores based on the type (store, division, or region)
-        $stores = Store::when($type === 'store', function ($query) use ($id) {
-                return $query->where('id', $id);
-            })
-            ->when($type === 'division', function ($query) use ($id) {
-                return $query->where('division_id', $id);
-            })
-            ->when($type === 'region', function ($query) use ($id) {
-                return $query->where('region_id', $id);
-            })
-            ->get();
+        // Base query for applicants
+        $query = Applicant::whereBetween('created_at', [$startDate, $endDate])
+            ->where('state_id', '>=', $completeStateID);
 
-        if ($stores->isEmpty()) {
-            return $applicantsByMonth; // Return the array with months initialized to 0 if no stores found
+        // Apply distance filter if type is not 'all'
+        if ($type !== 'all') {
+            $storeIds = Store::when($type === 'store', function ($query) use ($id) {
+                    return $query->where('id', $id);
+                })
+                ->when($type === 'division', function ($query) use ($id) {
+                    return $query->where('division_id', $id);
+                })
+                ->when($type === 'region', function ($query) use ($id) {
+                    return $query->where('region_id', $id);
+                })
+                ->pluck('id');
+
+            if ($storeIds->isEmpty()) {
+                return $applicantsByMonth;
+            }
+
+            $query->whereExists(function ($subQuery) use ($storeIds, $maxDistanceFromStore) {
+                $subQuery->select(DB::raw(1))
+                    ->from('stores')
+                    ->whereIn('stores.id', $storeIds)
+                    ->whereRaw("ST_Distance_Sphere(
+                        point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)),
+                        point(SUBSTRING_INDEX(stores.coordinates, ',', -1), SUBSTRING_INDEX(stores.coordinates, ',', 1))
+                    ) <= ?", [$maxDistanceFromStore * 1000]);
+            });
         }
 
-        // Loop through each store and calculate the applicants by month within the given distance
-        foreach ($stores as $store) {
-            if ($store->coordinates) {
-                $storeCoordinates = explode(',', $store->coordinates);
-                $storeLat = floatval($storeCoordinates[0]);
-                $storeLng = floatval($storeCoordinates[1]);
+        // Aggregate counts by month
+        $results = $query->selectRaw('DATE_FORMAT(created_at, "%b") as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->pluck('count', 'month')
+            ->toArray();
 
-                // Retrieve applicants within the distance range using MySQL ST_Distance_Sphere
-                $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
-                    ->where('state_id', '>=', $completeStateID)
-                    ->whereRaw("
-                        ST_Distance_Sphere(
-                            point(
-                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
-                                SUBSTRING_INDEX(applicants.coordinates, ',', 1)
-                            ), 
-                            point(?, ?)
-                        ) <= ?
-                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
-                    ->get();
-
-                // Group applicants by the month of their creation date and count them
-                foreach ($applicants as $applicant) {
-                    $month = $applicant->created_at->format('M');
-                    $applicantsByMonth[$month]++;
-                }
-            }
+        // Merge results into the initialized array
+        foreach ($results as $month => $count) {
+            $applicantsByMonth[$month] = $count;
         }
 
         return $applicantsByMonth;
@@ -227,48 +208,43 @@ class ApplicantsReportDataService
      * @param \Carbon\Carbon $endDate The end date for filtering appointments.
      * @return array An array of appointed applicants grouped by month.
      */
-    public function getTotalApplicantsAppointedByMonth(string $type = 'all', ?int $id, $startDate, $endDate): array // phpcs:ignore
+    public function getTotalApplicantsAppointedByMonth(string $type = 'all', ?int $id, $startDate, $endDate): array
     {
-        // Initialize an array to hold the results, with months set to 0 from startDate to endDate
+        // Initialize result array with zeros for all months
         $applicantsByMonth = [];
         $currentDate = $startDate->copy();
-
-        // Loop to populate only the months between startDate and endDate
         while ($currentDate->lte($endDate)) {
             $monthName = $currentDate->format('M');
             $applicantsByMonth[$monthName] = 0;
             $currentDate->addMonth();
         }
 
-        // Retrieve vacancies based on the type (store, division, or region) and within the date range
-        $vacancies = Vacancy::when($type === 'store', function ($query) use ($id) {
-                return $query->where('store_id', $id);
-            })
-            ->when($type === 'division', function ($query) use ($id) {
-                return $query->whereHas('store', function ($q) use ($id) {
-                    $q->where('division_id', $id);
-                });
-            })
-            ->when($type === 'region', function ($query) use ($id) {
-                return $query->whereHas('store', function ($q) use ($id) {
-                    $q->where('region_id', $id);
-                });
-            })
-            ->with(['appointed' => function ($query) use ($startDate, $endDate) {
-                $query->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]); // Only fetch appointed within the date range
-            }])
-            ->get();
+        // Build query with joins to filter vacancies and count appointments
+        $query = DB::table('vacancy_fills')
+            ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
+            ->join('stores', 'vacancies.store_id', '=', 'stores.id')
+            ->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
 
-        // Group appointed applicants by the month of their appointment date and count them
-        foreach ($vacancies as $vacancy) {
-            foreach ($vacancy->appointed as $applicant) {
-                // Get the month name from the created_at date in the vacancy_fills table (the appointment date)
-                $month = $applicant->pivot->created_at->format('M');
-                // Increment the count for the corresponding month
-                if (isset($applicantsByMonth[$month])) {
-                    $applicantsByMonth[$month]++;
-                }
-            }
+        // Apply type-specific filters
+        $query->when($type === 'store', function ($q) use ($id) {
+                return $q->where('stores.id', $id);
+            })
+            ->when($type === 'division', function ($q) use ($id) {
+                return $q->where('stores.division_id', $id);
+            })
+            ->when($type === 'region', function ($q) use ($id) {
+                return $q->where('stores.region_id', $id);
+            });
+
+        // Aggregate counts by month
+        $results = $query->selectRaw('DATE_FORMAT(vacancy_fills.created_at, "%b") as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->pluck('count', 'month')
+            ->toArray();
+
+        // Merge results
+        foreach ($results as $month => $count) {
+            $applicantsByMonth[$month] = $count;
         }
 
         return $applicantsByMonth;
@@ -287,98 +263,66 @@ class ApplicantsReportDataService
      */
     public function getTotalApplicantsGenderByMonth(string $type = 'all', ?int $id = null, $startDate, $endDate, float $maxDistanceFromStore = 50): array
     {
-        // Initialize an array to hold the results, with months set to 0 for each gender from startDate to endDate
+        // Initialize result array with zeros for all genders and months
         $applicantsGenderByMonth = [];
+        $genders = Gender::all()->pluck('name')->toArray();
         $currentDate = $startDate->copy();
-
-        // Retrieve all available genders
-        $genders = Gender::all();
-
-        // Loop to populate the array for each month and gender
         while ($currentDate->lte($endDate)) {
             $monthName = $currentDate->format('M');
             foreach ($genders as $gender) {
-                // Set initial count for each month and gender to 0
-                $applicantsGenderByMonth[$gender->name][$monthName] = 0;
+                $applicantsGenderByMonth[$gender][$monthName] = 0;
             }
             $currentDate->addMonth();
         }
 
-        // Retrieve the complete state ID
+        // Get complete state ID
         $completeStateID = State::where('code', 'complete')->value('id');
         if (!$completeStateID) {
-            return $applicantsGenderByMonth; // Return if 'complete' state does not exist
-        }
-
-        // If the type is 'all', retrieve all applicants with a non-null gender_id within the date range and group them by month and gender
-        if ($type === 'all') {
-            $applicants = Applicant::with('gender')
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->where('state_id', '>=', $completeStateID)
-                ->whereNotNull('gender_id')
-                ->get();
-
-            $applicantsGenderByMonth = [];
-
-            foreach ($applicants as $applicant) {
-                $month = $applicant->created_at->format('M');
-                $genderName = $applicant->gender ? $applicant->gender->name : 'Unknown';
-                if (!isset($applicantsGenderByMonth[$genderName][$month])) {
-                    $applicantsGenderByMonth[$genderName][$month] = 0;
-                }
-                $applicantsGenderByMonth[$genderName][$month]++;
-            }
-
             return $applicantsGenderByMonth;
         }
 
-        // Get stores based on the type (store, division, or region)
-        $stores = Store::when($type === 'store', function ($query) use ($id) {
-                return $query->where('id', $id);
-        })
-            ->when($type === 'division', function ($query) use ($id) {
-                return $query->where('division_id', $id);
-            })
-            ->when($type === 'region', function ($query) use ($id) {
-                return $query->where('region_id', $id);
-            })
+        // Build query with gender join
+        $query = Applicant::join('genders', 'applicants.gender_id', '=', 'genders.id')
+            ->whereBetween('applicants.created_at', [$startDate, $endDate])
+            ->where('applicants.state_id', '>=', $completeStateID)
+            ->whereNotNull('applicants.gender_id');
+
+        // Apply distance filter if type is not 'all'
+        if ($type !== 'all') {
+            $storeIds = Store::when($type === 'store', function ($q) use ($id) {
+                    return $q->where('id', $id);
+                })
+                ->when($type === 'division', function ($q) use ($id) {
+                    return $q->where('division_id', $id);
+                })
+                ->when($type === 'region', function ($q) use ($id) {
+                    return $q->where('region_id', $id);
+                })
+                ->pluck('id');
+
+            if ($storeIds->isEmpty()) {
+                return $applicantsGenderByMonth;
+            }
+
+            $query->whereExists(function ($subQuery) use ($storeIds, $maxDistanceFromStore) {
+                $subQuery->select(DB::raw(1))
+                    ->from('stores')
+                    ->whereIn('stores.id', $storeIds)
+                    ->whereRaw("ST_Distance_Sphere(
+                        point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)),
+                        point(SUBSTRING_INDEX(stores.coordinates, ',', -1), SUBSTRING_INDEX(stores.coordinates, ',', 1))
+                    ) <= ?", [$maxDistanceFromStore * 1000]);
+            });
+        }
+
+        // Aggregate by gender and month
+        $results = $query->selectRaw('genders.name as gender, DATE_FORMAT(applicants.created_at, "%b") as month, COUNT(*) as count')
+            ->groupBy('gender', 'month')
             ->get();
 
-        // If no stores are found, return the array with months initialized to 0 for each gender
-        if ($stores->isEmpty()) {
-            return $applicantsGenderByMonth;
-        }
-
-        // Loop through each store and calculate the applicants by month and gender within the given distance
-        foreach ($stores as $store) {
-            if ($store->coordinates) {
-                // Extract latitude and longitude from store coordinates
-                $storeCoordinates = explode(',', $store->coordinates);
-                $storeLat = floatval($storeCoordinates[0]);
-                $storeLng = floatval($storeCoordinates[1]);
-
-                // Retrieve applicants within the distance range using MySQL ST_Distance_Sphere
-                $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
-                    ->where('state_id', '>=', $completeStateID)
-                    ->whereNotNull('gender_id') // Exclude applicants with null gender_id
-                    ->whereRaw("
-                        ST_Distance_Sphere(
-                            point(
-                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
-                                SUBSTRING_INDEX(applicants.coordinates, ',', 1)
-                            ), 
-                            point(?, ?)
-                        ) <= ?
-                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
-                    ->get();
-
-                // Group applicants by the month of their creation date and gender, then count them
-                foreach ($applicants as $applicant) {
-                    $month = $applicant->created_at->format('M');
-                    $genderName = $applicant->gender->name; // Get gender name directly
-                    $applicantsGenderByMonth[$genderName][$month]++;
-                }
-            }
+        // Populate results
+        foreach ($results as $result) {
+            $applicantsGenderByMonth[$result->gender][$result->month] = $result->count;
         }
 
         return $applicantsGenderByMonth;
@@ -397,98 +341,66 @@ class ApplicantsReportDataService
      */
     public function getTotalApplicantsRaceByMonth(string $type = 'all', ?int $id = null, $startDate, $endDate, float $maxDistanceFromStore = 50): array
     {
-        // Initialize an array to hold the results, with months set to 0 for each race from startDate to endDate
+        // Initialize result array with zeros for all races and months
         $applicantsRaceByMonth = [];
+        $races = Race::all()->pluck('name')->toArray();
         $currentDate = $startDate->copy();
-
-        // Retrieve all available races
-        $races = Race::all();
-
-        // Loop to populate the array for each month and race
         while ($currentDate->lte($endDate)) {
             $monthName = $currentDate->format('M');
             foreach ($races as $race) {
-                // Set initial count for each month and race to 0
-                $applicantsRaceByMonth[$race->name][$monthName] = 0;
+                $applicantsRaceByMonth[$race][$monthName] = 0;
             }
             $currentDate->addMonth();
         }
 
-        // Retrieve the complete state ID
+        // Get complete state ID
         $completeStateID = State::where('code', 'complete')->value('id');
         if (!$completeStateID) {
-            return $applicantsRaceByMonth; // Return if 'complete' state does not exist
-        }
-
-        // If the type is 'all', retrieve all applicants with a non-null race_id within the date range and group them by month and race
-        if ($type === 'all') {
-            $applicants = Applicant::with('race')
-                ->whereBetween('created_at', [$startDate, $endDate])
-                ->where('state_id', '>=', $completeStateID)
-                ->whereNotNull('race_id')
-                ->get();
-
-            $applicantsRaceByMonth = [];
-
-            foreach ($applicants as $applicant) {
-                $month = $applicant->created_at->format('M');
-                $raceName = $applicant->race ? $applicant->race->name : 'Unknown';
-                if (!isset($applicantsRaceByMonth[$raceName][$month])) {
-                    $applicantsRaceByMonth[$raceName][$month] = 0;
-                }
-                $applicantsRaceByMonth[$raceName][$month]++;
-            }
-
             return $applicantsRaceByMonth;
         }
 
-        // Get stores based on the type (store, division, or region)
-        $stores = Store::when($type === 'store', function ($query) use ($id) {
-                return $query->where('id', $id);
-        })
-            ->when($type === 'division', function ($query) use ($id) {
-                return $query->where('division_id', $id);
-            })
-            ->when($type === 'region', function ($query) use ($id) {
-                return $query->where('region_id', $id);
-            })
+        // Build query with race join
+        $query = Applicant::join('races', 'applicants.race_id', '=', 'races.id')
+            ->whereBetween('applicants.created_at', [$startDate, $endDate])
+            ->where('applicants.state_id', '>=', $completeStateID)
+            ->whereNotNull('applicants.race_id');
+
+        // Apply distance filter if type is not 'all'
+        if ($type !== 'all') {
+            $storeIds = Store::when($type === 'store', function ($q) use ($id) {
+                    return $q->where('id', $id);
+                })
+                ->when($type === 'division', function ($q) use ($id) {
+                    return $q->where('division_id', $id);
+                })
+                ->when($type === 'region', function ($q) use ($id) {
+                    return $q->where('region_id', $id);
+                })
+                ->pluck('id');
+
+            if ($storeIds->isEmpty()) {
+                return $applicantsRaceByMonth;
+            }
+
+            $query->whereExists(function ($subQuery) use ($storeIds, $maxDistanceFromStore) {
+                $subQuery->select(DB::raw(1))
+                    ->from('stores')
+                    ->whereIn('stores.id', $storeIds)
+                    ->whereRaw("ST_Distance_Sphere(
+                        point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)),
+                        point(SUBSTRING_INDEX(stores.coordinates, ',', -1), SUBSTRING_INDEX(stores.coordinates, ',', 1))
+                    ) <= ?", [$maxDistanceFromStore * 1000]);
+            });
+        }
+
+        // Aggregate by race and month
+        $results = $query->selectRaw('races.name as race, DATE_FORMAT(applicants.created_at, "%b") as month, COUNT(*) as count')
+            ->groupBy('race', 'month')
             ->get();
 
-        // If no stores are found, return the array with months initialized to 0 for each race
-        if ($stores->isEmpty()) {
-            return $applicantsRaceByMonth;
-        }
-
-        // Loop through each store and calculate the applicants by month and race within the given distance
-        foreach ($stores as $store) {
-            if ($store->coordinates) {
-                // Extract latitude and longitude from store coordinates
-                $storeCoordinates = explode(',', $store->coordinates);
-                $storeLat = floatval($storeCoordinates[0]);
-                $storeLng = floatval($storeCoordinates[1]);
-
-                // Retrieve applicants within the distance range using MySQL ST_Distance_Sphere
-                $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
-                    ->where('state_id', '>=', $completeStateID)
-                    ->whereNotNull('race_id') // Exclude applicants with null race_id
-                    ->whereRaw("
-                        ST_Distance_Sphere(
-                            point(
-                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
-                                SUBSTRING_INDEX(applicants.coordinates, ',', 1)
-                            ), 
-                            point(?, ?)
-                        ) <= ?
-                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
-                    ->get();
-
-                // Group applicants by the month of their creation date and race, then count them
-                foreach ($applicants as $applicant) {
-                    $month = $applicant->created_at->format('M');
-                    $raceName = $applicant->race->name; // Get race name directly
-                    $applicantsRaceByMonth[$raceName][$month]++;
-                }
-            }
+        // Populate results
+        foreach ($results as $result) {
+            $applicantsRaceByMonth[$result->race][$result->month] = $result->count;
         }
 
         return $applicantsRaceByMonth;
@@ -833,212 +745,227 @@ class ApplicantsReportDataService
      * @param array $filters An array of additional filters to apply.
      * @return array An array of applicants grouped by month.
      */
-    public function getTotalApplicantsByMonthFiltered(string $type = 'all', ?int $id = null, Carbon $startDate, Carbon $endDate, float $maxDistanceFromStore = 50, array $filters): array // phpcs:ignore
+    public function getTotalApplicantsByMonthFiltered(string $type = 'all', ?int $id = null, Carbon $startDate, Carbon $endDate, float $maxDistanceFromStore = 50, array $filters): array
     {
-        // Initialize an array to hold monthly counts, with each month from startDate to endDate set to 0
+        // Initialize an array with months from startDate to endDate, set to 0
         $applicantsByMonth = [];
         $currentDate = $startDate->copy();
-        $currentEndDate = $endDate->copy();
-
-        while ($currentDate->lte($currentEndDate->endOfMonth())) {
-            $monthName = $currentDate->format('M');
-            $applicantsByMonth[$monthName] = 0;
+        while ($currentDate->lte($endDate)) {
+            $applicantsByMonth[$currentDate->format('M')] = 0;
             $currentDate->addMonth();
         }
 
-        // Retrieve the ID for the 'complete' state
+        // Retrieve the 'complete' state ID
         $completeStateID = State::where('code', 'complete')->value('id');
         if (!$completeStateID) {
             return $applicantsByMonth;
         }
 
-        // Base query for applicants
-        $query = Applicant::query();
-
-        // Apply additional filters
-        if (isset($filters['gender_id'])) {
-            $query->where('gender_id', $filters['gender_id']);
-        }
-        if (isset($filters['race_id'])) {
-            $query->where('race_id', $filters['race_id']);
-        }
-        if (isset($filters['education_id'])) {
-            $query->where('education_id', $filters['education_id']);
-        }
-        if (isset($filters['experience_id'])) {
-            $query->where('experience_id', $filters['experience_id']);
-        }
-        if (isset($filters['employment'])) {
-            $query->where('employment', $filters['employment']);
-        }
-
-        // Apply range filters for age, literacy, numeracy, situational, and overall scores
-        if (isset($filters['min_age']) && isset($filters['max_age'])) {
-            $query->whereBetween('age', [$filters['min_age'], $filters['max_age']]);
-        }
-        if (isset($filters['min_literacy']) && isset($filters['max_literacy'])) {
-            $query->whereBetween('literacy_score', [$filters['min_literacy'], $filters['max_literacy']]);
-        }
-        if (isset($filters['min_numeracy']) && isset($filters['max_numeracy'])) {
-            $query->whereBetween('numeracy_score', [$filters['min_numeracy'], $filters['max_numeracy']]);
-        }
-        if (isset($filters['min_situational']) && isset($filters['max_situational'])) {
-            $query->whereBetween('situational_score', [$filters['min_situational'], $filters['max_situational']]);
-        }
-        if (isset($filters['min_overall']) && isset($filters['max_overall'])) {
-            $query->whereBetween('overall_score', [$filters['min_overall'], $filters['max_overall']]);
-        }
-
-        // Completed filter
-        if (isset($filters['completed'])) {
-            if ($filters['completed'] === 'Yes') {
-                $query->where('state_id', '>=', $completeStateID);
-            } elseif ($filters['completed'] === 'No') {
-                $query->where('state_id', '<', $completeStateID);
-            }
-        } else {
-            $query->where('state_id', '>=', $completeStateID);
-        }
-
-        // Shortlisted filter
-        if (isset($filters['shortlisted'])) {
-            if ($filters['shortlisted'] === 'Yes') {
-                $query->whereNotNull('shortlist_id');
-
-                // Apply geographic filters for shortlisted applicants
-                if (isset($filters['division_id'])) {
-                    $query->whereHas('shortlist.vacancy.store', function ($storeQuery) use ($filters) {
-                        $storeQuery->where('division_id', $filters['division_id']);
-                    });
-                } elseif (isset($filters['region_id'])) {
-                    $query->whereHas('shortlist.vacancy.store', function ($storeQuery) use ($filters) {
-                        $storeQuery->where('region_id', $filters['region_id']);
-                    });
-                } elseif (isset($filters['store_id'])) {
-                    $query->whereHas('shortlist.vacancy', function ($vacancyQuery) use ($filters) {
-                        if (is_array($filters['store_id'])) {
-                            $vacancyQuery->whereIn('store_id', $filters['store_id']);
-                        }
-                    });
-                }
-            } elseif ($filters['shortlisted'] === 'No') {
-                $query->whereNull('shortlist_id');
-            }
-        }
-
-        // Interviewed filter
-        if (isset($filters['interviewed'])) {
-            if ($filters['interviewed'] === 'Yes') {
-                $query->whereHas('interviews', function ($interviewQuery) {
-                    $interviewQuery->whereNotNull('score');
-                });
-            } elseif ($filters['interviewed'] === 'No') {
-                $query->where(function ($q) {
-                    $q->doesntHave('interviews')
-                    ->orWhereHas('interviews', function ($interviewQuery) {
-                        $interviewQuery->whereNull('score');
-                    });
-                });
-            }
-
-            if (isset($filters['division_id'])) {
-                $query->whereHas('interviews.vacancy.store', function ($storeQuery) use ($filters) {
-                    $storeQuery->where('division_id', $filters['division_id']);
-                });
-            } elseif (isset($filters['region_id'])) {
-                $query->whereHas('interviews.vacancy.store', function ($storeQuery) use ($filters) {
-                    $storeQuery->where('region_id', $filters['region_id']);
-                });
-            } elseif (isset($filters['store_id'])) {
-                $query->whereHas('interviews.vacancy', function ($vacancyQuery) use ($filters) {
-                    if (is_array($filters['store_id'])) {
-                        $vacancyQuery->whereIn('store_id', $filters['store_id']);
-                    }
-                });
-            }
-        }
-
-        // Appointed filter
+        // Case 1: Appointed = 'Yes' - Count appointments from vacancy_fills
         if (isset($filters['appointed']) && $filters['appointed'] === 'Yes') {
-            $query->whereHas('vacancyFills', function ($vacancyQuery) use ($filters, $startDate, $endDate) {
-                    // Apply date range to `vacancy_fills.created_at`
-                    $vacancyQuery->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
+            $query = DB::table('vacancy_fills')
+                ->join('applicants', 'vacancy_fills.applicant_id', '=', 'applicants.id')
+                ->join('vacancies', 'vacancy_fills.vacancy_id', '=', 'vacancies.id')
+                ->join('stores', 'vacancies.store_id', '=', 'stores.id')
+                ->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
 
-                    // Apply geographic filtering based on division, region, or store
-                    if (isset($filters['division_id'])) {
-                        $vacancyQuery->whereHas('store', function ($storeQuery) use ($filters) {
-                            $storeQuery->where('division_id', $filters['division_id']);
-                        });
-                    } elseif (isset($filters['region_id'])) {
-                        $vacancyQuery->whereHas('store', function ($storeQuery) use ($filters) {
-                            $storeQuery->where('region_id', $filters['region_id']);
-                        });
-                    } elseif (isset($filters['store_id'])) {
-                        if (is_array($filters['store_id'])) {
-                            $vacancyQuery->whereIn('store_id', $filters['store_id']);
-                        }
-                    }
+            // Apply applicant filters
+            $this->applyApplicantFilters($query, $filters, $completeStateID);
+
+            // Apply geographic filters for appointed
+            if (isset($filters['division_id'])) {
+                $query->where('stores.division_id', $filters['division_id']);
+            } elseif (isset($filters['region_id'])) {
+                $query->where('stores.region_id', $filters['region_id']);
+            } elseif (isset($filters['store_id']) && is_array($filters['store_id'])) {
+                $query->whereIn('stores.id', $filters['store_id']);
+            }
+
+            // Apply shortlisted filter if set
+            if (isset($filters['shortlisted']) && $filters['shortlisted'] === 'Yes') {
+                $query->whereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('shortlists')
+                        ->whereColumn('shortlists.applicant_id', 'applicants.id');
                 });
+            } elseif (isset($filters['shortlisted']) && $filters['shortlisted'] === 'No') {
+                $query->whereNotExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('shortlists')
+                        ->whereColumn('shortlists.applicant_id', 'applicants.id');
+                });
+            }
+
+            // Apply interviewed filter if set
+            if (isset($filters['interviewed']) && $filters['interviewed'] === 'Yes') {
+                $query->whereExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('interviews')
+                        ->whereColumn('interviews.applicant_id', 'applicants.id')
+                        ->whereNotNull('interviews.score');
+                });
+            } elseif (isset($filters['interviewed']) && $filters['interviewed'] === 'No') {
+                $query->whereNotExists(function ($subQuery) {
+                    $subQuery->select(DB::raw(1))
+                        ->from('interviews')
+                        ->whereColumn('interviews.applicant_id', 'applicants.id')
+                        ->whereNotNull('interviews.score');
+                });
+            }
+
+            // Group and count by month
+            $results = $query->selectRaw('DATE_FORMAT(vacancy_fills.created_at, "%b") as month, COUNT(*) as count')
+                ->groupBy('month')
+                ->pluck('count', 'month')
+                ->toArray();
         } else {
-            // Default date range filter for applicants
-            $query->whereBetween('created_at', [$startDate, $endDate]);
+            // Case 2: Non-appointed - Count applicants
+            $query = Applicant::query()
+                ->whereBetween('created_at', [$startDate, $endDate]);
+
+            // Apply applicant filters
+            $this->applyApplicantFilters($query, $filters, $completeStateID);
+
+            // Apply shortlisted filter
+            if (isset($filters['shortlisted'])) {
+                if ($filters['shortlisted'] === 'Yes') {
+                    $query->whereHas('shortlist', function ($shortlistQuery) use ($filters) {
+                        if (isset($filters['division_id'])) {
+                            $shortlistQuery->whereHas('vacancy.store', function ($storeQuery) use ($filters) {
+                                $storeQuery->where('division_id', $filters['division_id']);
+                            });
+                        } elseif (isset($filters['region_id'])) {
+                            $shortlistQuery->whereHas('vacancy.store', function ($storeQuery) use ($filters) {
+                                $storeQuery->where('region_id', $filters['region_id']);
+                            });
+                        } elseif (isset($filters['store_id']) && is_array($filters['store_id'])) {
+                            $shortlistQuery->whereHas('vacancy', function ($vacancyQuery) use ($filters) {
+                                $vacancyQuery->whereIn('store_id', $filters['store_id']);
+                            });
+                        }
+                    });
+                } elseif ($filters['shortlisted'] === 'No') {
+                    $query->whereDoesntHave('shortlist');
+                }
+            }
+
+            // Apply interviewed filter
+            if (isset($filters['interviewed'])) {
+                if ($filters['interviewed'] === 'Yes') {
+                    $query->whereHas('interviews', function ($interviewQuery) use ($filters) {
+                        $interviewQuery->whereNotNull('score');
+                        if (isset($filters['division_id'])) {
+                            $interviewQuery->whereHas('vacancy.store', function ($storeQuery) use ($filters) {
+                                $storeQuery->where('division_id', $filters['division_id']);
+                            });
+                        } elseif (isset($filters['region_id'])) {
+                            $interviewQuery->whereHas('vacancy.store', function ($storeQuery) use ($filters) {
+                                $storeQuery->where('region_id', $filters['region_id']);
+                            });
+                        } elseif (isset($filters['store_id']) && is_array($filters['store_id'])) {
+                            $interviewQuery->whereHas('vacancy', function ($vacancyQuery) use ($filters) {
+                                $vacancyQuery->whereIn('store_id', $filters['store_id']);
+                            });
+                        }
+                    });
+                } elseif ($filters['interviewed'] === 'No') {
+                    $query->where(function ($q) {
+                        $q->doesntHave('interviews')
+                        ->orWhereHas('interviews', function ($interviewQuery) {
+                            $interviewQuery->whereNull('score');
+                        });
+                    });
+                }
+            }
+
+            // Apply distance-based filtering
+            if ((!isset($filters['shortlisted']) || $filters['shortlisted'] === 'No') &&
+                (!isset($filters['interviewed']) || $filters['interviewed'] === 'No') &&
+                (!isset($filters['appointed']) || $filters['appointed'] === 'No') &&
+                (isset($filters['store_id']) || isset($filters['region_id']) || isset($filters['division_id']))) {
+                $storeQuery = Store::query();
+                if (isset($filters['division_id'])) {
+                    $storeQuery->where('division_id', $filters['division_id']);
+                } elseif (isset($filters['region_id'])) {
+                    $storeQuery->where('region_id', $filters['region_id']);
+                } elseif (isset($filters['store_id']) && is_array($filters['store_id'])) {
+                    $storeQuery->whereIn('id', $filters['store_id']);
+                }
+                $storeIds = $storeQuery->pluck('id');
+
+                if ($storeIds->isNotEmpty()) {
+                    $query->whereExists(function ($subQuery) use ($storeIds, $maxDistanceFromStore) {
+                        $subQuery->select(DB::raw(1))
+                            ->from('stores')
+                            ->whereIn('stores.id', $storeIds)
+                            ->whereRaw("ST_Distance_Sphere(
+                                point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)),
+                                point(SUBSTRING_INDEX(stores.coordinates, ',', -1), SUBSTRING_INDEX(stores.coordinates, ',', 1))
+                            ) <= ?", [$maxDistanceFromStore * 1000]);
+                    });
+                }
+            }
+
+            // Group and count by month
+            $results = $query->selectRaw('DATE_FORMAT(created_at, "%b") as month, COUNT(*) as count')
+                ->groupBy('month')
+                ->pluck('count', 'month')
+                ->toArray();
         }
 
-        // Only apply geographic filtering if `shortlisted`, `interviewed`, or `appointed` do not explicitly exclude applicants
-        if ((!isset($filters['shortlisted']) || $filters['shortlisted'] == 'No') && (!isset($filters['interviewed']) || $filters['interviewed'] == 'No') && (!isset($filters['appointed']) || $filters['appointed'] == 'No') && (isset($filters['store_id']) || isset($filters['region_id']) || isset($filters['division_id']))) {
-            // Get stores based on the filter priority: division -> region -> store
-            $stores = Store::when(isset($filters['division_id']), function ($query) use ($filters) {
-                    return $query->where('division_id', $filters['division_id']);
-            })
-                ->when(isset($filters['region_id']), function ($query) use ($filters) {
-                    return $query->where('region_id', $filters['region_id']);
-                })
-                ->when(isset($filters['store_id']), function ($query) use ($filters) {
-                    if (is_array($filters['store_id'])) {
-                        return $query->whereIn('id', $filters['store_id']);
-                    }
-                })
-                ->get();
-
-            foreach ($stores as $store) {
-                if ($store->coordinates) {
-                    [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
-                    $storeQuery = clone $query;
-                    $storeQuery->whereRaw("ST_Distance_Sphere(
-                        point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
-                        point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
-
-                    foreach ($storeQuery->get() as $applicant) {
-                        $month = $applicant->created_at->format('M');
-                        $applicantsByMonth[$month]++;
-                    }
-                }
-            }
-        } else {
-            // Group applicants by month (handling multiple `vacancy_fills`)
-            foreach ($query->get() as $applicant) {
-                if (isset($filters['appointed']) && $filters['appointed'] === 'Yes') {
-                    // Get all vacancy_fills for the applicant
-                    $vacancyFills = $applicant->vacancyFills()->whereBetween('created_at', [$startDate, $endDate])->get();
-
-                    foreach ($vacancyFills as $vacancyFill) {
-                        $month = $vacancyFill->created_at->format('M');
-
-                        if (array_key_exists($month, $applicantsByMonth)) {
-                            $applicantsByMonth[$month]++;
-                        }
-                    }
-                } else {
-                    // Default: use applicant created_at
-                    $month = $applicant->created_at->format('M');
-
-                    if (array_key_exists($month, $applicantsByMonth)) {
-                        $applicantsByMonth[$month]++;
-                    }
-                }
-            }
+        // Merge results into the initialized array
+        foreach ($results as $month => $count) {
+            $applicantsByMonth[$month] = $count;
         }
 
         return $applicantsByMonth;
+    }
+
+    /**
+     * Apply common applicant filters to the query.
+     */
+    private function applyApplicantFilters($query, array $filters, int $completeStateID): void
+    {
+        if (isset($filters['gender_id'])) {
+            $query->where('applicants.gender_id', $filters['gender_id']);
+        }
+        if (isset($filters['race_id'])) {
+            $query->where('applicants.race_id', $filters['race_id']);
+        }
+        if (isset($filters['education_id'])) {
+            $query->where('applicants.education_id', $filters['education_id']);
+        }
+        if (isset($filters['experience_id'])) {
+            $query->where('applicants.experience_id', $filters['experience_id']);
+        }
+        if (isset($filters['employment'])) {
+            $query->where('applicants.employment', $filters['employment']);
+        }
+        if (isset($filters['min_age']) && isset($filters['max_age'])) {
+            $query->whereBetween('applicants.age', [$filters['min_age'], $filters['max_age']]);
+        }
+        if (isset($filters['min_literacy']) && isset($filters['max_literacy'])) {
+            $query->whereBetween('applicants.literacy_score', [$filters['min_literacy'], $filters['max_literacy']]);
+        }
+        if (isset($filters['min_numeracy']) && isset($filters['max_numeracy'])) {
+            $query->whereBetween('applicants.numeracy_score', [$filters['min_numeracy'], $filters['max_numeracy']]);
+        }
+        if (isset($filters['min_situational']) && isset($filters['max_situational'])) {
+            $query->whereBetween('applicants.situational_score', [$filters['min_situational'], $filters['max_situational']]);
+        }
+        if (isset($filters['min_overall']) && isset($filters['max_overall'])) {
+            $query->whereBetween('applicants.overall_score', [$filters['min_overall'], $filters['max_overall']]);
+        }
+
+        // Apply completion filter
+        if (isset($filters['completed'])) {
+            if ($filters['completed'] === 'Yes') {
+                $query->where('applicants.state_id', '>=', $completeStateID);
+            } elseif ($filters['completed'] === 'No') {
+                $query->where('applicants.state_id', '<', $completeStateID);
+            }
+        } else {
+            $query->where('applicants.state_id', '>=', $completeStateID);
+        }
     }
 }

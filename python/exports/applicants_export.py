@@ -360,15 +360,15 @@ if where_conditions:
     base_query += " WHERE " + " AND ".join(where_conditions)
 
 # Log the final query and parameters for debugging
-logging.info("Executing SQL query:\n" + base_query)
-logging.info("With parameters: " + str(params))
+# logging.info("Executing SQL query:\n" + base_query)
+# logging.info("With parameters: " + str(params))
 
 # --- Query Execution ---
 # Execute the SQL query using pandas and parameterized inputs
 data = pd.read_sql_query(base_query, connection, params=params)
 
 # Log the number of rows retrieved
-logging.info(f"Number of rows fetched: {len(data)}")
+# logging.info(f"Number of rows fetched: {len(data)}")
 
 # --- Data Processing ---
 # Transform raw data into the desired output format
