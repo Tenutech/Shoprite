@@ -68,12 +68,12 @@ class VacancyDeleteNoAppointment extends Command
 
                 foreach ($applicants as $applicant) {
                     // Check if the applicant has any interviews for the related vacancy
-                    $hasInterviews = $applicant->interviews()->where('vacancy_id', $applicant->shortlist->vacancy_id)
+                    $interviews = $applicant->interviews()->where('vacancy_id', $applicant->shortlist->vacancy_id)
                         ->whereIn('status', ['Scheduled', 'Confirmed', 'Reschedule', 'Completed'])
-                        ->exists();
+                        ->get();
 
                     // If they have interviews, send a regret message
-                    if ($hasInterviews) {
+                    if ($interviews) {
                         // Prepare regret message
                         $whatsappMessage = "Dear " . ($applicant->firstname ?: 'N/A') . ", thank you for your interest in the " .
                             (optional($vacancy->position)->name ?: 'N/A') . " position at " .
@@ -95,6 +95,12 @@ class VacancyDeleteNoAppointment extends Command
 
                         // Dispatch job to send WhatsApp message
                         SendWhatsAppMessage::dispatch($applicant, $whatsappMessage, $type, $template, $variables);
+
+                        // Update interview status to 'Regretted'
+                        foreach ($interviews as $interview) {
+                            $interview->status = 'Regretted';
+                            $interview->save();
+                        }
                     }
 
                     // Set shortlist_id to null for all applicants

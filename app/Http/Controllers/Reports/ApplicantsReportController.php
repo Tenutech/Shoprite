@@ -336,6 +336,9 @@ class ApplicantsReportController extends Controller
             $startDate = Carbon::parse($startDateString)->startOfDay();
             $endDate = Carbon::parse($endDateString)->endOfDay();
 
+            Log::info($startDate);
+            Log::info($endDate);
+
             // Set the type to 'all' to filter all vacancies
             $type = 'all';
             $id = null;
@@ -400,6 +403,8 @@ class ApplicantsReportController extends Controller
                 'errors' => $e->errors() // This will return the validation errors in a key-value format
             ], 422); // 422 Unprocessable Entity is standard for validation errors
         } catch (\Exception $e) {
+            Log::error($e);
+
             // Return other errors
             return response()->json([
                 'success' => false,

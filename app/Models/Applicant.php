@@ -60,6 +60,7 @@ class Applicant extends Model
         'application_type',
         'shortlist_id',
         'appointed_id',
+        'appointments',
         'no_show',
         'employment',
         'user_delete',
@@ -119,6 +120,12 @@ class Applicant extends Model
     public function vacancyFill()
     {
         return $this->belongsTo(VacancyFill::class, 'appointed_id');
+    }
+
+    //Applicant Vacancy Fills
+    public function vacancyFills()
+    {
+        return $this->hasMany(VacancyFill::class, 'applicant_id');
     }
 
     //Applicant State
