@@ -8,6 +8,7 @@ use App\Models\Store;
 use App\Models\Vacancy;
 use App\Models\Applicant;
 use App\Models\Interview;
+use App\Models\VacancyFill;
 use Illuminate\Support\Facades\DB;
 
 class StoresReportDataService
@@ -176,33 +177,30 @@ class StoresReportDataService
      * @param \Carbon\Carbon $endDate The end date for filtering applicants.
      * @return int The total count of appointed applicants.
      */
-    public function getTotalApplicantsAppointed(string $type, ?int $id, Carbon $startDate, Carbon $endDate): int
+    public function getTotalApplicantsAppointed(string $type = 'all', ?int $id = null, Carbon $startDate, Carbon $endDate): int
     {
-        // Use a query that joins with the `vacancy_fills` table to filter by `appointed_created_at`.
-        $applicants = Applicant::whereHas('vacancyFill', function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
-        });
+        // Query the VacancyFill model and filter by created_at within the date range
+        $query = VacancyFill::whereBetween('created_at', [$startDate, $endDate]);
 
-        // Apply additional filters based on the $type and $id if needed
+        // Apply additional filtering based on the type
         if ($type !== 'all') {
-            // For example, filter by store, division, or region
-            $applicants->whereHas('vacancyFill.vacancy', function ($query) use ($type, $id) {
-                if ($type === 'store') {
-                    $query->where('store_id', $id);
-                } elseif ($type === 'division') {
-                    $query->whereHas('store', function ($query) use ($id) {
-                        $query->where('division_id', $id);
-                    });
-                } elseif ($type === 'region') {
-                    $query->whereHas('store', function ($query) use ($id) {
-                        $query->where('region_id', $id);
-                    });
-                }
-            });
+            if ($type === 'store') {
+                $query->whereHas('vacancy', function ($vacancyQuery) use ($id) {
+                    $vacancyQuery->where('store_id', $id);
+                });
+            } elseif ($type === 'division') {
+                $query->whereHas('vacancy.store', function ($storeQuery) use ($id) {
+                    $storeQuery->where('division_id', $id);
+                });
+            } elseif ($type === 'region') {
+                $query->whereHas('vacancy.store', function ($storeQuery) use ($id) {
+                    $storeQuery->where('region_id', $id);
+                });
+            }
         }
 
         // Return the count of appointed applicants
-        return $applicants->count();
+        return $query->count();
     }
 
     /**
@@ -763,13 +761,11 @@ class StoresReportDataService
     public function getTotalApplicantsAppointedFiltered(string $type, ?int $id, Carbon $startDate, Carbon $endDate, array $filters): int
     {
         // Use a query that joins with the `vacancy_fills` table to filter by `appointed_created_at`.
-        $applicants = Applicant::whereHas('vacancyFill', function ($query) use ($startDate, $endDate) {
-            $query->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
-        });
+        $appointments = VacancyFill::whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
 
         // Apply additional filters based on the $type and $id
         if ($type !== 'all') {
-            $applicants->whereHas('vacancyFill.vacancy.store', function ($query) use ($type, $id) {
+            $appointments->whereHas('vacancy.store', function ($query) use ($type, $id) {
                 if ($type === 'store') {
                     $query->where('id', $id);
                 } elseif ($type === 'division') {
@@ -780,47 +776,49 @@ class StoresReportDataService
             });
         }
 
-        // Apply additional filters
+        // Apply additional filters on `vacancyFill.vacancy`
         if (isset($filters['brand_id'])) {
-            $applicants->whereHas('vacancyFill.vacancy.store', function ($query) use ($filters) {
+            $appointments->whereHas('vacancy.store', function ($query) use ($filters) {
                 $query->where('brand_id', $filters['brand_id']);
             });
         }
 
         if (isset($filters['province_id'])) {
-            $applicants->whereHas('vacancyFill.vacancy.store.town', function ($query) use ($filters) {
+            $appointments->whereHas('vacancy.store.town', function ($query) use ($filters) {
                 $query->where('province_id', $filters['province_id']);
             });
         }
 
         if (isset($filters['town_id'])) {
-            $applicants->whereHas('vacancyFill.vacancy.store', function ($query) use ($filters) {
+            $appointments->whereHas('vacancy.store', function ($query) use ($filters) {
                 $query->where('town_id', $filters['town_id']);
             });
         }
 
         if (isset($filters['store_id'])) {
-            $applicants->whereHas('vacancyFill.vacancy', function ($query) use ($filters) {
+            $appointments->whereHas('vacancy', function ($query) use ($filters) {
                 if (is_array($filters['store_id'])) {
                     $query->whereIn('store_id', $filters['store_id']);
+                } else {
+                    $query->where('store_id', $filters['store_id']);
                 }
             });
         }
 
         if (isset($filters['division_id'])) {
-            $applicants->whereHas('vacancyFill.vacancy.store', function ($query) use ($filters) {
+            $appointments->whereHas('vacancy.store', function ($query) use ($filters) {
                 $query->where('division_id', $filters['division_id']);
             });
         }
 
         if (isset($filters['region_id'])) {
-            $applicants->whereHas('vacancyFill.vacancy.store', function ($query) use ($filters) {
+            $appointments->whereHas('vacancy.store', function ($query) use ($filters) {
                 $query->where('region_id', $filters['region_id']);
             });
         }
 
-        // Return the count of appointed applicants
-        return $applicants->count();
+        // Return the count of `vacancy_fills` records (counts each appointment, not just applicants)
+        return $appointments->count();
     }
 
     /**
