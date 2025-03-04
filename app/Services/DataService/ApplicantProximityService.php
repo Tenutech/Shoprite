@@ -331,63 +331,45 @@ class ApplicantProximityService
      */
     public function getTalentPoolApplicants(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore): int
     {
-        // Retrieve the complete state id
+        // Retrieve the complete state ID
         $completeStateID = State::where('code', 'complete')->value('id');
         if (!$completeStateID) {
             return 0; // Handle case where 'complete' state does not exist
         }
 
-        // Check if the type is 'all' to get all applicants within the date range
         if ($type === 'all') {
             return Applicant::whereBetween('created_at', [$startDate, $endDate])
                 ->where('state_id', '>=', $completeStateID)
-                ->count(); // Simply return all applicants within the date range, ignoring distance
+                ->count();
         }
 
-        // Otherwise, proceed with filtering by store, division, or region
-        $stores = Store::when($type === 'store', function ($query) use ($id) {
-                return $query->where('id', $id);
-        })
-            ->when($type === 'division', function ($query) use ($id) {
-                return $query->where('division_id', $id);
+        // Count unique applicants within distance of at least one relevant store
+        return Applicant::whereBetween('created_at', [$startDate, $endDate])
+            ->where('state_id', '>=', $completeStateID)
+            ->whereExists(function ($query) use ($type, $id, $maxDistanceFromStore) {
+                $query->select(DB::raw(1))
+                    ->from('stores')
+                    ->where(function ($q) use ($type, $id) {
+                        if ($type === 'store') {
+                            $q->where('id', $id);
+                        } elseif ($type === 'division') {
+                            $q->where('division_id', $id);
+                        } elseif ($type === 'region') {
+                            $q->where('region_id', $id);
+                        }
+                    })
+                    ->whereRaw("ST_Distance_Sphere(
+                        point(
+                            SUBSTRING_INDEX(applicants.coordinates, ',', -1),
+                            SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                        ),
+                        point(
+                            SUBSTRING_INDEX(stores.coordinates, ',', -1),
+                            SUBSTRING_INDEX(stores.coordinates, ',', 1)
+                        )
+                    ) <= ?", [$maxDistanceFromStore * 1000]);
             })
-            ->when($type === 'region', function ($query) use ($id) {
-                return $query->where('region_id', $id);
-            })
-            ->get();
-
-        if ($stores->isEmpty()) {
-            return 0; // Return 0 if no stores are found for the given filter
-        }
-
-        $applicantCount = 0;
-
-        // Loop through each store and calculate the applicants within the given distance
-        foreach ($stores as $store) {
-            if ($store->coordinates) {
-                $storeCoordinates = explode(',', $store->coordinates);
-                $storeLat = floatval($storeCoordinates[0]);
-                $storeLng = floatval($storeCoordinates[1]);
-
-                // Count the applicants within the distance range using MySQL ST_Distance_Sphere
-                $storeApplicantCount = Applicant::whereBetween('created_at', [$startDate, $endDate])
-                    ->where('state_id', '>=', $completeStateID)
-                    ->whereRaw("
-                        ST_Distance_Sphere(
-                            point(
-                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
-                                SUBSTRING_INDEX(applicants.coordinates, ',', 1)
-                            ), 
-                            point(?, ?)
-                        ) <= ?
-                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
-                    ->count();
-
-                $applicantCount += $storeApplicantCount;
-            }
-        }
-
-        return $applicantCount;
+            ->count();
     }
 
     /**
@@ -402,85 +384,74 @@ class ApplicantProximityService
      */
     public function getTalentPoolApplicantsByMonth(string $type = null, ?int $id = null, $startDate, $endDate, $maxDistanceFromStore): array
     {
-        // Initialize an array to hold the results, with months and years set to 0 from startDate to endDate
+        // Initialize an array with months and years set to 0 from startDate to endDate
         $applicantsByMonth = [];
         $currentDate = $startDate->copy();
 
-        // Loop to populate only the months and years between startDate and endDate
         while ($currentDate->lte($endDate)) {
             $monthYear = $currentDate->format("M'y"); // Format as Jan'24
             $applicantsByMonth[$monthYear] = 0;
             $currentDate->addMonth();
         }
 
-        // Ensure the last month is included
         $lastMonthYear = $endDate->format("M'y");
         if (!array_key_exists($lastMonthYear, $applicantsByMonth)) {
             $applicantsByMonth[$lastMonthYear] = 0;
         }
 
-        // Retrieve the complete state id
+        // Retrieve the 'complete' state ID
         $completeStateID = State::where('code', 'complete')->value('id');
         if (!$completeStateID) {
             return $applicantsByMonth; // Return if 'complete' state does not exist
         }
 
         if ($type === 'all') {
-            $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+            // Single query for all applicants, grouped by month-year
+            $applicants = Applicant::selectRaw("DATE_FORMAT(created_at, '%b''%y') as month_year, COUNT(*) as count")
+                ->whereBetween('created_at', [$startDate, $endDate])
                 ->where('state_id', '>=', $completeStateID)
+                ->groupBy('month_year')
                 ->get();
 
             foreach ($applicants as $applicant) {
-                $monthYear = $applicant->created_at->format("M'y"); // Format as Jan'24
-                if (isset($applicantsByMonth[$monthYear])) {
-                    $applicantsByMonth[$monthYear]++;
-                }
+                $applicantsByMonth[$applicant->month_year] = $applicant->count;
             }
 
             return $applicantsByMonth;
         }
 
-        $stores = Store::when($type === 'store', function ($query) use ($id) {
-                return $query->where('id', $id);
-        })
-            ->when($type === 'division', function ($query) use ($id) {
-                return $query->where('division_id', $id);
+        // For store, division, or region types, use a single query with spatial filtering
+        $applicants = Applicant::selectRaw("DATE_FORMAT(applicants.created_at, '%b''%y') as month_year, COUNT(DISTINCT applicants.id) as count")
+            ->whereBetween('applicants.created_at', [$startDate, $endDate])
+            ->where('applicants.state_id', '>=', $completeStateID)
+            ->whereExists(function ($query) use ($type, $id, $maxDistanceFromStore) {
+                $query->select(DB::raw(1))
+                    ->from('stores')
+                    ->where(function ($q) use ($type, $id) {
+                        if ($type === 'store') {
+                            $q->where('stores.id', $id);
+                        } elseif ($type === 'division') {
+                            $q->where('stores.division_id', $id);
+                        } elseif ($type === 'region') {
+                            $q->where('stores.region_id', $id);
+                        }
+                    })
+                    ->whereRaw("ST_Distance_Sphere(
+                        point(
+                            SUBSTRING_INDEX(applicants.coordinates, ',', -1),
+                            SUBSTRING_INDEX(applicants.coordinates, ',', 1)
+                        ),
+                        point(
+                            SUBSTRING_INDEX(stores.coordinates, ',', -1),
+                            SUBSTRING_INDEX(stores.coordinates, ',', 1)
+                        )
+                    ) <= ?", [$maxDistanceFromStore * 1000]);
             })
-            ->when($type === 'region', function ($query) use ($id) {
-                return $query->where('region_id', $id);
-            })
+            ->groupBy('month_year')
             ->get();
 
-        if ($stores->isEmpty()) {
-            return $applicantsByMonth;
-        }
-
-        foreach ($stores as $store) {
-            if ($store->coordinates) {
-                $storeCoordinates = explode(',', $store->coordinates);
-                $storeLat = floatval($storeCoordinates[0]);
-                $storeLng = floatval($storeCoordinates[1]);
-
-                $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
-                    ->where('state_id', '>=', $completeStateID)
-                    ->whereRaw("
-                        ST_Distance_Sphere(
-                            point(
-                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
-                                SUBSTRING_INDEX(applicants.coordinates, ',', 1)
-                            ), 
-                            point(?, ?)
-                        ) <= ?
-                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000])
-                    ->get();
-
-                foreach ($applicants as $applicant) {
-                    $monthYear = $applicant->created_at->format("M'y"); // Format as Jan'24
-                    if (isset($applicantsByMonth[$monthYear])) {
-                        $applicantsByMonth[$monthYear]++;
-                    }
-                }
-            }
+        foreach ($applicants as $applicant) {
+            $applicantsByMonth[$applicant->month_year] = $applicant->count;
         }
 
         return $applicantsByMonth;
