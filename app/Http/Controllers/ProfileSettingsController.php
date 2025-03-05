@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Applicant;
 use App\Models\Company;
 use App\Models\Position;
+use App\Models\Division;
 use App\Models\Race;
 use App\Models\Type;
 use App\Models\Brand;
@@ -107,6 +108,22 @@ class ProfileSettingsController extends Controller
             // Brand
             $brands = Brand::whereIn('id', [1, 2, 5, 6])->get();
 
+            // Allowed Emails
+            $allowedEmails = [
+                'sachetty@shoprite.co.za',
+            ];
+
+            // Default to an empty collection
+            $divisions = collect();
+
+            if ($user->email === 'sachetty@shoprite.co.za') { // Strict comparison to ensure only this email
+                // Allowed division IDs for this user
+                $allowedDivisionIds = [9, 10, 11];
+
+                // Get only divisions where the ID is in the allowed list
+                $divisions = Division::whereIn('id', $allowedDivisionIds)->get();
+            }
+
             return view('profile-settings', [
                 'user' => $user,
                 'completionPercentage' => $completionPercentage,
@@ -116,6 +133,8 @@ class ProfileSettingsController extends Controller
                 'educations' => $educations,
                 'durations' => $durations,
                 'brands' => $brands,
+                'allowedEmails' => $allowedEmails,
+                'divisions' => $divisions,
             ]);
         }
         return view('404');
@@ -165,6 +184,7 @@ class ProfileSettingsController extends Controller
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
             'phone' => ['required', 'string', 'max:191', Rule::unique('users')->ignore($userID)],
+            'division_id' => ['nullable', Rule::exists('divisions', 'id')],
         ];
 
         // Conditionally validate `email` based on the `role_id`
@@ -240,6 +260,11 @@ class ProfileSettingsController extends Controller
 
             DB::beginTransaction();
 
+            // Allowed Emails
+            $allowedEmails = [
+                'sachetty@shoprite.co.za',
+            ];
+
             // User Update
             $user->firstname = ucwords($request->firstname);
             $user->lastname = ucwords($request->lastname);
@@ -247,6 +272,12 @@ class ProfileSettingsController extends Controller
             $user->phone = $request->phone;
             $user->address = $request->has('location') ? $request->location : '';
             $user->avatar = $avatarName;
+
+            // Check if division_id is present and user email is in the allowed list
+            if ($request->has('division_id') && in_array($user->email, $allowedEmails)) {
+                $user->division_id = $request->division_id;
+            }
+
             $user->save();
 
             // Update Applicant if the role_id is >= 7

@@ -179,6 +179,25 @@
                                         </div>
                                         <!--end col-->
 
+                                        @if (in_array($user->email, $allowedEmails) && $user->role_id == 3)
+                                            <div class="col-12">
+                                                <div class="mb-3">
+                                                    <label for="division" class="form-label">
+                                                        Division
+                                                    </label>
+                                                    <select class="form-control" id="division" name="division_id" {{ ($user->role_id > 3) ? 'disabled' : '' }}>
+                                                        <option value="" selected>Select division</option>
+                                                        @foreach ($divisions as $division)
+                                                            <option value="{{ $division->id }}" {{ $user->division_id == $division->id ? 'selected' : '' }}>{{ $division->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                    <div class="invalid-feedback">
+                                                        Please select a division!
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endif
+
                                         @if ($user->role_id >= 7 )
                                             <!-- Address -->
                                             <div class="col-lg-12">                                            
