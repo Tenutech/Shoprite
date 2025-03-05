@@ -50,9 +50,9 @@
                             </h4>
                             <p class="text-muted mb-0">
                                 Here's what's happening with the
-                                @if (isset($region))
-                                    ({{ $region->name }})
-                                @endif region today.
+                                @if (isset($division))
+                                    ({{ $division->name }})
+                                @endif division today.
                             </p>
                         </div>
                         <div class="mt-3 mt-lg-0">

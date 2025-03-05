@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\ReminderSetting;
 use App\Models\Region;
+use App\Models\Division;
 use App\Models\Shortlist;
 use App\Models\Setting;
 use App\Models\User;
@@ -61,6 +62,9 @@ class RPPController extends Controller
 
             // Fetch the region
             $region = Region::where('id', $authUser->region_id)->first();
+
+            // Fetch the division
+            $division = Division::where('id', $authUser->division_id)->first();
 
             // Get the delay from ReminderSetting where type is 'shortlist_created_no_interview'
             $reminderSetting = ReminderSetting::where('type', 'shortlist_created_no_interview')->first();
@@ -147,6 +151,7 @@ class RPPController extends Controller
             // Return the 'rpp/home' view with the calculated data
             return view('rpp/home', [
                 'region' => $region,
+                'division' => $division,
                 'shortlist' => $shortlist,
                 'vacanciesNoInterview' => $vacanciesNoInterview,
                 'vacanciesNoAppointment' => $vacanciesNoAppointment,
@@ -182,10 +187,10 @@ class RPPController extends Controller
             $endDate = Carbon::parse($request->input('endDate'))->endOfDay();
 
             // Set the type to 'region' to filter vacancies by the specific region ID in the query
-            $type = 'region';
+            $type = 'division';
 
             // Get the region ID for the authenticated user
-            $regionId = $authUser->region_id;
+            $regionId = $authUser->division_id;
 
             // Get the max proximity from store
             $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->first()->value ?? 50;

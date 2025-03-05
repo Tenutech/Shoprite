@@ -64,11 +64,11 @@ class VacanciesReportController extends Controller
 
             // Set the $type based on the role_id of $authUser
             if ($authUser->role_id == 3) {
-                $type = 'region';
-                $id = $authUser->region_id;
+                $type = 'division';
+                $id = $authUser->division_id;
             } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
                 $type = 'division';
-                $id = $authUser->devision_id;
+                $id = $authUser->division_id;
             } elseif ($authUser->role_id == 6) {
                 $type = 'store';
                 $id = $authUser->store_id;
@@ -146,7 +146,7 @@ class VacanciesReportController extends Controller
                 $brands = Brand::where('id', '>', 1)->get();
             } elseif ($authUser->role_id == 3) {
                 // If role_id is 3, get all brands where id matches the brands in stores in the user's region
-                $storeBrandIds = Store::where('region_id', $authUser->region_id)
+                $storeBrandIds = Store::where('division_id', $authUser->division_id)
                     ->pluck('brand_id'); // Get the brand_ids of all stores in the user's region
 
                 // If $storeBrandIds contains 3 or 4 and does not contain 2, add 2
@@ -188,7 +188,7 @@ class VacanciesReportController extends Controller
             if (in_array($authUser->role_id, [1, 2])) {
                 // If role_id is 1 or 2, get all divisions
                 $divisions = Division::all();
-            } elseif (($authUser->role_id == 4 || $authUser->role_id == 5) && $authUser->division_id) {
+            } elseif (($authUser->role_id == 3 || $authUser->role_id == 4 || $authUser->role_id == 5) && $authUser->division_id) {
                 // If role_id is 3, get all divisions where id = authUser->division_id
                 $divisions = Division::where('id', $authUser->division_id)->get();
             }
@@ -309,11 +309,11 @@ class VacanciesReportController extends Controller
 
             // Set the $type based on the role_id of $authUser
             if ($authUser->role_id == 3) {
-                $type = 'region';
-                $id = $authUser->region_id;
+                $type = 'division';
+                $id = $authUser->division_id;
             } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
                 $type = 'division';
-                $id = $authUser->devision_id;
+                $id = $authUser->division_id;
             } elseif ($authUser->role_id == 6) {
                 $type = 'store';
                 $id = $authUser->store_id;
@@ -321,6 +321,10 @@ class VacanciesReportController extends Controller
 
             // Extract filters by removing `_token`, `date`, and `search_terms` from the request
             $filters = Arr::except($request->all(), ['_token', 'date', 'search_terms']);
+
+            if (!isset($filters['division_id']) && in_array($authUser->role_id, [3, 4, 5])) {
+                $filters['division_id'] = $authUser->division_id;
+            }
 
             // Initialize variables to 0 or empty before the null check
 
@@ -398,11 +402,11 @@ class VacanciesReportController extends Controller
 
         // Set the $type based on the role_id of $authUser
         if ($authUser->role_id == 3) {
-            $type = 'region';
-            $id = $authUser->region_id;
+            $type = 'division';
+            $id = $authUser->division_id;
         } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
             $type = 'division';
-            $id = $authUser->devision_id;
+            $id = $authUser->division_id;
         } elseif ($authUser->role_id == 6) {
             $type = 'store';
             $id = $authUser->store_id;
@@ -420,6 +424,10 @@ class VacanciesReportController extends Controller
 
         // Retrieve all filters from the request, excluding '_token', 'date', and 'search_terms'
         $filters = $request->except(['_token', 'date', 'search_terms']);
+
+        if (!isset($filters['division_id']) && in_array($authUser->role_id, [3, 4, 5])) {
+            $filters['division_id'] = $authUser->division_id;
+        }
 
         // Export data to an Excel file, passing filters, type, id, date range, and proximity
         return Excel::download(new VacanciesExport($type, $id, $startDate, $endDate, $filters), 'Vacancies Report.xlsx');

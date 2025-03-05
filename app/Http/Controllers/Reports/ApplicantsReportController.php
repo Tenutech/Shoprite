@@ -349,7 +349,7 @@ class ApplicantsReportController extends Controller
                 $id = $authUser->region_id;
             } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
                 $type = 'division';
-                $id = $authUser->devision_id;
+                $id = $authUser->division_id;
             } elseif ($authUser->role_id == 6) {
                 $type = 'store';
                 $id = $authUser->store_id;
@@ -439,7 +439,7 @@ class ApplicantsReportController extends Controller
                 $id = $authUser->region_id;
             } elseif ($authUser->role_id == 4 || $authUser->role_id == 5) {
                 $type = 'division';
-                $id = $authUser->devision_id;
+                $id = $authUser->division_id;
             } elseif ($authUser->role_id == 6) {
                 $type = 'store';
                 $id = $authUser->store_id;

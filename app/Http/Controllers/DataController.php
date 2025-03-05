@@ -72,8 +72,8 @@ class DataController extends Controller
             if (in_array($authUser->role_id, [1, 2])) {
                 $type = 'all';
             } elseif ($authUser->role_id == 3) {
-                $type = 'region';
-                $id = $authUser->region_id;
+                $type = 'division';
+                $id = $authUser->division_id;
             } elseif (in_array($authUser->role_id, [4, 5])) {
                 $type = 'division';
                 $id = $authUser->division_id;

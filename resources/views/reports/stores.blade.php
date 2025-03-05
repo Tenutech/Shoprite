@@ -404,10 +404,10 @@
                                     <label for="division" class="form-label">
                                         Division
                                     </label>
-                                    <select class="form-control" id="division" name="division_id" {{ ($authUser->role_id == 4 || $authUser->role_id == 5) ? 'disabled' : '' }}>
+                                    <select class="form-control" id="division" name="division_id" {{ ($authUser->role_id == 3 || $authUser->role_id == 4 || $authUser->role_id == 5) ? 'disabled' : '' }}>
                                         <option value="" selected>Select division</option>
                                         @foreach ($divisions as $division)
-                                            <option value="{{ $division->id }}" {{ ($authUser->role_id == 4 || $authUser->role_id == 5)&& $authUser->division_id == $division->id ? 'selected' : '' }}>{{ $division->name }}</option>
+                                            <option value="{{ $division->id }}" {{ ($authUser->role_id == 3 || $authUser->role_id == 4 || $authUser->role_id == 5)&& $authUser->division_id == $division->id ? 'selected' : '' }}>{{ $division->name }}</option>
                                         @endforeach
                                     </select>
                                     <div class="invalid-feedback">
