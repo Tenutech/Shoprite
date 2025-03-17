@@ -154,8 +154,38 @@ class ProfileSettingsController extends Controller
         // User
         $user = User::findorfail($userID);
 
+        // Allowed Emails
+        $allowedEmails = [
+            'sachetty@shoprite.co.za',
+        ];
+
+        // Check if only division_id is being changed
+        $isAllowedEmail = in_array($user->email, $allowedEmails);
+        $otherFieldsChanged = false;
+
+        // Check if any fields other than division_id are being updated
+        if ($request->hasFile('avatar')) {
+            $otherFieldsChanged = true;
+        }
+        if ($request->has('firstname') && $request->firstname !== $user->firstname) {
+            $otherFieldsChanged = true;
+        }
+        if ($request->has('lastname') && $request->lastname !== $user->lastname) {
+            $otherFieldsChanged = true;
+        }
+        if ($request->has('phone') && $request->phone !== $user->phone) {
+            $otherFieldsChanged = true;
+        }
+        if ($request->has('email') && $request->email !== $user->email) {
+            $otherFieldsChanged = true;
+        }
+
+        // Check if division_id is being changed
+        $divisionIdChanged = $request->has('division_id') && (int)$request->division_id !== $user->division_id;
+        $isOnlyDivisionIdChanged = $divisionIdChanged && !$otherFieldsChanged;
+
         // **Step 1: Check if email was verified in the last 15 minutes**
-        if (!$user->isEmailVerificationValid()) {
+        if (!($isAllowedEmail && $isOnlyDivisionIdChanged) && !$user->isEmailVerificationValid()) {
             // If verification is outdated, generate a new token and send email
             $user->generateEmailVerificationToken();
             Mail::to($user->email)->queue(new VerifyEmailUpdate($user));
