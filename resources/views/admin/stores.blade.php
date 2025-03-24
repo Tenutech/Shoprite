@@ -261,7 +261,7 @@
 
                                             <div class="mb-3">
                                                 <label for="name" class="form-label">
-                                                    Branch Code With Check Digit (6)
+                                                    Branch Name
                                                 </label>
                                                 <input type="text" id="name" name="name" class="form-control" placeholder="Enter branch name" required title="Please enter the name of the branch."/>
                                             </div>
