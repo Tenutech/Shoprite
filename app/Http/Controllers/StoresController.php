@@ -87,10 +87,11 @@ class StoresController extends Controller
     {
         //Validate
         $request->validate([
-            'code' => 'required|digits:4',
-            'code_5' => 'required|digits:5',
-            'code_6' => 'required|digits:6',
+            'code' => 'required|nullable|string|max:4',
+            'code_5' => 'required|nullable|string|max:5',
+            'code_6' => 'required|nullable|string|max:6',
             'brand' => 'required|integer|min:1|exists:brands,id',
+            'name' => 'required|nullable|string|max:255',
             'town' => 'required|integer|min:1|exists:towns,id',
             'region' => 'required|integer|min:1|exists:regions,id',
             'division' => 'required|integer|min:1|exists:divisions,id',
@@ -105,6 +106,7 @@ class StoresController extends Controller
                 'code_5' => $request->code_5,
                 'code_6' => $request->code_6,
                 'brand_id' => $request->brand,
+                'name' => $request->name,
                 'town_id' => $request->town,
                 'region_id' => $request->region,
                 'division_id' => $request->division,
@@ -167,10 +169,11 @@ class StoresController extends Controller
 
         //Validate
         $request->validate([
-            'code' => 'required|digits:4',
-            'code_5' => 'required|digits:5',
-            'code_6' => 'required|digits:6',
+            'code' => 'required|nullable|string|max:4',
+            'code_5' => 'required|nullable|string|max:5',
+            'code_6' => 'required|nullable|string|max:6',
             'brand' => 'required|integer|min:1|exists:brands,id',
+            'name' => 'required|nullable|string|max:255',
             'town' => 'required|integer|min:1|exists:towns,id',
             'region' => 'required|integer|min:1|exists:regions,id',
             'division' => 'required|integer|min:1|exists:divisions,id',
@@ -187,6 +190,7 @@ class StoresController extends Controller
             $store->code_5 = $request->code_5;
             $store->code_6 = $request->code_6;
             $store->brand_id = $request->brand;
+            $store->name = $request->name;
             $store->town_id = $request->town;
             $store->region_id = $request->region;
             $store->division_id = $request->division;
