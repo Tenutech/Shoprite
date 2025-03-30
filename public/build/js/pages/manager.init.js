@@ -253,10 +253,6 @@ function updateMetrics(type, data) {
             updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
             hideSpinner("appointed_applicants_demographic_container");
 
-            // Update demographic totals
-            updateDemographicTotals(data.talentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
-            updateDemographicTotals(data.interviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
-            updateDemographicTotals(data.appointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
             break;
 
         case 'talent-pool-metrics':
@@ -722,7 +718,7 @@ if (talentPoolByMonthColors) {
 var talentPoolApplicantsDemographicColors = getChartColorsArray("talent_pool_applicants_demographic");
 
 // Extract percentages and labels dynamically from talentPoolApplicantsDemographic
-var talentPoolApplicantsDemographicSeries = [];
+var talentPoolApplicantsDemographicSeries = [0, 0, 0, 0];
 var talentPoolApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Talent Pool Applicants Demographic Chart
@@ -761,7 +757,7 @@ if(talentPoolApplicantsDemographicColors){
             floating: true,
             fontSize: '16px',
             position: 'left',
-            offsetX: 80,
+            offsetX: 69,
             offsetY: 15,
             labels: {
                 useSeriesColors: true,
@@ -770,7 +766,13 @@ if(talentPoolApplicantsDemographicColors){
                 size: 0
             },
             formatter: function (seriesName, opts) {
-                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+                if (
+                    opts.w.config.extraData &&
+                    opts.w.config.extraData[opts.seriesIndex] !== undefined
+                ) {
+                    return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}% (${opts.w.config.extraData[opts.seriesIndex]})`
+                }
+                return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}%`
             },
             itemMargin: {
                 vertical: 3
@@ -857,7 +859,7 @@ if(talentPoolApplicantsDemographicColors){
 var interviewedApplicantsDemographicColors = getChartColorsArray("interviewed_applicants_demographic");
 
 // Extract percentages and labels dynamically from interviewedApplicantsDemographic
-var interviewedApplicantsDemographicSeries = [];
+var interviewedApplicantsDemographicSeries = [0, 0, 0, 0];
 var interviewedApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Interviewed Applicants Demographic Chart
@@ -896,7 +898,7 @@ if(interviewedApplicantsDemographicColors){
             floating: true,
             fontSize: '16px',
             position: 'left',
-            offsetX: 80,
+            offsetX: 69,
             offsetY: 15,
             labels: {
                 useSeriesColors: true,
@@ -905,7 +907,13 @@ if(interviewedApplicantsDemographicColors){
                 size: 0
             },
             formatter: function (seriesName, opts) {
-                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+                if (
+                    opts.w.config.extraData &&
+                    opts.w.config.extraData[opts.seriesIndex] !== undefined
+                ) {
+                    return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}% (${opts.w.config.extraData[opts.seriesIndex]})`
+                }
+                return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}%`
             },
             itemMargin: {
                 vertical: 3
@@ -988,7 +996,7 @@ if(interviewedApplicantsDemographicColors){
 var appointedApplicantsDemographicColors = getChartColorsArray("appointed_applicants_demographic");
 
 // Extract percentages and labels dynamically from appointedApplicantsDemographic
-var appointedApplicantsDemographicSeries = [];
+var appointedApplicantsDemographicSeries = [0, 0, 0, 0];
 var appointedApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Appointed Applicants Demographic Chart
@@ -1027,7 +1035,7 @@ if(appointedApplicantsDemographicColors){
             floating: true,
             fontSize: '16px',
             position: 'left',
-            offsetX: 80,
+            offsetX: 69,
             offsetY: 15,
             labels: {
                 useSeriesColors: true,
@@ -1036,7 +1044,13 @@ if(appointedApplicantsDemographicColors){
                 size: 0
             },
             formatter: function (seriesName, opts) {
-                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+                if (
+                    opts.w.config.extraData &&
+                    opts.w.config.extraData[opts.seriesIndex] !== undefined
+                ) {
+                    return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}% (${opts.w.config.extraData[opts.seriesIndex]})`
+                }
+                return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}%`
             },
             itemMargin: {
                 vertical: 3
@@ -1175,11 +1189,6 @@ function updateDashboard(data) {
     updateRadialBarChart(talentPoolApplicantsDemographicChart, data.storeTalentPoolApplicantsDemographic);
     updateRadialBarChart(interviewedApplicantsDemographicChart, data.storeInterviewedApplicantsDemographic);
     updateRadialBarChart(appointedApplicantsDemographicChart, data.storeAppointedApplicantsDemographic);
-
-    // Update demographic totals
-    updateDemographicTotals(data.storeTalentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
-    updateDemographicTotals(data.storeInterviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
-    updateDemographicTotals(data.storeAppointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
 }
 
 /*
@@ -1259,68 +1268,28 @@ function updateLineCharts(chartInstance, talentPoolApplicantsByMonth, applicants
 function updateRadialBarChart(chart, demographicData) {
     // Initialize the series and labels with default values for all races
     var demographicSeries = {
-        'African': 0,
-        'Coloured': 0,
-        'Indian': 0,
-        'White': 0
+        'African': { percentage: 0, total: 0 },
+        'Coloured': { percentage: 0, total: 0 },
+        'Indian': { percentage: 0, total: 0 },
+        'White': { percentage: 0, total: 0 }
     };
 
-    // Populate the series from demographicData (ensure all races have counts)
+    // Populate the series from demographicData
     demographicData.forEach(function (item) {
-        // Update the corresponding race count from demographicData
         if (demographicSeries.hasOwnProperty(item.name)) {
-            demographicSeries[item.name] = item.percentage;
+            demographicSeries[item.name] = {
+                percentage: item.percentage,
+                total: item.total
+            };
         }
     });
 
-    // Convert the object into arrays for chart update
-    var seriesArray = Object.values(demographicSeries);
+    var seriesArray = Object.values(demographicSeries).map(item => item.percentage);
+    var total = Object.values(demographicSeries).map(item => item.total);
 
     // Update the chart
     chart.updateOptions({
-        series: seriesArray,  // Updated series with all races
+        series: seriesArray,
+        extraData: total
     });
-}
-
-/*
-|--------------------------------------------------------------------------
-| Update Demographic Totals
-|--------------------------------------------------------------------------
-*/
-
-// Function to update demographic totals with row ID
-function updateDemographicTotals(demographicData, rowId) {
-    const rowElement = document.getElementById(rowId);
-    if (rowElement) {
-        // Define demographic categories to handle the empty data case
-        const categories = ["African", "Coloured", "Indian", "White"];
-        
-        if (demographicData.length === 0) {
-            // If data is empty, set all totals to 0
-            categories.forEach(category => {
-                const totalElement = rowElement.querySelector(`.${category}`);
-                if (totalElement) {
-                    totalElement.textContent = `0`;
-                }
-            });
-        } else {
-            // Otherwise, update the totals with actual data
-            demographicData.forEach(demo => {
-                const totalElement = rowElement.querySelector(`.${demo.name}`);
-                if (totalElement) {
-                    totalElement.textContent = `${demo.total}`;
-                }
-            });
-
-            // Handle categories not present in the demographicData
-            categories.forEach(category => {
-                if (!demographicData.some(demo => demo.name === category)) {
-                    const totalElement = rowElement.querySelector(`.${category}`);
-                    if (totalElement) {
-                        totalElement.textContent = `0`;
-                    }
-                }
-            });
-        }
-    }
 }
