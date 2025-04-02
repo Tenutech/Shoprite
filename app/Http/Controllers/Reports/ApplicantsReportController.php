@@ -336,9 +336,6 @@ class ApplicantsReportController extends Controller
             $startDate = Carbon::parse($startDateString)->startOfDay();
             $endDate = Carbon::parse($endDateString)->endOfDay();
 
-            Log::info($startDate);
-            Log::info($endDate);
-
             // Set the type to 'all' to filter all vacancies
             $type = 'all';
             $id = null;

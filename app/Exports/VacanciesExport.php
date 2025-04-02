@@ -157,6 +157,11 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
             return [$applicant->pivot->sap_number => $applicant->firstname . ' ' . $applicant->lastname . ' (' . $applicant->id_number . ') - ' . $applicant->pivot->sap_number];
         });
 
+        // Map the appointment dates by their SAP numbers
+        $appointedDatesBySap = $vacancy->appointed->mapWithKeys(function ($applicant) {
+            return [$applicant->pivot->sap_number => $applicant->pivot->created_at];
+        });
+
         // Loop to create rows for each SAP number (or empty rows if required)
         foreach ($allSapNumbers as $index => $currentSapNumber) {
             // Determine open_positions and filled_positions
@@ -190,7 +195,7 @@ class VacanciesExport implements FromCollection, WithHeadings, WithStyles, WithC
                 $filledPositions, // Filled positions for this SAP number
                 $appointedApplicantsBySap[$currentSapNumber] ?? '', // Match appointed applicant to the current SAP number
                 $vacancy->created_at->format('Y-m-d H:i'),
-                $isFilled ? $vacancy->updated_at->format('Y-m-d H:i') : '',
+                $isFilled ? $appointedDatesBySap[$currentSapNumber]->format('Y-m-d H:i') : '', // Updated "Filled On" column
                 $vacancyStatus, // Vacancy Status column
                 $daysDifference // Difference in days between created_at and updated_at
             ];
