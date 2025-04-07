@@ -25,10 +25,10 @@ class ApplicantProximityService
      */
     public function getAverageDistanceTalentPoolApplicants(string $type, ?int $id, $startDate, $endDate, $maxDistanceFromStore): float
     {
-        // Get the stores based on the type (store, division, or region)
+        // Fetch stores based on the filter type
         $stores = Store::when($type === 'store', function ($query) use ($id) {
                 return $query->where('id', $id);
-        })
+            })
             ->when($type === 'division', function ($query) use ($id) {
                 return $query->where('division_id', $id);
             })
@@ -38,61 +38,55 @@ class ApplicantProximityService
             ->get();
 
         if ($stores->isEmpty()) {
-            return 0; // Return 0 if no stores are found for the given filter
+            return 0.0;
         }
 
-        // Retrieve the complete state id
+        // Get the 'complete' state ID (assumed to be a threshold for completed applications)
         $completeStateID = State::where('code', 'complete')->value('id');
         if (!$completeStateID) {
-            return 0; // Handle case where 'complete' state does not exist
+            return 0.0;
         }
 
-        $totalDistance = 0;
+        $totalDistance = 0.0;
         $applicantCount = 0;
 
-        // Loop through each store and calculate the applicants' distances within the given range
         foreach ($stores as $store) {
             if ($store->coordinates) {
-                $storeCoordinates = explode(',', $store->coordinates);
-                $storeLat = floatval($storeCoordinates[0]);
-                $storeLng = floatval($storeCoordinates[1]);
+                // Parse store coordinates (assuming format "lat,lng")
+                [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
 
-                // Retrieve applicants within the distance range using MySQL ST_Distance_Sphere
-                $applicants = Applicant::whereBetween('created_at', [$startDate, $endDate])
+                // Single query to aggregate distance and count
+                $result = Applicant::whereBetween('created_at', [$startDate, $endDate])
                     ->where('state_id', '>=', $completeStateID)
+                    ->whereNotNull('coordinates')
+                    ->whereRaw("coordinates REGEXP '^-?[0-9]+(\.[0-9]+)?,-?[0-9]+(\.[0-9]+)?$'") // Validate format
+                    ->selectRaw("
+                        SUM(ST_Distance_Sphere(
+                            POINT(
+                                CAST(SUBSTRING_INDEX(coordinates, ',', -1) AS DECIMAL(10,7)),
+                                CAST(SUBSTRING_INDEX(coordinates, ',', 1) AS DECIMAL(10,7))
+                            ),
+                            POINT(?, ?)
+                        ) / 1000) AS total_distance,
+                        COUNT(*) AS applicant_count
+                    ", [$storeLng, $storeLat])
                     ->whereRaw("
                         ST_Distance_Sphere(
-                            point(
-                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
-                                SUBSTRING_INDEX(applicants.coordinates, ',', 1)
-                            ), 
-                            point(?, ?)
+                            POINT(
+                                CAST(SUBSTRING_INDEX(coordinates, ',', -1) AS DECIMAL(10,7)),
+                                CAST(SUBSTRING_INDEX(coordinates, ',', 1) AS DECIMAL(10,7))
+                            ),
+                            POINT(?, ?)
                         ) <= ?
-                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Multiply by 1000 to convert km to meters
-                    ->get();
+                    ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000])
+                    ->first();
 
-                // Calculate the total distance for each applicant
-                foreach ($applicants as $applicant) {
-                    if ($applicant->coordinates) {
-                        $applicantCoordinates = explode(',', $applicant->coordinates);
-                        $applicantLat = floatval($applicantCoordinates[0]);
-                        $applicantLng = floatval($applicantCoordinates[1]);
-
-                        // Calculate the distance between the store and the applicant
-                        $distance = $this->calculateDistance($storeLat, $storeLng, $applicantLat, $applicantLng);
-                        $totalDistance += $distance;
-                        $applicantCount++;
-                    }
-                }
+                $totalDistance += $result->total_distance ?? 0.0;
+                $applicantCount += $result->applicant_count ?? 0;
             }
         }
 
-        // Calculate the average distance and return it
-        if ($applicantCount > 0) {
-            return round($totalDistance / $applicantCount, 1); // Average distance rounded to 2 decimal places
-        } else {
-            return 0; // Return 0 if no applicants are found
-        }
+        return $applicantCount > 0 ? round($totalDistance / $applicantCount, 1) : 0.0;
     }
 
     /**
