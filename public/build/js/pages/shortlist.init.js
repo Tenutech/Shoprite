@@ -1029,21 +1029,42 @@ let currentSort = { key: null, order: 'asc' };  // Current sorting settings
 // Add click event listeners to filter buttons
 document.querySelectorAll('.filter-button').forEach(button => {
     button.addEventListener('click', function() {
-        const filter = this.getAttribute('data-bs-filter').split(';');  // Split filter attribute into key and value
-        const label = this.innerText;
+        const filter = this.getAttribute('data-bs-filter').split(';');  // Split filter into key and value
+        const key = filter[0];
         const value = filter[1];
+        const label = this.innerText;
 
-        // If the badge does not exist, add it
-        if (!badgeExists(label, 'filterBadges')) {
-            addBadge(filter[0], value, label);
+        if (key === 'distance') {
+            // Handle distance filter specially
+            const newRadius = parseFloat(value);
 
-            // If the filter is for sorting, update currentSort
-            if (value === 'literacy' || value === 'numeracy') {
-                currentSort.key = filter[0];  // Set the sorting key
-                currentSort.value = value;
-                currentSort.order = 'desc';  // For descending order
-            } else {
-                applyFilter(filter[0], value);
+            // Remove the existing location badge if it exists
+            const locationBadge = document.querySelector('#filterBadges .badge[data-key="coordinates"]');
+            if (locationBadge) {
+                locationBadge.parentNode.removeChild(locationBadge);
+            }
+
+            // Add a new location badge with the updated radius, keeping it non-removable
+            if (coordinates) {
+                addLocationBadge(coordinates, false, newRadius);
+
+                // Update the active filter
+                const formattedLocation = `${newRadius}km from: (${coordinates.lat}, ${coordinates.lng})`;
+                activeFilters["coordinates"] = formattedLocation;
+            }
+        } else {
+            // Handle other filters as before
+            if (!badgeExists(label, 'filterBadges')) {
+                addBadge(filter[0], value, label);
+
+                // If the filter is for sorting, update currentSort
+                if (value === 'literacy' || value === 'numeracy') {
+                    currentSort.key = filter[0];
+                    currentSort.value = value;
+                    currentSort.order = 'desc';
+                } else {
+                    applyFilter(filter[0], value);
+                }
             }
         }
     });

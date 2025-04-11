@@ -172,6 +172,20 @@
                 </button>
 
                 <div class="btn-group" role="group">
+                    <button type="button" class="btn btn-light btn-label rounded-pill" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        <i class="ri-map-pin-range-line label-icon align-middle rounded-pill fs-16 me-2"></i>
+                        Distance
+                    </button>
+                    <ul class="dropdown-menu">
+                        @for ($i = 10; $i <= $maxDistanceFromStore; $i += 10)
+                            <a class="dropdown-item filter-button" data-bs-filter="distance;{{ $i }}">
+                                {{ $i }}km
+                            </a>
+                        @endfor
+                    </ul>
+                </div>
+
+                <div class="btn-group" role="group">
                     <button type="button" class="btn btn-light btn-label rounded-pill d-none" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                         <i class="ri-building-2-line label-icon align-middle rounded-pill fs-16 me-2"></i>
                         Town
