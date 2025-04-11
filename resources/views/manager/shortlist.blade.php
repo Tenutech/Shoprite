@@ -179,7 +179,7 @@
                     <ul class="dropdown-menu">
                         @for ($i = 10; $i <= $maxDistanceFromStore; $i += 10)
                             <a class="dropdown-item filter-button" data-bs-filter="distance;{{ $i }}">
-                                {{ $i }}km
+                                Within {{ $i }}km
                             </a>
                         @endfor
                     </ul>
