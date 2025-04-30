@@ -833,6 +833,7 @@ class VacancyController extends Controller
                         $applicant->firstname ?: 'N/A',  // If $applicant->firstname is null, use 'N/A'
                         optional($vacancy->position)->name ?: 'N/A',  // If $vacancy->position or its name is null, use 'N/A'
                         optional($vacancy->store->brand)->name ?: 'N/A',  // If $vacancy->store->brand or its name is null, use 'N/A'
+                        optional($vacancy->store)->name ?: 'N/A',  // If $vacancy->store or its name is null, use 'N/A'
                         optional($vacancy->store->town)->name ?: 'N/A'  // If $vacancy->store->town or its name is null, use 'N/A'
                     ];
 
@@ -990,6 +991,7 @@ class VacancyController extends Controller
                             $applicant->firstname ?: 'N/A',  // If $applicant->firstname is null, use 'N/A'
                             optional($vacancy->position)->name ?: 'N/A',  // If $vacancy->position or its name is null, use 'N/A'
                             optional($vacancy->store->brand)->name ?: 'N/A',  // If $vacancy->store->brand or its name is null, use 'N/A'
+                            optional($vacancy->store)->name ?: 'N/A',  // If $vacancy->store or its name is null, use 'N/A'
                             optional($vacancy->store->town)->name ?: 'N/A'  // If $vacancy->store->town or its name is null, use 'N/A'
                         ];
 

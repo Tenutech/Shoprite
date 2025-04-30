@@ -141,7 +141,7 @@
                                                         <img src="{{URL::asset('build/images/flags/za.svg')}}" alt="flag img" height="20" class="country-flagimg rounded">
                                                         <span class="ms-2 country-codeno" id="phoneCountry">+ 27</span>
                                                     </button>
-                                                    <input type="text" class="form-control  @error('phone') is-invalid @enderror rounded-end flag-input" id="phone" name="phone" placeholder="Enter phone number" value="{{ $user->role_id < 7 ? ltrim(str_replace('+27', '', $user->phone), '0') : ltrim(str_replace('+27', '', optional($user->applicant)->phone), '0') }}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0+/, '').replace(/(\..*?)\..*/g, '$1');" required/>
+                                                    <input type="text" class="form-control  @error('phone') is-invalid @enderror rounded-end flag-input" id="phone" name="phone" placeholder="Enter phone number" value="{{ $user->role_id < 7 ? ltrim(str_replace('+27', '', $user->phone), '0') : ltrim(str_replace('+27', '', optional($user->applicant)->phone), '0') }}" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/^0+/, '').replace(/(\..*?)\..*/g, '$1');" {{ $user->role_id > 3 ? 'required' : '' }}/>
                                                     <div class="invalid-feedback">
                                                         Please enter your phone number!
                                                     </div>

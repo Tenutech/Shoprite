@@ -2523,7 +2523,7 @@ class ChatService
                     $dataToReplace = [
                         "Applicant Name" => $applicant->firstname,
                         "Position Name" => $latestInterview->vacancy->position->name ?? 'N/A', // If no position, set 'N/A'
-                        "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' (' . ($latestInterview->vacancy->store->town->name ?? 'N/A') . ')', // Brand and town or default 'Our Office'
+                        "Store Name" => ($latestInterview->vacancy->store->brand->name ?? '') . ' (' . ($latestInterview->vacancy->store->name ?? '') . ') in ' . ($latestInterview->vacancy->store->town->name ?? ''),
                         "Interview Location" => $latestInterview->location ?? 'N/A', // Interview location or 'N/A'
 
                         // Check if scheduled_date is an instance of Carbon or try parsing the date string
