@@ -126,7 +126,7 @@ class ProfileSettingsController extends Controller
                 'sachetty@shoprite.co.za' => [9, 10, 11],
                 'ljeftha@shoprite.co.za' => [15, 17, 20],
                 'cjklein@shoprite.co.za' => [16, 19, 21],
-                'amdeuka@shoprite.co.za' => [7, 12],
+                'amdeuka@shoprite.co.za' => [7, 8, 12],
                 'ecoetzee@shoprite.co.za' => [13, 14],
                 'kbtsepe@shoprite.co.za' => [13, 14],
             ];
@@ -207,7 +207,7 @@ class ProfileSettingsController extends Controller
         $isOnlyDivisionIdChanged = $divisionIdChanged && !$otherFieldsChanged;
 
         // **Step 1: Check if email was verified in the last 15 minutes**
-        if (!($isAllowedEmail && $isOnlyDivisionIdChanged) && !$user->isEmailVerificationValid()) {
+        if ($user->role_id !== 3 && !($isAllowedEmail && $isOnlyDivisionIdChanged) && !$user->isEmailVerificationValid()) {
             // If verification is outdated, generate a new token and send email
             $user->generateEmailVerificationToken();
             //Mail::to($user->email)->queue(new VerifyEmailUpdate($user));
