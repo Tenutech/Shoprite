@@ -11,7 +11,10 @@ use Illuminate\Queue\SerializesModels;
 
 class UpdateChatStatusJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * The unique identifier of the message whose status is being updated.
