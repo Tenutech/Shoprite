@@ -48,7 +48,7 @@ $(document).ready(function() {
     | Date Range
     |--------------------------------------------------------------------------
     */
-   
+
     // Get today's date
     var endDate = new Date(); // Today's date
 
@@ -81,7 +81,7 @@ $(document).ready(function() {
                 hideSpinner("interviewed_applicants_gender_container");
                 hideSpinner("appointed_applicants_gender_container");
                 hideSpinner("talent_pool_applicants_province_container");
-        
+
                 // Send the date range via AJAX to update the dashboard
                 $.ajax({
                     url: route('admin.updateDashboard'),
@@ -105,11 +105,11 @@ $(document).ready(function() {
                             timer: 2000,
                             showCloseButton: true,
                             toast: true
-                        })    
+                        })
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         let message = ''; // Initialize the message variable
-                    
+
                         if (jqXHR.status === 400 || jqXHR.status === 422) {
                             message = jqXHR.responseJSON.message;
                         } else if (textStatus === 'timeout') {
@@ -117,7 +117,7 @@ $(document).ready(function() {
                         } else {
                             message = 'An error occurred while processing your request. Please try again later.';
                         }
-                    
+
                         // Trigger the Swal notification with the dynamic message
                         Swal.fire({
                             position: 'top-end',
@@ -312,10 +312,6 @@ function updateMetrics(type, data) {
             updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
             hideSpinner("appointed_applicants_demographic_container");
 
-            // Update demographic totals
-            updateDemographicTotals(data.talentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
-            updateDemographicTotals(data.interviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
-            updateDemographicTotals(data.appointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
             break;
 
         case 'gender-metrics':
@@ -326,10 +322,6 @@ function updateMetrics(type, data) {
             updateRadialBarChartGender(appointedApplicantsGenderChart, data.appointedApplicantsGender);
             hideSpinner("appointed_applicants_gender_container");
 
-            // Update gender totals
-            updateGenderTotals(data.talentPoolApplicantsGender, "talent_pool_applicants_gender_totals");
-            updateGenderTotals(data.interviewedApplicantsGender, "interviewed_applicants_gender_totals");
-            updateGenderTotals(data.appointedApplicantsGender, "appointed_applicants_gender_totals");
             break;
 
         case 'province-metrics':
@@ -1240,7 +1232,7 @@ if (totalReEmployedApplicantsColors) {
 var talentPoolApplicantsDemographicColors = getChartColorsArray("talent_pool_applicants_demographic");
 
 // Extract percentages and labels dynamically from talentPoolApplicantsDemographic
-var talentPoolApplicantsDemographicSeries = [];
+var talentPoolApplicantsDemographicSeries = [0, 0, 0, 0];
 var talentPoolApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Talent Pool Applicants Demographic Chart
@@ -1279,7 +1271,7 @@ if(talentPoolApplicantsDemographicColors){
             floating: true,
             fontSize: '16px',
             position: 'left',
-            offsetX: 80,
+            offsetX: 69,
             offsetY: 15,
             labels: {
                 useSeriesColors: true,
@@ -1288,7 +1280,13 @@ if(talentPoolApplicantsDemographicColors){
                 size: 0
             },
             formatter: function (seriesName, opts) {
-                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+                if (
+                    opts.w.config.extraData &&
+                    opts.w.config.extraData[opts.seriesIndex] !== undefined
+                ) {
+                    return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}% (${opts.w.config.extraData[opts.seriesIndex]})`
+                }
+                return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}%`
             },
             itemMargin: {
                 vertical: 3
@@ -1375,7 +1373,7 @@ if(talentPoolApplicantsDemographicColors){
 var interviewedApplicantsDemographicColors = getChartColorsArray("interviewed_applicants_demographic");
 
 // Extract percentages and labels dynamically from interviewedApplicantsDemographic
-var interviewedApplicantsDemographicSeries = [];
+var interviewedApplicantsDemographicSeries = [0, 0, 0, 0];
 var interviewedApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Interviewed Applicants Demographic Chart
@@ -1414,7 +1412,7 @@ if(interviewedApplicantsDemographicColors){
             floating: true,
             fontSize: '16px',
             position: 'left',
-            offsetX: 80,
+            offsetX: 69,
             offsetY: 15,
             labels: {
                 useSeriesColors: true,
@@ -1423,7 +1421,13 @@ if(interviewedApplicantsDemographicColors){
                 size: 0
             },
             formatter: function (seriesName, opts) {
-                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+                if (
+                    opts.w.config.extraData &&
+                    opts.w.config.extraData[opts.seriesIndex] !== undefined
+                ) {
+                    return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}% (${opts.w.config.extraData[opts.seriesIndex]})`;
+                }
+                return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}%`;
             },
             itemMargin: {
                 vertical: 3
@@ -1506,7 +1510,7 @@ if(interviewedApplicantsDemographicColors){
 var appointedApplicantsDemographicColors = getChartColorsArray("appointed_applicants_demographic");
 
 // Extract percentages and labels dynamically from appointedApplicantsDemographic
-var appointedApplicantsDemographicSeries = [];
+var appointedApplicantsDemographicSeries = [0, 0, 0, 0];
 var appointedApplicantsDemographicLabels = ['African', 'Coloured', 'Indian', 'White'];
 
 // Appointed Applicants Demographic Chart
@@ -1545,7 +1549,7 @@ if(appointedApplicantsDemographicColors){
             floating: true,
             fontSize: '16px',
             position: 'left',
-            offsetX: 80,
+            offsetX: 69,
             offsetY: 15,
             labels: {
                 useSeriesColors: true,
@@ -1554,7 +1558,13 @@ if(appointedApplicantsDemographicColors){
                 size: 0
             },
             formatter: function (seriesName, opts) {
-                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+                if (
+                    opts.w.config.extraData &&
+                    opts.w.config.extraData[opts.seriesIndex] !== undefined
+                ) {
+                    return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}% (${opts.w.config.extraData[opts.seriesIndex]})`;
+                }
+                return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}%`;
             },
             itemMargin: {
                 vertical: 3
@@ -1637,7 +1647,7 @@ if(appointedApplicantsDemographicColors){
 var talentPoolApplicantsGenderColors = getChartColorsArray("talent_pool_applicants_gender");
 
 // Extract percentages and labels dynamically from talentPoolApplicantsGender
-var talentPoolApplicantsGenderSeries = [];
+var talentPoolApplicantsGenderSeries = [0, 0];
 var talentPoolApplicantsGenderLabels = ['Male', 'Female'];
 
 // Talent Pool Applicants Gender Chart
@@ -1676,7 +1686,7 @@ if(talentPoolApplicantsGenderColors){
             floating: true,
             fontSize: '16px',
             position: 'left',
-            offsetX: 80,
+            offsetX: 69,
             offsetY: 15,
             labels: {
                 useSeriesColors: true,
@@ -1685,7 +1695,13 @@ if(talentPoolApplicantsGenderColors){
                 size: 0
             },
             formatter: function (seriesName, opts) {
-                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+                if (
+                    opts.w.config.extraData &&
+                    opts.w.config.extraData[opts.seriesIndex] !== undefined
+                ) {
+                    return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}% (${opts.w.config.extraData[opts.seriesIndex]})`;
+                }
+                return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}%`;
             },
             itemMargin: {
                 vertical: 3
@@ -1772,7 +1788,7 @@ if(talentPoolApplicantsGenderColors){
 var interviewedApplicantsGenderColors = getChartColorsArray("interviewed_applicants_gender");
 
 // Extract percentages and labels dynamically from interviewedApplicantsGender
-var interviewedApplicantsGenderSeries = [];
+var interviewedApplicantsGenderSeries = [0, 0];
 var interviewedApplicantsGenderLabels = ['Male', 'Female'];
 
 // Interviewed Applicants Gender Chart
@@ -1811,7 +1827,7 @@ if(interviewedApplicantsGenderColors){
             floating: true,
             fontSize: '16px',
             position: 'left',
-            offsetX: 80,
+            offsetX: 69,
             offsetY: 15,
             labels: {
                 useSeriesColors: true,
@@ -1820,7 +1836,13 @@ if(interviewedApplicantsGenderColors){
                 size: 0
             },
             formatter: function (seriesName, opts) {
-                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+                if (
+                    opts.w.config.extraData &&
+                    opts.w.config.extraData[opts.seriesIndex] !== undefined
+                ) {
+                    return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}% (${opts.w.config.extraData[opts.seriesIndex]})`;
+                }
+                return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}%`;
             },
             itemMargin: {
                 vertical: 3
@@ -1903,7 +1925,7 @@ if(interviewedApplicantsGenderColors){
 var appointedApplicantsGenderColors = getChartColorsArray("appointed_applicants_gender");
 
 // Extract percentages and labels dynamically from appointedApplicantsGender
-var appointedApplicantsGenderSeries = [];
+var appointedApplicantsGenderSeries = [0, 0];
 var appointedApplicantsGenderLabels = ['Male', 'Female'];
 
 
@@ -1943,7 +1965,7 @@ if(appointedApplicantsGenderColors){
             floating: true,
             fontSize: '16px',
             position: 'left',
-            offsetX: 80,
+            offsetX: 69,
             offsetY: 15,
             labels: {
                 useSeriesColors: true,
@@ -1952,7 +1974,13 @@ if(appointedApplicantsGenderColors){
                 size: 0
             },
             formatter: function (seriesName, opts) {
-                return seriesName + ":  " + opts.w.globals.series[opts.seriesIndex] + "%"
+                if (
+                    opts.w.config.extraData &&
+                    opts.w.config.extraData[opts.seriesIndex] !== undefined
+                ) {
+                    return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}% (${opts.w.config.extraData[opts.seriesIndex]})`;
+                }
+                return `${seriesName}: ${opts.w.globals.series[opts.seriesIndex]}%`;
             },
             itemMargin: {
                 vertical: 3
@@ -2026,9 +2054,9 @@ if(appointedApplicantsGenderColors){
 }
 
 /*
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 | Talent Pool Applicants Province
-|-------------------------------------------------------------------------- 
+|--------------------------------------------------------------------------
 */
 
 // Talent Pool Applicants Province
@@ -2140,7 +2168,7 @@ function updateDashboard(data) {
 
     // Update stores using the solution
     $('#totalsStoresUsingSolutionValue').text(data.totalStoresUsingSolution);
-    
+
     // Update re-employed applicants
     $('#totalReEmployedApplicantsValue').text(data.totalReEmployedApplicants);
 
@@ -2167,20 +2195,10 @@ function updateDashboard(data) {
     updateRadialBarChart(interviewedApplicantsDemographicChart, data.interviewedApplicantsDemographic);
     updateRadialBarChart(appointedApplicantsDemographicChart, data.appointedApplicantsDemographic);
 
-    // Update demographic totals
-    updateDemographicTotals(data.talentPoolApplicantsDemographic, "talent_pool_applicants_demographic_totals");
-    updateDemographicTotals(data.interviewedApplicantsDemographic, "interviewed_pool_applicants_demographic_totals");
-    updateDemographicTotals(data.appointedApplicantsDemographic, "appointed_pool_applicants_demographic_totals");
-
     // Update gender charts
     updateRadialBarChartGender(talentPoolApplicantsGenderChart, data.talentPoolApplicantsGender);
     updateRadialBarChartGender(interviewedApplicantsGenderChart, data.interviewedApplicantsGender);
     updateRadialBarChartGender(appointedApplicantsGenderChart, data.appointedApplicantsGender);
-
-    // Update gender totals
-    updateGenderTotals(data.talentPoolApplicantsGender, "talent_pool_applicants_gender_totals");
-    updateGenderTotals(data.interviewedApplicantsGender, "interviewed_applicants_gender_totals");
-    updateGenderTotals(data.appointedApplicantsGender, "appointed_applicants_gender_totals");
 
     // Update the treemap chart with the new province data
     updateTreemapChart(talentPoolApplicantsProvinceChart, data.talentPoolApplicantsProvince);
@@ -2224,7 +2242,7 @@ function updateLineCharts(chartInstance, talentPoolApplicantsByMonth, applicants
         : new Array(12).fill(0); // If empty, fill the array with 12 zeros (for each month)
 
     // Get the months (x-axis categories)
-    var months = Object.keys(talentPoolApplicantsByMonth).length > 0 
+    var months = Object.keys(talentPoolApplicantsByMonth).length > 0
         ? Object.keys(talentPoolApplicantsByMonth)  // Use the months from data if available
         : defaultMonths; // Use default months if data is empty
 
@@ -2268,7 +2286,7 @@ function updateDonutChart(chart, score, totalQuestions) {
         series.push(i);
         labels.push(i.toString());
     }
-    
+
     // Update chart series and title
     chart.updateOptions({
         series: series,
@@ -2288,70 +2306,30 @@ function updateDonutChart(chart, score, totalQuestions) {
 function updateRadialBarChart(chart, demographicData) {
     // Initialize the series and labels with default values for all races
     var demographicSeries = {
-        'African': 0,
-        'Coloured': 0,
-        'Indian': 0,
-        'White': 0
+        'African': { percentage: 0, total: 0 },
+        'Coloured': { percentage: 0, total: 0 },
+        'Indian': { percentage: 0, total: 0 },
+        'White': { percentage: 0, total: 0 }
     };
 
-    // Populate the series from demographicData (ensure all races have counts)
+    // Populate the series from demographicData
     demographicData.forEach(function (item) {
-        // Update the corresponding race count from demographicData
         if (demographicSeries.hasOwnProperty(item.name)) {
-            demographicSeries[item.name] = item.percentage;
+            demographicSeries[item.name] = {
+                percentage: item.percentage,
+                total: item.total
+            };
         }
     });
 
-    // Convert the object into arrays for chart update
-    var seriesArray = Object.values(demographicSeries);
+    var seriesArray = Object.values(demographicSeries).map(item => item.percentage);
+    var total = Object.values(demographicSeries).map(item => item.total);
 
     // Update the chart
     chart.updateOptions({
-        series: seriesArray,  // Updated series with all races
+        series: seriesArray,
+        extraData: total
     });
-}
-
-/*
-|--------------------------------------------------------------------------
-| Update Demographic Totals
-|--------------------------------------------------------------------------
-*/
-
-// Function to update demographic totals with row ID
-function updateDemographicTotals(demographicData, rowId) {
-    const rowElement = document.getElementById(rowId);
-    if (rowElement) {
-        // Define demographic categories to handle the empty data case
-        const categories = ["African", "Coloured", "Indian", "White"];
-        
-        if (demographicData.length === 0) {
-            // If data is empty, set all totals to 0
-            categories.forEach(category => {
-                const totalElement = rowElement.querySelector(`.${category}`);
-                if (totalElement) {
-                    totalElement.textContent = `0`;
-                }
-            });
-        } else {
-            // Otherwise, update the totals with actual data
-            demographicData.forEach(demo => {
-                const totalElement = rowElement.querySelector(`.${demo.name}`);
-                if (totalElement) {
-                    totalElement.textContent = `${demo.total}`;
-                }
-            });
-
-            // Handle categories not present in the demographicData
-            categories.forEach(category => {
-                if (!demographicData.some(demo => demo.name === category)) {
-                    const totalElement = rowElement.querySelector(`.${category}`);
-                    if (totalElement) {
-                        totalElement.textContent = `0`;
-                    }
-                }
-            });
-        }
-    }
 }
 
 /*
@@ -2363,24 +2341,29 @@ function updateDemographicTotals(demographicData, rowId) {
 function updateRadialBarChartGender(chart, genderData) {
     // Initialize the series and labels with default values for all races
     var genderSeries = {
-        'Male': 0,
-        'Female': 0
+        'Male': { percentage: 0, amount: 0 },
+        'Female': { percentage: 0, amount: 0 }
     };
 
     // Populate the series from genderData (ensure all races have counts)
     genderData.forEach(function (item) {
         // Update the corresponding race count from genderData
         if (genderSeries.hasOwnProperty(item.name)) {
-            genderSeries[item.name] = item.percentage;
+            genderSeries[item.name] = {
+                percentage: item.percentage,
+                total: item.total
+            }
         }
     });
 
     // Convert the object into arrays for chart update
-    var seriesArray = Object.values(genderSeries);
+    var seriesArray = Object.values(genderSeries).map(item => item.percentage);
+    var total = Object.values(genderSeries).map(item => item.total);
 
     // Update the chart
     chart.updateOptions({
-        series: seriesArray,  // Updated series with all races
+        series: seriesArray,
+        extraData: total
     });
 }
 
@@ -2390,42 +2373,42 @@ function updateRadialBarChartGender(chart, genderData) {
 |--------------------------------------------------------------------------
 */
 
-// Function to update gender totals with row ID
-function updateGenderTotals(genderData, rowId) {
-    const rowElement = document.getElementById(rowId);
-    if (rowElement) {
-        // Define gender categories to handle the empty data case
-        const categories = ["Male", "Female", "Non-Binary", "Other"];
+// // Function to update gender totals with row ID
+// function updateGenderTotals(genderData, rowId) {
+//     const rowElement = document.getElementById(rowId);
+//     if (rowElement) {
+//         // Define gender categories to handle the empty data case
+//         const categories = ["Male", "Female", "Non-Binary", "Other"];
 
-        if (genderData.length === 0) {
-            // If data is empty, set all totals to 0
-            categories.forEach(category => {
-                const totalElement = rowElement.querySelector(`.${category}`);
-                if (totalElement) {
-                    totalElement.textContent = `0`;
-                }
-            });
-        } else {
-            // Otherwise, update the totals with actual data
-            genderData.forEach(demo => {
-                const totalElement = rowElement.querySelector(`.${demo.name}`);
-                if (totalElement) {
-                    totalElement.textContent = `${demo.total}`;
-                }
-            });
+//         if (genderData.length === 0) {
+//             // If data is empty, set all totals to 0
+//             categories.forEach(category => {
+//                 const totalElement = rowElement.querySelector(`.${category}`);
+//                 if (totalElement) {
+//                     totalElement.textContent = `0`;
+//                 }
+//             });
+//         } else {
+//             // Otherwise, update the totals with actual data
+//             genderData.forEach(demo => {
+//                 const totalElement = rowElement.querySelector(`.${demo.name}`);
+//                 if (totalElement) {
+//                     totalElement.textContent = `${demo.total}`;
+//                 }
+//             });
 
-            // Handle categories not present in the genderData
-            categories.forEach(category => {
-                if (!genderData.some(demo => demo.name === category)) {
-                    const totalElement = rowElement.querySelector(`.${category}`);
-                    if (totalElement) {
-                        totalElement.textContent = `0`;
-                    }
-                }
-            });
-        }
-    }
-}
+//             // Handle categories not present in the genderData
+//             categories.forEach(category => {
+//                 if (!genderData.some(demo => demo.name === category)) {
+//                     const totalElement = rowElement.querySelector(`.${category}`);
+//                     if (totalElement) {
+//                         totalElement.textContent = `0`;
+//                     }
+//                 }
+//             });
+//         }
+//     }
+// }
 
 /*
 |--------------------------------------------------------------------------
