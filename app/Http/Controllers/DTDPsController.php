@@ -158,6 +158,7 @@ class DTDPsController extends Controller
                 'firstname' => ucwords($request->firstname),
                 'lastname' => ucwords($request->lastname),
                 'email' => $request->email,
+                'email_verified_at' => now(),
                 'phone' => $request->phone,
                 'id_number' => $request->id_number,
                 'id_verified' => $request->id_verified,
