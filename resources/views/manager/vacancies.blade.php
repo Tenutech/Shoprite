@@ -64,6 +64,7 @@
                                         <th class="sort" data-sort="filled" scope="col">Filled</th>
                                         <th scope="col">SAP #</th>
                                         <th class="sort" data-sort="date" scope="col">Posted</th>
+                                        <th class="sort" data-sort="store" scope="col">Store</th>
                                         <th class="sort" data-sort="status" scope="col">Status</th>                         
                                         <th scope="col">Action</th>
                                     </tr>
@@ -116,8 +117,9 @@
                                                     @else
                                                         N/A
                                                     @endif
-                                                </td>                                                                                                
+                                                </td>                                                                                        
                                                 <td class="date" data-sort="{{ date('Y-m-d', strtotime($vacancy->created_at)) }}">{{ date('d M Y', strtotime($vacancy->created_at)) }}</td>
+                                                <td class="store" style="white-space: pre-wrap;" data-sort="{{ optional(optional($vacancy->store)->brand)->name }} ({{ optional($vacancy->store)->name }})">{{ optional(optional($vacancy->store)->brand)->name }} ({{ optional($vacancy->store)->name }})</td>
                                                 <td class="status" data-sort="{{ $vacancy->status->name }}">
                                                     <span class="badge bg-{{ $vacancy->status->color }}-subtle text-{{ $vacancy->status->color }}">
                                                         {{ $vacancy->status->name }}

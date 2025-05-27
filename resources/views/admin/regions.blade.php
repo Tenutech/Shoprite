@@ -87,6 +87,7 @@ Regions
                                             </th>
                                             <td class="id d-none">{{ Crypt::encryptstring($region->id) }}</td>
                                             <td class="name">{{ $region->name }}</td>
+                                            <td class="division">{{ $region->division ? $region->division->name : '' }}</td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -212,7 +213,20 @@ Regions
                                             <input type="text" class="form-control" id="name" name="name" required>
                                         </div>
                                     </div>
+
+                                    <div class="col-lg-12 mb-3">
+                                        <label for="division" class="form-label">
+                                            Division
+                                        </label>
+                                        <select id="division" name="division_id" class="form-control">
+                                            <option value="" selected>Select Division</option>
+                                            @foreach ($divisions as $division)
+                                                <option value="{{ $division->id }}">{{ $division->name }}</option>
+                                            @endforeach
+                                        </select>
+                                    </div>
                                 </div>
+                                <!--end col-->
                                 <div class="modal-footer">
                                     <div class="hstack gap-2 justify-content-end">
                                         <button type="button" class="btn btn-light"

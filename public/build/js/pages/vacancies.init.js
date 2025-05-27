@@ -20,6 +20,7 @@ var options = {
         "filled",
         "sap",
         "date",
+        "store",
         "status"
     ],
     page: perPage, // Number of items per page
