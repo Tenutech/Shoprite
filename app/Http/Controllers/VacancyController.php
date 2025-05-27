@@ -428,11 +428,39 @@ class VacancyController extends Controller
             ],
             'open_positions' => 'required|integer|min:1|max:10', // Ensure open positions is a number between 1 and 10
             'sap_numbers' => 'required|array', // Validate that sap_numbers is an array
-            'sap_numbers.*' => ['digits:8', // Each sap number must be exactly 8 digits
-                function ($attribute, $value, $fail) {
-                    // Ensure each SAP number is unique in the database
-                    if (DB::table('sap_numbers')->where('sap_number', $value)->exists()) {
-                        $fail('The SAP number ' . $value . ' has already been taken.');
+            'sap_numbers.*' => ['digits:8',
+                function ($attribute, $value, $fail) use ($userID) {
+                    $sapNumber = SapNumber::with(['vacancy', 'vacancyFills'])->where('sap_number', $value)->first();
+
+                    if ($sapNumber) {
+                        if ($sapNumber->vacancy->user_id !== $userID && $sapNumber->vacancy->deleted == 'No') {
+                            $fail('The SAP number ' . $value . ' has already been taken.');
+                        } elseif ($sapNumber->vacancy->user_id === $userID) {
+                            // Handle SAP number reassignment without deleting vacancy fills
+                            DB::transaction(function () use ($sapNumber) {
+                                // Get all vacancy fills related to the SAP number
+                                $vacancyFills = $sapNumber->vacancyFills()->get();
+                    
+                                // Loop through vacancy fills to update associated applicants
+                                foreach ($vacancyFills as $vacancyFill) {
+                                    // Find the applicant where appointed_id = vacancyFill->id
+                                    $applicant = Applicant::where('appointed_id', $vacancyFill->id)->first();
+                    
+                                    if ($applicant) {
+                                        // Set appointed_id and shortlist_id to null
+                                        $applicant->update([
+                                            'appointed_id' => null,
+                                            'shortlist_id' => null
+                                        ]);
+                                    }
+                                }
+                    
+                                // Update the associated vacancy fills to set sap_number_id to null
+                                $sapNumber->vacancyFills()->update([
+                                    'sap_number_id' => null
+                                ]);
+                            });
+                        }
                     }
                 }
             ],

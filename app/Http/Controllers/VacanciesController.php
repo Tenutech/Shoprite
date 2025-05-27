@@ -59,8 +59,11 @@ class VacanciesController extends Controller
                 'sapNumbers',
                 'appointed.latestInterview'
             ])
-            ->where('user_id', $userID)
             ->where('deleted', 'No')
+            ->where(function ($query) use ($userID, $user) {
+                $query->where('user_id', $userID)
+                      ->orWhere('store_id', $user->store_id);
+            })
             ->orderBy('created_at', 'desc')
             ->get();
 

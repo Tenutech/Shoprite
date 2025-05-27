@@ -346,6 +346,11 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('divisions.index') }}">
+                                        Divisions
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link" href="{{ route('educations.index') }}">
                                         Education
                                     </a>
@@ -368,6 +373,11 @@
                                 <li class="nav-item">
                                     <a class="nav-link" href="{{ route('races.index') }}">
                                         Races
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('regions.index') }}">
+                                        Regions
                                     </a>
                                 </li>
                                 <li class="nav-item">

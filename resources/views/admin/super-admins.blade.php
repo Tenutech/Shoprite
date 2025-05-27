@@ -318,7 +318,7 @@
                                                     <label for="idNumber" class="form-label">
                                                         ID Number
                                                     </label>
-                                                    <input type="text" id="idNumber" name="id_number" class="form-control" placeholder="Enter id number" required/>
+                                                    <input type="text" id="idNumber" name="id_number" class="form-control" placeholder="Enter id number"/>
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">
@@ -379,7 +379,7 @@
                                                     <label for="phone" class="form-label">
                                                         Phone
                                                     </label>
-                                                    <input type="text" id="phone" name="phone" class="form-control" placeholder="Enter phone number" required/>
+                                                    <input type="text" id="phone" name="phone" class="form-control" placeholder="Enter phone number"/>
                                                 </div>
                                                 <!--end col-->
                                                 <div class="col-lg-12 mb-3">

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\User;
 use App\Models\Town;
 use App\Models\Store;
 use App\Models\Brand;
@@ -164,10 +165,10 @@ class StoresController extends Controller
 
     public function update(Request $request)
     {
-        //Store ID
+        // Store ID
         $storeID = Crypt::decryptString($request->field_id);
 
-        //Validate
+        // Validate
         $request->validate([
             'code' => 'required|nullable|string|max:4',
             'code_5' => 'required|nullable|string|max:5',
@@ -182,10 +183,14 @@ class StoresController extends Controller
         ]);
 
         try {
-            //Store
-            $store = Store::findorfail($storeID);
+            // Fetch store
+            $store = Store::findOrFail($storeID);
 
-            //Store Update
+            // Keep track of original values
+            $originalRegionId = $store->region_id;
+            $originalDivisionId = $store->division_id;
+
+            // Update store
             $store->code = $request->code;
             $store->code_5 = $request->code_5;
             $store->code_6 = $request->code_6;
@@ -197,6 +202,16 @@ class StoresController extends Controller
             $store->address = $request->address ?: null;
             $store->coordinates = $request->coordinates ?: null;
             $store->save();
+
+            // If region or division changed, update related users
+            if ($originalRegionId != $store->region_id || $originalDivisionId != $store->division_id) {
+                User::where('store_id', $store->id)
+                    ->where('role_id', 6)
+                    ->update([
+                        'region_id' => $store->region_id,
+                        'division_id' => $store->division_id,
+                    ]);
+            }
 
             return response()->json([
                 'success' => true,

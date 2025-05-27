@@ -34,9 +34,7 @@ var perPage = 10;
 var options = {
     valueNames: [
         "id",
-        "name",
-        "icon",
-        "color"
+        "name"
     ],
     page: perPage,
     pagination: true,
