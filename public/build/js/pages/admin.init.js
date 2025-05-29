@@ -390,14 +390,14 @@ function lazyLoadMetrics(rowId, type, routeName) {
     }
 
     const observer = new IntersectionObserver((entries, observer) => {
-        if (entries[0].isIntersecting) {
+        if (entries[0].isIntersecting && allowLazyLoading) { // Add check for allowLazyLoading
             const controller = new AbortController();
             const signal = controller.signal;
             abortControllers.set(rowId, controller);
 
             fetchMetrics(type, routeName, signal)
                 .then(() => {
-                    observer.disconnect(); // Stop observing only after data is loaded
+                    observer.disconnect(); // Stop observing after data is loaded
                     abortControllers.delete(rowId);
                 })
                 .catch((error) => {
@@ -2109,10 +2109,10 @@ function updateDashboard(data) {
     $('#adoptionRateValue').text(data.adoptionRate + '%');
 
     // Update average distance talent pool applicants
-    $('#averageDistanceTalentPoolApplicantsValue').text(data.averageDistanceTalentPoolApplicants);
+    $('#averageDistanceTalentPoolApplicantsValue').text(data.averageDistanceTalentPoolApplicants + ' km');
 
     // Update average distance applicants appointed
-    $('#averageDistanceApplicantsAppointedValue').text(data.averageDistanceApplicantsAppointed);
+    $('#averageDistanceApplicantsAppointedValue').text(data.averageDistanceApplicantsAppointed + ' km');
 
     // Update talent pool applicants
     $('#talentPoolApplicantsValue').text(data.talentPoolApplicants);

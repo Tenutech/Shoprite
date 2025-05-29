@@ -35,8 +35,7 @@ var options = {
     valueNames: [
         "id",
         "name",
-        "icon",
-        "color"
+        "division"
     ],
     page: perPage,
     pagination: true,
@@ -132,6 +131,11 @@ var trlist = table.querySelectorAll(".list tr");
 
 var count = 11;
 
+var divisionVal = new Choices(division, {
+    searchEnabled: true,
+    shouldSort: true
+});
+
 /*
 |--------------------------------------------------------------------------
 | Add Region
@@ -156,9 +160,16 @@ addBtn.addEventListener("click", function (e) {
             },
             success: function (data) {
                 if (data.success == true) {
+                    if (division.value) {
+                        divisionValue = division.options[division.selectedIndex].text;
+                    } else {
+                        divisionValue = '';
+                    }
+
                     regionList.add({
                         id: data.encID,
                         name: regionName.value,
+                        division: divisionValue,
                     });
 
                     Swal.fire({
@@ -237,10 +248,16 @@ editBtn.addEventListener("click", function (e) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
                         if (selectedid == itemId) {
+                            if (division.value) {
+                                divisionValue = division.options[division.selectedIndex].text;
+                            } else {
+                                divisionValue = '';
+                            }
+                            
                             x.values({
                                 id: idField.value,
-                                name: regionName.value
-
+                                name: regionName.value,
+                                division: divisionValue
                             });
                         }
                     });
@@ -393,6 +410,11 @@ function refreshCallbacks() {
                 idField.value = data.encID;
 
                 regionName.value = data.region.name;
+
+                if(data.region.division_id) {
+                    divisionVal.setChoiceByValue(data.region.division_id.toString());
+                }
+
             });
         }
     });

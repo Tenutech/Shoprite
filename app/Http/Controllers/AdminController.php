@@ -278,7 +278,14 @@ class AdminController extends Controller
                 $adoptionRate = ($totalVacancies > 0) ? round($totalVacanciesFilled / $totalVacancies * 100) : 0;
 
                 // Step 5: Fetch proximity data from ApplicantProximityService
-                $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
+                if ($type === 'all') {
+                    // Use the Statistic model to fetch the stored metric
+                    $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicantsStatistic($type, $id = null, $startDate, $endDate, $maxDistanceFromStore);
+                } elseif ($type !== null) {
+                    // Otherwise, perform the calculation dynamically
+                    $averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicantsDB($type, $id = null, $startDate, $endDate, $maxDistanceFromStore);
+                }
+                //$averageDistanceTalentPoolApplicants = $this->applicantProximityService->getAverageDistanceTalentPoolApplicants($type, null, $startDate, $endDate, $maxDistanceFromStore);
                 $averageDistanceApplicantsAppointed = $this->applicantProximityService->getAverageDistanceApplicantsAppointed($type, null, $startDate, $endDate);
 
                 // Step 6: Fetch applicant score data from ApplicantDataService

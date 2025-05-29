@@ -111,16 +111,29 @@ class ProfileSettingsController extends Controller
             // Allowed Emails
             $allowedEmails = [
                 'sachetty@shoprite.co.za',
+                'ljeftha@shoprite.co.za',
+                'cjklein@shoprite.co.za',
+                'amdeuka@shoprite.co.za',
+                'ecoetzee@shoprite.co.za',
+                'kbtsepe@shoprite.co.za'
             ];
 
             // Default to an empty collection
             $divisions = collect();
 
-            if ($user->email === 'sachetty@shoprite.co.za') { // Strict comparison to ensure only this email
-                // Allowed division IDs for this user
-                $allowedDivisionIds = [9, 10, 11];
+            // Define allowed users and their corresponding division IDs
+            $divisionAccessMap = [
+                'sachetty@shoprite.co.za' => [9, 10, 11],
+                'ljeftha@shoprite.co.za' => [15, 17, 20],
+                'cjklein@shoprite.co.za' => [16, 19, 21],
+                'amdeuka@shoprite.co.za' => [7, 8, 12],
+                'ecoetzee@shoprite.co.za' => [13, 14],
+                'kbtsepe@shoprite.co.za' => [13, 14],
+            ];
 
-                // Get only divisions where the ID is in the allowed list
+            // Check if user's email exists in the map
+            if (array_key_exists($user->email, $divisionAccessMap)) {
+                $allowedDivisionIds = $divisionAccessMap[$user->email];
                 $divisions = Division::whereIn('id', $allowedDivisionIds)->get();
             }
 
@@ -157,6 +170,11 @@ class ProfileSettingsController extends Controller
         // Allowed Emails
         $allowedEmails = [
             'sachetty@shoprite.co.za',
+            'ljeftha@shoprite.co.za',
+            'cjklein@shoprite.co.za',
+            'amdeuka@shoprite.co.za',
+            'ecoetzee@shoprite.co.za',
+            'kbtsepe@shoprite.co.za'
         ];
 
         // Check if only division_id is being changed
@@ -167,16 +185,20 @@ class ProfileSettingsController extends Controller
         if ($request->hasFile('avatar')) {
             $otherFieldsChanged = true;
         }
-        if ($request->has('firstname') && $request->firstname !== $user->firstname) {
+        if ($request->has('firstname') && $request->firstname !== ($user->firstname ?? '')) {
             $otherFieldsChanged = true;
         }
-        if ($request->has('lastname') && $request->lastname !== $user->lastname) {
+        if ($request->has('lastname') && $request->lastname !== ($user->lastname ?? '')) {
             $otherFieldsChanged = true;
         }
-        if ($request->has('phone') && $request->phone !== $user->phone) {
-            $otherFieldsChanged = true;
+        // Normalize phone number
+        if ($request->has('phone') && trim($request->phone) === '+27') {
+            $request->merge(['phone' => null]);
         }
-        if ($request->has('email') && $request->email !== $user->email) {
+        if (!is_null($request->input('phone')) && $request->input('phone') !== ($user->phone ?? '')) {
+            $otherFieldsChanged = true;
+        }        
+        if ($request->has('email') && $request->email !== ($user->email ?? '')) {
             $otherFieldsChanged = true;
         }
 
@@ -185,10 +207,10 @@ class ProfileSettingsController extends Controller
         $isOnlyDivisionIdChanged = $divisionIdChanged && !$otherFieldsChanged;
 
         // **Step 1: Check if email was verified in the last 15 minutes**
-        if (!($isAllowedEmail && $isOnlyDivisionIdChanged) && !$user->isEmailVerificationValid()) {
+        if ($user->role_id !== 3 && !($isAllowedEmail && $isOnlyDivisionIdChanged) && !$user->isEmailVerificationValid()) {
             // If verification is outdated, generate a new token and send email
             $user->generateEmailVerificationToken();
-            Mail::to($user->email)->queue(new VerifyEmailUpdate($user));
+            //Mail::to($user->email)->queue(new VerifyEmailUpdate($user));
 
             return response()->json([
                 'success' => false,
@@ -213,7 +235,7 @@ class ProfileSettingsController extends Controller
             ],
             'firstname' => ['required', 'string', 'max:191'],
             'lastname' => ['required', 'string', 'max:191'],
-            'phone' => ['required', 'string', 'max:191', Rule::unique('users')->ignore($userID)],
+            'phone' => ['nullable', 'string', 'max:191', Rule::unique('users')->ignore($userID)],
             'division_id' => ['nullable', Rule::exists('divisions', 'id')],
         ];
 
@@ -289,11 +311,6 @@ class ProfileSettingsController extends Controller
             }
 
             DB::beginTransaction();
-
-            // Allowed Emails
-            $allowedEmails = [
-                'sachetty@shoprite.co.za',
-            ];
 
             // User Update
             $user->firstname = ucwords($request->firstname);

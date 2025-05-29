@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Exception;
 use App\Models\Region;
+use App\Models\Division;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
@@ -36,10 +37,14 @@ class RegionsController extends Controller
     {
         if (view()->exists('admin/regions')) {
             //Regions
-            $regions = Region::all();
+            $regions = Region::with('division')->get();
+
+            //Divisions
+            $divisions = Division::all();
 
             return view('admin/regions', [
-                'regions' => $regions
+                'regions' => $regions,
+                'divisions' => $divisions
             ]);
         }
         return view('404');
@@ -55,13 +60,15 @@ class RegionsController extends Controller
     {
         //Validate
         $request->validate([
-            'name' => 'required|string|max:191'
+            'name' => 'required|string|max:191',
+            'division_id' => 'required|integer|exists:divisions,id',
         ]);
 
         try {
             //Role Create
             $region = Region::create([
-                'name' => $request->name
+                'name' => $request->name,
+                'division_id' => $request->division_id
             ]);
 
             $encID = Crypt::encryptString($region->id);
@@ -119,7 +126,8 @@ class RegionsController extends Controller
 
         //Validate
         $request->validate([
-            'name' => 'required|string|max:191'
+            'name' => 'required|string|max:191',
+            'division_id' => 'required|integer|exists:divisions,id',
         ]);
 
         try {
@@ -128,6 +136,7 @@ class RegionsController extends Controller
 
             //region Update
             $region->name = $request->name;
+            $region->division_id = $request->division_id;
             $region->save();
 
             return response()->json([

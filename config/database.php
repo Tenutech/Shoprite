@@ -63,6 +63,26 @@ return [
             ]) : [],
         ],
 
+        'shoprite_qa' => [
+            'driver' => 'mysql',
+            'url' => env('QA_DATABASE_URL'),
+            'host' => env('QA_DB_HOST', '127.0.0.1'),
+            'port' => env('QA_DB_PORT', '3306'),
+            'database' => env('QA_DB_DATABASE', 'shoprite_qa'),
+            'username' => env('QA_DB_USERNAME', 'forge'),
+            'password' => env('QA_DB_PASSWORD', ''),
+            'unix_socket' => env('QA_DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'strict' => true,
+            'engine' => null,
+            'options' => extension_loaded('pdo_mysql') ? array_filter([
+                PDO::MYSQL_ATTR_SSL_CA => env('QA_MYSQL_ATTR_SSL_CA'),
+            ]) : [],
+        ],
+
         'pgsql' => [
             'driver' => 'pgsql',
             'url' => env('DATABASE_URL'),

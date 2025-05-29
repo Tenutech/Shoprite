@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Models\User;
 use App\Models\Town;
 use App\Models\Store;
 use App\Models\Brand;
@@ -87,10 +88,11 @@ class StoresController extends Controller
     {
         //Validate
         $request->validate([
-            'code' => 'required|digits:4',
-            'code_5' => 'required|digits:5',
-            'code_6' => 'required|digits:6',
+            'code' => 'required|nullable|string|max:4',
+            'code_5' => 'required|nullable|string|max:5',
+            'code_6' => 'required|nullable|string|max:6',
             'brand' => 'required|integer|min:1|exists:brands,id',
+            'name' => 'required|nullable|string|max:255',
             'town' => 'required|integer|min:1|exists:towns,id',
             'region' => 'required|integer|min:1|exists:regions,id',
             'division' => 'required|integer|min:1|exists:divisions,id',
@@ -105,6 +107,7 @@ class StoresController extends Controller
                 'code_5' => $request->code_5,
                 'code_6' => $request->code_6,
                 'brand_id' => $request->brand,
+                'name' => $request->name,
                 'town_id' => $request->town,
                 'region_id' => $request->region,
                 'division_id' => $request->division,
@@ -162,15 +165,16 @@ class StoresController extends Controller
 
     public function update(Request $request)
     {
-        //Store ID
+        // Store ID
         $storeID = Crypt::decryptString($request->field_id);
 
-        //Validate
+        // Validate
         $request->validate([
-            'code' => 'required|digits:4',
-            'code_5' => 'required|digits:5',
-            'code_6' => 'required|digits:6',
+            'code' => 'required|nullable|string|max:4',
+            'code_5' => 'required|nullable|string|max:5',
+            'code_6' => 'required|nullable|string|max:6',
             'brand' => 'required|integer|min:1|exists:brands,id',
+            'name' => 'required|nullable|string|max:255',
             'town' => 'required|integer|min:1|exists:towns,id',
             'region' => 'required|integer|min:1|exists:regions,id',
             'division' => 'required|integer|min:1|exists:divisions,id',
@@ -179,20 +183,35 @@ class StoresController extends Controller
         ]);
 
         try {
-            //Store
-            $store = Store::findorfail($storeID);
+            // Fetch store
+            $store = Store::findOrFail($storeID);
 
-            //Store Update
+            // Keep track of original values
+            $originalRegionId = $store->region_id;
+            $originalDivisionId = $store->division_id;
+
+            // Update store
             $store->code = $request->code;
             $store->code_5 = $request->code_5;
             $store->code_6 = $request->code_6;
             $store->brand_id = $request->brand;
+            $store->name = $request->name;
             $store->town_id = $request->town;
             $store->region_id = $request->region;
             $store->division_id = $request->division;
             $store->address = $request->address ?: null;
             $store->coordinates = $request->coordinates ?: null;
             $store->save();
+
+            // If region or division changed, update related users
+            if ($originalRegionId != $store->region_id || $originalDivisionId != $store->division_id) {
+                User::where('store_id', $store->id)
+                    ->where('role_id', 6)
+                    ->update([
+                        'region_id' => $store->region_id,
+                        'division_id' => $store->division_id,
+                    ]);
+            }
 
             return response()->json([
                 'success' => true,

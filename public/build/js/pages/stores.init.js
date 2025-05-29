@@ -36,6 +36,7 @@ var options = {
         "id",
         "code",
         "brand",
+        "name",
         "town",
         "region",
         "division",
@@ -97,6 +98,7 @@ var idField = document.getElementById("field-id"),
     code5 = document.getElementById("code-5"),
     code6 = document.getElementById("code-6"),
     brand = document.getElementById("brand"),
+    storeName = document.getElementById("name"),
     town = document.getElementById("town"),
     region = document.getElementById("region"),
     division = document.getElementById("division"),
@@ -216,6 +218,7 @@ addBtn.addEventListener("click", function (e) {
                         code_5: code5.value,
                         code_6: code6.value,
                         brand: brandValue,
+                        name: storeName.value,
                         town: townValue,
                         region: regionValue,
                         division: divisionValue,
@@ -331,6 +334,7 @@ editBtn.addEventListener("click", function (e) {
                                 code5: code5.value,
                                 code6: code6.value,
                                 brand: brandValue,
+                                name: storeName.value,
                                 town: townValue,
                                 region: regionValue,
                                 division: divisionValue,
@@ -339,8 +343,6 @@ editBtn.addEventListener("click", function (e) {
                             });
                         }
                     });
-
-                    storeList.sort('code', { order: "asc" });
                     
                     Swal.fire({
                         position: 'top-end',
@@ -495,6 +497,8 @@ function refreshCallbacks() {
 
                 code6.value = data.store.code_6;
 
+                storeName.value = data.store.name;
+
                 if (data.store.brand_id) {
                     brandVal.setChoiceByValue(data.store.brand_id.toString());
                 }
@@ -521,9 +525,13 @@ function refreshCallbacks() {
 
 function clearFields() {
     code.value = "";
+    code5.value = "";
+    code6.value = "";
 
     brandVal.removeActiveItems();
     brandVal.setChoiceByValue("");
+
+    storeName.value = "";
 
     townVal.removeActiveItems();
     townVal.setChoiceByValue("");
