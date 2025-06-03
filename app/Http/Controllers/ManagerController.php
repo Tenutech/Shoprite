@@ -73,16 +73,20 @@ class ManagerController extends Controller
 
             // Query to find the first shortlist where either `applicant_ids` is null/empty OR no interviews exist
             $shortlist = Shortlist::where('user_id', $authUserId)
-            ->where(function ($query) {
-                // Check if applicant_ids is null or an empty JSON array
-                $query->whereNull('applicant_ids')
-                    ->orWhere('applicant_ids', '=', '')
-                    ->orWhereRaw('JSON_LENGTH(applicant_ids) = 0')
-                    // If applicant_ids is not empty, check that there are no interviews
-                    ->orWhereHas('vacancy', function ($subquery) {
-                        $subquery->doesntHave('interviews');
-                    });
-            })
+                ->whereDoesntHave('vacancy', function ($query) {
+                    $query->where('deleted', 'Yes')
+                        ->orWhere('auto_deleted', 'Yes');
+                })
+                ->where(function ($query) {
+                    // Check if applicant_ids is null or an empty JSON array
+                    $query->whereNull('applicant_ids')
+                        ->orWhere('applicant_ids', '=', '')
+                        ->orWhereRaw('JSON_LENGTH(applicant_ids) = 0')
+                        // If applicant_ids is not empty, check that there are no interviews
+                        ->orWhereHas('vacancy', function ($subquery) {
+                            $subquery->doesntHave('interviews');
+                        });
+                })
             // Apply the created_at condition to all results
             ->where('created_at', '<=', $cutoffDate)
             ->first(); // Get the first matching shortlist
@@ -115,10 +119,10 @@ class ManagerController extends Controller
                 ->map(function ($vacancy) use ($vacancyNoInterviewPostingDays) {
                     // Calculate the deletion date
                     $deletionDate = Carbon::parse($vacancy->created_at)->addDays($vacancyNoInterviewPostingDays);
-            
+
                     // Calculate remaining days using hours to avoid rounding issues
                     $vacancy->days_until_deletion = max(0, ceil(Carbon::now()->diffInHours($deletionDate, false) / 24));
-            
+
                     return $vacancy;
                 });
 
@@ -139,10 +143,10 @@ class ManagerController extends Controller
                 ->map(function ($vacancy) use ($vacancyNoAppointmentPostingDays) {
                     // Calculate the deletion date
                     $deletionDate = Carbon::parse($vacancy->created_at)->addDays($vacancyNoAppointmentPostingDays);
-            
+
                     // Calculate remaining days using hours to avoid rounding issues
                     $vacancy->days_until_deletion = max(0, ceil(Carbon::now()->diffInHours($deletionDate, false) / 24));
-            
+
                     return $vacancy;
                 });
 
