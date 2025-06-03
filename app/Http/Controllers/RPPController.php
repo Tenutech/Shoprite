@@ -85,6 +85,9 @@ class RPPController extends Controller
                         $subquery->doesntHave('interviews');
                     });
             })
+            ->whereHas('vacancy', function ($query) {
+                $query->where('deleted', 'No'); // apply this to all shortlist's vacancies
+            })
             // Apply the created_at condition to all results
             ->where('created_at', '<=', $cutoffDate)
             ->first(); // Get the first matching shortlist
