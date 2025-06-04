@@ -40,7 +40,7 @@
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="search-box">
-                                <input type="text" class="form-control search" placeholder="Search for user...">
+                                <input type="text" id="custom-user-search" class="form-control" placeholder="Search for user...">
                                 <i class="ri-search-line search-icon"></i>
                             </div>
                         </div>

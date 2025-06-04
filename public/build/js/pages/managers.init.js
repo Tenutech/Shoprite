@@ -118,6 +118,26 @@ var userList = new List("userList", options).on("updated", function (list) {
     }
 });
 
+document.getElementById("custom-user-search").addEventListener("input", function () {
+    customSearch(this.value);
+});
+
+function customSearch(query) {
+    const cleanedQuery = query.toLowerCase().trim();
+
+    userList.filter(function(item) {
+        const values = item.values();
+
+        return (
+            values.email?.toLowerCase().includes(cleanedQuery) ||
+            values.phone?.toLowerCase().includes(cleanedQuery) ||
+            values.name?.toLowerCase().includes(cleanedQuery) ||
+            values.store?.toLowerCase().includes(cleanedQuery) ||
+            values.id_number?.toLowerCase().includes(cleanedQuery)
+        );
+    });
+}
+
 var perPageSelect = document.getElementById("per-page-select");
 perPageSelect.addEventListener("change", function() {
     perPage = parseInt(this.value);
