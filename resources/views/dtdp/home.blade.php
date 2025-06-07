@@ -524,32 +524,7 @@
 
                         <div class="card-body">
                             <div id="talent_pool_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
-                            <div class="row text-center" id="talent_pool_applicants_demographic_totals">
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-primary me-2"></i>
-                                        <span class="African"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-info me-2"></i>
-                                        <span class="Coloured"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
-                                        <span class="Indian"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
-                                        <span class="White"></span>
-                                    </p>
-                                </div>
-                            </div><!-- end -->
+                            <div class="row text-center" id="talent_pool_applicants_demographic_totals"></div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
@@ -568,32 +543,7 @@
 
                         <div class="card-body">
                             <div id="interviewed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
-                            <div class="row text-center" id="interviewed_pool_applicants_demographic_totals">
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-primary me-2"></i>
-                                        <span class="African"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-info me-2"></i>
-                                        <span class="Coloured"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
-                                        <span class="Indian"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
-                                        <span class="White"></span>
-                                    </p>
-                                </div>
-                            </div><!-- end -->
+                            <div class="row text-center" id="interviewed_pool_applicants_demographic_totals"></div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
@@ -612,32 +562,7 @@
 
                         <div class="card-body">
                             <div id="appointed_applicants_demographic" data-colors='["--vz-primary", "--vz-info", "--vz-danger", "--vz-success"]' class="apex-charts" dir="ltr"></div>
-                            <div class="row text-center" id="appointed_pool_applicants_demographic_totals">
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-primary me-2"></i>
-                                        <span class="African"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-info me-2"></i>
-                                        <span class="Coloured"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-danger me-2"></i>
-                                        <span class="Indian"></span>
-                                    </p>
-                                </div>
-                                <div class="col-sm-3">
-                                    <p class="text-muted fs-12 mb-0">
-                                        <i class="mdi mdi-circle align-middle text-success me-2"></i>
-                                        <span class="White"></span>
-                                    </p>
-                                </div>
-                            </div><!-- end -->
+                            <div class="row text-center" id="appointed_pool_applicants_demographic_totals"></div><!-- end -->
                         </div><!-- end card-body -->
                     </div><!-- end card -->
                 </div> <!-- end col -->
