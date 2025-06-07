@@ -8,6 +8,8 @@ use Illuminate\Foundation\Auth\ResetsPasswords;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Password;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class ResetPasswordController extends Controller
 {
@@ -94,17 +96,19 @@ class ResetPasswordController extends Controller
         // Validate using the custom validator
         $this->validator($request->all())->validate();
 
-        // Attempt to reset the user's password. If successful, resetPassword will be called.
+        // Attempt to reset the user's password.
         $response = $this->broker()->reset(
             $request->only('email', 'password', 'password_confirmation', 'token'),
             function ($user, $password) {
-                $this->resetPassword($user, $password);
+                $user->forceFill([
+                    'password'       => Hash::make($password),
+                    'remember_token' => Str::random(60),
+                ])->save();
             }
         );
 
-        // Return response based on the password reset attempt
-        return $response == Password::PASSWORD_RESET
-                    ? $this->sendResetResponse($request, $response)
-                    : $this->sendResetFailedResponse($request, $response);
+        return $response === Password::PASSWORD_RESET
+            ? redirect('/profile-settings')->with('status', 'Password reset successful!')
+            : back()->withErrors(['email' => trans($response)]);
     }
 }

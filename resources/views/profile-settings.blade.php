@@ -34,12 +34,17 @@
                     </div>
                 </div>
             </div>
-            <!--end card-->           
+            <!--end card-->
         </div>
         <!--end col-->
         <div class="col-xxl-9">
             <div class="card mt-xxl-n5">
                 <div class="card-header">
+                    @if (session('status'))
+                        <div class="alert alert-success text-center mb-4" role="alert">
+                            {{ session('status') }}
+                        </div>
+                    @endif
                     <ul class="nav nav-tabs nav-tabs-custom rounded card-header-tabs border-bottom-0" id="profileSettingsTab" role="tablist">
                         @if (!($user->role_id >= 7 && !$user->applicant))
                             <li class="nav-item">
@@ -79,7 +84,7 @@
                                         <div class="col-lg-6">
                                             <div class="mb-3">
                                                 <label for="firstname" class="form-label">
-                                                    First Name 
+                                                    First Name
                                                     <span class="text-danger">*</span>
                                                 </label>
                                                 <input type="text" class="form-control @error('firstname') is-invalid @enderror" name="firstname" id="firstname" placeholder="Enter your firstname" value="{{ $user->role_id < 7 ? $user->firstname : optional($user->applicant)->firstname }}" {{ $user->role_id >= 7 ? 'readonly' : 'required' }}/>
@@ -99,7 +104,7 @@
                                         <div class="col-lg-6">
                                             <div class="mb-3">
                                                 <label for="lastname" class="form-label">
-                                                    Last Name 
+                                                    Last Name
                                                     <span class="text-danger">*</span>
                                                 </label>
                                                 <input type="text" class="form-control @error('lastname') is-invalid @enderror" name="lastname" id="lastname" placeholder="Enter your lastname" value="{{ $user->role_id < 7 ? $user->lastname : optional($user->applicant)->lastname }}" {{ $user->role_id >= 7 ? 'readonly' : 'required' }}/>
@@ -113,7 +118,7 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        <!--end col-->                                        
+                                        <!--end col-->
 
                                         <!-- ID Number -->
                                         <div class="col-md-6">
@@ -130,10 +135,10 @@
                                         </div>
 
                                         <!-- Phone Number -->
-                                        <div class="col-lg-6">                                            
+                                        <div class="col-lg-6">
                                             <div class="mb-3">
                                                 <label for="phone" class="form-label">
-                                                    Phone Number 
+                                                    Phone Number
                                                     <span class="text-danger">*</span>
                                                 </label>
                                                 <div class="input-group" data-input-flag>
@@ -159,7 +164,7 @@
                                         <div class="col-lg-12">
                                             <div class="mb-3">
                                                 <label for="email" class="form-label">
-                                                    Email Address 
+                                                    Email Address
                                                     @if ($user->role_id < 7)
                                                         <span class="text-danger">*</span>
                                                     @else
@@ -200,7 +205,7 @@
 
                                         @if ($user->role_id >= 7 )
                                             <!-- Address -->
-                                            <div class="col-lg-12">                                            
+                                            <div class="col-lg-12">
                                                 <div class="mb-3">
                                                     <label for="address" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="What is your current home address where you stay/live 🏡? Please type every detail. (e.g. street number, street name, suburb, town, postal code).">
                                                         Address <span class="text-danger">*</span>
@@ -209,7 +214,7 @@
                                                     @error('emaaddressil')
                                                         <span class="invalid-feedback" role="alert">
                                                             <strong>{{ e($message) }}</strong>
-                                                        </span>                                                        
+                                                        </span>
                                                     @enderror
                                                     <div class="invalid-feedback">
                                                         Please enter your home address!
@@ -249,7 +254,7 @@
                                                         @endforeach
                                                     </select>
                                                     <div class="invalid-feedback">Please select your ethnicity!</div>
-                                                </div>                                                        
+                                                </div>
                                             </div>
 
                                             <!-- Education -->
@@ -262,14 +267,14 @@
                                                     <select class="form-control" id="education" name="education_id" {{ $user->role_id >= 7 ? 'required' : '' }}>
                                                         <option value="">Select education Level</option>
                                                         @foreach ($educations as $education)
-                                                            <option value="{{ $education->id }}" 
+                                                            <option value="{{ $education->id }}"
                                                                 {{ ($user->applicant && $user->applicant->education_id == $education->id) ? 'selected' : '' }}>
                                                                 {{ $education->id == 2 ? 'Grade 10 / Grade 11' : $education->name }}
                                                             </option>
                                                         @endforeach
                                                     </select>
                                                     <div class="invalid-feedback">Please select an qualification option!</div>
-                                                </div>                                                        
+                                                </div>
                                             </div>
 
                                             <!-- Experience Duration -->
@@ -286,7 +291,7 @@
                                                         @endforeach
                                                     </select>
                                                     <div class="invalid-feedback">Please select an experience option!</div>
-                                                </div>                                                        
+                                                </div>
                                             </div>
 
                                             <!-- Public Holidays -->
@@ -339,7 +344,7 @@
                                                         @endforeach
                                                     </select>
                                                     <div class="invalid-feedback">Please select a brand!</div>
-                                                </div>                                                        
+                                                </div>
                                             </div>
 
                                             <!-- Disability -->
@@ -355,10 +360,10 @@
                                                         <option value="No" {{ ($user->applicant && $user->applicant->disability == 'No') ? 'selected' : '' }}>No</option>
                                                     </select>
                                                     <div class="invalid-feedback">Please select a answer!</div>
-                                                </div>                                                        
+                                                </div>
                                             </div>
                                         @endif
-                                        
+
                                         <div class="col-lg-12">
                                             <div class="hstack gap-2 justify-content-end">
                                                 <button type="submit" class="btn btn-primary" id="profileUpdateBtn">
@@ -379,94 +384,48 @@
                         -------------------------------------------------------------------------------------->
 
                         <div class="tab-pane {{ ($user->role_id >= 7 && !$user->applicant) ? 'active' : '' }}" id="changePassword" role="tabpanel">
-                            <form id="formPassword" action="post" enctype="multipart/form-data">
-                                @csrf
-                                <div class="row g-2">
-                                    <div class="col-lg-4">
-                                        <div>
-                                            <label for="oldPassword" class="form-label">
-                                                Old Password <span class="text-danger">*</span>
-                                            </label>
-                                            <div class="position-relative auth-pass-inputgroup mb-3">
-                                                <input type="password" class="form-control pe-5 password-input @error('oldPassword') is-invalid @enderror" name="oldPassword" id="oldPassword" placeholder="Enter current password" required/>
-                                                <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon-1">
-                                                    <i class="ri-eye-fill align-middle"></i>
-                                                </button>
-                                                @error('oldPassword')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
-                                                @enderror
-                                                <div class="invalid-feedback">
-                                                    Please enter old password
-                                                </div>
+                            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#resetPasswordEmailModal">
+                                Request Password Reset
+                            </button>
+
+                            <div class="modal fade zoomIn" id="resetPasswordEmailModal" tabindex="-1"
+                                aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <button type="button" class="btn-close" id="resetPasswordEmail-close" data-bs-dismiss="modal" aria-label="Close" id="btn-close"></button>
+                                        </div>
+                                        <div class="modal-body p-5 text-center">
+                                            <lord-icon src="https://cdn.lordicon.com/nocovwne.json" trigger="loop" state="hover-2" colors="primary:#0ab39c,secondary:#405189" style="width:120px;height:120px"></lord-icon>
+                                            <div class="mt-4 text-center">
+                                                <h4 class="fs-semibold">
+                                                    An email will be sent to your verified email address with further instructions.
+                                                </h4>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
-                                    <div class="col-lg-4">
-                                        <div>
-                                            <label for="newPassword" class="form-label">
-                                                New Password <span class="text-danger">*</span>
-                                            </label>
-                                            <div class="position-relative auth-pass-inputgroup mb-3">
-                                                <input type="password" class="form-control pe-5 password-input @error('newPassword') is-invalid @enderror" name="newPassword" id="newPassword" placeholder="Enter new password" required/>
-                                                <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon-2">
-                                                    <i class="ri-eye-fill align-middle"></i>
-                                                </button>
-                                                @error('newPassword')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
-                                                @enderror
-                                                <div class="invalid-feedback">
-                                                    Please enter new password
+                                            <form id="resetPasswordEmailForm" method="POST" enctype="multipart/form-data">
+                                                @csrf
+                                                <input type="hidden" id="field-id" name="field_id"/>
+                                                <input type="hidden" id="email" name="email" value={{ Auth::user()->email }}>
+                                                <div class="mt-4">
+                                                    <div class="hstack gap-2 justify-content-center remove">
+                                                        <button type="button" class="btn btn-light" id="passwordResetCloseBtn" data-bs-dismiss="modal" data-bs-dismiss="modal">
+                                                            <i class="ri-close-line me-1 align-middle"></i>
+                                                            Close
+                                                        </button>
+                                                        <button type="submit" id="passwordResetBtn" class="btn btn-success btn-label">
+                                                            <i class="ri-mail-send-line label-icon align-middle fs-16 me-2"></i>
+                                                            Send Password Reset Link
+                                                        </button>
+                                                    </div>
                                                 </div>
-                                            </div>
+                                            </form>
                                         </div>
                                     </div>
-                                    <!--end col-->
-                                    <div class="col-lg-4">
-                                        <div>
-                                            <label for="confirmPassword" class="form-label">
-                                                Confirm Password <span class="text-danger">*</span>
-                                            </label>
-                                            <div class="position-relative auth-pass-inputgroup mb-3">
-                                                <input type="password" class="form-control pe-5 password-input @error('confirmPassword') is-invalid @enderror" name="newPassword_confirmation" id="confirmPassword" placeholder="Confirm password" required/>
-                                                <button class="btn btn-link position-absolute end-0 top-0 text-decoration-none text-muted password-addon" type="button" id="password-addon-3">
-                                                    <i class="ri-eye-fill align-middle"></i>
-                                                </button>
-                                                @error('confirmPassword')
-                                                    <span class="invalid-feedback" role="alert">
-                                                        <strong>{{ $message }}</strong>
-                                                    </span>
-                                                @enderror
-                                                <div class="invalid-feedback">
-                                                    Please confirm password
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
-                                    <div class="col-lg-12">
-                                        <div class="mb-3">
-                                            <a href="{{ route('password.request') }}" class="link-primary text-decoration-underline">
-                                                Forgot Password ?
-                                            </a>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
-                                    <div class="col-lg-12">
-                                        <div class="text-end">
-                                            <button type="submit" class="btn btn-primary" id="passwordUpdateBtn">
-                                                Change Password
-                                            </button>
-                                        </div>
-                                    </div>
-                                    <!--end col-->
                                 </div>
-                                <!--end row-->
-                            </form>                            
+                            </div>
+                            <!--end modal-->
+
+
                         </div>
                         <!--end tab-pane-->
 
@@ -506,7 +465,7 @@
                                                 <p class="text-muted">
                                                     Enable this to get notifications on WhatsApp. This is useful for immediate updates and alerts.
                                                 </p>
-                                            </div>                                            
+                                            </div>
                                             <div class="flex-shrink-0">
                                                 <div class="form-check form-switch">
                                                     <input class="form-check-input" type="checkbox" role="switch" id="receiveWhatsappNotifications" name="receive_whatsapp_notifications" {{ $userSettings ? ($userSettings->receive_whatsapp_notifications ? 'checked' : '') : 'checked' }} />
@@ -605,7 +564,7 @@
                                                     </div>
                                                 </div>
                                             </li>
-                                        @endif                                                                  
+                                        @endif
                                     </ul>
                                 </div>
                                 <div class="col-lg-12">
@@ -616,7 +575,7 @@
                                     </div>
                                 </div>
                                 <!--end col-->
-                            </form>                    
+                            </form>
                         </div>
                         <!--end tab-pane-->
                     </div>
