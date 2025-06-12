@@ -24,7 +24,12 @@ use Illuminate\Support\Facades\Log;
 
 class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, WithColumnWidths, WithMapping, WithTitle, WithChunkReading
 {
-    protected $type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters;
+    protected $type;
+    protected $id;
+    protected $startDate;
+    protected $endDate;
+    protected $maxDistanceFromStore;
+    protected $filters;
 
     public function __construct($type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters)
     {
@@ -213,7 +218,7 @@ class ApplicantsExport implements FromCollection, WithHeadings, WithStyles, With
                     [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
                     $storeQuery = clone $query;
                     $storeQuery->whereRaw("ST_Distance_Sphere(
-                        point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
+                        point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)),
                         point(?, ?)) <= ?", [$storeLng, $storeLat, $this->maxDistanceFromStore * 1000]);
                     $storeQueries->push($storeQuery);
                 }

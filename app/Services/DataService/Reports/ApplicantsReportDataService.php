@@ -75,9 +75,9 @@ class ApplicantsReportDataService
                     ->whereRaw("
                         ST_Distance_Sphere(
                             point(
-                                SUBSTRING_INDEX(applicants.coordinates, ',', -1), 
+                                SUBSTRING_INDEX(applicants.coordinates, ',', -1),
                                 SUBSTRING_INDEX(applicants.coordinates, ',', 1)
-                            ), 
+                            ),
                             point(?, ?)
                         ) <= ?
                     ", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]) // Convert km to meters
@@ -208,7 +208,7 @@ class ApplicantsReportDataService
      * @param \Carbon\Carbon $endDate The end date for filtering appointments.
      * @return array An array of appointed applicants grouped by month.
      */
-    public function getTotalApplicantsAppointedByMonth(string $type = 'all', ?int $id, $startDate, $endDate): array
+    public function getTotalApplicantsAppointedByMonth(?int $id, $startDate, $endDate, string $type = 'all'): array
     {
         // Initialize result array with zeros for all months
         $applicantsByMonth = [];
@@ -580,7 +580,7 @@ class ApplicantsReportDataService
                     [$storeLat, $storeLng] = array_map('floatval', explode(',', $store->coordinates));
                     $storeQuery = clone $query;
                     $storeQuery->whereRaw("ST_Distance_Sphere(
-                        point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)), 
+                        point(SUBSTRING_INDEX(applicants.coordinates, ',', -1), SUBSTRING_INDEX(applicants.coordinates, ',', 1)),
                         point(?, ?)) <= ?", [$storeLng, $storeLat, $maxDistanceFromStore * 1000]);
                     $totalApplicants += $storeQuery->count();
                 }
@@ -745,7 +745,7 @@ class ApplicantsReportDataService
      * @param array $filters An array of additional filters to apply.
      * @return array An array of applicants grouped by month.
      */
-    public function getTotalApplicantsByMonthFiltered(string $type = 'all', ?int $id = null, Carbon $startDate, Carbon $endDate, float $maxDistanceFromStore = 50, array $filters): array
+    public function getTotalApplicantsByMonthFiltered(Carbon $startDate, Carbon $endDate, array $filters, string $type = 'all', ?int $id = null, float $maxDistanceFromStore = 50): array
     {
         // Initialize an array with months from startDate to endDate, set to 0
         $applicantsByMonth = [];
