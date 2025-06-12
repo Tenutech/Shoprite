@@ -75,7 +75,7 @@ var options = {
         "role",
         "store",
         "division",
-        "region",        
+        "region",
         "brand",
         "status"
     ],
@@ -178,7 +178,7 @@ var idField = document.getElementById("field-id"),
     role = document.getElementById("role"),
     store = document.getElementById("store"),
     division = document.getElementById("division"),
-    region = document.getElementById("region"),    
+    region = document.getElementById("region"),
     brand = document.getElementById("brand"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
@@ -333,11 +333,11 @@ addBtn.addEventListener("click", function (e) {
                         role: roleValue,
                         store: storeValue,
                         division: divisionValue,
-                        region: regionValue,                        
+                        region: regionValue,
                         brand: brandValue,
                         status: '<span class="badge bg-danger-subtle text-danger text-uppercase">\
                                     Offline\
-                                </span>'                     
+                                </span>'
                     });
                     userList.sort('name', { order: "asc" });
                     Swal.fire({
@@ -349,16 +349,16 @@ addBtn.addEventListener("click", function (e) {
                         showCloseButton: true,
                         toast: true
                     })
-                    
+
                     document.getElementById("close-modal").click();
                     clearFields();
                     refreshCallbacks();
-                    count++;                    
-                } 
+                    count++;
+                }
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -366,7 +366,7 @@ addBtn.addEventListener("click", function (e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -414,25 +414,25 @@ editBtn.addEventListener("click", function (e) {
                     Array.from(editValues).forEach(function (x) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
-                        if (selectedid == itemId) {    
+                        if (selectedid == itemId) {
                             if (idVerified.value) {
                                 idVerifiedValue = idVerified.options[idVerified.selectedIndex].text;
                             } else {
                                 idVerifiedValue = '';
                             }
-        
+
                             if (gender.value) {
                                 genderValue = gender.options[gender.selectedIndex].text;
                             } else {
                                 genderValue = '';
                             }
-        
+
                             if (role.value) {
                                 roleValue = role.options[role.selectedIndex].text;
                             } else {
                                 roleValue = '';
                             }
-        
+
                             if (store.value) {
                                 storeValue = store.options[store.selectedIndex].text;
                             } else {
@@ -456,7 +456,7 @@ editBtn.addEventListener("click", function (e) {
                             } else {
                                 brandValue = '';
                             }
-        
+
                             x.values({
                                 id: idField.value,
                                 name: '<div class="d-flex align-items-center">\
@@ -473,7 +473,7 @@ editBtn.addEventListener("click", function (e) {
                                 role: roleValue,
                                 store: storeValue,
                                 division: divisionValue,
-                                region: regionValue,                                
+                                region: regionValue,
                                 brand: brandValue,
                             });
                         }
@@ -497,7 +497,7 @@ editBtn.addEventListener("click", function (e) {
             },
             error: function(jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -505,7 +505,7 @@ editBtn.addEventListener("click", function (e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -652,14 +652,14 @@ function refreshCallbacks() {
                 var isdeleteid = deleteid.body.innerHTML;
 
                 if (isdeleteid == itemId) {
-                    document.getElementById("delete-user").onclick = function () {                        
+                    document.getElementById("delete-user").onclick = function () {
                         $.ajax({
                             url: route('managers.destroy', {id: isdeleteid}),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
-                            success:function(data) {            
+                            success:function(data) {
                                 if(data.success === true) {
                                     userList.remove("id", isdeleteid);
                                     document.getElementById("deleteRecord-close").click();
@@ -671,12 +671,12 @@ function refreshCallbacks() {
                                         timer: 2000,
                                         showCloseButton: true,
                                         toast: true
-                                    });                    
+                                    });
                                 }
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
                                 let message = ''; // Initialize the message variable
-                        
+
                                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                                     message = jqXHR.responseJSON.message;
                                 } else if (textStatus === 'timeout') {
@@ -684,7 +684,7 @@ function refreshCallbacks() {
                                 } else {
                                     message = 'An error occurred while processing your request. Please try again later.';
                                 }
-                            
+
                                 // Trigger the Swal notification with the dynamic message
                                 Swal.fire({
                                     position: 'top-end',
@@ -707,7 +707,7 @@ function refreshCallbacks() {
         btn.onclick = function (e) {
             e.target.closest("tr").children[1].innerText;
             itemId = e.target.closest("tr").children[1].innerText;
-           
+
             $.ajax({
                 url: route('managers.details', {id: itemId}),
                 type: 'get',
@@ -759,7 +759,7 @@ function refreshCallbacks() {
 
                 if(data.user.region_id) {
                     regionVal.setChoiceByValue(data.user.region_id.toString());
-                }                
+                }
 
                 if(data.user.brand_id) {
                     brandVal.setChoiceByValue(data.user.brand_id.toString());
@@ -819,7 +819,7 @@ function refreshCallbacks() {
                                         <tr>
                                             <td class="fw-medium" scope="row">Region</td>
                                             <td>${x._values.region}</td>
-                                        </tr>                                        
+                                        </tr>
                                         <tr>
                                             <td class="fw-medium" scope="row">Brand</td>
                                             <td>${x._values.brand}</td>
@@ -846,7 +846,7 @@ function refreshCallbacks() {
         btn.onclick = function (e) {
             // Retrieve the itemId from the closest table row
             itemId = e.target.closest("tr").children[1].innerText;
-            
+
             // Set the hidden input field with the user ID
             document.getElementById("password-id").value = itemId;
         };
@@ -887,7 +887,7 @@ function clearFields() {
 
     regionVal.removeActiveItems();
     regionVal.setChoiceByValue("");
-    
+
     brandVal.removeActiveItems();
     brandVal.setChoiceByValue("");
 }
@@ -918,7 +918,7 @@ function deleteMultiple(){
                 for (i = 0; i < ids_array.length; i++) {
                     userList.remove("id", `${ids_array[i]}`);
                 }
-    
+
                 $.ajax({
                     url: route('managers.destroyMultiple'),
                     type: 'post',
@@ -928,7 +928,7 @@ function deleteMultiple(){
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success:function(data) {            
+                    success:function(data) {
                         if(data.success === true) {
                             document.getElementById('checkAll').checked = false;
 
@@ -940,12 +940,12 @@ function deleteMultiple(){
                                 timer: 2000,
                                 showCloseButton: true,
                                 toast: true
-                            });                  
+                            });
                         }
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         let message = ''; // Initialize the message variable
-                
+
                         if (jqXHR.status === 400 || jqXHR.status === 422) {
                             message = jqXHR.responseJSON.message;
                         } else if (textStatus === 'timeout') {
@@ -953,7 +953,7 @@ function deleteMultiple(){
                         } else {
                             message = 'An error occurred while processing your request. Please try again later.';
                         }
-                    
+
                         // Trigger the Swal notification with the dynamic message
                         Swal.fire({
                             position: 'top-end',
@@ -997,13 +997,13 @@ document.querySelector(".pagination-wrap").addEventListener("click", function(ev
             }
         }
     }
-    
+
     // If the clicked element or its parent is in the .listjs-pagination
     if (event.target.closest(".listjs-pagination")) {
         event.preventDefault();
         event.target.click();
     }
-    
+
     // If the clicked element or its parent has the class .pagination-next
     if (event.target.classList.contains("pagination-next") || (event.target.parentElement && event.target.parentElement.classList.contains("pagination-next"))) {
         event.preventDefault();
@@ -1012,4 +1012,91 @@ document.querySelector(".pagination-wrap").addEventListener("click", function(ev
             activeElement.nextElementSibling.children[0].click();
         }
     }
+});
+
+/*
+|--------------------------------------------------------------------------
+| Export Managers Table Report
+|--------------------------------------------------------------------------
+*/
+
+$(document).ready(function() {
+    $('#exportManagersTableReport').on('click', function(event) {
+        event.preventDefault(); // Prevent default action
+
+        // Reference the export button and save its initial width
+        var exportBtn = $('#exportManagersTableReport');
+        var initialWidth = exportBtn.outerWidth(); // Get the initial width
+
+        // Set the button to fixed width and show the spinner
+        exportBtn.css('width', initialWidth + 'px');
+        exportBtn.removeClass('btn-label').addClass('d-flex justify-content-center');
+        exportBtn.html('<div class="spinner-border text-light" style="width: 1.2rem; height: 1.2rem;" role="status"><span class="sr-only">Loading...</span></div>');
+        exportBtn.prop('disabled', true); // Disable the button
+
+        // Get the search input
+        var searchValue = document.getElementById('custom-user-search').value;
+
+        $.ajax({
+            url: route('managers.export'),
+            method: 'POST',
+            data: {
+                search: searchValue,
+                _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
+            },
+            xhrFields: {
+                responseType: 'blob' // Important to handle binary data from server response
+            },
+            success: function(response) {
+                // Create a link element to download the file
+                var downloadUrl = window.URL.createObjectURL(response);
+                var link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = "managers_report.xlsx"; // File name
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Display success notification
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Report exported successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    showCloseButton: true,
+                    toast: true
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+
+                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
+                } else {
+                    message = 'An error occurred while processing your request. Please try again later.';
+                }
+
+                // Display error notification
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
+            },
+            complete: function() {
+                // Re-enable the button, restore original text, and re-add btn-label class
+                exportBtn.prop('disabled', false);
+                exportBtn.html('<i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i> Export Report'); // Original button text
+                exportBtn.removeClass('d-flex justify-content-center').addClass('btn-label'); // Restore original class
+                exportBtn.css('width', ''); // Remove the fixed width
+            }
+        });
+    });
 });

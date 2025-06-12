@@ -15,18 +15,26 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header">
-                    <div class="d-flex align-items-center flex-wrap gap-2">
+                    <div class="d-flex align-items-center flex-lg-row flex-column">
                         <div class="flex-grow-1">
                             <button class="btn btn-info add-btn" data-bs-toggle="modal" data-bs-target="#usersModal">
-                                <i class="ri-add-fill me-1 align-bottom"></i> 
+                                <i class="ri-add-fill me-1 align-bottom"></i>
                                 Add Manager
                             </button>
                         </div>
-                        <div class="flex-shrink-0">
-                            <div class="hstack text-nowrap gap-2">
-                                <button class="btn btn-soft-danger" onClick="deleteMultiple()">
-                                    <i class="ri-delete-bin-2-line"></i>
-                                </button>
+                        <div class="mt-3 mt-lg-0">
+                            <div class="row g-3 mb-0 align-items-center">
+                                <div class="col-sm-auto">
+                                    <div class="hstack gap-1">
+                                        <button type="button" id="exportManagersTableReport" class="btn btn-success btn-label">
+                                            <i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i>
+                                            Export Report
+                                        </button>
+                                        <button class="btn btn-soft-danger ms-2" onClick="deleteMultiple()">
+                                            <i class="ri-delete-bin-2-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -90,9 +98,9 @@
                                         <th class="sort d-none" data-sort="role" scope="col">Role</th>
                                         <th class="sort" data-sort="store" scope="col">Store</th>
                                         <th class="sort d-none" data-sort="division" scope="col">Division</th>
-                                        <th class="sort d-none" data-sort="region" scope="col">Region</th>                                        
+                                        <th class="sort d-none" data-sort="region" scope="col">Region</th>
                                         <th class="sort d-none" data-sort="brand" scope="col">Brand</th>
-                                        <th class="sort" data-sort="status" scope="col">Status</th>                          
+                                        <th class="sort" data-sort="status" scope="col">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -195,7 +203,7 @@
                                             <td class="age d-none"></td>
                                             <td class="gender d-none"></td>
                                             <td class="role d-none"></td>
-                                            <td class="store" style="white-space: pre-wrap;"></td>                                            
+                                            <td class="store" style="white-space: pre-wrap;"></td>
                                             <td class="division d-none"></td>
                                             <td class="region d-none"></td>
                                             <td class="brand d-none"></td>
@@ -303,7 +311,7 @@
                                                             </div>
                                                         </div>
                                                     </div>
-                                                </div>                                                    
+                                                </div>
                                             </div>
                                             <!--end col-->
 
@@ -314,7 +322,7 @@
                                                     </label>
                                                     <input type="text" id="firstname" name="firstname" class="form-control" placeholder="Enter first name" required/>
                                                 </div>
-                                                <!--end col-->                                                
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="email" class="form-label">
                                                         Email
@@ -371,7 +379,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!-- end col -->                                                                                                                      
+                                                <!-- end col -->
                                             </div>
                                             <!--end col-->
 
@@ -431,7 +439,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col--> 
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="brand" class="form-label">
                                                         Brand
@@ -443,7 +451,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->   
+                                                <!--end col-->
                                             </div>
                                             <!--end col-->
                                         </div>
@@ -529,7 +537,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="col-lg-12">
                                                 <!-- Confirm Password -->
                                                 <div class="mb-2">
@@ -540,7 +548,7 @@
                                                         </button>
                                                     </div>
                                                 </div>
-                                            </div>                                        
+                                            </div>
 
                                             <div class="hstack gap-2 justify-content-center remove">
                                                 <button class="btn btn-light" data-bs-dismiss="modal" id="resetPassword-close">
@@ -595,7 +603,7 @@
                                 <tr>
                                     <td class="fw-medium" scope="row">Store</td>
                                     <td></td>
-                                </tr>                                
+                                </tr>
                                 <tr>
                                     <td class="fw-medium" scope="row">Division</td>
                                     <td></td>
