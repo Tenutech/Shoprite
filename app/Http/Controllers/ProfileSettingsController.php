@@ -197,7 +197,7 @@ class ProfileSettingsController extends Controller
         }
         if (!is_null($request->input('phone')) && $request->input('phone') !== ($user->phone ?? '')) {
             $otherFieldsChanged = true;
-        }        
+        }
         if ($request->has('email') && $request->email !== ($user->email ?? '')) {
             $otherFieldsChanged = true;
         }

@@ -103,6 +103,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/managers/destroy-multiple', [App\Http\Controllers\ManagersController::class, 'destroyMultiple'])->name('managers.destroyMultiple');
 
+    Route::post('/managers/export', [App\Http\Controllers\ManagersController::class, 'export'])->name('managers.export');
+
     //DPPs
 
     Route::get('/dpps', [App\Http\Controllers\DPPsController::class, 'index'])->name('dpps.index');

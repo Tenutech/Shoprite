@@ -10,6 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class ApplicantTotalData extends Model
 {
     use HasFactory;
+
     //use LogsActivity;
 
     protected $table = 'applicant_total_data';

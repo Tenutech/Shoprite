@@ -46,14 +46,14 @@ class VacancyDeleteNoAppointment extends Command
 
         foreach ($vacancies as $vacancy) {
             $filledPositions = $vacancy->filled_positions;
-            
+
             if ($filledPositions == 0) {
                 $vacancy->deleted = 'Yes';
                 $vacancy->auto_deleted = 'Yes';
             } else {
                 $vacancy->open_positions = 0;
             }
-            
+
             $vacancy->save();
 
             // Fetch applicants in shortlist with scheduled interviews
@@ -62,7 +62,7 @@ class VacancyDeleteNoAppointment extends Command
             foreach ($shortlists as $shortlist) {
                 // Decode the current applicant_ids JSON into an array; default to empty array if null or invalid
                 $applicantIds = json_decode($shortlist->applicant_ids, true) ?: [];
-    
+
                 // Get all applicants where shortlist_id is $shortlist->id
                 $applicants = Applicant::where('shortlist_id', $shortlist->id)->get();
 
@@ -112,7 +112,7 @@ class VacancyDeleteNoAppointment extends Command
                         unset($applicantIds[$key]);
                     }
                 }
-                
+
                 // Re-index the array and encode it back to JSON, then save the shortlist
                 $shortlist->applicant_ids = json_encode(array_values($applicantIds));
                 $shortlist->save();
