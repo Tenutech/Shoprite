@@ -75,7 +75,7 @@ var options = {
         "role",
         "store",
         "division",
-        "region",        
+        "region",
         "brand",
         "status"
     ],
@@ -97,8 +97,8 @@ var userList = new List("userList", options).on("updated", function (list) {
     var isFirst = list.i == 1;
     var isLast = list.i > list.matchingItems.length - list.page;
     // make the Prev and Nex buttons disabled on first and last pages accordingly
-    (document.querySelector(".pagination-prev.disabled")) ? document.querySelector(".pagination-prev.disabled").classList.remove("disabled"): '';
-    (document.querySelector(".pagination-next.disabled")) ? document.querySelector(".pagination-next.disabled").classList.remove("disabled"): '';
+    (document.querySelector(".pagination-prev.disabled")) ? document.querySelector(".pagination-prev.disabled").classList.remove("disabled") : '';
+    (document.querySelector(".pagination-next.disabled")) ? document.querySelector(".pagination-next.disabled").classList.remove("disabled") : '';
     if (isFirst) {
         document.querySelector(".pagination-prev").classList.add("disabled");
     }
@@ -118,8 +118,28 @@ var userList = new List("userList", options).on("updated", function (list) {
     }
 });
 
+document.getElementById("custom-dpps-search").addEventListener("input", function () {
+    customSearch(this.value);
+});
+
+function customSearch(query) {
+    const cleanedQuery = query.toLowerCase().trim();
+
+    userList.filter(function(item) {
+        const values = item.values();
+
+        return (
+            values.email?.toLowerCase().includes(cleanedQuery) ||
+            values.phone?.toLowerCase().includes(cleanedQuery) ||
+            values.name?.toLowerCase().includes(cleanedQuery) ||
+            values.store?.toLowerCase().includes(cleanedQuery) ||
+            values.id_number?.toLowerCase().includes(cleanedQuery)
+        );
+    });
+}
+
 var perPageSelect = document.getElementById("per-page-select");
-perPageSelect.addEventListener("change", function() {
+perPageSelect.addEventListener("change", function () {
     perPage = parseInt(this.value);
     userList.page = perPage;
     userList.update();
@@ -135,9 +155,9 @@ document.querySelector("#avatar").addEventListener("change", function () {
     var preview = document.querySelector("#profile-img");
     var file = document.querySelector("#avatar").files[0];
     var reader = new FileReader();
-    reader.addEventListener("load",function () {
+    reader.addEventListener("load", function () {
         preview.src = reader.result;
-    },false);
+    }, false);
     if (file) {
         reader.readAsDataURL(file);
     }
@@ -158,15 +178,15 @@ var idField = document.getElementById("field-id"),
     role = document.getElementById("role"),
     store = document.getElementById("store"),
     division = document.getElementById("division"),
-    region = document.getElementById("region"),    
+    region = document.getElementById("region"),
     brand = document.getElementById("brand"),
     addBtn = document.getElementById("add-btn"),
     editBtn = document.getElementById("edit-btn"),
     passwordBtn = document.getElementById("password-reset"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
     editBtns = document.getElementsByClassName("edit-item-btn");
-    viewBtns = document.getElementsByClassName("view-item-btn");
-    passwordBtns = document.getElementsByClassName("password-item-btn");
+viewBtns = document.getElementsByClassName("view-item-btn");
+passwordBtns = document.getElementsByClassName("password-item-btn");
 refreshCallbacks();
 
 document.getElementById("usersModal").addEventListener("show.bs.modal", function (e) {
@@ -253,8 +273,8 @@ addBtn.addEventListener("click", function (e) {
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            success:function(data) {
-                if(data.success == true) {
+            success: function (data) {
+                if (data.success == true) {
                     if (idVerified.value) {
                         idVerifiedValue = idVerified.options[idVerified.selectedIndex].text;
                     } else {
@@ -313,11 +333,11 @@ addBtn.addEventListener("click", function (e) {
                         role: roleValue,
                         store: storeValue,
                         division: divisionValue,
-                        region: regionValue,                        
+                        region: regionValue,
                         brand: brandValue,
                         status: '<span class="badge bg-danger-subtle text-danger text-uppercase">\
                                     Offline\
-                                </span>'                     
+                                </span>'
                     });
                     userList.sort('name', { order: "asc" });
                     Swal.fire({
@@ -329,16 +349,16 @@ addBtn.addEventListener("click", function (e) {
                         showCloseButton: true,
                         toast: true
                     })
-                    
+
                     document.getElementById("close-modal").click();
                     clearFields();
                     refreshCallbacks();
-                    count++;                    
-                } 
+                    count++;
+                }
             },
-            error: function(jqXHR, textStatus, errorThrown) {
+            error: function (jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -346,7 +366,7 @@ addBtn.addEventListener("click", function (e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -389,30 +409,30 @@ editBtn.addEventListener("click", function (e) {
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            success:function(data) {
-                if(data.success === true) {
+            success: function (data) {
+                if (data.success === true) {
                     Array.from(editValues).forEach(function (x) {
                         isid = new DOMParser().parseFromString(x._values.id, "text/html");
                         var selectedid = isid.body.innerHTML;
-                        if (selectedid == itemId) {    
+                        if (selectedid == itemId) {
                             if (idVerified.value) {
                                 idVerifiedValue = idVerified.options[idVerified.selectedIndex].text;
                             } else {
                                 idVerifiedValue = '';
                             }
-        
+
                             if (gender.value) {
                                 genderValue = gender.options[gender.selectedIndex].text;
                             } else {
                                 genderValue = '';
                             }
-        
+
                             if (role.value) {
                                 roleValue = role.options[role.selectedIndex].text;
                             } else {
                                 roleValue = '';
                             }
-        
+
                             if (store.value) {
                                 storeValue = store.options[store.selectedIndex].text;
                             } else {
@@ -436,7 +456,7 @@ editBtn.addEventListener("click", function (e) {
                             } else {
                                 brandValue = '';
                             }
-        
+
                             x.values({
                                 id: idField.value,
                                 name: '<div class="d-flex align-items-center">\
@@ -453,7 +473,7 @@ editBtn.addEventListener("click", function (e) {
                                 role: roleValue,
                                 store: storeValue,
                                 division: divisionValue,
-                                region: regionValue,                                
+                                region: regionValue,
                                 brand: brandValue,
                             });
                         }
@@ -475,9 +495,9 @@ editBtn.addEventListener("click", function (e) {
                     count++;
                 }
             },
-            error: function(jqXHR, textStatus, errorThrown) {
+            error: function (jqXHR, textStatus, errorThrown) {
                 let message = ''; // Initialize the message variable
-        
+
                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                     message = jqXHR.responseJSON.message;
                 } else if (textStatus === 'timeout') {
@@ -485,7 +505,7 @@ editBtn.addEventListener("click", function (e) {
                 } else {
                     message = 'An error occurred while processing your request. Please try again later.';
                 }
-            
+
                 // Trigger the Swal notification with the dynamic message
                 Swal.fire({
                     position: 'top-end',
@@ -632,15 +652,15 @@ function refreshCallbacks() {
                 var isdeleteid = deleteid.body.innerHTML;
 
                 if (isdeleteid == itemId) {
-                    document.getElementById("delete-user").onclick = function () {                        
+                    document.getElementById("delete-user").onclick = function () {
                         $.ajax({
-                            url: route('admins.destroy', {id: isdeleteid}),
+                            url: route('admins.destroy', { id: isdeleteid }),
                             type: 'DELETE',
                             headers: {
                                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                             },
-                            success:function(data) {            
-                                if(data.success === true) {
+                            success: function (data) {
+                                if (data.success === true) {
                                     userList.remove("id", isdeleteid);
                                     document.getElementById("deleteRecord-close").click();
                                     Swal.fire({
@@ -651,12 +671,12 @@ function refreshCallbacks() {
                                         timer: 2000,
                                         showCloseButton: true,
                                         toast: true
-                                    });                    
+                                    });
                                 }
                             },
-                            error: function(jqXHR, textStatus, errorThrown) {
+                            error: function (jqXHR, textStatus, errorThrown) {
                                 let message = ''; // Initialize the message variable
-                        
+
                                 if (jqXHR.status === 400 || jqXHR.status === 422) {
                                     message = jqXHR.responseJSON.message;
                                 } else if (textStatus === 'timeout') {
@@ -664,7 +684,7 @@ function refreshCallbacks() {
                                 } else {
                                     message = 'An error occurred while processing your request. Please try again later.';
                                 }
-                            
+
                                 // Trigger the Swal notification with the dynamic message
                                 Swal.fire({
                                     position: 'top-end',
@@ -687,9 +707,9 @@ function refreshCallbacks() {
         btn.onclick = function (e) {
             e.target.closest("tr").children[1].innerText;
             itemId = e.target.closest("tr").children[1].innerText;
-           
+
             $.ajax({
-                url: route('admins.details', {id: itemId}),
+                url: route('admins.details', { id: itemId }),
                 type: 'get',
                 data: {
                     "id": itemId
@@ -698,7 +718,7 @@ function refreshCallbacks() {
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 }
-            }).done(function(data) {
+            }).done(function (data) {
                 idField.value = data.encID;
 
                 profileImg.src = 'images/' + data.user.avatar;
@@ -713,7 +733,7 @@ function refreshCallbacks() {
 
                 idNumber.value = data.user.id_number;
 
-                if(data.user.id_verified) {
+                if (data.user.id_verified) {
                     idVerifiedVal.setChoiceByValue(data.user.id_verified.toString());
                 }
 
@@ -721,27 +741,27 @@ function refreshCallbacks() {
 
                 age.value = data.user.age;
 
-                if(data.user.gender_id) {
+                if (data.user.gender_id) {
                     genderVal.setChoiceByValue(data.user.gender_id.toString());
                 }
 
-                if(data.user.role_id) {
+                if (data.user.role_id) {
                     roleVal.setChoiceByValue(data.user.role_id.toString());
                 }
 
-                if(data.user.store_id) {
+                if (data.user.store_id) {
                     storeVal.setChoiceByValue(data.user.store_id.toString());
                 }
 
-                if(data.user.division_id) {
+                if (data.user.division_id) {
                     divisionVal.setChoiceByValue(data.user.division_id.toString());
                 }
 
-                if(data.user.region_id) {
+                if (data.user.region_id) {
                     regionVal.setChoiceByValue(data.user.region_id.toString());
-                }                
+                }
 
-                if(data.user.brand_id) {
+                if (data.user.brand_id) {
                     brandVal.setChoiceByValue(data.user.brand_id.toString());
                 }
             });
@@ -799,7 +819,7 @@ function refreshCallbacks() {
                                         <tr>
                                             <td class="fw-medium" scope="row">Region</td>
                                             <td>${x._values.region}</td>
-                                        </tr>                                        
+                                        </tr>
                                         <tr>
                                             <td class="fw-medium" scope="row">Brand</td>
                                             <td>${x._values.brand}</td>
@@ -812,7 +832,7 @@ function refreshCallbacks() {
                                 </table>
                             </div>
                             <div class="d-grid gap-2 mt-4" >
-                                <a href="`+ route('user-profile.index', {id: x._values.id}) +`" class="btn btn-primary" type="button">View Profile</a>
+                                <a href="`+ route('user-profile.index', { id: x._values.id }) + `" class="btn btn-primary" type="button">View Profile</a>
                             </div>
                         </div>`;
                     document.getElementById('contact-view-detail').innerHTML = codeBlock;
@@ -826,7 +846,7 @@ function refreshCallbacks() {
         btn.onclick = function (e) {
             // Retrieve the itemId from the closest table row
             itemId = e.target.closest("tr").children[1].innerText;
-            
+
             // Set the hidden input field with the user ID
             document.getElementById("password-id").value = itemId;
         };
@@ -867,13 +887,13 @@ function clearFields() {
 
     regionVal.removeActiveItems();
     regionVal.setChoiceByValue("");
-    
+
     brandVal.removeActiveItems();
     brandVal.setChoiceByValue("");
 }
 
 // Delete All Records
-function deleteMultiple(){
+function deleteMultiple() {
     ids_array = [];
     var items = document.getElementsByName('chk_child');
     for (i = 0; i < items.length; i++) {
@@ -884,7 +904,7 @@ function deleteMultiple(){
         }
     }
 
-    if(typeof ids_array !== 'undefined' && ids_array.length > 0){
+    if (typeof ids_array !== 'undefined' && ids_array.length > 0) {
         Swal.fire({
             html: '<div class="mt-3">' + '<lord-icon src="https://cdn.lordicon.com/gsqxdxog.json" trigger="loop" colors="primary:#f7b84b,secondary:#f06548" style="width:100px;height:100px"></lord-icon>' + '<div class="mt-4 pt-2 fs-15 mx-5">' + '<h4>You are about to delete these users ?</h4>' + '<p class="text-muted mx-4 mb-0">Deleting these users will remove all of their information from the database.</p>' + '</div>' + '</div>',
             showCancelButton: true,
@@ -898,7 +918,7 @@ function deleteMultiple(){
                 for (i = 0; i < ids_array.length; i++) {
                     userList.remove("id", `${ids_array[i]}`);
                 }
-    
+
                 $.ajax({
                     url: route('admins.destroyMultiple'),
                     type: 'post',
@@ -908,8 +928,8 @@ function deleteMultiple(){
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    success:function(data) {            
-                        if(data.success === true) {
+                    success: function (data) {
+                        if (data.success === true) {
                             document.getElementById('checkAll').checked = false;
 
                             Swal.fire({
@@ -920,12 +940,12 @@ function deleteMultiple(){
                                 timer: 2000,
                                 showCloseButton: true,
                                 toast: true
-                            });                  
+                            });
                         }
                     },
-                    error: function(jqXHR, textStatus, errorThrown) {
+                    error: function (jqXHR, textStatus, errorThrown) {
                         let message = ''; // Initialize the message variable
-                
+
                         if (jqXHR.status === 400 || jqXHR.status === 422) {
                             message = jqXHR.responseJSON.message;
                         } else if (textStatus === 'timeout') {
@@ -933,7 +953,7 @@ function deleteMultiple(){
                         } else {
                             message = 'An error occurred while processing your request. Please try again later.';
                         }
-                    
+
                         // Trigger the Swal notification with the dynamic message
                         Swal.fire({
                             position: 'top-end',
@@ -948,7 +968,7 @@ function deleteMultiple(){
                 })
             }
         });
-    }else{
+    } else {
         Swal.fire({
             title: 'Please select at least one user',
             confirmButtonClass: 'btn btn-info',
@@ -959,13 +979,13 @@ function deleteMultiple(){
 }
 
 // Prevent default behavior for all pagination links created by List.js
-document.querySelectorAll(".listjs-pagination a").forEach(function(anchor) {
-    anchor.addEventListener("click", function(event) {
+document.querySelectorAll(".listjs-pagination a").forEach(function (anchor) {
+    anchor.addEventListener("click", function (event) {
         event.preventDefault();
     });
 });
 
-document.querySelector(".pagination-wrap").addEventListener("click", function(event) {
+document.querySelector(".pagination-wrap").addEventListener("click", function (event) {
     // If the clicked element or its parent has the class .pagination-prev
     if (event.target.classList.contains("pagination-prev") || (event.target.parentElement && event.target.parentElement.classList.contains("pagination-prev"))) {
         event.preventDefault();
@@ -977,13 +997,13 @@ document.querySelector(".pagination-wrap").addEventListener("click", function(ev
             }
         }
     }
-    
+
     // If the clicked element or its parent is in the .listjs-pagination
     if (event.target.closest(".listjs-pagination")) {
         event.preventDefault();
         event.target.click();
     }
-    
+
     // If the clicked element or its parent has the class .pagination-next
     if (event.target.classList.contains("pagination-next") || (event.target.parentElement && event.target.parentElement.classList.contains("pagination-next"))) {
         event.preventDefault();
@@ -992,4 +1012,91 @@ document.querySelector(".pagination-wrap").addEventListener("click", function(ev
             activeElement.nextElementSibling.children[0].click();
         }
     }
+});
+
+/*
+|--------------------------------------------------------------------------
+| Export DPPs Table Report
+|--------------------------------------------------------------------------
+*/
+
+$(document).ready(function() {
+    $('#exportDppsTableReport').on('click', function(event) {
+        event.preventDefault(); // Prevent default action
+
+        // Reference the export button and save its initial width
+        var exportBtn = $('#exportDppsTableReport');
+        var initialWidth = exportBtn.outerWidth(); // Get the initial width
+
+        // Set the button to fixed width and show the spinner
+        exportBtn.css('width', initialWidth + 'px');
+        exportBtn.removeClass('btn-label').addClass('d-flex justify-content-center');
+        exportBtn.html('<div class="spinner-border text-light" style="width: 1.2rem; height: 1.2rem;" role="status"><span class="sr-only">Loading...</span></div>');
+        exportBtn.prop('disabled', true); // Disable the button
+
+        // Get the search input
+        var searchValue = document.getElementById('custom-dpps-search').value;
+
+        $.ajax({
+            url: route('dpps.export'),
+            method: 'POST',
+            data: {
+                search: searchValue,
+                _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
+            },
+            xhrFields: {
+                responseType: 'blob' // Important to handle binary data from server response
+            },
+            success: function(response) {
+                // Create a link element to download the file
+                var downloadUrl = window.URL.createObjectURL(response);
+                var link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = "dpps_report.xlsx"; // File name
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Display success notification
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Report exported successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    showCloseButton: true,
+                    toast: true
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+
+                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
+                } else {
+                    message = 'An error occurred while processing your request. Please try again later.';
+                }
+
+                // Display error notification
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
+            },
+            complete: function() {
+                // Re-enable the button, restore original text, and re-add btn-label class
+                exportBtn.prop('disabled', false);
+                exportBtn.html('<i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i> Export Report'); // Original button text
+                exportBtn.removeClass('d-flex justify-content-center').addClass('btn-label'); // Restore original class
+                exportBtn.css('width', ''); // Remove the fixed width
+            }
+        });
+    });
 });
