@@ -374,7 +374,7 @@ class ApplicantsReportController extends Controller
                 $totalAppointedApplicants = $this->applicantsReportDataService->getTotalAppointedApplicants($type, $id, $startDate, $endDate);
                 $totalApplicantsFiltered = $this->applicantsReportDataService->getTotalApplicantsFiltered($type, $id, $startDate, $endDate, $filters);
                 $totalAppointedApplicantsFiltered = $this->applicantsReportDataService->getTotalAppointedApplicantsFiltered($type, $id, $startDate, $endDate, $filters);
-                $totalApplicantsByMonthFiltered = $this->applicantsReportDataService->getTotalApplicantsByMonthFiltered($type, $id, $startDate, $endDate, $maxDistanceFromStore, $filters);
+                $totalApplicantsByMonthFiltered = $this->applicantsReportDataService->getTotalApplicantsByMonthFiltered($type, $startDate, $endDate, $maxDistanceFromStore, $filters);
             }
 
             //Data to return

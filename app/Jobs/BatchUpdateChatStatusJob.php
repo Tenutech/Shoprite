@@ -12,7 +12,10 @@ use Illuminate\Support\Facades\DB;
 
 class BatchUpdateChatStatusJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
     protected $batchData;
 
@@ -36,7 +39,7 @@ class BatchUpdateChatStatusJob implements ShouldQueue
                     'status' => 'Failed',
                     'code' => $update['status_data']['errors'][0]['code'] ?? null,
                     'reason' => $update['status_data']['errors'][0]['title'] ?? 'Unknown reason',
-                    'updated_at' => $now, 
+                    'updated_at' => $now,
                 ];
             } elseif ($update['status'] === 'sent') {
                 $sentUpdates[] = $update['message_id'];

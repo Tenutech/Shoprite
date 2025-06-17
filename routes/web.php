@@ -159,6 +159,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/admins/destroy-multiple', [App\Http\Controllers\AdminsController::class, 'destroyMultiple'])->name('admins.destroyMultiple');
 
+    Route::post('/admins/export', [App\Http\Controllers\AdminsController::class, 'export'])->name('admins.export');
+
     //Super Admins
 
     Route::get('/super-admins', [App\Http\Controllers\SuperAdminsController::class, 'index'])->name('super-admins.index');
