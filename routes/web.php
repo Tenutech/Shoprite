@@ -117,6 +117,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/dpps/destroy-multiple', [App\Http\Controllers\DPPsController::class, 'destroyMultiple'])->name('dpps.destroyMultiple');
 
+    Route::post('/dpps/export', [App\Http\Controllers\DPPsController::class, 'export'])->name('dpps.export');
+
     //DTDPs
 
     Route::get('/dtdps', [App\Http\Controllers\DTDPsController::class, 'index'])->name('dtdps.index');
