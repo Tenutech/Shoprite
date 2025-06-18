@@ -13,11 +13,12 @@ use Illuminate\Support\Facades\URL;
 class VerifyEmailUpdate extends Mailable
 {
     // Enables queuing for mail delivery to improve performance
-    use Queueable, SerializesModels;
+    use Queueable;
+    use SerializesModels;
 
     /**
      * The user instance.
-     * 
+     *
      * @var \App\Models\User
      */
     public $user;
@@ -27,7 +28,7 @@ class VerifyEmailUpdate extends Mailable
      *
      * This constructor method initializes the Mailable with the user's data.
      * It accepts a `User` model instance and assigns it to the `$user` property.
-     * 
+     *
      * @param \App\Models\User $user The user who is requesting an email verification.
      */
     public function __construct($user)
@@ -37,10 +38,10 @@ class VerifyEmailUpdate extends Mailable
 
     /**
      * Build the email message.
-     * 
+     *
      * This method constructs the email, generating a secure, signed URL
      * for email verification. The link expires after 15 minutes.
-     * 
+     *
      * @return $this
      */
     public function build()

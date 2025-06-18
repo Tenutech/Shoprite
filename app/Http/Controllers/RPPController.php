@@ -120,10 +120,10 @@ class RPPController extends Controller
                 ->map(function ($vacancy) use ($vacancyNoInterviewPostingDays) {
                     // Calculate the deletion date
                     $deletionDate = Carbon::parse($vacancy->created_at)->addDays($vacancyNoInterviewPostingDays);
-            
+
                     // Calculate remaining days using hours to avoid rounding issues
                     $vacancy->days_until_deletion = max(0, ceil(Carbon::now()->diffInHours($deletionDate, false) / 24));
-            
+
                     return $vacancy;
                 });
 
@@ -144,10 +144,10 @@ class RPPController extends Controller
                 ->map(function ($vacancy) use ($vacancyNoAppointmentPostingDays) {
                     // Calculate the deletion date
                     $deletionDate = Carbon::parse($vacancy->created_at)->addDays($vacancyNoAppointmentPostingDays);
-            
+
                     // Calculate remaining days using hours to avoid rounding issues
                     $vacancy->days_until_deletion = max(0, ceil(Carbon::now()->diffInHours($deletionDate, false) / 24));
-            
+
                     return $vacancy;
                 });
 
