@@ -22,11 +22,19 @@ Divisions
                             Add Division
                         </button>
                     </div>
-                    <div class="flex-shrink-0">
-                        <div class="hstack text-nowrap gap-2">
-                            <button class="btn btn-soft-danger" onClick="deleteMultiple()">
-                                <i class="ri-delete-bin-2-line"></i>
-                            </button>
+                    <div class="mt-3 mt-lg-0">
+                        <div class="row g-3 mb-0 align-items-center">
+                            <div class="col-sm-auto">
+                                <div class="hstack gap-1">
+                                    <button type="button" id="exportDivisionsTableReport" class="btn btn-success btn-label">
+                                        <i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i>
+                                        Export Report
+                                    </button>
+                                    <button class="btn btn-soft-danger ms-2" onClick="deleteMultiple()">
+                                        <i class="ri-delete-bin-2-line"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -40,7 +48,7 @@ Divisions
                 <div class="row g-3">
                     <div class="col-md-4">
                         <div class="search-box">
-                            <input type="text" class="form-control search" placeholder="Search for division...">
+                            <input type="text" id="custom-divisions-search" class="form-control search" placeholder="Search for division...">
                             <i class="ri-search-line search-icon"></i>
                         </div>
                     </div>
@@ -71,7 +79,7 @@ Divisions
                                         </div>
                                     </th>
                                     <th class="sort d-none" data-sort="id" scope="col">ID</th>
-                                    <th class="sort" data-sort="name" scope="col">Name</th> 
+                                    <th class="sort" data-sort="name" scope="col">Name</th>
                                     <th scope="col">Action</th>
                                 </tr>
                             </thead>
@@ -211,7 +219,7 @@ Divisions
                                             </label>
                                             <input type="text" class="form-control" id="name" name="name" required>
                                         </div>
-                                        
+
                                     </div>
                                 </div>
                                 <div class="modal-footer">

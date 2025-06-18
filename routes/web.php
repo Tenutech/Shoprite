@@ -291,6 +291,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/divisions/destroy-multiple', [App\Http\Controllers\DivisionsController::class, 'destroyMultiple'])->name('divisions.destroyMultiple');
 
+    Route::post('/divisions/export', [App\Http\Controllers\DivisionsController::class, 'export'])->name('divisions.export');
 
     //Positions
 

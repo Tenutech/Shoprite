@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DivisionsExport;
 use Exception;
 use App\Models\Division;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Crypt;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DivisionsController extends Controller
 {
@@ -214,5 +216,16 @@ class DivisionsController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Summary of export
+     * @param \Illuminate\Http\Request $request
+     */
+    public function export(Request $request)
+    {
+        $search = $request->input('search');
+
+        return Excel::download(new DivisionsExport($search), 'divisions_report.xlsx');
     }
 }
