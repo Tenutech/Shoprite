@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\DTDPsExport;
 use Exception;
 use App\Models\User;
 use App\Models\Role;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class DTDPsController extends Controller
 {
@@ -394,5 +396,16 @@ class DTDPsController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Summary of export
+     * @param \Illuminate\Http\Request $request
+     */
+    public function export(Request $request)
+    {
+        $search = $request->input('search');
+
+        return Excel::download(new DTDPsExport($search), 'dtdps_export.xlsx');
     }
 }
