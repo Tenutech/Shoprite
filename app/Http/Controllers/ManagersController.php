@@ -15,6 +15,8 @@ use App\Models\Brand;
 use App\Jobs\ProcessUserIdNumber;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Exports\ManagersExport;
+use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
@@ -389,5 +391,12 @@ class ManagersController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function export(Request $request)
+    {
+        $search = $request->input('search');
+
+        return Excel::download(new ManagersExport($search), 'managers_export.xlsx');
     }
 }
