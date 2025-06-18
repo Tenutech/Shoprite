@@ -95,7 +95,7 @@ class DTDPsExport implements FromGenerator, WithHeadings, WithStyles, WithColumn
 
     public function title(): string
     {
-        return 'DPP Report';
+        return 'DTDP Report';
     }
 
     private function applySearch($query, $search)
