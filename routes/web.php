@@ -173,6 +173,7 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/super-admins/destroy-multiple', [App\Http\Controllers\SuperAdminsController::class, 'destroyMultiple'])->name('super-admins.destroyMultiple');
 
+    
     //Impersonate
 
     Route::get('/impersonate/{id}', [App\Http\Controllers\ImpersonateController::class, 'impersonate'])->name('impersonate');
@@ -305,6 +306,9 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::delete('/position/destroy/{id}', [App\Http\Controllers\PositionsController::class, 'destroy'])->name('position.destroy');
 
     Route::post('/position/destroy-multiple', [App\Http\Controllers\PositionsController::class, 'destroyMultiple'])->name('position.destroyMultiple');
+
+    Route::post('/position/export', [App\Http\Controllers\PositionsController::class, 'export'])->name('position.export');
+
 
     //Brands
 
