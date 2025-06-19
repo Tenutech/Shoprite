@@ -173,6 +173,9 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/super-admins/destroy-multiple', [App\Http\Controllers\SuperAdminsController::class, 'destroyMultiple'])->name('super-admins.destroyMultiple');
 
+    Route::post('/super-admins/export', [App\Http\Controllers\SuperAdminsController::class, 'export'])->name('super-admins.export');
+
+
     //Impersonate
 
     Route::get('/impersonate/{id}', [App\Http\Controllers\ImpersonateController::class, 'impersonate'])->name('impersonate');
