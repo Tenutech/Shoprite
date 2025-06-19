@@ -278,6 +278,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/regions/destroy-multiple', [App\Http\Controllers\RegionsController::class, 'destroyMultiple'])->name('regions.destroyMultiple');
 
+    Route::post('/regions/export', [App\Http\Controllers\RegionsController::class, 'export'])->name('regions.export');
+
     //Divisions
     Route::get('/divisions', [App\Http\Controllers\DivisionsController::class, 'index'])->name('divisions.index');
 
