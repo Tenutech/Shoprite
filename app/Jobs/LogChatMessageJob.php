@@ -17,9 +17,17 @@ use Illuminate\Support\Facades\Log;
 
 class LogChatMessageJob implements ShouldQueue
 {
-    use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
+    use Dispatchable;
+    use InteractsWithQueue;
+    use Queueable;
+    use SerializesModels;
 
-    protected $applicantID, $message, $type, $messageId, $status, $template;
+    protected $applicantID;
+    protected $message;
+    protected $type;
+    protected $messageId;
+    protected $status;
+    protected $template;
 
     /**
      * Create a new job instance.
