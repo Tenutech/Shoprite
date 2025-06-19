@@ -12,6 +12,7 @@ use App\Jobs\UpdateApplicantData;
 class Applicant extends Model
 {
     use HasFactory;
+
     //use LogsActivity;
 
     protected $fillable = [

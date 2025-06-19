@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Exports\PositionsExport;
 use App\Models\Brand;
 use App\Models\Position;
 use Illuminate\Http\Request;
@@ -15,6 +16,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PositionsController extends Controller
 {
@@ -276,5 +278,12 @@ class PositionsController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function export(Request $request)
+    {
+        $search = $request->input('search');
+
+        return Excel::download(new PositionsExport($search), 'positions_export.xlsx');
     }
 }
