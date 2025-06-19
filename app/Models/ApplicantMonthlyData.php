@@ -10,6 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class ApplicantMonthlyData extends Model
 {
     use HasFactory;
+
     //use LogsActivity;
 
     protected $table = 'applicant_monthly_data';

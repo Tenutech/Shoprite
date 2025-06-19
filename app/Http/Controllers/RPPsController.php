@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Exports\RPPsExport;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Gender;
@@ -26,6 +27,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class RPPsController extends Controller
 {
@@ -394,5 +396,16 @@ class RPPsController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    /**
+     * Summary of export
+     * @param \Illuminate\Http\Request $request
+     */
+    public function export(Request $request)
+    {
+        $search = $request->input('search');
+
+        return Excel::download(new RPPsExport($search), 'rpps_export.xlsx');
     }
 }

@@ -328,11 +328,11 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Generate an email verification token for profile updates.
-     * 
+     *
      * This method creates a new random 32-character token, hashes it for security,
      * and stores it in the `email_verification_token` column. It also sets an expiration
      * time (e.g., 15 minutes from the current time) in the `email_verification_expires_at` column.
-     * 
+     *
      * Once generated, the token is saved to the database.
      */
     public function generateEmailVerificationToken()
@@ -349,11 +349,11 @@ class User extends Authenticatable implements MustVerifyEmail
 
     /**
      * Check if the email verification token is valid.
-     * 
+     *
      * This method verifies if a token exists and if it has not expired.
      * It returns `true` if the user has a valid email verification token
      * that has not yet expired, and `false` otherwise.
-     * 
+     *
      * @return bool True if the email verification token is still valid, false otherwise.
      */
     public function isEmailVerificationValid()

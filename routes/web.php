@@ -145,6 +145,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::post('/rpps/destroy-multiple', [App\Http\Controllers\RPPsController::class, 'destroyMultiple'])->name('rpps.destroyMultiple');
 
+    Route::post('/rpps/export', [App\Http\Controllers\RPPsController::class, 'export'])->name('rpps.export');
+
     //Admins
 
     Route::get('/admins', [App\Http\Controllers\AdminsController::class, 'index'])->name('admins.index');

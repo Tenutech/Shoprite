@@ -455,12 +455,12 @@ class ApplicantsTableController extends Controller
             $applicantsQuery->where(function ($query) use ($search, $employmentCode) {
                 $lowerSearch = strtolower($search); // Normalize search term for all filters
                 $searchTerms = array_filter(explode(' ', $lowerSearch)); // Split search into words and remove empty terms
-            
+
                 // Filter by employment code if applicable
                 $query->when($employmentCode, function ($q) use ($employmentCode) {
                     $q->orWhere('employment', $employmentCode);
                 });
-            
+
                 // Apply case-insensitive search for other fields
                 $query->when(!$employmentCode, function ($q) use ($searchTerms) {
                     foreach ($searchTerms as $term) {
@@ -488,7 +488,7 @@ class ApplicantsTableController extends Controller
                         });
                     }
                 });
-            });            
+            });
 
             $applicants = $applicantsQuery->paginate($perPage);
 

@@ -10,6 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class Chat extends Model
 {
     use HasFactory;
+
     //use LogsActivity;
 
     protected $fillable = [
