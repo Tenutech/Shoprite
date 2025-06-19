@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Spatie\Activitylog\LogOptions;
 use Spatie\Activitylog\Traits\LogsActivity;
 
-class QueryImage  extends Model
+class QueryImage extends Model
 {
     use HasFactory;
     use LogsActivity;
