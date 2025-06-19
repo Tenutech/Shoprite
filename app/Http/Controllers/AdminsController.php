@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use App\Exports\AdminsExport;
 use App\Models\User;
 use App\Models\Role;
 use App\Models\Gender;
@@ -24,6 +25,7 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
+use Maatwebsite\Excel\Facades\Excel;
 
 class AdminsController extends Controller
 {
@@ -389,5 +391,12 @@ class AdminsController extends Controller
                 'error' => $e->getMessage()
             ], 500);
         }
+    }
+
+    public function export(Request $request)
+    {
+        $search = $request->input('search');
+
+        return Excel::download(new AdminsExport($search), 'admins_export.xlsx');
     }
 }
