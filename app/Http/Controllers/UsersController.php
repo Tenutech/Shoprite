@@ -522,7 +522,7 @@ class UsersController extends Controller
             $search = $request->input('search');
 
             // Get credentials using config (not env)
-            $dbConnection = config('database.default'); // usually 'mysql'
+            $dbConnection = config('database.default');
             $dbConfig = config("database.connections.$dbConnection");
 
             $pythonPath = config('services.python.path');
@@ -535,7 +535,7 @@ class UsersController extends Controller
             ]);
 
             // Set credentials as environment variables
-            $test = $process->setEnv([
+            $process->setEnv([
                 'DB_HOST' => $dbConfig['host'],
                 'DB_PORT' => (string) $dbConfig['port'],
                 'DB_DATABASE' => $dbConfig['database'],
