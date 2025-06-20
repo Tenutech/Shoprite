@@ -13,6 +13,8 @@ use App\Models\Division;
 use App\Models\Region;
 use App\Models\Brand;
 use App\Jobs\ProcessUserIdNumber;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\DB;
@@ -499,6 +501,73 @@ class UsersController extends Controller
                 'message' => 'Failed to fetch users!',
                 'error'   => $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Export filtered users data to an Excel report.
+     *
+     * This method retrieves users data based on search input
+     * and exports it as an Excel file
+     *
+     * @param Request $request The incoming HTTP request containing filters.
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse An Excel file download response.
+     */
+    public function export(Request $request)
+    {
+        try {
+            $authUserId = Auth::id();
+            $authUser = User::find($authUserId);
+
+            $search = $request->input('search');
+
+            // Get credentials using config (not env)
+            $dbConnection = config('database.default');
+            $dbConfig = config("database.connections.$dbConnection");
+
+            $pythonPath = config('services.python.path');
+            $scriptPath = base_path('python/exports/users_export.py');
+            $process = new Process([
+                $pythonPath,
+                $scriptPath,
+                '--auth_user', json_encode($authUser),
+                '--search', $search,
+            ]);
+
+            // Set credentials as environment variables
+            $process->setEnv([
+                'DB_HOST' => $dbConfig['host'],
+                'DB_PORT' => (string) $dbConfig['port'],
+                'DB_DATABASE' => $dbConfig['database'],
+                'DB_USERNAME' => $dbConfig['username'],
+                'DB_PASSWORD' => $dbConfig['password'],
+            ]);
+
+            $process->setTimeout(300);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+
+            $output = trim($process->getOutput());
+
+            if (!file_exists($output)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Export file not found.',
+                ], 500);
+            }
+
+            return response()->download($output, basename($output))
+                ->deleteFileAfterSend(true);
+        } catch (Exception $e) {
+            // Handle any errors
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred during export.',
+                'error' => $e->getMessage(),
+            ], 400);
         }
     }
 }

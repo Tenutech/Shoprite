@@ -22,11 +22,19 @@
                                 Add User
                             </button>
                         </div>
-                        <div class="flex-shrink-0">
-                            <div class="hstack text-nowrap gap-2">
-                                <button class="btn btn-soft-danger" onClick="deleteMultiple()">
-                                    <i class="ri-delete-bin-2-line"></i>
-                                </button>
+                        <div class="mt-3 mt-lg-0">
+                            <div class="row g-3 mb-0 align-items-center">
+                                <div class="col-sm-auto">
+                                    <div class="hstack gap-1">
+                                        <button type="button" id="exportUsersTableReport" class="btn btn-success btn-label">
+                                            <i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i>
+                                            Export Report
+                                        </button>
+                                        <button class="btn btn-soft-danger ms-2" onClick="deleteMultiple()">
+                                            <i class="ri-delete-bin-2-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -78,7 +86,7 @@
                                         <th class="sort d-none" data-sort="age" scope="col">Age</th>
                                         <th class="sort d-none" data-sort="gender" scope="col">Gender</th>
                                         <th class="sort d-none" data-sort="role" scope="col">Role</th>
-                                        <th class="sort" data-sort="status" scope="col">Status</th>                          
+                                        <th class="sort" data-sort="status" scope="col">Status</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -262,7 +270,7 @@
                                 <a class="page-item pagination-next" href="#" data-i="2" data-page="10">
                                     Next
                                 </a>
-                            </div>                           
+                            </div>
                         </div>
                     </div>
 
@@ -344,7 +352,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->                  
+                                                <!--end col-->
                                             </div>
                                             <!--end col-->
 
@@ -380,7 +388,7 @@
                                                     </label>
                                                     <input type="number" id="age" name="age" class="form-control" placeholder="Enter age" max="100" min="16"/>
                                                 </div>
-                                                <!--end col-->                                                
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="role" class="form-label">
                                                         Role
@@ -479,7 +487,7 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
                                             <div class="col-lg-12">
                                                 <!-- Confirm Password -->
                                                 <div class="mb-2">
@@ -490,7 +498,7 @@
                                                         </button>
                                                     </div>
                                                 </div>
-                                            </div>                                        
+                                            </div>
 
                                             <div class="hstack gap-2 justify-content-center remove">
                                                 <button class="btn btn-light" data-bs-dismiss="modal" id="resetPassword-close">
