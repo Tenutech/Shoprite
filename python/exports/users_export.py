@@ -116,9 +116,6 @@ logging.info(f"Search: {search if search else 'No search filter applied'}")
 # Execute the SQL query using pandas and parameterized inputs
 data = pd.read_sql_query(base_query, connection, params=params if params else None)
 
-# Optional: log number of rows
-# print(f"Number of rows fetched: {len(data)}")
-
 # --- Data Processing ---
 mapped_data = []
 for _, row in data.iterrows():

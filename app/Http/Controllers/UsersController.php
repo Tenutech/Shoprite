@@ -507,10 +507,8 @@ class UsersController extends Controller
     /**
      * Export filtered users data to an Excel report.
      *
-     * This method retrieves users data based on selected filters
-     * and exports it as an Excel file. The filters include various
-     * users attributes, date range, location-based proximity,
-     * and type (e.g., store, division, or region).
+     * This method retrieves users data based on search input
+     * and exports it as an Excel file
      *
      * @param Request $request The incoming HTTP request containing filters.
      * @return \Symfony\Component\HttpFoundation\BinaryFileResponse An Excel file download response.
