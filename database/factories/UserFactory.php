@@ -18,14 +18,19 @@ class UserFactory extends Factory
             'firstname' => $this->faker->firstName,
             'lastname' => $this->faker->lastName,
             'email' => $this->faker->unique()->safeEmail(),
-            'status_id' => function () {
-                return \App\Models\Status::factory()->create()->id;
-            },
             'email_verified_at' => now(),
-            'role_id' => function () {
-                return \App\Models\Role::factory()->create()->id;
-            },
-            'password' => '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi',
+            'password' => '$2y$10$Jo981kE7L3V/b/9yb4pd2.eCogVKrzzJ1UHydxIfsCFkHOE3DnwBC',
+            'age' => $this->faker->numberBetween(18,60),
+            'gender_id' => $this->faker->numberBetween(1,2),
+            'position_id' => \App\Models\Position::all()->random()->id,
+            'role_id' => \App\Models\Role::all()->random()->id,
+            'applicant_id' => \App\Models\Applicant::all()->random()->id,
+            'store_id' => \App\Models\Store::all()->random()->id,
+            'division_id' => \App\Models\Division::all()->random()->id,
+            'region_id' => \App\Models\Region::all()->random()->id,
+            'brand_id' => \App\Models\Brand::all()->random()->id,
+            'internal' => $this->faker->numberBetween(1,2),
+            'status_id' => \App\Models\Status::all()->random()->id,
             'remember_token' => Str::random(10),
         ];
     }
