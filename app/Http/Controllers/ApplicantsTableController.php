@@ -26,7 +26,8 @@ use App\Http\Requests\UpdateApplicantRequest;
 use Illuminate\Validation\Rule;
 use App\Jobs\ProcessUserIdNumber;
 use App\Jobs\SendIdNumberToSap;
-use Illuminate\Support\Facades\Log;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class ApplicantsTableController extends Controller
 {
@@ -455,12 +456,12 @@ class ApplicantsTableController extends Controller
             $applicantsQuery->where(function ($query) use ($search, $employmentCode) {
                 $lowerSearch = strtolower($search); // Normalize search term for all filters
                 $searchTerms = array_filter(explode(' ', $lowerSearch)); // Split search into words and remove empty terms
-            
+
                 // Filter by employment code if applicable
                 $query->when($employmentCode, function ($q) use ($employmentCode) {
                     $q->orWhere('employment', $employmentCode);
                 });
-            
+
                 // Apply case-insensitive search for other fields
                 $query->when(!$employmentCode, function ($q) use ($searchTerms) {
                     foreach ($searchTerms as $term) {
@@ -488,7 +489,7 @@ class ApplicantsTableController extends Controller
                         });
                     }
                 });
-            });            
+            });
 
             $applicants = $applicantsQuery->paginate($perPage);
 
@@ -513,6 +514,77 @@ class ApplicantsTableController extends Controller
                 'message' => 'Failed to fetch applicants!',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    /**
+     * Export filtered applicants data to an Excel report.
+     *
+     * This method retrieves applicants data based on search input
+     * and exports it as an Excel file. The filters include various
+     * users attributes, date range, location-based proximity,
+     * and type (e.g., store, division, or region).
+     *
+     * @param Request $request The incoming HTTP request containing filters.
+     * @return \Symfony\Component\HttpFoundation\BinaryFileResponse An Excel file download response.
+     */
+    public function export(Request $request)
+    {
+        try {
+            $authUserId = Auth::id();
+            $authUser = User::find($authUserId);
+            $completeStateID = State::where('code', 'complete')->value('id');
+
+            $search = $request->input('search');
+
+            // Get credentials using config (not env)
+            $dbConnection = config('database.default');
+            $dbConfig = config("database.connections.$dbConnection");
+
+            $pythonPath = config('services.python.path');
+            $scriptPath = base_path('python/exports/applicants_table_export.py');
+            $process = new Process([
+                $pythonPath,
+                $scriptPath,
+                '--auth_user', json_encode($authUser),
+                '--search', $search,
+                '--complete_state_id', $completeStateID,
+            ]);
+
+            // Set credentials as environment variables
+            $process->setEnv([
+                'DB_HOST' => $dbConfig['host'],
+                'DB_PORT' => (string) $dbConfig['port'],
+                'DB_DATABASE' => $dbConfig['database'],
+                'DB_USERNAME' => $dbConfig['username'],
+                'DB_PASSWORD' => $dbConfig['password'],
+            ]);
+
+            $process->setTimeout(300);
+            $process->run();
+
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+
+            $output = trim($process->getOutput());
+
+            if (!file_exists($output)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Export file not found.',
+                ], 500);
+            }
+
+            return response()->download($output, basename($output))
+                ->deleteFileAfterSend(true);
+        } catch (Exception $e) {
+            // Handle any errors
+            return response()->json([
+                'success' => false,
+                'message' => 'An error occurred during export.',
+                'error' => $e->getMessage(),
+            ], 400);
         }
     }
 }

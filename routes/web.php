@@ -67,6 +67,8 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
 
     Route::get('/api/applicants/fetch', [App\Http\Controllers\ApplicantsTableController::class, 'fetchApplicants'])->name('applicants-table.fetchApplicants');
 
+    Route::post('/applicants-table/export', [App\Http\Controllers\ApplicantsTableController::class, 'export'])->name('applicants-table.export');
+
     //Users
 
     Route::get('/users', [App\Http\Controllers\UsersController::class, 'index'])->name('users.index');

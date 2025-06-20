@@ -10,6 +10,7 @@ use Spatie\Activitylog\Traits\LogsActivity;
 class ChatTotalData extends Model
 {
     use HasFactory;
+
     //use LogsActivity;
 
     protected $table = 'chat_total_data';
