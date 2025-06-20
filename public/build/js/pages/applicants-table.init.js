@@ -682,7 +682,7 @@ function refreshCallbacks() {
                                         <tr>
                                             <td class="fw-medium" scope="row">State</td>
                                             <td>${x._values.state}</td>
-                                        </tr>                                        
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -1141,7 +1141,7 @@ $(document).on('input', '#search', function () {
                     $('.noresult').show(); // Make the message visible
                 } else {
                     // Hide the "No Results Found" message
-                    $('.noresult').hide();        
+                    $('.noresult').hide();
 
                     // Add new data to the list
                     response.data.forEach(applicant => {
@@ -1220,4 +1220,91 @@ $(document).on('input', '#search', function () {
             }
         });
     }, 300); // Debounce delay in milliseconds
+});
+
+/*
+|--------------------------------------------------------------------------
+| Export Applicants Table Report
+|--------------------------------------------------------------------------
+*/
+
+$(document).ready(function() {
+    $('#exportApplicantsTableReport').on('click', function(event) {
+        event.preventDefault(); // Prevent default action
+
+        // Reference the export button and save its initial width
+        var exportBtn = $('#exportApplicantsTableReport');
+        var initialWidth = exportBtn.outerWidth(); // Get the initial width
+
+        // Set the button to fixed width and show the spinner
+        exportBtn.css('width', initialWidth + 'px');
+        exportBtn.removeClass('btn-label').addClass('d-flex justify-content-center');
+        exportBtn.html('<div class="spinner-border text-light" style="width: 1.2rem; height: 1.2rem;" role="status"><span class="sr-only">Loading...</span></div>');
+        exportBtn.prop('disabled', true); // Disable the button
+
+        // Get the search input
+        var searchValue = document.getElementById('search').value;
+
+        $.ajax({
+            url: route('applicants-table.export'),
+            method: 'POST',
+            data: {
+                search: searchValue,
+                _token: $('meta[name="csrf-token"]').attr('content') // CSRF token
+            },
+            xhrFields: {
+                responseType: 'blob' // Important to handle binary data from server response
+            },
+            success: function(response) {
+                // Create a link element to download the file
+                var downloadUrl = window.URL.createObjectURL(response);
+                var link = document.createElement('a');
+                link.href = downloadUrl;
+                link.download = "Candidates Table Report.csv"; // File name
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Display success notification
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'Report exported successfully!',
+                    showConfirmButton: false,
+                    timer: 2000,
+                    showCloseButton: true,
+                    toast: true
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                let message = ''; // Initialize the message variable
+
+                if (jqXHR.status === 400 || jqXHR.status === 422) {
+                    message = jqXHR.responseJSON.message;
+                } else if (textStatus === 'timeout') {
+                    message = 'The request timed out. Please try again later.';
+                } else {
+                    message = 'An error occurred while processing your request. Please try again later.';
+                }
+
+                // Display error notification
+                Swal.fire({
+                    position: 'top-end',
+                    icon: 'error',
+                    title: message,
+                    showConfirmButton: false,
+                    timer: 5000,
+                    showCloseButton: true,
+                    toast: true
+                });
+            },
+            complete: function() {
+                // Re-enable the button, restore original text, and re-add btn-label class
+                exportBtn.prop('disabled', false);
+                exportBtn.html('<i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i> Export Report'); // Original button text
+                exportBtn.removeClass('d-flex justify-content-center').addClass('btn-label'); // Restore original class
+                exportBtn.css('width', ''); // Remove the fixed width
+            }
+        });
+    });
 });

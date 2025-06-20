@@ -29,11 +29,19 @@
                                 Add Candidate
                             </button>
                         </div>
-                        <div class="flex-shrink-0">
-                            <div class="hstack text-nowrap gap-2">
-                                <button class="btn btn-soft-danger" onClick="deleteMultiple()">
-                                    <i class="ri-delete-bin-2-line"></i>
-                                </button>
+                        <div class="mt-3 mt-lg-0">
+                            <div class="row g-3 mb-0 align-items-center">
+                                <div class="col-sm-auto">
+                                    <div class="hstack gap-1">
+                                        <button type="button" id="exportApplicantsTableReport" class="btn btn-success btn-label">
+                                            <i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i>
+                                            Export Report
+                                        </button>
+                                        <button class="btn btn-soft-danger ms-2" onClick="deleteMultiple()">
+                                            <i class="ri-delete-bin-2-line"></i>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -156,8 +164,8 @@
                                                     @endphp
                                                     <span class="badge bg-{{ $status }}-subtle text-{{ $status }} text-uppercase">
                                                         {{ $employment }}
-                                                    </span>                                                    
-                                                </td> 
+                                                    </span>
+                                                </td>
                                                 <td class="state">{{ $applicant->state_id ? $applicant->state->name : '' }}</td>
                                                 <td class="email d-none">{{ $applicant->email }}</td>
                                                 <td class="town d-none">{{ $applicant->town_id ? $applicant->town->name : '' }}</td>
@@ -211,7 +219,7 @@
                                             <td class="phone"></td>
                                             <td class="employment"></td>
                                             <td class="state"></td>
-                                            <td class="email d-none"></td>                                           
+                                            <td class="email d-none"></td>
                                             <td class="town d-none"></td>
                                             <td class="age d-none"></td>
                                             <td class="gender d-none"></td>
@@ -295,8 +303,8 @@
                                 <a class="page-item pagination-next" href="#" data-i="2" data-page="10">
                                     Next
                                 </a>
-                            </div>                           
-                        </div>                        
+                            </div>
+                        </div>
                     </div>
 
                     <!-- Modal Applicant -->
@@ -373,7 +381,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->                                              
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="location" class="form-label" data-bs-toggle="tooltip" data-bs-placement="top" title="What is your current home address where you stay/live 🏡? Please type every detail. (e.g. street number, street name, suburb, town, postal code).">
                                                         Address
@@ -484,7 +492,7 @@
                                                         @endforeach
                                                     </select>
                                                 </div>
-                                                <!--end col-->                                      
+                                                <!--end col-->
                                                 <div class="col-lg-12 mb-3">
                                                     <label for="education" class="form-label">
                                                         Education
