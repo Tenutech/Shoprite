@@ -24,6 +24,8 @@ use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Response;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class ManagersController extends Controller
 {
@@ -388,6 +390,57 @@ class ManagersController extends Controller
                 'message' => 'Failed to delete users!',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Export Users
+    |--------------------------------------------------------------------------
+    */
+
+    public function export(Request $request)
+    {
+        try {
+            // Retrieve the path to the Python interpreter from Laravel's config/services.php
+            $pythonPath = config('services.python.path');
+
+            // Define the path to the Python script that will handle the export logic
+            $scriptPath = base_path('python/exports/users_export.py');
+
+            // Create a new Symfony Process to execute the Python script
+            $process = new Process([$pythonPath, $scriptPath]);
+
+            // Set a timeout of 300 seconds (5 minutes) to prevent long-running scripts from hanging
+            $process->setTimeout(300);
+
+            // Execute the process
+            $process->run();
+
+            // Check if the process was successful; if not, throw an exception
+            if (!$process->isSuccessful()) {
+                throw new ProcessFailedException($process);
+            }
+
+            // Get the output from the Python script, which should be the full file path to the generated CSV
+            $output = trim($process->getOutput());
+
+            // Verify that the file exists at the specified path
+            if (!file_exists($output)) {
+                // Return a 500 error if the file was not created/found
+                return response()->json(['message' => 'Export file not found.'], 500);
+            }
+
+            // Return the file as a downloadable response and delete it after sending
+            return response()->download($output, basename($output))
+                            ->deleteFileAfterSend(true);
+
+        } catch (\Exception $e) {
+            // Catch any exceptions and return a 400 error with the error message
+            return response()->json([
+                'message' => 'An error occurred during export.',
+                'error' => $e->getMessage(),
+            ], 400);
         }
     }
 }

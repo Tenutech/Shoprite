@@ -24,6 +24,10 @@
                         </div>
                         <div class="flex-shrink-0">
                             <div class="hstack text-nowrap gap-2">
+                                <button type="button" id="exportUsers" class="btn btn-success btn-label">
+                                    <i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i>
+                                    Export Users
+                                </button>
                                 <button class="btn btn-soft-danger" onClick="deleteMultiple()">
                                     <i class="ri-delete-bin-2-line"></i>
                                 </button>

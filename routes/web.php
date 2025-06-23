@@ -649,6 +649,9 @@ Route::prefix('admin')->middleware(['auth', 'verified', 'role:1,2', 'user.activi
     Route::get('/api/applicants-metrics', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'getApplicantsMetrics'])->name('applicants.reports.metrics');
 
     Route::get('/api/graph-metrics', [App\Http\Controllers\Reports\ApplicantsReportController::class, 'getApplicantsGraphMetrics'])->name('graph.reports.metrics');
+
+    // Users Reports
+    Route::get('/reports/users/export', [App\Http\Controllers\ManagersController::class, 'export'])->name('users.reports.export');
 });
 
 /*
