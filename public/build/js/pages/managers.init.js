@@ -1013,3 +1013,73 @@ document.querySelector(".pagination-wrap").addEventListener("click", function(ev
         }
     }
 });
+
+/*
+|--------------------------------------------------------------------------
+| Export Users
+|--------------------------------------------------------------------------
+*/
+
+// When the 'Export Users' button is clicked
+$('#exportUsers').on('click', function (event) {
+    event.preventDefault(); // Prevent the default form submission or link action
+
+    // Cache the button element and get its current width to preserve layout
+    var exportBtn = $('#exportUsers');
+    var initialWidth = exportBtn.outerWidth();
+
+    // Lock the button width and show a loading spinner inside the button
+    exportBtn.css('width', initialWidth + 'px');
+    exportBtn.removeClass('btn-label').addClass('d-flex justify-content-center');
+    exportBtn.html('<div class="spinner-border text-light" style="width: 1.2rem; height: 1.2rem;" role="status"><span class="sr-only">Loading...</span></div>');
+    exportBtn.prop('disabled', true); // Disable the button to prevent multiple clicks
+
+    // Perform AJAX POST request to the Laravel export route
+    $.ajax({
+        url: route("users.reports.export"), // Laravel route helper wrapped via Ziggy or similar
+        method: 'GET',
+        xhrFields: { 
+            responseType: 'blob' // Expect a file (blob) in the response
+        },
+        success: function(response) {
+            // Create a link element to download the file
+            var downloadUrl = window.URL.createObjectURL(response);
+            var link = document.createElement('a');
+            link.href = downloadUrl;
+            link.download = "Internal Users Report.csv"; // File name
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            // Display success notification
+            Swal.fire({
+                position: 'top-end',
+                icon: 'success',
+                title: 'Report exported successfully!',
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+                toast: true
+            });
+        },
+        error: function () {
+            // Show error notification if export fails
+            Swal.fire({
+                position: 'top-end',
+                icon: 'error',
+                title: 'Error exporting users.',
+                showConfirmButton: false,
+                timer: 5000,
+                showCloseButton: true,
+                toast: true
+            });
+        },
+        complete: function () {
+            // Re-enable the button and reset it to its original state
+            exportBtn.prop('disabled', false);
+            exportBtn.html('<i class="ri-file-excel-2-fill label-icon align-middle fs-16 me-2"></i> Export Users');
+            exportBtn.removeClass('d-flex justify-content-center').addClass('btn-label');
+            exportBtn.css('width', ''); // Remove fixed width so it adapts to content again
+        }
+    });
+});
