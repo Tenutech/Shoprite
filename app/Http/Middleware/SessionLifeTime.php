@@ -23,12 +23,15 @@ class SessionLifeTime
         $sessionTimeout = Setting::where('key', 'session_timeout')->first();
 
         if ($sessionTimeout) {
-            // Convert minutes to minutes, as Laravel expects session lifetime to be in minutes
+            // Use the value from the DB
             $lifetime = (int) $sessionTimeout->value;
-
-            // Set the session lifetime configuration dynamically
-            Config::set('session.lifetime', $lifetime);
+        } else {
+            // Default to 30 minutes
+            $lifetime = 30;
         }
+
+        // Apply the session lifetime
+        Config::set('session.lifetime', $lifetime);
 
         return $next($request);
     }
