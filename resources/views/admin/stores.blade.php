@@ -285,7 +285,7 @@
                                                 <select id="region" name="region" class="form-control">
                                                     <option value="" selected>Select Region</option>
                                                     @foreach ($regions as $region)
-                                                        <option value="{{ $region->id }}">{{ $region->name }}</option>
+                                                        <option value="{{ $region->id }}"> {{ $region->name }} - ({{ $region->division?->name ?? 'N/A' }})</option>
                                                     @endforeach
                                                 </select>
                                             </div>
