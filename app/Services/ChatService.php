@@ -972,7 +972,7 @@ class ChatService
             // Check if a valid mediaId is provided
             if (isset($mediaId)) {
                 // Define the URL to fetch the media details from Meta's API
-                $url = "https://graph.facebook.com/v19.0/$mediaId";
+                $url = "https://graph.facebook.com/v23.0/$mediaId";
                 $response = $client->get($url, [
                     'headers' => ['Authorization' => "Bearer $token"] // Add the authorization token to the request
                 ]);
@@ -3206,7 +3206,7 @@ class ChatService
                 }
 
                 // Prepare the API URL
-                $url = "https://graph.facebook.com/v20.0/$from/messages";
+                $url = "https://graph.facebook.com/v23.0/$from/messages";
 
                 // Initialize the payload with common elements
                 $payload = [
