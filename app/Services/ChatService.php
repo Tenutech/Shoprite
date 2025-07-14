@@ -19,6 +19,8 @@ use App\Jobs\SendIdNumberToSap;
 use App\Jobs\ProcessUserIdNumber;
 use App\Jobs\LogChatMessageJob;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+
 use Twilio\Rest\Client;
 use App\Services\GoogleMapsService;
 use Illuminate\Support\Facades\File;
@@ -3188,6 +3190,13 @@ class ChatService
 
     public function sendAndLogMessages($applicant, $messages, $client, $to, $from, $token)
     {
+        $lockKey = "wa_lock_{$to}";
+
+        if (Cache::has($lockKey)) {
+            Log::warning("Rate limit lock active for {$to}, skipping all messages.");
+            return;
+        }
+
         foreach ($messages as $messageData) { // Ensure $messageData is used to clarify it's an array from messages
             try {
                 // Check if $messageData is a string and adjust accordingly
@@ -3309,7 +3318,9 @@ class ChatService
                     }
                 } elseif ($errorCode === 131056) {
                     // Pair-specific rate limit
+                    Cache::put($lockKey, true, now()->addMinutes(5)); // block user for 1 min
                     Log::warning("Pair rate limit hit for applicant ID {$applicant->id} and number {$to}. Message skipped.");
+                    return; // stop further messages for this user
                 } else {
                     // Generic error handling
                     Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
