@@ -3280,20 +3280,48 @@ class ChatService
                 $errorData = json_decode($responseBody, true);
                 $errorCode = $errorData['error']['code'] ?? null;
 
-                // Check for rate limit error code (#131056)
                 if ($errorCode === 130429) {
-                    // Custom rate limit message to inform the user
-                    $rateLimitMessage = "Rate limit reached. Please be aware of sending too many messages in quick succession. Wait 2 minutes and continue your application.";
-                    $this->sendAndLogMessages($applicant, [$rateLimitMessage], $client, $to, $from, $token);
+                    // Log the error
+                    Log::warning('Rate limit hit for WhatsApp API. Sending rate-limit message directly.');
+
+                    // Prepare safe rate-limit message
+                    $rateLimitMessage = "⚠️ We're experiencing high traffic. Please wait 2 minutes before continuing your application.";
+
+                    // Send rate limit message in a minimal format
+                    try {
+                        $url = "https://graph.facebook.com/v23.0/$from/messages";
+                        $payload = [
+                            'messaging_product' => 'whatsapp',
+                            'to' => $to,
+                            'type' => 'text',
+                            'text' => ['body' => $rateLimitMessage]
+                        ];
+
+                        $client->post($url, [
+                            'headers' => [
+                                'Authorization' => 'Bearer ' . $token,
+                                'Content-Type' => 'application/json'
+                            ],
+                            'body' => json_encode($payload)
+                        ]);
+
+                        // Log the message manually
+                        $this->logMessage($applicant->id, $rateLimitMessage, 2, null, 'Sent - Rate Limit');
+                    } catch (\Exception $ex) {
+                        Log::error('Failed to send rate-limit message: ' . $ex->getMessage());
+                        $this->logMessage($applicant->id, $rateLimitMessage, 2, null, 'Failed - Rate Limit');
+                    }
                 } else {
-                    // Log the error for debugging purposes
                     Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
 
-                    // Get the error message from the method
                     $errorMessage = $this->getErrorMessage();
+                    sleep(1);
 
-                    // Send the error message to the applicant
-                    $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
+                    try {
+                        $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
+                    } catch (\Exception $ex) {
+                        Log::error('Secondary error while sending fallback message: ' . $ex->getMessage());
+                    }
                 }
             }
         }
