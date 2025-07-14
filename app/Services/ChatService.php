@@ -3281,13 +3281,11 @@ class ChatService
                 $errorCode = $errorData['error']['code'] ?? null;
 
                 if ($errorCode === 130429) {
-                    // Log the error
-                    Log::warning('Rate limit hit for WhatsApp API. Sending rate-limit message directly.');
+                    // Global rate limit
+                    Log::warning('Global rate limit hit for WhatsApp API. Sending fallback message directly.');
 
-                    // Prepare safe rate-limit message
                     $rateLimitMessage = "⚠️ We're experiencing high traffic. Please wait 2 minutes before continuing your application.";
 
-                    // Send rate limit message in a minimal format
                     try {
                         $url = "https://graph.facebook.com/v23.0/$from/messages";
                         $payload = [
@@ -3305,17 +3303,23 @@ class ChatService
                             'body' => json_encode($payload)
                         ]);
 
-                        // Log the message manually
-                        $this->logMessage($applicant->id, $rateLimitMessage, 2, null, 'Sent - Rate Limit');
+                        $this->logMessage($applicant->id, $rateLimitMessage, 2, null, 'Sent - Global Rate Limit');
                     } catch (\Exception $ex) {
-                        Log::error('Failed to send rate-limit message: ' . $ex->getMessage());
-                        $this->logMessage($applicant->id, $rateLimitMessage, 2, null, 'Failed - Rate Limit');
+                        Log::error('Failed to send global rate-limit message: ' . $ex->getMessage());
+                        $this->logMessage($applicant->id, $rateLimitMessage, 2, null, 'Failed - Global Rate Limit');
                     }
+
+                } elseif ($errorCode === 131056) {
+                    // Pair-specific rate limit
+                    Log::warning("Pair rate limit hit for applicant ID {$applicant->id} and number {$to}. Message skipped.");
+                    $this->logMessage($applicant->id, 'Pair rate limit hit', 2, null, 'Failed - Pair Rate Limit');
+
                 } else {
+                    // Generic error handling
                     Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
 
                     $errorMessage = $this->getErrorMessage();
-                    sleep(1);
+                    sleep(1); // brief delay to reduce pressure on API
 
                     try {
                         $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
