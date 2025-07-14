@@ -3278,9 +3278,10 @@ class ChatService
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 $responseBody = $e->getResponse()->getBody()->getContents();
                 $errorData = json_decode($responseBody, true);
+                $errorCode = $errorData['error']['code'] ?? null;
 
                 // Check for rate limit error code (#131056)
-                if (isset($errorData['error']['code']) && $errorData['error']['code'] == 131056) {
+                if ($errorCode === 130429) {
                     // Custom rate limit message to inform the user
                     $rateLimitMessage = "Rate limit reached. Please be aware of sending too many messages in quick succession. Wait 2 minutes and continue your application.";
                     $this->sendAndLogMessages($applicant, [$rateLimitMessage], $client, $to, $from, $token);
