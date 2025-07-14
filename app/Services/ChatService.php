@@ -3303,17 +3303,13 @@ class ChatService
                             'body' => json_encode($payload)
                         ]);
 
-                        $this->logMessage($applicant->id, $rateLimitMessage, 2, null, 'Sent - Global Rate Limit');
+                        $this->logMessage($applicant->id, $rateLimitMessage, 2, null, 'Sent', null);
                     } catch (\Exception $ex) {
                         Log::error('Failed to send global rate-limit message: ' . $ex->getMessage());
-                        $this->logMessage($applicant->id, $rateLimitMessage, 2, null, 'Failed - Global Rate Limit');
                     }
-
                 } elseif ($errorCode === 131056) {
                     // Pair-specific rate limit
                     Log::warning("Pair rate limit hit for applicant ID {$applicant->id} and number {$to}. Message skipped.");
-                    $this->logMessage($applicant->id, 'Pair rate limit hit', 2, null, 'Failed - Pair Rate Limit');
-
                 } else {
                     // Generic error handling
                     Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
