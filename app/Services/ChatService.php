@@ -3193,7 +3193,7 @@ class ChatService
         $lockKey = "wa_lock_{$to}";
 
         if (Cache::has($lockKey)) {
-            Log::warning("Rate limit lock active for {$to}, skipping all messages.");
+            // Log::warning("Rate limit lock active for {$to}, skipping all messages.");
             return;
         }
 
@@ -3319,7 +3319,7 @@ class ChatService
                 } elseif ($errorCode === 131056) {
                     // Pair-specific rate limit
                     Cache::put($lockKey, true, now()->addMinutes(5)); // block user for 1 min
-                    // Log::warning("Pair rate limit hit for applicant ID {$applicant->id} and number {$to}. Message skipped.");
+                    Log::warning("Pair rate limit hit for applicant ID {$applicant->id} and number {$to}. Message skipped.");
                     return; // stop further messages for this user
                 } else {
                     // Generic error handling
