@@ -1027,7 +1027,7 @@ Route::get('/terms-of-service', [App\Http\Controllers\HomeController::class, 'te
 Route::get('/security', [App\Http\Controllers\HomeController::class, 'security'])->name('security');
 
 //Shoops
-Route::post('/shoops', [App\Http\Controllers\ShoopsController::class, 'shoops'])->name('shoops');
+Route::post('/shoops', [App\Http\Controllers\ShoopsController::class, 'shoops'])->middleware('block.phones')->name('shoops');
 
 Route::get('/shoops', function(Request $request) {
     $hubVerifyToken = "RECRUITMENT";
