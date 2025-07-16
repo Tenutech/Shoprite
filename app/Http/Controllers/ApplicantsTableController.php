@@ -90,6 +90,9 @@ class ApplicantsTableController extends Controller
             // States
             $states = State::get();
 
+            // Users
+            $users = User::where('role_id', '<=', 6)->get();
+
             return view('admin/applicants-table', [
                 'applicants' => $applicants,
                 'genders' => $genders,
@@ -97,7 +100,8 @@ class ApplicantsTableController extends Controller
                 'educations' => $educations,
                 'brands' => $brands,
                 'races' => $races,
-                'states' => $states
+                'states' => $states,
+                'users' => $users,
             ]);
         }
         return view('404');
@@ -122,7 +126,8 @@ class ApplicantsTableController extends Controller
                 'duration',
                 'brands',
                 'state',
-                'latestInterview'
+                'latestInterview',
+                'savedBy'
             ])->findOrFail($applicantID);
 
             $latitude = '';
@@ -164,6 +169,8 @@ class ApplicantsTableController extends Controller
         //Applicant
         $applicant = Applicant::findOrFail($applicantId);
 
+        Log::info($request->saved_by);
+
         //Validate Input
         $request->validate([
             'firstname' => ['required', 'string', 'max:191'],
@@ -198,6 +205,16 @@ class ApplicantsTableController extends Controller
             'environment' => ['required', 'in:Yes,No'],
             'disability' => ['required', 'in:Yes,No'],
             'state_id' => ['required', 'integer', 'exists:states,id'],
+            'saved_by' => ['nullable', 'array'],
+            'saved_by.*' => [
+                'numeric',
+                function ($attribute, $value, $fail) {
+                    $user = \App\Models\User::where('id', $value)->where('role_id', '<=', 6)->first();
+                    if (!$user) {
+                        $fail("The selected user for $attribute is invalid.");
+                    }
+                }
+            ],
         ]);
 
         try {
@@ -305,6 +322,23 @@ class ApplicantsTableController extends Controller
                     $applicant->appointed_id = null;
                     $applicant->save();
                 }
+            }
+
+            // Saved-by → pivot sync
+            if ($request->filled('saved_by')) {
+                // Remove duplicates, prepare timestamps for pivot
+                $savedByIds   = array_unique($request->input('saved_by'));
+
+                // if you need created_at / updated_at on the pivot:
+                $timestamped  = array_fill_keys(
+                    $savedByIds,
+                    ['created_at' => now(), 'updated_at' => now()]
+                );
+
+                $applicant->savedBy()->sync($timestamped);   // keeps only submitted IDs
+            } else {
+                // No users selected → detach all existing links
+                $applicant->savedBy()->detach();
             }
 
             DB::commit(); // Commit the transaction

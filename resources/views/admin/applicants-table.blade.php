@@ -542,6 +542,17 @@
                                                     <input type="number" id="interview" name="interview_id" class="form-control" placeholder="Enter interview ID"/>
                                                 </div>
                                                 <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="savedBy" class="form-label">
+                                                        Saved By
+                                                    </label>
+                                                    <select id="savedBy" name="saved_by[]" class="form-control" multiple>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->firstname }} {{ $user->lastname }}@if ($user->role_id == 6 && $user->store) - ({{ optional($user->store->brand)->name ?? 'N/A' }} - {{ $user->store->name ?? 'N/A' }})@endif</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
                                             </div>
                                             <!--end col-->
                                         </div>

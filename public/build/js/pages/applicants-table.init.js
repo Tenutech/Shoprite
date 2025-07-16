@@ -193,6 +193,7 @@ var idField = document.getElementById("field-id"),
     shortlist = document.getElementById("shortlist"),
     appointed = document.getElementById("appointed"),
     interview = document.getElementById("interview"),
+    savedBy = document.getElementById("savedBy"),
     editBtn = document.getElementById("edit-btn"),
     removeBtns = document.getElementsByClassName("remove-item-btn"),
     editBtns = document.getElementsByClassName("edit-item-btn");
@@ -271,6 +272,17 @@ var disabilityVal = new Choices(disability, {
 var stateVal = new Choices(state, {
     searchEnabled: false,
     shouldSort: false
+});
+
+var savedByVal = new Choices(savedBy, {
+    searchEnabled: true,  // Enable search if not needed
+    shouldSort: true,     // Enable sorting
+    removeItemButton: true,  // Enable item removal by showing a remove button
+    duplicateItemsAllowed: false,  // Prevent duplicate selections
+    placeholderValue: 'Select Users',  // Optional: Add a placeholder
+    removeItems: true,   // Allow items to be removed
+    removeItemButton: true,  // Show the "x" button for removable items
+    itemSelectText: ''  // Prevent extra text appearing when selecting
 });
 
 /*
@@ -615,6 +627,13 @@ function refreshCallbacks() {
                 }
 
                 appointed.value = data.applicant.appointed_id;
+
+                // Set saved_by values (array of users who saved the applicant)
+                if (data.applicant.saved_by && Array.isArray(data.applicant.saved_by)) {
+                    data.applicant.saved_by.forEach(function(user) {
+                        savedByVal.setChoiceByValue(user.id.toString());
+                    });
+                }
             });
         }
     });
@@ -746,6 +765,8 @@ function clearFields() {
     appointed.value = "";
 
     interview.value = "";
+
+    savedByVal.removeActiveItems();
 }
 
 // Delete All Records
