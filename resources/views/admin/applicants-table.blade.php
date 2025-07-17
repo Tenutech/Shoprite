@@ -101,7 +101,7 @@
                                                         <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
                                                     </div>
                                                 </th>
-                                                <td class="id d-none">{{ Crypt::encryptstring($applicant->id) }}</td>
+                                                <td class="id d-none">{{ $applicant->encrypted_id }}</td>
                                                 <td class="name">
                                                     <div class="d-flex align-items-center">
                                                         <div class="flex-shrink-0">

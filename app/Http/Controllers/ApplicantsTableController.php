@@ -58,21 +58,33 @@ class ApplicantsTableController extends Controller
     {
         if (view()->exists('admin.applicants-table')) {
             // Applicants
-            $applicants = Applicant::with([
-                'town',
-                'gender',
-                'race',
-                'education',
-                'duration',
-                'brands',
-                'state',
-                'vacancyFill.vacancy.store.brand',
-                'vacancyFill.vacancy.type'
-            ])
-            ->orderby('firstname')
-            ->orderby('lastname')
-            ->take(10)
-            ->get();
+            $applicants = Applicant::select([
+                    'id', 'firstname', 'lastname', 'id_number', 'phone', 'employment',
+                    'state_id', 'town_id', 'gender_id', 'race_id', 'score',
+                    'email', 'age', 'user_delete', 'appointed_id', 'avatar'
+                ])
+                ->with([
+                    'town:id,name',
+                    'gender:id,name',
+                    'race:id,name',
+                    'education:id,name',
+                    'duration:id,name',
+                    'brands:id,name',
+                    'state:id,name',
+                    'vacancyFill:id,applicant_id,vacancy_id',
+                    'vacancyFill.vacancy:id,store_id,type_id',
+                    'vacancyFill.vacancy.store:id,brand_id,name',
+                    'vacancyFill.vacancy.store.brand:id,name',
+                    'vacancyFill.vacancy.type:id,name',
+                ])
+                ->orderBy('firstname')
+                ->orderBy('lastname')
+                ->take(10)
+                ->get()
+                ->transform(function ($applicant) {
+                    $applicant->encrypted_id = Crypt::encryptString($applicant->id);
+                    return $applicant;
+                });
 
             // Genders
             $genders = Gender::all();
@@ -516,21 +528,33 @@ class ApplicantsTableController extends Controller
                 if ($employmentCode) {
                     $query->orWhere('employment', $employmentCode);
                 } else {
-                    // Otherwise, apply general multi-field fuzzy search
+                    // Custom numeric detection
                     foreach ($terms as $term) {
                         $query->where(function ($q) use ($term) {
-                            $q->whereRaw('LOWER(firstname) LIKE ?', ["%$term%"])
-                                ->orWhereRaw('LOWER(lastname) LIKE ?', ["%$term%"])
-                                ->orWhere('id_number', 'like', "$term%")
-                                ->orWhereRaw('LOWER(phone) LIKE ?', ["%$term%"])
-                                ->orWhereRaw('LOWER(employment) LIKE ?', ["%$term%"])
-                                ->orWhereRaw('LOWER(email) LIKE ?', ["%$term%"])
-                                ->orWhereRaw('LOWER(age) LIKE ?', ["%$term%"])
-                                ->orWhereRaw('LOWER(score) LIKE ?', ["%$term%"])
-                                ->orWhereHas('state', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
-                                ->orWhereHas('town', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
-                                ->orWhereHas('gender', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
-                                ->orWhereHas('race', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]));
+                            // Check if search term starts with a digit
+                            if (is_numeric($term)) {
+                                if (strlen($term) === 1) {
+                                    // 1-digit search – still allow score
+                                    $q->orWhere('id_number', 'like', "$term%")
+                                    ->orWhere('phone', 'like', "$term%")
+                                    ->orWhere('score', 'like', "$term%");
+                                } else {
+                                    // Multi-digit search – only id_number and phone
+                                    $q->orWhere('id_number', 'like', "$term%")
+                                    ->orWhere('phone', 'like', "$term%");
+                                }
+                            } else {
+                                // Fallback full fuzzy text search
+                                $q->whereRaw('LOWER(firstname) LIKE ?', ["%$term%"])
+                                    ->orWhereRaw('LOWER(lastname) LIKE ?', ["%$term%"])
+                                    ->orWhereRaw('LOWER(email) LIKE ?', ["%$term%"])
+                                    ->orWhereRaw('LOWER(employment) LIKE ?', ["%$term%"])
+                                    ->orWhereRaw('LOWER(age) LIKE ?', ["%$term%"])
+                                    ->orWhereHas('state', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
+                                    ->orWhereHas('town', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
+                                    ->orWhereHas('gender', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
+                                    ->orWhereHas('race', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]));
+                            }
                         });
                     }
                 }
