@@ -559,7 +559,6 @@ class ApplicantsTableController extends Controller
                                 $q->whereRaw('LOWER(firstname) LIKE ?', ["%$term%"])
                                 ->orWhereRaw('LOWER(lastname) LIKE ?', ["%$term%"])
                                 ->orWhereRaw('LOWER(email) LIKE ?', ["%$term%"])
-                                ->orWhereRaw('LOWER(employment) LIKE ?', ["%$term%"])
                                 ->orWhereHas('state', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
                                 ->orWhereHas('town', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
                                 ->orWhereHas('gender', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
