@@ -532,28 +532,38 @@ class ApplicantsTableController extends Controller
                     foreach ($terms as $term) {
                         $query->where(function ($q) use ($term) {
                             // Check if search term starts with a digit
-                            if (is_numeric($term)) {
-                                if (strlen($term) === 1) {
-                                    // 1-digit search – still allow score
+                            if (str_starts_with($term, '+')) {
+                                // International phone number
+                                $q->orWhere('phone', 'like', "$term%");
+                            } elseif (is_numeric($term)) {
+                                $length = strlen($term);
+
+                                if ($length === 1) {
+                                    // 1-digit: include id_number, phone, score, and age
                                     $q->orWhere('id_number', 'like', "$term%")
                                     ->orWhere('phone', 'like', "$term%")
-                                    ->orWhere('score', 'like', "$term%");
+                                    ->orWhere('score', 'like', "$term%")
+                                    ->orWhere('age', 'like', "$term%");
+                                } elseif ($length === 2) {
+                                    // 2-digit: include age too
+                                    $q->orWhere('id_number', 'like', "$term%")
+                                    ->orWhere('phone', 'like', "$term%")
+                                    ->orWhere('age', 'like', "$term%");
                                 } else {
-                                    // Multi-digit search – only id_number and phone
+                                    // 3+ digits: only id_number and phone
                                     $q->orWhere('id_number', 'like', "$term%")
                                     ->orWhere('phone', 'like', "$term%");
                                 }
                             } else {
-                                // Fallback full fuzzy text search
+                                // General fuzzy text search
                                 $q->whereRaw('LOWER(firstname) LIKE ?', ["%$term%"])
-                                    ->orWhereRaw('LOWER(lastname) LIKE ?', ["%$term%"])
-                                    ->orWhereRaw('LOWER(email) LIKE ?', ["%$term%"])
-                                    ->orWhereRaw('LOWER(employment) LIKE ?', ["%$term%"])
-                                    ->orWhereRaw('LOWER(age) LIKE ?', ["%$term%"])
-                                    ->orWhereHas('state', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
-                                    ->orWhereHas('town', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
-                                    ->orWhereHas('gender', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
-                                    ->orWhereHas('race', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]));
+                                ->orWhereRaw('LOWER(lastname) LIKE ?', ["%$term%"])
+                                ->orWhereRaw('LOWER(email) LIKE ?', ["%$term%"])
+                                ->orWhereRaw('LOWER(employment) LIKE ?', ["%$term%"])
+                                ->orWhereHas('state', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
+                                ->orWhereHas('town', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
+                                ->orWhereHas('gender', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
+                                ->orWhereHas('race', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]));
                             }
                         });
                     }
