@@ -66,6 +66,8 @@ class ApplicantsTableController extends Controller
                 'duration',
                 'brands',
                 'state',
+                'vacancyFill.vacancy.store.brand',
+                'vacancyFill.vacancy.type'
             ])
             ->orderby('firstname')
             ->orderby('lastname')
@@ -452,9 +454,19 @@ class ApplicantsTableController extends Controller
             $perPage = $request->get('per_page', 10); // Default to 10 items per page
             $search = $request->get('search', ''); // Search keyword
 
-            $applicantsQuery = Applicant::with(['town', 'gender', 'race', 'education', 'duration', 'brands', 'state'])
-                ->orderBy('firstname')
-                ->orderBy('lastname');
+            $applicantsQuery = Applicant::with([
+                'town', 
+                'gender', 
+                'race', 
+                'education', 
+                'duration', 
+                'brands', 
+                'state',
+                'vacancyFill.vacancy.store.brand',
+                'vacancyFill.vacancy.type'
+            ])
+            ->orderBy('firstname')
+            ->orderBy('lastname');
 
             // Map human-readable terms to employment codes
             $employmentMapping = [

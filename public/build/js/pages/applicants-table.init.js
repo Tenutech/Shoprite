@@ -701,7 +701,15 @@ function refreshCallbacks() {
                                         <tr>
                                             <td class="fw-medium" scope="row">State</td>
                                             <td>${x._values.state}</td>
-                                        </tr>                                        
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Status</td>
+                                            <td>${x._values.status}</td>
+                                        </tr>
+                                        <tr>
+                                            <td class="fw-medium" scope="row">Appointed</td>
+                                            <td>${x._values.appointed}</td>
+                                        </tr>                                         
                                     </tbody>
                                 </table>
                             </div>
@@ -945,6 +953,28 @@ $(document).on('click', '.pagination a, .pagination-prev, .pagination-next', fun
                     gender: applicant.gender ? applicant.gender.name : '',
                     race: applicant.race ? applicant.race.name : '',
                     score: applicant.score || 'N/A',
+                    status: (() => {
+                        const isDeleted = applicant.user_delete === 'Yes';
+                        const statusLabel = isDeleted ? 'Deleted' : 'Active';
+                        const statusClass = isDeleted ? 'danger' : 'success';
+                        return `<span class="badge bg-${statusClass}-subtle text-${statusClass} text-uppercase">${statusLabel}</span>`;
+                    })(),
+                    appointed: (() => {
+                        const vacancy = applicant.vacancy_fill?.vacancy;
+                        if (vacancy) {
+                            const brand = vacancy.store?.brand?.name || '';
+                            const store = vacancy.store?.name || '';
+                            const type = vacancy.type?.name || '';
+
+                            let appointedText = '';
+                            if (brand) appointedText += brand;
+                            if (store) appointedText += brand ? ` (${store})` : store;
+                            if (type) appointedText += (appointedText ? ' - ' : '') + type;
+
+                            return appointedText || 'N/A';
+                        }
+                        return 'N/A';
+                    })(),
                 });
             });
 
@@ -1041,7 +1071,7 @@ $(document).on('change', '#per-page-select', function () {
             applicantsTableList.clear();
 
             // Add new data to the list
-            response.data.forEach(applicant => {
+            response.data.forEach(applicant => {                
                 applicantsTableList.add({
                     id: applicant.encrypted_id,
                     name: `
@@ -1105,6 +1135,28 @@ $(document).on('change', '#per-page-select', function () {
                     gender: applicant.gender ? applicant.gender.name : '',
                     race: applicant.race ? applicant.race.name : '',
                     score: applicant.score || 'N/A',
+                    status: (() => {
+                        const isDeleted = applicant.user_delete === 'Yes';
+                        const statusLabel = isDeleted ? 'Deleted' : 'Active';
+                        const statusClass = isDeleted ? 'danger' : 'success';
+                        return `<span class="badge bg-${statusClass}-subtle text-${statusClass} text-uppercase">${statusLabel}</span>`;
+                    })(),
+                    appointed: (() => {
+                        const vacancy = applicant.vacancy_fill?.vacancy;
+                        if (vacancy) {
+                            const brand = vacancy.store?.brand?.name || '';
+                            const store = vacancy.store?.name || '';
+                            const type = vacancy.type?.name || '';
+
+                            let appointedText = '';
+                            if (brand) appointedText += brand;
+                            if (store) appointedText += brand ? ` (${store})` : store;
+                            if (type) appointedText += (appointedText ? ' - ' : '') + type;
+
+                            return appointedText || 'N/A';
+                        }
+                        return 'N/A';
+                    })(),
                 });
             });
 
@@ -1229,6 +1281,30 @@ $(document).on('input', '#search', function () {
                             gender: applicant.gender ? applicant.gender.name : '',
                             race: applicant.race ? applicant.race.name : '',
                             score: applicant.score || 'N/A',
+                            status: (() => {
+                                const isDeleted = applicant.user_delete === 'Yes';
+                                const statusLabel = isDeleted ? 'Deleted' : 'Active';
+                                const statusClass = isDeleted ? 'danger' : 'success';
+                                return `<span class="badge bg-${statusClass}-subtle text-${statusClass} text-uppercase">${statusLabel}</span>`;
+                            })(),
+                            appointed: (() => {
+                                const vacancy = applicant.vacancy_fill?.vacancy;
+                                if (vacancy) {
+                                    const brand = vacancy.store?.brand?.name || '';
+                                    const store = vacancy.store?.name || '';
+                                    const type = vacancy.type?.name || '';
+
+                                    let appointedText = '';
+                                    if (brand) appointedText += brand;
+                                    if (store) appointedText += brand ? ` (${store})` : store;
+                                    if (type) appointedText += (appointedText ? ' - ' : '') + type;
+
+                                    console.log(appointedText);
+
+                                    return appointedText || 'N/A';
+                                }
+                                return 'N/A';
+                            })(),
                         });
                     });
 
