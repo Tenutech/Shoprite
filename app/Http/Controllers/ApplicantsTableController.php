@@ -521,7 +521,7 @@ class ApplicantsTableController extends Controller
                         $query->where(function ($q) use ($term) {
                             $q->whereRaw('LOWER(firstname) LIKE ?', ["%$term%"])
                                 ->orWhereRaw('LOWER(lastname) LIKE ?', ["%$term%"])
-                                ->orWhereRaw('LOWER(id_number) LIKE ?', ["%$term%"])
+                                ->orWhere('id_number', 'like', "$term%")
                                 ->orWhereRaw('LOWER(phone) LIKE ?', ["%$term%"])
                                 ->orWhereRaw('LOWER(employment) LIKE ?', ["%$term%"])
                                 ->orWhereRaw('LOWER(email) LIKE ?', ["%$term%"])
