@@ -451,24 +451,34 @@ class ApplicantsTableController extends Controller
     public function fetchApplicants(Request $request)
     {
         try {
-            $perPage = $request->get('per_page', 10); // Default to 10 items per page
-            $search = $request->get('search', ''); // Search keyword
+            // Number of results per page (default 10)
+            $perPage = $request->get('per_page', 10);
 
-            $applicantsQuery = Applicant::with([
-                'town', 
-                'gender', 
-                'race', 
-                'education', 
-                'duration', 
-                'brands', 
-                'state',
-                'vacancyFill.vacancy.store.brand',
-                'vacancyFill.vacancy.type'
-            ])
-            ->orderBy('firstname')
-            ->orderBy('lastname');
+            // Search keyword
+            $search = $request->get('search', '');
 
-            // Map human-readable terms to employment codes
+            // Base query with only required columns
+            $applicantsQuery = Applicant::select([
+                    'id', 'firstname', 'lastname', 'id_number', 'phone',
+                    'employment', 'state_id', 'town_id', 'gender_id',
+                    'race_id', 'score', 'email', 'age', 'user_delete', 'appointed_id'
+                ])
+                ->with([
+                    // Eager-load only 'id' and 'name' for related models
+                    'state:id,name',
+                    'town:id,name',
+                    'gender:id,name',
+                    'race:id,name',
+                    'vacancyFill:id,applicant_id,vacancy_id',
+                    'vacancyFill.vacancy:id,store_id,type_id',
+                    'vacancyFill.vacancy.store:id,brand_id,name',
+                    'vacancyFill.vacancy.store.brand:id,name',
+                    'vacancyFill.vacancy.type:id,name',
+                ])
+                ->orderBy('firstname') // Sort alphabetically
+                ->orderBy('lastname');
+
+            // Map common employment keywords to DB codes
             $employmentMapping = [
                 'inconclusive' => 'I',
                 'active employee' => 'A',
@@ -489,76 +499,111 @@ class ApplicantsTableController extends Controller
 
             $employmentCode = null;
 
-            // Normalize the search term for case-insensitive matching
+            // If a search term is present, check for mapped employment codes
             if (!empty($search)) {
-                $lowerSearch = strtolower($search); // Convert search term to lowercase
-                if (array_key_exists($lowerSearch, $employmentMapping)) {
+                $lowerSearch = strtolower($search);
+                if (isset($employmentMapping[$lowerSearch])) {
                     $employmentCode = $employmentMapping[$lowerSearch];
                 }
             }
 
-            // Apply filters to the query
+            // Apply search filters (if any)
             $applicantsQuery->where(function ($query) use ($search, $employmentCode) {
-                $lowerSearch = strtolower($search); // Normalize search term for all filters
-                $searchTerms = array_filter(explode(' ', $lowerSearch)); // Split search into words and remove empty terms
-            
-                // Filter by employment code if applicable
-                $query->when($employmentCode, function ($q) use ($employmentCode) {
-                    $q->orWhere('employment', $employmentCode);
-                });
-            
-                // Apply case-insensitive search for other fields
-                $query->when(!$employmentCode, function ($q) use ($searchTerms) {
-                    foreach ($searchTerms as $term) {
-                        $q->where(function ($q) use ($term) {
+                $lowerSearch = strtolower($search);
+                $terms = array_filter(explode(' ', $lowerSearch));
+
+                // If the search is a known employment type
+                if ($employmentCode) {
+                    $query->orWhere('employment', $employmentCode);
+                } else {
+                    // Otherwise, apply general multi-field fuzzy search
+                    foreach ($terms as $term) {
+                        $query->where(function ($q) use ($term) {
                             $q->whereRaw('LOWER(firstname) LIKE ?', ["%$term%"])
                                 ->orWhereRaw('LOWER(lastname) LIKE ?', ["%$term%"])
                                 ->orWhereRaw('LOWER(id_number) LIKE ?', ["%$term%"])
                                 ->orWhereRaw('LOWER(phone) LIKE ?', ["%$term%"])
                                 ->orWhereRaw('LOWER(employment) LIKE ?', ["%$term%"])
-                                ->orWhereHas('state', function ($q) use ($term) {
-                                    $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]);
-                                })
                                 ->orWhereRaw('LOWER(email) LIKE ?', ["%$term%"])
-                                ->orWhereHas('town', function ($q) use ($term) {
-                                    $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]);
-                                })
                                 ->orWhereRaw('LOWER(age) LIKE ?', ["%$term%"])
-                                ->orWhereHas('gender', function ($q) use ($term) {
-                                    $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]);
-                                })
-                                ->orWhereHas('race', function ($q) use ($term) {
-                                    $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]);
-                                })
-                                ->orWhereRaw('LOWER(score) LIKE ?', ["%$term%"]);
+                                ->orWhereRaw('LOWER(score) LIKE ?', ["%$term%"])
+                                ->orWhereHas('state', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
+                                ->orWhereHas('town', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
+                                ->orWhereHas('gender', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]))
+                                ->orWhereHas('race', fn($q) => $q->whereRaw('LOWER(name) LIKE ?', ["%$term%"]));
                         });
                     }
-                });
-            });            
+                }
+            });
 
-            $applicants = $applicantsQuery->paginate($perPage);
+            // Use simplePaginate() to avoid expensive total row count (COUNT(*))
+            $applicants = $applicantsQuery->simplePaginate($perPage);
 
-            // Map encrypted_id to each applicant
+            // Encrypt each applicant's ID for frontend use
             $applicants->getCollection()->transform(function ($applicant) {
                 $applicant->encrypted_id = Crypt::encryptString($applicant->id);
                 return $applicant;
             });
 
+            // Return structured JSON response
             return response()->json([
                 'success' => true,
                 'current_page' => $applicants->currentPage(),
-                'last_page' => $applicants->lastPage(),
-                'prev_page_url' => $applicants->previousPageUrl(),
                 'next_page_url' => $applicants->nextPageUrl(),
                 'data' => $applicants->items(),
                 'path' => $applicants->path(),
             ], 200);
+
         } catch (\Exception $e) {
+            // Return error response with debug info
             return response()->json([
                 'success' => false,
                 'message' => 'Failed to fetch applicants!',
                 'error' => $e->getMessage()
             ], 500);
+        }
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Applicant Document Upload
+    |--------------------------------------------------------------------------
+    */
+
+    public function uploadDocument(Request $request, $id)
+    {
+        try {
+            $applicantID = Crypt::decryptString($id);
+            $applicant = Applicant::findOrFail($applicantID);
+
+            // Validate the uploaded file
+            $request->validate([
+                'document' => 'required|file|mimes:pdf,doc,docx,jpg,jpeg,png|max:2048',
+                'document_type' => 'required|string|max:50',
+            ]);
+
+            // Store the document
+            $file = $request->file('document');
+            $path = $file->store('documents', 'public');
+
+            // Create a new Document record
+            $document = new Document();
+            $document->applicant_id = $applicant->id;
+            $document->type = $request->input('document_type');
+            $document->path = $path;
+            $document->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Document uploaded successfully!',
+                'document' => $document,
+            ], 201);
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Failed to upload document!',
+                'error' => $e->getMessage()
+            ], 400);
         }
     }
 }

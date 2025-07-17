@@ -1223,7 +1223,7 @@ $(document).on('input', '#search', function () {
                             name: `
                                 <div class="d-flex align-items-center">
                                     <div class="flex-shrink-0">
-                                        <img src="${applicant.avatar || 'images/avatar.jpg'}" alt="" class="avatar-xs rounded-circle">
+                                        <img src="/${applicant.avatar || 'images/avatar.jpg'}" alt="" class="avatar-xs rounded-circle">
                                     </div>
                                     <div class="flex-grow-1 ms-2 name">${applicant.firstname || ''} ${applicant.lastname || ''}</div>
                                 </div>
@@ -1298,8 +1298,6 @@ $(document).on('input', '#search', function () {
                                     if (brand) appointedText += brand;
                                     if (store) appointedText += brand ? ` (${store})` : store;
                                     if (type) appointedText += (appointedText ? ' - ' : '') + type;
-
-                                    console.log(appointedText);
 
                                     return appointedText || 'N/A';
                                 }
