@@ -29,32 +29,17 @@ class TalentpoolFixedTerm extends Command
      */
     public function handle()
     {
-        // Fetch the auto-placement setting for fixed-term employment
-        $setting = Setting::where('key', 'auto_placed_back_in_talent_pool_fixed_term')->first();
-        $daysLimit = $setting ? (int) $setting->value : 14; // Default to 14 days if not set
+        $scriptPath = base_path('python/commands/talentpool_fixed_term.py');
 
-        // Calculate the cutoff date
-        $expiryDate = Carbon::now()->subDays($daysLimit);
-
-        // Fetch applicants with employment = 'F' who were appointed and their vacancy_fill->created_at is older than the cutoff
-        $applicants = Applicant::whereNotNull('appointed_id')
-            ->where('employment', 'F')
-            ->whereHas('vacancyFill', function ($query) use ($expiryDate) {
-                $query->where('created_at', '<=', $expiryDate);
-            })
-            ->get();
-
-        $count = 0;
-
-        foreach ($applicants as $applicant) {
-            // Remove the appointment details
-            $applicant->appointed_id = null;
-            $applicant->shortlist_id = null;
-            $applicant->save();
-
-            $count++;
+        $result = Process::run("python3 {$scriptPath}");
+    
+        if ($result->successful()) {
+            $this->info(trim($result->output()));
+        } else {
+            $this->error('Python script failed.');
+            Log::error('Talentpool script error', [
+                'error' => $result->errorOutput(),
+            ]);
         }
-
-        $this->info("{$count} fixed-term appointed applicants have been moved back to the talent pool.");
     }
 }
