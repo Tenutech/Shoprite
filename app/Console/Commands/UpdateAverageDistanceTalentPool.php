@@ -7,6 +7,7 @@ use App\Models\Statistic;
 use App\Models\Setting;
 use Carbon\Carbon;
 use App\Services\DataService\ApplicantProximityService;
+use Illuminate\Support\Facades\Process;
 
 class UpdateAverageDistanceTalentPool extends Command
 {
@@ -51,43 +52,16 @@ class UpdateAverageDistanceTalentPool extends Command
     {
         $this->info('Starting calculation and update for average distance talent pool applicants...');
 
-        // Get the type
-        $type = 'all';
+        $scriptPath = base_path('python/commands/talentpool_average_distance.py');
 
-        // Get the id
-        $id = null;
+        $result = Process::run("python {$scriptPath}");
 
-        // Get the start date (first day of the same month, one year ago)
-        $startDate = now()->subYear()->startOfMonth();
-
-        // Get the end date (today)
-        $endDate = now();
-
-        // Retrieve the maximum allowed distance from settings or default to 50km
-        $maxDistanceFromStore = Setting::where('key', 'max_distance_from_store')->value('value') ?? 50;
-
-        // Calculate the average distance of talent pool applicants
-        $averageDistance = $this->applicantProximityService->getAverageDistanceTalentPoolApplicantsDB($type, $id, $startDate, $endDate, $maxDistanceFromStore);
-
-        // Validate the result
-        if ($averageDistance === null) {
-            $this->error('Failed to calculate the average distance. Exiting command.');
+        if ($result->failed()) {
+            $this->error('Python script failed: ' . $result->errorOutput());
             return;
         }
 
-        // Update the statistics table where name = 'average_distance_talent_pool' and role_id is either 1 or 2
-        $affectedRows = Statistic::where('name', 'average_distance_talent_pool')
-            ->whereIn('role_id', [1, 2])
-            ->update([
-                'value' => $averageDistance,
-                'updated_at' => now(),
-            ]);
-
         // Log the outcome
-        if ($affectedRows > 0) {
-            $this->info("Statistics updated successfully! New average distance: $averageDistance km");
-        } else {
-            $this->warn('No records found to update in the statistics table.');
-        }
+        $this->info(trim($result->output()));
     }
 }
