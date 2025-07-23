@@ -246,12 +246,12 @@ class VacancyController extends Controller
                             DB::transaction(function () use ($sapNumber) {
                                 // Get all vacancy fills related to the SAP number
                                 $vacancyFills = $sapNumber->vacancyFills()->get();
-                    
+
                                 // Loop through vacancy fills to update associated applicants
                                 foreach ($vacancyFills as $vacancyFill) {
                                     // Find the applicant where appointed_id = vacancyFill->id
                                     $applicant = Applicant::where('appointed_id', $vacancyFill->id)->first();
-                    
+
                                     if ($applicant) {
                                         // Set appointed_id and shortlist_id to null
                                         $applicant->update([
@@ -260,7 +260,7 @@ class VacancyController extends Controller
                                         ]);
                                     }
                                 }
-                    
+
                                 // Update the associated vacancy fills to set sap_number_id to null
                                 $sapNumber->vacancyFills()->update([
                                     'sap_number_id' => null
@@ -440,12 +440,12 @@ class VacancyController extends Controller
                             DB::transaction(function () use ($sapNumber) {
                                 // Get all vacancy fills related to the SAP number
                                 $vacancyFills = $sapNumber->vacancyFills()->get();
-                    
+
                                 // Loop through vacancy fills to update associated applicants
                                 foreach ($vacancyFills as $vacancyFill) {
                                     // Find the applicant where appointed_id = vacancyFill->id
                                     $applicant = Applicant::where('appointed_id', $vacancyFill->id)->first();
-                    
+
                                     if ($applicant) {
                                         // Set appointed_id and shortlist_id to null
                                         $applicant->update([
@@ -454,7 +454,7 @@ class VacancyController extends Controller
                                         ]);
                                     }
                                 }
-                    
+
                                 // Update the associated vacancy fills to set sap_number_id to null
                                 $sapNumber->vacancyFills()->update([
                                     'sap_number_id' => null
@@ -587,7 +587,7 @@ class VacancyController extends Controller
                     'message' => 'Unauthorized: You do not have permission to delete this vacancy.'
                 ], 403);
             }
-            
+
             // Decrypt the provided ID
             $vacancyId = Crypt::decryptString($id);
 
@@ -600,14 +600,14 @@ class VacancyController extends Controller
                     'message' => 'Vacancy cannot be deleted as it has an active shortlist.'
                 ], 400);
             }
-    
+
             if (!$vacancy->interviews->isEmpty()) {
                 return response()->json([
                     'success' => false,
                     'message' => 'Vacancy cannot be deleted as it has scheduled interviews.'
                 ], 400);
             }
-    
+
             if (!$vacancy->appointed->isEmpty()) {
                 return response()->json([
                     'success' => false,
