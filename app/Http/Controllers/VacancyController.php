@@ -235,13 +235,13 @@ class VacancyController extends Controller
             'open_positions' => 'required|integer|min:1|max:10', // Ensure open positions is a number between 1 and 10
             'sap_numbers' => 'required|array', // Validate that sap_numbers is an array
             'sap_numbers.*' => ['digits:8',
-                function ($attribute, $value, $fail) use ($userID) {
+                function ($attribute, $value, $fail) use ($userID, $store) {
                     $sapNumber = SapNumber::with(['vacancy', 'vacancyFills'])->where('sap_number', $value)->first();
 
                     if ($sapNumber) {
-                        if ($sapNumber->vacancy && $sapNumber->vacancy->user_id !== $userID) {
+                        if ($sapNumber->vacancy && $sapNumber->vacancy->store_id !== $store->id) {
                             $fail('The SAP number ' . $value . ' has already been taken.');
-                        } elseif (!$sapNumber->vacancy || $sapNumber->vacancy->user_id === $userID) {
+                        } elseif (!$sapNumber->vacancy || $sapNumber->vacancy->store_id === $store->id) {
                             // Handle SAP number reassignment without deleting vacancy fills
                             DB::transaction(function () use ($sapNumber) {
                                 // Get all vacancy fills related to the SAP number
@@ -326,7 +326,7 @@ class VacancyController extends Controller
             foreach ($request->sap_numbers as $sap) {
                 $sapNumber = SapNumber::where('sap_number', $sap)->first();
 
-                if ($sapNumber && $sapNumber->vacancy->user_id === $userID) {
+                if ($sapNumber && $sapNumber->vacancy->store_id === $store->id) {
                     // Update the SAP number to the new vacancy after creation
                     $sapNumber->vacancy_id = $vacancy->id;
                     $sapNumber->save();

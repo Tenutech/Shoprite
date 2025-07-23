@@ -87,6 +87,8 @@
                                         <th class="sort d-none" data-sort="gender" scope="col">Gender</th>
                                         <th class="sort d-none" data-sort="race" scope="col">Race</th>
                                         <th class="sort d-none" data-sort="score" scope="col">Score</th>
+                                        <th class="sort d-none" data-sort="score" scope="col">Status</th>
+                                        <th class="sort d-none" data-sort="score" scope="col">Appointed</th>
                                         <th scope="col">Action</th>
                                     </tr>
                                 </thead>
@@ -99,7 +101,7 @@
                                                         <input class="form-check-input" type="checkbox" name="chk_child" value="option1">
                                                     </div>
                                                 </th>
-                                                <td class="id d-none">{{ Crypt::encryptstring($applicant->id) }}</td>
+                                                <td class="id d-none">{{ $applicant->encrypted_id }}</td>
                                                 <td class="name">
                                                     <div class="d-flex align-items-center">
                                                         <div class="flex-shrink-0">
@@ -165,6 +167,30 @@
                                                 <td class="gender d-none">{{ $applicant->gender_id ? $applicant->gender->name : '' }}</td>
                                                 <td class="race d-none">{{ $applicant->race_id ? $applicant->race->name : '' }}</td>
                                                 <td class="score d-none">{{ $applicant->score ? $applicant->score : 'N/A' }}</td>
+                                                <td class="status d-none">
+                                                    @php
+                                                        $userStatus = $applicant->user_delete === 'Yes' ? 'Deleted' : 'Active';
+                                                        $userBadge = $applicant->user_delete === 'Yes' ? 'danger' : 'success';
+                                                    @endphp
+                                                    <span class="badge bg-{{ $userBadge }}-subtle text-{{ $userBadge }} text-uppercase">
+                                                        {{ $userStatus }}
+                                                    </span>
+                                                </td>
+                                                <td class="appointed d-none">
+                                                    @if ($applicant->vacancyFill && $applicant->vacancyFill->vacancy)
+                                                        @php
+                                                            $vacancy = $applicant->vacancyFill->vacancy;
+                                                            $brand = $vacancy->store->brand->name ?? null;
+                                                            $store = $vacancy->store->name ?? null;
+                                                            $type = $vacancy->type->name ?? null;
+
+                                                            $appointedText = trim("{$brand} ({$store}) - {$type}", ' ()-');
+                                                        @endphp
+                                                        {{ $appointedText ?: 'N/A' }}
+                                                    @else
+                                                        N/A
+                                                    @endif
+                                                </td>
                                                 <td>
                                                     <ul class="list-inline hstack gap-2 mb-0">
                                                         <li class="list-inline-item">
@@ -217,6 +243,8 @@
                                             <td class="gender d-none"></td>
                                             <td class="race d-none"></td>
                                             <td class="score d-none"></td>
+                                            <td class="status d-none"></td>
+                                            <td class="appointed d-none"></td>
                                             <td>
                                                 <ul class="list-inline hstack gap-2 mb-0">
                                                     <li class="list-inline-item">
@@ -542,6 +570,17 @@
                                                     <input type="number" id="interview" name="interview_id" class="form-control" placeholder="Enter interview ID"/>
                                                 </div>
                                                 <!--end col-->
+                                                <div class="col-lg-12 mb-3">
+                                                    <label for="savedBy" class="form-label">
+                                                        Saved By
+                                                    </label>
+                                                    <select id="savedBy" name="saved_by[]" class="form-control" multiple>
+                                                        @foreach ($users as $user)
+                                                            <option value="{{ $user->id }}">{{ $user->firstname }} {{ $user->lastname }}@if ($user->role_id == 6 && $user->store) - ({{ optional($user->store->brand)->name ?? 'N/A' }} - {{ $user->store->name ?? 'N/A' }})@endif</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                <!--end col-->
                                             </div>
                                             <!--end col-->
                                         </div>
@@ -650,6 +689,14 @@
                                 </tr>
                                 <tr>
                                     <td class="fw-medium" scope="row">State</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium" scope="row">Status</td>
+                                    <td></td>
+                                </tr>
+                                <tr>
+                                    <td class="fw-medium d-none" scope="row">Appointed</td>
                                     <td></td>
                                 </tr>
                             </tbody>

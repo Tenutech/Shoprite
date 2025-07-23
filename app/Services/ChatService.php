@@ -19,6 +19,8 @@ use App\Jobs\SendIdNumberToSap;
 use App\Jobs\ProcessUserIdNumber;
 use App\Jobs\LogChatMessageJob;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Cache;
+
 use Twilio\Rest\Client;
 use App\Services\GoogleMapsService;
 use Illuminate\Support\Facades\File;
@@ -972,7 +974,7 @@ class ChatService
             // Check if a valid mediaId is provided
             if (isset($mediaId)) {
                 // Define the URL to fetch the media details from Meta's API
-                $url = "https://graph.facebook.com/v19.0/$mediaId";
+                $url = "https://graph.facebook.com/v23.0/$mediaId";
                 $response = $client->get($url, [
                     'headers' => ['Authorization' => "Bearer $token"] // Add the authorization token to the request
                 ]);
@@ -3188,6 +3190,13 @@ class ChatService
 
     public function sendAndLogMessages($applicant, $messages, $client, $to, $from, $token)
     {
+        $lockKey = "wa_lock_{$to}";
+
+        if (Cache::has($lockKey)) {
+            // Log::warning("Rate limit lock active for {$to}, skipping all messages.");
+            return;
+        }
+
         foreach ($messages as $messageData) { // Ensure $messageData is used to clarify it's an array from messages
             try {
                 // Check if $messageData is a string and adjust accordingly
@@ -3206,7 +3215,7 @@ class ChatService
                 }
 
                 // Prepare the API URL
-                $url = "https://graph.facebook.com/v20.0/$from/messages";
+                $url = "https://graph.facebook.com/v23.0/$from/messages";
 
                 // Initialize the payload with common elements
                 $payload = [
@@ -3278,21 +3287,52 @@ class ChatService
             } catch (\GuzzleHttp\Exception\ClientException $e) {
                 $responseBody = $e->getResponse()->getBody()->getContents();
                 $errorData = json_decode($responseBody, true);
+                $errorCode = $errorData['error']['code'] ?? null;
 
-                // Check for rate limit error code (#131056)
-                if (isset($errorData['error']['code']) && $errorData['error']['code'] == 131056) {
-                    // Custom rate limit message to inform the user
-                    $rateLimitMessage = "Rate limit reached. Please be aware of sending too many messages in quick succession. Wait 2 minutes and continue your application.";
-                    $this->sendAndLogMessages($applicant, [$rateLimitMessage], $client, $to, $from, $token);
+                if ($errorCode === 130429) {
+                    // Global rate limit
+                    Log::warning('Global rate limit hit for WhatsApp API. Sending fallback message directly.');
+
+                    $rateLimitMessage = "⚠️ We're experiencing high traffic. Please wait 2 minutes before continuing your application.";
+
+                    try {
+                        $url = "https://graph.facebook.com/v23.0/$from/messages";
+                        $payload = [
+                            'messaging_product' => 'whatsapp',
+                            'to' => $to,
+                            'type' => 'text',
+                            'text' => ['body' => $rateLimitMessage]
+                        ];
+
+                        $client->post($url, [
+                            'headers' => [
+                                'Authorization' => 'Bearer ' . $token,
+                                'Content-Type' => 'application/json'
+                            ],
+                            'body' => json_encode($payload)
+                        ]);
+
+                        $this->logMessage($applicant->id, $rateLimitMessage, 2, null, 'Sent', null);
+                    } catch (\Exception $ex) {
+                        Log::error('Failed to send global rate-limit message: ' . $ex->getMessage());
+                    }
+                } elseif ($errorCode === 131056) {
+                    // Pair-specific rate limit
+                    Cache::put($lockKey, true, now()->addMinutes(5)); // block user for 1 min
+                    Log::warning("Pair rate limit hit for applicant ID {$applicant->id} and number {$to}. Message skipped.");
+                    return; // stop further messages for this user
                 } else {
-                    // Log the error for debugging purposes
+                    // Generic error handling
                     Log::error('Error in sendAndLogMessages: ' . $e->getMessage());
 
-                    // Get the error message from the method
                     $errorMessage = $this->getErrorMessage();
+                    sleep(1); // brief delay to reduce pressure on API
 
-                    // Send the error message to the applicant
-                    $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
+                    try {
+                        $this->sendAndLogMessages($applicant, [$errorMessage], $client, $to, $from, $token);
+                    } catch (\Exception $ex) {
+                        Log::error('Secondary error while sending fallback message: ' . $ex->getMessage());
+                    }
                 }
             }
         }
