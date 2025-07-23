@@ -3,11 +3,9 @@
 namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
-use App\Models\Statistic;
-use App\Models\Setting;
-use Carbon\Carbon;
 use App\Services\DataService\ApplicantProximityService;
-use Illuminate\Support\Facades\Process;
+use Symfony\Component\Process\Process;
+use Symfony\Component\Process\Exception\ProcessFailedException;
 
 class UpdateAverageDistanceTalentPool extends Command
 {
@@ -52,16 +50,28 @@ class UpdateAverageDistanceTalentPool extends Command
     {
         $this->info('Starting calculation and update for average distance talent pool applicants...');
 
+        // Get credentials using config (not env)
+        $dbConnection = config('database.default');
+        $dbConfig = config("database.connections.$dbConnection");
+
+        $env = [
+            'DB_HOST' => $dbConfig['host'],
+            'DB_PORT' => (string) $dbConfig['port'],
+            'DB_DATABASE' => $dbConfig['database'],
+            'DB_USERNAME' => $dbConfig['username'],
+            'DB_PASSWORD' => $dbConfig['password'],
+        ];
+
         $scriptPath = base_path('python/commands/talentpool_average_distance.py');
 
-        $result = Process::run("python {$scriptPath}");
+        $process = new Process(['python', $scriptPath]);
+        $process->setEnv($env);
+        $process->run();
 
-        if ($result->failed()) {
-            $this->error('Python script failed: ' . $result->errorOutput());
-            return;
+        if (!$process->isSuccessful()) {
+            throw new ProcessFailedException($process);
         }
 
-        // Log the outcome
-        $this->info(trim($result->output()));
+        $this->info(trim($process->getOutput()));
     }
 }
