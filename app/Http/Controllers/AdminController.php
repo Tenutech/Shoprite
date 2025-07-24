@@ -135,9 +135,9 @@ class AdminController extends Controller
 
             // Return the 'admin/home' view with the calculated data
             return view('admin/home', [
-                'shortlist' => $shortlist,
-                'vacanciesNoInterview' => $vacanciesNoInterview,
-                'vacanciesNoAppointment' => $vacanciesNoAppointment,
+                'shortlist' => $cachedData['shortlist'],
+                'vacanciesNoInterview' => $cachedData['vacanciesNoInterview'],
+                'vacanciesNoAppointment' => $cachedData['vacanciesNoAppointment'],
             ]);
         }
 
