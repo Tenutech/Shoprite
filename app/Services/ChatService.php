@@ -20,7 +20,6 @@ use App\Jobs\ProcessUserIdNumber;
 use App\Jobs\LogChatMessageJob;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Cache;
-
 use Twilio\Rest\Client;
 use App\Services\GoogleMapsService;
 use Illuminate\Support\Facades\File;
