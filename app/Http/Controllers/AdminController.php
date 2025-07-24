@@ -68,24 +68,6 @@ class AdminController extends Controller
             // Get the current date and calculate the cutoff date based on the delay
             $cutoffDate = Carbon::now()->subDays($delayDays);
 
-            // Query to find the first shortlist where either `applicant_ids` is null/empty OR no interviews exist
-            $shortlist = Shortlist::where('user_id', $authUserId)
-            ->where(function ($query) {
-                // Check if applicant_ids is null or an empty JSON array
-                $query->whereNull('applicant_ids')
-                    ->orWhere('applicant_ids', '=', '')
-                    ->orWhereRaw('JSON_LENGTH(applicant_ids) = 0')
-                    // If applicant_ids is not empty, check that there are no interviews
-                    ->orWhereHas('vacancy', function ($subquery) {
-                        $subquery->doesntHave('interviews');
-                    });
-            })
-            ->whereHas('vacancy', function ($query) {
-                $query->where('deleted', 'No'); // apply this to all shortlist's vacancies
-            })
-            // Apply the created_at condition to all results
-            ->where('created_at', '<=', $cutoffDate)
-            ->first(); // Get the first matching shortlist
 
             // Define the warning period in days
             $warningDays = 4;
@@ -98,29 +80,6 @@ class AdminController extends Controller
             $expiryDateNoInterview = Carbon::now()->subDays($vacancyNoInterviewPostingDays);
             $expiryDateNoInterviewCuttOff = Carbon::now()->subDays($vacancyNoInterviewPostingDays + $warningDays);
 
-            $vacanciesNoInterview = Vacancy::where('user_id', $authUserId)
-                ->where('created_at', '<=', Carbon::now()->subDays($vacancyNoInterviewPostingDays - $warningDays)) // Ensure we are within the warning period
-                ->where('deleted', 'No')
-                ->where('auto_deleted', 'No')
-                ->where(function ($query) {
-                    $query->doesntHave('shortlists') // Vacancies with no shortlists
-                        ->orWhereHas('shortlists', function ($subQuery) {
-                            $subQuery->whereNull('applicant_ids')
-                                    ->orWhereRaw("json_length(applicant_ids) = 0");
-                        });
-                })
-                ->doesntHave('appointed') // Ensure no applicants have been appointed
-                ->doesntHave('interviews') // Ensure no interviews exist
-                ->get()
-                ->map(function ($vacancy) use ($vacancyNoInterviewPostingDays) {
-                    // Calculate the deletion date
-                    $deletionDate = Carbon::parse($vacancy->created_at)->addDays($vacancyNoInterviewPostingDays);
-            
-                    // Calculate remaining days using hours to avoid rounding issues
-                    $vacancy->days_until_deletion = max(0, ceil(Carbon::now()->diffInHours($deletionDate, false) / 24));
-            
-                    return $vacancy;
-                });
 
             // Fetch the vacancy posting duration setting for no appointment
             $vacancyNoAppointmentPostingDurationSetting = Setting::where('key', 'vacancy_posting_duration_no_appointment')->first();
@@ -129,22 +88,50 @@ class AdminController extends Controller
             // Fetch all vacancies older than the specified duration
             $expiryDateNoAppointment = Carbon::now()->subDays($vacancyNoAppointmentPostingDays);
             $expiryDateNoAppointmentCuttOff = Carbon::now()->subDays($vacancyNoAppointmentPostingDays + $warningDays);
-
-            $vacanciesNoAppointment = Vacancy::where('user_id', $authUserId)
-                ->where('created_at', '<=', Carbon::now()->subDays($vacancyNoAppointmentPostingDays - $warningDays)) // Ensure we are within the warning period
-                ->where('deleted', 'No')
-                ->where('auto_deleted', 'No')
-                ->where('open_positions', '>', 0)
-                ->get()
-                ->map(function ($vacancy) use ($vacancyNoAppointmentPostingDays) {
-                    // Calculate the deletion date
-                    $deletionDate = Carbon::parse($vacancy->created_at)->addDays($vacancyNoAppointmentPostingDays);
             
-                    // Calculate remaining days using hours to avoid rounding issues
-                    $vacancy->days_until_deletion = max(0, ceil(Carbon::now()->diffInHours($deletionDate, false) / 24));
+            $cacheKey = "dashboard_index_user_{$authUserId}";
+            $cachedData = cache()->remember($cacheKey, now()->addMinutes(10), function () use ($authUserId, $cutoffDate, $vacancyNoInterviewPostingDays, $warningDays, $vacancyNoAppointmentPostingDays) {
+                $shortlist = Shortlist::where('user_id', $authUserId)
+                    ->where(function ($query) {
+                        $query->whereNull('applicant_ids')
+                              ->orWhere('applicant_ids', '=', '')
+                              ->orWhereRaw('JSON_LENGTH(applicant_ids) = 0')
+                              ->orWhereHas('vacancy', fn($q) => $q->doesntHave('interviews'));
+                    })
+                    ->whereHas('vacancy', fn($q) => $q->where('deleted', 'No'))
+                    ->where('created_at', '<=', $cutoffDate)
+                    ->first();
             
-                    return $vacancy;
-                });
+                $vacanciesNoInterview = Vacancy::where('user_id', $authUserId)
+                    ->where('created_at', '<=', Carbon::now()->subDays($vacancyNoInterviewPostingDays - $warningDays))
+                    ->where('deleted', 'No')
+                    ->where('auto_deleted', 'No')
+                    ->where(function ($query) {
+                        $query->doesntHave('shortlists')
+                            ->orWhereHas('shortlists', fn($q) => $q->whereNull('applicant_ids')->orWhereRaw("json_length(applicant_ids) = 0"));
+                    })
+                    ->doesntHave('appointed')
+                    ->doesntHave('interviews')
+                    ->get()
+                    ->map(fn($vacancy) => tap($vacancy, function ($v) use ($vacancyNoInterviewPostingDays) {
+                        $deletionDate = Carbon::parse($v->created_at)->addDays($vacancyNoInterviewPostingDays);
+                        $v->days_until_deletion = max(0, ceil(Carbon::now()->diffInHours($deletionDate, false) / 24));
+                    }));
+            
+                $vacanciesNoAppointment = Vacancy::where('user_id', $authUserId)
+                    ->where('created_at', '<=', Carbon::now()->subDays($vacancyNoAppointmentPostingDays - $warningDays))
+                    ->where('deleted', 'No')
+                    ->where('auto_deleted', 'No')
+                    ->where('open_positions', '>', 0)
+                    ->get()
+                    ->map(fn($vacancy) => tap($vacancy, function ($v) use ($vacancyNoAppointmentPostingDays) {
+                        $deletionDate = Carbon::parse($v->created_at)->addDays($vacancyNoAppointmentPostingDays);
+                        $v->days_until_deletion = max(0, ceil(Carbon::now()->diffInHours($deletionDate, false) / 24));
+                    }));
+            
+                return compact('shortlist', 'vacanciesNoInterview', 'vacanciesNoAppointment');
+            });
+            
 
             // Return the 'admin/home' view with the calculated data
             return view('admin/home', [
