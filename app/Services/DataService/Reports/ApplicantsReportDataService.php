@@ -161,7 +161,7 @@ class ApplicantsReportDataService
         if ($type !== 'all') {
             $storeIds = Store::when($type === 'store', function ($query) use ($id) {
                     return $query->where('id', $id);
-                })
+            })
                 ->when($type === 'division', function ($query) use ($id) {
                     return $query->where('division_id', $id);
                 })
@@ -228,7 +228,7 @@ class ApplicantsReportDataService
         // Apply type-specific filters
         $query->when($type === 'store', function ($q) use ($id) {
                 return $q->where('stores.id', $id);
-            })
+        })
             ->when($type === 'division', function ($q) use ($id) {
                 return $q->where('stores.division_id', $id);
             })
@@ -291,7 +291,7 @@ class ApplicantsReportDataService
         if ($type !== 'all') {
             $storeIds = Store::when($type === 'store', function ($q) use ($id) {
                     return $q->where('id', $id);
-                })
+            })
                 ->when($type === 'division', function ($q) use ($id) {
                     return $q->where('division_id', $id);
                 })
@@ -369,7 +369,7 @@ class ApplicantsReportDataService
         if ($type !== 'all') {
             $storeIds = Store::when($type === 'store', function ($q) use ($id) {
                     return $q->where('id', $id);
-                })
+            })
                 ->when($type === 'division', function ($q) use ($id) {
                     return $q->where('division_id', $id);
                 })
@@ -538,20 +538,20 @@ class ApplicantsReportDataService
                     $vacancyQuery->whereBetween('vacancy_fills.created_at', [$startDate, $endDate]);
 
                     // Apply geographic filtering based on division, region, or store
-                    if (isset($filters['division_id'])) {
-                        $vacancyQuery->whereHas('store', function ($storeQuery) use ($filters) {
-                            $storeQuery->where('division_id', $filters['division_id']);
-                        });
-                    } elseif (isset($filters['region_id'])) {
-                        $vacancyQuery->whereHas('store', function ($storeQuery) use ($filters) {
-                            $storeQuery->where('region_id', $filters['region_id']);
-                        });
-                    } elseif (isset($filters['store_id'])) {
-                        if (is_array($filters['store_id'])) {
-                            $vacancyQuery->whereIn('store_id', $filters['store_id']);
-                        }
+                if (isset($filters['division_id'])) {
+                    $vacancyQuery->whereHas('store', function ($storeQuery) use ($filters) {
+                        $storeQuery->where('division_id', $filters['division_id']);
+                    });
+                } elseif (isset($filters['region_id'])) {
+                    $vacancyQuery->whereHas('store', function ($storeQuery) use ($filters) {
+                        $storeQuery->where('region_id', $filters['region_id']);
+                    });
+                } elseif (isset($filters['store_id'])) {
+                    if (is_array($filters['store_id'])) {
+                        $vacancyQuery->whereIn('store_id', $filters['store_id']);
                     }
-                });
+                }
+            });
         } else {
             // Default date range filter for applicants
             $query->whereBetween('created_at', [$startDate, $endDate]);
@@ -879,10 +879,12 @@ class ApplicantsReportDataService
             }
 
             // Apply distance-based filtering
-            if ((!isset($filters['shortlisted']) || $filters['shortlisted'] === 'No') &&
+            if (
+                (!isset($filters['shortlisted']) || $filters['shortlisted'] === 'No') &&
                 (!isset($filters['interviewed']) || $filters['interviewed'] === 'No') &&
                 (!isset($filters['appointed']) || $filters['appointed'] === 'No') &&
-                (isset($filters['store_id']) || isset($filters['region_id']) || isset($filters['division_id']))) {
+                (isset($filters['store_id']) || isset($filters['region_id']) || isset($filters['division_id']))
+            ) {
                 $storeQuery = Store::query();
                 if (isset($filters['division_id'])) {
                     $storeQuery->where('division_id', $filters['division_id']);

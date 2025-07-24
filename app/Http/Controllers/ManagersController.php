@@ -434,7 +434,6 @@ class ManagersController extends Controller
             // Return the file as a downloadable response and delete it after sending
             return response()->download($output, basename($output))
                             ->deleteFileAfterSend(true);
-
         } catch (\Exception $e) {
             // Catch any exceptions and return a 400 error with the error message
             return response()->json([

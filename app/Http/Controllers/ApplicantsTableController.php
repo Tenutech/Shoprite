@@ -586,7 +586,6 @@ class ApplicantsTableController extends Controller
                 'data' => $applicants->items(),
                 'path' => $applicants->path(),
             ], 200);
-
         } catch (\Exception $e) {
             // Return error response with debug info
             return response()->json([
