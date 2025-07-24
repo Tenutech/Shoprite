@@ -6,12 +6,6 @@ use Illuminate\Console\Command;
 use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 
-use App\Models\Applicant;
-use App\Models\Shortlist;
-use App\Models\Interview;
-use App\Models\Setting;
-use Carbon\Carbon;
-
 class ShortlistExpiry extends Command
 {
     /**
